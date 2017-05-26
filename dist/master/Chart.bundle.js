@@ -6133,7 +6133,9 @@ return hooks;
 var Chart = require(28)();
 
 require(26)(Chart);
-require(40)(Chart);
+require(39)(Chart);
+
+require(41)(Chart);
 require(22)(Chart);
 require(25)(Chart);
 require(30)(Chart);
@@ -6152,12 +6154,12 @@ require(36)(Chart);
 require(37)(Chart);
 require(38)(Chart);
 
-require(46)(Chart);
-require(44)(Chart);
-require(45)(Chart);
 require(47)(Chart);
+require(45)(Chart);
+require(46)(Chart);
 require(48)(Chart);
 require(49)(Chart);
+require(50)(Chart);
 
 // Controllers must be loaded after elements
 // See Chart.core.datasetController.dataElementType
@@ -6180,9 +6182,9 @@ require(14)(Chart);
 var plugins = [];
 
 plugins.push(
-    require(41)(Chart),
     require(42)(Chart),
-    require(43)(Chart)
+    require(43)(Chart),
+    require(44)(Chart)
 );
 
 Chart.plugins.register(plugins);
@@ -6192,7 +6194,7 @@ if (typeof window !== 'undefined') {
 	window.Chart = Chart;
 }
 
-},{"10":10,"11":11,"12":12,"13":13,"14":14,"15":15,"16":16,"17":17,"18":18,"19":19,"20":20,"21":21,"22":22,"23":23,"24":24,"25":25,"26":26,"27":27,"28":28,"29":29,"30":30,"31":31,"32":32,"33":33,"34":34,"35":35,"36":36,"37":37,"38":38,"40":40,"41":41,"42":42,"43":43,"44":44,"45":45,"46":46,"47":47,"48":48,"49":49,"8":8,"9":9}],8:[function(require,module,exports){
+},{"10":10,"11":11,"12":12,"13":13,"14":14,"15":15,"16":16,"17":17,"18":18,"19":19,"20":20,"21":21,"22":22,"23":23,"24":24,"25":25,"26":26,"27":27,"28":28,"29":29,"30":30,"31":31,"32":32,"33":33,"34":34,"35":35,"36":36,"37":37,"38":38,"39":39,"41":41,"42":42,"43":43,"44":44,"45":45,"46":46,"47":47,"48":48,"49":49,"50":50,"8":8,"9":9}],8:[function(require,module,exports){
 'use strict';
 
 module.exports = function(Chart) {
@@ -12611,7 +12613,9 @@ module.exports = function(Chart) {
 				ticks.push(lastTick);
 
 				return ticks;
-			}
+			},
+
+			time: helpers.time.generateTicks
 		},
 
 		/**
@@ -14127,6 +14131,204 @@ module.exports = function(Chart) {
 },{}],39:[function(require,module,exports){
 'use strict';
 
+var moment = require(6);
+moment = typeof(moment) === 'function' ? moment : window.moment;
+
+module.exports = function(Chart) {
+
+	var interval = {
+		millisecond: {
+			size: 1,
+			steps: [1, 2, 5, 10, 20, 50, 100, 250, 500]
+		},
+		second: {
+			size: 1000,
+			steps: [1, 2, 5, 10, 30]
+		},
+		minute: {
+			size: 60000,
+			steps: [1, 2, 5, 10, 30]
+		},
+		hour: {
+			size: 3600000,
+			steps: [1, 2, 3, 6, 12]
+		},
+		day: {
+			size: 86400000,
+			steps: [1, 2, 5]
+		},
+		week: {
+			size: 604800000,
+			maxStep: 4
+		},
+		month: {
+			size: 2.628e9,
+			maxStep: 3
+		},
+		quarter: {
+			size: 7.884e9,
+			maxStep: 4
+		},
+		year: {
+			size: 3.154e10,
+			maxStep: false
+		}
+	};
+
+	/**
+	 * Helper for generating axis labels.
+	 * @param options {ITimeGeneratorOptions} the options for generation
+	 * @param dataRange {IRange} the data range
+	 * @param niceRange {IRange} the pretty range to display
+	 * @return {Number[]} ticks
+	 */
+	function generateTicksNiceRange(options, dataRange, niceRange) {
+		var ticks = [];
+		if (options.maxTicks) {
+			var stepSize = options.stepSize;
+			ticks.push(options.min !== undefined ? options.min : niceRange.min);
+			var cur = moment(niceRange.min);
+			while (cur.add(stepSize, options.unit).valueOf() < niceRange.max) {
+				ticks.push(cur.valueOf());
+			}
+			var realMax = options.max || niceRange.max;
+			if (ticks[ticks.length - 1] !== realMax) {
+				ticks.push(realMax);
+			}
+		}
+		return ticks;
+	}
+
+	Chart.helpers = Chart.helpers || {};
+
+	Chart.helpers.time = {
+
+		/**
+		 * Helper function to parse time to a moment object
+		 * @param axis {TimeAxis} the time axis
+		 * @param label {Date|string|number|Moment} The thing to parse
+		 * @return {Moment} parsed time
+		 */
+		parseTime: function(axis, label) {
+			var timeOpts = axis.options.time;
+			if (typeof timeOpts.parser === 'string') {
+				return moment(label, timeOpts.parser);
+			}
+			if (typeof timeOpts.parser === 'function') {
+				return timeOpts.parser(label);
+			}
+			if (typeof label.getMonth === 'function' || typeof label === 'number') {
+				// Date objects
+				return moment(label);
+			}
+			if (label.isValid && label.isValid()) {
+				// Moment support
+				return label;
+			}
+			var format = timeOpts.format;
+			if (typeof format !== 'string' && format.call) {
+				// Custom parsing (return an instance of moment)
+				console.warn('options.time.format is deprecated and replaced by options.time.parser.');
+				return format(label);
+			}
+			// Moment format parsing
+			return moment(label, format);
+		},
+
+		/**
+		 * Figure out which is the best unit for the scale
+		 * @param minUnit {String} minimum unit to use
+		 * @param min {Number} scale minimum
+		 * @param max {Number} scale maximum
+		 * @return {String} the unit to use
+		 */
+		determineUnit: function(minUnit, min, max, maxTicks) {
+			var units = Object.keys(interval);
+			var unit;
+			var numUnits = units.length;
+
+			for (var i = units.indexOf(minUnit); i < numUnits; i++) {
+				unit = units[i];
+				var unitDetails = interval[unit];
+				var steps = (unitDetails.steps && unitDetails.steps[unitDetails.steps.length - 1]) || unitDetails.maxStep;
+				if (steps === undefined || Math.ceil((max - min) / (steps * unitDetails.size)) <= maxTicks) {
+					break;
+				}
+			}
+
+			return unit;
+		},
+
+		/**
+		 * Determines how we scale the unit
+		 * @param min {Number} the scale minimum
+		 * @param max {Number} the scale maximum
+		 * @param unit {String} the unit determined by the {@see determineUnit} method
+		 * @return {Number} the axis step size as a multiple of unit
+		 */
+		determineStepSize: function(min, max, unit, maxTicks) {
+			// Using our unit, figure out what we need to scale as
+			var unitDefinition = interval[unit];
+			var unitSizeInMilliSeconds = unitDefinition.size;
+			var sizeInUnits = Math.ceil((max - min) / unitSizeInMilliSeconds);
+			var multiplier = 1;
+			var range = max - min;
+
+			if (unitDefinition.steps) {
+				// Have an array of steps
+				var numSteps = unitDefinition.steps.length;
+				for (var i = 0; i < numSteps && sizeInUnits > maxTicks; i++) {
+					multiplier = unitDefinition.steps[i];
+					sizeInUnits = Math.ceil(range / (unitSizeInMilliSeconds * multiplier));
+				}
+			} else {
+				while (sizeInUnits > maxTicks && maxTicks > 0) {
+					++multiplier;
+					sizeInUnits = Math.ceil(range / (unitSizeInMilliSeconds * multiplier));
+				}
+			}
+
+			return multiplier;
+		},
+
+		/**
+		 * @function generateTicks
+		 * @param options {ITimeGeneratorOptions} the options for generation
+		 * @param dataRange {IRange} the data range
+		 * @return {Number[]} ticks
+		 */
+		generateTicks: function(options, dataRange) {
+			var niceMin;
+			var niceMax;
+			var isoWeekday = options.isoWeekday;
+			if (options.unit === 'week' && isoWeekday !== false) {
+				niceMin = moment(dataRange.min).startOf('isoWeek').isoWeekday(isoWeekday).valueOf();
+				niceMax = moment(dataRange.max).startOf('isoWeek').isoWeekday(isoWeekday);
+				if (dataRange.max - niceMax > 0) {
+					niceMax.add(1, 'week');
+				}
+				niceMax = niceMax.valueOf();
+			} else {
+				niceMin = moment(dataRange.min).startOf(options.unit).valueOf();
+				niceMax = moment(dataRange.max).startOf(options.unit);
+				if (dataRange.max - niceMax > 0) {
+					niceMax.add(1, options.unit);
+				}
+				niceMax = niceMax.valueOf();
+			}
+			return generateTicksNiceRange(options, dataRange, {
+				min: niceMin,
+				max: niceMax
+			});
+		}
+
+	};
+
+};
+
+},{"6":6}],40:[function(require,module,exports){
+'use strict';
+
 // Chart.Platform implementation for targeting a web browser
 module.exports = function(Chart) {
 	var helpers = Chart.helpers;
@@ -14409,12 +14611,12 @@ module.exports = function(Chart) {
 	};
 };
 
-},{}],40:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 'use strict';
 
 // By default, select the browser (DOM) platform.
 // @TODO Make possible to select another platform at build time.
-var implementation = require(39);
+var implementation = require(40);
 
 module.exports = function(Chart) {
 	/**
@@ -14480,7 +14682,7 @@ module.exports = function(Chart) {
 	Chart.helpers.extend(Chart.platform, implementation(Chart));
 };
 
-},{"39":39}],41:[function(require,module,exports){
+},{"40":40}],42:[function(require,module,exports){
 'use strict';
 
 module.exports = function(Chart) {
@@ -14791,7 +14993,7 @@ module.exports = function(Chart) {
 	};
 };
 
-},{}],42:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 'use strict';
 
 module.exports = function(Chart) {
@@ -15337,7 +15539,7 @@ module.exports = function(Chart) {
 	};
 };
 
-},{}],43:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 'use strict';
 
 module.exports = function(Chart) {
@@ -15565,7 +15767,7 @@ module.exports = function(Chart) {
 	};
 };
 
-},{}],44:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 'use strict';
 
 module.exports = function(Chart) {
@@ -15699,7 +15901,7 @@ module.exports = function(Chart) {
 
 };
 
-},{}],45:[function(require,module,exports){
+},{}],46:[function(require,module,exports){
 'use strict';
 
 module.exports = function(Chart) {
@@ -15891,7 +16093,7 @@ module.exports = function(Chart) {
 
 };
 
-},{}],46:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 'use strict';
 
 module.exports = function(Chart) {
@@ -15999,7 +16201,7 @@ module.exports = function(Chart) {
 	});
 };
 
-},{}],47:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 'use strict';
 
 module.exports = function(Chart) {
@@ -16247,7 +16449,7 @@ module.exports = function(Chart) {
 
 };
 
-},{}],48:[function(require,module,exports){
+},{}],49:[function(require,module,exports){
 'use strict';
 
 module.exports = function(Chart) {
@@ -16772,7 +16974,7 @@ module.exports = function(Chart) {
 
 };
 
-},{}],49:[function(require,module,exports){
+},{}],50:[function(require,module,exports){
 /* global window: false */
 'use strict';
 
@@ -16782,44 +16984,7 @@ moment = typeof(moment) === 'function' ? moment : window.moment;
 module.exports = function(Chart) {
 
 	var helpers = Chart.helpers;
-	var interval = {
-		millisecond: {
-			size: 1,
-			steps: [1, 2, 5, 10, 20, 50, 100, 250, 500]
-		},
-		second: {
-			size: 1000,
-			steps: [1, 2, 5, 10, 30]
-		},
-		minute: {
-			size: 60000,
-			steps: [1, 2, 5, 10, 30]
-		},
-		hour: {
-			size: 3600000,
-			steps: [1, 2, 3, 6, 12]
-		},
-		day: {
-			size: 86400000,
-			steps: [1, 2, 5]
-		},
-		week: {
-			size: 604800000,
-			maxStep: 4
-		},
-		month: {
-			size: 2.628e9,
-			maxStep: 3
-		},
-		quarter: {
-			size: 7.884e9,
-			maxStep: 4
-		},
-		year: {
-			size: 3.154e10,
-			maxStep: false
-		}
-	};
+	var timeHelpers = helpers.time;
 
 	var defaultConfig = {
 		position: 'bottom',
@@ -16851,149 +17016,6 @@ module.exports = function(Chart) {
 		}
 	};
 
-	/**
-	 * Helper function to parse time to a moment object
-	 * @param axis {TimeAxis} the time axis
-	 * @param label {Date|string|number|Moment} The thing to parse
-	 * @return {Moment} parsed time
-	 */
-	function parseTime(axis, label) {
-		var timeOpts = axis.options.time;
-		if (typeof timeOpts.parser === 'string') {
-			return moment(label, timeOpts.parser);
-		}
-		if (typeof timeOpts.parser === 'function') {
-			return timeOpts.parser(label);
-		}
-		if (typeof label.getMonth === 'function' || typeof label === 'number') {
-			// Date objects
-			return moment(label);
-		}
-		if (label.isValid && label.isValid()) {
-			// Moment support
-			return label;
-		}
-		var format = timeOpts.format;
-		if (typeof format !== 'string' && format.call) {
-			// Custom parsing (return an instance of moment)
-			console.warn('options.time.format is deprecated and replaced by options.time.parser.');
-			return format(label);
-		}
-		// Moment format parsing
-		return moment(label, format);
-	}
-
-	/**
-	 * Figure out which is the best unit for the scale
-	 * @param minUnit {String} minimum unit to use
-	 * @param min {Number} scale minimum
-	 * @param max {Number} scale maximum
-	 * @return {String} the unit to use
-	 */
-	function determineUnit(minUnit, min, max, maxTicks) {
-		var units = Object.keys(interval);
-		var unit;
-		var numUnits = units.length;
-
-		for (var i = units.indexOf(minUnit); i < numUnits; i++) {
-			unit = units[i];
-			var unitDetails = interval[unit];
-			var steps = (unitDetails.steps && unitDetails.steps[unitDetails.steps.length - 1]) || unitDetails.maxStep;
-			if (steps === undefined || Math.ceil((max - min) / (steps * unitDetails.size)) <= maxTicks) {
-				break;
-			}
-		}
-
-		return unit;
-	}
-
-	/**
-	 * Determines how we scale the unit
-	 * @param min {Number} the scale minimum
-	 * @param max {Number} the scale maximum
-	 * @param unit {String} the unit determined by the {@see determineUnit} method
-	 * @return {Number} the axis step size as a multiple of unit
-	 */
-	function determineStepSize(min, max, unit, maxTicks) {
-		// Using our unit, figoure out what we need to scale as
-		var unitDefinition = interval[unit];
-		var unitSizeInMilliSeconds = unitDefinition.size;
-		var sizeInUnits = Math.ceil((max - min) / unitSizeInMilliSeconds);
-		var multiplier = 1;
-		var range = max - min;
-
-		if (unitDefinition.steps) {
-			// Have an array of steps
-			var numSteps = unitDefinition.steps.length;
-			for (var i = 0; i < numSteps && sizeInUnits > maxTicks; i++) {
-				multiplier = unitDefinition.steps[i];
-				sizeInUnits = Math.ceil(range / (unitSizeInMilliSeconds * multiplier));
-			}
-		} else {
-			while (sizeInUnits > maxTicks && maxTicks > 0) {
-				++multiplier;
-				sizeInUnits = Math.ceil(range / (unitSizeInMilliSeconds * multiplier));
-			}
-		}
-
-		return multiplier;
-	}
-
-	/**
-	 * Helper for generating axis labels.
-	 * @param options {ITimeGeneratorOptions} the options for generation
-	 * @param dataRange {IRange} the data range
-	 * @param niceRange {IRange} the pretty range to display
-	 * @return {Number[]} ticks
-	 */
-	function generateTicks(options, dataRange, niceRange) {
-		var ticks = [];
-		if (options.maxTicks) {
-			var stepSize = options.stepSize;
-			ticks.push(options.min !== undefined ? options.min : niceRange.min);
-			var cur = moment(niceRange.min);
-			while (cur.add(stepSize, options.unit).valueOf() < niceRange.max) {
-				ticks.push(cur.valueOf());
-			}
-			var realMax = options.max || niceRange.max;
-			if (ticks[ticks.length - 1] !== realMax) {
-				ticks.push(realMax);
-			}
-		}
-		return ticks;
-	}
-
-	/**
-	 * @function Chart.Ticks.generators.time
-	 * @param options {ITimeGeneratorOptions} the options for generation
-	 * @param dataRange {IRange} the data range
-	 * @return {Number[]} ticks
-	 */
-	Chart.Ticks.generators.time = function(options, dataRange) {
-		var niceMin;
-		var niceMax;
-		var isoWeekday = options.isoWeekday;
-		if (options.unit === 'week' && isoWeekday !== false) {
-			niceMin = moment(dataRange.min).startOf('isoWeek').isoWeekday(isoWeekday).valueOf();
-			niceMax = moment(dataRange.max).startOf('isoWeek').isoWeekday(isoWeekday);
-			if (dataRange.max - niceMax > 0) {
-				niceMax.add(1, 'week');
-			}
-			niceMax = niceMax.valueOf();
-		} else {
-			niceMin = moment(dataRange.min).startOf(options.unit).valueOf();
-			niceMax = moment(dataRange.max).startOf(options.unit);
-			if (dataRange.max - niceMax > 0) {
-				niceMax.add(1, options.unit);
-			}
-			niceMax = niceMax.valueOf();
-		}
-		return generateTicks(options, dataRange, {
-			min: niceMin,
-			max: niceMax
-		});
-	};
-
 	var TimeScale = Chart.Scale.extend({
 		initialize: function() {
 			if (!moment) {
@@ -17019,7 +17041,7 @@ module.exports = function(Chart) {
 			var timestamp;
 
 			helpers.each(chartData.labels, function(label, labelIndex) {
-				var labelMoment = parseTime(me, label);
+				var labelMoment = timeHelpers.parseTime(me, label);
 
 				if (labelMoment.isValid()) {
 					// We need to round the time
@@ -17042,7 +17064,7 @@ module.exports = function(Chart) {
 				if (typeof dataset.data[0] === 'object' && dataset.data[0] !== null && me.chart.isDatasetVisible(datasetIndex)) {
 					// We have potential point data, so we need to parse this
 					helpers.each(dataset.data, function(value, dataIndex) {
-						var dataMoment = parseTime(me, me.getRightValue(value));
+						var dataMoment = timeHelpers.parseTime(me, me.getRightValue(value));
 
 						if (dataMoment.isValid()) {
 							if (timeOpts.round) {
@@ -17077,7 +17099,7 @@ module.exports = function(Chart) {
 			var dataMax = me.dataMax;
 
 			if (timeOpts.min) {
-				var minMoment = parseTime(me, timeOpts.min);
+				var minMoment = timeHelpers.parseTime(me, timeOpts.min);
 				if (timeOpts.round) {
 					minMoment.round(timeOpts.round);
 				}
@@ -17085,15 +17107,15 @@ module.exports = function(Chart) {
 			}
 
 			if (timeOpts.max) {
-				maxTimestamp = parseTime(me, timeOpts.max).valueOf();
+				maxTimestamp = timeHelpers.parseTime(me, timeOpts.max).valueOf();
 			}
 
 			var maxTicks = me.getLabelCapacity(minTimestamp || dataMin);
-			var unit = timeOpts.unit || determineUnit(timeOpts.minUnit, minTimestamp || dataMin, maxTimestamp || dataMax, maxTicks);
+			var unit = timeOpts.unit || timeHelpers.determineUnit(timeOpts.minUnit, minTimestamp || dataMin, maxTimestamp || dataMax, maxTicks);
 			me.displayFormat = timeOpts.displayFormats[unit];
 
-			var stepSize = timeOpts.stepSize || determineStepSize(minTimestamp || dataMin, maxTimestamp || dataMax, unit, maxTicks);
-			me.ticks = Chart.Ticks.generators.time({
+			var stepSize = timeOpts.stepSize || timeHelpers.determineStepSize(minTimestamp || dataMin, maxTimestamp || dataMax, unit, maxTicks);
+			me.ticks = timeHelpers.generateTicks({
 				maxTicks: maxTicks,
 				min: minTimestamp,
 				max: maxTimestamp,
@@ -17122,7 +17144,7 @@ module.exports = function(Chart) {
 
 			// Format nicely
 			if (me.options.time.tooltipFormat) {
-				label = parseTime(me, label).format(me.options.time.tooltipFormat);
+				label = timeHelpers.parseTime(me, label).format(me.options.time.tooltipFormat);
 			}
 
 			return label;
@@ -17168,7 +17190,7 @@ module.exports = function(Chart) {
 			if (offset === null) {
 				if (!value || !value.isValid) {
 					// not already a moment object
-					value = parseTime(me, me.getRightValue(value));
+					value = timeHelpers.parseTime(me, me.getRightValue(value));
 				}
 
 				if (value && value.isValid && value.isValid()) {
