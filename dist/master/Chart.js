@@ -8308,6 +8308,9 @@ module.exports = function(Chart) {
 					backgroundColor: view.backgroundColor
 				};
 			},
+			labelTextColor: function() {
+				return this._options.bodyFontColor;
+			},
 			afterLabel: helpers.noop,
 
 			// Args are: (tooltipItems, data)
@@ -8708,6 +8711,7 @@ module.exports = function(Chart) {
 				model.opacity = 1;
 
 				var labelColors = [];
+				var labelTextColors = [];
 				tooltipPosition = Chart.Tooltip.positioners[opts.position](active, me._eventPosition);
 
 				var tooltipItems = [];
@@ -8732,7 +8736,9 @@ module.exports = function(Chart) {
 				// Determine colors for boxes
 				helpers.each(tooltipItems, function(tooltipItem) {
 					labelColors.push(opts.callbacks.labelColor.call(me, tooltipItem, me._chart));
+					labelTextColors.push(opts.callbacks.labelTextColor.call(me, tooltipItem, me._chart));
 				});
+
 
 				// Build the Text Lines
 				model.title = me.getTitle(tooltipItems, data);
@@ -8746,6 +8752,7 @@ module.exports = function(Chart) {
 				model.y = Math.round(tooltipPosition.y);
 				model.caretPadding = opts.caretPadding;
 				model.labelColors = labelColors;
+				model.labelTextColors = labelTextColors;
 
 				// data points
 				model.dataPoints = tooltipItems;
@@ -8878,9 +8885,6 @@ module.exports = function(Chart) {
 
 			ctx.textAlign = vm._bodyAlign;
 			ctx.textBaseline = 'top';
-
-			var textColor = mergeOpacity(vm.bodyFontColor, opacity);
-			ctx.fillStyle = textColor;
 			ctx.font = helpers.fontString(bodyFontSize, vm._bodyFontStyle, vm._bodyFontFamily);
 
 			// Before Body
@@ -8914,7 +8918,7 @@ module.exports = function(Chart) {
 						// Inner square
 						ctx.fillStyle = mergeOpacity(vm.labelColors[i].backgroundColor, opacity);
 						ctx.fillRect(pt.x + 1, pt.y + 1, bodyFontSize - 2, bodyFontSize - 2);
-
+						var textColor = mergeOpacity(vm.labelTextColors[i], opacity);
 						ctx.fillStyle = textColor;
 					}
 
