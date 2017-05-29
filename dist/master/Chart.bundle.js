@@ -14188,15 +14188,25 @@ module.exports = function(Chart) {
 		var ticks = [];
 		if (options.maxTicks) {
 			var stepSize = options.stepSize;
-			ticks.push(options.min !== undefined ? options.min : niceRange.min);
-			var cur = moment(niceRange.min);
-			while (cur.add(stepSize, options.unit).valueOf() < niceRange.max) {
+			var startTick = options.min !== undefined ? options.min : niceRange.min;
+			var majorUnit = options.majorUnit;
+			var majorUnitStart = majorUnit ? moment(startTick).add(1, majorUnit).startOf(majorUnit) : startTick;
+			var startRange = majorUnitStart.valueOf() - startTick;
+			var stepValue = interval[options.unit].size * stepSize;
+			var startFraction = startRange % stepValue;
+			var alignedTick = startTick;
+			if (startFraction && majorUnit && !options.timeOpts.round && !options.timeOpts.isoWeekday) {
+				alignedTick += startFraction - stepValue;
+				ticks.push(alignedTick);
+			} else {
+				ticks.push(startTick);
+			}
+			var cur = moment(alignedTick);
+			var realMax = options.max || niceRange.max;
+			while (cur.add(stepSize, options.unit).valueOf() < realMax) {
 				ticks.push(cur.valueOf());
 			}
-			var realMax = options.max || niceRange.max;
-			if (ticks[ticks.length - 1] !== realMax) {
-				ticks.push(realMax);
-			}
+			ticks.push(cur.valueOf());
 		}
 		return ticks;
 	}
@@ -14262,6 +14272,22 @@ module.exports = function(Chart) {
 		},
 
 		/**
+		 * Determine major unit accordingly to passed unit
+		 * @param unit {String} relative unit
+		 * @return {String} major unit
+		 */
+		determineMajorUnit: function(unit) {
+			var units = Object.keys(interval);
+			var majorUnit = null;
+			var unitIndex = units.indexOf(unit);
+			if (unitIndex < units.length - 1) {
+				majorUnit = units[unitIndex + 1];
+			}
+
+			return majorUnit;
+		},
+
+		/**
 		 * Determines how we scale the unit
 		 * @param min {Number} the scale minimum
 		 * @param max {Number} the scale maximum
@@ -14302,7 +14328,7 @@ module.exports = function(Chart) {
 		generateTicks: function(options, dataRange) {
 			var niceMin;
 			var niceMax;
-			var isoWeekday = options.isoWeekday;
+			var isoWeekday = options.timeOpts.isoWeekday;
 			if (options.unit === 'week' && isoWeekday !== false) {
 				niceMin = moment(dataRange.min).startOf('isoWeek').isoWeekday(isoWeekday).valueOf();
 				niceMax = moment(dataRange.max).startOf('isoWeek').isoWeekday(isoWeekday);
@@ -17114,8 +17140,14 @@ module.exports = function(Chart) {
 			}
 
 			var maxTicks = me.getLabelCapacity(minTimestamp || dataMin);
+
 			var unit = timeOpts.unit || timeHelpers.determineUnit(timeOpts.minUnit, minTimestamp || dataMin, maxTimestamp || dataMax, maxTicks);
+			var majorUnit = timeHelpers.determineMajorUnit(unit);
+
 			me.displayFormat = timeOpts.displayFormats[unit];
+			me.majorDisplayFormat = timeOpts.displayFormats[majorUnit];
+			me.unit = unit;
+			me.majorUnit = majorUnit;
 
 			var stepSize = timeOpts.stepSize || timeHelpers.determineStepSize(minTimestamp || dataMin, maxTimestamp || dataMax, unit, maxTicks);
 			me.ticks = timeHelpers.generateTicks({
@@ -17123,8 +17155,9 @@ module.exports = function(Chart) {
 				min: minTimestamp,
 				max: maxTimestamp,
 				stepSize: stepSize,
+				majorUnit: majorUnit,
 				unit: unit,
-				isoWeekday: timeOpts.isoWeekday
+				timeOpts: timeOpts
 			}, {
 				min: dataMin,
 				max: dataMax
