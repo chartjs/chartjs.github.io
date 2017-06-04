@@ -2381,7 +2381,6 @@ module.exports = function(Chart) {
 			// Boolean - Whether we animate scaling the Doughnut from the centre
 			animateScale: false
 		},
-		aspectRatio: 1,
 		hover: {
 			mode: 'single'
 		},
@@ -3038,7 +3037,6 @@ module.exports = function(Chart) {
 		},
 
 		startAngle: -0.5 * Math.PI,
-		aspectRatio: 1,
 		legendCallback: function(chart) {
 			var text = [];
 			text.push('<ul class="' + chart.id + '-legend">');
@@ -3239,7 +3237,6 @@ module.exports = function(Chart) {
 	var helpers = Chart.helpers;
 
 	Chart.defaults.radar = {
-		aspectRatio: 1,
 		scale: {
 			type: 'radialLinear'
 		},
