@@ -4056,8 +4056,16 @@ module.exports = function(Chart) {
 			this.tooltip.initialize();
 		},
 
-		update: function(animationDuration, lazy) {
+		update: function(config) {
 			var me = this;
+
+			if (!config || typeof config !== 'object') {
+				// backwards compatibility
+				config = {
+					duration: config,
+					lazy: arguments[1]
+				};
+			}
 
 			updateConfig(me);
 
@@ -4090,11 +4098,12 @@ module.exports = function(Chart) {
 
 			if (me._bufferedRender) {
 				me._bufferedRequest = {
-					lazy: lazy,
-					duration: animationDuration
+					duration: config.duration,
+					easing: config.easing,
+					lazy: config.lazy
 				};
 			} else {
-				me.render(animationDuration, lazy);
+				me.render(config);
 			}
 		},
 
@@ -4164,8 +4173,19 @@ module.exports = function(Chart) {
 			plugins.notify(me, 'afterDatasetUpdate', [args]);
 		},
 
-		render: function(duration, lazy) {
+		render: function(config) {
 			var me = this;
+
+			if (!config || typeof config !== 'object') {
+				// backwards compatibility
+				config = {
+					duration: config,
+					lazy: arguments[1]
+				};
+			}
+
+			var duration = config.duration;
+			var lazy = config.lazy;
 
 			if (plugins.notify(me, 'beforeRender') === false) {
 				return;
@@ -4180,7 +4200,7 @@ module.exports = function(Chart) {
 			if (animationOptions && ((typeof duration !== 'undefined' && duration !== 0) || (typeof duration === 'undefined' && animationOptions.duration !== 0))) {
 				var animation = new Chart.Animation({
 					numSteps: (duration || animationOptions.duration) / 16.66, // 60 fps
-					easing: animationOptions.easing,
+					easing: config.easing || animationOptions.easing,
 
 					render: function(chart, animationObject) {
 						var easingFunction = helpers.easingEffects[animationObject.easing];
@@ -4493,7 +4513,7 @@ module.exports = function(Chart) {
 			var bufferedRequest = me._bufferedRequest;
 			if (bufferedRequest) {
 				// If we have an update that was triggered, we need to do a normal render
-				me.render(bufferedRequest.duration, bufferedRequest.lazy);
+				me.render(bufferedRequest);
 			} else if (changed && !me.animating) {
 				// If entering, leaving, or changing elements, animate the change via pivot
 				me.stop();
