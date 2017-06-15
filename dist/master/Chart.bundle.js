@@ -8450,6 +8450,7 @@ module.exports = function(Chart) {
 				});
 
 				scales[scale.id] = scale;
+				scale.mergeTicksOptions();
 
 				// TODO(SB): I think we should be able to remove this custom case (options.scale)
 				// and consider it as a regular scale part of the "scales"" map only! This would
@@ -11740,7 +11741,9 @@ module.exports = function(Chart) {
 			autoSkipPadding: 0,
 			labelOffset: 0,
 			// We pass through arrays to be rendered as multiline labels, we convert Others to strings here.
-			callback: Chart.Ticks.formatters.values
+			callback: Chart.Ticks.formatters.values,
+			minor: {},
+			major: {}
 		}
 	};
 
@@ -11786,6 +11789,29 @@ module.exports = function(Chart) {
 		// Any function defined here is inherited by all scale types.
 		// Any function can be extended by the scale type
 
+		mergeTicksOptions: function() {
+			var ticks = this.options.ticks;
+			if (ticks.minor === false) {
+				ticks.minor = {
+					display: false
+				};
+			}
+			if (ticks.major === false) {
+				ticks.major = {
+					display: false
+				};
+			}
+			for (var key in ticks) {
+				if (key !== 'major' && key !== 'minor') {
+					if (typeof ticks.minor[key] === 'undefined') {
+						ticks.minor[key] = ticks[key];
+					}
+					if (typeof ticks.major[key] === 'undefined') {
+						ticks.major[key] = ticks[key];
+					}
+				}
+			}
+		},
 		beforeUpdate: function() {
 			helpers.callback(this.options.beforeUpdate, [this]);
 		},
@@ -12178,7 +12204,8 @@ module.exports = function(Chart) {
 
 			var context = me.ctx;
 			var globalDefaults = Chart.defaults.global;
-			var optionTicks = options.ticks;
+			var optionTicks = options.ticks.minor;
+			var optionMajorTicks = options.ticks.major || optionTicks;
 			var gridLines = options.gridLines;
 			var scaleLabel = options.scaleLabel;
 
@@ -12195,6 +12222,8 @@ module.exports = function(Chart) {
 
 			var tickFontColor = helpers.getValueOrDefault(optionTicks.fontColor, globalDefaults.defaultFontColor);
 			var tickFont = parseFontOptions(optionTicks);
+			var majorTickFontColor = helpers.getValueOrDefault(optionMajorTicks.fontColor, globalDefaults.defaultFontColor);
+			var majorTickFont = parseFontOptions(optionMajorTicks);
 
 			var tl = gridLines.drawTicks ? gridLines.tickMarkLength : 0;
 
@@ -12204,9 +12233,6 @@ module.exports = function(Chart) {
 			var labelRotationRadians = helpers.toRadians(me.labelRotation);
 			var cosRotation = Math.cos(labelRotationRadians);
 			var longestRotatedLabel = me.longestLabelWidth * cosRotation;
-
-			// Make sure we draw text in the correct color and font
-			context.fillStyle = tickFontColor;
 
 			var itemsToDraw = [];
 
@@ -12239,7 +12265,8 @@ module.exports = function(Chart) {
 			var yTickStart = options.position === 'bottom' ? me.top : me.bottom - tl;
 			var yTickEnd = options.position === 'bottom' ? me.top + tl : me.bottom;
 
-			helpers.each(me.ticks, function(label, index) {
+			helpers.each(me.ticks, function(tick, index) {
+				var label = (tick && tick.value) || tick;
 				// If the callback returned a null or undefined value, do not draw this line
 				if (label === undefined || label === null) {
 					return;
@@ -12337,6 +12364,7 @@ module.exports = function(Chart) {
 					glBorderDashOffset: borderDashOffset,
 					rotation: -1 * labelRotationRadians,
 					label: label,
+					major: tick.major,
 					textBaseline: textBaseline,
 					textAlign: textAlign
 				});
@@ -12370,10 +12398,12 @@ module.exports = function(Chart) {
 				}
 
 				if (optionTicks.display) {
+					// Make sure we draw text in the correct color and font
 					context.save();
 					context.translate(itemToDraw.labelX, itemToDraw.labelY);
 					context.rotate(itemToDraw.rotation);
-					context.font = tickFont.font;
+					context.font = itemToDraw.major ? majorTickFont.font : tickFont.font;
+					context.fillStyle = itemToDraw.major ? majorTickFontColor : tickFontColor;
 					context.textBaseline = itemToDraw.textBaseline;
 					context.textAlign = itemToDraw.textAlign;
 
@@ -14306,13 +14336,16 @@ module.exports = function(Chart) {
 		 */
 		determineMajorUnit: function(unit) {
 			var units = Object.keys(interval);
-			var majorUnit = null;
 			var unitIndex = units.indexOf(unit);
-			if (unitIndex < units.length - 1) {
-				majorUnit = units[unitIndex + 1];
+			while (unitIndex < units.length) {
+				var majorUnit = units[++unitIndex];
+				// exclude 'week' and 'quarter' units
+				if (majorUnit !== 'week' && majorUnit !== 'quarter') {
+					return majorUnit;
+				}
 			}
 
-			return majorUnit;
+			return null;
 		},
 
 		/**
@@ -17063,9 +17096,9 @@ module.exports = function(Chart) {
 			displayFormats: {
 				millisecond: 'h:mm:ss.SSS a', // 11:20:01.123 AM,
 				second: 'h:mm:ss a', // 11:20:01 AM
-				minute: 'h:mm:ss a', // 11:20:01 AM
-				hour: 'MMM D, hA', // Sept 4, 5PM
-				day: 'll', // Sep 4 2015
+				minute: 'h:mm a', // 11:20 AM
+				hour: 'hA', // 5PM
+				day: 'MMM D', // Sep 4
 				week: 'll', // Week 46, or maybe "[W]WW - YYYY" ?
 				month: 'MMM YYYY', // Sept 2015
 				quarter: '[Q]Q - YYYY', // Q3
@@ -17082,6 +17115,8 @@ module.exports = function(Chart) {
 			if (!moment) {
 				throw new Error('Chart.js - Moment.js could not be found! You must include it before Chart.js to use the time scale. Download at https://momentjs.com');
 			}
+
+			this.mergeTicksOptions();
 
 			Chart.Scale.prototype.initialize.call(this);
 		},
@@ -17220,14 +17255,34 @@ module.exports = function(Chart) {
 		},
 		// Function to format an individual tick mark
 		tickFormatFunction: function(tick, index, ticks) {
-			var formattedTick = tick.format(this.displayFormat);
-			var tickOpts = this.options.ticks;
+			var formattedTick;
+			var tickClone = tick.clone();
+			var tickTimestamp = tick.valueOf();
+			var major = false;
+			var tickOpts;
+			if (this.majorUnit && this.majorDisplayFormat && tickTimestamp === tickClone.startOf(this.majorUnit).valueOf()) {
+				// format as major unit
+				formattedTick = tick.format(this.majorDisplayFormat);
+				tickOpts = this.options.ticks.major;
+				major = true;
+			} else {
+				// format as minor (base) unit
+				formattedTick = tick.format(this.displayFormat);
+				tickOpts = this.options.ticks.minor;
+			}
+
 			var callback = helpers.getValueOrDefault(tickOpts.callback, tickOpts.userCallback);
 
 			if (callback) {
-				return callback(formattedTick, index, ticks);
+				return {
+					value: callback(formattedTick, index, ticks),
+					major: major
+				};
 			}
-			return formattedTick;
+			return {
+				value: formattedTick,
+				major: major
+			};
 		},
 		convertTicksToLabels: function() {
 			var me = this;
@@ -17295,11 +17350,12 @@ module.exports = function(Chart) {
 			var me = this;
 
 			me.displayFormat = me.options.time.displayFormats.millisecond;	// Pick the longest format for guestimation
-			var exampleLabel = me.tickFormatFunction(moment(exampleTime), 0, []);
+			var exampleLabel = me.tickFormatFunction(moment(exampleTime), 0, []).value;
 			var tickLabelWidth = me.getLabelWidth(exampleLabel);
 
 			var innerWidth = me.isHorizontal() ? me.width : me.height;
 			var labelCapacity = innerWidth / tickLabelWidth;
+
 			return labelCapacity;
 		}
 	});
