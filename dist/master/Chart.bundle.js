@@ -15747,13 +15747,16 @@ module.exports = function(Chart) {
 				globalDefaults = Chart.defaults.global,
 				display = opts.display,
 				fontSize = valueOrDefault(opts.fontSize, globalDefaults.defaultFontSize),
-				minSize = me.minSize;
+				minSize = me.minSize,
+				lineCount = helpers.isArray(opts.text) ? opts.text.length : 1,
+				lineHeight = valueOrDefault(opts.lineHeight, fontSize),
+				textSize = display ? (lineCount * lineHeight) + (opts.padding * 2) : 0;
 
 			if (me.isHorizontal()) {
 				minSize.width = me.maxWidth; // fill all the width
-				minSize.height = display ? fontSize + (opts.padding * 2) : 0;
+				minSize.height = textSize;
 			} else {
-				minSize.width = display ? fontSize + (opts.padding * 2) : 0;
+				minSize.width = textSize;
 				minSize.height = me.maxHeight; // fill all the height
 			}
 
@@ -15782,6 +15785,7 @@ module.exports = function(Chart) {
 					fontStyle = valueOrDefault(opts.fontStyle, globalDefaults.defaultFontStyle),
 					fontFamily = valueOrDefault(opts.fontFamily, globalDefaults.defaultFontFamily),
 					titleFont = helpers.fontString(fontSize, fontStyle, fontFamily),
+					lineHeight = valueOrDefault(opts.lineHeight, fontSize),
 					rotation = 0,
 					titleX,
 					titleY,
@@ -15811,7 +15815,18 @@ module.exports = function(Chart) {
 				ctx.rotate(rotation);
 				ctx.textAlign = 'center';
 				ctx.textBaseline = 'middle';
-				ctx.fillText(opts.text, 0, 0, maxWidth);
+
+				var text = opts.text;
+				if (helpers.isArray(text)) {
+					var y = 0;
+					for (var i = 0; i < text.length; ++i) {
+						ctx.fillText(text[i], 0, y, maxWidth);
+						y += lineHeight;
+					}
+				} else {
+					ctx.fillText(text, 0, 0, maxWidth);
+				}
+
 				ctx.restore();
 			}
 		}
