@@ -1667,36 +1667,37 @@ module.exports = {
 /**
  * @namespace Chart
  */
-var Chart = require(28)();
+var Chart = require(27)();
 
-require(26)(Chart);
 require(39)(Chart);
-
-require(41)(Chart);
-require(22)(Chart);
 require(25)(Chart);
-require(30)(Chart);
-require(21)(Chart);
-require(23)(Chart);
+require(40)(Chart);
+require(38)(Chart);
+
+require(42)(Chart);
 require(24)(Chart);
 require(29)(Chart);
-require(32)(Chart);
-require(33)(Chart);
+require(21)(Chart);
+require(22)(Chart);
+require(23)(Chart);
+require(28)(Chart);
 require(31)(Chart);
-require(27)(Chart);
-require(34)(Chart);
+require(32)(Chart);
+require(30)(Chart);
+require(26)(Chart);
+require(33)(Chart);
 
+require(34)(Chart);
 require(35)(Chart);
 require(36)(Chart);
 require(37)(Chart);
-require(38)(Chart);
 
-require(47)(Chart);
-require(45)(Chart);
-require(46)(Chart);
 require(48)(Chart);
+require(46)(Chart);
+require(47)(Chart);
 require(49)(Chart);
 require(50)(Chart);
+require(51)(Chart);
 
 // Controllers must be loaded after elements
 // See Chart.core.datasetController.dataElementType
@@ -1719,9 +1720,9 @@ require(14)(Chart);
 var plugins = [];
 
 plugins.push(
-    require(42)(Chart),
     require(43)(Chart),
-    require(44)(Chart)
+    require(44)(Chart),
+    require(45)(Chart)
 );
 
 Chart.plugins.register(plugins);
@@ -1731,7 +1732,7 @@ if (typeof window !== 'undefined') {
 	window.Chart = Chart;
 }
 
-},{"10":10,"11":11,"12":12,"13":13,"14":14,"15":15,"16":16,"17":17,"18":18,"19":19,"20":20,"21":21,"22":22,"23":23,"24":24,"25":25,"26":26,"27":27,"28":28,"29":29,"30":30,"31":31,"32":32,"33":33,"34":34,"35":35,"36":36,"37":37,"38":38,"39":39,"41":41,"42":42,"43":43,"44":44,"45":45,"46":46,"47":47,"48":48,"49":49,"50":50,"8":8,"9":9}],8:[function(require,module,exports){
+},{"10":10,"11":11,"12":12,"13":13,"14":14,"15":15,"16":16,"17":17,"18":18,"19":19,"20":20,"21":21,"22":22,"23":23,"24":24,"25":25,"26":26,"27":27,"28":28,"29":29,"30":30,"31":31,"32":32,"33":33,"34":34,"35":35,"36":36,"37":37,"38":38,"39":39,"40":40,"42":42,"43":43,"44":44,"45":45,"46":46,"47":47,"48":48,"49":49,"50":50,"51":51,"8":8,"9":9}],8:[function(require,module,exports){
 'use strict';
 
 module.exports = function(Chart) {
@@ -2958,13 +2959,13 @@ module.exports = function(Chart) {
 			var ilen = points.length;
 			var i = 0;
 
-			Chart.canvasHelpers.clipArea(chart.ctx, area);
+			Chart.helpers.canvas.clipArea(chart.ctx, area);
 
 			if (lineEnabled(me.getDataset(), chart.options)) {
 				meta.dataset.draw();
 			}
 
-			Chart.canvasHelpers.unclipArea(chart.ctx);
+			Chart.helpers.canvas.unclipArea(chart.ctx);
 
 			// Draw the points
 			for (; i<ilen; ++i) {
@@ -3571,158 +3572,6 @@ module.exports = function(Chart) {
 'use strict';
 
 module.exports = function(Chart) {
-	// Global Chart canvas helpers object for drawing items to canvas
-	var helpers = Chart.canvasHelpers = {};
-
-	helpers.drawPoint = function(ctx, pointStyle, radius, x, y) {
-		var type, edgeLength, xOffset, yOffset, height, size;
-
-		if (typeof pointStyle === 'object') {
-			type = pointStyle.toString();
-			if (type === '[object HTMLImageElement]' || type === '[object HTMLCanvasElement]') {
-				ctx.drawImage(pointStyle, x - pointStyle.width / 2, y - pointStyle.height / 2, pointStyle.width, pointStyle.height);
-				return;
-			}
-		}
-
-		if (isNaN(radius) || radius <= 0) {
-			return;
-		}
-
-		switch (pointStyle) {
-		// Default includes circle
-		default:
-			ctx.beginPath();
-			ctx.arc(x, y, radius, 0, Math.PI * 2);
-			ctx.closePath();
-			ctx.fill();
-			break;
-		case 'triangle':
-			ctx.beginPath();
-			edgeLength = 3 * radius / Math.sqrt(3);
-			height = edgeLength * Math.sqrt(3) / 2;
-			ctx.moveTo(x - edgeLength / 2, y + height / 3);
-			ctx.lineTo(x + edgeLength / 2, y + height / 3);
-			ctx.lineTo(x, y - 2 * height / 3);
-			ctx.closePath();
-			ctx.fill();
-			break;
-		case 'rect':
-			size = 1 / Math.SQRT2 * radius;
-			ctx.beginPath();
-			ctx.fillRect(x - size, y - size, 2 * size, 2 * size);
-			ctx.strokeRect(x - size, y - size, 2 * size, 2 * size);
-			break;
-		case 'rectRounded':
-			var offset = radius / Math.SQRT2;
-			var leftX = x - offset;
-			var topY = y - offset;
-			var sideSize = Math.SQRT2 * radius;
-			Chart.helpers.drawRoundedRectangle(ctx, leftX, topY, sideSize, sideSize, radius / 2);
-			ctx.fill();
-			break;
-		case 'rectRot':
-			size = 1 / Math.SQRT2 * radius;
-			ctx.beginPath();
-			ctx.moveTo(x - size, y);
-			ctx.lineTo(x, y + size);
-			ctx.lineTo(x + size, y);
-			ctx.lineTo(x, y - size);
-			ctx.closePath();
-			ctx.fill();
-			break;
-		case 'cross':
-			ctx.beginPath();
-			ctx.moveTo(x, y + radius);
-			ctx.lineTo(x, y - radius);
-			ctx.moveTo(x - radius, y);
-			ctx.lineTo(x + radius, y);
-			ctx.closePath();
-			break;
-		case 'crossRot':
-			ctx.beginPath();
-			xOffset = Math.cos(Math.PI / 4) * radius;
-			yOffset = Math.sin(Math.PI / 4) * radius;
-			ctx.moveTo(x - xOffset, y - yOffset);
-			ctx.lineTo(x + xOffset, y + yOffset);
-			ctx.moveTo(x - xOffset, y + yOffset);
-			ctx.lineTo(x + xOffset, y - yOffset);
-			ctx.closePath();
-			break;
-		case 'star':
-			ctx.beginPath();
-			ctx.moveTo(x, y + radius);
-			ctx.lineTo(x, y - radius);
-			ctx.moveTo(x - radius, y);
-			ctx.lineTo(x + radius, y);
-			xOffset = Math.cos(Math.PI / 4) * radius;
-			yOffset = Math.sin(Math.PI / 4) * radius;
-			ctx.moveTo(x - xOffset, y - yOffset);
-			ctx.lineTo(x + xOffset, y + yOffset);
-			ctx.moveTo(x - xOffset, y + yOffset);
-			ctx.lineTo(x + xOffset, y - yOffset);
-			ctx.closePath();
-			break;
-		case 'line':
-			ctx.beginPath();
-			ctx.moveTo(x - radius, y);
-			ctx.lineTo(x + radius, y);
-			ctx.closePath();
-			break;
-		case 'dash':
-			ctx.beginPath();
-			ctx.moveTo(x, y);
-			ctx.lineTo(x + radius, y);
-			ctx.closePath();
-			break;
-		}
-
-		ctx.stroke();
-	};
-
-	helpers.clipArea = function(ctx, clipArea) {
-		ctx.save();
-		ctx.beginPath();
-		ctx.rect(clipArea.left, clipArea.top, clipArea.right - clipArea.left, clipArea.bottom - clipArea.top);
-		ctx.clip();
-	};
-
-	helpers.unclipArea = function(ctx) {
-		ctx.restore();
-	};
-
-	helpers.lineTo = function(ctx, previous, target, flip) {
-		if (target.steppedLine) {
-			if (target.steppedLine === 'after') {
-				ctx.lineTo(previous.x, target.y);
-			} else {
-				ctx.lineTo(target.x, previous.y);
-			}
-			ctx.lineTo(target.x, target.y);
-			return;
-		}
-
-		if (!target.tension) {
-			ctx.lineTo(target.x, target.y);
-			return;
-		}
-
-		ctx.bezierCurveTo(
-			flip? previous.controlPointPreviousX : previous.controlPointNextX,
-			flip? previous.controlPointPreviousY : previous.controlPointNextY,
-			flip? target.controlPointNextX : target.controlPointPreviousX,
-			flip? target.controlPointNextY : target.controlPointPreviousY,
-			target.x,
-			target.y);
-	};
-
-	Chart.helpers.canvas = helpers;
-};
-
-},{}],23:[function(require,module,exports){
-'use strict';
-
-module.exports = function(Chart) {
 
 	var helpers = Chart.helpers;
 	var plugins = Chart.plugins;
@@ -3873,7 +3722,7 @@ module.exports = function(Chart) {
 		},
 
 		clear: function() {
-			helpers.clear(this);
+			helpers.canvas.clear(this);
 			return this;
 		},
 
@@ -4233,7 +4082,7 @@ module.exports = function(Chart) {
 
 			me.clear();
 
-			if (easingValue === undefined || easingValue === null) {
+			if (helpers.isNullOrUndef(easingValue)) {
 				easingValue = 1;
 			}
 
@@ -4410,7 +4259,7 @@ module.exports = function(Chart) {
 
 			if (canvas) {
 				me.unbindEvents();
-				helpers.clear(me);
+				helpers.canvas.clear(me);
 				platform.releaseContext(me.ctx);
 				me.canvas = null;
 				me.ctx = null;
@@ -4593,7 +4442,7 @@ module.exports = function(Chart) {
 	Chart.Controller = Chart;
 };
 
-},{}],24:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 'use strict';
 
 module.exports = function(Chart) {
@@ -4925,7 +4774,7 @@ module.exports = function(Chart) {
 	Chart.DatasetController.extend = helpers.inherits;
 };
 
-},{}],25:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 'use strict';
 
 var color = require(3);
@@ -5046,7 +4895,7 @@ module.exports = function(Chart) {
 	Chart.Element.extend = helpers.inherits;
 };
 
-},{"3":3}],26:[function(require,module,exports){
+},{"3":3}],25:[function(require,module,exports){
 /* global window: false */
 /* global document: false */
 'use strict';
@@ -5054,32 +4903,9 @@ module.exports = function(Chart) {
 var color = require(3);
 
 module.exports = function(Chart) {
-	// Global Chart helpers object for utility methods and classes
-	var helpers = Chart.helpers = {};
+	var helpers = Chart.helpers;
 
 	// -- Basic js utility methods
-	helpers.each = function(loopable, callback, self, reverse) {
-		// Check to see if null or undefined firstly.
-		var i, len;
-		if (helpers.isArray(loopable)) {
-			len = loopable.length;
-			if (reverse) {
-				for (i = len - 1; i >= 0; i--) {
-					callback.call(self, loopable[i], i);
-				}
-			} else {
-				for (i = 0; i < len; i++) {
-					callback.call(self, loopable[i], i);
-				}
-			}
-		} else if (typeof loopable === 'object') {
-			var keys = Object.keys(loopable);
-			len = keys.length;
-			for (i = 0; i < len; i++) {
-				callback.call(self, loopable[keys[i]], keys[i]);
-			}
-		}
-	};
 	helpers.clone = function(obj) {
 		var objClone = {};
 		helpers.each(obj, function(value, key) {
@@ -5172,32 +4998,7 @@ module.exports = function(Chart) {
 
 		return base;
 	};
-	helpers.getValueAtIndexOrDefault = function(value, index, defaultValue) {
-		if (value === undefined || value === null) {
-			return defaultValue;
-		}
 
-		if (helpers.isArray(value)) {
-			return index < value.length ? value[index] : defaultValue;
-		}
-
-		return value;
-	};
-	helpers.getValueOrDefault = function(value, defaultValue) {
-		return value === undefined ? defaultValue : value;
-	};
-	helpers.indexOf = Array.prototype.indexOf?
-		function(array, item) {
-			return array.indexOf(item);
-		}:
-		function(array, item) {
-			for (var i = 0, ilen = array.length; i < ilen; ++i) {
-				if (array[i] === item) {
-					return i;
-				}
-			}
-			return -1;
-		};
 	helpers.where = function(collection, filterCallback) {
 		if (helpers.isArray(collection) && Array.prototype.filter) {
 			return collection.filter(filterCallback);
@@ -5227,7 +5028,7 @@ module.exports = function(Chart) {
 		};
 	helpers.findNextWhere = function(arrayToSearch, filterCallback, startIndex) {
 		// Default to start of the array
-		if (startIndex === undefined || startIndex === null) {
+		if (helpers.isNullOrUndef(startIndex)) {
 			startIndex = -1;
 		}
 		for (var i = startIndex + 1; i < arrayToSearch.length; i++) {
@@ -5239,7 +5040,7 @@ module.exports = function(Chart) {
 	};
 	helpers.findPreviousWhere = function(arrayToSearch, filterCallback, startIndex) {
 		// Default to end of the array
-		if (startIndex === undefined || startIndex === null) {
+		if (helpers.isNullOrUndef(startIndex)) {
 			startIndex = arrayToSearch.length;
 		}
 		for (var i = startIndex - 1; i >= 0; i--) {
@@ -5272,13 +5073,6 @@ module.exports = function(Chart) {
 
 		return ChartElement;
 	};
-	helpers.noop = function() {};
-	helpers.uid = (function() {
-		var id = 0;
-		return function() {
-			return id++;
-		};
-	}());
 	// -- Math methods
 	helpers.isNumber = function(n) {
 		return !isNaN(parseFloat(n)) && isFinite(n);
@@ -5886,9 +5680,6 @@ module.exports = function(Chart) {
 		canvas.style.width = width + 'px';
 	};
 	// -- Canvas methods
-	helpers.clear = function(chart) {
-		chart.ctx.clearRect(0, 0, chart.width, chart.height);
-	};
 	helpers.fontString = function(pixelSize, fontStyle, fontFamily) {
 		return fontStyle + ' ' + pixelSize + 'px ' + fontFamily;
 	};
@@ -5952,19 +5743,6 @@ module.exports = function(Chart) {
 		});
 		return numberOfLines;
 	};
-	helpers.drawRoundedRectangle = function(ctx, x, y, width, height, radius) {
-		ctx.beginPath();
-		ctx.moveTo(x + radius, y);
-		ctx.lineTo(x + width - radius, y);
-		ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-		ctx.lineTo(x + width, y + height - radius);
-		ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-		ctx.lineTo(x + radius, y + height);
-		ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-		ctx.lineTo(x, y + radius);
-		ctx.quadraticCurveTo(x, y, x + radius, y);
-		ctx.closePath();
-	};
 
 	helpers.color = !color?
 		function(value) {
@@ -5980,59 +5758,15 @@ module.exports = function(Chart) {
 			return color(value);
 		};
 
-	helpers.isArray = Array.isArray?
-		function(obj) {
-			return Array.isArray(obj);
-		} :
-		function(obj) {
-			return Object.prototype.toString.call(obj) === '[object Array]';
-		};
-	// ! @see http://stackoverflow.com/a/14853974
-	helpers.arrayEquals = function(a0, a1) {
-		var i, ilen, v0, v1;
-
-		if (!a0 || !a1 || a0.length !== a1.length) {
-			return false;
-		}
-
-		for (i = 0, ilen=a0.length; i < ilen; ++i) {
-			v0 = a0[i];
-			v1 = a1[i];
-
-			if (v0 instanceof Array && v1 instanceof Array) {
-				if (!helpers.arrayEquals(v0, v1)) {
-					return false;
-				}
-			} else if (v0 !== v1) {
-				// NOTE: two different object instances will never be equal: {x:20} != {x:20}
-				return false;
-			}
-		}
-
-		return true;
-	};
-	helpers.callback = function(fn, args, thisArg) {
-		if (fn && typeof fn.call === 'function') {
-			return fn.apply(thisArg, args);
-		}
-	};
 	helpers.getHoverColor = function(colorValue) {
 		/* global CanvasPattern */
 		return (colorValue instanceof CanvasPattern) ?
 			colorValue :
 			helpers.color(colorValue).saturate(0.5).darken(0.1).rgbString();
 	};
-
-	/**
-	 * Provided for backward compatibility, use Chart.helpers#callback instead.
-	 * @function Chart.helpers#callCallback
-	 * @deprecated since version 2.6.0
-	 * @todo remove at version 3
-	 */
-	helpers.callCallback = helpers.callback;
 };
 
-},{"3":3}],27:[function(require,module,exports){
+},{"3":3}],26:[function(require,module,exports){
 'use strict';
 
 module.exports = function(Chart) {
@@ -6350,7 +6084,7 @@ module.exports = function(Chart) {
 	};
 };
 
-},{}],28:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 'use strict';
 
 module.exports = function() {
@@ -6418,7 +6152,7 @@ module.exports = function() {
 	return Chart;
 };
 
-},{}],29:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 'use strict';
 
 module.exports = function(Chart) {
@@ -6856,7 +6590,7 @@ module.exports = function(Chart) {
 	};
 };
 
-},{}],30:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 'use strict';
 
 module.exports = function(Chart) {
@@ -7229,7 +6963,7 @@ module.exports = function(Chart) {
 	Chart.PluginBase = Chart.Element.extend({});
 };
 
-},{}],31:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 'use strict';
 
 module.exports = function(Chart) {
@@ -7654,7 +7388,7 @@ module.exports = function(Chart) {
 		// Get the correct value. NaN bad inputs, If the value type is object get the x or y based on whether we are horizontal or not
 		getRightValue: function(rawValue) {
 			// Null and undefined values first
-			if (rawValue === null || typeof(rawValue) === 'undefined') {
+			if (helpers.isNullOrUndef(rawValue)) {
 				return NaN;
 			}
 			// isNaN(object) returns true, so make sure NaN is checking for a number; Discard Infinite values
@@ -7807,7 +7541,7 @@ module.exports = function(Chart) {
 			helpers.each(me.ticks, function(tick, index) {
 				var label = (tick && tick.value) || tick;
 				// If the callback returned a null or undefined value, do not draw this line
-				if (label === undefined || label === null) {
+				if (helpers.isNullOrUndef(label)) {
 					return;
 				}
 
@@ -7815,7 +7549,7 @@ module.exports = function(Chart) {
 
 				// Since we always show the last tick,we need may need to hide the last shown one before
 				var shouldSkip = (skipRatio > 1 && index % skipRatio > 0) || (index % skipRatio === 0 && index + skipRatio >= me.ticks.length);
-				if (shouldSkip && !isLastTick || (label === undefined || label === null)) {
+				if (shouldSkip && !isLastTick || helpers.isNullOrUndef(label)) {
 					return;
 				}
 
@@ -8018,7 +7752,7 @@ module.exports = function(Chart) {
 	});
 };
 
-},{}],32:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 'use strict';
 
 module.exports = function(Chart) {
@@ -8064,7 +7798,7 @@ module.exports = function(Chart) {
 	};
 };
 
-},{}],33:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 'use strict';
 
 module.exports = function(Chart) {
@@ -8276,7 +8010,7 @@ module.exports = function(Chart) {
 	};
 };
 
-},{}],34:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 'use strict';
 
 module.exports = function(Chart) {
@@ -9221,7 +8955,7 @@ module.exports = function(Chart) {
 	};
 };
 
-},{}],35:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 'use strict';
 
 module.exports = function(Chart) {
@@ -9327,7 +9061,7 @@ module.exports = function(Chart) {
 	});
 };
 
-},{}],36:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 'use strict';
 
 module.exports = function(Chart) {
@@ -9416,7 +9150,7 @@ module.exports = function(Chart) {
 	});
 };
 
-},{}],37:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 'use strict';
 
 module.exports = function(Chart) {
@@ -9513,12 +9247,12 @@ module.exports = function(Chart) {
 				ctx.fillStyle = color(ctx.fillStyle).alpha(ratio).rgbString();
 			}
 
-			Chart.canvasHelpers.drawPoint(ctx, pointStyle, radius, x, y);
+			Chart.helpers.canvas.drawPoint(ctx, pointStyle, radius, x, y);
 		}
 	});
 };
 
-},{}],38:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 'use strict';
 
 module.exports = function(Chart) {
@@ -9728,7 +9462,414 @@ module.exports = function(Chart) {
 
 };
 
+},{}],38:[function(require,module,exports){
+'use strict';
+
+module.exports = function(Chart) {
+	var helpers = Chart.helpers;
+
+	/**
+	 * @namespace Chart.helpers.canvas
+	 */
+	helpers.canvas = {
+		/**
+		 * Clears the entire canvas associated to the given `chart`.
+		 * @param {Chart} chart - The chart for which to clear the canvas.
+		 */
+		clear: function(chart) {
+			chart.ctx.clearRect(0, 0, chart.width, chart.height);
+		},
+
+		/**
+		 * Creates a "path" for a rectangle with rounded corners at position (x, y) with a
+		 * given size (width, height) and the same `radius` for all corners.
+		 * @param {CanvasRenderingContext2D} ctx - The canvas 2D Context.
+		 * @param {Number} x - The x axis of the coordinate for the rectangle starting point.
+		 * @param {Number} y - The y axis of the coordinate for the rectangle starting point.
+		 * @param {Number} width - The rectangle's width.
+		 * @param {Number} height - The rectangle's height.
+		 * @param {Number} radius - The rounded amount (in pixels) for the four corners.
+		 * @todo handler `radius` as top-left, top-right, bottom-right, bottom-left array/object?
+		 * @todo clamp `radius` to the maximum "correct" value.
+		 */
+		roundedRect: function(ctx, x, y, width, height, radius) {
+			if (radius) {
+				ctx.moveTo(x + radius, y);
+				ctx.lineTo(x + width - radius, y);
+				ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+				ctx.lineTo(x + width, y + height - radius);
+				ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+				ctx.lineTo(x + radius, y + height);
+				ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+				ctx.lineTo(x, y + radius);
+				ctx.quadraticCurveTo(x, y, x + radius, y);
+			} else {
+				ctx.rect(x, y, width, height);
+			}
+		}
+	};
+
+	helpers.canvas.drawPoint = function(ctx, pointStyle, radius, x, y) {
+		var type, edgeLength, xOffset, yOffset, height, size;
+
+		if (typeof pointStyle === 'object') {
+			type = pointStyle.toString();
+			if (type === '[object HTMLImageElement]' || type === '[object HTMLCanvasElement]') {
+				ctx.drawImage(pointStyle, x - pointStyle.width / 2, y - pointStyle.height / 2, pointStyle.width, pointStyle.height);
+				return;
+			}
+		}
+
+		if (isNaN(radius) || radius <= 0) {
+			return;
+		}
+
+		switch (pointStyle) {
+		// Default includes circle
+		default:
+			ctx.beginPath();
+			ctx.arc(x, y, radius, 0, Math.PI * 2);
+			ctx.closePath();
+			ctx.fill();
+			break;
+		case 'triangle':
+			ctx.beginPath();
+			edgeLength = 3 * radius / Math.sqrt(3);
+			height = edgeLength * Math.sqrt(3) / 2;
+			ctx.moveTo(x - edgeLength / 2, y + height / 3);
+			ctx.lineTo(x + edgeLength / 2, y + height / 3);
+			ctx.lineTo(x, y - 2 * height / 3);
+			ctx.closePath();
+			ctx.fill();
+			break;
+		case 'rect':
+			size = 1 / Math.SQRT2 * radius;
+			ctx.beginPath();
+			ctx.fillRect(x - size, y - size, 2 * size, 2 * size);
+			ctx.strokeRect(x - size, y - size, 2 * size, 2 * size);
+			break;
+		case 'rectRounded':
+			var offset = radius / Math.SQRT2;
+			var leftX = x - offset;
+			var topY = y - offset;
+			var sideSize = Math.SQRT2 * radius;
+			ctx.beginPath();
+			this.roundedRect(ctx, leftX, topY, sideSize, sideSize, radius / 2);
+			ctx.closePath();
+			ctx.fill();
+			break;
+		case 'rectRot':
+			size = 1 / Math.SQRT2 * radius;
+			ctx.beginPath();
+			ctx.moveTo(x - size, y);
+			ctx.lineTo(x, y + size);
+			ctx.lineTo(x + size, y);
+			ctx.lineTo(x, y - size);
+			ctx.closePath();
+			ctx.fill();
+			break;
+		case 'cross':
+			ctx.beginPath();
+			ctx.moveTo(x, y + radius);
+			ctx.lineTo(x, y - radius);
+			ctx.moveTo(x - radius, y);
+			ctx.lineTo(x + radius, y);
+			ctx.closePath();
+			break;
+		case 'crossRot':
+			ctx.beginPath();
+			xOffset = Math.cos(Math.PI / 4) * radius;
+			yOffset = Math.sin(Math.PI / 4) * radius;
+			ctx.moveTo(x - xOffset, y - yOffset);
+			ctx.lineTo(x + xOffset, y + yOffset);
+			ctx.moveTo(x - xOffset, y + yOffset);
+			ctx.lineTo(x + xOffset, y - yOffset);
+			ctx.closePath();
+			break;
+		case 'star':
+			ctx.beginPath();
+			ctx.moveTo(x, y + radius);
+			ctx.lineTo(x, y - radius);
+			ctx.moveTo(x - radius, y);
+			ctx.lineTo(x + radius, y);
+			xOffset = Math.cos(Math.PI / 4) * radius;
+			yOffset = Math.sin(Math.PI / 4) * radius;
+			ctx.moveTo(x - xOffset, y - yOffset);
+			ctx.lineTo(x + xOffset, y + yOffset);
+			ctx.moveTo(x - xOffset, y + yOffset);
+			ctx.lineTo(x + xOffset, y - yOffset);
+			ctx.closePath();
+			break;
+		case 'line':
+			ctx.beginPath();
+			ctx.moveTo(x - radius, y);
+			ctx.lineTo(x + radius, y);
+			ctx.closePath();
+			break;
+		case 'dash':
+			ctx.beginPath();
+			ctx.moveTo(x, y);
+			ctx.lineTo(x + radius, y);
+			ctx.closePath();
+			break;
+		}
+
+		ctx.stroke();
+	};
+
+	helpers.canvas.clipArea = function(ctx, clipArea) {
+		ctx.save();
+		ctx.beginPath();
+		ctx.rect(clipArea.left, clipArea.top, clipArea.right - clipArea.left, clipArea.bottom - clipArea.top);
+		ctx.clip();
+	};
+
+	helpers.canvas.unclipArea = function(ctx) {
+		ctx.restore();
+	};
+
+	helpers.canvas.lineTo = function(ctx, previous, target, flip) {
+		if (target.steppedLine) {
+			if (target.steppedLine === 'after') {
+				ctx.lineTo(previous.x, target.y);
+			} else {
+				ctx.lineTo(target.x, previous.y);
+			}
+			ctx.lineTo(target.x, target.y);
+			return;
+		}
+
+		if (!target.tension) {
+			ctx.lineTo(target.x, target.y);
+			return;
+		}
+
+		ctx.bezierCurveTo(
+			flip? previous.controlPointPreviousX : previous.controlPointNextX,
+			flip? previous.controlPointPreviousY : previous.controlPointNextY,
+			flip? target.controlPointNextX : target.controlPointPreviousX,
+			flip? target.controlPointNextY : target.controlPointPreviousY,
+			target.x,
+			target.y);
+	};
+
+	/**
+	 * Provided for backward compatibility, use Chart.helpers.canvas instead.
+	 * @namespace Chart.canvasHelpers
+	 * @deprecated since version 2.6.0
+	 * @todo remove at version 3
+	 * @private
+	 */
+	Chart.canvasHelpers = helpers.canvas;
+
+	/**
+	 * Provided for backward compatibility, use Chart.helpers.canvas.clear instead.
+	 * @namespace Chart.helpers.clear
+	 * @deprecated since version 2.7.0
+	 * @todo remove at version 3
+	 * @private
+	 */
+	helpers.clear = helpers.canvas.clear;
+
+	/**
+	 * Provided for backward compatibility, use Chart.helpers.canvas.roundedRect instead.
+	 * @namespace Chart.helpers.drawRoundedRectangle
+	 * @deprecated since version 2.7.0
+	 * @todo remove at version 3
+	 * @private
+	 */
+	helpers.drawRoundedRectangle = function(ctx) {
+		ctx.beginPath();
+		helpers.canvas.roundedRect.apply(this, arguments);
+		ctx.closePath();
+	};
+};
+
 },{}],39:[function(require,module,exports){
+'use strict';
+
+module.exports = function(Chart) {
+	/**
+	 * @namespace Chart.helpers
+	 */
+	var helpers = Chart.helpers = {
+		/**
+		 * An empty function that can be used, for example, for optional callback.
+		 */
+		noop: function() {},
+
+		/**
+		 * Returns a unique id, sequentially generated from a global variable.
+		 * @returns {Number}
+		 * @function
+		 */
+		uid: (function() {
+			var id = 0;
+			return function() {
+				return id++;
+			};
+		}()),
+
+		/**
+		 * Returns true if `value` is neither null nor undefined, else returns false.
+		 * @param {*} value - The value to test.
+		 * @returns {Boolean}
+		 * @since 2.7.0
+		 */
+		isNullOrUndef: function(value) {
+			return value === null || typeof value === 'undefined';
+		},
+
+		/**
+		 * Returns true if `value` is an array, else returns false.
+		 * @param {*} value - The value to test.
+		 * @returns {Boolean}
+		 * @function
+		 */
+		isArray: Array.isArray? Array.isArray : function(value) {
+			return Object.prototype.toString.call(value) === '[object Array]';
+		},
+
+		/**
+		 * Returns true if `value` is an object (excluding null), else returns false.
+		 * @param {*} value - The value to test.
+		 * @returns {Boolean}
+		 * @since 2.7.0
+		 */
+		isObject: function(value) {
+			return value !== null && Object.prototype.toString.call(value) === '[object Object]';
+		},
+
+		/**
+		 * Returns `value` if defined, else returns `defaultValue`.
+		 * @param {*} value - The value to return if defined.
+		 * @param {*} defaultValue - The value to return if `value` is undefined.
+		 * @returns {*}
+		 */
+		getValueOrDefault: function(value, defaultValue) {
+			return typeof value === 'undefined'? defaultValue : value;
+		},
+
+		/**
+		 * Returns value at the given `index` in array if defined, else returns `defaultValue`.
+		 * @param {Array} value - The array to lookup for value at `index`.
+		 * @param {Number} index - The index in `value` to lookup for value.
+		 * @param {*} defaultValue - The value to return if `value[index]` is undefined.
+		 * @returns {*}
+		 */
+		getValueAtIndexOrDefault: function(value, index, defaultValue) {
+			if (helpers.isNullOrUndef(value)) {
+				return defaultValue;
+			}
+
+			if (helpers.isArray(value)) {
+				value = value[index];
+				return typeof value === 'undefined'? defaultValue : value;
+			}
+
+			return value;
+		},
+
+		/**
+		 * Calls `fn` with the given `args` in the scope defined by `thisArg` and returns the
+		 * value returned by `fn`. If `fn` is not a function, this method returns undefined.
+		 * @param {Function} fn - The function to call.
+		 * @param {Array|undefined|null} args - The arguments with which `fn` should be called.
+		 * @param {Object} [thisArg] - The value of `this` provided for the call to `fn`.
+		 * @returns {*}
+		 */
+		callback: function(fn, args, thisArg) {
+			if (fn && typeof fn.call === 'function') {
+				return fn.apply(thisArg, args);
+			}
+		},
+
+		/**
+		 * Note(SB) for performance sake, this method should only be used when loopable type
+		 * is unknown or in none intensive code (not called often and small loopable). Else
+		 * it's preferable to use a regular for() loop and save extra function calls.
+		 * @param {Object|Array} loopable - The object or array to be iterated.
+		 * @param {Function} fn - The function to call for each item.
+		 * @param {Object} [thisArg] - The value of `this` provided for the call to `fn`.
+		 * @param {Boolean} [reverse] - If true, iterates backward on the loopable.
+		 */
+		each: function(loopable, fn, thisArg, reverse) {
+			var i, len, keys;
+			if (helpers.isArray(loopable)) {
+				len = loopable.length;
+				if (reverse) {
+					for (i = len - 1; i >= 0; i--) {
+						fn.call(thisArg, loopable[i], i);
+					}
+				} else {
+					for (i = 0; i < len; i++) {
+						fn.call(thisArg, loopable[i], i);
+					}
+				}
+			} else if (helpers.isObject(loopable)) {
+				keys = Object.keys(loopable);
+				len = keys.length;
+				for (i = 0; i < len; i++) {
+					fn.call(thisArg, loopable[keys[i]], keys[i]);
+				}
+			}
+		},
+
+		/**
+		 * Returns true if the `a0` and `a1` arrays have the same content, else returns false.
+		 * @see http://stackoverflow.com/a/14853974
+		 * @param {Array} a0 - The array to compare
+		 * @param {Array} a1 - The array to compare
+		 * @returns {Boolean}
+		 */
+		arrayEquals: function(a0, a1) {
+			var i, ilen, v0, v1;
+
+			if (!a0 || !a1 || a0.length !== a1.length) {
+				return false;
+			}
+
+			for (i = 0, ilen=a0.length; i < ilen; ++i) {
+				v0 = a0[i];
+				v1 = a1[i];
+
+				if (v0 instanceof Array && v1 instanceof Array) {
+					if (!helpers.arrayEquals(v0, v1)) {
+						return false;
+					}
+				} else if (v0 !== v1) {
+					// NOTE: two different object instances will never be equal: {x:20} != {x:20}
+					return false;
+				}
+			}
+
+			return true;
+		}
+	};
+
+	/**
+	 * Provided for backward compatibility, use Chart.helpers.callback instead.
+	 * @function Chart.helpers.callCallback
+	 * @deprecated since version 2.6.0
+	 * @todo remove at version 3
+	 * @private
+	 */
+	helpers.callCallback = helpers.callback;
+
+	/**
+	 * Provided for backward compatibility, use Array.prototype.indexOf instead.
+	 * Array.prototype.indexOf compatibility: Chrome, Opera, Safari, FF1.5+, IE9+
+	 * @function Chart.helpers.indexOf
+	 * @deprecated since version 2.7.0
+	 * @todo remove at version 3
+	 * @private
+	 */
+	helpers.indexOf = function(array, item, fromIndex) {
+		return Array.prototype.indexOf.call(array, item, fromIndex);
+	};
+};
+
+},{}],40:[function(require,module,exports){
 'use strict';
 
 var moment = require(1);
@@ -9955,7 +10096,7 @@ module.exports = function(Chart) {
 
 };
 
-},{"1":1}],40:[function(require,module,exports){
+},{"1":1}],41:[function(require,module,exports){
 'use strict';
 
 // Chart.Platform implementation for targeting a web browser
@@ -10187,7 +10328,7 @@ module.exports = function(Chart) {
 			var initial = canvas._chartjs.initial;
 			['height', 'width'].forEach(function(prop) {
 				var value = initial[prop];
-				if (value === undefined || value === null) {
+				if (helpers.isNullOrUndef(value)) {
 					canvas.removeAttribute(prop);
 				} else {
 					canvas.setAttribute(prop, value);
@@ -10244,12 +10385,12 @@ module.exports = function(Chart) {
 	};
 };
 
-},{}],41:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 'use strict';
 
 // By default, select the browser (DOM) platform.
 // @TODO Make possible to select another platform at build time.
-var implementation = require(40);
+var implementation = require(41);
 
 module.exports = function(Chart) {
 	/**
@@ -10315,7 +10456,7 @@ module.exports = function(Chart) {
 	Chart.helpers.extend(Chart.platform, implementation(Chart));
 };
 
-},{"40":40}],42:[function(require,module,exports){
+},{"41":41}],43:[function(require,module,exports){
 'use strict';
 
 module.exports = function(Chart) {
@@ -10627,7 +10768,7 @@ module.exports = function(Chart) {
 	};
 };
 
-},{}],43:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 'use strict';
 
 module.exports = function(Chart) {
@@ -10990,7 +11131,7 @@ module.exports = function(Chart) {
 						var centerY = y + offSet;
 
 						// Draw pointStyle as legend symbol
-						Chart.canvasHelpers.drawPoint(ctx, legendItem.pointStyle, radius, centerX, centerY);
+						Chart.helpers.canvas.drawPoint(ctx, legendItem.pointStyle, radius, centerX, centerY);
 					} else {
 						// Draw box as legend symbol
 						if (!isLineWidthZero) {
@@ -11177,7 +11318,7 @@ module.exports = function(Chart) {
 	};
 };
 
-},{}],44:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 'use strict';
 
 module.exports = function(Chart) {
@@ -11420,12 +11561,11 @@ module.exports = function(Chart) {
 	};
 };
 
-},{}],45:[function(require,module,exports){
+},{}],46:[function(require,module,exports){
 'use strict';
 
 module.exports = function(Chart) {
 
-	var helpers = Chart.helpers;
 	// Default config for a category scale
 	var defaultConfig = {
 		position: 'bottom'
@@ -11451,13 +11591,13 @@ module.exports = function(Chart) {
 
 			if (me.options.ticks.min !== undefined) {
 				// user specified min value
-				findIndex = helpers.indexOf(labels, me.options.ticks.min);
+				findIndex = labels.indexOf(me.options.ticks.min);
 				me.minIndex = findIndex !== -1 ? findIndex : me.minIndex;
 			}
 
 			if (me.options.ticks.max !== undefined) {
 				// user specified max value
-				findIndex = helpers.indexOf(labels, me.options.ticks.max);
+				findIndex = labels.indexOf(me.options.ticks.max);
 				me.maxIndex = findIndex !== -1 ? findIndex : me.maxIndex;
 			}
 
@@ -11554,7 +11694,7 @@ module.exports = function(Chart) {
 
 };
 
-},{}],46:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 'use strict';
 
 module.exports = function(Chart) {
@@ -11746,7 +11886,7 @@ module.exports = function(Chart) {
 
 };
 
-},{}],47:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 'use strict';
 
 module.exports = function(Chart) {
@@ -11854,7 +11994,7 @@ module.exports = function(Chart) {
 	});
 };
 
-},{}],48:[function(require,module,exports){
+},{}],49:[function(require,module,exports){
 'use strict';
 
 module.exports = function(Chart) {
@@ -12102,7 +12242,7 @@ module.exports = function(Chart) {
 
 };
 
-},{}],49:[function(require,module,exports){
+},{}],50:[function(require,module,exports){
 'use strict';
 
 module.exports = function(Chart) {
@@ -12627,7 +12767,7 @@ module.exports = function(Chart) {
 
 };
 
-},{}],50:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 /* global window: false */
 'use strict';
 
