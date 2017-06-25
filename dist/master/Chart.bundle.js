@@ -11751,6 +11751,7 @@ module.exports = function(Chart) {
 				var largestTextWidth = helpers.longestText(me.ctx, tickFont.font, me.ticks, me.longestTextCache);
 				var tallestLabelHeightInLines = helpers.numberOfLabelLines(me.ticks);
 				var lineSpace = tickFont.size * 0.5;
+				var tickPadding = me.options.ticks.padding;
 
 				if (isHorizontal) {
 					// A horizontal axis is more constrained by the height.
@@ -11765,7 +11766,7 @@ module.exports = function(Chart) {
 						+ (tickFont.size * tallestLabelHeightInLines)
 						+ (lineSpace * tallestLabelHeightInLines);
 
-					minSize.height = Math.min(me.maxHeight, minSize.height + labelHeight);
+					minSize.height = Math.min(me.maxHeight, minSize.height + labelHeight + tickPadding);
 					me.ctx.font = tickFont.font;
 
 					var firstTick = me.ticks[0];
@@ -11790,7 +11791,7 @@ module.exports = function(Chart) {
 					if (tickOpts.mirror) {
 						largestTextWidth = 0;
 					} else {
-						largestTextWidth += me.options.ticks.padding;
+						largestTextWidth += tickPadding;
 					}
 					minSize.width = Math.min(me.maxWidth, minSize.width + largestTextWidth);
 					me.paddingTop = tickFont.size / 2;
@@ -12016,19 +12017,21 @@ module.exports = function(Chart) {
 				var tx1, ty1, tx2, ty2, x1, y1, x2, y2, labelX, labelY;
 				var textAlign = 'middle';
 				var textBaseline = 'middle';
+				var tickPadding = optionTicks.padding;
 
 				if (isHorizontal) {
+					var labelYOffset = tl + tickPadding;
 
 					if (options.position === 'bottom') {
 						// bottom
 						textBaseline = !isRotated? 'top':'middle';
 						textAlign = !isRotated? 'center': 'right';
-						labelY = me.top + tl;
+						labelY = me.top + labelYOffset;
 					} else {
 						// top
 						textBaseline = !isRotated? 'bottom':'middle';
 						textAlign = !isRotated? 'center': 'left';
-						labelY = me.bottom - tl;
+						labelY = me.bottom - labelYOffset;
 					}
 
 					var xLineValue = me.getPixelForTick(index) + helpers.aliasPixel(lineWidth); // xvalues for grid lines
@@ -12041,7 +12044,6 @@ module.exports = function(Chart) {
 					y2 = chartArea.bottom;
 				} else {
 					var isLeft = options.position === 'left';
-					var tickPadding = optionTicks.padding;
 					var labelXOffset;
 
 					if (optionTicks.mirror) {
@@ -16329,8 +16331,8 @@ module.exports = function(Chart) {
 				});
 			}
 
-			me.min = isFinite(me.min) ? me.min : DEFAULT_MIN;
-			me.max = isFinite(me.max) ? me.max : DEFAULT_MAX;
+			me.min = isFinite(me.min) && !isNaN(me.min) ? me.min : DEFAULT_MIN;
+			me.max = isFinite(me.max) && !isNaN(me.max) ? me.max : DEFAULT_MAX;
 
 			// Common base implementation to handle ticks.min, ticks.max, ticks.beginAtZero
 			this.handleTickRangeOptions();
@@ -16424,6 +16426,9 @@ module.exports = function(Chart) {
 				}
 			}
 
+			var setMin = tickOpts.min !== undefined || tickOpts.suggestedMin !== undefined;
+			var setMax = tickOpts.max !== undefined || tickOpts.suggestedMax !== undefined;
+
 			if (tickOpts.min !== undefined) {
 				me.min = tickOpts.min;
 			} else if (tickOpts.suggestedMin !== undefined) {
@@ -16441,6 +16446,20 @@ module.exports = function(Chart) {
 					me.max = tickOpts.suggestedMax;
 				} else {
 					me.max = Math.max(me.max, tickOpts.suggestedMax);
+				}
+			}
+
+			if (setMin !== setMax) {
+				// We set the min or the max but not both.
+				// So ensure that our range is good
+				// Inverted or 0 length range can happen when
+				// ticks.min is set, and no datasets are visible
+				if (me.min >= me.max) {
+					if (setMin) {
+						me.max = me.min + 1;
+					} else {
+						me.min = me.max - 1;
+					}
 				}
 			}
 
