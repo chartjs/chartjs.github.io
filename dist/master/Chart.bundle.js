@@ -6294,6 +6294,7 @@ module.exports = function(Chart) {
 				id: 'y-axis-1'
 			}]
 		},
+		showLines: false,
 
 		tooltips: {
 			callbacks: {
