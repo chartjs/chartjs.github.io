@@ -12924,7 +12924,8 @@ module.exports = function(Chart) {
 			me.unit = unit;
 			me.majorUnit = majorUnit;
 
-			var stepSize = timeOpts.stepSize || timeHelpers.determineStepSize(minTimestamp || dataMin, maxTimestamp || dataMax, unit, maxTicks);
+			var optionStepSize = helpers.valueOrDefault(timeOpts.stepSize, timeOpts.unitStepSize);
+			var stepSize = optionStepSize || timeHelpers.determineStepSize(minTimestamp || dataMin, maxTimestamp || dataMax, unit, maxTicks);
 			me.ticks = timeHelpers.generateTicks({
 				maxTicks: maxTicks,
 				min: minTimestamp,
