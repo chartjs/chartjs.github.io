@@ -6132,13 +6132,12 @@ return hooks;
  */
 var Chart = require(27)();
 
-require(39)(Chart);
-require(40)(Chart);
-require(25)(Chart);
-require(41)(Chart);
-require(38)(Chart);
+Chart.helpers = require(42);
 
-require(43)(Chart);
+// @todo dispatch these helpers into appropriated helpers/helpers.* file and write unit tests!
+require(25)(Chart);
+
+require(44)(Chart);
 require(24)(Chart);
 require(29)(Chart);
 require(21)(Chart);
@@ -6156,12 +6155,12 @@ require(35)(Chart);
 require(36)(Chart);
 require(37)(Chart);
 
-require(49)(Chart);
-require(47)(Chart);
-require(48)(Chart);
 require(50)(Chart);
+require(48)(Chart);
+require(49)(Chart);
 require(51)(Chart);
 require(52)(Chart);
+require(53)(Chart);
 
 // Controllers must be loaded after elements
 // See Chart.core.datasetController.dataElementType
@@ -6184,9 +6183,9 @@ require(14)(Chart);
 var plugins = [];
 
 plugins.push(
-    require(44)(Chart),
     require(45)(Chart),
-    require(46)(Chart)
+    require(46)(Chart),
+    require(47)(Chart)
 );
 
 Chart.plugins.register(plugins);
@@ -6196,7 +6195,18 @@ if (typeof window !== 'undefined') {
 	window.Chart = Chart;
 }
 
-},{"10":10,"11":11,"12":12,"13":13,"14":14,"15":15,"16":16,"17":17,"18":18,"19":19,"20":20,"21":21,"22":22,"23":23,"24":24,"25":25,"26":26,"27":27,"28":28,"29":29,"30":30,"31":31,"32":32,"33":33,"34":34,"35":35,"36":36,"37":37,"38":38,"39":39,"40":40,"41":41,"43":43,"44":44,"45":45,"46":46,"47":47,"48":48,"49":49,"50":50,"51":51,"52":52,"8":8,"9":9}],8:[function(require,module,exports){
+// DEPRECATIONS
+
+/**
+ * Provided for backward compatibility, use Chart.helpers.canvas instead.
+ * @namespace Chart.canvasHelpers
+ * @deprecated since version 2.6.0
+ * @todo remove at version 3
+ * @private
+ */
+Chart.canvasHelpers = Chart.helpers.canvas;
+
+},{"10":10,"11":11,"12":12,"13":13,"14":14,"15":15,"16":16,"17":17,"18":18,"19":19,"20":20,"21":21,"22":22,"23":23,"24":24,"25":25,"26":26,"27":27,"28":28,"29":29,"30":30,"31":31,"32":32,"33":33,"34":34,"35":35,"36":36,"37":37,"42":42,"44":44,"45":45,"46":46,"47":47,"48":48,"49":49,"50":50,"51":51,"52":52,"53":53,"8":8,"9":9}],8:[function(require,module,exports){
 'use strict';
 
 module.exports = function(Chart) {
@@ -6326,9 +6336,9 @@ module.exports = function(Chart) {
 },{}],15:[function(require,module,exports){
 'use strict';
 
-module.exports = function(Chart) {
+var helpers = require(42);
 
-	var helpers = Chart.helpers;
+module.exports = function(Chart) {
 
 	Chart.defaults.bar = {
 		hover: {
@@ -6708,12 +6718,12 @@ module.exports = function(Chart) {
 	});
 };
 
-},{}],16:[function(require,module,exports){
+},{"42":42}],16:[function(require,module,exports){
 'use strict';
 
-module.exports = function(Chart) {
+var helpers = require(42);
 
-	var helpers = Chart.helpers;
+module.exports = function(Chart) {
 
 	Chart.defaults.bubble = {
 		hover: {
@@ -6832,13 +6842,14 @@ module.exports = function(Chart) {
 	});
 };
 
-},{}],17:[function(require,module,exports){
+},{"42":42}],17:[function(require,module,exports){
 'use strict';
+
+var helpers = require(42);
 
 module.exports = function(Chart) {
 
-	var helpers = Chart.helpers,
-		defaults = Chart.defaults;
+	var defaults = Chart.defaults;
 
 	defaults.doughnut = {
 		animation: {
@@ -7136,12 +7147,12 @@ module.exports = function(Chart) {
 	});
 };
 
-},{}],18:[function(require,module,exports){
+},{"42":42}],18:[function(require,module,exports){
 'use strict';
 
-module.exports = function(Chart) {
+var helpers = require(42);
 
-	var helpers = Chart.helpers;
+module.exports = function(Chart) {
 
 	Chart.defaults.line = {
 		showLines: true,
@@ -7424,13 +7435,13 @@ module.exports = function(Chart) {
 			var ilen = points.length;
 			var i = 0;
 
-			Chart.helpers.canvas.clipArea(chart.ctx, area);
+			helpers.canvas.clipArea(chart.ctx, area);
 
 			if (lineEnabled(me.getDataset(), chart.options)) {
 				meta.dataset.draw();
 			}
 
-			Chart.helpers.canvas.unclipArea(chart.ctx);
+			helpers.canvas.unclipArea(chart.ctx);
 
 			// Draw the points
 			for (; i<ilen; ++i) {
@@ -7471,12 +7482,12 @@ module.exports = function(Chart) {
 	});
 };
 
-},{}],19:[function(require,module,exports){
+},{"42":42}],19:[function(require,module,exports){
 'use strict';
 
-module.exports = function(Chart) {
+var helpers = require(42);
 
-	var helpers = Chart.helpers;
+module.exports = function(Chart) {
 
 	Chart.defaults.polarArea = {
 
@@ -7694,12 +7705,12 @@ module.exports = function(Chart) {
 	});
 };
 
-},{}],20:[function(require,module,exports){
+},{"42":42}],20:[function(require,module,exports){
 'use strict';
 
-module.exports = function(Chart) {
+var helpers = require(42);
 
-	var helpers = Chart.helpers;
+module.exports = function(Chart) {
 
 	Chart.defaults.radar = {
 		scale: {
@@ -7862,13 +7873,13 @@ module.exports = function(Chart) {
 	});
 };
 
-},{}],21:[function(require,module,exports){
+},{"42":42}],21:[function(require,module,exports){
 /* global window: false */
 'use strict';
 
-module.exports = function(Chart) {
+var helpers = require(42);
 
-	var helpers = Chart.helpers;
+module.exports = function(Chart) {
 
 	Chart.defaults.global.animation = {
 		duration: 1000,
@@ -8032,12 +8043,12 @@ module.exports = function(Chart) {
 
 };
 
-},{}],22:[function(require,module,exports){
+},{"42":42}],22:[function(require,module,exports){
 'use strict';
 
-module.exports = function(Chart) {
+var helpers = require(42);
 
-	var helpers = Chart.helpers;
+module.exports = function(Chart) {
 	var plugins = Chart.plugins;
 	var platform = Chart.platform;
 
@@ -8906,12 +8917,12 @@ module.exports = function(Chart) {
 	Chart.Controller = Chart;
 };
 
-},{}],23:[function(require,module,exports){
+},{"42":42}],23:[function(require,module,exports){
 'use strict';
 
-module.exports = function(Chart) {
+var helpers = require(42);
 
-	var helpers = Chart.helpers;
+module.exports = function(Chart) {
 
 	var arrayEvents = ['push', 'pop', 'shift', 'splice', 'unshift'];
 
@@ -9238,14 +9249,13 @@ module.exports = function(Chart) {
 	Chart.DatasetController.extend = helpers.inherits;
 };
 
-},{}],24:[function(require,module,exports){
+},{"42":42}],24:[function(require,module,exports){
 'use strict';
 
 var color = require(2);
+var helpers = require(42);
 
 module.exports = function(Chart) {
-
-	var helpers = Chart.helpers;
 
 	function interpolate(start, view, model, ease) {
 		var keys = Object.keys(model);
@@ -9359,15 +9369,15 @@ module.exports = function(Chart) {
 	Chart.Element.extend = helpers.inherits;
 };
 
-},{"2":2}],25:[function(require,module,exports){
+},{"2":2,"42":42}],25:[function(require,module,exports){
 /* global window: false */
 /* global document: false */
 'use strict';
 
 var color = require(2);
+var helpers = require(42);
 
 module.exports = function(Chart) {
-	var helpers = Chart.helpers;
 
 	// -- Basic js utility methods
 
@@ -9988,11 +9998,12 @@ module.exports = function(Chart) {
 	};
 };
 
-},{"2":2}],26:[function(require,module,exports){
+},{"2":2,"42":42}],26:[function(require,module,exports){
 'use strict';
 
+var helpers = require(42);
+
 module.exports = function(Chart) {
-	var helpers = Chart.helpers;
 
 	/**
 	 * Helper function to get relative position for an event
@@ -10306,7 +10317,7 @@ module.exports = function(Chart) {
 	};
 };
 
-},{}],27:[function(require,module,exports){
+},{"42":42}],27:[function(require,module,exports){
 'use strict';
 
 module.exports = function() {
@@ -10377,9 +10388,9 @@ module.exports = function() {
 },{}],28:[function(require,module,exports){
 'use strict';
 
-module.exports = function(Chart) {
+var helpers = require(42);
 
-	var helpers = Chart.helpers;
+module.exports = function(Chart) {
 
 	function filterByPosition(array, position) {
 		return helpers.where(array, function(v) {
@@ -10812,12 +10823,12 @@ module.exports = function(Chart) {
 	};
 };
 
-},{}],29:[function(require,module,exports){
+},{"42":42}],29:[function(require,module,exports){
 'use strict';
 
-module.exports = function(Chart) {
+var helpers = require(42);
 
-	var helpers = Chart.helpers;
+module.exports = function(Chart) {
 
 	Chart.defaults.global.plugins = {};
 
@@ -11185,12 +11196,12 @@ module.exports = function(Chart) {
 	Chart.PluginBase = Chart.Element.extend({});
 };
 
-},{}],30:[function(require,module,exports){
+},{"42":42}],30:[function(require,module,exports){
 'use strict';
 
-module.exports = function(Chart) {
+var helpers = require(42);
 
-	var helpers = Chart.helpers;
+module.exports = function(Chart) {
 
 	Chart.defaults.scale = {
 		display: true,
@@ -11976,12 +11987,12 @@ module.exports = function(Chart) {
 	});
 };
 
-},{}],31:[function(require,module,exports){
+},{"42":42}],31:[function(require,module,exports){
 'use strict';
 
-module.exports = function(Chart) {
+var helpers = require(42);
 
-	var helpers = Chart.helpers;
+module.exports = function(Chart) {
 
 	Chart.scaleService = {
 		// Scale registration object. Extensions can register new scale types (such as log or DB scales) and then
@@ -12022,12 +12033,12 @@ module.exports = function(Chart) {
 	};
 };
 
-},{}],32:[function(require,module,exports){
+},{"42":42}],32:[function(require,module,exports){
 'use strict';
 
-module.exports = function(Chart) {
+var helpers = require(42);
 
-	var helpers = Chart.helpers;
+module.exports = function(Chart) {
 
 	/**
 	 * Namespace to hold static tick generation functions
@@ -12234,12 +12245,12 @@ module.exports = function(Chart) {
 	};
 };
 
-},{}],33:[function(require,module,exports){
+},{"42":42}],33:[function(require,module,exports){
 'use strict';
 
-module.exports = function(Chart) {
+var helpers = require(42);
 
-	var helpers = Chart.helpers;
+module.exports = function(Chart) {
 
 	/**
  	 * Helper method to merge the opacity into a color
@@ -13179,13 +13190,14 @@ module.exports = function(Chart) {
 	};
 };
 
-},{}],34:[function(require,module,exports){
+},{"42":42}],34:[function(require,module,exports){
 'use strict';
+
+var helpers = require(42);
 
 module.exports = function(Chart) {
 
-	var helpers = Chart.helpers,
-		globalOpts = Chart.defaults.global;
+	var globalOpts = Chart.defaults.global;
 
 	globalOpts.elements.arc = {
 		backgroundColor: globalOpts.defaultColor,
@@ -13285,12 +13297,13 @@ module.exports = function(Chart) {
 	});
 };
 
-},{}],35:[function(require,module,exports){
+},{"42":42}],35:[function(require,module,exports){
 'use strict';
+
+var helpers = require(42);
 
 module.exports = function(Chart) {
 
-	var helpers = Chart.helpers;
 	var globalDefaults = Chart.defaults.global;
 
 	Chart.defaults.global.elements.line = {
@@ -13374,13 +13387,14 @@ module.exports = function(Chart) {
 	});
 };
 
-},{}],36:[function(require,module,exports){
+},{"42":42}],36:[function(require,module,exports){
 'use strict';
+
+var helpers = require(42);
 
 module.exports = function(Chart) {
 
-	var helpers = Chart.helpers,
-		globalOpts = Chart.defaults.global,
+	var globalOpts = Chart.defaults.global,
 		defaultColor = globalOpts.defaultColor;
 
 	globalOpts.elements.point = {
@@ -13441,7 +13455,7 @@ module.exports = function(Chart) {
 			var radius = vm.radius;
 			var x = vm.x;
 			var y = vm.y;
-			var color = Chart.helpers.color;
+			var color = helpers.color;
 			var errMargin = 1.01; // 1.01 is margin for Accumulated error. (Especially Edge, IE.)
 			var ratio = 0;
 
@@ -13471,12 +13485,12 @@ module.exports = function(Chart) {
 				ctx.fillStyle = color(ctx.fillStyle).alpha(ratio).rgbString();
 			}
 
-			Chart.helpers.canvas.drawPoint(ctx, pointStyle, radius, x, y);
+			helpers.canvas.drawPoint(ctx, pointStyle, radius, x, y);
 		}
 	});
 };
 
-},{}],37:[function(require,module,exports){
+},{"42":42}],37:[function(require,module,exports){
 'use strict';
 
 module.exports = function(Chart) {
@@ -13689,59 +13703,57 @@ module.exports = function(Chart) {
 },{}],38:[function(require,module,exports){
 'use strict';
 
-module.exports = function(Chart) {
-	var helpers = Chart.helpers;
+var helpers = require(39);
+
+/**
+ * @namespace Chart.helpers.canvas
+ */
+var exports = module.exports = {
+	/**
+	 * Clears the entire canvas associated to the given `chart`.
+	 * @param {Chart} chart - The chart for which to clear the canvas.
+	 */
+	clear: function(chart) {
+		chart.ctx.clearRect(0, 0, chart.width, chart.height);
+	},
 
 	/**
-	 * @namespace Chart.helpers.canvas
+	 * Creates a "path" for a rectangle with rounded corners at position (x, y) with a
+	 * given size (width, height) and the same `radius` for all corners.
+	 * @param {CanvasRenderingContext2D} ctx - The canvas 2D Context.
+	 * @param {Number} x - The x axis of the coordinate for the rectangle starting point.
+	 * @param {Number} y - The y axis of the coordinate for the rectangle starting point.
+	 * @param {Number} width - The rectangle's width.
+	 * @param {Number} height - The rectangle's height.
+	 * @param {Number} radius - The rounded amount (in pixels) for the four corners.
+	 * @todo handle `radius` as top-left, top-right, bottom-right, bottom-left array/object?
 	 */
-	helpers.canvas = {
-		/**
-		 * Clears the entire canvas associated to the given `chart`.
-		 * @param {Chart} chart - The chart for which to clear the canvas.
-		 */
-		clear: function(chart) {
-			chart.ctx.clearRect(0, 0, chart.width, chart.height);
-		},
+	roundedRect: function(ctx, x, y, width, height, radius) {
+		if (radius) {
+			var rx = Math.min(radius, width/2);
+			var ry = Math.min(radius, height/2);
 
-		/**
-		 * Creates a "path" for a rectangle with rounded corners at position (x, y) with a
-		 * given size (width, height) and the same `radius` for all corners.
-		 * @param {CanvasRenderingContext2D} ctx - The canvas 2D Context.
-		 * @param {Number} x - The x axis of the coordinate for the rectangle starting point.
-		 * @param {Number} y - The y axis of the coordinate for the rectangle starting point.
-		 * @param {Number} width - The rectangle's width.
-		 * @param {Number} height - The rectangle's height.
-		 * @param {Number} radius - The rounded amount (in pixels) for the four corners.
-		 * @todo handle `radius` as top-left, top-right, bottom-right, bottom-left array/object?
-		 */
-		roundedRect: function(ctx, x, y, width, height, radius) {
-			if (radius) {
-				var rx = Math.min(radius, width/2);
-				var ry = Math.min(radius, height/2);
-
-				ctx.moveTo(x + rx, y);
-				ctx.lineTo(x + width - rx, y);
-				ctx.quadraticCurveTo(x + width, y, x + width, y + ry);
-				ctx.lineTo(x + width, y + height - ry);
-				ctx.quadraticCurveTo(x + width, y + height, x + width - rx, y + height);
-				ctx.lineTo(x + rx, y + height);
-				ctx.quadraticCurveTo(x, y + height, x, y + height - ry);
-				ctx.lineTo(x, y + ry);
-				ctx.quadraticCurveTo(x, y, x + rx, y);
-			} else {
-				ctx.rect(x, y, width, height);
-			}
+			ctx.moveTo(x + rx, y);
+			ctx.lineTo(x + width - rx, y);
+			ctx.quadraticCurveTo(x + width, y, x + width, y + ry);
+			ctx.lineTo(x + width, y + height - ry);
+			ctx.quadraticCurveTo(x + width, y + height, x + width - rx, y + height);
+			ctx.lineTo(x + rx, y + height);
+			ctx.quadraticCurveTo(x, y + height, x, y + height - ry);
+			ctx.lineTo(x, y + ry);
+			ctx.quadraticCurveTo(x, y, x + rx, y);
+		} else {
+			ctx.rect(x, y, width, height);
 		}
-	};
+	},
 
-	helpers.canvas.drawPoint = function(ctx, pointStyle, radius, x, y) {
+	drawPoint: function(ctx, style, radius, x, y) {
 		var type, edgeLength, xOffset, yOffset, height, size;
 
-		if (typeof pointStyle === 'object') {
-			type = pointStyle.toString();
+		if (typeof style === 'object') {
+			type = style.toString();
 			if (type === '[object HTMLImageElement]' || type === '[object HTMLCanvasElement]') {
-				ctx.drawImage(pointStyle, x - pointStyle.width / 2, y - pointStyle.height / 2, pointStyle.width, pointStyle.height);
+				ctx.drawImage(style, x - style.width / 2, y - style.height / 2, style.width, style.height);
 				return;
 			}
 		}
@@ -13750,7 +13762,7 @@ module.exports = function(Chart) {
 			return;
 		}
 
-		switch (pointStyle) {
+		switch (style) {
 		// Default includes circle
 		default:
 			ctx.beginPath();
@@ -13841,20 +13853,20 @@ module.exports = function(Chart) {
 		}
 
 		ctx.stroke();
-	};
+	},
 
-	helpers.canvas.clipArea = function(ctx, clipArea) {
+	clipArea: function(ctx, area) {
 		ctx.save();
 		ctx.beginPath();
-		ctx.rect(clipArea.left, clipArea.top, clipArea.right - clipArea.left, clipArea.bottom - clipArea.top);
+		ctx.rect(area.left, area.top, area.right - area.left, area.bottom - area.top);
 		ctx.clip();
-	};
+	},
 
-	helpers.canvas.unclipArea = function(ctx) {
+	unclipArea: function(ctx) {
 		ctx.restore();
-	};
+	},
 
-	helpers.canvas.lineTo = function(ctx, previous, target, flip) {
+	lineTo: function(ctx, previous, target, flip) {
 		if (target.steppedLine) {
 			if (target.steppedLine === 'after') {
 				ctx.lineTo(previous.x, target.y);
@@ -13877,343 +13889,341 @@ module.exports = function(Chart) {
 			flip? target.controlPointNextY : target.controlPointPreviousY,
 			target.x,
 			target.y);
-	};
-
-	/**
-	 * Provided for backward compatibility, use Chart.helpers.canvas instead.
-	 * @namespace Chart.canvasHelpers
-	 * @deprecated since version 2.6.0
-	 * @todo remove at version 3
-	 * @private
-	 */
-	Chart.canvasHelpers = helpers.canvas;
-
-	/**
-	 * Provided for backward compatibility, use Chart.helpers.canvas.clear instead.
-	 * @namespace Chart.helpers.clear
-	 * @deprecated since version 2.7.0
-	 * @todo remove at version 3
-	 * @private
-	 */
-	helpers.clear = helpers.canvas.clear;
-
-	/**
-	 * Provided for backward compatibility, use Chart.helpers.canvas.roundedRect instead.
-	 * @namespace Chart.helpers.drawRoundedRectangle
-	 * @deprecated since version 2.7.0
-	 * @todo remove at version 3
-	 * @private
-	 */
-	helpers.drawRoundedRectangle = function(ctx) {
-		ctx.beginPath();
-		helpers.canvas.roundedRect.apply(this, arguments);
-		ctx.closePath();
-	};
+	}
 };
 
-},{}],39:[function(require,module,exports){
+// DEPRECATIONS
+
+/**
+ * Provided for backward compatibility, use Chart.helpers.canvas.clear instead.
+ * @namespace Chart.helpers.clear
+ * @deprecated since version 2.7.0
+ * @todo remove at version 3
+ * @private
+ */
+helpers.clear = exports.clear;
+
+/**
+ * Provided for backward compatibility, use Chart.helpers.canvas.roundedRect instead.
+ * @namespace Chart.helpers.drawRoundedRectangle
+ * @deprecated since version 2.7.0
+ * @todo remove at version 3
+ * @private
+ */
+helpers.drawRoundedRectangle = function(ctx) {
+	ctx.beginPath();
+	exports.roundedRect.apply(exports, arguments);
+	ctx.closePath();
+};
+
+},{"39":39}],39:[function(require,module,exports){
 'use strict';
 
-module.exports = function(Chart) {
+/**
+ * @namespace Chart.helpers
+ */
+var helpers = {
 	/**
-	 * @namespace Chart.helpers
+	 * An empty function that can be used, for example, for optional callback.
 	 */
-	var helpers = Chart.helpers = {
-		/**
-		 * An empty function that can be used, for example, for optional callback.
-		 */
-		noop: function() {},
+	noop: function() {},
 
-		/**
-		 * Returns a unique id, sequentially generated from a global variable.
-		 * @returns {Number}
-		 * @function
-		 */
-		uid: (function() {
-			var id = 0;
-			return function() {
-				return id++;
-			};
-		}()),
+	/**
+	 * Returns a unique id, sequentially generated from a global variable.
+	 * @returns {Number}
+	 * @function
+	 */
+	uid: (function() {
+		var id = 0;
+		return function() {
+			return id++;
+		};
+	}()),
 
-		/**
-		 * Returns true if `value` is neither null nor undefined, else returns false.
-		 * @param {*} value - The value to test.
-		 * @returns {Boolean}
-		 * @since 2.7.0
-		 */
-		isNullOrUndef: function(value) {
-			return value === null || typeof value === 'undefined';
-		},
+	/**
+	 * Returns true if `value` is neither null nor undefined, else returns false.
+	 * @param {*} value - The value to test.
+	 * @returns {Boolean}
+	 * @since 2.7.0
+	 */
+	isNullOrUndef: function(value) {
+		return value === null || typeof value === 'undefined';
+	},
 
-		/**
-		 * Returns true if `value` is an array, else returns false.
-		 * @param {*} value - The value to test.
-		 * @returns {Boolean}
-		 * @function
-		 */
-		isArray: Array.isArray? Array.isArray : function(value) {
-			return Object.prototype.toString.call(value) === '[object Array]';
-		},
+	/**
+	 * Returns true if `value` is an array, else returns false.
+	 * @param {*} value - The value to test.
+	 * @returns {Boolean}
+	 * @function
+	 */
+	isArray: Array.isArray? Array.isArray : function(value) {
+		return Object.prototype.toString.call(value) === '[object Array]';
+	},
 
-		/**
-		 * Returns true if `value` is an object (excluding null), else returns false.
-		 * @param {*} value - The value to test.
-		 * @returns {Boolean}
-		 * @since 2.7.0
-		 */
-		isObject: function(value) {
-			return value !== null && Object.prototype.toString.call(value) === '[object Object]';
-		},
+	/**
+	 * Returns true if `value` is an object (excluding null), else returns false.
+	 * @param {*} value - The value to test.
+	 * @returns {Boolean}
+	 * @since 2.7.0
+	 */
+	isObject: function(value) {
+		return value !== null && Object.prototype.toString.call(value) === '[object Object]';
+	},
 
-		/**
-		 * Returns `value` if defined, else returns `defaultValue`.
-		 * @param {*} value - The value to return if defined.
-		 * @param {*} defaultValue - The value to return if `value` is undefined.
-		 * @returns {*}
-		 */
-		valueOrDefault: function(value, defaultValue) {
-			return typeof value === 'undefined'? defaultValue : value;
-		},
+	/**
+	 * Returns `value` if defined, else returns `defaultValue`.
+	 * @param {*} value - The value to return if defined.
+	 * @param {*} defaultValue - The value to return if `value` is undefined.
+	 * @returns {*}
+	 */
+	valueOrDefault: function(value, defaultValue) {
+		return typeof value === 'undefined'? defaultValue : value;
+	},
 
-		/**
-		 * Returns value at the given `index` in array if defined, else returns `defaultValue`.
-		 * @param {Array} value - The array to lookup for value at `index`.
-		 * @param {Number} index - The index in `value` to lookup for value.
-		 * @param {*} defaultValue - The value to return if `value[index]` is undefined.
-		 * @returns {*}
-		 */
-		valueAtIndexOrDefault: function(value, index, defaultValue) {
-			return helpers.valueOrDefault(helpers.isArray(value)? value[index] : value, defaultValue);
-		},
+	/**
+	 * Returns value at the given `index` in array if defined, else returns `defaultValue`.
+	 * @param {Array} value - The array to lookup for value at `index`.
+	 * @param {Number} index - The index in `value` to lookup for value.
+	 * @param {*} defaultValue - The value to return if `value[index]` is undefined.
+	 * @returns {*}
+	 */
+	valueAtIndexOrDefault: function(value, index, defaultValue) {
+		return helpers.valueOrDefault(helpers.isArray(value)? value[index] : value, defaultValue);
+	},
 
-		/**
-		 * Calls `fn` with the given `args` in the scope defined by `thisArg` and returns the
-		 * value returned by `fn`. If `fn` is not a function, this method returns undefined.
-		 * @param {Function} fn - The function to call.
-		 * @param {Array|undefined|null} args - The arguments with which `fn` should be called.
-		 * @param {Object} [thisArg] - The value of `this` provided for the call to `fn`.
-		 * @returns {*}
-		 */
-		callback: function(fn, args, thisArg) {
-			if (fn && typeof fn.call === 'function') {
-				return fn.apply(thisArg, args);
-			}
-		},
+	/**
+	 * Calls `fn` with the given `args` in the scope defined by `thisArg` and returns the
+	 * value returned by `fn`. If `fn` is not a function, this method returns undefined.
+	 * @param {Function} fn - The function to call.
+	 * @param {Array|undefined|null} args - The arguments with which `fn` should be called.
+	 * @param {Object} [thisArg] - The value of `this` provided for the call to `fn`.
+	 * @returns {*}
+	 */
+	callback: function(fn, args, thisArg) {
+		if (fn && typeof fn.call === 'function') {
+			return fn.apply(thisArg, args);
+		}
+	},
 
-		/**
-		 * Note(SB) for performance sake, this method should only be used when loopable type
-		 * is unknown or in none intensive code (not called often and small loopable). Else
-		 * it's preferable to use a regular for() loop and save extra function calls.
-		 * @param {Object|Array} loopable - The object or array to be iterated.
-		 * @param {Function} fn - The function to call for each item.
-		 * @param {Object} [thisArg] - The value of `this` provided for the call to `fn`.
-		 * @param {Boolean} [reverse] - If true, iterates backward on the loopable.
-		 */
-		each: function(loopable, fn, thisArg, reverse) {
-			var i, len, keys;
-			if (helpers.isArray(loopable)) {
-				len = loopable.length;
-				if (reverse) {
-					for (i = len - 1; i >= 0; i--) {
-						fn.call(thisArg, loopable[i], i);
-					}
-				} else {
-					for (i = 0; i < len; i++) {
-						fn.call(thisArg, loopable[i], i);
-					}
+	/**
+	 * Note(SB) for performance sake, this method should only be used when loopable type
+	 * is unknown or in none intensive code (not called often and small loopable). Else
+	 * it's preferable to use a regular for() loop and save extra function calls.
+	 * @param {Object|Array} loopable - The object or array to be iterated.
+	 * @param {Function} fn - The function to call for each item.
+	 * @param {Object} [thisArg] - The value of `this` provided for the call to `fn`.
+	 * @param {Boolean} [reverse] - If true, iterates backward on the loopable.
+	 */
+	each: function(loopable, fn, thisArg, reverse) {
+		var i, len, keys;
+		if (helpers.isArray(loopable)) {
+			len = loopable.length;
+			if (reverse) {
+				for (i = len - 1; i >= 0; i--) {
+					fn.call(thisArg, loopable[i], i);
 				}
-			} else if (helpers.isObject(loopable)) {
-				keys = Object.keys(loopable);
-				len = keys.length;
+			} else {
 				for (i = 0; i < len; i++) {
-					fn.call(thisArg, loopable[keys[i]], keys[i]);
+					fn.call(thisArg, loopable[i], i);
 				}
 			}
-		},
-
-		/**
-		 * Returns true if the `a0` and `a1` arrays have the same content, else returns false.
-		 * @see http://stackoverflow.com/a/14853974
-		 * @param {Array} a0 - The array to compare
-		 * @param {Array} a1 - The array to compare
-		 * @returns {Boolean}
-		 */
-		arrayEquals: function(a0, a1) {
-			var i, ilen, v0, v1;
-
-			if (!a0 || !a1 || a0.length !== a1.length) {
-				return false;
+		} else if (helpers.isObject(loopable)) {
+			keys = Object.keys(loopable);
+			len = keys.length;
+			for (i = 0; i < len; i++) {
+				fn.call(thisArg, loopable[keys[i]], keys[i]);
 			}
+		}
+	},
 
-			for (i = 0, ilen=a0.length; i < ilen; ++i) {
-				v0 = a0[i];
-				v1 = a1[i];
+	/**
+	 * Returns true if the `a0` and `a1` arrays have the same content, else returns false.
+	 * @see http://stackoverflow.com/a/14853974
+	 * @param {Array} a0 - The array to compare
+	 * @param {Array} a1 - The array to compare
+	 * @returns {Boolean}
+	 */
+	arrayEquals: function(a0, a1) {
+		var i, ilen, v0, v1;
 
-				if (v0 instanceof Array && v1 instanceof Array) {
-					if (!helpers.arrayEquals(v0, v1)) {
-						return false;
-					}
-				} else if (v0 !== v1) {
-					// NOTE: two different object instances will never be equal: {x:20} != {x:20}
+		if (!a0 || !a1 || a0.length !== a1.length) {
+			return false;
+		}
+
+		for (i = 0, ilen=a0.length; i < ilen; ++i) {
+			v0 = a0[i];
+			v1 = a1[i];
+
+			if (v0 instanceof Array && v1 instanceof Array) {
+				if (!helpers.arrayEquals(v0, v1)) {
 					return false;
 				}
+			} else if (v0 !== v1) {
+				// NOTE: two different object instances will never be equal: {x:20} != {x:20}
+				return false;
 			}
+		}
 
-			return true;
-		},
+		return true;
+	},
 
-		/**
-		 * Returns a deep copy of `source` without keeping references on objects and arrays.
-		 * @param {*} source - The value to clone.
-		 * @returns {*}
-		 */
-		clone: function(source) {
-			if (helpers.isArray(source)) {
-				return source.map(helpers.clone);
-			}
+	/**
+	 * Returns a deep copy of `source` without keeping references on objects and arrays.
+	 * @param {*} source - The value to clone.
+	 * @returns {*}
+	 */
+	clone: function(source) {
+		if (helpers.isArray(source)) {
+			return source.map(helpers.clone);
+		}
 
-			if (helpers.isObject(source)) {
-				var target = {};
-				var keys = Object.keys(source);
-				var klen = keys.length;
-				var k = 0;
+		if (helpers.isObject(source)) {
+			var target = {};
+			var keys = Object.keys(source);
+			var klen = keys.length;
+			var k = 0;
 
-				for (; k<klen; ++k) {
-					target[keys[k]] = helpers.clone(source[keys[k]]);
-				}
-
-				return target;
-			}
-
-			return source;
-		},
-
-		/**
-		 * The default merger when Chart.helpers.merge is called without merger option.
-		 * Note(SB): this method is also used by configMerge and scaleMerge as fallback.
-		 * @private
-		 */
-		_merger: function(key, target, source, options) {
-			var tval = target[key];
-			var sval = source[key];
-
-			if (helpers.isObject(tval) && helpers.isObject(sval)) {
-				helpers.merge(tval, sval, options);
-			} else {
-				target[key] = helpers.clone(sval);
-			}
-		},
-
-		/**
-		 * Merges source[key] in target[key] only if target[key] is undefined.
-		 * @private
-		 */
-		_mergerIf: function(key, target, source) {
-			var tval = target[key];
-			var sval = source[key];
-
-			if (helpers.isObject(tval) && helpers.isObject(sval)) {
-				helpers.mergeIf(tval, sval);
-			} else if (!target.hasOwnProperty(key)) {
-				target[key] = helpers.clone(sval);
-			}
-		},
-
-		/**
-		 * Recursively deep copies `source` properties into `target` with the given `options`.
-		 * IMPORTANT: `target` is not cloned and will be updated with `source` properties.
-		 * @param {Object} target - The target object in which all sources are merged into.
-		 * @param {Object|Array(Object)} source - Object(s) to merge into `target`.
-		 * @param {Object} [options] - Merging options:
-		 * @param {Function} [options.merger] - The merge method (key, target, source, options)
-		 * @returns {Object} The `target` object.
-		 */
-		merge: function(target, source, options) {
-			var sources = helpers.isArray(source)? source : [source];
-			var ilen = sources.length;
-			var merge, i, keys, klen, k;
-
-			if (!helpers.isObject(target)) {
-				return target;
-			}
-
-			options = options || {};
-			merge = options.merger || helpers._merger;
-
-			for (i=0; i<ilen; ++i) {
-				source = sources[i];
-				if (!helpers.isObject(source)) {
-					continue;
-				}
-
-				keys = Object.keys(source);
-				for (k=0, klen = keys.length; k<klen; ++k) {
-					merge(keys[k], target, source, options);
-				}
+			for (; k<klen; ++k) {
+				target[keys[k]] = helpers.clone(source[keys[k]]);
 			}
 
 			return target;
-		},
-
-		/**
-		 * Recursively deep copies `source` properties into `target` *only* if not defined in target.
-		 * IMPORTANT: `target` is not cloned and will be updated with `source` properties.
-		 * @param {Object} target - The target object in which all sources are merged into.
-		 * @param {Object|Array(Object)} source - Object(s) to merge into `target`.
-		 * @returns {Object} The `target` object.
-		 */
-		mergeIf: function(target, source) {
-			return helpers.merge(target, source, {merger: helpers._mergerIf});
 		}
-	};
+
+		return source;
+	},
 
 	/**
-	 * Provided for backward compatibility, use Chart.helpers.callback instead.
-	 * @function Chart.helpers.callCallback
-	 * @deprecated since version 2.6.0
-	 * @todo remove at version 3
+	 * The default merger when Chart.helpers.merge is called without merger option.
+	 * Note(SB): this method is also used by configMerge and scaleMerge as fallback.
 	 * @private
 	 */
-	helpers.callCallback = helpers.callback;
+	_merger: function(key, target, source, options) {
+		var tval = target[key];
+		var sval = source[key];
+
+		if (helpers.isObject(tval) && helpers.isObject(sval)) {
+			helpers.merge(tval, sval, options);
+		} else {
+			target[key] = helpers.clone(sval);
+		}
+	},
 
 	/**
-	 * Provided for backward compatibility, use Array.prototype.indexOf instead.
-	 * Array.prototype.indexOf compatibility: Chrome, Opera, Safari, FF1.5+, IE9+
-	 * @function Chart.helpers.indexOf
-	 * @deprecated since version 2.7.0
-	 * @todo remove at version 3
+	 * Merges source[key] in target[key] only if target[key] is undefined.
 	 * @private
 	 */
-	helpers.indexOf = function(array, item, fromIndex) {
-		return Array.prototype.indexOf.call(array, item, fromIndex);
-	};
+	_mergerIf: function(key, target, source) {
+		var tval = target[key];
+		var sval = source[key];
+
+		if (helpers.isObject(tval) && helpers.isObject(sval)) {
+			helpers.mergeIf(tval, sval);
+		} else if (!target.hasOwnProperty(key)) {
+			target[key] = helpers.clone(sval);
+		}
+	},
 
 	/**
-	 * Provided for backward compatibility, use Chart.helpers.valueOrDefault instead.
-	 * @function Chart.helpers.getValueOrDefault
-	 * @deprecated since version 2.7.0
-	 * @todo remove at version 3
-	 * @private
+	 * Recursively deep copies `source` properties into `target` with the given `options`.
+	 * IMPORTANT: `target` is not cloned and will be updated with `source` properties.
+	 * @param {Object} target - The target object in which all sources are merged into.
+	 * @param {Object|Array(Object)} source - Object(s) to merge into `target`.
+	 * @param {Object} [options] - Merging options:
+	 * @param {Function} [options.merger] - The merge method (key, target, source, options)
+	 * @returns {Object} The `target` object.
 	 */
-	helpers.getValueOrDefault = helpers.valueOrDefault;
+	merge: function(target, source, options) {
+		var sources = helpers.isArray(source)? source : [source];
+		var ilen = sources.length;
+		var merge, i, keys, klen, k;
+
+		if (!helpers.isObject(target)) {
+			return target;
+		}
+
+		options = options || {};
+		merge = options.merger || helpers._merger;
+
+		for (i=0; i<ilen; ++i) {
+			source = sources[i];
+			if (!helpers.isObject(source)) {
+				continue;
+			}
+
+			keys = Object.keys(source);
+			for (k=0, klen = keys.length; k<klen; ++k) {
+				merge(keys[k], target, source, options);
+			}
+		}
+
+		return target;
+	},
 
 	/**
-	 * Provided for backward compatibility, use Chart.helpers.valueAtIndexOrDefault instead.
-	 * @function Chart.helpers.getValueAtIndexOrDefault
-	 * @deprecated since version 2.7.0
-	 * @todo remove at version 3
-	 * @private
+	 * Recursively deep copies `source` properties into `target` *only* if not defined in target.
+	 * IMPORTANT: `target` is not cloned and will be updated with `source` properties.
+	 * @param {Object} target - The target object in which all sources are merged into.
+	 * @param {Object|Array(Object)} source - Object(s) to merge into `target`.
+	 * @returns {Object} The `target` object.
 	 */
-	helpers.getValueAtIndexOrDefault = helpers.valueAtIndexOrDefault;
+	mergeIf: function(target, source) {
+		return helpers.merge(target, source, {merger: helpers._mergerIf});
+	}
 };
+
+module.exports = helpers;
+
+// DEPRECATIONS
+
+/**
+ * Provided for backward compatibility, use Chart.helpers.callback instead.
+ * @function Chart.helpers.callCallback
+ * @deprecated since version 2.6.0
+ * @todo remove at version 3
+ * @private
+ */
+helpers.callCallback = helpers.callback;
+
+/**
+ * Provided for backward compatibility, use Array.prototype.indexOf instead.
+ * Array.prototype.indexOf compatibility: Chrome, Opera, Safari, FF1.5+, IE9+
+ * @function Chart.helpers.indexOf
+ * @deprecated since version 2.7.0
+ * @todo remove at version 3
+ * @private
+ */
+helpers.indexOf = function(array, item, fromIndex) {
+	return Array.prototype.indexOf.call(array, item, fromIndex);
+};
+
+/**
+ * Provided for backward compatibility, use Chart.helpers.valueOrDefault instead.
+ * @function Chart.helpers.getValueOrDefault
+ * @deprecated since version 2.7.0
+ * @todo remove at version 3
+ * @private
+ */
+helpers.getValueOrDefault = helpers.valueOrDefault;
+
+/**
+ * Provided for backward compatibility, use Chart.helpers.valueAtIndexOrDefault instead.
+ * @function Chart.helpers.getValueAtIndexOrDefault
+ * @deprecated since version 2.7.0
+ * @todo remove at version 3
+ * @private
+ */
+helpers.getValueAtIndexOrDefault = helpers.valueAtIndexOrDefault;
 
 },{}],40:[function(require,module,exports){
 'use strict';
 
+var helpers = require(39);
+
 /**
  * Easing functions adapted from Robert Penner's easing equations.
- * http://www.robertpenner.com/easing/
+ * @namespace Chart.helpers.easingEffects
+ * @see http://www.robertpenner.com/easing/
  */
 var effects = {
 	linear: function(t) {
@@ -14442,259 +14452,258 @@ var effects = {
 	}
 };
 
-module.exports = function(Chart) {
-	/**
-	 * @namespace Chart.helpers.easing.effects
-	 */
-	Chart.helpers.easing = {
-		effects: effects
-	};
-
-	/**
-	 * Provided for backward compatibility, use Chart.helpers.easing.effects instead.
-	 * @function Chart.helpers.easingEffects
-	 * @deprecated since version 2.7.0
-	 * @todo remove at version 3
-	 * @private
-	 */
-	Chart.helpers.easingEffects = effects;
-
-	return Chart.helpers.easing;
+module.exports = {
+	effects: effects
 };
 
-},{}],41:[function(require,module,exports){
+// DEPRECATIONS
+
+/**
+ * Provided for backward compatibility, use Chart.helpers.easing.effects instead.
+ * @function Chart.helpers.easingEffects
+ * @deprecated since version 2.7.0
+ * @todo remove at version 3
+ * @private
+ */
+helpers.easingEffects = effects;
+
+},{"39":39}],41:[function(require,module,exports){
 'use strict';
 
 var moment = require(6);
 moment = typeof(moment) === 'function' ? moment : window.moment;
 
-module.exports = function(Chart) {
+var interval = {
+	millisecond: {
+		size: 1,
+		steps: [1, 2, 5, 10, 20, 50, 100, 250, 500]
+	},
+	second: {
+		size: 1000,
+		steps: [1, 2, 5, 10, 30]
+	},
+	minute: {
+		size: 60000,
+		steps: [1, 2, 5, 10, 30]
+	},
+	hour: {
+		size: 3600000,
+		steps: [1, 2, 3, 6, 12]
+	},
+	day: {
+		size: 86400000,
+		steps: [1, 2, 5]
+	},
+	week: {
+		size: 604800000,
+		maxStep: 4
+	},
+	month: {
+		size: 2.628e9,
+		maxStep: 3
+	},
+	quarter: {
+		size: 7.884e9,
+		maxStep: 4
+	},
+	year: {
+		size: 3.154e10,
+		maxStep: false
+	}
+};
 
-	var interval = {
-		millisecond: {
-			size: 1,
-			steps: [1, 2, 5, 10, 20, 50, 100, 250, 500]
-		},
-		second: {
-			size: 1000,
-			steps: [1, 2, 5, 10, 30]
-		},
-		minute: {
-			size: 60000,
-			steps: [1, 2, 5, 10, 30]
-		},
-		hour: {
-			size: 3600000,
-			steps: [1, 2, 3, 6, 12]
-		},
-		day: {
-			size: 86400000,
-			steps: [1, 2, 5]
-		},
-		week: {
-			size: 604800000,
-			maxStep: 4
-		},
-		month: {
-			size: 2.628e9,
-			maxStep: 3
-		},
-		quarter: {
-			size: 7.884e9,
-			maxStep: 4
-		},
-		year: {
-			size: 3.154e10,
-			maxStep: false
+/**
+ * Helper for generating axis labels.
+ * @param options {ITimeGeneratorOptions} the options for generation
+ * @param dataRange {IRange} the data range
+ * @param niceRange {IRange} the pretty range to display
+ * @return {Number[]} ticks
+ */
+function generateTicksNiceRange(options, dataRange, niceRange) {
+	var ticks = [];
+	if (options.maxTicks) {
+		var stepSize = options.stepSize;
+		var startTick = options.min !== undefined ? options.min : niceRange.min;
+		var majorUnit = options.majorUnit;
+		var majorUnitStart = majorUnit ? moment(startTick).add(1, majorUnit).startOf(majorUnit) : startTick;
+		var startRange = majorUnitStart.valueOf() - startTick;
+		var stepValue = interval[options.unit].size * stepSize;
+		var startFraction = startRange % stepValue;
+		var alignedTick = startTick;
+		if (startFraction && majorUnit && !options.timeOpts.round && !options.timeOpts.isoWeekday) {
+			alignedTick += startFraction - stepValue;
+			ticks.push(alignedTick);
+		} else {
+			ticks.push(startTick);
 		}
-	};
-
-	/**
-	 * Helper for generating axis labels.
-	 * @param options {ITimeGeneratorOptions} the options for generation
-	 * @param dataRange {IRange} the data range
-	 * @param niceRange {IRange} the pretty range to display
-	 * @return {Number[]} ticks
-	 */
-	function generateTicksNiceRange(options, dataRange, niceRange) {
-		var ticks = [];
-		if (options.maxTicks) {
-			var stepSize = options.stepSize;
-			var startTick = options.min !== undefined ? options.min : niceRange.min;
-			var majorUnit = options.majorUnit;
-			var majorUnitStart = majorUnit ? moment(startTick).add(1, majorUnit).startOf(majorUnit) : startTick;
-			var startRange = majorUnitStart.valueOf() - startTick;
-			var stepValue = interval[options.unit].size * stepSize;
-			var startFraction = startRange % stepValue;
-			var alignedTick = startTick;
-			if (startFraction && majorUnit && !options.timeOpts.round && !options.timeOpts.isoWeekday) {
-				alignedTick += startFraction - stepValue;
-				ticks.push(alignedTick);
-			} else {
-				ticks.push(startTick);
-			}
-			var cur = moment(alignedTick);
-			var realMax = options.max || niceRange.max;
-			while (cur.add(stepSize, options.unit).valueOf() < realMax) {
-				ticks.push(cur.valueOf());
-			}
+		var cur = moment(alignedTick);
+		var realMax = options.max || niceRange.max;
+		while (cur.add(stepSize, options.unit).valueOf() < realMax) {
 			ticks.push(cur.valueOf());
 		}
-		return ticks;
+		ticks.push(cur.valueOf());
 	}
+	return ticks;
+}
 
-	Chart.helpers = Chart.helpers || {};
+/**
+ * @namespace Chart.helpers.time;
+ */
+module.exports = {
+	/**
+	 * Helper function to parse time to a moment object
+	 * @param axis {TimeAxis} the time axis
+	 * @param label {Date|string|number|Moment} The thing to parse
+	 * @return {Moment} parsed time
+	 */
+	parseTime: function(axis, label) {
+		var timeOpts = axis.options.time;
+		if (typeof timeOpts.parser === 'string') {
+			return moment(label, timeOpts.parser);
+		}
+		if (typeof timeOpts.parser === 'function') {
+			return timeOpts.parser(label);
+		}
+		if (typeof label.getMonth === 'function' || typeof label === 'number') {
+			// Date objects
+			return moment(label);
+		}
+		if (label.isValid && label.isValid()) {
+			// Moment support
+			return label;
+		}
+		var format = timeOpts.format;
+		if (typeof format !== 'string' && format.call) {
+			// Custom parsing (return an instance of moment)
+			console.warn('options.time.format is deprecated and replaced by options.time.parser.');
+			return format(label);
+		}
+		// Moment format parsing
+		return moment(label, format);
+	},
 
-	Chart.helpers.time = {
+	/**
+	 * Figure out which is the best unit for the scale
+	 * @param minUnit {String} minimum unit to use
+	 * @param min {Number} scale minimum
+	 * @param max {Number} scale maximum
+	 * @return {String} the unit to use
+	 */
+	determineUnit: function(minUnit, min, max, maxTicks) {
+		var units = Object.keys(interval);
+		var unit;
+		var numUnits = units.length;
 
-		/**
-		 * Helper function to parse time to a moment object
-		 * @param axis {TimeAxis} the time axis
-		 * @param label {Date|string|number|Moment} The thing to parse
-		 * @return {Moment} parsed time
-		 */
-		parseTime: function(axis, label) {
-			var timeOpts = axis.options.time;
-			if (typeof timeOpts.parser === 'string') {
-				return moment(label, timeOpts.parser);
+		for (var i = units.indexOf(minUnit); i < numUnits; i++) {
+			unit = units[i];
+			var unitDetails = interval[unit];
+			var steps = (unitDetails.steps && unitDetails.steps[unitDetails.steps.length - 1]) || unitDetails.maxStep;
+			if (steps === undefined || Math.ceil((max - min) / (steps * unitDetails.size)) <= maxTicks) {
+				break;
 			}
-			if (typeof timeOpts.parser === 'function') {
-				return timeOpts.parser(label);
-			}
-			if (typeof label.getMonth === 'function' || typeof label === 'number') {
-				// Date objects
-				return moment(label);
-			}
-			if (label.isValid && label.isValid()) {
-				// Moment support
-				return label;
-			}
-			var format = timeOpts.format;
-			if (typeof format !== 'string' && format.call) {
-				// Custom parsing (return an instance of moment)
-				console.warn('options.time.format is deprecated and replaced by options.time.parser.');
-				return format(label);
-			}
-			// Moment format parsing
-			return moment(label, format);
-		},
-
-		/**
-		 * Figure out which is the best unit for the scale
-		 * @param minUnit {String} minimum unit to use
-		 * @param min {Number} scale minimum
-		 * @param max {Number} scale maximum
-		 * @return {String} the unit to use
-		 */
-		determineUnit: function(minUnit, min, max, maxTicks) {
-			var units = Object.keys(interval);
-			var unit;
-			var numUnits = units.length;
-
-			for (var i = units.indexOf(minUnit); i < numUnits; i++) {
-				unit = units[i];
-				var unitDetails = interval[unit];
-				var steps = (unitDetails.steps && unitDetails.steps[unitDetails.steps.length - 1]) || unitDetails.maxStep;
-				if (steps === undefined || Math.ceil((max - min) / (steps * unitDetails.size)) <= maxTicks) {
-					break;
-				}
-			}
-
-			return unit;
-		},
-
-		/**
-		 * Determine major unit accordingly to passed unit
-		 * @param unit {String} relative unit
-		 * @return {String} major unit
-		 */
-		determineMajorUnit: function(unit) {
-			var units = Object.keys(interval);
-			var unitIndex = units.indexOf(unit);
-			while (unitIndex < units.length) {
-				var majorUnit = units[++unitIndex];
-				// exclude 'week' and 'quarter' units
-				if (majorUnit !== 'week' && majorUnit !== 'quarter') {
-					return majorUnit;
-				}
-			}
-
-			return null;
-		},
-
-		/**
-		 * Determines how we scale the unit
-		 * @param min {Number} the scale minimum
-		 * @param max {Number} the scale maximum
-		 * @param unit {String} the unit determined by the {@see determineUnit} method
-		 * @return {Number} the axis step size as a multiple of unit
-		 */
-		determineStepSize: function(min, max, unit, maxTicks) {
-			// Using our unit, figure out what we need to scale as
-			var unitDefinition = interval[unit];
-			var unitSizeInMilliSeconds = unitDefinition.size;
-			var sizeInUnits = Math.ceil((max - min) / unitSizeInMilliSeconds);
-			var multiplier = 1;
-			var range = max - min;
-
-			if (unitDefinition.steps) {
-				// Have an array of steps
-				var numSteps = unitDefinition.steps.length;
-				for (var i = 0; i < numSteps && sizeInUnits > maxTicks; i++) {
-					multiplier = unitDefinition.steps[i];
-					sizeInUnits = Math.ceil(range / (unitSizeInMilliSeconds * multiplier));
-				}
-			} else {
-				while (sizeInUnits > maxTicks && maxTicks > 0) {
-					++multiplier;
-					sizeInUnits = Math.ceil(range / (unitSizeInMilliSeconds * multiplier));
-				}
-			}
-
-			return multiplier;
-		},
-
-		/**
-		 * @function generateTicks
-		 * @param options {ITimeGeneratorOptions} the options for generation
-		 * @param dataRange {IRange} the data range
-		 * @return {Number[]} ticks
-		 */
-		generateTicks: function(options, dataRange) {
-			var niceMin;
-			var niceMax;
-			var isoWeekday = options.timeOpts.isoWeekday;
-			if (options.unit === 'week' && isoWeekday !== false) {
-				niceMin = moment(dataRange.min).startOf('isoWeek').isoWeekday(isoWeekday).valueOf();
-				niceMax = moment(dataRange.max).startOf('isoWeek').isoWeekday(isoWeekday);
-				if (dataRange.max - niceMax > 0) {
-					niceMax.add(1, 'week');
-				}
-				niceMax = niceMax.valueOf();
-			} else {
-				niceMin = moment(dataRange.min).startOf(options.unit).valueOf();
-				niceMax = moment(dataRange.max).startOf(options.unit);
-				if (dataRange.max - niceMax > 0) {
-					niceMax.add(1, options.unit);
-				}
-				niceMax = niceMax.valueOf();
-			}
-			return generateTicksNiceRange(options, dataRange, {
-				min: niceMin,
-				max: niceMax
-			});
 		}
 
-	};
+		return unit;
+	},
 
+	/**
+	 * Determine major unit accordingly to passed unit
+	 * @param unit {String} relative unit
+	 * @return {String} major unit
+	 */
+	determineMajorUnit: function(unit) {
+		var units = Object.keys(interval);
+		var unitIndex = units.indexOf(unit);
+		while (unitIndex < units.length) {
+			var majorUnit = units[++unitIndex];
+			// exclude 'week' and 'quarter' units
+			if (majorUnit !== 'week' && majorUnit !== 'quarter') {
+				return majorUnit;
+			}
+		}
+
+		return null;
+	},
+
+	/**
+	 * Determines how we scale the unit
+	 * @param min {Number} the scale minimum
+	 * @param max {Number} the scale maximum
+	 * @param unit {String} the unit determined by the {@see determineUnit} method
+	 * @return {Number} the axis step size as a multiple of unit
+	 */
+	determineStepSize: function(min, max, unit, maxTicks) {
+		// Using our unit, figure out what we need to scale as
+		var unitDefinition = interval[unit];
+		var unitSizeInMilliSeconds = unitDefinition.size;
+		var sizeInUnits = Math.ceil((max - min) / unitSizeInMilliSeconds);
+		var multiplier = 1;
+		var range = max - min;
+
+		if (unitDefinition.steps) {
+			// Have an array of steps
+			var numSteps = unitDefinition.steps.length;
+			for (var i = 0; i < numSteps && sizeInUnits > maxTicks; i++) {
+				multiplier = unitDefinition.steps[i];
+				sizeInUnits = Math.ceil(range / (unitSizeInMilliSeconds * multiplier));
+			}
+		} else {
+			while (sizeInUnits > maxTicks && maxTicks > 0) {
+				++multiplier;
+				sizeInUnits = Math.ceil(range / (unitSizeInMilliSeconds * multiplier));
+			}
+		}
+
+		return multiplier;
+	},
+
+	/**
+	 * @function generateTicks
+	 * @param options {ITimeGeneratorOptions} the options for generation
+	 * @param dataRange {IRange} the data range
+	 * @return {Number[]} ticks
+	 */
+	generateTicks: function(options, dataRange) {
+		var niceMin;
+		var niceMax;
+		var isoWeekday = options.timeOpts.isoWeekday;
+		if (options.unit === 'week' && isoWeekday !== false) {
+			niceMin = moment(dataRange.min).startOf('isoWeek').isoWeekday(isoWeekday).valueOf();
+			niceMax = moment(dataRange.max).startOf('isoWeek').isoWeekday(isoWeekday);
+			if (dataRange.max - niceMax > 0) {
+				niceMax.add(1, 'week');
+			}
+			niceMax = niceMax.valueOf();
+		} else {
+			niceMin = moment(dataRange.min).startOf(options.unit).valueOf();
+			niceMax = moment(dataRange.max).startOf(options.unit);
+			if (dataRange.max - niceMax > 0) {
+				niceMax.add(1, options.unit);
+			}
+			niceMax = niceMax.valueOf();
+		}
+		return generateTicksNiceRange(options, dataRange, {
+			min: niceMin,
+			max: niceMax
+		});
+	}
 };
 
 },{"6":6}],42:[function(require,module,exports){
 'use strict';
 
+module.exports = require(39);
+module.exports.easing = require(40);
+module.exports.canvas = require(38);
+module.exports.time = require(41);
+
+},{"38":38,"39":39,"40":40,"41":41}],43:[function(require,module,exports){
+'use strict';
+
+var helpers = require(42);
+
 // Chart.Platform implementation for targeting a web browser
-module.exports = function(Chart) {
-	var helpers = Chart.helpers;
+module.exports = function() {
 
 	// DOM event types -> Chart.js event types.
 	// Note: only events with different types are mapped.
@@ -15032,12 +15041,14 @@ module.exports = function(Chart) {
 	};
 };
 
-},{}],43:[function(require,module,exports){
+},{"42":42}],44:[function(require,module,exports){
 'use strict';
+
+var helpers = require(42);
 
 // By default, select the browser (DOM) platform.
 // @TODO Make possible to select another platform at build time.
-var implementation = require(42);
+var implementation = require(43);
 
 module.exports = function(Chart) {
 	/**
@@ -15100,11 +15111,13 @@ module.exports = function(Chart) {
 	 * @prop {Number} y - The mouse y position, relative to the canvas (null for incompatible events)
 	 */
 
-	Chart.helpers.extend(Chart.platform, implementation(Chart));
+	helpers.extend(Chart.platform, implementation(Chart));
 };
 
-},{"42":42}],44:[function(require,module,exports){
+},{"42":42,"43":43}],45:[function(require,module,exports){
 'use strict';
+
+var helpers = require(42);
 
 module.exports = function(Chart) {
 	/**
@@ -15117,7 +15130,6 @@ module.exports = function(Chart) {
 	};
 
 	var defaults = Chart.defaults;
-	var helpers = Chart.helpers;
 	var mappers = {
 		dataset: function(source) {
 			var index = source.fill;
@@ -15418,12 +15430,13 @@ module.exports = function(Chart) {
 	};
 };
 
-},{}],45:[function(require,module,exports){
+},{"42":42}],46:[function(require,module,exports){
 'use strict';
+
+var helpers = require(42);
 
 module.exports = function(Chart) {
 
-	var helpers = Chart.helpers;
 	var layout = Chart.layoutService;
 	var noop = helpers.noop;
 
@@ -15781,7 +15794,7 @@ module.exports = function(Chart) {
 						var centerY = y + offSet;
 
 						// Draw pointStyle as legend symbol
-						Chart.helpers.canvas.drawPoint(ctx, legendItem.pointStyle, radius, centerX, centerY);
+						helpers.canvas.drawPoint(ctx, legendItem.pointStyle, radius, centerX, centerY);
 					} else {
 						// Draw box as legend symbol
 						if (!isLineWidthZero) {
@@ -15968,12 +15981,13 @@ module.exports = function(Chart) {
 	};
 };
 
-},{}],46:[function(require,module,exports){
+},{"42":42}],47:[function(require,module,exports){
 'use strict';
+
+var helpers = require(42);
 
 module.exports = function(Chart) {
 
-	var helpers = Chart.helpers;
 	var layout = Chart.layoutService;
 	var noop = helpers.noop;
 
@@ -16211,7 +16225,7 @@ module.exports = function(Chart) {
 	};
 };
 
-},{}],47:[function(require,module,exports){
+},{"42":42}],48:[function(require,module,exports){
 'use strict';
 
 module.exports = function(Chart) {
@@ -16344,12 +16358,12 @@ module.exports = function(Chart) {
 
 };
 
-},{}],48:[function(require,module,exports){
+},{}],49:[function(require,module,exports){
 'use strict';
 
-module.exports = function(Chart) {
+var helpers = require(42);
 
-	var helpers = Chart.helpers;
+module.exports = function(Chart) {
 
 	var defaultConfig = {
 		position: 'left',
@@ -16536,13 +16550,14 @@ module.exports = function(Chart) {
 
 };
 
-},{}],49:[function(require,module,exports){
+},{"42":42}],50:[function(require,module,exports){
 'use strict';
+
+var helpers = require(42);
 
 module.exports = function(Chart) {
 
-	var helpers = Chart.helpers,
-		noop = helpers.noop;
+	var noop = helpers.noop;
 
 	Chart.LinearScaleBase = Chart.Scale.extend({
 		handleTickRangeOptions: function() {
@@ -16661,12 +16676,12 @@ module.exports = function(Chart) {
 	});
 };
 
-},{}],50:[function(require,module,exports){
+},{"42":42}],51:[function(require,module,exports){
 'use strict';
 
-module.exports = function(Chart) {
+var helpers = require(42);
 
-	var helpers = Chart.helpers;
+module.exports = function(Chart) {
 
 	var defaultConfig = {
 		position: 'left',
@@ -16909,12 +16924,13 @@ module.exports = function(Chart) {
 
 };
 
-},{}],51:[function(require,module,exports){
+},{"42":42}],52:[function(require,module,exports){
 'use strict';
+
+var helpers = require(42);
 
 module.exports = function(Chart) {
 
-	var helpers = Chart.helpers;
 	var globalDefaults = Chart.defaults.global;
 
 	var defaultConfig = {
@@ -17435,16 +17451,17 @@ module.exports = function(Chart) {
 
 };
 
-},{}],52:[function(require,module,exports){
+},{"42":42}],53:[function(require,module,exports){
 /* global window: false */
 'use strict';
 
 var moment = require(6);
 moment = typeof(moment) === 'function' ? moment : window.moment;
 
+var helpers = require(42);
+
 module.exports = function(Chart) {
 
-	var helpers = Chart.helpers;
 	var timeHelpers = helpers.time;
 
 	var defaultConfig = {
@@ -17731,5 +17748,5 @@ module.exports = function(Chart) {
 
 };
 
-},{"6":6}]},{},[7])(7)
+},{"42":42,"6":6}]},{},[7])(7)
 });
