@@ -1672,14 +1672,14 @@ module.exports = {
  */
 var Chart = require(29)();
 
-Chart.helpers = require(44);
+Chart.helpers = require(45);
 
 // @todo dispatch these helpers into appropriated helpers/helpers.* file and write unit tests!
 require(27)(Chart);
 
 Chart.defaults = require(25);
 Chart.Interaction = require(28);
-Chart.platform = require(46);
+Chart.platform = require(47);
 Chart.Ticks = require(34);
 
 require(26)(Chart);
@@ -1697,12 +1697,12 @@ require(37)(Chart);
 require(38)(Chart);
 require(39)(Chart);
 
-require(52)(Chart);
-require(50)(Chart);
-require(51)(Chart);
 require(53)(Chart);
+require(51)(Chart);
+require(52)(Chart);
 require(54)(Chart);
 require(55)(Chart);
+require(56)(Chart);
 
 // Controllers must be loaded after elements
 // See Chart.core.datasetController.dataElementType
@@ -1726,9 +1726,9 @@ require(14)(Chart);
 var plugins = [];
 
 plugins.push(
-    require(47)(Chart),
     require(48)(Chart),
-    require(49)(Chart)
+    require(49)(Chart),
+    require(50)(Chart)
 );
 
 Chart.plugins.register(plugins);
@@ -1749,7 +1749,7 @@ if (typeof window !== 'undefined') {
  */
 Chart.canvasHelpers = Chart.helpers.canvas;
 
-},{"10":10,"11":11,"12":12,"13":13,"14":14,"15":15,"16":16,"17":17,"18":18,"19":19,"20":20,"21":21,"22":22,"23":23,"24":24,"25":25,"26":26,"27":27,"28":28,"29":29,"30":30,"31":31,"32":32,"33":33,"34":34,"35":35,"36":36,"37":37,"38":38,"39":39,"44":44,"46":46,"47":47,"48":48,"49":49,"50":50,"51":51,"52":52,"53":53,"54":54,"55":55,"8":8,"9":9}],8:[function(require,module,exports){
+},{"10":10,"11":11,"12":12,"13":13,"14":14,"15":15,"16":16,"17":17,"18":18,"19":19,"20":20,"21":21,"22":22,"23":23,"24":24,"25":25,"26":26,"27":27,"28":28,"29":29,"30":30,"31":31,"32":32,"33":33,"34":34,"35":35,"36":36,"37":37,"38":38,"39":39,"45":45,"47":47,"48":48,"49":49,"50":50,"51":51,"52":52,"53":53,"54":54,"55":55,"56":56,"8":8,"9":9}],8:[function(require,module,exports){
 'use strict';
 
 module.exports = function(Chart) {
@@ -1840,7 +1840,7 @@ module.exports = function(Chart) {
 'use strict';
 
 var defaults = require(25);
-var helpers = require(44);
+var helpers = require(45);
 
 defaults._set('bar', {
 	hover: {
@@ -2224,11 +2224,11 @@ module.exports = function(Chart) {
 	});
 };
 
-},{"25":25,"44":44}],16:[function(require,module,exports){
+},{"25":25,"45":45}],16:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
-var helpers = require(44);
+var helpers = require(45);
 
 defaults._set('bubble', {
 	hover: {
@@ -2350,11 +2350,11 @@ module.exports = function(Chart) {
 	});
 };
 
-},{"25":25,"44":44}],17:[function(require,module,exports){
+},{"25":25,"45":45}],17:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
-var helpers = require(44);
+var helpers = require(45);
 
 defaults._set('doughnut', {
 	animation: {
@@ -2653,11 +2653,11 @@ module.exports = function(Chart) {
 	});
 };
 
-},{"25":25,"44":44}],18:[function(require,module,exports){
+},{"25":25,"45":45}],18:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
-var helpers = require(44);
+var helpers = require(45);
 
 defaults._set('line', {
 	showLines: true,
@@ -2989,11 +2989,11 @@ module.exports = function(Chart) {
 	});
 };
 
-},{"25":25,"44":44}],19:[function(require,module,exports){
+},{"25":25,"45":45}],19:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
-var helpers = require(44);
+var helpers = require(45);
 
 defaults._set('polarArea', {
 	scale: {
@@ -3212,11 +3212,11 @@ module.exports = function(Chart) {
 	});
 };
 
-},{"25":25,"44":44}],20:[function(require,module,exports){
+},{"25":25,"45":45}],20:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
-var helpers = require(44);
+var helpers = require(45);
 
 defaults._set('radar', {
 	scale: {
@@ -3381,7 +3381,7 @@ module.exports = function(Chart) {
 	});
 };
 
-},{"25":25,"44":44}],21:[function(require,module,exports){
+},{"25":25,"45":45}],21:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
@@ -3430,7 +3430,7 @@ module.exports = function(Chart) {
 'use strict';
 
 var defaults = require(25);
-var helpers = require(44);
+var helpers = require(45);
 
 defaults._set('global', {
 	animation: {
@@ -3598,13 +3598,13 @@ module.exports = function(Chart) {
 
 };
 
-},{"25":25,"44":44}],23:[function(require,module,exports){
+},{"25":25,"45":45}],23:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
-var helpers = require(44);
+var helpers = require(45);
 var Interaction = require(28);
-var platform = require(46);
+var platform = require(47);
 
 module.exports = function(Chart) {
 	var plugins = Chart.plugins;
@@ -4474,10 +4474,10 @@ module.exports = function(Chart) {
 	Chart.Controller = Chart;
 };
 
-},{"25":25,"28":28,"44":44,"46":46}],24:[function(require,module,exports){
+},{"25":25,"28":28,"45":45,"47":47}],24:[function(require,module,exports){
 'use strict';
 
-var helpers = require(44);
+var helpers = require(45);
 
 module.exports = function(Chart) {
 
@@ -4806,10 +4806,10 @@ module.exports = function(Chart) {
 	Chart.DatasetController.extend = helpers.inherits;
 };
 
-},{"44":44}],25:[function(require,module,exports){
+},{"45":45}],25:[function(require,module,exports){
 'use strict';
 
-var helpers = require(44);
+var helpers = require(45);
 
 module.exports = {
 	/**
@@ -4820,11 +4820,11 @@ module.exports = {
 	}
 };
 
-},{"44":44}],26:[function(require,module,exports){
+},{"45":45}],26:[function(require,module,exports){
 'use strict';
 
 var color = require(3);
-var helpers = require(44);
+var helpers = require(45);
 
 module.exports = function(Chart) {
 
@@ -4940,14 +4940,14 @@ module.exports = function(Chart) {
 	Chart.Element.extend = helpers.inherits;
 };
 
-},{"3":3,"44":44}],27:[function(require,module,exports){
+},{"3":3,"45":45}],27:[function(require,module,exports){
 /* global window: false */
 /* global document: false */
 'use strict';
 
 var color = require(3);
 var defaults = require(25);
-var helpers = require(44);
+var helpers = require(45);
 
 module.exports = function(Chart) {
 
@@ -5569,10 +5569,10 @@ module.exports = function(Chart) {
 	};
 };
 
-},{"25":25,"3":3,"44":44}],28:[function(require,module,exports){
+},{"25":25,"3":3,"45":45}],28:[function(require,module,exports){
 'use strict';
 
-var helpers = require(44);
+var helpers = require(45);
 
 /**
  * Helper function to get relative position for an event
@@ -5885,7 +5885,7 @@ module.exports = {
 	}
 };
 
-},{"44":44}],29:[function(require,module,exports){
+},{"45":45}],29:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
@@ -5939,7 +5939,7 @@ module.exports = function() {
 },{"25":25}],30:[function(require,module,exports){
 'use strict';
 
-var helpers = require(44);
+var helpers = require(45);
 
 module.exports = function(Chart) {
 
@@ -6374,11 +6374,11 @@ module.exports = function(Chart) {
 	};
 };
 
-},{"44":44}],31:[function(require,module,exports){
+},{"45":45}],31:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
-var helpers = require(44);
+var helpers = require(45);
 
 defaults._set('global', {
 	plugins: {}
@@ -6749,11 +6749,11 @@ module.exports = function(Chart) {
 	Chart.PluginBase = Chart.Element.extend({});
 };
 
-},{"25":25,"44":44}],32:[function(require,module,exports){
+},{"25":25,"45":45}],32:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
-var helpers = require(44);
+var helpers = require(45);
 var Ticks = require(34);
 
 defaults._set('scale', {
@@ -6780,11 +6780,13 @@ defaults._set('scale', {
 
 	// scale label
 	scaleLabel: {
+		// display property
+		display: false,
+
 		// actual label
 		labelString: '',
 
-		// display property
-		display: false,
+		lineHeight: 1.2
 	},
 
 	// label settings
@@ -6827,6 +6829,12 @@ module.exports = function(Chart) {
 			family: family,
 			font: helpers.fontString(size, style, family)
 		};
+	}
+
+	function parseLineHeight(options) {
+		return helpers.options.toLineHeight(
+			helpers.valueOrDefault(options.lineHeight, 1.2),
+			helpers.valueOrDefault(options.fontSize, defaults.global.defaultFontSize));
 	}
 
 	Chart.Scale = Chart.Element.extend({
@@ -7062,8 +7070,8 @@ module.exports = function(Chart) {
 			var isHorizontal = me.isHorizontal();
 
 			var tickFont = parseFontOptions(tickOpts);
-			var scaleLabelLineHeight = helpers.valueOrDefault(scaleLabelOpts.lineHeight, parseFontOptions(scaleLabelOpts).size * 1.5);
 			var tickMarkLength = opts.gridLines.tickMarkLength;
+			var scaleLabelLineHeight = parseLineHeight(scaleLabelOpts);
 
 			// Width
 			if (isHorizontal) {
@@ -7490,7 +7498,7 @@ module.exports = function(Chart) {
 				var scaleLabelX;
 				var scaleLabelY;
 				var rotation = 0;
-				var halfLineHeight = helpers.valueOrDefault(scaleLabel.lineHeight, scaleLabelFont.size) / 2;
+				var halfLineHeight = parseLineHeight(scaleLabel) / 2;
 
 				if (isHorizontal) {
 					scaleLabelX = me.left + ((me.right - me.left) / 2); // midpoint of the width
@@ -7542,11 +7550,11 @@ module.exports = function(Chart) {
 	});
 };
 
-},{"25":25,"34":34,"44":44}],33:[function(require,module,exports){
+},{"25":25,"34":34,"45":45}],33:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
-var helpers = require(44);
+var helpers = require(45);
 
 module.exports = function(Chart) {
 
@@ -7589,10 +7597,10 @@ module.exports = function(Chart) {
 	};
 };
 
-},{"25":25,"44":44}],34:[function(require,module,exports){
+},{"25":25,"45":45}],34:[function(require,module,exports){
 'use strict';
 
-var helpers = require(44);
+var helpers = require(45);
 
 /**
  * Namespace to hold static tick generation functions
@@ -7798,11 +7806,11 @@ module.exports = {
 	}
 };
 
-},{"44":44}],35:[function(require,module,exports){
+},{"45":45}],35:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
-var helpers = require(44);
+var helpers = require(45);
 
 defaults._set('global', {
 	tooltips: {
@@ -8746,11 +8754,11 @@ module.exports = function(Chart) {
 	};
 };
 
-},{"25":25,"44":44}],36:[function(require,module,exports){
+},{"25":25,"45":45}],36:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
-var helpers = require(44);
+var helpers = require(45);
 
 defaults._set('global', {
 	elements: {
@@ -8856,11 +8864,11 @@ module.exports = function(Chart) {
 	});
 };
 
-},{"25":25,"44":44}],37:[function(require,module,exports){
+},{"25":25,"45":45}],37:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
-var helpers = require(44);
+var helpers = require(45);
 
 var globalDefaults = defaults.global;
 
@@ -8951,11 +8959,11 @@ module.exports = function(Chart) {
 	});
 };
 
-},{"25":25,"44":44}],38:[function(require,module,exports){
+},{"25":25,"45":45}],38:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
-var helpers = require(44);
+var helpers = require(45);
 
 var defaultColor = defaults.global.defaultColor;
 
@@ -9058,7 +9066,7 @@ module.exports = function(Chart) {
 	});
 };
 
-},{"25":25,"44":44}],39:[function(require,module,exports){
+},{"25":25,"45":45}],39:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
@@ -10042,6 +10050,43 @@ helpers.easingEffects = effects;
 },{"41":41}],43:[function(require,module,exports){
 'use strict';
 
+/**
+ * @namespace Chart.helpers.options
+ */
+module.exports = {
+	/**
+	 * Converts the given line height `value` in pixels for a specific font `size`.
+	 * @param {Number|String} value - The lineHeight to parse (eg. 1.6, '14px', '75%', '1.6em').
+	 * @param {Number} size - The font size (in pixels) used to resolve relative `value`.
+	 * @returns {Number} The effective line height in pixels (size * 1.2 if value is invalid).
+	 * @see https://developer.mozilla.org/en-US/docs/Web/CSS/line-height
+	 * @since 2.7.0
+	 */
+	toLineHeight: function(value, size) {
+		var matches = (''+value).match(/^(normal|(\d+(?:\.\d+)?)(px|em|%)?)$/);
+		if (!matches || matches[1] === 'normal') {
+			return size * 1.2;
+		}
+
+		value = parseFloat(matches[2]);
+
+		switch (matches[3]) {
+		case 'px':
+			return value;
+		case '%':
+			value /= 100;
+			break;
+		default:
+			break;
+		}
+
+		return size * value;
+	}
+};
+
+},{}],44:[function(require,module,exports){
+'use strict';
+
 var moment = require(1);
 moment = typeof(moment) === 'function' ? moment : window.moment;
 
@@ -10263,22 +10308,23 @@ module.exports = {
 	}
 };
 
-},{"1":1,"41":41}],44:[function(require,module,exports){
+},{"1":1,"41":41}],45:[function(require,module,exports){
 'use strict';
 
 module.exports = require(41);
 module.exports.easing = require(42);
 module.exports.canvas = require(40);
-module.exports.time = require(43);
+module.exports.options = require(43);
+module.exports.time = require(44);
 
-},{"40":40,"41":41,"42":42,"43":43}],45:[function(require,module,exports){
+},{"40":40,"41":41,"42":42,"43":43,"44":44}],46:[function(require,module,exports){
 /**
  * Chart.Platform implementation for targeting a web browser
  */
 
 'use strict';
 
-var helpers = require(44);
+var helpers = require(45);
 
 /**
  * DOM event types -> Chart.js event types.
@@ -10620,14 +10666,14 @@ helpers.addEvent = addEventListener;
  */
 helpers.removeEvent = removeEventListener;
 
-},{"44":44}],46:[function(require,module,exports){
+},{"45":45}],47:[function(require,module,exports){
 'use strict';
 
-var helpers = require(44);
+var helpers = require(45);
 
 // By default, select the browser (DOM) platform.
 // @TODO Make possible to select another platform at build time.
-var implementation = require(45);
+var implementation = require(46);
 
 /**
  * @namespace Chart.platform
@@ -10690,7 +10736,7 @@ module.exports = helpers.extend({
  * @prop {Number} y - The mouse y position, relative to the canvas (null for incompatible events)
  */
 
-},{"44":44,"45":45}],47:[function(require,module,exports){
+},{"45":45,"46":46}],48:[function(require,module,exports){
 /**
  * Plugin based on discussion from the following Chart.js issues:
  * @see https://github.com/chartjs/Chart.js/issues/2380#issuecomment-279961569
@@ -10700,7 +10746,7 @@ module.exports = helpers.extend({
 'use strict';
 
 var defaults = require(25);
-var helpers = require(44);
+var helpers = require(45);
 
 defaults._set('global', {
 	plugins: {
@@ -11012,11 +11058,11 @@ module.exports = function(Chart) {
 	};
 };
 
-},{"25":25,"44":44}],48:[function(require,module,exports){
+},{"25":25,"45":45}],49:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
-var helpers = require(44);
+var helpers = require(45);
 
 defaults._set('global', {
 	legend: {
@@ -11580,17 +11626,18 @@ module.exports = function(Chart) {
 	};
 };
 
-},{"25":25,"44":44}],49:[function(require,module,exports){
+},{"25":25,"45":45}],50:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
-var helpers = require(44);
+var helpers = require(45);
 
 defaults._set('global', {
 	title: {
 		display: false,
 		fontStyle: 'bold',
 		fullWidth: true,
+		lineHeight: 1.2,
 		padding: 10,
 		position: 'top',
 		text: '',
@@ -11697,7 +11744,7 @@ module.exports = function(Chart) {
 				fontSize = valueOrDefault(opts.fontSize, defaults.global.defaultFontSize),
 				minSize = me.minSize,
 				lineCount = helpers.isArray(opts.text) ? opts.text.length : 1,
-				lineHeight = valueOrDefault(opts.lineHeight, fontSize),
+				lineHeight = helpers.options.toLineHeight(opts.lineHeight, fontSize),
 				textSize = display ? (lineCount * lineHeight) + (opts.padding * 2) : 0;
 
 			if (me.isHorizontal()) {
@@ -11733,7 +11780,8 @@ module.exports = function(Chart) {
 					fontStyle = valueOrDefault(opts.fontStyle, globalDefaults.defaultFontStyle),
 					fontFamily = valueOrDefault(opts.fontFamily, globalDefaults.defaultFontFamily),
 					titleFont = helpers.fontString(fontSize, fontStyle, fontFamily),
-					lineHeight = valueOrDefault(opts.lineHeight, fontSize),
+					lineHeight = helpers.options.toLineHeight(opts.lineHeight, fontSize),
+					offset = lineHeight/2 + opts.padding,
 					rotation = 0,
 					titleX,
 					titleY,
@@ -11749,10 +11797,10 @@ module.exports = function(Chart) {
 				// Horizontal
 				if (me.isHorizontal()) {
 					titleX = left + ((right - left) / 2); // midpoint of the width
-					titleY = top + ((bottom - top) / 2); // midpoint of the height
+					titleY = top + offset;
 					maxWidth = right - left;
 				} else {
-					titleX = opts.position === 'left' ? left + (fontSize / 2) : right - (fontSize / 2);
+					titleX = opts.position === 'left' ? left + offset : right - offset;
 					titleY = top + ((bottom - top) / 2);
 					maxWidth = bottom - top;
 					rotation = Math.PI * (opts.position === 'left' ? -0.5 : 0.5);
@@ -11824,7 +11872,7 @@ module.exports = function(Chart) {
 	};
 };
 
-},{"25":25,"44":44}],50:[function(require,module,exports){
+},{"25":25,"45":45}],51:[function(require,module,exports){
 'use strict';
 
 module.exports = function(Chart) {
@@ -11957,11 +12005,11 @@ module.exports = function(Chart) {
 
 };
 
-},{}],51:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
-var helpers = require(44);
+var helpers = require(45);
 var Ticks = require(34);
 
 module.exports = function(Chart) {
@@ -12151,10 +12199,10 @@ module.exports = function(Chart) {
 
 };
 
-},{"25":25,"34":34,"44":44}],52:[function(require,module,exports){
+},{"25":25,"34":34,"45":45}],53:[function(require,module,exports){
 'use strict';
 
-var helpers = require(44);
+var helpers = require(45);
 var Ticks = require(34);
 
 module.exports = function(Chart) {
@@ -12278,10 +12326,10 @@ module.exports = function(Chart) {
 	});
 };
 
-},{"34":34,"44":44}],53:[function(require,module,exports){
+},{"34":34,"45":45}],54:[function(require,module,exports){
 'use strict';
 
-var helpers = require(44);
+var helpers = require(45);
 var Ticks = require(34);
 
 module.exports = function(Chart) {
@@ -12527,11 +12575,11 @@ module.exports = function(Chart) {
 
 };
 
-},{"34":34,"44":44}],54:[function(require,module,exports){
+},{"34":34,"45":45}],55:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
-var helpers = require(44);
+var helpers = require(45);
 var Ticks = require(34);
 
 module.exports = function(Chart) {
@@ -13056,7 +13104,7 @@ module.exports = function(Chart) {
 
 };
 
-},{"25":25,"34":34,"44":44}],55:[function(require,module,exports){
+},{"25":25,"34":34,"45":45}],56:[function(require,module,exports){
 /* global window: false */
 'use strict';
 
@@ -13064,7 +13112,7 @@ var moment = require(1);
 moment = typeof(moment) === 'function' ? moment : window.moment;
 
 var defaults = require(25);
-var helpers = require(44);
+var helpers = require(45);
 
 function sorter(a, b) {
 	return a - b;
@@ -13486,5 +13534,5 @@ module.exports = function(Chart) {
 	Chart.scaleService.registerScaleType('time', TimeScale, defaultConfig);
 };
 
-},{"1":1,"25":25,"44":44}]},{},[7])(7)
+},{"1":1,"25":25,"45":45}]},{},[7])(7)
 });
