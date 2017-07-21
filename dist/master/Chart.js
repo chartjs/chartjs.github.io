@@ -1672,17 +1672,18 @@ module.exports = {
  */
 var Chart = require(29)();
 
-Chart.helpers = require(45);
+Chart.helpers = require(46);
 
 // @todo dispatch these helpers into appropriated helpers/helpers.* file and write unit tests!
 require(27)(Chart);
 
 Chart.defaults = require(25);
+Chart.Element = require(26);
+Chart.elements = require(40);
 Chart.Interaction = require(28);
-Chart.platform = require(47);
+Chart.platform = require(48);
 Chart.Ticks = require(34);
 
-require(26)(Chart);
 require(31)(Chart);
 require(22)(Chart);
 require(23)(Chart);
@@ -1692,17 +1693,12 @@ require(33)(Chart);
 require(32)(Chart);
 require(35)(Chart);
 
-require(36)(Chart);
-require(37)(Chart);
-require(38)(Chart);
-require(39)(Chart);
-
-require(53)(Chart);
-require(51)(Chart);
-require(52)(Chart);
 require(54)(Chart);
+require(52)(Chart);
+require(53)(Chart);
 require(55)(Chart);
 require(56)(Chart);
+require(57)(Chart);
 
 // Controllers must be loaded after elements
 // See Chart.core.datasetController.dataElementType
@@ -1726,9 +1722,9 @@ require(14)(Chart);
 var plugins = [];
 
 plugins.push(
-    require(48)(Chart),
     require(49)(Chart),
-    require(50)(Chart)
+    require(50)(Chart),
+    require(51)(Chart)
 );
 
 Chart.plugins.register(plugins);
@@ -1749,7 +1745,7 @@ if (typeof window !== 'undefined') {
  */
 Chart.canvasHelpers = Chart.helpers.canvas;
 
-},{"10":10,"11":11,"12":12,"13":13,"14":14,"15":15,"16":16,"17":17,"18":18,"19":19,"20":20,"21":21,"22":22,"23":23,"24":24,"25":25,"26":26,"27":27,"28":28,"29":29,"30":30,"31":31,"32":32,"33":33,"34":34,"35":35,"36":36,"37":37,"38":38,"39":39,"45":45,"47":47,"48":48,"49":49,"50":50,"51":51,"52":52,"53":53,"54":54,"55":55,"56":56,"8":8,"9":9}],8:[function(require,module,exports){
+},{"10":10,"11":11,"12":12,"13":13,"14":14,"15":15,"16":16,"17":17,"18":18,"19":19,"20":20,"21":21,"22":22,"23":23,"24":24,"25":25,"26":26,"27":27,"28":28,"29":29,"30":30,"31":31,"32":32,"33":33,"34":34,"35":35,"40":40,"46":46,"48":48,"49":49,"50":50,"51":51,"52":52,"53":53,"54":54,"55":55,"56":56,"57":57,"8":8,"9":9}],8:[function(require,module,exports){
 'use strict';
 
 module.exports = function(Chart) {
@@ -1840,7 +1836,8 @@ module.exports = function(Chart) {
 'use strict';
 
 var defaults = require(25);
-var helpers = require(45);
+var elements = require(40);
+var helpers = require(46);
 
 defaults._set('bar', {
 	hover: {
@@ -1928,7 +1925,7 @@ module.exports = function(Chart) {
 
 	Chart.controllers.bar = Chart.DatasetController.extend({
 
-		dataElementType: Chart.elements.Rectangle,
+		dataElementType: elements.Rectangle,
 
 		initialize: function() {
 			var me = this;
@@ -1943,13 +1940,13 @@ module.exports = function(Chart) {
 
 		update: function(reset) {
 			var me = this;
-			var elements = me.getMeta().data;
+			var rects = me.getMeta().data;
 			var i, ilen;
 
 			me._ruler = me.getRuler();
 
-			for (i = 0, ilen = elements.length; i < ilen; ++i) {
-				me.updateElement(elements[i], i, reset);
+			for (i = 0, ilen = rects.length; i < ilen; ++i) {
+				me.updateElement(rects[i], i, reset);
 			}
 		},
 
@@ -2165,9 +2162,9 @@ module.exports = function(Chart) {
 		draw: function() {
 			var me = this;
 			var chart = me.chart;
-			var elements = me.getMeta().data;
+			var rects = me.getMeta().data;
 			var dataset = me.getDataset();
-			var ilen = elements.length;
+			var ilen = rects.length;
 			var i = 0;
 			var d;
 
@@ -2176,7 +2173,7 @@ module.exports = function(Chart) {
 			for (; i<ilen; ++i) {
 				d = dataset.data[i];
 				if (d !== null && d !== undefined && !isNaN(d)) {
-					elements[i].draw();
+					rects[i].draw();
 				}
 			}
 
@@ -2224,11 +2221,12 @@ module.exports = function(Chart) {
 	});
 };
 
-},{"25":25,"45":45}],16:[function(require,module,exports){
+},{"25":25,"40":40,"46":46}],16:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
-var helpers = require(45);
+var elements = require(40);
+var helpers = require(46);
 
 defaults._set('bubble', {
 	hover: {
@@ -2268,7 +2266,7 @@ module.exports = function(Chart) {
 
 	Chart.controllers.bubble = Chart.DatasetController.extend({
 
-		dataElementType: Chart.elements.Point,
+		dataElementType: elements.Point,
 
 		update: function(reset) {
 			var me = this;
@@ -2350,11 +2348,12 @@ module.exports = function(Chart) {
 	});
 };
 
-},{"25":25,"45":45}],17:[function(require,module,exports){
+},{"25":25,"40":40,"46":46}],17:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
-var helpers = require(45);
+var elements = require(40);
+var helpers = require(46);
 
 defaults._set('doughnut', {
 	animation: {
@@ -2479,7 +2478,7 @@ module.exports = function(Chart) {
 
 	Chart.controllers.doughnut = Chart.controllers.pie = Chart.DatasetController.extend({
 
-		dataElementType: Chart.elements.Arc,
+		dataElementType: elements.Arc,
 
 		linkScales: helpers.noop,
 
@@ -2634,16 +2633,16 @@ module.exports = function(Chart) {
 		},
 
 		// gets the max border or hover width to properly scale pie charts
-		getMaxBorderWidth: function(elements) {
+		getMaxBorderWidth: function(arcs) {
 			var max = 0,
 				index = this.index,
-				length = elements.length,
+				length = arcs.length,
 				borderWidth,
 				hoverWidth;
 
 			for (var i = 0; i < length; i++) {
-				borderWidth = elements[i]._model ? elements[i]._model.borderWidth : 0;
-				hoverWidth = elements[i]._chart ? elements[i]._chart.config.data.datasets[index].hoverBorderWidth : 0;
+				borderWidth = arcs[i]._model ? arcs[i]._model.borderWidth : 0;
+				hoverWidth = arcs[i]._chart ? arcs[i]._chart.config.data.datasets[index].hoverBorderWidth : 0;
 
 				max = borderWidth > max ? borderWidth : max;
 				max = hoverWidth > max ? hoverWidth : max;
@@ -2653,11 +2652,12 @@ module.exports = function(Chart) {
 	});
 };
 
-},{"25":25,"45":45}],18:[function(require,module,exports){
+},{"25":25,"40":40,"46":46}],18:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
-var helpers = require(45);
+var elements = require(40);
+var helpers = require(46);
 
 defaults._set('line', {
 	showLines: true,
@@ -2687,9 +2687,9 @@ module.exports = function(Chart) {
 
 	Chart.controllers.line = Chart.DatasetController.extend({
 
-		datasetElementType: Chart.elements.Line,
+		datasetElementType: elements.Line,
 
-		dataElementType: Chart.elements.Point,
+		dataElementType: elements.Point,
 
 		update: function(reset) {
 			var me = this;
@@ -2989,11 +2989,12 @@ module.exports = function(Chart) {
 	});
 };
 
-},{"25":25,"45":45}],19:[function(require,module,exports){
+},{"25":25,"40":40,"46":46}],19:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
-var helpers = require(45);
+var elements = require(40);
+var helpers = require(46);
 
 defaults._set('polarArea', {
 	scale: {
@@ -3103,7 +3104,7 @@ module.exports = function(Chart) {
 
 	Chart.controllers.polarArea = Chart.DatasetController.extend({
 
-		dataElementType: Chart.elements.Arc,
+		dataElementType: elements.Arc,
 
 		linkScales: helpers.noop,
 
@@ -3212,11 +3213,12 @@ module.exports = function(Chart) {
 	});
 };
 
-},{"25":25,"45":45}],20:[function(require,module,exports){
+},{"25":25,"40":40,"46":46}],20:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
-var helpers = require(45);
+var elements = require(40);
+var helpers = require(46);
 
 defaults._set('radar', {
 	scale: {
@@ -3233,9 +3235,9 @@ module.exports = function(Chart) {
 
 	Chart.controllers.radar = Chart.DatasetController.extend({
 
-		datasetElementType: Chart.elements.Line,
+		datasetElementType: elements.Line,
 
-		dataElementType: Chart.elements.Point,
+		dataElementType: elements.Point,
 
 		linkScales: helpers.noop,
 
@@ -3381,7 +3383,7 @@ module.exports = function(Chart) {
 	});
 };
 
-},{"25":25,"45":45}],21:[function(require,module,exports){
+},{"25":25,"40":40,"46":46}],21:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
@@ -3430,7 +3432,8 @@ module.exports = function(Chart) {
 'use strict';
 
 var defaults = require(25);
-var helpers = require(45);
+var Element = require(26);
+var helpers = require(46);
 
 defaults._set('global', {
 	animation: {
@@ -3443,7 +3446,7 @@ defaults._set('global', {
 
 module.exports = function(Chart) {
 
-	Chart.Animation = Chart.Element.extend({
+	Chart.Animation = Element.extend({
 		chart: null, // the animation associated chart instance
 		currentStep: 0, // the current animation step
 		numSteps: 60, // default number of steps
@@ -3598,13 +3601,13 @@ module.exports = function(Chart) {
 
 };
 
-},{"25":25,"45":45}],23:[function(require,module,exports){
+},{"25":25,"26":26,"46":46}],23:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
-var helpers = require(45);
+var helpers = require(46);
 var Interaction = require(28);
-var platform = require(47);
+var platform = require(48);
 
 module.exports = function(Chart) {
 	var plugins = Chart.plugins;
@@ -4474,10 +4477,10 @@ module.exports = function(Chart) {
 	Chart.Controller = Chart;
 };
 
-},{"25":25,"28":28,"45":45,"47":47}],24:[function(require,module,exports){
+},{"25":25,"28":28,"46":46,"48":48}],24:[function(require,module,exports){
 'use strict';
 
-var helpers = require(45);
+var helpers = require(46);
 
 module.exports = function(Chart) {
 
@@ -4806,10 +4809,10 @@ module.exports = function(Chart) {
 	Chart.DatasetController.extend = helpers.inherits;
 };
 
-},{"45":45}],25:[function(require,module,exports){
+},{"46":46}],25:[function(require,module,exports){
 'use strict';
 
-var helpers = require(45);
+var helpers = require(46);
 
 module.exports = {
 	/**
@@ -4820,134 +4823,131 @@ module.exports = {
 	}
 };
 
-},{"45":45}],26:[function(require,module,exports){
+},{"46":46}],26:[function(require,module,exports){
 'use strict';
 
 var color = require(3);
-var helpers = require(45);
+var helpers = require(46);
 
-module.exports = function(Chart) {
+function interpolate(start, view, model, ease) {
+	var keys = Object.keys(model);
+	var i, ilen, key, actual, origin, target, type, c0, c1;
 
-	function interpolate(start, view, model, ease) {
-		var keys = Object.keys(model);
-		var i, ilen, key, actual, origin, target, type, c0, c1;
+	for (i=0, ilen=keys.length; i<ilen; ++i) {
+		key = keys[i];
 
-		for (i=0, ilen=keys.length; i<ilen; ++i) {
-			key = keys[i];
+		target = model[key];
 
-			target = model[key];
-
-			// if a value is added to the model after pivot() has been called, the view
-			// doesn't contain it, so let's initialize the view to the target value.
-			if (!view.hasOwnProperty(key)) {
-				view[key] = target;
-			}
-
-			actual = view[key];
-
-			if (actual === target || key[0] === '_') {
-				continue;
-			}
-
-			if (!start.hasOwnProperty(key)) {
-				start[key] = actual;
-			}
-
-			origin = start[key];
-
-			type = typeof(target);
-
-			if (type === typeof(origin)) {
-				if (type === 'string') {
-					c0 = color(origin);
-					if (c0.valid) {
-						c1 = color(target);
-						if (c1.valid) {
-							view[key] = c1.mix(c0, ease).rgbString();
-							continue;
-						}
-					}
-				} else if (type === 'number' && isFinite(origin) && isFinite(target)) {
-					view[key] = origin + (target - origin) * ease;
-					continue;
-				}
-			}
-
+		// if a value is added to the model after pivot() has been called, the view
+		// doesn't contain it, so let's initialize the view to the target value.
+		if (!view.hasOwnProperty(key)) {
 			view[key] = target;
 		}
-	}
 
-	Chart.elements = {};
+		actual = view[key];
 
-	Chart.Element = function(configuration) {
-		helpers.extend(this, configuration);
-		this.initialize.apply(this, arguments);
-	};
-
-	helpers.extend(Chart.Element.prototype, {
-
-		initialize: function() {
-			this.hidden = false;
-		},
-
-		pivot: function() {
-			var me = this;
-			if (!me._view) {
-				me._view = helpers.clone(me._model);
-			}
-			me._start = {};
-			return me;
-		},
-
-		transition: function(ease) {
-			var me = this;
-			var model = me._model;
-			var start = me._start;
-			var view = me._view;
-
-			// No animation -> No Transition
-			if (!model || ease === 1) {
-				me._view = model;
-				me._start = null;
-				return me;
-			}
-
-			if (!view) {
-				view = me._view = {};
-			}
-
-			if (!start) {
-				start = me._start = {};
-			}
-
-			interpolate(start, view, model, ease);
-
-			return me;
-		},
-
-		tooltipPosition: function() {
-			return {
-				x: this._model.x,
-				y: this._model.y
-			};
-		},
-
-		hasValue: function() {
-			return helpers.isNumber(this._model.x) && helpers.isNumber(this._model.y);
+		if (actual === target || key[0] === '_') {
+			continue;
 		}
-	});
 
-	Chart.Element.extend = helpers.inherits;
+		if (!start.hasOwnProperty(key)) {
+			start[key] = actual;
+		}
+
+		origin = start[key];
+
+		type = typeof(target);
+
+		if (type === typeof(origin)) {
+			if (type === 'string') {
+				c0 = color(origin);
+				if (c0.valid) {
+					c1 = color(target);
+					if (c1.valid) {
+						view[key] = c1.mix(c0, ease).rgbString();
+						continue;
+					}
+				}
+			} else if (type === 'number' && isFinite(origin) && isFinite(target)) {
+				view[key] = origin + (target - origin) * ease;
+				continue;
+			}
+		}
+
+		view[key] = target;
+	}
+}
+
+var Element = function(configuration) {
+	helpers.extend(this, configuration);
+	this.initialize.apply(this, arguments);
 };
 
-},{"3":3,"45":45}],27:[function(require,module,exports){
+helpers.extend(Element.prototype, {
+
+	initialize: function() {
+		this.hidden = false;
+	},
+
+	pivot: function() {
+		var me = this;
+		if (!me._view) {
+			me._view = helpers.clone(me._model);
+		}
+		me._start = {};
+		return me;
+	},
+
+	transition: function(ease) {
+		var me = this;
+		var model = me._model;
+		var start = me._start;
+		var view = me._view;
+
+		// No animation -> No Transition
+		if (!model || ease === 1) {
+			me._view = model;
+			me._start = null;
+			return me;
+		}
+
+		if (!view) {
+			view = me._view = {};
+		}
+
+		if (!start) {
+			start = me._start = {};
+		}
+
+		interpolate(start, view, model, ease);
+
+		return me;
+	},
+
+	tooltipPosition: function() {
+		return {
+			x: this._model.x,
+			y: this._model.y
+		};
+	},
+
+	hasValue: function() {
+		return helpers.isNumber(this._model.x) && helpers.isNumber(this._model.y);
+	}
+});
+
+Element.extend = helpers.inherits;
+
+module.exports = Element;
+
+},{"3":3,"46":46}],27:[function(require,module,exports){
 /* global window: false */
 /* global document: false */
 'use strict';
 
 var color = require(3);
 var defaults = require(25);
-var helpers = require(45);
+var helpers = require(46);
 
 module.exports = function(Chart) {
 
@@ -5569,10 +5569,10 @@ module.exports = function(Chart) {
 	};
 };
 
-},{"25":25,"3":3,"45":45}],28:[function(require,module,exports){
+},{"25":25,"3":3,"46":46}],28:[function(require,module,exports){
 'use strict';
 
-var helpers = require(45);
+var helpers = require(46);
 
 /**
  * Helper function to get relative position for an event
@@ -5885,7 +5885,7 @@ module.exports = {
 	}
 };
 
-},{"45":45}],29:[function(require,module,exports){
+},{"46":46}],29:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
@@ -5939,7 +5939,7 @@ module.exports = function() {
 },{"25":25}],30:[function(require,module,exports){
 'use strict';
 
-var helpers = require(45);
+var helpers = require(46);
 
 module.exports = function(Chart) {
 
@@ -6374,11 +6374,12 @@ module.exports = function(Chart) {
 	};
 };
 
-},{"45":45}],31:[function(require,module,exports){
+},{"46":46}],31:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
-var helpers = require(45);
+var Element = require(26);
+var helpers = require(46);
 
 defaults._set('global', {
 	plugins: {}
@@ -6746,14 +6747,15 @@ module.exports = function(Chart) {
 	 * @todo remove at version 3
 	 * @private
 	 */
-	Chart.PluginBase = Chart.Element.extend({});
+	Chart.PluginBase = Element.extend({});
 };
 
-},{"25":25,"45":45}],32:[function(require,module,exports){
+},{"25":25,"26":26,"46":46}],32:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
-var helpers = require(45);
+var Element = require(26);
+var helpers = require(46);
 var Ticks = require(34);
 
 defaults._set('scale', {
@@ -6837,7 +6839,7 @@ module.exports = function(Chart) {
 			helpers.valueOrDefault(options.fontSize, defaults.global.defaultFontSize));
 	}
 
-	Chart.Scale = Chart.Element.extend({
+	Chart.Scale = Element.extend({
 		/**
 		 * Get the padding needed for the scale
 		 * @method getPadding
@@ -7550,11 +7552,11 @@ module.exports = function(Chart) {
 	});
 };
 
-},{"25":25,"34":34,"45":45}],33:[function(require,module,exports){
+},{"25":25,"26":26,"34":34,"46":46}],33:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
-var helpers = require(45);
+var helpers = require(46);
 
 module.exports = function(Chart) {
 
@@ -7597,10 +7599,10 @@ module.exports = function(Chart) {
 	};
 };
 
-},{"25":25,"45":45}],34:[function(require,module,exports){
+},{"25":25,"46":46}],34:[function(require,module,exports){
 'use strict';
 
-var helpers = require(45);
+var helpers = require(46);
 
 /**
  * Namespace to hold static tick generation functions
@@ -7806,11 +7808,12 @@ module.exports = {
 	}
 };
 
-},{"45":45}],35:[function(require,module,exports){
+},{"46":46}],35:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
-var helpers = require(45);
+var Element = require(26);
+var helpers = require(46);
 
 defaults._set('global', {
 	tooltips: {
@@ -8189,7 +8192,7 @@ module.exports = function(Chart) {
 		};
 	}
 
-	Chart.Tooltip = Chart.Element.extend({
+	Chart.Tooltip = Element.extend({
 		initialize: function() {
 			this._model = getBaseModel(this._options);
 		},
@@ -8754,11 +8757,12 @@ module.exports = function(Chart) {
 	};
 };
 
-},{"25":25,"45":45}],36:[function(require,module,exports){
+},{"25":25,"26":26,"46":46}],36:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
-var helpers = require(45);
+var Element = require(26);
+var helpers = require(46);
 
 defaults._set('global', {
 	elements: {
@@ -8770,105 +8774,108 @@ defaults._set('global', {
 	}
 });
 
-module.exports = function(Chart) {
+module.exports = Element.extend({
+	inLabelRange: function(mouseX) {
+		var vm = this._view;
 
-	Chart.elements.Arc = Chart.Element.extend({
-		inLabelRange: function(mouseX) {
-			var vm = this._view;
-
-			if (vm) {
-				return (Math.pow(mouseX - vm.x, 2) < Math.pow(vm.radius + vm.hoverRadius, 2));
-			}
-			return false;
-		},
-		inRange: function(chartX, chartY) {
-			var vm = this._view;
-
-			if (vm) {
-				var pointRelativePosition = helpers.getAngleFromPoint(vm, {
-						x: chartX,
-						y: chartY
-					}),
-					angle = pointRelativePosition.angle,
-					distance = pointRelativePosition.distance;
-
-				// Sanitise angle range
-				var startAngle = vm.startAngle;
-				var endAngle = vm.endAngle;
-				while (endAngle < startAngle) {
-					endAngle += 2.0 * Math.PI;
-				}
-				while (angle > endAngle) {
-					angle -= 2.0 * Math.PI;
-				}
-				while (angle < startAngle) {
-					angle += 2.0 * Math.PI;
-				}
-
-				// Check if within the range of the open/close angle
-				var betweenAngles = (angle >= startAngle && angle <= endAngle),
-					withinRadius = (distance >= vm.innerRadius && distance <= vm.outerRadius);
-
-				return (betweenAngles && withinRadius);
-			}
-			return false;
-		},
-		getCenterPoint: function() {
-			var vm = this._view;
-			var halfAngle = (vm.startAngle + vm.endAngle) / 2;
-			var halfRadius = (vm.innerRadius + vm.outerRadius) / 2;
-			return {
-				x: vm.x + Math.cos(halfAngle) * halfRadius,
-				y: vm.y + Math.sin(halfAngle) * halfRadius
-			};
-		},
-		getArea: function() {
-			var vm = this._view;
-			return Math.PI * ((vm.endAngle - vm.startAngle) / (2 * Math.PI)) * (Math.pow(vm.outerRadius, 2) - Math.pow(vm.innerRadius, 2));
-		},
-		tooltipPosition: function() {
-			var vm = this._view;
-
-			var centreAngle = vm.startAngle + ((vm.endAngle - vm.startAngle) / 2),
-				rangeFromCentre = (vm.outerRadius - vm.innerRadius) / 2 + vm.innerRadius;
-			return {
-				x: vm.x + (Math.cos(centreAngle) * rangeFromCentre),
-				y: vm.y + (Math.sin(centreAngle) * rangeFromCentre)
-			};
-		},
-		draw: function() {
-
-			var ctx = this._chart.ctx,
-				vm = this._view,
-				sA = vm.startAngle,
-				eA = vm.endAngle;
-
-			ctx.beginPath();
-
-			ctx.arc(vm.x, vm.y, vm.outerRadius, sA, eA);
-			ctx.arc(vm.x, vm.y, vm.innerRadius, eA, sA, true);
-
-			ctx.closePath();
-			ctx.strokeStyle = vm.borderColor;
-			ctx.lineWidth = vm.borderWidth;
-
-			ctx.fillStyle = vm.backgroundColor;
-
-			ctx.fill();
-			ctx.lineJoin = 'bevel';
-
-			if (vm.borderWidth) {
-				ctx.stroke();
-			}
+		if (vm) {
+			return (Math.pow(mouseX - vm.x, 2) < Math.pow(vm.radius + vm.hoverRadius, 2));
 		}
-	});
-};
+		return false;
+	},
 
-},{"25":25,"45":45}],37:[function(require,module,exports){
+	inRange: function(chartX, chartY) {
+		var vm = this._view;
+
+		if (vm) {
+			var pointRelativePosition = helpers.getAngleFromPoint(vm, {
+					x: chartX,
+					y: chartY
+				}),
+				angle = pointRelativePosition.angle,
+				distance = pointRelativePosition.distance;
+
+			// Sanitise angle range
+			var startAngle = vm.startAngle;
+			var endAngle = vm.endAngle;
+			while (endAngle < startAngle) {
+				endAngle += 2.0 * Math.PI;
+			}
+			while (angle > endAngle) {
+				angle -= 2.0 * Math.PI;
+			}
+			while (angle < startAngle) {
+				angle += 2.0 * Math.PI;
+			}
+
+			// Check if within the range of the open/close angle
+			var betweenAngles = (angle >= startAngle && angle <= endAngle),
+				withinRadius = (distance >= vm.innerRadius && distance <= vm.outerRadius);
+
+			return (betweenAngles && withinRadius);
+		}
+		return false;
+	},
+
+	getCenterPoint: function() {
+		var vm = this._view;
+		var halfAngle = (vm.startAngle + vm.endAngle) / 2;
+		var halfRadius = (vm.innerRadius + vm.outerRadius) / 2;
+		return {
+			x: vm.x + Math.cos(halfAngle) * halfRadius,
+			y: vm.y + Math.sin(halfAngle) * halfRadius
+		};
+	},
+
+	getArea: function() {
+		var vm = this._view;
+		return Math.PI * ((vm.endAngle - vm.startAngle) / (2 * Math.PI)) * (Math.pow(vm.outerRadius, 2) - Math.pow(vm.innerRadius, 2));
+	},
+
+	tooltipPosition: function() {
+		var vm = this._view;
+
+		var centreAngle = vm.startAngle + ((vm.endAngle - vm.startAngle) / 2),
+			rangeFromCentre = (vm.outerRadius - vm.innerRadius) / 2 + vm.innerRadius;
+		return {
+			x: vm.x + (Math.cos(centreAngle) * rangeFromCentre),
+			y: vm.y + (Math.sin(centreAngle) * rangeFromCentre)
+		};
+	},
+
+	draw: function() {
+
+		var ctx = this._chart.ctx,
+			vm = this._view,
+			sA = vm.startAngle,
+			eA = vm.endAngle;
+
+		ctx.beginPath();
+
+		ctx.arc(vm.x, vm.y, vm.outerRadius, sA, eA);
+		ctx.arc(vm.x, vm.y, vm.innerRadius, eA, sA, true);
+
+		ctx.closePath();
+		ctx.strokeStyle = vm.borderColor;
+		ctx.lineWidth = vm.borderWidth;
+
+		ctx.fillStyle = vm.backgroundColor;
+
+		ctx.fill();
+		ctx.lineJoin = 'bevel';
+
+		if (vm.borderWidth) {
+			ctx.stroke();
+		}
+	}
+});
+
+},{"25":25,"26":26,"46":46}],37:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
-var helpers = require(45);
+var Element = require(26);
+var helpers = require(46);
 
 var globalDefaults = defaults.global;
 
@@ -8889,81 +8896,79 @@ defaults._set('global', {
 	}
 });
 
-module.exports = function(Chart) {
+module.exports = Element.extend({
+	draw: function() {
+		var me = this;
+		var vm = me._view;
+		var ctx = me._chart.ctx;
+		var spanGaps = vm.spanGaps;
+		var points = me._children.slice(); // clone array
+		var globalOptionLineElements = globalDefaults.elements.line;
+		var lastDrawnIndex = -1;
+		var index, current, previous, currentVM;
 
-	Chart.elements.Line = Chart.Element.extend({
-		draw: function() {
-			var me = this;
-			var vm = me._view;
-			var ctx = me._chart.ctx;
-			var spanGaps = vm.spanGaps;
-			var points = me._children.slice(); // clone array
-			var globalOptionLineElements = globalDefaults.elements.line;
-			var lastDrawnIndex = -1;
-			var index, current, previous, currentVM;
+		// If we are looping, adding the first point again
+		if (me._loop && points.length) {
+			points.push(points[0]);
+		}
 
-			// If we are looping, adding the first point again
-			if (me._loop && points.length) {
-				points.push(points[0]);
-			}
+		ctx.save();
 
-			ctx.save();
+		// Stroke Line Options
+		ctx.lineCap = vm.borderCapStyle || globalOptionLineElements.borderCapStyle;
 
-			// Stroke Line Options
-			ctx.lineCap = vm.borderCapStyle || globalOptionLineElements.borderCapStyle;
+		// IE 9 and 10 do not support line dash
+		if (ctx.setLineDash) {
+			ctx.setLineDash(vm.borderDash || globalOptionLineElements.borderDash);
+		}
 
-			// IE 9 and 10 do not support line dash
-			if (ctx.setLineDash) {
-				ctx.setLineDash(vm.borderDash || globalOptionLineElements.borderDash);
-			}
+		ctx.lineDashOffset = vm.borderDashOffset || globalOptionLineElements.borderDashOffset;
+		ctx.lineJoin = vm.borderJoinStyle || globalOptionLineElements.borderJoinStyle;
+		ctx.lineWidth = vm.borderWidth || globalOptionLineElements.borderWidth;
+		ctx.strokeStyle = vm.borderColor || globalDefaults.defaultColor;
 
-			ctx.lineDashOffset = vm.borderDashOffset || globalOptionLineElements.borderDashOffset;
-			ctx.lineJoin = vm.borderJoinStyle || globalOptionLineElements.borderJoinStyle;
-			ctx.lineWidth = vm.borderWidth || globalOptionLineElements.borderWidth;
-			ctx.strokeStyle = vm.borderColor || globalDefaults.defaultColor;
+		// Stroke Line
+		ctx.beginPath();
+		lastDrawnIndex = -1;
 
-			// Stroke Line
-			ctx.beginPath();
-			lastDrawnIndex = -1;
+		for (index = 0; index < points.length; ++index) {
+			current = points[index];
+			previous = helpers.previousItem(points, index);
+			currentVM = current._view;
 
-			for (index = 0; index < points.length; ++index) {
-				current = points[index];
-				previous = helpers.previousItem(points, index);
-				currentVM = current._view;
+			// First point moves to it's starting position no matter what
+			if (index === 0) {
+				if (!currentVM.skip) {
+					ctx.moveTo(currentVM.x, currentVM.y);
+					lastDrawnIndex = index;
+				}
+			} else {
+				previous = lastDrawnIndex === -1 ? previous : points[lastDrawnIndex];
 
-				// First point moves to it's starting position no matter what
-				if (index === 0) {
-					if (!currentVM.skip) {
+				if (!currentVM.skip) {
+					if ((lastDrawnIndex !== (index - 1) && !spanGaps) || lastDrawnIndex === -1) {
+						// There was a gap and this is the first point after the gap
 						ctx.moveTo(currentVM.x, currentVM.y);
-						lastDrawnIndex = index;
+					} else {
+						// Line to next point
+						helpers.canvas.lineTo(ctx, previous._view, current._view);
 					}
-				} else {
-					previous = lastDrawnIndex === -1 ? previous : points[lastDrawnIndex];
-
-					if (!currentVM.skip) {
-						if ((lastDrawnIndex !== (index - 1) && !spanGaps) || lastDrawnIndex === -1) {
-							// There was a gap and this is the first point after the gap
-							ctx.moveTo(currentVM.x, currentVM.y);
-						} else {
-							// Line to next point
-							helpers.canvas.lineTo(ctx, previous._view, current._view);
-						}
-						lastDrawnIndex = index;
-					}
+					lastDrawnIndex = index;
 				}
 			}
-
-			ctx.stroke();
-			ctx.restore();
 		}
-	});
-};
 
-},{"25":25,"45":45}],38:[function(require,module,exports){
+		ctx.stroke();
+		ctx.restore();
+	}
+});
+
+},{"25":25,"26":26,"46":46}],38:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
-var helpers = require(45);
+var Element = require(26);
+var helpers = require(46);
 
 var defaultColor = defaults.global.defaultColor;
 
@@ -8983,93 +8988,94 @@ defaults._set('global', {
 	}
 });
 
-module.exports = function(Chart) {
+function xRange(mouseX) {
+	var vm = this._view;
+	return vm ? (Math.pow(mouseX - vm.x, 2) < Math.pow(vm.radius + vm.hitRadius, 2)) : false;
+}
 
-	function xRange(mouseX) {
+function yRange(mouseY) {
+	var vm = this._view;
+	return vm ? (Math.pow(mouseY - vm.y, 2) < Math.pow(vm.radius + vm.hitRadius, 2)) : false;
+}
+
+module.exports = Element.extend({
+	inRange: function(mouseX, mouseY) {
 		var vm = this._view;
-		return vm ? (Math.pow(mouseX - vm.x, 2) < Math.pow(vm.radius + vm.hitRadius, 2)) : false;
-	}
+		return vm ? ((Math.pow(mouseX - vm.x, 2) + Math.pow(mouseY - vm.y, 2)) < Math.pow(vm.hitRadius + vm.radius, 2)) : false;
+	},
 
-	function yRange(mouseY) {
+	inLabelRange: xRange,
+	inXRange: xRange,
+	inYRange: yRange,
+
+	getCenterPoint: function() {
 		var vm = this._view;
-		return vm ? (Math.pow(mouseY - vm.y, 2) < Math.pow(vm.radius + vm.hitRadius, 2)) : false;
-	}
+		return {
+			x: vm.x,
+			y: vm.y
+		};
+	},
 
-	Chart.elements.Point = Chart.Element.extend({
-		inRange: function(mouseX, mouseY) {
-			var vm = this._view;
-			return vm ? ((Math.pow(mouseX - vm.x, 2) + Math.pow(mouseY - vm.y, 2)) < Math.pow(vm.hitRadius + vm.radius, 2)) : false;
-		},
+	getArea: function() {
+		return Math.PI * Math.pow(this._view.radius, 2);
+	},
 
-		inLabelRange: xRange,
-		inXRange: xRange,
-		inYRange: yRange,
+	tooltipPosition: function() {
+		var vm = this._view;
+		return {
+			x: vm.x,
+			y: vm.y,
+			padding: vm.radius + vm.borderWidth
+		};
+	},
 
-		getCenterPoint: function() {
-			var vm = this._view;
-			return {
-				x: vm.x,
-				y: vm.y
-			};
-		},
-		getArea: function() {
-			return Math.PI * Math.pow(this._view.radius, 2);
-		},
-		tooltipPosition: function() {
-			var vm = this._view;
-			return {
-				x: vm.x,
-				y: vm.y,
-				padding: vm.radius + vm.borderWidth
-			};
-		},
-		draw: function(chartArea) {
-			var vm = this._view;
-			var model = this._model;
-			var ctx = this._chart.ctx;
-			var pointStyle = vm.pointStyle;
-			var radius = vm.radius;
-			var x = vm.x;
-			var y = vm.y;
-			var color = helpers.color;
-			var errMargin = 1.01; // 1.01 is margin for Accumulated error. (Especially Edge, IE.)
-			var ratio = 0;
+	draw: function(chartArea) {
+		var vm = this._view;
+		var model = this._model;
+		var ctx = this._chart.ctx;
+		var pointStyle = vm.pointStyle;
+		var radius = vm.radius;
+		var x = vm.x;
+		var y = vm.y;
+		var color = helpers.color;
+		var errMargin = 1.01; // 1.01 is margin for Accumulated error. (Especially Edge, IE.)
+		var ratio = 0;
 
-			if (vm.skip) {
-				return;
-			}
-
-			ctx.strokeStyle = vm.borderColor || defaultColor;
-			ctx.lineWidth = helpers.valueOrDefault(vm.borderWidth, defaults.global.elements.point.borderWidth);
-			ctx.fillStyle = vm.backgroundColor || defaultColor;
-
-			// Cliping for Points.
-			// going out from inner charArea?
-			if ((chartArea !== undefined) && ((model.x < chartArea.left) || (chartArea.right*errMargin < model.x) || (model.y < chartArea.top) || (chartArea.bottom*errMargin < model.y))) {
-				// Point fade out
-				if (model.x < chartArea.left) {
-					ratio = (x - model.x) / (chartArea.left - model.x);
-				} else if (chartArea.right*errMargin < model.x) {
-					ratio = (model.x - x) / (model.x - chartArea.right);
-				} else if (model.y < chartArea.top) {
-					ratio = (y - model.y) / (chartArea.top - model.y);
-				} else if (chartArea.bottom*errMargin < model.y) {
-					ratio = (model.y - y) / (model.y - chartArea.bottom);
-				}
-				ratio = Math.round(ratio*100) / 100;
-				ctx.strokeStyle = color(ctx.strokeStyle).alpha(ratio).rgbString();
-				ctx.fillStyle = color(ctx.fillStyle).alpha(ratio).rgbString();
-			}
-
-			helpers.canvas.drawPoint(ctx, pointStyle, radius, x, y);
+		if (vm.skip) {
+			return;
 		}
-	});
-};
 
-},{"25":25,"45":45}],39:[function(require,module,exports){
+		ctx.strokeStyle = vm.borderColor || defaultColor;
+		ctx.lineWidth = helpers.valueOrDefault(vm.borderWidth, defaults.global.elements.point.borderWidth);
+		ctx.fillStyle = vm.backgroundColor || defaultColor;
+
+		// Cliping for Points.
+		// going out from inner charArea?
+		if ((chartArea !== undefined) && ((model.x < chartArea.left) || (chartArea.right*errMargin < model.x) || (model.y < chartArea.top) || (chartArea.bottom*errMargin < model.y))) {
+			// Point fade out
+			if (model.x < chartArea.left) {
+				ratio = (x - model.x) / (chartArea.left - model.x);
+			} else if (chartArea.right*errMargin < model.x) {
+				ratio = (model.x - x) / (model.x - chartArea.right);
+			} else if (model.y < chartArea.top) {
+				ratio = (y - model.y) / (chartArea.top - model.y);
+			} else if (chartArea.bottom*errMargin < model.y) {
+				ratio = (model.y - y) / (model.y - chartArea.bottom);
+			}
+			ratio = Math.round(ratio*100) / 100;
+			ctx.strokeStyle = color(ctx.strokeStyle).alpha(ratio).rgbString();
+			ctx.fillStyle = color(ctx.fillStyle).alpha(ratio).rgbString();
+		}
+
+		helpers.canvas.drawPoint(ctx, pointStyle, radius, x, y);
+	}
+});
+
+},{"25":25,"26":26,"46":46}],39:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
+var Element = require(26);
 
 defaults._set('global', {
 	elements: {
@@ -9082,208 +9088,221 @@ defaults._set('global', {
 	}
 });
 
-module.exports = function(Chart) {
+function isVertical(bar) {
+	return bar._view.width !== undefined;
+}
 
-	function isVertical(bar) {
-		return bar._view.width !== undefined;
+/**
+ * Helper function to get the bounds of the bar regardless of the orientation
+ * @param bar {Chart.Element.Rectangle} the bar
+ * @return {Bounds} bounds of the bar
+ * @private
+ */
+function getBarBounds(bar) {
+	var vm = bar._view;
+	var x1, x2, y1, y2;
+
+	if (isVertical(bar)) {
+		// vertical
+		var halfWidth = vm.width / 2;
+		x1 = vm.x - halfWidth;
+		x2 = vm.x + halfWidth;
+		y1 = Math.min(vm.y, vm.base);
+		y2 = Math.max(vm.y, vm.base);
+	} else {
+		// horizontal bar
+		var halfHeight = vm.height / 2;
+		x1 = Math.min(vm.x, vm.base);
+		x2 = Math.max(vm.x, vm.base);
+		y1 = vm.y - halfHeight;
+		y2 = vm.y + halfHeight;
 	}
 
-	/**
-	 * Helper function to get the bounds of the bar regardless of the orientation
-	 * @private
-	 * @param bar {Chart.Element.Rectangle} the bar
-	 * @return {Bounds} bounds of the bar
-	 */
-	function getBarBounds(bar) {
-		var vm = bar._view;
-		var x1, x2, y1, y2;
+	return {
+		left: x1,
+		top: y1,
+		right: x2,
+		bottom: y2
+	};
+}
 
-		if (isVertical(bar)) {
-			// vertical
-			var halfWidth = vm.width / 2;
-			x1 = vm.x - halfWidth;
-			x2 = vm.x + halfWidth;
-			y1 = Math.min(vm.y, vm.base);
-			y2 = Math.max(vm.y, vm.base);
+module.exports = Element.extend({
+	draw: function() {
+		var ctx = this._chart.ctx;
+		var vm = this._view;
+		var left, right, top, bottom, signX, signY, borderSkipped;
+		var borderWidth = vm.borderWidth;
+
+		if (!vm.horizontal) {
+			// bar
+			left = vm.x - vm.width / 2;
+			right = vm.x + vm.width / 2;
+			top = vm.y;
+			bottom = vm.base;
+			signX = 1;
+			signY = bottom > top? 1: -1;
+			borderSkipped = vm.borderSkipped || 'bottom';
 		} else {
 			// horizontal bar
-			var halfHeight = vm.height / 2;
-			x1 = Math.min(vm.x, vm.base);
-			x2 = Math.max(vm.x, vm.base);
-			y1 = vm.y - halfHeight;
-			y2 = vm.y + halfHeight;
+			left = vm.base;
+			right = vm.x;
+			top = vm.y - vm.height / 2;
+			bottom = vm.y + vm.height / 2;
+			signX = right > left? 1: -1;
+			signY = 1;
+			borderSkipped = vm.borderSkipped || 'left';
 		}
 
+		// Canvas doesn't allow us to stroke inside the width so we can
+		// adjust the sizes to fit if we're setting a stroke on the line
+		if (borderWidth) {
+			// borderWidth shold be less than bar width and bar height.
+			var barSize = Math.min(Math.abs(left - right), Math.abs(top - bottom));
+			borderWidth = borderWidth > barSize? barSize: borderWidth;
+			var halfStroke = borderWidth / 2;
+			// Adjust borderWidth when bar top position is near vm.base(zero).
+			var borderLeft = left + (borderSkipped !== 'left'? halfStroke * signX: 0);
+			var borderRight = right + (borderSkipped !== 'right'? -halfStroke * signX: 0);
+			var borderTop = top + (borderSkipped !== 'top'? halfStroke * signY: 0);
+			var borderBottom = bottom + (borderSkipped !== 'bottom'? -halfStroke * signY: 0);
+			// not become a vertical line?
+			if (borderLeft !== borderRight) {
+				top = borderTop;
+				bottom = borderBottom;
+			}
+			// not become a horizontal line?
+			if (borderTop !== borderBottom) {
+				left = borderLeft;
+				right = borderRight;
+			}
+		}
+
+		ctx.beginPath();
+		ctx.fillStyle = vm.backgroundColor;
+		ctx.strokeStyle = vm.borderColor;
+		ctx.lineWidth = borderWidth;
+
+		// Corner points, from bottom-left to bottom-right clockwise
+		// | 1 2 |
+		// | 0 3 |
+		var corners = [
+			[left, bottom],
+			[left, top],
+			[right, top],
+			[right, bottom]
+		];
+
+		// Find first (starting) corner with fallback to 'bottom'
+		var borders = ['bottom', 'left', 'top', 'right'];
+		var startCorner = borders.indexOf(borderSkipped, 0);
+		if (startCorner === -1) {
+			startCorner = 0;
+		}
+
+		function cornerAt(index) {
+			return corners[(startCorner + index) % 4];
+		}
+
+		// Draw rectangle from 'startCorner'
+		var corner = cornerAt(0);
+		ctx.moveTo(corner[0], corner[1]);
+
+		for (var i = 1; i < 4; i++) {
+			corner = cornerAt(i);
+			ctx.lineTo(corner[0], corner[1]);
+		}
+
+		ctx.fill();
+		if (borderWidth) {
+			ctx.stroke();
+		}
+	},
+
+	height: function() {
+		var vm = this._view;
+		return vm.base - vm.y;
+	},
+
+	inRange: function(mouseX, mouseY) {
+		var inRange = false;
+
+		if (this._view) {
+			var bounds = getBarBounds(this);
+			inRange = mouseX >= bounds.left && mouseX <= bounds.right && mouseY >= bounds.top && mouseY <= bounds.bottom;
+		}
+
+		return inRange;
+	},
+
+	inLabelRange: function(mouseX, mouseY) {
+		var me = this;
+		if (!me._view) {
+			return false;
+		}
+
+		var inRange = false;
+		var bounds = getBarBounds(me);
+
+		if (isVertical(me)) {
+			inRange = mouseX >= bounds.left && mouseX <= bounds.right;
+		} else {
+			inRange = mouseY >= bounds.top && mouseY <= bounds.bottom;
+		}
+
+		return inRange;
+	},
+
+	inXRange: function(mouseX) {
+		var bounds = getBarBounds(this);
+		return mouseX >= bounds.left && mouseX <= bounds.right;
+	},
+
+	inYRange: function(mouseY) {
+		var bounds = getBarBounds(this);
+		return mouseY >= bounds.top && mouseY <= bounds.bottom;
+	},
+
+	getCenterPoint: function() {
+		var vm = this._view;
+		var x, y;
+		if (isVertical(this)) {
+			x = vm.x;
+			y = (vm.y + vm.base) / 2;
+		} else {
+			x = (vm.x + vm.base) / 2;
+			y = vm.y;
+		}
+
+		return {x: x, y: y};
+	},
+
+	getArea: function() {
+		var vm = this._view;
+		return vm.width * Math.abs(vm.y - vm.base);
+	},
+
+	tooltipPosition: function() {
+		var vm = this._view;
 		return {
-			left: x1,
-			top: y1,
-			right: x2,
-			bottom: y2
+			x: vm.x,
+			y: vm.y
 		};
 	}
+});
 
-	Chart.elements.Rectangle = Chart.Element.extend({
-		draw: function() {
-			var ctx = this._chart.ctx;
-			var vm = this._view;
-			var left, right, top, bottom, signX, signY, borderSkipped;
-			var borderWidth = vm.borderWidth;
-
-			if (!vm.horizontal) {
-				// bar
-				left = vm.x - vm.width / 2;
-				right = vm.x + vm.width / 2;
-				top = vm.y;
-				bottom = vm.base;
-				signX = 1;
-				signY = bottom > top? 1: -1;
-				borderSkipped = vm.borderSkipped || 'bottom';
-			} else {
-				// horizontal bar
-				left = vm.base;
-				right = vm.x;
-				top = vm.y - vm.height / 2;
-				bottom = vm.y + vm.height / 2;
-				signX = right > left? 1: -1;
-				signY = 1;
-				borderSkipped = vm.borderSkipped || 'left';
-			}
-
-			// Canvas doesn't allow us to stroke inside the width so we can
-			// adjust the sizes to fit if we're setting a stroke on the line
-			if (borderWidth) {
-				// borderWidth shold be less than bar width and bar height.
-				var barSize = Math.min(Math.abs(left - right), Math.abs(top - bottom));
-				borderWidth = borderWidth > barSize? barSize: borderWidth;
-				var halfStroke = borderWidth / 2;
-				// Adjust borderWidth when bar top position is near vm.base(zero).
-				var borderLeft = left + (borderSkipped !== 'left'? halfStroke * signX: 0);
-				var borderRight = right + (borderSkipped !== 'right'? -halfStroke * signX: 0);
-				var borderTop = top + (borderSkipped !== 'top'? halfStroke * signY: 0);
-				var borderBottom = bottom + (borderSkipped !== 'bottom'? -halfStroke * signY: 0);
-				// not become a vertical line?
-				if (borderLeft !== borderRight) {
-					top = borderTop;
-					bottom = borderBottom;
-				}
-				// not become a horizontal line?
-				if (borderTop !== borderBottom) {
-					left = borderLeft;
-					right = borderRight;
-				}
-			}
-
-			ctx.beginPath();
-			ctx.fillStyle = vm.backgroundColor;
-			ctx.strokeStyle = vm.borderColor;
-			ctx.lineWidth = borderWidth;
-
-			// Corner points, from bottom-left to bottom-right clockwise
-			// | 1 2 |
-			// | 0 3 |
-			var corners = [
-				[left, bottom],
-				[left, top],
-				[right, top],
-				[right, bottom]
-			];
-
-			// Find first (starting) corner with fallback to 'bottom'
-			var borders = ['bottom', 'left', 'top', 'right'];
-			var startCorner = borders.indexOf(borderSkipped, 0);
-			if (startCorner === -1) {
-				startCorner = 0;
-			}
-
-			function cornerAt(index) {
-				return corners[(startCorner + index) % 4];
-			}
-
-			// Draw rectangle from 'startCorner'
-			var corner = cornerAt(0);
-			ctx.moveTo(corner[0], corner[1]);
-
-			for (var i = 1; i < 4; i++) {
-				corner = cornerAt(i);
-				ctx.lineTo(corner[0], corner[1]);
-			}
-
-			ctx.fill();
-			if (borderWidth) {
-				ctx.stroke();
-			}
-		},
-		height: function() {
-			var vm = this._view;
-			return vm.base - vm.y;
-		},
-		inRange: function(mouseX, mouseY) {
-			var inRange = false;
-
-			if (this._view) {
-				var bounds = getBarBounds(this);
-				inRange = mouseX >= bounds.left && mouseX <= bounds.right && mouseY >= bounds.top && mouseY <= bounds.bottom;
-			}
-
-			return inRange;
-		},
-		inLabelRange: function(mouseX, mouseY) {
-			var me = this;
-			if (!me._view) {
-				return false;
-			}
-
-			var inRange = false;
-			var bounds = getBarBounds(me);
-
-			if (isVertical(me)) {
-				inRange = mouseX >= bounds.left && mouseX <= bounds.right;
-			} else {
-				inRange = mouseY >= bounds.top && mouseY <= bounds.bottom;
-			}
-
-			return inRange;
-		},
-		inXRange: function(mouseX) {
-			var bounds = getBarBounds(this);
-			return mouseX >= bounds.left && mouseX <= bounds.right;
-		},
-		inYRange: function(mouseY) {
-			var bounds = getBarBounds(this);
-			return mouseY >= bounds.top && mouseY <= bounds.bottom;
-		},
-		getCenterPoint: function() {
-			var vm = this._view;
-			var x, y;
-			if (isVertical(this)) {
-				x = vm.x;
-				y = (vm.y + vm.base) / 2;
-			} else {
-				x = (vm.x + vm.base) / 2;
-				y = vm.y;
-			}
-
-			return {x: x, y: y};
-		},
-		getArea: function() {
-			var vm = this._view;
-			return vm.width * Math.abs(vm.y - vm.base);
-		},
-		tooltipPosition: function() {
-			var vm = this._view;
-			return {
-				x: vm.x,
-				y: vm.y
-			};
-		}
-	});
-
-};
-
-},{"25":25}],40:[function(require,module,exports){
+},{"25":25,"26":26}],40:[function(require,module,exports){
 'use strict';
 
-var helpers = require(41);
+module.exports = {};
+module.exports.Arc = require(36);
+module.exports.Line = require(37);
+module.exports.Point = require(38);
+module.exports.Rectangle = require(39);
+
+},{"36":36,"37":37,"38":38,"39":39}],41:[function(require,module,exports){
+'use strict';
+
+var helpers = require(42);
 
 /**
  * @namespace Chart.helpers.canvas
@@ -9496,7 +9515,7 @@ helpers.drawRoundedRectangle = function(ctx) {
 	ctx.closePath();
 };
 
-},{"41":41}],41:[function(require,module,exports){
+},{"42":42}],42:[function(require,module,exports){
 'use strict';
 
 /**
@@ -9795,10 +9814,10 @@ helpers.getValueOrDefault = helpers.valueOrDefault;
  */
 helpers.getValueAtIndexOrDefault = helpers.valueAtIndexOrDefault;
 
-},{}],42:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 'use strict';
 
-var helpers = require(41);
+var helpers = require(42);
 
 /**
  * Easing functions adapted from Robert Penner's easing equations.
@@ -10047,7 +10066,7 @@ module.exports = {
  */
 helpers.easingEffects = effects;
 
-},{"41":41}],43:[function(require,module,exports){
+},{"42":42}],44:[function(require,module,exports){
 'use strict';
 
 /**
@@ -10084,13 +10103,13 @@ module.exports = {
 	}
 };
 
-},{}],44:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 'use strict';
 
 var moment = require(1);
 moment = typeof(moment) === 'function' ? moment : window.moment;
 
-var helpers = require(41);
+var helpers = require(42);
 
 var interval = {
 	millisecond: {
@@ -10308,23 +10327,23 @@ module.exports = {
 	}
 };
 
-},{"1":1,"41":41}],45:[function(require,module,exports){
+},{"1":1,"42":42}],46:[function(require,module,exports){
 'use strict';
 
-module.exports = require(41);
-module.exports.easing = require(42);
-module.exports.canvas = require(40);
-module.exports.options = require(43);
-module.exports.time = require(44);
+module.exports = require(42);
+module.exports.easing = require(43);
+module.exports.canvas = require(41);
+module.exports.options = require(44);
+module.exports.time = require(45);
 
-},{"40":40,"41":41,"42":42,"43":43,"44":44}],46:[function(require,module,exports){
+},{"41":41,"42":42,"43":43,"44":44,"45":45}],47:[function(require,module,exports){
 /**
  * Chart.Platform implementation for targeting a web browser
  */
 
 'use strict';
 
-var helpers = require(45);
+var helpers = require(46);
 
 /**
  * DOM event types -> Chart.js event types.
@@ -10666,14 +10685,14 @@ helpers.addEvent = addEventListener;
  */
 helpers.removeEvent = removeEventListener;
 
-},{"45":45}],47:[function(require,module,exports){
+},{"46":46}],48:[function(require,module,exports){
 'use strict';
 
-var helpers = require(45);
+var helpers = require(46);
 
 // By default, select the browser (DOM) platform.
 // @TODO Make possible to select another platform at build time.
-var implementation = require(46);
+var implementation = require(47);
 
 /**
  * @namespace Chart.platform
@@ -10736,7 +10755,7 @@ module.exports = helpers.extend({
  * @prop {Number} y - The mouse y position, relative to the canvas (null for incompatible events)
  */
 
-},{"45":45,"46":46}],48:[function(require,module,exports){
+},{"46":46,"47":47}],49:[function(require,module,exports){
 /**
  * Plugin based on discussion from the following Chart.js issues:
  * @see https://github.com/chartjs/Chart.js/issues/2380#issuecomment-279961569
@@ -10746,7 +10765,8 @@ module.exports = helpers.extend({
 'use strict';
 
 var defaults = require(25);
-var helpers = require(45);
+var elements = require(40);
+var helpers = require(46);
 
 defaults._set('global', {
 	plugins: {
@@ -10756,7 +10776,7 @@ defaults._set('global', {
 	}
 });
 
-module.exports = function(Chart) {
+module.exports = function() {
 
 	var mappers = {
 		dataset: function(source) {
@@ -11011,7 +11031,7 @@ module.exports = function(Chart) {
 				el = meta.dataset;
 				source = null;
 
-				if (el && el._model && el instanceof Chart.elements.Line) {
+				if (el && el._model && el instanceof elements.Line) {
 					source = {
 						visible: chart.isDatasetVisible(i),
 						fill: decodeFill(el, i, count),
@@ -11058,11 +11078,12 @@ module.exports = function(Chart) {
 	};
 };
 
-},{"25":25,"45":45}],49:[function(require,module,exports){
+},{"25":25,"40":40,"46":46}],50:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
-var helpers = require(45);
+var Element = require(26);
+var helpers = require(46);
 
 defaults._set('global', {
 	legend: {
@@ -11156,7 +11177,7 @@ module.exports = function(Chart) {
 			labelOpts.boxWidth;
 	}
 
-	Chart.Legend = Chart.Element.extend({
+	Chart.Legend = Element.extend({
 
 		initialize: function(config) {
 			helpers.extend(this, config);
@@ -11626,11 +11647,12 @@ module.exports = function(Chart) {
 	};
 };
 
-},{"25":25,"45":45}],50:[function(require,module,exports){
+},{"25":25,"26":26,"46":46}],51:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
-var helpers = require(45);
+var Element = require(26);
+var helpers = require(46);
 
 defaults._set('global', {
 	title: {
@@ -11650,7 +11672,7 @@ module.exports = function(Chart) {
 	var layout = Chart.layoutService;
 	var noop = helpers.noop;
 
-	Chart.Title = Chart.Element.extend({
+	Chart.Title = Element.extend({
 		initialize: function(config) {
 			var me = this;
 			helpers.extend(me, config);
@@ -11872,7 +11894,7 @@ module.exports = function(Chart) {
 	};
 };
 
-},{"25":25,"45":45}],51:[function(require,module,exports){
+},{"25":25,"26":26,"46":46}],52:[function(require,module,exports){
 'use strict';
 
 module.exports = function(Chart) {
@@ -12005,11 +12027,11 @@ module.exports = function(Chart) {
 
 };
 
-},{}],52:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
-var helpers = require(45);
+var helpers = require(46);
 var Ticks = require(34);
 
 module.exports = function(Chart) {
@@ -12199,10 +12221,10 @@ module.exports = function(Chart) {
 
 };
 
-},{"25":25,"34":34,"45":45}],53:[function(require,module,exports){
+},{"25":25,"34":34,"46":46}],54:[function(require,module,exports){
 'use strict';
 
-var helpers = require(45);
+var helpers = require(46);
 var Ticks = require(34);
 
 module.exports = function(Chart) {
@@ -12326,10 +12348,10 @@ module.exports = function(Chart) {
 	});
 };
 
-},{"34":34,"45":45}],54:[function(require,module,exports){
+},{"34":34,"46":46}],55:[function(require,module,exports){
 'use strict';
 
-var helpers = require(45);
+var helpers = require(46);
 var Ticks = require(34);
 
 module.exports = function(Chart) {
@@ -12575,11 +12597,11 @@ module.exports = function(Chart) {
 
 };
 
-},{"34":34,"45":45}],55:[function(require,module,exports){
+},{"34":34,"46":46}],56:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
-var helpers = require(45);
+var helpers = require(46);
 var Ticks = require(34);
 
 module.exports = function(Chart) {
@@ -13104,7 +13126,7 @@ module.exports = function(Chart) {
 
 };
 
-},{"25":25,"34":34,"45":45}],56:[function(require,module,exports){
+},{"25":25,"34":34,"46":46}],57:[function(require,module,exports){
 /* global window: false */
 'use strict';
 
@@ -13112,7 +13134,7 @@ var moment = require(1);
 moment = typeof(moment) === 'function' ? moment : window.moment;
 
 var defaults = require(25);
-var helpers = require(45);
+var helpers = require(46);
 
 function sorter(a, b) {
 	return a - b;
@@ -13534,5 +13556,5 @@ module.exports = function(Chart) {
 	Chart.scaleService.registerScaleType('time', TimeScale, defaultConfig);
 };
 
-},{"1":1,"25":25,"45":45}]},{},[7])(7)
+},{"1":1,"25":25,"46":46}]},{},[7])(7)
 });
