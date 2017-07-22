@@ -6454,11 +6454,11 @@ module.exports = function(Chart) {
 			var ipixels = me.calculateBarIndexPixels(me.index, index, ruler);
 
 			model.horizontal = horizontal;
-			model.base = reset? base : vpixels.base;
-			model.x = horizontal? reset? base : vpixels.head : ipixels.center;
-			model.y = horizontal? ipixels.center : reset? base : vpixels.head;
-			model.height = horizontal? ipixels.size : undefined;
-			model.width = horizontal? undefined : ipixels.size;
+			model.base = reset ? base : vpixels.base;
+			model.x = horizontal ? reset ? base : vpixels.head : ipixels.center;
+			model.y = horizontal ? ipixels.center : reset ? base : vpixels.head;
+			model.height = horizontal ? ipixels.size : undefined;
+			model.width = horizontal ? undefined : ipixels.size;
 		},
 
 		/**
@@ -6498,7 +6498,7 @@ module.exports = function(Chart) {
 			var chart = me.chart;
 			var scale = me.getIndexScale();
 			var stacked = scale.options.stacked;
-			var ilen = last === undefined? chart.data.datasets.length : last + 1;
+			var ilen = last === undefined ? chart.data.datasets.length : last + 1;
 			var stacks = [];
 			var i, meta;
 
@@ -6531,7 +6531,7 @@ module.exports = function(Chart) {
 			var scale = me.getIndexScale();
 			var options = scale.options;
 			var stackCount = me.getStackCount();
-			var fullSize = scale.isHorizontal()? scale.width : scale.height;
+			var fullSize = scale.isHorizontal() ? scale.width : scale.height;
 			var tickSize = fullSize / scale.ticks.length;
 			var categorySize = tickSize * options.categoryPercentage;
 			var fullBarSize = categorySize / stackCount;
@@ -6609,7 +6609,7 @@ module.exports = function(Chart) {
 			var base = scale.getPixelForValue(null, index, datasetIndex, isCombo);
 			var size = ruler.barSize;
 
-			base -= isCombo? ruler.tickSize / 2 : 0;
+			base -= isCombo ? ruler.tickSize / 2 : 0;
 			base += ruler.fullBarSize * stackIndex;
 			base += ruler.categorySpacing / 2;
 			base += ruler.barSpacing / 2;
@@ -6633,7 +6633,7 @@ module.exports = function(Chart) {
 
 			helpers.canvas.clipArea(chart.ctx, chart.chartArea);
 
-			for (; i<ilen; ++i) {
+			for (; i < ilen; ++i) {
 				d = dataset.data[i];
 				if (d !== null && d !== undefined && !isNaN(d)) {
 					rects[i].draw();
@@ -7204,7 +7204,7 @@ module.exports = function(Chart) {
 			}
 
 			// Update Points
-			for (i=0, ilen=points.length; i<ilen; ++i) {
+			for (i = 0, ilen = points.length; i < ilen; ++i) {
 				me.updateElement(points[i], i, reset);
 			}
 
@@ -7213,7 +7213,7 @@ module.exports = function(Chart) {
 			}
 
 			// Now pivot the point for animation
-			for (i=0, ilen=points.length; i<ilen; ++i) {
+			for (i = 0, ilen = points.length; i < ilen; ++i) {
 				points[i].pivot();
 			}
 		},
@@ -7414,7 +7414,7 @@ module.exports = function(Chart) {
 			helpers.canvas.unclipArea(chart.ctx);
 
 			// Draw the points
-			for (; i<ilen; ++i) {
+			for (; i < ilen; ++i) {
 				points[i].draw(area);
 			}
 		},
@@ -7942,7 +7942,7 @@ module.exports = function(Chart) {
 				chart.animating = true;
 			}
 
-			for (i=0, ilen=animations.length; i < ilen; ++i) {
+			for (i = 0, ilen = animations.length; i < ilen; ++i) {
 				if (animations[i].chart === chart) {
 					animations[i] = animation;
 					return;
@@ -8149,7 +8149,7 @@ module.exports = function(Chart) {
 			me.config = config;
 			me.width = width;
 			me.height = height;
-			me.aspectRatio = height? width / height : null;
+			me.aspectRatio = height ? width / height : null;
 			me.options = config.options;
 			me._bufferedRender = false;
 
@@ -8613,7 +8613,7 @@ module.exports = function(Chart) {
 		transition: function(easingValue) {
 			var me = this;
 
-			for (var i=0, ilen=(me.data.datasets || []).length; i<ilen; ++i) {
+			for (var i = 0, ilen = (me.data.datasets || []).length; i < ilen; ++i) {
 				if (me.isDatasetVisible(i)) {
 					me.getDatasetMeta(i).controller.transition(easingValue);
 				}
@@ -8635,7 +8635,7 @@ module.exports = function(Chart) {
 			}
 
 			// Draw datasets reversed to support proper line stacking
-			for (var i=(me.data.datasets || []).length - 1; i >= 0; --i) {
+			for (var i = (me.data.datasets || []).length - 1; i >= 0; --i) {
 				if (me.isDatasetVisible(i)) {
 					me.drawDataset(i, easingValue);
 				}
@@ -8719,7 +8719,7 @@ module.exports = function(Chart) {
 
 		getVisibleDatasetCount: function() {
 			var count = 0;
-			for (var i = 0, ilen = this.data.datasets.length; i<ilen; ++i) {
+			for (var i = 0, ilen = this.data.datasets.length; i < ilen; ++i) {
 				if (this.isDatasetVisible(i)) {
 					count++;
 				}
@@ -8732,7 +8732,7 @@ module.exports = function(Chart) {
 
 			// meta.hidden is a per chart dataset hidden flag override with 3 states: if true or false,
 			// the dataset.hidden value is ignored, else if null, the dataset hidden state is returned.
-			return typeof meta.hidden === 'boolean'? !meta.hidden : !this.data.datasets[datasetIndex].hidden;
+			return typeof meta.hidden === 'boolean' ? !meta.hidden : !this.data.datasets[datasetIndex].hidden;
 		},
 
 		generateLegend: function() {
@@ -8829,10 +8829,10 @@ module.exports = function(Chart) {
 		},
 
 		updateHoverStyle: function(elements, mode, enabled) {
-			var method = enabled? 'setHoverStyle' : 'removeHoverStyle';
+			var method = enabled ? 'setHoverStyle' : 'removeHoverStyle';
 			var element, i, ilen;
 
-			for (i=0, ilen=elements.length; i<ilen; ++i) {
+			for (i = 0, ilen = elements.length; i < ilen; ++i) {
 				element = elements[i];
 				if (element) {
 					this.getDatasetMeta(element._datasetIndex).controller[method](element);
@@ -9113,7 +9113,7 @@ module.exports = function(Chart) {
 			var metaData = meta.data;
 			var i, ilen;
 
-			for (i=0, ilen=data.length; i<ilen; ++i) {
+			for (i = 0, ilen = data.length; i < ilen; ++i) {
 				metaData[i] = metaData[i] || me.createMetaData(i);
 			}
 
@@ -9157,7 +9157,7 @@ module.exports = function(Chart) {
 			var ilen = elements.length;
 			var i = 0;
 
-			for (; i<ilen; ++i) {
+			for (; i < ilen; ++i) {
 				elements[i].transition(easingValue);
 			}
 
@@ -9176,7 +9176,7 @@ module.exports = function(Chart) {
 				meta.dataset.draw();
 			}
 
-			for (; i<ilen; ++i) {
+			for (; i < ilen; ++i) {
 				elements[i].draw();
 			}
 		},
@@ -9227,7 +9227,7 @@ module.exports = function(Chart) {
 		 * @private
 		 */
 		insertElements: function(start, count) {
-			for (var i=0; i<count; ++i) {
+			for (var i = 0; i < count; ++i) {
 				this.addElementAndReset(start + i);
 			}
 		},
@@ -9236,7 +9236,7 @@ module.exports = function(Chart) {
 		 * @private
 		 */
 		onDataPush: function() {
-			this.insertElements(this.getDataset().data.length-1, arguments.length);
+			this.insertElements(this.getDataset().data.length - 1, arguments.length);
 		},
 
 		/**
@@ -9296,7 +9296,7 @@ function interpolate(start, view, model, ease) {
 	var keys = Object.keys(model);
 	var i, ilen, key, actual, origin, target, type, c0, c1;
 
-	for (i=0, ilen=keys.length; i<ilen; ++i) {
+	for (i = 0, ilen = keys.length; i < ilen; ++i) {
 		key = keys[i];
 
 		target = model[key];
@@ -9319,9 +9319,9 @@ function interpolate(start, view, model, ease) {
 
 		origin = start[key];
 
-		type = typeof(target);
+		type = typeof target;
 
-		if (type === typeof(origin)) {
+		if (type === typeof origin) {
 			if (type === 'string') {
 				c0 = color(origin);
 				if (c0.valid) {
@@ -9458,7 +9458,7 @@ module.exports = function(Chart) {
 
 					for (i = 0; i < slen; ++i) {
 						scale = source[key][i];
-						type = helpers.valueOrDefault(scale.type, key === 'xAxes'? 'category' : 'linear');
+						type = helpers.valueOrDefault(scale.type, key === 'xAxes' ? 'category' : 'linear');
 
 						if (i >= target[key].length) {
 							target[key].push({});
@@ -9494,12 +9494,12 @@ module.exports = function(Chart) {
 
 		return filtered;
 	};
-	helpers.findIndex = Array.prototype.findIndex?
+	helpers.findIndex = Array.prototype.findIndex ?
 		function(array, callback, scope) {
 			return array.findIndex(callback, scope);
 		} :
 		function(array, callback, scope) {
-			scope = scope === undefined? array : scope;
+			scope = scope === undefined ? array : scope;
 			for (var i = 0, ilen = array.length; i < ilen; ++i) {
 				if (callback.call(scope, array[i], i, array)) {
 					return i;
@@ -9581,7 +9581,7 @@ module.exports = function(Chart) {
 			return min;
 		}, Number.POSITIVE_INFINITY);
 	};
-	helpers.sign = Math.sign?
+	helpers.sign = Math.sign ?
 		function(x) {
 			return Math.sign(x);
 		} :
@@ -9592,7 +9592,7 @@ module.exports = function(Chart) {
 			}
 			return x > 0 ? 1 : -1;
 		};
-	helpers.log10 = Math.log10?
+	helpers.log10 = Math.log10 ?
 		function(x) {
 			return Math.log10(x);
 		} :
@@ -9852,7 +9852,7 @@ module.exports = function(Chart) {
 	// Private helper function to convert max-width/max-height values that may be percentages into a number
 	function parseMaxStyle(styleValue, node, parentProperty) {
 		var valueInPixels;
-		if (typeof(styleValue) === 'string') {
+		if (typeof styleValue === 'string') {
 			valueInPixels = parseInt(styleValue, 10);
 
 			if (styleValue.indexOf('%') !== -1) {
@@ -9890,8 +9890,8 @@ module.exports = function(Chart) {
 
 		if (hasCNode || hasCContainer) {
 			return Math.min(
-				hasCNode? parseMaxStyle(constrainedNode, domNode, percentageProperty) : infinity,
-				hasCContainer? parseMaxStyle(constrainedContainer, parentNode, percentageProperty) : infinity);
+				hasCNode ? parseMaxStyle(constrainedNode, domNode, percentageProperty) : infinity,
+				hasCContainer ? parseMaxStyle(constrainedContainer, parentNode, percentageProperty) : infinity);
 		}
 
 		return 'none';
@@ -9910,7 +9910,7 @@ module.exports = function(Chart) {
 		var paddingRight = parseInt(helpers.getStyle(container, 'padding-right'), 10);
 		var w = container.clientWidth - paddingLeft - paddingRight;
 		var cw = helpers.getConstraintWidth(domNode);
-		return isNaN(cw)? w : Math.min(w, cw);
+		return isNaN(cw) ? w : Math.min(w, cw);
 	};
 	helpers.getMaximumHeight = function(domNode) {
 		var container = domNode.parentNode;
@@ -9918,7 +9918,7 @@ module.exports = function(Chart) {
 		var paddingBottom = parseInt(helpers.getStyle(container, 'padding-bottom'), 10);
 		var h = container.clientHeight - paddingTop - paddingBottom;
 		var ch = helpers.getConstraintHeight(domNode);
-		return isNaN(ch)? h : Math.min(h, ch);
+		return isNaN(ch) ? h : Math.min(h, ch);
 	};
 	helpers.getStyle = function(el, property) {
 		return el.currentStyle ?
@@ -10010,7 +10010,7 @@ module.exports = function(Chart) {
 		return numberOfLines;
 	};
 
-	helpers.color = !color?
+	helpers.color = !color ?
 		function(value) {
 			console.error('Color.js not found!');
 			return value;
@@ -10477,7 +10477,7 @@ module.exports = function(Chart) {
 		 * @param {Object} layoutItem - the item to remove from the layout
 		 */
 		removeBox: function(chart, layoutItem) {
-			var index = chart.boxes? chart.boxes.indexOf(layoutItem) : -1;
+			var index = chart.boxes ? chart.boxes.indexOf(layoutItem) : -1;
 			if (index !== -1) {
 				chart.boxes.splice(index, 1);
 			}
@@ -10495,7 +10495,7 @@ module.exports = function(Chart) {
 			var i = 0;
 			var prop;
 
-			for (; i<ilen; ++i) {
+			for (; i < ilen; ++i) {
 				prop = props[i];
 				if (options.hasOwnProperty(prop)) {
 					item[prop] = options[prop];
@@ -10928,7 +10928,7 @@ module.exports = function(Chart) {
 			var ilen = descriptors.length;
 			var i, descriptor, plugin, params, method;
 
-			for (i=0; i<ilen; ++i) {
+			for (i = 0; i < ilen; ++i) {
 				descriptor = descriptors[i];
 				plugin = descriptor.plugin;
 				method = plugin[hook];
@@ -11580,8 +11580,8 @@ module.exports = function(Chart) {
 					// Ensure that our ticks are always inside the canvas. When rotated, ticks are right aligned which means that the right padding is dominated
 					// by the font height
 					if (me.labelRotation !== 0) {
-						me.paddingLeft = opts.position === 'bottom'? (cosRotation * firstLabelWidth) + 3: (cosRotation * lineSpace) + 3; // add 3 px to move away from canvas edges
-						me.paddingRight = opts.position === 'bottom'? (cosRotation * lineSpace) + 3: (cosRotation * lastLabelWidth) + 3;
+						me.paddingLeft = opts.position === 'bottom' ? (cosRotation * firstLabelWidth) + 3 : (cosRotation * lineSpace) + 3; // add 3 px to move away from canvas edges
+						me.paddingRight = opts.position === 'bottom' ? (cosRotation * lineSpace) + 3 : (cosRotation * lastLabelWidth) + 3;
 					} else {
 						me.paddingLeft = firstLabelWidth / 2 + 3; // add 3 px to move away from canvas edges
 						me.paddingRight = lastLabelWidth / 2 + 3;
@@ -11640,7 +11640,7 @@ module.exports = function(Chart) {
 				return NaN;
 			}
 			// isNaN(object) returns true, so make sure NaN is checking for a number; Discard Infinite values
-			if (typeof(rawValue) === 'number' && !isFinite(rawValue)) {
+			if (typeof rawValue === 'number' && !isFinite(rawValue)) {
 				return NaN;
 			}
 			// If it is in fact an object, dive in one more level
@@ -11829,13 +11829,13 @@ module.exports = function(Chart) {
 
 					if (options.position === 'bottom') {
 						// bottom
-						textBaseline = !isRotated? 'top':'middle';
-						textAlign = !isRotated? 'center': 'right';
+						textBaseline = !isRotated ? 'top' : 'middle';
+						textAlign = !isRotated ? 'center' : 'right';
 						labelY = me.top + labelYOffset;
 					} else {
 						// top
-						textBaseline = !isRotated? 'bottom':'middle';
-						textAlign = !isRotated? 'center': 'left';
+						textBaseline = !isRotated ? 'bottom' : 'middle';
+						textAlign = !isRotated ? 'center' : 'left';
 						labelY = me.bottom - labelYOffset;
 					}
 
@@ -13503,18 +13503,18 @@ module.exports = Element.extend({
 
 		// Cliping for Points.
 		// going out from inner charArea?
-		if ((chartArea !== undefined) && ((model.x < chartArea.left) || (chartArea.right*errMargin < model.x) || (model.y < chartArea.top) || (chartArea.bottom*errMargin < model.y))) {
+		if ((chartArea !== undefined) && ((model.x < chartArea.left) || (chartArea.right * errMargin < model.x) || (model.y < chartArea.top) || (chartArea.bottom * errMargin < model.y))) {
 			// Point fade out
 			if (model.x < chartArea.left) {
 				ratio = (x - model.x) / (chartArea.left - model.x);
-			} else if (chartArea.right*errMargin < model.x) {
+			} else if (chartArea.right * errMargin < model.x) {
 				ratio = (model.x - x) / (model.x - chartArea.right);
 			} else if (model.y < chartArea.top) {
 				ratio = (y - model.y) / (chartArea.top - model.y);
-			} else if (chartArea.bottom*errMargin < model.y) {
+			} else if (chartArea.bottom * errMargin < model.y) {
 				ratio = (model.y - y) / (model.y - chartArea.bottom);
 			}
-			ratio = Math.round(ratio*100) / 100;
+			ratio = Math.round(ratio * 100) / 100;
 			ctx.strokeStyle = color(ctx.strokeStyle).alpha(ratio).rgbString();
 			ctx.fillStyle = color(ctx.fillStyle).alpha(ratio).rgbString();
 		}
@@ -13592,7 +13592,7 @@ module.exports = Element.extend({
 			top = vm.y;
 			bottom = vm.base;
 			signX = 1;
-			signY = bottom > top? 1: -1;
+			signY = bottom > top ? 1 : -1;
 			borderSkipped = vm.borderSkipped || 'bottom';
 		} else {
 			// horizontal bar
@@ -13600,7 +13600,7 @@ module.exports = Element.extend({
 			right = vm.x;
 			top = vm.y - vm.height / 2;
 			bottom = vm.y + vm.height / 2;
-			signX = right > left? 1: -1;
+			signX = right > left ? 1 : -1;
 			signY = 1;
 			borderSkipped = vm.borderSkipped || 'left';
 		}
@@ -13610,13 +13610,13 @@ module.exports = Element.extend({
 		if (borderWidth) {
 			// borderWidth shold be less than bar width and bar height.
 			var barSize = Math.min(Math.abs(left - right), Math.abs(top - bottom));
-			borderWidth = borderWidth > barSize? barSize: borderWidth;
+			borderWidth = borderWidth > barSize ? barSize : borderWidth;
 			var halfStroke = borderWidth / 2;
 			// Adjust borderWidth when bar top position is near vm.base(zero).
-			var borderLeft = left + (borderSkipped !== 'left'? halfStroke * signX: 0);
-			var borderRight = right + (borderSkipped !== 'right'? -halfStroke * signX: 0);
-			var borderTop = top + (borderSkipped !== 'top'? halfStroke * signY: 0);
-			var borderBottom = bottom + (borderSkipped !== 'bottom'? -halfStroke * signY: 0);
+			var borderLeft = left + (borderSkipped !== 'left' ? halfStroke * signX : 0);
+			var borderRight = right + (borderSkipped !== 'right' ? -halfStroke * signX : 0);
+			var borderTop = top + (borderSkipped !== 'top' ? halfStroke * signY : 0);
+			var borderBottom = bottom + (borderSkipped !== 'bottom' ? -halfStroke * signY : 0);
 			// not become a vertical line?
 			if (borderLeft !== borderRight) {
 				top = borderTop;
@@ -13781,8 +13781,8 @@ var exports = module.exports = {
 	 */
 	roundedRect: function(ctx, x, y, width, height, radius) {
 		if (radius) {
-			var rx = Math.min(radius, width/2);
-			var ry = Math.min(radius, height/2);
+			var rx = Math.min(radius, width / 2);
+			var ry = Math.min(radius, height / 2);
 
 			ctx.moveTo(x + rx, y);
 			ctx.lineTo(x + width - rx, y);
@@ -13934,10 +13934,10 @@ var exports = module.exports = {
 		}
 
 		ctx.bezierCurveTo(
-			flip? previous.controlPointPreviousX : previous.controlPointNextX,
-			flip? previous.controlPointPreviousY : previous.controlPointNextY,
-			flip? target.controlPointNextX : target.controlPointPreviousX,
-			flip? target.controlPointNextY : target.controlPointPreviousY,
+			flip ? previous.controlPointPreviousX : previous.controlPointNextX,
+			flip ? previous.controlPointPreviousY : previous.controlPointNextY,
+			flip ? target.controlPointNextX : target.controlPointPreviousX,
+			flip ? target.controlPointNextY : target.controlPointPreviousY,
 			target.x,
 			target.y);
 	}
@@ -14007,7 +14007,7 @@ var helpers = {
 	 * @returns {Boolean}
 	 * @function
 	 */
-	isArray: Array.isArray? Array.isArray : function(value) {
+	isArray: Array.isArray ? Array.isArray : function(value) {
 		return Object.prototype.toString.call(value) === '[object Array]';
 	},
 
@@ -14028,7 +14028,7 @@ var helpers = {
 	 * @returns {*}
 	 */
 	valueOrDefault: function(value, defaultValue) {
-		return typeof value === 'undefined'? defaultValue : value;
+		return typeof value === 'undefined' ? defaultValue : value;
 	},
 
 	/**
@@ -14039,7 +14039,7 @@ var helpers = {
 	 * @returns {*}
 	 */
 	valueAtIndexOrDefault: function(value, index, defaultValue) {
-		return helpers.valueOrDefault(helpers.isArray(value)? value[index] : value, defaultValue);
+		return helpers.valueOrDefault(helpers.isArray(value) ? value[index] : value, defaultValue);
 	},
 
 	/**
@@ -14101,7 +14101,7 @@ var helpers = {
 			return false;
 		}
 
-		for (i = 0, ilen=a0.length; i < ilen; ++i) {
+		for (i = 0, ilen = a0.length; i < ilen; ++i) {
 			v0 = a0[i];
 			v1 = a1[i];
 
@@ -14134,7 +14134,7 @@ var helpers = {
 			var klen = keys.length;
 			var k = 0;
 
-			for (; k<klen; ++k) {
+			for (; k < klen; ++k) {
 				target[keys[k]] = helpers.clone(source[keys[k]]);
 			}
 
@@ -14185,7 +14185,7 @@ var helpers = {
 	 * @returns {Object} The `target` object.
 	 */
 	merge: function(target, source, options) {
-		var sources = helpers.isArray(source)? source : [source];
+		var sources = helpers.isArray(source) ? source : [source];
 		var ilen = sources.length;
 		var merge, i, keys, klen, k;
 
@@ -14196,14 +14196,14 @@ var helpers = {
 		options = options || {};
 		merge = options.merger || helpers._merger;
 
-		for (i=0; i<ilen; ++i) {
+		for (i = 0; i < ilen; ++i) {
 			source = sources[i];
 			if (!helpers.isObject(source)) {
 				continue;
 			}
 
 			keys = Object.keys(source);
-			for (k=0, klen = keys.length; k<klen; ++k) {
+			for (k = 0, klen = keys.length; k < klen; ++k) {
 				merge(keys[k], target, source, options);
 			}
 		}
@@ -14536,7 +14536,7 @@ module.exports = {
 	 * @since 2.7.0
 	 */
 	toLineHeight: function(value, size) {
-		var matches = (''+value).match(/^(normal|(\d+(?:\.\d+)?)(px|em|%)?)$/);
+		var matches = ('' + value).match(/^(normal|(\d+(?:\.\d+)?)(px|em|%)?)$/);
 		if (!matches || matches[1] === 'normal') {
 			return size * 1.2;
 		}
@@ -14590,7 +14590,7 @@ module.exports = {
 'use strict';
 
 var moment = require(6);
-moment = typeof(moment) === 'function' ? moment : window.moment;
+moment = typeof moment === 'function' ? moment : window.moment;
 
 var helpers = require(42);
 
@@ -14644,25 +14644,35 @@ function generateTicksNiceRange(options, dataRange, niceRange) {
 	var ticks = [];
 	if (options.maxTicks) {
 		var stepSize = options.stepSize;
-		var startTick = helpers.isNullOrUndef(options.min)? niceRange.min : options.min;
+		var startTick = helpers.isNullOrUndef(options.min) ? niceRange.min : options.min;
 		var majorUnit = options.majorUnit;
 		var majorUnitStart = majorUnit ? moment(startTick).add(1, majorUnit).startOf(majorUnit) : startTick;
 		var startRange = majorUnitStart.valueOf() - startTick;
 		var stepValue = interval[options.unit].size * stepSize;
 		var startFraction = startRange % stepValue;
 		var alignedTick = startTick;
-		if (startFraction && majorUnit && !options.timeOpts.round && !options.timeOpts.isoWeekday) {
+
+		// first tick
+		if (startFraction && majorUnit && !options.timeOpts.round && !options.timeOpts.isoWeekday && helpers.isNullOrUndef(options.min)) {
 			alignedTick += startFraction - stepValue;
 			ticks.push(alignedTick);
 		} else {
 			ticks.push(startTick);
 		}
+
+		// generate remaining ticks
 		var cur = moment(alignedTick);
-		var realMax = options.max || niceRange.max;
+		var realMax = helpers.isNullOrUndef(options.max) ? niceRange.max : options.max;
 		while (cur.add(stepSize, options.unit).valueOf() < realMax) {
 			ticks.push(cur.valueOf());
 		}
-		ticks.push(cur.valueOf());
+
+		// last tick
+		if (helpers.isNullOrUndef(options.max)) {
+			ticks.push(cur.valueOf());
+		} else {
+			ticks.push(realMax);
+		}
 	}
 	return ticks;
 }
@@ -14861,7 +14871,7 @@ var eventTypeMap = {
 function readUsedSize(element, property) {
 	var value = helpers.getStyle(element, property);
 	var matches = value && value.match(/^(\d+)(\.\d+)?px$/);
-	return matches? Number(matches[1]) : undefined;
+	return matches ? Number(matches[1]) : undefined;
 }
 
 /**
@@ -14941,7 +14951,7 @@ var supportsEventListenerOptions = (function() {
 
 // Default passive to true as expected by Chrome for 'touchstart' and 'touchend' events.
 // https://github.com/chartjs/Chart.js/issues/4287
-var eventListenerOptions = supportsEventListenerOptions? {passive: true} : false;
+var eventListenerOptions = supportsEventListenerOptions ? {passive: true} : false;
 
 function addEventListener(node, type, listener) {
 	node.addEventListener(type, listener, eventListenerOptions);
@@ -14956,8 +14966,8 @@ function createEvent(type, chart, x, y, nativeEvent) {
 		type: type,
 		chart: chart,
 		native: nativeEvent || null,
-		x: x !== undefined? x : null,
-		y: y !== undefined? y : null,
+		x: x !== undefined ? x : null,
+		y: y !== undefined ? y : null,
 	};
 }
 
@@ -14971,18 +14981,18 @@ function createResizer(handler) {
 	var iframe = document.createElement('iframe');
 	iframe.className = 'chartjs-hidden-iframe';
 	iframe.style.cssText =
-		'display:block;'+
-		'overflow:hidden;'+
-		'border:0;'+
-		'margin:0;'+
-		'top:0;'+
-		'left:0;'+
-		'bottom:0;'+
-		'right:0;'+
-		'height:100%;'+
-		'width:100%;'+
-		'position:absolute;'+
-		'pointer-events:none;'+
+		'display:block;' +
+		'overflow:hidden;' +
+		'border:0;' +
+		'margin:0;' +
+		'top:0;' +
+		'left:0;' +
+		'bottom:0;' +
+		'right:0;' +
+		'height:100%;' +
+		'width:100%;' +
+		'position:absolute;' +
+		'pointer-events:none;' +
 		'z-index:-1;';
 
 	// Prevent the iframe to gain focus on tab.
@@ -15270,20 +15280,20 @@ module.exports = function() {
 			var points = (visible && meta.dataset._children) || [];
 			var length = points.length || 0;
 
-			return !length? null : function(point, i) {
+			return !length ? null : function(point, i) {
 				return (i < length && points[i]._view) || null;
 			};
 		},
 
 		boundary: function(source) {
 			var boundary = source.boundary;
-			var x = boundary? boundary.x : null;
-			var y = boundary? boundary.y : null;
+			var x = boundary ? boundary.x : null;
+			var y = boundary ? boundary.y : null;
 
 			return function(point) {
 				return {
-					x: x === null? point.x : x,
-					y: y === null? point.y : y,
+					x: x === null ? point.x : x,
+					y: y === null ? point.y : y,
 				};
 			};
 		}
@@ -15355,9 +15365,9 @@ module.exports = function() {
 		// controllers might still use it (e.g. the Smith chart).
 
 		if (fill === 'start') {
-			target = model.scaleBottom === undefined? scale.bottom : model.scaleBottom;
+			target = model.scaleBottom === undefined ? scale.bottom : model.scaleBottom;
 		} else if (fill === 'end') {
-			target = model.scaleTop === undefined? scale.top : model.scaleTop;
+			target = model.scaleTop === undefined ? scale.top : model.scaleTop;
 		} else if (model.scaleZero !== undefined) {
 			target = model.scaleZero;
 		} else if (scale.getBasePosition) {
@@ -15374,8 +15384,8 @@ module.exports = function() {
 			if (typeof target === 'number' && isFinite(target)) {
 				horizontal = scale.isHorizontal();
 				return {
-					x: horizontal? target : null,
-					y: horizontal? null : target
+					x: horizontal ? target : null,
+					y: horizontal ? null : target
 				};
 			}
 		}
@@ -15442,16 +15452,16 @@ module.exports = function() {
 
 		// building first area curve (normal)
 		ctx.moveTo(curve0[0].x, curve0[0].y);
-		for (i=1; i<len0; ++i) {
-			helpers.canvas.lineTo(ctx, curve0[i-1], curve0[i]);
+		for (i = 1; i < len0; ++i) {
+			helpers.canvas.lineTo(ctx, curve0[i - 1], curve0[i]);
 		}
 
 		// joining the two area curves
-		ctx.lineTo(curve1[len1-1].x, curve1[len1-1].y);
+		ctx.lineTo(curve1[len1 - 1].x, curve1[len1 - 1].y);
 
 		// building opposite area curve (reverse)
-		for (i=len1-1; i>0; --i) {
-			helpers.canvas.lineTo(ctx, curve1[i], curve1[i-1], true);
+		for (i = len1 - 1; i > 0; --i) {
+			helpers.canvas.lineTo(ctx, curve1[i], curve1[i - 1], true);
 		}
 	}
 
@@ -15467,7 +15477,7 @@ module.exports = function() {
 		ctx.beginPath();
 
 		for (i = 0, ilen = (count + !!loop); i < ilen; ++i) {
-			index = i%count;
+			index = i % count;
 			p0 = points[index]._view;
 			p1 = mapper(p0, index, view);
 			d0 = isDrawable(p0);
@@ -15527,7 +15537,7 @@ module.exports = function() {
 				sources.push(source);
 			}
 
-			for (i=0; i<count; ++i) {
+			for (i = 0; i < count; ++i) {
 				source = sources[i];
 				if (!source) {
 					continue;
@@ -15583,7 +15593,7 @@ defaults._set('global', {
 			var meta = ci.getDatasetMeta(index);
 
 			// See controller.isDatasetVisible comment
-			meta.hidden = meta.hidden === null? !ci.data.datasets[index].hidden : null;
+			meta.hidden = meta.hidden === null ? !ci.data.datasets[index].hidden : null;
 
 			// We hid a dataset ... rerender the chart
 			ci.update();
@@ -16286,7 +16296,7 @@ module.exports = function(Chart) {
 					fontFamily = valueOrDefault(opts.fontFamily, globalDefaults.defaultFontFamily),
 					titleFont = helpers.fontString(fontSize, fontStyle, fontFamily),
 					lineHeight = helpers.options.toLineHeight(opts.lineHeight, fontSize),
-					offset = lineHeight/2 + opts.padding,
+					offset = lineHeight / 2 + opts.padding,
 					rotation = 0,
 					titleX,
 					titleY,
@@ -17040,7 +17050,7 @@ module.exports = function(Chart) {
 					} else if (newVal === me.minNotZero) {
 						pixel = me.bottom - innerDimension * 0.02;
 					} else {
-						pixel = me.bottom - innerDimension * 0.02 - (innerDimension * 0.98/ range * (helpers.log10(newVal)-helpers.log10(me.minNotZero)));
+						pixel = me.bottom - innerDimension * 0.02 - (innerDimension * 0.98 / range * (helpers.log10(newVal) - helpers.log10(me.minNotZero)));
 					}
 				} else if (me.end === 0 && tickOpts.reverse) {
 					range = helpers.log10(me.start) - helpers.log10(me.minNotZero);
@@ -17049,7 +17059,7 @@ module.exports = function(Chart) {
 					} else if (newVal === me.minNotZero) {
 						pixel = me.top + innerDimension * 0.02;
 					} else {
-						pixel = me.top + innerDimension * 0.02 + (innerDimension * 0.98/ range * (helpers.log10(newVal)-helpers.log10(me.minNotZero)));
+						pixel = me.top + innerDimension * 0.02 + (innerDimension * 0.98 / range * (helpers.log10(newVal) - helpers.log10(me.minNotZero)));
 					}
 				} else if (newVal === 0) {
 					pixel = tickOpts.reverse ? me.top : me.bottom;
@@ -17305,7 +17315,7 @@ module.exports = function(Chart) {
 
 			for (var i = 0; i < text.length; ++i) {
 				ctx.fillText(text[i], position.x, y);
-				y+= spacing;
+				y += spacing;
 			}
 		} else {
 			ctx.fillText(text, position.x, position.y);
@@ -17614,7 +17624,7 @@ module.exports = function(Chart) {
 'use strict';
 
 var moment = require(6);
-moment = typeof(moment) === 'function' ? moment : window.moment;
+moment = typeof moment === 'function' ? moment : window.moment;
 
 var defaults = require(25);
 var helpers = require(46);
@@ -17657,7 +17667,7 @@ function buildLookupTable(timestamps, min, max, linear) {
 		items.push(max);
 	}
 
-	for (i = 0, ilen = items.length; i<ilen; ++i) {
+	for (i = 0, ilen = items.length; i < ilen; ++i) {
 		next = items[i + 1];
 		prev = items[i - 1];
 		curr = items[i];
@@ -17943,8 +17953,8 @@ module.exports = function(Chart) {
 			var majorFormat = me.majorDisplayFormat;
 			var majorTime = tick.clone().startOf(me.majorUnit).valueOf();
 			var major = majorUnit && majorFormat && time === majorTime;
-			var formattedTick = tick.format(major? majorFormat : me.displayFormat);
-			var tickOpts = major? options.ticks.major : options.ticks.minor;
+			var formattedTick = tick.format(major ? majorFormat : me.displayFormat);
+			var tickOpts = major ? options.ticks.major : options.ticks.minor;
 			var formatter = helpers.valueOrDefault(tickOpts.callback, tickOpts.userCallback);
 
 			if (formatter) {
