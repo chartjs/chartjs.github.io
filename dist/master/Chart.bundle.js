@@ -6135,7 +6135,7 @@ return hooks;
  */
 var Chart = require(29)();
 
-Chart.helpers = require(46);
+Chart.helpers = require(45);
 
 // @todo dispatch these helpers into appropriated helpers/helpers.* file and write unit tests!
 require(27)(Chart);
@@ -6144,7 +6144,7 @@ Chart.defaults = require(25);
 Chart.Element = require(26);
 Chart.elements = require(40);
 Chart.Interaction = require(28);
-Chart.platform = require(48);
+Chart.platform = require(47);
 Chart.Ticks = require(34);
 
 require(31)(Chart);
@@ -6156,12 +6156,12 @@ require(33)(Chart);
 require(32)(Chart);
 require(35)(Chart);
 
-require(54)(Chart);
-require(52)(Chart);
 require(53)(Chart);
+require(51)(Chart);
+require(52)(Chart);
+require(54)(Chart);
 require(55)(Chart);
 require(56)(Chart);
-require(57)(Chart);
 
 // Controllers must be loaded after elements
 // See Chart.core.datasetController.dataElementType
@@ -6185,9 +6185,9 @@ require(14)(Chart);
 var plugins = [];
 
 plugins.push(
+	require(48)(Chart),
 	require(49)(Chart),
-	require(50)(Chart),
-	require(51)(Chart)
+	require(50)(Chart)
 );
 
 Chart.plugins.register(plugins);
@@ -6208,7 +6208,7 @@ if (typeof window !== 'undefined') {
  */
 Chart.canvasHelpers = Chart.helpers.canvas;
 
-},{"10":10,"11":11,"12":12,"13":13,"14":14,"15":15,"16":16,"17":17,"18":18,"19":19,"20":20,"21":21,"22":22,"23":23,"24":24,"25":25,"26":26,"27":27,"28":28,"29":29,"30":30,"31":31,"32":32,"33":33,"34":34,"35":35,"40":40,"46":46,"48":48,"49":49,"50":50,"51":51,"52":52,"53":53,"54":54,"55":55,"56":56,"57":57,"8":8,"9":9}],8:[function(require,module,exports){
+},{"10":10,"11":11,"12":12,"13":13,"14":14,"15":15,"16":16,"17":17,"18":18,"19":19,"20":20,"21":21,"22":22,"23":23,"24":24,"25":25,"26":26,"27":27,"28":28,"29":29,"30":30,"31":31,"32":32,"33":33,"34":34,"35":35,"40":40,"45":45,"47":47,"48":48,"49":49,"50":50,"51":51,"52":52,"53":53,"54":54,"55":55,"56":56,"8":8,"9":9}],8:[function(require,module,exports){
 'use strict';
 
 module.exports = function(Chart) {
@@ -6300,7 +6300,7 @@ module.exports = function(Chart) {
 
 var defaults = require(25);
 var elements = require(40);
-var helpers = require(46);
+var helpers = require(45);
 
 defaults._set('bar', {
 	hover: {
@@ -6684,12 +6684,12 @@ module.exports = function(Chart) {
 	});
 };
 
-},{"25":25,"40":40,"46":46}],16:[function(require,module,exports){
+},{"25":25,"40":40,"45":45}],16:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
 var elements = require(40);
-var helpers = require(46);
+var helpers = require(45);
 
 defaults._set('bubble', {
 	hover: {
@@ -6811,12 +6811,12 @@ module.exports = function(Chart) {
 	});
 };
 
-},{"25":25,"40":40,"46":46}],17:[function(require,module,exports){
+},{"25":25,"40":40,"45":45}],17:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
 var elements = require(40);
-var helpers = require(46);
+var helpers = require(45);
 
 defaults._set('doughnut', {
 	animation: {
@@ -7115,12 +7115,12 @@ module.exports = function(Chart) {
 	});
 };
 
-},{"25":25,"40":40,"46":46}],18:[function(require,module,exports){
+},{"25":25,"40":40,"45":45}],18:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
 var elements = require(40);
-var helpers = require(46);
+var helpers = require(45);
 
 defaults._set('line', {
 	showLines: true,
@@ -7452,12 +7452,12 @@ module.exports = function(Chart) {
 	});
 };
 
-},{"25":25,"40":40,"46":46}],19:[function(require,module,exports){
+},{"25":25,"40":40,"45":45}],19:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
 var elements = require(40);
-var helpers = require(46);
+var helpers = require(45);
 
 defaults._set('polarArea', {
 	scale: {
@@ -7676,12 +7676,12 @@ module.exports = function(Chart) {
 	});
 };
 
-},{"25":25,"40":40,"46":46}],20:[function(require,module,exports){
+},{"25":25,"40":40,"45":45}],20:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
 var elements = require(40);
-var helpers = require(46);
+var helpers = require(45);
 
 defaults._set('radar', {
 	scale: {
@@ -7846,7 +7846,7 @@ module.exports = function(Chart) {
 	});
 };
 
-},{"25":25,"40":40,"46":46}],21:[function(require,module,exports){
+},{"25":25,"40":40,"45":45}],21:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
@@ -7896,7 +7896,7 @@ module.exports = function(Chart) {
 
 var defaults = require(25);
 var Element = require(26);
-var helpers = require(46);
+var helpers = require(45);
 
 defaults._set('global', {
 	animation: {
@@ -8064,13 +8064,13 @@ module.exports = function(Chart) {
 
 };
 
-},{"25":25,"26":26,"46":46}],23:[function(require,module,exports){
+},{"25":25,"26":26,"45":45}],23:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
-var helpers = require(46);
+var helpers = require(45);
 var Interaction = require(28);
-var platform = require(48);
+var platform = require(47);
 
 module.exports = function(Chart) {
 	var plugins = Chart.plugins;
@@ -8940,10 +8940,10 @@ module.exports = function(Chart) {
 	Chart.Controller = Chart;
 };
 
-},{"25":25,"28":28,"46":46,"48":48}],24:[function(require,module,exports){
+},{"25":25,"28":28,"45":45,"47":47}],24:[function(require,module,exports){
 'use strict';
 
-var helpers = require(46);
+var helpers = require(45);
 
 module.exports = function(Chart) {
 
@@ -9272,10 +9272,10 @@ module.exports = function(Chart) {
 	Chart.DatasetController.extend = helpers.inherits;
 };
 
-},{"46":46}],25:[function(require,module,exports){
+},{"45":45}],25:[function(require,module,exports){
 'use strict';
 
-var helpers = require(46);
+var helpers = require(45);
 
 module.exports = {
 	/**
@@ -9286,11 +9286,11 @@ module.exports = {
 	}
 };
 
-},{"46":46}],26:[function(require,module,exports){
+},{"45":45}],26:[function(require,module,exports){
 'use strict';
 
 var color = require(2);
-var helpers = require(46);
+var helpers = require(45);
 
 function interpolate(start, view, model, ease) {
 	var keys = Object.keys(model);
@@ -9403,14 +9403,14 @@ Element.extend = helpers.inherits;
 
 module.exports = Element;
 
-},{"2":2,"46":46}],27:[function(require,module,exports){
+},{"2":2,"45":45}],27:[function(require,module,exports){
 /* global window: false */
 /* global document: false */
 'use strict';
 
 var color = require(2);
 var defaults = require(25);
-var helpers = require(46);
+var helpers = require(45);
 
 module.exports = function(Chart) {
 
@@ -10032,10 +10032,10 @@ module.exports = function(Chart) {
 	};
 };
 
-},{"2":2,"25":25,"46":46}],28:[function(require,module,exports){
+},{"2":2,"25":25,"45":45}],28:[function(require,module,exports){
 'use strict';
 
-var helpers = require(46);
+var helpers = require(45);
 
 /**
  * Helper function to get relative position for an event
@@ -10348,7 +10348,7 @@ module.exports = {
 	}
 };
 
-},{"46":46}],29:[function(require,module,exports){
+},{"45":45}],29:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
@@ -10402,7 +10402,7 @@ module.exports = function() {
 },{"25":25}],30:[function(require,module,exports){
 'use strict';
 
-var helpers = require(46);
+var helpers = require(45);
 
 module.exports = function(Chart) {
 
@@ -10823,12 +10823,12 @@ module.exports = function(Chart) {
 	};
 };
 
-},{"46":46}],31:[function(require,module,exports){
+},{"45":45}],31:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
 var Element = require(26);
-var helpers = require(46);
+var helpers = require(45);
 
 defaults._set('global', {
 	plugins: {}
@@ -11199,12 +11199,12 @@ module.exports = function(Chart) {
 	Chart.PluginBase = Element.extend({});
 };
 
-},{"25":25,"26":26,"46":46}],32:[function(require,module,exports){
+},{"25":25,"26":26,"45":45}],32:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
 var Element = require(26);
-var helpers = require(46);
+var helpers = require(45);
 var Ticks = require(34);
 
 defaults._set('scale', {
@@ -12004,11 +12004,11 @@ module.exports = function(Chart) {
 	});
 };
 
-},{"25":25,"26":26,"34":34,"46":46}],33:[function(require,module,exports){
+},{"25":25,"26":26,"34":34,"45":45}],33:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
-var helpers = require(46);
+var helpers = require(45);
 
 module.exports = function(Chart) {
 
@@ -12051,10 +12051,10 @@ module.exports = function(Chart) {
 	};
 };
 
-},{"25":25,"46":46}],34:[function(require,module,exports){
+},{"25":25,"45":45}],34:[function(require,module,exports){
 'use strict';
 
-var helpers = require(46);
+var helpers = require(45);
 
 /**
  * Namespace to hold static tick generation functions
@@ -12193,9 +12193,7 @@ module.exports = {
 			ticks.push(lastTick);
 
 			return ticks;
-		},
-
-		time: helpers.time.generateTicks
+		}
 	},
 
 	/**
@@ -12260,12 +12258,12 @@ module.exports = {
 	}
 };
 
-},{"46":46}],35:[function(require,module,exports){
+},{"45":45}],35:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
 var Element = require(26);
-var helpers = require(46);
+var helpers = require(45);
 
 defaults._set('global', {
 	tooltips: {
@@ -13209,12 +13207,12 @@ module.exports = function(Chart) {
 	};
 };
 
-},{"25":25,"26":26,"46":46}],36:[function(require,module,exports){
+},{"25":25,"26":26,"45":45}],36:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
 var Element = require(26);
-var helpers = require(46);
+var helpers = require(45);
 
 defaults._set('global', {
 	elements: {
@@ -13322,12 +13320,12 @@ module.exports = Element.extend({
 	}
 });
 
-},{"25":25,"26":26,"46":46}],37:[function(require,module,exports){
+},{"25":25,"26":26,"45":45}],37:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
 var Element = require(26);
-var helpers = require(46);
+var helpers = require(45);
 
 var globalDefaults = defaults.global;
 
@@ -13415,12 +13413,12 @@ module.exports = Element.extend({
 	}
 });
 
-},{"25":25,"26":26,"46":46}],38:[function(require,module,exports){
+},{"25":25,"26":26,"45":45}],38:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
 var Element = require(26);
-var helpers = require(46);
+var helpers = require(45);
 
 var defaultColor = defaults.global.defaultColor;
 
@@ -13523,7 +13521,7 @@ module.exports = Element.extend({
 	}
 });
 
-},{"25":25,"26":26,"46":46}],39:[function(require,module,exports){
+},{"25":25,"26":26,"45":45}],39:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
@@ -14589,254 +14587,19 @@ module.exports = {
 },{"42":42}],45:[function(require,module,exports){
 'use strict';
 
-var moment = require(6);
-moment = typeof moment === 'function' ? moment : window.moment;
-
-var helpers = require(42);
-
-var interval = {
-	millisecond: {
-		size: 1,
-		steps: [1, 2, 5, 10, 20, 50, 100, 250, 500]
-	},
-	second: {
-		size: 1000,
-		steps: [1, 2, 5, 10, 30]
-	},
-	minute: {
-		size: 60000,
-		steps: [1, 2, 5, 10, 30]
-	},
-	hour: {
-		size: 3600000,
-		steps: [1, 2, 3, 6, 12]
-	},
-	day: {
-		size: 86400000,
-		steps: [1, 2, 5]
-	},
-	week: {
-		size: 604800000,
-		maxStep: 4
-	},
-	month: {
-		size: 2.628e9,
-		maxStep: 3
-	},
-	quarter: {
-		size: 7.884e9,
-		maxStep: 4
-	},
-	year: {
-		size: 3.154e10,
-		maxStep: false
-	}
-};
-
-/**
- * Helper for generating axis labels.
- * @param options {ITimeGeneratorOptions} the options for generation
- * @param dataRange {IRange} the data range
- * @param niceRange {IRange} the pretty range to display
- * @return {Number[]} ticks
- */
-function generateTicksNiceRange(options, dataRange, niceRange) {
-	var ticks = [];
-	if (options.maxTicks) {
-		var stepSize = options.stepSize;
-		var startTick = helpers.isNullOrUndef(options.min) ? niceRange.min : options.min;
-		var majorUnit = options.majorUnit;
-		var majorUnitStart = majorUnit ? moment(startTick).add(1, majorUnit).startOf(majorUnit) : startTick;
-		var startRange = majorUnitStart.valueOf() - startTick;
-		var stepValue = interval[options.unit].size * stepSize;
-		var startFraction = startRange % stepValue;
-		var alignedTick = startTick;
-
-		// first tick
-		if (startFraction && majorUnit && !options.timeOpts.round && !options.timeOpts.isoWeekday && helpers.isNullOrUndef(options.min)) {
-			alignedTick += startFraction - stepValue;
-			ticks.push(alignedTick);
-		} else {
-			ticks.push(startTick);
-		}
-
-		// generate remaining ticks
-		var cur = moment(alignedTick);
-		var realMax = helpers.isNullOrUndef(options.max) ? niceRange.max : options.max;
-		while (cur.add(stepSize, options.unit).valueOf() < realMax) {
-			ticks.push(cur.valueOf());
-		}
-
-		// last tick
-		if (helpers.isNullOrUndef(options.max)) {
-			ticks.push(cur.valueOf());
-		} else {
-			ticks.push(realMax);
-		}
-	}
-	return ticks;
-}
-
-/**
- * @namespace Chart.helpers.time;
- */
-module.exports = {
-	/**
-	 * Helper function to parse time to a moment object
-	 * @param axis {TimeAxis} the time axis
-	 * @param label {Date|string|number|Moment} The thing to parse
-	 * @return {Moment} parsed time
-	 */
-	parseTime: function(axis, label) {
-		var timeOpts = axis.options.time;
-		if (typeof timeOpts.parser === 'string') {
-			return moment(label, timeOpts.parser);
-		}
-		if (typeof timeOpts.parser === 'function') {
-			return timeOpts.parser(label);
-		}
-		if (typeof label.getMonth === 'function' || typeof label === 'number') {
-			// Date objects
-			return moment(label);
-		}
-		if (label.isValid && label.isValid()) {
-			// Moment support
-			return label;
-		}
-		var format = timeOpts.format;
-		if (typeof format !== 'string' && format.call) {
-			// Custom parsing (return an instance of moment)
-			console.warn('options.time.format is deprecated and replaced by options.time.parser.');
-			return format(label);
-		}
-		// Moment format parsing
-		return moment(label, format);
-	},
-
-	/**
-	 * Figure out which is the best unit for the scale
-	 * @param minUnit {String} minimum unit to use
-	 * @param min {Number} scale minimum
-	 * @param max {Number} scale maximum
-	 * @return {String} the unit to use
-	 */
-	determineUnit: function(minUnit, min, max, maxTicks) {
-		var units = Object.keys(interval);
-		var unit;
-		var numUnits = units.length;
-
-		for (var i = units.indexOf(minUnit); i < numUnits; i++) {
-			unit = units[i];
-			var unitDetails = interval[unit];
-			var steps = (unitDetails.steps && unitDetails.steps[unitDetails.steps.length - 1]) || unitDetails.maxStep;
-			if (steps === undefined || Math.ceil((max - min) / (steps * unitDetails.size)) <= maxTicks) {
-				break;
-			}
-		}
-
-		return unit;
-	},
-
-	/**
-	 * Determine major unit accordingly to passed unit
-	 * @param unit {String} relative unit
-	 * @return {String} major unit
-	 */
-	determineMajorUnit: function(unit) {
-		var units = Object.keys(interval);
-		var unitIndex = units.indexOf(unit);
-		while (unitIndex < units.length) {
-			var majorUnit = units[++unitIndex];
-			// exclude 'week' and 'quarter' units
-			if (majorUnit !== 'week' && majorUnit !== 'quarter') {
-				return majorUnit;
-			}
-		}
-
-		return null;
-	},
-
-	/**
-	 * Determines how we scale the unit
-	 * @param min {Number} the scale minimum
-	 * @param max {Number} the scale maximum
-	 * @param unit {String} the unit determined by the {@see determineUnit} method
-	 * @return {Number} the axis step size as a multiple of unit
-	 */
-	determineStepSize: function(min, max, unit, maxTicks) {
-		// Using our unit, figure out what we need to scale as
-		var unitDefinition = interval[unit];
-		var unitSizeInMilliSeconds = unitDefinition.size;
-		var sizeInUnits = Math.ceil((max - min) / unitSizeInMilliSeconds);
-		var multiplier = 1;
-		var range = max - min;
-
-		if (unitDefinition.steps) {
-			// Have an array of steps
-			var numSteps = unitDefinition.steps.length;
-			for (var i = 0; i < numSteps && sizeInUnits > maxTicks; i++) {
-				multiplier = unitDefinition.steps[i];
-				sizeInUnits = Math.ceil(range / (unitSizeInMilliSeconds * multiplier));
-			}
-		} else {
-			while (sizeInUnits > maxTicks && maxTicks > 0) {
-				++multiplier;
-				sizeInUnits = Math.ceil(range / (unitSizeInMilliSeconds * multiplier));
-			}
-		}
-
-		return multiplier;
-	},
-
-	/**
-	 * @function generateTicks
-	 * @param options {ITimeGeneratorOptions} the options for generation
-	 * @param dataRange {IRange} the data range
-	 * @return {Number[]} ticks
-	 */
-	generateTicks: function(options, dataRange) {
-		var niceMin;
-		var niceMax;
-		var isoWeekday = options.timeOpts.isoWeekday;
-		if (options.unit === 'week' && isoWeekday !== false) {
-			niceMin = moment(dataRange.min).startOf('isoWeek').isoWeekday(isoWeekday).valueOf();
-			niceMax = moment(dataRange.max).startOf('isoWeek').isoWeekday(isoWeekday);
-			if (dataRange.max - niceMax > 0) {
-				niceMax.add(1, 'week');
-			}
-			niceMax = niceMax.valueOf();
-		} else {
-			niceMin = moment(dataRange.min).startOf(options.unit).valueOf();
-			niceMax = moment(dataRange.max).startOf(options.unit);
-			if (dataRange.max - niceMax > 0) {
-				niceMax.add(1, options.unit);
-			}
-			niceMax = niceMax.valueOf();
-		}
-		return generateTicksNiceRange(options, dataRange, {
-			min: niceMin,
-			max: niceMax
-		});
-	}
-};
-
-},{"42":42,"6":6}],46:[function(require,module,exports){
-'use strict';
-
 module.exports = require(42);
 module.exports.easing = require(43);
 module.exports.canvas = require(41);
 module.exports.options = require(44);
-module.exports.time = require(45);
 
-},{"41":41,"42":42,"43":43,"44":44,"45":45}],47:[function(require,module,exports){
+},{"41":41,"42":42,"43":43,"44":44}],46:[function(require,module,exports){
 /**
  * Chart.Platform implementation for targeting a web browser
  */
 
 'use strict';
 
-var helpers = require(46);
+var helpers = require(45);
 
 /**
  * DOM event types -> Chart.js event types.
@@ -15178,14 +14941,14 @@ helpers.addEvent = addEventListener;
  */
 helpers.removeEvent = removeEventListener;
 
-},{"46":46}],48:[function(require,module,exports){
+},{"45":45}],47:[function(require,module,exports){
 'use strict';
 
-var helpers = require(46);
+var helpers = require(45);
 
 // By default, select the browser (DOM) platform.
 // @TODO Make possible to select another platform at build time.
-var implementation = require(47);
+var implementation = require(46);
 
 /**
  * @namespace Chart.platform
@@ -15248,7 +15011,7 @@ module.exports = helpers.extend({
  * @prop {Number} y - The mouse y position, relative to the canvas (null for incompatible events)
  */
 
-},{"46":46,"47":47}],49:[function(require,module,exports){
+},{"45":45,"46":46}],48:[function(require,module,exports){
 /**
  * Plugin based on discussion from the following Chart.js issues:
  * @see https://github.com/chartjs/Chart.js/issues/2380#issuecomment-279961569
@@ -15259,7 +15022,7 @@ module.exports = helpers.extend({
 
 var defaults = require(25);
 var elements = require(40);
-var helpers = require(46);
+var helpers = require(45);
 
 defaults._set('global', {
 	plugins: {
@@ -15571,12 +15334,12 @@ module.exports = function() {
 	};
 };
 
-},{"25":25,"40":40,"46":46}],50:[function(require,module,exports){
+},{"25":25,"40":40,"45":45}],49:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
 var Element = require(26);
-var helpers = require(46);
+var helpers = require(45);
 
 defaults._set('global', {
 	legend: {
@@ -16140,12 +15903,12 @@ module.exports = function(Chart) {
 	};
 };
 
-},{"25":25,"26":26,"46":46}],51:[function(require,module,exports){
+},{"25":25,"26":26,"45":45}],50:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
 var Element = require(26);
-var helpers = require(46);
+var helpers = require(45);
 
 defaults._set('global', {
 	title: {
@@ -16387,7 +16150,7 @@ module.exports = function(Chart) {
 	};
 };
 
-},{"25":25,"26":26,"46":46}],52:[function(require,module,exports){
+},{"25":25,"26":26,"45":45}],51:[function(require,module,exports){
 'use strict';
 
 module.exports = function(Chart) {
@@ -16520,11 +16283,11 @@ module.exports = function(Chart) {
 
 };
 
-},{}],53:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
-var helpers = require(46);
+var helpers = require(45);
 var Ticks = require(34);
 
 module.exports = function(Chart) {
@@ -16714,10 +16477,10 @@ module.exports = function(Chart) {
 
 };
 
-},{"25":25,"34":34,"46":46}],54:[function(require,module,exports){
+},{"25":25,"34":34,"45":45}],53:[function(require,module,exports){
 'use strict';
 
-var helpers = require(46);
+var helpers = require(45);
 var Ticks = require(34);
 
 module.exports = function(Chart) {
@@ -16841,10 +16604,10 @@ module.exports = function(Chart) {
 	});
 };
 
-},{"34":34,"46":46}],55:[function(require,module,exports){
+},{"34":34,"45":45}],54:[function(require,module,exports){
 'use strict';
 
-var helpers = require(46);
+var helpers = require(45);
 var Ticks = require(34);
 
 module.exports = function(Chart) {
@@ -17090,11 +16853,11 @@ module.exports = function(Chart) {
 
 };
 
-},{"34":34,"46":46}],56:[function(require,module,exports){
+},{"34":34,"45":45}],55:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
-var helpers = require(46);
+var helpers = require(45);
 var Ticks = require(34);
 
 module.exports = function(Chart) {
@@ -17619,7 +17382,7 @@ module.exports = function(Chart) {
 
 };
 
-},{"25":25,"34":34,"46":46}],57:[function(require,module,exports){
+},{"25":25,"34":34,"45":45}],56:[function(require,module,exports){
 /* global window: false */
 'use strict';
 
@@ -17627,7 +17390,60 @@ var moment = require(6);
 moment = typeof moment === 'function' ? moment : window.moment;
 
 var defaults = require(25);
-var helpers = require(46);
+var helpers = require(45);
+
+// Integer constants are from the ES6 spec.
+var MIN_INTEGER = Number.MIN_SAFE_INTEGER || -9007199254740991;
+var MAX_INTEGER = Number.MAX_SAFE_INTEGER || 9007199254740991;
+
+var INTERVALS = {
+	millisecond: {
+		major: true,
+		size: 1,
+		steps: [1, 2, 5, 10, 20, 50, 100, 250, 500]
+	},
+	second: {
+		major: true,
+		size: 1000,
+		steps: [1, 2, 5, 10, 30]
+	},
+	minute: {
+		major: true,
+		size: 60000,
+		steps: [1, 2, 5, 10, 30]
+	},
+	hour: {
+		major: true,
+		size: 3600000,
+		steps: [1, 2, 3, 6, 12]
+	},
+	day: {
+		major: true,
+		size: 86400000,
+		steps: [1, 2, 5]
+	},
+	week: {
+		major: false,
+		size: 604800000,
+		steps: [1, 2, 3, 4]
+	},
+	month: {
+		major: true,
+		size: 2.628e9,
+		steps: [1, 2, 3]
+	},
+	quarter: {
+		major: false,
+		size: 7.884e9,
+		steps: [1, 2, 3, 4]
+	},
+	year: {
+		major: true,
+		size: 3.154e10
+	}
+};
+
+var UNITS = Object.keys(INTERVALS);
 
 function sorter(a, b) {
 	return a - b;
@@ -17728,32 +17544,155 @@ function interpolate(table, skey, sval, tkey) {
 	return prev[tkey] + offset;
 }
 
+/**
+ * Convert the given value to a moment object using the given time options.
+ * @see http://momentjs.com/docs/#/parsing/
+ */
+function momentify(value, options) {
+	var parser = options.parser;
+	var format = options.parser || options.format;
+
+	if (typeof parser === 'function') {
+		return parser(value);
+	}
+
+	if (typeof value === 'string' && typeof format === 'string') {
+		return moment(value, format);
+	}
+
+	if (!(value instanceof moment)) {
+		value = moment(value);
+	}
+
+	if (value.isValid()) {
+		return value;
+	}
+
+	// Labels are in an incompatible moment format and no `parser` has been provided.
+	// The user might still use the deprecated `format` option to convert his inputs.
+	if (typeof format === 'function') {
+		return format(value);
+	}
+
+	return value;
+}
+
 function parse(input, scale) {
 	if (helpers.isNullOrUndef(input)) {
 		return null;
 	}
 
-	var round = scale.options.time.round;
-	var value = scale.getRightValue(input);
-	var time = value.isValid ? value : helpers.time.parseTime(scale, value);
-	if (!time || !time.isValid()) {
+	var options = scale.options.time;
+	var value = momentify(scale.getRightValue(input), options);
+	if (!value.isValid()) {
 		return null;
 	}
 
-	if (round) {
-		time.startOf(round);
+	if (options.round) {
+		value.startOf(options.round);
 	}
 
-	return time.valueOf();
+	return value.valueOf();
+}
+
+/**
+ * Returns the number of unit to skip to be able to display up to `capacity` number of ticks
+ * in `unit` for the given `min` / `max` range and respecting the interval steps constraints.
+ */
+function determineStepSize(min, max, unit, capacity) {
+	var range = max - min;
+	var interval = INTERVALS[unit];
+	var milliseconds = interval.size;
+	var steps = interval.steps;
+	var i, ilen, factor;
+
+	if (!steps) {
+		return Math.ceil(range / ((capacity || 1) * milliseconds));
+	}
+
+	for (i = 0, ilen = steps.length; i < ilen; ++i) {
+		factor = steps[i];
+		if (Math.ceil(range / (milliseconds * factor)) <= capacity) {
+			break;
+		}
+	}
+
+	return factor;
+}
+
+function determineUnit(minUnit, min, max, capacity) {
+	var ilen = UNITS.length;
+	var i, interval, factor;
+
+	for (i = UNITS.indexOf(minUnit); i < ilen - 1; ++i) {
+		interval = INTERVALS[UNITS[i]];
+		factor = interval.steps ? interval.steps[interval.steps.length - 1] : MAX_INTEGER;
+
+		if (Math.ceil((max - min) / (factor * interval.size)) <= capacity) {
+			return UNITS[i];
+		}
+	}
+
+	return UNITS[ilen - 1];
+}
+
+function determineMajorUnit(unit) {
+	for (var i = UNITS.indexOf(unit) + 1, ilen = UNITS.length; i < ilen; ++i) {
+		if (INTERVALS[UNITS[i]].major) {
+			return UNITS[i];
+		}
+	}
+}
+
+/**
+ * Generates timestamps between min and max, rounded to the `minor` unit, aligned on
+ * the `major` unit, spaced with `stepSize` and using the given scale time `options`.
+ * Important: this method can return ticks outside the min and max range, it's the
+ * responsibility of the calling code to clamp values if needed.
+ */
+function generate(min, max, minor, major, stepSize, options) {
+	var weekday = minor === 'week' ? options.isoWeekday : false;
+	var interval = INTERVALS[minor];
+	var first = moment(min);
+	var last = moment(max);
+	var ticks = [];
+	var time;
+
+	// For 'week' unit, handle the first day of week option
+	if (weekday) {
+		first = first.isoWeekday(weekday);
+		last = last.isoWeekday(weekday);
+	}
+
+	// Align first/last ticks on unit
+	first = first.startOf(weekday ? 'day' : minor);
+	last = last.startOf(weekday ? 'day' : minor);
+
+	// Make sure that the last tick include max
+	if (last < max) {
+		last.add(1, minor);
+	}
+
+	time = moment(first);
+
+	if (major && !weekday && !options.round) {
+		// Align the first tick on the previous `minor` unit aligned on the `major` unit:
+		// we first aligned time on the previous `major` unit then add the number of full
+		// stepSize there is between first and the previous major time.
+		time.startOf(major);
+		time.add(~~((first - time) / (interval.size * stepSize)) * stepSize, minor);
+	}
+
+	for (; time < last; time.add(stepSize, minor)) {
+		ticks.push(+time);
+	}
+
+	ticks.push(+time);
+
+	return ticks;
 }
 
 module.exports = function(Chart) {
-
-	var timeHelpers = helpers.time;
-
-	// Integer constants are from the ES6 spec.
-	var MIN_INTEGER = Number.MIN_SAFE_INTEGER || -9007199254740991;
-	var MAX_INTEGER = Number.MAX_SAFE_INTEGER || 9007199254740991;
 
 	var defaultConfig = {
 		position: 'bottom',
@@ -17787,6 +17726,10 @@ module.exports = function(Chart) {
 		}
 	};
 
+	Chart.Ticks.generators.time = function(opts, range) {
+		return generate(range.min, range.max, opts.unit, opts.majorUnit, opts.stepSize, opts.timeOpts);
+	};
+
 	var TimeScale = Chart.Scale.extend({
 		initialize: function() {
 			if (!moment) {
@@ -17796,6 +17739,18 @@ module.exports = function(Chart) {
 			this.mergeTicksOptions();
 
 			Chart.Scale.prototype.initialize.call(this);
+		},
+
+		update: function() {
+			var me = this;
+			var options = me.options;
+
+			// DEPRECATIONS: output a message only one time per update
+			if (options.time && options.time.format) {
+				console.warn('options.time.format is deprecated and replaced by options.time.parser.');
+			}
+
+			return Chart.Scale.prototype.update.apply(me, arguments);
 		},
 
 		/**
@@ -17864,8 +17819,6 @@ module.exports = function(Chart) {
 				labels: labels.sort(sorter),    // Sort labels **after** data have been converted
 				min: Math.min(min, max),        // Make sure that max is **strictly** higher ...
 				max: Math.max(min + 1, max),    // ... than min (required by the lookup table)
-				offset: null,
-				size: null,
 				table: []
 			};
 		},
@@ -17879,38 +17832,31 @@ module.exports = function(Chart) {
 			var ticksOpts = me.options.ticks;
 			var formats = timeOpts.displayFormats;
 			var capacity = me.getLabelCapacity(min);
-			var unit = timeOpts.unit || timeHelpers.determineUnit(timeOpts.minUnit, min, max, capacity);
-			var majorUnit = timeHelpers.determineMajorUnit(unit);
+			var unit = timeOpts.unit || determineUnit(timeOpts.minUnit, min, max, capacity);
+			var majorUnit = determineMajorUnit(unit);
+			var timestamps = [];
 			var ticks = [];
 			var i, ilen, timestamp, stepSize;
 
-			if (ticksOpts.source === 'labels') {
-				for (i = 0, ilen = model.labels.length; i < ilen; ++i) {
-					timestamp = model.labels[i];
-					if (timestamp >= min && timestamp <= max) {
-						ticks.push(timestamp);
-					}
-				}
-			} else {
+			if (ticksOpts.source === 'auto') {
 				stepSize = helpers.valueOrDefault(timeOpts.stepSize, timeOpts.unitStepSize)
-					|| timeHelpers.determineStepSize(min, max, unit, capacity);
+					|| determineStepSize(min, max, unit, capacity);
 
-				ticks = timeHelpers.generateTicks({
-					maxTicks: capacity,
-					min: parse(timeOpts.min, me),
-					max: parse(timeOpts.max, me),
-					stepSize: stepSize,
-					majorUnit: majorUnit,
-					unit: unit,
-					timeOpts: timeOpts
-				}, {
-					min: min,
-					max: max
-				});
+				timestamps = generate(min, max, unit, majorUnit, stepSize, timeOpts);
 
-				// Recompute min/max, the ticks generation might have changed them (BUG?)
-				min = ticks.length ? ticks[0] : min;
-				max = ticks.length ? ticks[ticks.length - 1] : max;
+				// Expand min/max to the generated ticks
+				min = helpers.isNullOrUndef(timeOpts.min) && timestamps.length ? timestamps[0] : min;
+				max = helpers.isNullOrUndef(timeOpts.max) && timestamps.length ? timestamps[timestamps.length - 1] : max;
+			} else {
+				timestamps = model.labels;
+			}
+
+			// Remove ticks outside the min/max range
+			for (i = 0, ilen = timestamps.length; i < ilen; ++i) {
+				timestamp = timestamps[i];
+				if (timestamp >= min && timestamp <= max) {
+					ticks.push(timestamp);
+				}
 			}
 
 			me.ticks = ticks;
@@ -17935,7 +17881,7 @@ module.exports = function(Chart) {
 				label = me.getRightValue(value);
 			}
 			if (timeOpts.tooltipFormat) {
-				label = timeHelpers.parseTime(me, label).format(timeOpts.tooltipFormat);
+				label = momentify(label, timeOpts).format(timeOpts.tooltipFormat);
 			}
 
 			return label;
@@ -18052,12 +17998,12 @@ module.exports = function(Chart) {
 			var tickLabelWidth = me.getLabelWidth(exampleLabel);
 			var innerWidth = me.isHorizontal() ? me.width : me.height;
 
-			return innerWidth / tickLabelWidth;
+			return Math.floor(innerWidth / tickLabelWidth);
 		}
 	});
 
 	Chart.scaleService.registerScaleType('time', TimeScale, defaultConfig);
 };
 
-},{"25":25,"46":46,"6":6}]},{},[7])(7)
+},{"25":25,"45":45,"6":6}]},{},[7])(7)
 });
