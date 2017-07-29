@@ -2103,7 +2103,7 @@ module.exports = function(Chart) {
 			var meta = me.getMeta();
 			var scale = me.getValueScale();
 			var datasets = chart.data.datasets;
-			var value = Number(datasets[datasetIndex].data[index]);
+			var value = scale.getRightValue(datasets[datasetIndex].data[index]);
 			var stacked = scale.options.stacked;
 			var stack = meta.stack;
 			var start = 0;
@@ -2118,7 +2118,7 @@ module.exports = function(Chart) {
 						imeta.controller.getValueScaleId() === scale.id &&
 						chart.isDatasetVisible(i)) {
 
-						ivalue = Number(datasets[i].data[index]);
+						ivalue = scale.getRightValue(datasets[i].data[index]);
 						if ((value < 0 && ivalue < 0) || (value >= 0 && ivalue > 0)) {
 							start += ivalue;
 						}
@@ -2165,17 +2165,16 @@ module.exports = function(Chart) {
 		draw: function() {
 			var me = this;
 			var chart = me.chart;
+			var scale = me.getIndexScale();
 			var rects = me.getMeta().data;
 			var dataset = me.getDataset();
 			var ilen = rects.length;
 			var i = 0;
-			var d;
 
 			helpers.canvas.clipArea(chart.ctx, chart.chartArea);
 
 			for (; i < ilen; ++i) {
-				d = dataset.data[i];
-				if (d !== null && d !== undefined && !isNaN(d)) {
+				if (!isNaN(scale.getRightValue(dataset.data[i]))) {
 					rects[i].draw();
 				}
 			}
@@ -12044,6 +12043,13 @@ module.exports = function(Chart) {
 	var noop = helpers.noop;
 
 	Chart.LinearScaleBase = Chart.Scale.extend({
+		getRightValue: function(value) {
+			if (typeof value === 'string') {
+				return +value;
+			}
+			return Chart.Scale.prototype.getRightValue.call(this, value);
+		},
+
 		handleTickRangeOptions: function() {
 			var me = this;
 			var opts = me.options;
