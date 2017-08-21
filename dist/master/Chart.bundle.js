@@ -17569,6 +17569,7 @@ module.exports = function(Chart) {
 
 			if (opts.display) {
 				var ctx = me.ctx;
+				var startAngle = this.getIndexAngle(0);
 
 				// Tick Font
 				var tickFontSize = valueOrDefault(tickOpts.fontSize, globalDefaults.defaultFontSize);
@@ -17580,7 +17581,6 @@ module.exports = function(Chart) {
 					// Don't draw a centre value (if it is minimum)
 					if (index > 0 || tickOpts.reverse) {
 						var yCenterOffset = me.getDistanceFromCenterForValue(me.ticksAsNumbers[index]);
-						var yHeight = me.yCenter - yCenterOffset;
 
 						// Draw circular lines around the scale
 						if (gridLineOpts.display && index !== 0) {
@@ -17591,12 +17591,16 @@ module.exports = function(Chart) {
 							var tickFontColor = valueOrDefault(tickOpts.fontColor, globalDefaults.defaultFontColor);
 							ctx.font = tickLabelFont;
 
+							ctx.save();
+							ctx.translate(me.xCenter, me.yCenter);
+							ctx.rotate(startAngle);
+
 							if (tickOpts.showLabelBackdrop) {
 								var labelWidth = ctx.measureText(label).width;
 								ctx.fillStyle = tickOpts.backdropColor;
 								ctx.fillRect(
-									me.xCenter - labelWidth / 2 - tickOpts.backdropPaddingX,
-									yHeight - tickFontSize / 2 - tickOpts.backdropPaddingY,
+									-labelWidth / 2 - tickOpts.backdropPaddingX,
+									-yCenterOffset - tickFontSize / 2 - tickOpts.backdropPaddingY,
 									labelWidth + tickOpts.backdropPaddingX * 2,
 									tickFontSize + tickOpts.backdropPaddingY * 2
 								);
@@ -17605,7 +17609,8 @@ module.exports = function(Chart) {
 							ctx.textAlign = 'center';
 							ctx.textBaseline = 'middle';
 							ctx.fillStyle = tickFontColor;
-							ctx.fillText(label, me.xCenter, yHeight);
+							ctx.fillText(label, 0, -yCenterOffset);
+							ctx.restore();
 						}
 					}
 				});
