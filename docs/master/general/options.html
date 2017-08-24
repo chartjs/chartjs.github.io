@@ -4,7 +4,7 @@
     <head>
         <meta charset="UTF-8">
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
-        <title>Installation · GitBook</title>
+        <title>Options · GitBook</title>
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="description" content="">
         <meta name="generator" content="GitBook 3.2.2">
@@ -60,10 +60,10 @@
     <link rel="shortcut icon" href="../gitbook/images/favicon.ico" type="image/x-icon">
 
     
-    <link rel="next" href="integration.html" />
+    <link rel="next" href="colors.html" />
     
     
-    <link rel="prev" href="./" />
+    <link rel="prev" href="interactions/modes.html" />
     
 
     <link rel="stylesheet" href="../gitbook/gitbook-plugin-chartjs/style.css">
@@ -110,9 +110,9 @@
             
         </li>
     
-        <li class="chapter " data-level="1.2" data-path="./">
+        <li class="chapter " data-level="1.2" data-path="../getting-started/">
             
-                <a href="./">
+                <a href="../getting-started/">
             
                     
                     Getting Started
@@ -124,9 +124,9 @@
             <ul class="articles">
                 
     
-        <li class="chapter active" data-level="1.2.1" data-path="installation.html">
+        <li class="chapter " data-level="1.2.1" data-path="../getting-started/installation.html">
             
-                <a href="installation.html">
+                <a href="../getting-started/installation.html">
             
                     
                     Installation
@@ -137,9 +137,9 @@
             
         </li>
     
-        <li class="chapter " data-level="1.2.2" data-path="integration.html">
+        <li class="chapter " data-level="1.2.2" data-path="../getting-started/integration.html">
             
-                <a href="integration.html">
+                <a href="../getting-started/integration.html">
             
                     
                     Integration
@@ -150,9 +150,9 @@
             
         </li>
     
-        <li class="chapter " data-level="1.2.3" data-path="usage.html">
+        <li class="chapter " data-level="1.2.3" data-path="../getting-started/usage.html">
             
-                <a href="usage.html">
+                <a href="../getting-started/usage.html">
             
                     
                     Usage
@@ -168,9 +168,9 @@
             
         </li>
     
-        <li class="chapter " data-level="1.3" data-path="../general/">
+        <li class="chapter " data-level="1.3" data-path="./">
             
-                <a href="../general/">
+                <a href="./">
             
                     
                     General
@@ -182,9 +182,9 @@
             <ul class="articles">
                 
     
-        <li class="chapter " data-level="1.3.1" data-path="../general/responsive.html">
+        <li class="chapter " data-level="1.3.1" data-path="responsive.html">
             
-                <a href="../general/responsive.html">
+                <a href="responsive.html">
             
                     
                     Responsive
@@ -195,9 +195,9 @@
             
         </li>
     
-        <li class="chapter " data-level="1.3.2" data-path="../general/interactions/">
+        <li class="chapter " data-level="1.3.2" data-path="interactions/">
             
-                <a href="../general/interactions/">
+                <a href="interactions/">
             
                     
                     Interactions
@@ -209,9 +209,9 @@
             <ul class="articles">
                 
     
-        <li class="chapter " data-level="1.3.2.1" data-path="../general/interactions/events.html">
+        <li class="chapter " data-level="1.3.2.1" data-path="interactions/events.html">
             
-                <a href="../general/interactions/events.html">
+                <a href="interactions/events.html">
             
                     
                     Events
@@ -222,9 +222,9 @@
             
         </li>
     
-        <li class="chapter " data-level="1.3.2.2" data-path="../general/interactions/modes.html">
+        <li class="chapter " data-level="1.3.2.2" data-path="interactions/modes.html">
             
-                <a href="../general/interactions/modes.html">
+                <a href="interactions/modes.html">
             
                     
                     Modes
@@ -240,9 +240,9 @@
             
         </li>
     
-        <li class="chapter " data-level="1.3.3" data-path="../general/options.html">
+        <li class="chapter active" data-level="1.3.3" data-path="options.html">
             
-                <a href="../general/options.html">
+                <a href="options.html">
             
                     
                     Options
@@ -253,9 +253,9 @@
             
         </li>
     
-        <li class="chapter " data-level="1.3.4" data-path="../general/colors.html">
+        <li class="chapter " data-level="1.3.4" data-path="colors.html">
             
-                <a href="../general/colors.html">
+                <a href="colors.html">
             
                     
                     Colors
@@ -266,9 +266,9 @@
             
         </li>
     
-        <li class="chapter " data-level="1.3.5" data-path="../general/fonts.html">
+        <li class="chapter " data-level="1.3.5" data-path="fonts.html">
             
-                <a href="../general/fonts.html">
+                <a href="fonts.html">
             
                     
                     Fonts
@@ -850,7 +850,7 @@
     <!-- Title -->
     <h1>
         <i class="fa fa-circle-o-notch fa-spin"></i>
-        <a href=".." >Installation</a>
+        <a href=".." >Options</a>
     </h1>
 </div>
 
@@ -865,35 +865,39 @@
     
                                 <section class="normal markdown-section">
                                 
-                                <h1 id="installation">Installation</h1>
-<p>Chart.js can be installed via npm or bower. It is recommended to get Chart.js this way.</p>
-<h2 id="npm">npm</h2>
-<pre><code class="lang-bash">npm install chart.js --save
+                                <h1 id="options">Options</h1>
+<h2 id="scriptable-options">Scriptable Options</h2>
+<p>Scriptable options also accept a function which is called for each data and that takes the unique argument <code>context</code> representing contextual information (see <a href="options.html#option-context">option context</a>).</p>
+<p>Example:</p>
+<pre><code class="lang-javascript">color: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">context</span>) </span>{
+    <span class="hljs-keyword">return</span> context.data &lt; <span class="hljs-number">0</span> ? <span class="hljs-string">&apos;red&apos;</span> :   <span class="hljs-comment">// draw negative values in red</span>
+        index%<span class="hljs-number">2</span> ? <span class="hljs-string">&apos;blue&apos;</span> : <span class="hljs-string">&apos;green&apos;</span>;    <span class="hljs-comment">// else, alternate values in blue and green</span>
+}
 </code></pre>
-<h2 id="bower">Bower</h2>
-<pre><code class="lang-bash">bower install chart.js --save
+<blockquote>
+<p><strong>Note:</strong> scriptable options are only supported by a few bubble chart options.</p>
+</blockquote>
+<h2 id="indexable-options">Indexable Options</h2>
+<p>Indexable options also accept an array in which each item corresponds to the element at the same index. Note that this method requires to provide as many items as data, so, in most cases, using a <a href="#scriptable-options">function</a> is more appropriated if supported.</p>
+<p>Example:</p>
+<pre><code class="lang-javascript">color: [
+    <span class="hljs-string">&apos;red&apos;</span>,    <span class="hljs-comment">// color for data at index 0</span>
+    <span class="hljs-string">&apos;blue&apos;</span>,   <span class="hljs-comment">// color for data at index 1</span>
+    <span class="hljs-string">&apos;green&apos;</span>,  <span class="hljs-comment">// color for data at index 2</span>
+    <span class="hljs-string">&apos;black&apos;</span>,  <span class="hljs-comment">// color for data at index 3</span>
+    <span class="hljs-comment">//...</span>
+]
 </code></pre>
-<h2 id="cdn">CDN</h2>
-<p>or just use these <a href="https://cdnjs.com/libraries/Chart.js" target="_blank">Chart.js CDN</a> links.</p>
-<h2 id="github">Github</h2>
-<p>You can download the latest version of <a href="https://github.com/chartjs/Chart.js/releases/latest" target="_blank">Chart.js on GitHub</a>.</p>
-<p>If you download or clone the repository, you must <a href="../developers/contributing.html#building-chartjs">build</a> Chart.js to generate the dist files. Chart.js no longer comes with prebuilt release versions, so an alternative option to downloading the repo is <strong>strongly</strong> advised.</p>
-<h1 id="selecting-the-correct-build">Selecting the Correct Build</h1>
-<p>Chart.js provides two different builds that are available for your use.</p>
-<h2 id="stand-alone-build">Stand-Alone Build</h2>
-<p>Files:</p>
+<h2 id="option-context">Option Context</h2>
+<p>The option context is used to give contextual information when resolving options and currently only applies to <a href="#scriptable-options">scriptable options</a>.</p>
+<p>The context object contains the following properties:</p>
 <ul>
-<li><code>dist/Chart.js</code></li>
-<li><code>dist/Chart.min.js</code></li>
+<li><code>chart</code>: the associated chart</li>
+<li><code>dataIndex</code>: index of the current data</li>
+<li><code>dataset</code>: dataset at index <code>datasetIndex</code></li>
+<li><code>datasetIndex</code>: index of the current dataset</li>
 </ul>
-<p>This version only includes Chart.js. If this version is used and you require the use of the time axis, <a href="http://momentjs.com/" target="_blank">Moment.js</a> will need to be included before Chart.js.</p>
-<h2 id="bundled-build">Bundled Build</h2>
-<p>Files:</p>
-<ul>
-<li><code>dist/Chart.bundle.js</code></li>
-<li><code>dist/Chart.bundle.min.js</code></li>
-</ul>
-<p>The bundled version includes Moment.js built into the same file. This version should be used if you wish to use time axes and want a single file to include. Do not use this build if your application already includes Moment.js. If you do, Moment.js will be included twice, increasing the page load time and potentially introducing version issues.</p>
+<p><strong>Important</strong>: since the context can represent different types of entities (dataset, data, etc.), some properties may be <code>undefined</code> so be sure to test any context property before using it.</p>
 
                                 
                                 </section>
@@ -921,12 +925,12 @@
 
             
                 
-                <a href="./" class="navigation navigation-prev " aria-label="Previous page: Getting Started">
+                <a href="interactions/modes.html" class="navigation navigation-prev " aria-label="Previous page: Modes">
                     <i class="fa fa-angle-left"></i>
                 </a>
                 
                 
-                <a href="integration.html" class="navigation navigation-next " aria-label="Next page: Integration">
+                <a href="colors.html" class="navigation navigation-next " aria-label="Next page: Colors">
                     <i class="fa fa-angle-right"></i>
                 </a>
                 
@@ -937,7 +941,7 @@
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Installation","level":"1.2.1","depth":2,"next":{"title":"Integration","level":"1.2.2","depth":2,"path":"getting-started/integration.md","ref":"getting-started/integration.md","articles":[]},"previous":{"title":"Getting Started","level":"1.2","depth":1,"path":"getting-started/README.md","ref":"getting-started/README.md","articles":[{"title":"Installation","level":"1.2.1","depth":2,"path":"getting-started/installation.md","ref":"getting-started/installation.md","articles":[]},{"title":"Integration","level":"1.2.2","depth":2,"path":"getting-started/integration.md","ref":"getting-started/integration.md","articles":[]},{"title":"Usage","level":"1.2.3","depth":2,"path":"getting-started/usage.md","ref":"getting-started/usage.md","articles":[]}]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"anchorjs":{"icon":"#","placement":"left","visible":"always"},"ga":{"configuration":"auto","token":"UA-28909194-3"},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"search-plus":{},"chartjs":{"defaults":null},"highlight":{},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"gitbook":"3.2.2"},"file":{"path":"getting-started/installation.md","mtime":"2017-08-24T07:36:13.637Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2017-08-24T07:39:35.338Z"},"basePath":"..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Options","level":"1.3.3","depth":2,"next":{"title":"Colors","level":"1.3.4","depth":2,"path":"general/colors.md","ref":"general/colors.md","articles":[]},"previous":{"title":"Modes","level":"1.3.2.2","depth":3,"path":"general/interactions/modes.md","ref":"general/interactions/modes.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"anchorjs":{"icon":"#","placement":"left","visible":"always"},"ga":{"configuration":"auto","token":"UA-28909194-3"},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"search-plus":{},"chartjs":{"defaults":null},"highlight":{},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"gitbook":"3.2.2"},"file":{"path":"general/options.md","mtime":"2017-08-24T07:36:13.637Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2017-08-24T07:39:35.338Z"},"basePath":"..","book":{"language":""}});
         });
     </script>
 </div>
