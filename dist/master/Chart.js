@@ -2198,7 +2198,7 @@ module.exports = function(Chart) {
 		draw: function() {
 			var me = this;
 			var chart = me.chart;
-			var scale = me.getIndexScale();
+			var scale = me.getValueScale();
 			var rects = me.getMeta().data;
 			var dataset = me.getDataset();
 			var ilen = rects.length;
@@ -7530,7 +7530,7 @@ module.exports = function(Chart) {
 
 				var label = tick.label;
 				var lineWidth, lineColor, borderDash, borderDashOffset;
-				if (index === (typeof me.zeroLineIndex !== 'undefined' ? me.zeroLineIndex : 0) && (options.offset === gridLines.offsetGridLines)) {
+				if (index === me.zeroLineIndex && options.offset === gridLines.offsetGridLines) {
 					// Draw the first index specially
 					lineWidth = gridLines.zeroLineWidth;
 					lineColor = gridLines.zeroLineColor;
