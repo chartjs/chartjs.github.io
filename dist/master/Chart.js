@@ -1,7 +1,7 @@
 /*!
  * Chart.js
  * http://chartjs.org/
- * Version: 2.6.0
+ * Version: 2.7.0
  *
  * Copyright 2017 Nick Downie
  * Released under the MIT license
