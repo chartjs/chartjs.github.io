@@ -1681,7 +1681,7 @@ Chart.defaults = require(25);
 Chart.Element = require(26);
 Chart.elements = require(40);
 Chart.Interaction = require(28);
-Chart.platform = require(47);
+Chart.platform = require(48);
 
 require(31)(Chart);
 require(22)(Chart);
@@ -1692,12 +1692,12 @@ require(33)(Chart);
 require(32)(Chart);
 require(35)(Chart);
 
-require(53)(Chart);
-require(51)(Chart);
-require(52)(Chart);
 require(54)(Chart);
+require(52)(Chart);
+require(53)(Chart);
 require(55)(Chart);
 require(56)(Chart);
+require(57)(Chart);
 
 // Controllers must be loaded after elements
 // See Chart.core.datasetController.dataElementType
@@ -1721,9 +1721,9 @@ require(14)(Chart);
 var plugins = [];
 
 plugins.push(
-	require(48)(Chart),
 	require(49)(Chart),
-	require(50)(Chart)
+	require(50)(Chart),
+	require(51)(Chart)
 );
 
 Chart.plugins.register(plugins);
@@ -1746,7 +1746,7 @@ if (typeof window !== 'undefined') {
  */
 Chart.canvasHelpers = Chart.helpers.canvas;
 
-},{"10":10,"11":11,"12":12,"13":13,"14":14,"15":15,"16":16,"17":17,"18":18,"19":19,"20":20,"21":21,"22":22,"23":23,"24":24,"25":25,"26":26,"27":27,"28":28,"29":29,"30":30,"31":31,"32":32,"33":33,"35":35,"40":40,"45":45,"47":47,"48":48,"49":49,"50":50,"51":51,"52":52,"53":53,"54":54,"55":55,"56":56,"8":8,"9":9}],8:[function(require,module,exports){
+},{"10":10,"11":11,"12":12,"13":13,"14":14,"15":15,"16":16,"17":17,"18":18,"19":19,"20":20,"21":21,"22":22,"23":23,"24":24,"25":25,"26":26,"27":27,"28":28,"29":29,"30":30,"31":31,"32":32,"33":33,"35":35,"40":40,"45":45,"48":48,"49":49,"50":50,"51":51,"52":52,"53":53,"54":54,"55":55,"56":56,"57":57,"8":8,"9":9}],8:[function(require,module,exports){
 'use strict';
 
 module.exports = function(Chart) {
@@ -3692,7 +3692,7 @@ module.exports = function(Chart) {
 var defaults = require(25);
 var helpers = require(45);
 var Interaction = require(28);
-var platform = require(47);
+var platform = require(48);
 
 module.exports = function(Chart) {
 	var plugins = Chart.plugins;
@@ -4564,7 +4564,7 @@ module.exports = function(Chart) {
 	Chart.Controller = Chart;
 };
 
-},{"25":25,"28":28,"45":45,"47":47}],24:[function(require,module,exports){
+},{"25":25,"28":28,"45":45,"48":48}],24:[function(require,module,exports){
 'use strict';
 
 var helpers = require(45);
@@ -10351,6 +10351,23 @@ module.exports.options = require(44);
 
 },{"41":41,"42":42,"43":43,"44":44}],46:[function(require,module,exports){
 /**
+ * Platform fallback implementation (minimal).
+ * @see https://github.com/chartjs/Chart.js/pull/4591#issuecomment-319575939
+ */
+
+module.exports = {
+	acquireContext: function(item) {
+		if (item && item.canvas) {
+			// Support for any object associated to a canvas (including a context2d)
+			item = item.canvas;
+		}
+
+		return item && item.getContext('2d') || null;
+	}
+};
+
+},{}],47:[function(require,module,exports){
+/**
  * Chart.Platform implementation for targeting a web browser
  */
 
@@ -10657,6 +10674,13 @@ function injectCSS(platform, css) {
 }
 
 module.exports = {
+	/**
+	 * This property holds whether this platform is enabled for the current environment.
+	 * Currently used by platform.js to select the proper implementation.
+	 * @private
+	 */
+	_enabled: typeof window !== 'undefined' && typeof document !== 'undefined',
+
 	initialize: function() {
 		var keyframes = 'from{opacity:0.99}to{opacity:1}';
 
@@ -10794,14 +10818,15 @@ helpers.addEvent = addEventListener;
  */
 helpers.removeEvent = removeEventListener;
 
-},{"45":45}],47:[function(require,module,exports){
+},{"45":45}],48:[function(require,module,exports){
 'use strict';
 
 var helpers = require(45);
+var basic = require(46);
+var dom = require(47);
 
-// By default, select the browser (DOM) platform.
 // @TODO Make possible to select another platform at build time.
-var implementation = require(46);
+var implementation = dom._enabled ? dom : basic;
 
 /**
  * @namespace Chart.platform
@@ -10869,7 +10894,7 @@ module.exports = helpers.extend({
  * @prop {Number} y - The mouse y position, relative to the canvas (null for incompatible events)
  */
 
-},{"45":45,"46":46}],48:[function(require,module,exports){
+},{"45":45,"46":46,"47":47}],49:[function(require,module,exports){
 /**
  * Plugin based on discussion from the following Chart.js issues:
  * @see https://github.com/chartjs/Chart.js/issues/2380#issuecomment-279961569
@@ -11192,7 +11217,7 @@ module.exports = function() {
 	};
 };
 
-},{"25":25,"40":40,"45":45}],49:[function(require,module,exports){
+},{"25":25,"40":40,"45":45}],50:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
@@ -11761,7 +11786,7 @@ module.exports = function(Chart) {
 	};
 };
 
-},{"25":25,"26":26,"45":45}],50:[function(require,module,exports){
+},{"25":25,"26":26,"45":45}],51:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
@@ -12006,7 +12031,7 @@ module.exports = function(Chart) {
 	};
 };
 
-},{"25":25,"26":26,"45":45}],51:[function(require,module,exports){
+},{"25":25,"26":26,"45":45}],52:[function(require,module,exports){
 'use strict';
 
 module.exports = function(Chart) {
@@ -12141,7 +12166,7 @@ module.exports = function(Chart) {
 
 };
 
-},{}],52:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
@@ -12335,7 +12360,7 @@ module.exports = function(Chart) {
 
 };
 
-},{"25":25,"34":34,"45":45}],53:[function(require,module,exports){
+},{"25":25,"34":34,"45":45}],54:[function(require,module,exports){
 'use strict';
 
 var helpers = require(45);
@@ -12469,7 +12494,7 @@ module.exports = function(Chart) {
 	});
 };
 
-},{"34":34,"45":45}],54:[function(require,module,exports){
+},{"34":34,"45":45}],55:[function(require,module,exports){
 'use strict';
 
 var helpers = require(45);
@@ -12715,7 +12740,7 @@ module.exports = function(Chart) {
 
 };
 
-},{"34":34,"45":45}],55:[function(require,module,exports){
+},{"34":34,"45":45}],56:[function(require,module,exports){
 'use strict';
 
 var defaults = require(25);
@@ -13247,7 +13272,7 @@ module.exports = function(Chart) {
 
 };
 
-},{"25":25,"34":34,"45":45}],56:[function(require,module,exports){
+},{"25":25,"34":34,"45":45}],57:[function(require,module,exports){
 /* global window: false */
 'use strict';
 
