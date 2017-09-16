@@ -5882,7 +5882,7 @@ module.exports = {
 		 * @private
 		 */
 		'x-axis': function(chart, e) {
-			return indexMode(chart, e, {intersect: true});
+			return indexMode(chart, e, {intersect: false});
 		},
 
 		/**
