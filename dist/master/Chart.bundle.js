@@ -11975,7 +11975,7 @@ module.exports = function(Chart) {
 
 				// Since we always show the last tick,we need may need to hide the last shown one before
 				shouldSkip = (skipRatio > 1 && i % skipRatio > 0) || (i % skipRatio === 0 && i + skipRatio >= tickCount);
-				if (shouldSkip && i !== tickCount - 1 || helpers.isNullOrUndef(tick.label)) {
+				if (shouldSkip && i !== tickCount - 1) {
 					// leave tick in place but make sure it's not displayed (#4635)
 					delete tick.label;
 				}
@@ -12025,7 +12025,7 @@ module.exports = function(Chart) {
 
 			helpers.each(ticks, function(tick, index) {
 				// autoskipper skipped this tick (#4635)
-				if (tick.label === undefined) {
+				if (helpers.isNullOrUndef(tick.label)) {
 					return;
 				}
 
@@ -13176,6 +13176,7 @@ module.exports = function(Chart) {
 			};
 
 			// Before body lines
+			ctx.fillStyle = mergeOpacity(vm.bodyFontColor, opacity);
 			helpers.each(vm.beforeBody, fillLineOfText);
 
 			var drawColorBoxes = vm.displayColors;
@@ -13183,6 +13184,8 @@ module.exports = function(Chart) {
 
 			// Draw body lines now
 			helpers.each(body, function(bodyItem, i) {
+				var textColor = mergeOpacity(vm.labelTextColors[i], opacity);
+				ctx.fillStyle = textColor;
 				helpers.each(bodyItem.before, fillLineOfText);
 
 				helpers.each(bodyItem.lines, function(line) {
@@ -13200,7 +13203,6 @@ module.exports = function(Chart) {
 						// Inner square
 						ctx.fillStyle = mergeOpacity(vm.labelColors[i].backgroundColor, opacity);
 						ctx.fillRect(pt.x + 1, pt.y + 1, bodyFontSize - 2, bodyFontSize - 2);
-						var textColor = mergeOpacity(vm.labelTextColors[i], opacity);
 						ctx.fillStyle = textColor;
 					}
 
@@ -15109,6 +15111,13 @@ function watchForRender(node, handler) {
 	helpers.each(ANIMATION_START_EVENTS, function(type) {
 		addEventListener(node, type, proxy);
 	});
+
+	// #4737: Chrome might skip the CSS animation when the CSS_RENDER_MONITOR class
+	// is removed then added back immediately (same animation frame?). Accessing the
+	// `offsetParent` property will force a reflow and re-evaluate the CSS animation.
+	// https://gist.github.com/paulirish/5d52fb081b3570c81e3a#box-metrics
+	// https://github.com/chartjs/Chart.js/issues/4737
+	expando.reflow = !!node.offsetParent;
 
 	node.classList.add(CSS_RENDER_MONITOR);
 }
