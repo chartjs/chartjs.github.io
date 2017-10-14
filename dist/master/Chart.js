@@ -4217,9 +4217,7 @@ module.exports = function(Chart) {
 			}
 
 			me.drawDatasets(easingValue);
-
-			// Finally draw the tooltip
-			me.tooltip.draw();
+			me._drawTooltip(easingValue);
 
 			plugins.notify(me, 'afterDraw', [easingValue]);
 		},
@@ -4282,6 +4280,28 @@ module.exports = function(Chart) {
 			meta.controller.draw(easingValue);
 
 			plugins.notify(me, 'afterDatasetDraw', [args]);
+		},
+
+		/**
+		 * Draws tooltip unless a plugin returns `false` to the `beforeTooltipDraw`
+		 * hook, in which case, plugins will not be called on `afterTooltipDraw`.
+		 * @private
+		 */
+		_drawTooltip: function(easingValue) {
+			var me = this;
+			var tooltip = me.tooltip;
+			var args = {
+				tooltip: tooltip,
+				easingValue: easingValue
+			};
+
+			if (plugins.notify(me, 'beforeTooltipDraw', [args]) === false) {
+				return;
+			}
+
+			tooltip.draw();
+
+			plugins.notify(me, 'afterTooltipDraw', [args]);
 		},
 
 		// Get the single element that was clicked on
@@ -6797,6 +6817,27 @@ module.exports = function(Chart) {
 	 * @param {Number} args.easingValue - The current animation value, between 0.0 and 1.0.
 	 * @param {Object} options - The plugin options.
 	 */
+	/**
+  	 * @method IPlugin#beforeTooltipDraw
+	 * @desc Called before drawing the `tooltip`. If any plugin returns `false`,
+	 * the tooltip drawing is cancelled until another `render` is triggered.
+	 * @param {Chart} chart - The chart instance.
+	 * @param {Object} args - The call arguments.
+	 * @param {Object} args.tooltip - The tooltip.
+	 * @param {Number} args.easingValue - The current animation value, between 0.0 and 1.0.
+	 * @param {Object} options - The plugin options.
+	 * @returns {Boolean} `false` to cancel the chart tooltip drawing.
+  	 */
+	/**
+ 	 * @method IPlugin#afterTooltipDraw
+  	 * @desc Called after drawing the `tooltip`. Note that this hook will not
+ 	 * be called if the tooltip drawing has been previously cancelled.
+ 	 * @param {Chart} chart - The chart instance.
+ 	 * @param {Object} args - The call arguments.
+ 	 * @param {Object} args.tooltip - The tooltip.
+	 * @param {Number} args.easingValue - The current animation value, between 0.0 and 1.0.
+ 	 * @param {Object} options - The plugin options.
+ 	 */
 	/**
 	 * @method IPlugin#beforeEvent
  	 * @desc Called before processing the specified `event`. If any plugin returns `false`,
