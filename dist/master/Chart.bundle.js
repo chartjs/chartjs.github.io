@@ -1666,7 +1666,7 @@ module.exports = {
 
 },{}],6:[function(require,module,exports){
 //! moment.js
-//! version : 2.19.1
+//! version : 2.19.2
 //! authors : Tim Wood, Iskren Chernev, Moment.js contributors
 //! license : MIT
 //! momentjs.com
@@ -2481,7 +2481,7 @@ function get (mom, unit) {
 
 function set$1 (mom, unit, value) {
     if (mom.isValid() && !isNaN(value)) {
-        if (unit === 'FullYear' && isLeapYear(mom.year())) {
+        if (unit === 'FullYear' && isLeapYear(mom.year()) && mom.month() === 1 && mom.date() === 29) {
             mom._d['set' + (mom._isUTC ? 'UTC' : '') + unit](value, mom.month(), daysInMonth(value, mom.month()));
         }
         else {
@@ -3587,10 +3587,11 @@ function defineLocale (name, config) {
 
 function updateLocale(name, config) {
     if (config != null) {
-        var locale, parentConfig = baseConfig;
+        var locale, tmpLocale, parentConfig = baseConfig;
         // MERGE
-        if (locales[name] != null) {
-            parentConfig = locales[name]._config;
+        tmpLocale = loadLocale(name);
+        if (tmpLocale != null) {
+            parentConfig = tmpLocale._config;
         }
         config = mergeConfigs(parentConfig, config);
         locale = new Locale(config);
@@ -6144,7 +6145,7 @@ addParseToken('x', function (input, array, config) {
 // Side effect imports
 
 
-hooks.version = '2.19.1';
+hooks.version = '2.19.2';
 
 setHookCallback(createLocal);
 
@@ -12868,10 +12869,10 @@ module.exports = function(Chart) {
 		}
 
 		olf = function(x) {
-			return x + size.width > chart.width;
+			return x + size.width + model.caretSize + model.caretPadding > chart.width;
 		};
 		orf = function(x) {
-			return x - size.width < 0;
+			return x - size.width - model.caretSize - model.caretPadding < 0;
 		};
 		yf = function(y) {
 			return y <= midY ? 'top' : 'bottom';
@@ -12905,7 +12906,7 @@ module.exports = function(Chart) {
 	/**
 	 * @Helper to get the location a tooltip needs to be placed at given the initial position (via the vm) and the size and alignment
 	 */
-	function getBackgroundPoint(vm, size, alignment) {
+	function getBackgroundPoint(vm, size, alignment, chart) {
 		// Background Position
 		var x = vm.x;
 		var y = vm.y;
@@ -12922,6 +12923,12 @@ module.exports = function(Chart) {
 			x -= size.width;
 		} else if (xAlign === 'center') {
 			x -= (size.width / 2);
+			if (x + size.width > chart.width) {
+				x = chart.width - size.width;
+			}
+			if (x < 0) {
+				x = 0;
+			}
 		}
 
 		if (yAlign === 'top') {
@@ -13114,7 +13121,7 @@ module.exports = function(Chart) {
 				tooltipSize = getTooltipSize(this, model);
 				alignment = determineAlignment(this, tooltipSize);
 				// Final Size and Position
-				backgroundPoint = getBackgroundPoint(model, tooltipSize, alignment);
+				backgroundPoint = getBackgroundPoint(model, tooltipSize, alignment, me._chart);
 			} else {
 				model.opacity = 0;
 			}
@@ -13186,7 +13193,7 @@ module.exports = function(Chart) {
 					x1 = x2 - caretSize;
 					x3 = x2 + caretSize;
 				} else {
-					x2 = ptX + (width / 2);
+					x2 = vm.caretX;
 					x1 = x2 - caretSize;
 					x3 = x2 + caretSize;
 				}
