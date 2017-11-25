@@ -6265,7 +6265,7 @@ module.exports = function(Chart) {
 					minSize = box.update(box.fullWidth ? chartWidth : maxChartAreaWidth, horizontalBoxHeight);
 					maxChartAreaHeight -= minSize.height;
 				} else {
-					minSize = box.update(verticalBoxWidth, chartAreaHeight);
+					minSize = box.update(verticalBoxWidth, maxChartAreaHeight);
 					maxChartAreaWidth -= minSize.width;
 				}
 
