@@ -866,7 +866,7 @@
                                 <section class="normal markdown-section">
                                 
                                 <h1 id="updating-charts">Updating Charts</h1>
-<p>It&apos;s pretty common to want to update charts after they&apos;ve been created. When the chart data is changed, Chart.js will animate to the new data values. </p>
+<p>It&apos;s pretty common to want to update charts after they&apos;ve been created. When the chart data or options are changed, Chart.js will animate to the new data values and options.</p>
 <h2 id="adding-or-removing-data">Adding or Removing Data</h2>
 <p>Adding and removing data is supported by changing the data array. To add data, just add data into the data array as seen in this example.</p>
 <pre><code class="lang-javascript"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">addData</span>(<span class="hljs-params">chart, label, data</span>) </span>{
@@ -876,8 +876,8 @@
     });
     chart.update();
 }
-</code></pre>
-<pre><code class="lang-javascript"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">removeData</span>(<span class="hljs-params">chart</span>) </span>{
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">removeData</span>(<span class="hljs-params">chart</span>) </span>{
     chart.data.labels.pop();
     chart.data.datasets.forEach((dataset) =&gt; {
         dataset.data.pop();
@@ -885,6 +885,67 @@
     chart.update();
 }
 </code></pre>
+<h2 id="updating-options">Updating Options</h2>
+<p>To update the options, mutating the options property in place or passing in a new options object are supported.</p>
+<ul>
+<li>If the options are mutated in place, other option properties would be preserved, including those calculated by Chart.js.</li>
+<li>If created as a new object, it would be like creating a new chart with the options - old options would be discarded.</li>
+</ul>
+<pre><code class="lang-javascript"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">updateConfigByMutating</span>(<span class="hljs-params">chart</span>) </span>{
+    chart.options.title.text = <span class="hljs-string">&apos;new title&apos;</span>;
+    chart.update();
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">updateConfigAsNewObject</span>(<span class="hljs-params">chart</span>) </span>{
+    chart.options = {
+        responsive: <span class="hljs-literal">true</span>,
+        title:{
+            display:<span class="hljs-literal">true</span>,
+            text: <span class="hljs-string">&apos;Chart.js&apos;</span>
+        },
+        scales: {
+            xAxes: [{
+                display: <span class="hljs-literal">true</span>
+            }],
+            yAxes: [{
+                display: <span class="hljs-literal">true</span>
+            }]
+        }
+    }
+    chart.update();
+}
+</code></pre>
+<p>Scales can be updated separately without changing other options.
+To update the scales, pass in an object containing all the customization including those unchanged ones.</p>
+<p>Variables referencing any one from <code>chart.scales</code> would be lost after updating scales with a new <code>id</code> or the changed <code>type</code>.</p>
+<pre><code class="lang-javascript"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">updateScales</span>(<span class="hljs-params">chart</span>) </span>{
+    <span class="hljs-keyword">var</span> xScale = chart.scales[<span class="hljs-string">&apos;x-axis-0&apos;</span>];
+    <span class="hljs-keyword">var</span> yScale = chart.scales[<span class="hljs-string">&apos;y-axis-0&apos;</span>];
+    chart.options.scales = {
+        xAxes: [{
+            id: <span class="hljs-string">&apos;newId&apos;</span>,
+            display: <span class="hljs-literal">true</span>
+        }],
+        yAxes: [{
+            display: <span class="hljs-literal">true</span>,
+            type: <span class="hljs-string">&apos;logarithmic&apos;</span>
+        }]
+    }
+    chart.update();
+    <span class="hljs-comment">// need to update the reference</span>
+    xScale = chart.scales[<span class="hljs-string">&apos;newId&apos;</span>];
+    yScale = chart.scales[<span class="hljs-string">&apos;y-axis-0&apos;</span>];
+}
+</code></pre>
+<p>You can also update a specific scale either by specifying its index or id.</p>
+<pre><code class="lang-javascript"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">updateScale</span>(<span class="hljs-params">chart</span>) </span>{
+    chart.options.scales.yAxes[<span class="hljs-number">0</span>] = {
+        type: <span class="hljs-string">&apos;logarithmic&apos;</span>
+    }
+    chart.update();
+}
+</code></pre>
+<p>Code sample for updating options can be found in <a href="../../samples/scales/toggle-scale-type.html">toggle-scale-type.html</a>.</p>
 <h2 id="preventing-animations">Preventing Animations</h2>
 <p>Sometimes when a chart updates, you may not want an animation. To achieve this you can call <code>update</code> with a duration of <code>0</code>. This will render the chart synchronously and without an animation.</p>
 
@@ -930,7 +991,7 @@
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Updating Charts","level":"1.7.2","depth":2,"next":{"title":"Plugins","level":"1.7.3","depth":2,"path":"developers/plugins.md","ref":"developers/plugins.md","articles":[]},"previous":{"title":"Chart.js API","level":"1.7.1","depth":2,"path":"developers/api.md","ref":"developers/api.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"anchorjs":{"icon":"#","placement":"left","visible":"always"},"ga":{"configuration":"auto","token":"UA-28909194-3"},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"search-plus":{},"chartjs":{"defaults":null},"highlight":{},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"gitbook":"3.2.2"},"file":{"path":"developers/updates.md","mtime":"2017-11-25T13:30:07.966Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2017-11-25T13:34:01.859Z"},"basePath":"..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Updating Charts","level":"1.7.2","depth":2,"next":{"title":"Plugins","level":"1.7.3","depth":2,"path":"developers/plugins.md","ref":"developers/plugins.md","articles":[]},"previous":{"title":"Chart.js API","level":"1.7.1","depth":2,"path":"developers/api.md","ref":"developers/api.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"anchorjs":{"icon":"#","placement":"left","visible":"always"},"ga":{"configuration":"auto","token":"UA-28909194-3"},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"search-plus":{},"chartjs":{"defaults":null},"highlight":{},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"gitbook":"3.2.2"},"file":{"path":"developers/updates.md","mtime":"2017-11-29T21:53:43.484Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2017-11-29T21:57:46.560Z"},"basePath":"..","book":{"language":""}});
         });
     </script>
 </div>
