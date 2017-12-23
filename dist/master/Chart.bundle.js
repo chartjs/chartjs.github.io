@@ -1666,7 +1666,7 @@ module.exports = {
 
 },{}],6:[function(require,module,exports){
 //! moment.js
-//! version : 2.20.0
+//! version : 2.20.1
 //! authors : Tim Wood, Iskren Chernev, Moment.js contributors
 //! license : MIT
 //! momentjs.com
@@ -6152,7 +6152,7 @@ addParseToken('x', function (input, array, config) {
 // Side effect imports
 
 
-hooks.version = '2.20.0';
+hooks.version = '2.20.1';
 
 setHookCallback(createLocal);
 
@@ -17433,6 +17433,7 @@ module.exports = function(Chart) {
 			var me = this;
 			var opts = me.options;
 			var tickOpts = opts.ticks;
+			var reverse = !me.isHorizontal();
 
 			var generationOptions = {
 				min: tickOpts.min,
@@ -17440,24 +17441,21 @@ module.exports = function(Chart) {
 			};
 			var ticks = me.ticks = Ticks.generators.logarithmic(generationOptions, me);
 
-			if (!me.isHorizontal()) {
-				// We are in a vertical orientation. The top value is the highest. So reverse the array
-				ticks.reverse();
-			}
-
 			// At this point, we need to update our max and min given the tick values since we have expanded the
 			// range of the scale
 			me.max = helpers.max(ticks);
 			me.min = helpers.min(ticks);
 
 			if (tickOpts.reverse) {
-				ticks.reverse();
-
+				reverse = !reverse;
 				me.start = me.max;
 				me.end = me.min;
 			} else {
 				me.start = me.min;
 				me.end = me.max;
+			}
+			if (reverse) {
+				ticks.reverse();
 			}
 		},
 		convertTicksToLabels: function() {
