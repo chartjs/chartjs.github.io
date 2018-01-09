@@ -1681,7 +1681,7 @@ Chart.defaults = require(25);
 Chart.Element = require(26);
 Chart.elements = require(40);
 Chart.Interaction = require(28);
-Chart.layout = require(30);
+Chart.layouts = require(30);
 Chart.platform = require(48);
 Chart.plugins = require(31);
 Chart.Ticks = require(34);
@@ -1782,13 +1782,13 @@ Chart.PluginBase = Chart.Element.extend({});
 Chart.canvasHelpers = Chart.helpers.canvas;
 
 /**
- * Provided for backward compatibility, use Chart.layout instead.
+ * Provided for backward compatibility, use Chart.layouts instead.
  * @namespace Chart.layoutService
  * @deprecated since version 2.8.0
  * @todo remove at version 3
  * @private
  */
-Chart.layoutService = Chart.layout;
+Chart.layoutService = Chart.layouts;
 
 },{"10":10,"11":11,"12":12,"13":13,"14":14,"15":15,"16":16,"17":17,"18":18,"19":19,"20":20,"21":21,"22":22,"23":23,"24":24,"25":25,"26":26,"27":27,"28":28,"29":29,"30":30,"31":31,"32":32,"33":33,"34":34,"35":35,"40":40,"45":45,"48":48,"49":49,"53":53,"54":54,"55":55,"56":56,"57":57,"58":58,"8":8,"9":9}],8:[function(require,module,exports){
 'use strict';
@@ -3819,7 +3819,7 @@ module.exports = function(Chart) {
 var defaults = require(25);
 var helpers = require(45);
 var Interaction = require(28);
-var layout = require(30);
+var layouts = require(30);
 var platform = require(48);
 var plugins = require(31);
 
@@ -3863,7 +3863,7 @@ module.exports = function(Chart) {
 		var newOptions = chart.options;
 
 		helpers.each(chart.scales, function(scale) {
-			layout.removeBox(chart, scale);
+			layouts.removeBox(chart, scale);
 		});
 
 		newOptions = helpers.configMerge(
@@ -4252,7 +4252,7 @@ module.exports = function(Chart) {
 				return;
 			}
 
-			layout.update(this, this.width, this.height);
+			layouts.update(this, this.width, this.height);
 
 			/**
 			 * Provided for backward compatibility, use `afterLayout` instead.
@@ -7944,7 +7944,7 @@ module.exports = function(Chart) {
 
 var defaults = require(25);
 var helpers = require(45);
-var layout = require(30);
+var layouts = require(30);
 
 module.exports = function(Chart) {
 
@@ -7981,7 +7981,7 @@ module.exports = function(Chart) {
 				scale.fullWidth = scale.options.fullWidth;
 				scale.position = scale.options.position;
 				scale.weight = scale.options.weight;
-				layout.addBox(chart, scale);
+				layouts.addBox(chart, scale);
 			});
 		}
 	};
@@ -11348,7 +11348,7 @@ module.exports = {
 var defaults = require(25);
 var Element = require(26);
 var helpers = require(45);
-var layout = require(30);
+var layouts = require(30);
 
 var noop = helpers.noop;
 
@@ -11868,8 +11868,8 @@ function createNewLegendAndAttach(chart, legendOpts) {
 		chart: chart
 	});
 
-	layout.configure(chart, legend, legendOpts);
-	layout.addBox(chart, legend);
+	layouts.configure(chart, legend, legendOpts);
+	layouts.addBox(chart, legend);
 	chart.legend = legend;
 }
 
@@ -11901,13 +11901,13 @@ module.exports = {
 			helpers.mergeIf(legendOpts, defaults.global.legend);
 
 			if (legend) {
-				layout.configure(chart, legend, legendOpts);
+				layouts.configure(chart, legend, legendOpts);
 				legend.options = legendOpts;
 			} else {
 				createNewLegendAndAttach(chart, legendOpts);
 			}
 		} else if (legend) {
-			layout.removeBox(chart, legend);
+			layouts.removeBox(chart, legend);
 			delete chart.legend;
 		}
 	},
@@ -11926,7 +11926,7 @@ module.exports = {
 var defaults = require(25);
 var Element = require(26);
 var helpers = require(45);
-var layout = require(30);
+var layouts = require(30);
 
 var noop = helpers.noop;
 
@@ -12129,8 +12129,8 @@ function createNewTitleBlockAndAttach(chart, titleOpts) {
 		chart: chart
 	});
 
-	layout.configure(chart, title, titleOpts);
-	layout.addBox(chart, title);
+	layouts.configure(chart, title, titleOpts);
+	layouts.addBox(chart, title);
 	chart.titleBlock = title;
 }
 
@@ -12162,13 +12162,13 @@ module.exports = {
 			helpers.mergeIf(titleOpts, defaults.global.title);
 
 			if (titleBlock) {
-				layout.configure(chart, titleBlock, titleOpts);
+				layouts.configure(chart, titleBlock, titleOpts);
 				titleBlock.options = titleOpts;
 			} else {
 				createNewTitleBlockAndAttach(chart, titleOpts);
 			}
 		} else if (titleBlock) {
-			layout.removeBox(chart, titleBlock);
+			layouts.removeBox(chart, titleBlock);
 			delete chart.titleBlock;
 		}
 	}
