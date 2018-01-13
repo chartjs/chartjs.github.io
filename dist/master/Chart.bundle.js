@@ -8727,6 +8727,10 @@ module.exports = function(Chart) {
 
 			updateConfig(me);
 
+			// plugins options references might have change, let's invalidate the cache
+			// https://github.com/chartjs/Chart.js/issues/5111#issuecomment-355934167
+			plugins._invalidate(me);
+
 			if (plugins.notify(me, 'beforeUpdate') === false) {
 				return;
 			}
@@ -11291,7 +11295,7 @@ module.exports = {
 	 * @private
 	 */
 	descriptors: function(chart) {
-		var cache = chart._plugins || (chart._plugins = {});
+		var cache = chart.$plugins || (chart.$plugins = {});
 		if (cache.id === this._cacheId) {
 			return cache.descriptors;
 		}
@@ -11327,6 +11331,16 @@ module.exports = {
 		cache.descriptors = descriptors;
 		cache.id = this._cacheId;
 		return descriptors;
+	},
+
+	/**
+	 * Invalidates cache for the given chart: descriptors hold a reference on plugin option,
+	 * but in some cases, this reference can be changed by the user when updating options.
+	 * https://github.com/chartjs/Chart.js/issues/5111#issuecomment-355934167
+	 * @private
+	 */
+	_invalidate: function(chart) {
+		delete chart.$plugins;
 	}
 };
 
