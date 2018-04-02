@@ -6176,35 +6176,36 @@ module.exports = {
 /**
  * @namespace Chart
  */
-var Chart = require(29)();
+var Chart = require(30)();
 
-Chart.helpers = require(45);
+Chart.helpers = require(46);
 
 // @todo dispatch these helpers into appropriated helpers/helpers.* file and write unit tests!
-require(27)(Chart);
+require(28)(Chart);
 
-Chart.defaults = require(25);
-Chart.Element = require(26);
-Chart.elements = require(40);
-Chart.Interaction = require(28);
-Chart.layouts = require(30);
-Chart.platform = require(48);
-Chart.plugins = require(31);
-Chart.Ticks = require(34);
+Chart.Animation = require(22);
+Chart.animationService = require(23);
+Chart.defaults = require(26);
+Chart.Element = require(27);
+Chart.elements = require(41);
+Chart.Interaction = require(29);
+Chart.layouts = require(31);
+Chart.platform = require(49);
+Chart.plugins = require(32);
+Chart.Ticks = require(35);
+Chart.Tooltip = require(36);
 
-require(22)(Chart);
-require(23)(Chart);
 require(24)(Chart);
+require(25)(Chart);
+require(34)(Chart);
 require(33)(Chart);
-require(32)(Chart);
-require(35)(Chart);
 
-require(55)(Chart);
-require(53)(Chart);
-require(54)(Chart);
 require(56)(Chart);
+require(54)(Chart);
+require(55)(Chart);
 require(57)(Chart);
 require(58)(Chart);
+require(59)(Chart);
 
 // Controllers must be loaded after elements
 // See Chart.core.datasetController.dataElementType
@@ -6225,7 +6226,7 @@ require(13)(Chart);
 require(14)(Chart);
 
 // Loading built-it plugins
-var plugins = require(49);
+var plugins = require(50);
 for (var k in plugins) {
 	if (plugins.hasOwnProperty(k)) {
 		Chart.plugins.register(plugins[k]);
@@ -6296,7 +6297,7 @@ Chart.canvasHelpers = Chart.helpers.canvas;
  */
 Chart.layoutService = Chart.layouts;
 
-},{"10":10,"11":11,"12":12,"13":13,"14":14,"15":15,"16":16,"17":17,"18":18,"19":19,"20":20,"21":21,"22":22,"23":23,"24":24,"25":25,"26":26,"27":27,"28":28,"29":29,"30":30,"31":31,"32":32,"33":33,"34":34,"35":35,"40":40,"45":45,"48":48,"49":49,"53":53,"54":54,"55":55,"56":56,"57":57,"58":58,"8":8,"9":9}],8:[function(require,module,exports){
+},{"10":10,"11":11,"12":12,"13":13,"14":14,"15":15,"16":16,"17":17,"18":18,"19":19,"20":20,"21":21,"22":22,"23":23,"24":24,"25":25,"26":26,"27":27,"28":28,"29":29,"30":30,"31":31,"32":32,"33":33,"34":34,"35":35,"36":36,"41":41,"46":46,"49":49,"50":50,"54":54,"55":55,"56":56,"57":57,"58":58,"59":59,"8":8,"9":9}],8:[function(require,module,exports){
 'use strict';
 
 module.exports = function(Chart) {
@@ -6386,9 +6387,9 @@ module.exports = function(Chart) {
 },{}],15:[function(require,module,exports){
 'use strict';
 
-var defaults = require(25);
-var elements = require(40);
-var helpers = require(45);
+var defaults = require(26);
+var elements = require(41);
+var helpers = require(46);
 
 defaults._set('bar', {
 	hover: {
@@ -6889,12 +6890,12 @@ module.exports = function(Chart) {
 	});
 };
 
-},{"25":25,"40":40,"45":45}],16:[function(require,module,exports){
+},{"26":26,"41":41,"46":46}],16:[function(require,module,exports){
 'use strict';
 
-var defaults = require(25);
-var elements = require(40);
-var helpers = require(45);
+var defaults = require(26);
+var elements = require(41);
+var helpers = require(46);
 
 defaults._set('bubble', {
 	hover: {
@@ -7071,12 +7072,12 @@ module.exports = function(Chart) {
 	});
 };
 
-},{"25":25,"40":40,"45":45}],17:[function(require,module,exports){
+},{"26":26,"41":41,"46":46}],17:[function(require,module,exports){
 'use strict';
 
-var defaults = require(25);
-var elements = require(40);
-var helpers = require(45);
+var defaults = require(26);
+var elements = require(41);
+var helpers = require(46);
 
 defaults._set('doughnut', {
 	animation: {
@@ -7372,12 +7373,12 @@ module.exports = function(Chart) {
 	});
 };
 
-},{"25":25,"40":40,"45":45}],18:[function(require,module,exports){
+},{"26":26,"41":41,"46":46}],18:[function(require,module,exports){
 'use strict';
 
-var defaults = require(25);
-var elements = require(40);
-var helpers = require(45);
+var defaults = require(26);
+var elements = require(41);
+var helpers = require(46);
 
 defaults._set('line', {
 	showLines: true,
@@ -7707,12 +7708,12 @@ module.exports = function(Chart) {
 	});
 };
 
-},{"25":25,"40":40,"45":45}],19:[function(require,module,exports){
+},{"26":26,"41":41,"46":46}],19:[function(require,module,exports){
 'use strict';
 
-var defaults = require(25);
-var elements = require(40);
-var helpers = require(45);
+var defaults = require(26);
+var elements = require(41);
+var helpers = require(46);
 
 defaults._set('polarArea', {
 	scale: {
@@ -7931,12 +7932,12 @@ module.exports = function(Chart) {
 	});
 };
 
-},{"25":25,"40":40,"45":45}],20:[function(require,module,exports){
+},{"26":26,"41":41,"46":46}],20:[function(require,module,exports){
 'use strict';
 
-var defaults = require(25);
-var elements = require(40);
-var helpers = require(45);
+var defaults = require(26);
+var elements = require(41);
+var helpers = require(46);
 
 defaults._set('radar', {
 	scale: {
@@ -8101,10 +8102,10 @@ module.exports = function(Chart) {
 	});
 };
 
-},{"25":25,"40":40,"45":45}],21:[function(require,module,exports){
+},{"26":26,"41":41,"46":46}],21:[function(require,module,exports){
 'use strict';
 
-var defaults = require(25);
+var defaults = require(26);
 
 defaults._set('scatter', {
 	hover: {
@@ -8145,13 +8146,57 @@ module.exports = function(Chart) {
 
 };
 
-},{"25":25}],22:[function(require,module,exports){
+},{"26":26}],22:[function(require,module,exports){
+'use strict';
+
+var Element = require(27);
+
+var exports = module.exports = Element.extend({
+	chart: null, // the animation associated chart instance
+	currentStep: 0, // the current animation step
+	numSteps: 60, // default number of steps
+	easing: '', // the easing to use for this animation
+	render: null, // render function used by the animation service
+
+	onAnimationProgress: null, // user specified callback to fire on each step of the animation
+	onAnimationComplete: null, // user specified callback to fire when the animation finishes
+});
+
+// DEPRECATIONS
+
+/**
+ * Provided for backward compatibility, use Chart.Animation instead
+ * @prop Chart.Animation#animationObject
+ * @deprecated since version 2.6.0
+ * @todo remove at version 3
+ */
+Object.defineProperty(exports.prototype, 'animationObject', {
+	get: function() {
+		return this;
+	}
+});
+
+/**
+ * Provided for backward compatibility, use Chart.Animation#chart instead
+ * @prop Chart.Animation#chartInstance
+ * @deprecated since version 2.6.0
+ * @todo remove at version 3
+ */
+Object.defineProperty(exports.prototype, 'chartInstance', {
+	get: function() {
+		return this.chart;
+	},
+	set: function(value) {
+		this.chart = value;
+	}
+});
+
+},{"27":27}],23:[function(require,module,exports){
 /* global window: false */
 'use strict';
 
-var defaults = require(25);
-var Element = require(26);
-var helpers = require(45);
+var defaults = require(26);
+var helpers = require(46);
 
 defaults._set('global', {
 	animation: {
@@ -8162,172 +8207,133 @@ defaults._set('global', {
 	}
 });
 
-module.exports = function(Chart) {
+module.exports = {
+	frameDuration: 17,
+	animations: [],
+	dropFrames: 0,
+	request: null,
 
-	Chart.Animation = Element.extend({
-		chart: null, // the animation associated chart instance
-		currentStep: 0, // the current animation step
-		numSteps: 60, // default number of steps
-		easing: '', // the easing to use for this animation
-		render: null, // render function used by the animation service
+	/**
+	 * @param {Chart} chart - The chart to animate.
+	 * @param {Chart.Animation} animation - The animation that we will animate.
+	 * @param {Number} duration - The animation duration in ms.
+	 * @param {Boolean} lazy - if true, the chart is not marked as animating to enable more responsive interactions
+	 */
+	addAnimation: function(chart, animation, duration, lazy) {
+		var animations = this.animations;
+		var i, ilen;
 
-		onAnimationProgress: null, // user specified callback to fire on each step of the animation
-		onAnimationComplete: null, // user specified callback to fire when the animation finishes
-	});
+		animation.chart = chart;
 
-	Chart.animationService = {
-		frameDuration: 17,
-		animations: [],
-		dropFrames: 0,
-		request: null,
+		if (!lazy) {
+			chart.animating = true;
+		}
 
-		/**
-		 * @param {Chart} chart - The chart to animate.
-		 * @param {Chart.Animation} animation - The animation that we will animate.
-		 * @param {Number} duration - The animation duration in ms.
-		 * @param {Boolean} lazy - if true, the chart is not marked as animating to enable more responsive interactions
-		 */
-		addAnimation: function(chart, animation, duration, lazy) {
-			var animations = this.animations;
-			var i, ilen;
-
-			animation.chart = chart;
-
-			if (!lazy) {
-				chart.animating = true;
+		for (i = 0, ilen = animations.length; i < ilen; ++i) {
+			if (animations[i].chart === chart) {
+				animations[i] = animation;
+				return;
 			}
+		}
 
-			for (i = 0, ilen = animations.length; i < ilen; ++i) {
-				if (animations[i].chart === chart) {
-					animations[i] = animation;
-					return;
-				}
-			}
+		animations.push(animation);
 
-			animations.push(animation);
+		// If there are no animations queued, manually kickstart a digest, for lack of a better word
+		if (animations.length === 1) {
+			this.requestAnimationFrame();
+		}
+	},
 
-			// If there are no animations queued, manually kickstart a digest, for lack of a better word
-			if (animations.length === 1) {
-				this.requestAnimationFrame();
-			}
-		},
+	cancelAnimation: function(chart) {
+		var index = helpers.findIndex(this.animations, function(animation) {
+			return animation.chart === chart;
+		});
 
-		cancelAnimation: function(chart) {
-			var index = helpers.findIndex(this.animations, function(animation) {
-				return animation.chart === chart;
+		if (index !== -1) {
+			this.animations.splice(index, 1);
+			chart.animating = false;
+		}
+	},
+
+	requestAnimationFrame: function() {
+		var me = this;
+		if (me.request === null) {
+			// Skip animation frame requests until the active one is executed.
+			// This can happen when processing mouse events, e.g. 'mousemove'
+			// and 'mouseout' events will trigger multiple renders.
+			me.request = helpers.requestAnimFrame.call(window, function() {
+				me.request = null;
+				me.startDigest();
 			});
+		}
+	},
 
-			if (index !== -1) {
-				this.animations.splice(index, 1);
+	/**
+	 * @private
+	 */
+	startDigest: function() {
+		var me = this;
+		var startTime = Date.now();
+		var framesToDrop = 0;
+
+		if (me.dropFrames > 1) {
+			framesToDrop = Math.floor(me.dropFrames);
+			me.dropFrames = me.dropFrames % 1;
+		}
+
+		me.advance(1 + framesToDrop);
+
+		var endTime = Date.now();
+
+		me.dropFrames += (endTime - startTime) / me.frameDuration;
+
+		// Do we have more stuff to animate?
+		if (me.animations.length > 0) {
+			me.requestAnimationFrame();
+		}
+	},
+
+	/**
+	 * @private
+	 */
+	advance: function(count) {
+		var animations = this.animations;
+		var animation, chart;
+		var i = 0;
+
+		while (i < animations.length) {
+			animation = animations[i];
+			chart = animation.chart;
+
+			animation.currentStep = (animation.currentStep || 0) + count;
+			animation.currentStep = Math.min(animation.currentStep, animation.numSteps);
+
+			helpers.callback(animation.render, [chart, animation], chart);
+			helpers.callback(animation.onAnimationProgress, [animation], chart);
+
+			if (animation.currentStep >= animation.numSteps) {
+				helpers.callback(animation.onAnimationComplete, [animation], chart);
 				chart.animating = false;
-			}
-		},
-
-		requestAnimationFrame: function() {
-			var me = this;
-			if (me.request === null) {
-				// Skip animation frame requests until the active one is executed.
-				// This can happen when processing mouse events, e.g. 'mousemove'
-				// and 'mouseout' events will trigger multiple renders.
-				me.request = helpers.requestAnimFrame.call(window, function() {
-					me.request = null;
-					me.startDigest();
-				});
-			}
-		},
-
-		/**
-		 * @private
-		 */
-		startDigest: function() {
-			var me = this;
-			var startTime = Date.now();
-			var framesToDrop = 0;
-
-			if (me.dropFrames > 1) {
-				framesToDrop = Math.floor(me.dropFrames);
-				me.dropFrames = me.dropFrames % 1;
-			}
-
-			me.advance(1 + framesToDrop);
-
-			var endTime = Date.now();
-
-			me.dropFrames += (endTime - startTime) / me.frameDuration;
-
-			// Do we have more stuff to animate?
-			if (me.animations.length > 0) {
-				me.requestAnimationFrame();
-			}
-		},
-
-		/**
-		 * @private
-		 */
-		advance: function(count) {
-			var animations = this.animations;
-			var animation, chart;
-			var i = 0;
-
-			while (i < animations.length) {
-				animation = animations[i];
-				chart = animation.chart;
-
-				animation.currentStep = (animation.currentStep || 0) + count;
-				animation.currentStep = Math.min(animation.currentStep, animation.numSteps);
-
-				helpers.callback(animation.render, [chart, animation], chart);
-				helpers.callback(animation.onAnimationProgress, [animation], chart);
-
-				if (animation.currentStep >= animation.numSteps) {
-					helpers.callback(animation.onAnimationComplete, [animation], chart);
-					chart.animating = false;
-					animations.splice(i, 1);
-				} else {
-					++i;
-				}
+				animations.splice(i, 1);
+			} else {
+				++i;
 			}
 		}
-	};
-
-	/**
-	 * Provided for backward compatibility, use Chart.Animation instead
-	 * @prop Chart.Animation#animationObject
-	 * @deprecated since version 2.6.0
-	 * @todo remove at version 3
-	 */
-	Object.defineProperty(Chart.Animation.prototype, 'animationObject', {
-		get: function() {
-			return this;
-		}
-	});
-
-	/**
-	 * Provided for backward compatibility, use Chart.Animation#chart instead
-	 * @prop Chart.Animation#chartInstance
-	 * @deprecated since version 2.6.0
-	 * @todo remove at version 3
-	 */
-	Object.defineProperty(Chart.Animation.prototype, 'chartInstance', {
-		get: function() {
-			return this.chart;
-		},
-		set: function(value) {
-			this.chart = value;
-		}
-	});
-
+	}
 };
 
-},{"25":25,"26":26,"45":45}],23:[function(require,module,exports){
+},{"26":26,"46":46}],24:[function(require,module,exports){
 'use strict';
 
-var defaults = require(25);
-var helpers = require(45);
-var Interaction = require(28);
-var layouts = require(30);
-var platform = require(48);
-var plugins = require(31);
+var Animation = require(22);
+var animations = require(23);
+var defaults = require(26);
+var helpers = require(46);
+var Interaction = require(29);
+var layouts = require(31);
+var platform = require(49);
+var plugins = require(32);
+var Tooltip = require(36);
 
 module.exports = function(Chart) {
 
@@ -8486,7 +8492,7 @@ module.exports = function(Chart) {
 
 		stop: function() {
 			// Stops any current animation loop occurring
-			Chart.animationService.cancelAnimation(this);
+			animations.cancelAnimation(this);
 			return this;
 		},
 
@@ -8841,7 +8847,7 @@ module.exports = function(Chart) {
 			};
 
 			if (animationOptions && ((typeof duration !== 'undefined' && duration !== 0) || (typeof duration === 'undefined' && animationOptions.duration !== 0))) {
-				var animation = new Chart.Animation({
+				var animation = new Animation({
 					numSteps: (duration || animationOptions.duration) / 16.66, // 60 fps
 					easing: config.easing || animationOptions.easing,
 
@@ -8857,12 +8863,12 @@ module.exports = function(Chart) {
 					onAnimationComplete: onComplete
 				});
 
-				Chart.animationService.addAnimation(me, animation, duration, lazy);
+				animations.addAnimation(me, animation, duration, lazy);
 			} else {
 				me.draw();
 
 				// See https://github.com/chartjs/Chart.js/issues/3781
-				onComplete(new Chart.Animation({numSteps: 0, chart: me}));
+				onComplete(new Animation({numSteps: 0, chart: me}));
 			}
 
 			return me;
@@ -9097,7 +9103,7 @@ module.exports = function(Chart) {
 
 		initToolTip: function() {
 			var me = this;
-			me.tooltip = new Chart.Tooltip({
+			me.tooltip = new Tooltip({
 				_chart: me,
 				_chartInstance: me, // deprecated, backward compatibility
 				_data: me.data,
@@ -9268,10 +9274,10 @@ module.exports = function(Chart) {
 	Chart.Controller = Chart;
 };
 
-},{"25":25,"28":28,"30":30,"31":31,"45":45,"48":48}],24:[function(require,module,exports){
+},{"22":22,"23":23,"26":26,"29":29,"31":31,"32":32,"36":36,"46":46,"49":49}],25:[function(require,module,exports){
 'use strict';
 
-var helpers = require(45);
+var helpers = require(46);
 
 module.exports = function(Chart) {
 
@@ -9600,10 +9606,10 @@ module.exports = function(Chart) {
 	Chart.DatasetController.extend = helpers.inherits;
 };
 
-},{"45":45}],25:[function(require,module,exports){
+},{"46":46}],26:[function(require,module,exports){
 'use strict';
 
-var helpers = require(45);
+var helpers = require(46);
 
 module.exports = {
 	/**
@@ -9614,11 +9620,11 @@ module.exports = {
 	}
 };
 
-},{"45":45}],26:[function(require,module,exports){
+},{"46":46}],27:[function(require,module,exports){
 'use strict';
 
 var color = require(2);
-var helpers = require(45);
+var helpers = require(46);
 
 function interpolate(start, view, model, ease) {
 	var keys = Object.keys(model);
@@ -9731,14 +9737,14 @@ Element.extend = helpers.inherits;
 
 module.exports = Element;
 
-},{"2":2,"45":45}],27:[function(require,module,exports){
+},{"2":2,"46":46}],28:[function(require,module,exports){
 /* global window: false */
 /* global document: false */
 'use strict';
 
 var color = require(2);
-var defaults = require(25);
-var helpers = require(45);
+var defaults = require(26);
+var helpers = require(46);
 
 module.exports = function(Chart) {
 
@@ -10344,10 +10350,10 @@ module.exports = function(Chart) {
 	};
 };
 
-},{"2":2,"25":25,"45":45}],28:[function(require,module,exports){
+},{"2":2,"26":26,"46":46}],29:[function(require,module,exports){
 'use strict';
 
-var helpers = require(45);
+var helpers = require(46);
 
 /**
  * Helper function to get relative position for an event
@@ -10676,10 +10682,10 @@ module.exports = {
 	}
 };
 
-},{"45":45}],29:[function(require,module,exports){
+},{"46":46}],30:[function(require,module,exports){
 'use strict';
 
-var defaults = require(25);
+var defaults = require(26);
 
 defaults._set('global', {
 	responsive: true,
@@ -10727,10 +10733,10 @@ module.exports = function() {
 	return Chart;
 };
 
-},{"25":25}],30:[function(require,module,exports){
+},{"26":26}],31:[function(require,module,exports){
 'use strict';
 
-var helpers = require(45);
+var helpers = require(46);
 
 function filterByPosition(array, position) {
 	return helpers.where(array, function(v) {
@@ -11148,11 +11154,11 @@ module.exports = {
 	}
 };
 
-},{"45":45}],31:[function(require,module,exports){
+},{"46":46}],32:[function(require,module,exports){
 'use strict';
 
-var defaults = require(25);
-var helpers = require(45);
+var defaults = require(26);
+var helpers = require(46);
 
 defaults._set('global', {
 	plugins: {}
@@ -11532,13 +11538,13 @@ module.exports = {
  * @param {Object} options - The plugin options.
  */
 
-},{"25":25,"45":45}],32:[function(require,module,exports){
+},{"26":26,"46":46}],33:[function(require,module,exports){
 'use strict';
 
-var defaults = require(25);
-var Element = require(26);
-var helpers = require(45);
-var Ticks = require(34);
+var defaults = require(26);
+var Element = require(27);
+var helpers = require(46);
+var Ticks = require(35);
 
 defaults._set('scale', {
 	display: true,
@@ -12470,12 +12476,12 @@ module.exports = function(Chart) {
 	});
 };
 
-},{"25":25,"26":26,"34":34,"45":45}],33:[function(require,module,exports){
+},{"26":26,"27":27,"35":35,"46":46}],34:[function(require,module,exports){
 'use strict';
 
-var defaults = require(25);
-var helpers = require(45);
-var layouts = require(30);
+var defaults = require(26);
+var helpers = require(46);
+var layouts = require(31);
 
 module.exports = function(Chart) {
 
@@ -12518,10 +12524,10 @@ module.exports = function(Chart) {
 	};
 };
 
-},{"25":25,"30":30,"45":45}],34:[function(require,module,exports){
+},{"26":26,"31":31,"46":46}],35:[function(require,module,exports){
 'use strict';
 
-var helpers = require(45);
+var helpers = require(46);
 
 /**
  * Namespace to hold static tick generation functions
@@ -12590,12 +12596,12 @@ module.exports = {
 	}
 };
 
-},{"45":45}],35:[function(require,module,exports){
+},{"46":46}],36:[function(require,module,exports){
 'use strict';
 
-var defaults = require(25);
-var Element = require(26);
-var helpers = require(45);
+var defaults = require(26);
+var Element = require(27);
+var helpers = require(46);
 
 defaults._set('global', {
 	tooltips: {
@@ -12689,289 +12695,69 @@ defaults._set('global', {
 	}
 });
 
-module.exports = function(Chart) {
-
+var positioners = {
 	/**
- 	 * Helper method to merge the opacity into a color
- 	 */
-	function mergeOpacity(colorString, opacity) {
-		var color = helpers.color(colorString);
-		return color.alpha(opacity * color.alpha()).rgbaString();
-	}
-
-	// Helper to push or concat based on if the 2nd parameter is an array or not
-	function pushOrConcat(base, toPush) {
-		if (toPush) {
-			if (helpers.isArray(toPush)) {
-				// base = base.concat(toPush);
-				Array.prototype.push.apply(base, toPush);
-			} else {
-				base.push(toPush);
-			}
+	 * Average mode places the tooltip at the average position of the elements shown
+	 * @function Chart.Tooltip.positioners.average
+	 * @param elements {ChartElement[]} the elements being displayed in the tooltip
+	 * @returns {Point} tooltip position
+	 */
+	average: function(elements) {
+		if (!elements.length) {
+			return false;
 		}
 
-		return base;
-	}
+		var i, len;
+		var x = 0;
+		var y = 0;
+		var count = 0;
 
-	// Private helper to create a tooltip item model
-	// @param element : the chart element (point, arc, bar) to create the tooltip item for
-	// @return : new tooltip item
-	function createTooltipItem(element) {
-		var xScale = element._xScale;
-		var yScale = element._yScale || element._scale; // handle radar || polarArea charts
-		var index = element._index;
-		var datasetIndex = element._datasetIndex;
+		for (i = 0, len = elements.length; i < len; ++i) {
+			var el = elements[i];
+			if (el && el.hasValue()) {
+				var pos = el.tooltipPosition();
+				x += pos.x;
+				y += pos.y;
+				++count;
+			}
+		}
 
 		return {
-			xLabel: xScale ? xScale.getLabelForIndex(index, datasetIndex) : '',
-			yLabel: yScale ? yScale.getLabelForIndex(index, datasetIndex) : '',
-			index: index,
-			datasetIndex: datasetIndex,
-			x: element._model.x,
-			y: element._model.y
+			x: Math.round(x / count),
+			y: Math.round(y / count)
 		};
-	}
+	},
 
 	/**
-	 * Helper to get the reset model for the tooltip
-	 * @param tooltipOpts {Object} the tooltip options
+	 * Gets the tooltip position nearest of the item nearest to the event position
+	 * @function Chart.Tooltip.positioners.nearest
+	 * @param elements {Chart.Element[]} the tooltip elements
+	 * @param eventPosition {Point} the position of the event in canvas coordinates
+	 * @returns {Point} the tooltip position
 	 */
-	function getBaseModel(tooltipOpts) {
-		var globalDefaults = defaults.global;
-		var valueOrDefault = helpers.valueOrDefault;
+	nearest: function(elements, eventPosition) {
+		var x = eventPosition.x;
+		var y = eventPosition.y;
+		var minDistance = Number.POSITIVE_INFINITY;
+		var i, len, nearestElement;
 
-		return {
-			// Positioning
-			xPadding: tooltipOpts.xPadding,
-			yPadding: tooltipOpts.yPadding,
-			xAlign: tooltipOpts.xAlign,
-			yAlign: tooltipOpts.yAlign,
+		for (i = 0, len = elements.length; i < len; ++i) {
+			var el = elements[i];
+			if (el && el.hasValue()) {
+				var center = el.getCenterPoint();
+				var d = helpers.distanceBetweenPoints(eventPosition, center);
 
-			// Body
-			bodyFontColor: tooltipOpts.bodyFontColor,
-			_bodyFontFamily: valueOrDefault(tooltipOpts.bodyFontFamily, globalDefaults.defaultFontFamily),
-			_bodyFontStyle: valueOrDefault(tooltipOpts.bodyFontStyle, globalDefaults.defaultFontStyle),
-			_bodyAlign: tooltipOpts.bodyAlign,
-			bodyFontSize: valueOrDefault(tooltipOpts.bodyFontSize, globalDefaults.defaultFontSize),
-			bodySpacing: tooltipOpts.bodySpacing,
-
-			// Title
-			titleFontColor: tooltipOpts.titleFontColor,
-			_titleFontFamily: valueOrDefault(tooltipOpts.titleFontFamily, globalDefaults.defaultFontFamily),
-			_titleFontStyle: valueOrDefault(tooltipOpts.titleFontStyle, globalDefaults.defaultFontStyle),
-			titleFontSize: valueOrDefault(tooltipOpts.titleFontSize, globalDefaults.defaultFontSize),
-			_titleAlign: tooltipOpts.titleAlign,
-			titleSpacing: tooltipOpts.titleSpacing,
-			titleMarginBottom: tooltipOpts.titleMarginBottom,
-
-			// Footer
-			footerFontColor: tooltipOpts.footerFontColor,
-			_footerFontFamily: valueOrDefault(tooltipOpts.footerFontFamily, globalDefaults.defaultFontFamily),
-			_footerFontStyle: valueOrDefault(tooltipOpts.footerFontStyle, globalDefaults.defaultFontStyle),
-			footerFontSize: valueOrDefault(tooltipOpts.footerFontSize, globalDefaults.defaultFontSize),
-			_footerAlign: tooltipOpts.footerAlign,
-			footerSpacing: tooltipOpts.footerSpacing,
-			footerMarginTop: tooltipOpts.footerMarginTop,
-
-			// Appearance
-			caretSize: tooltipOpts.caretSize,
-			cornerRadius: tooltipOpts.cornerRadius,
-			backgroundColor: tooltipOpts.backgroundColor,
-			opacity: 0,
-			legendColorBackground: tooltipOpts.multiKeyBackground,
-			displayColors: tooltipOpts.displayColors,
-			borderColor: tooltipOpts.borderColor,
-			borderWidth: tooltipOpts.borderWidth
-		};
-	}
-
-	/**
-	 * Get the size of the tooltip
-	 */
-	function getTooltipSize(tooltip, model) {
-		var ctx = tooltip._chart.ctx;
-
-		var height = model.yPadding * 2; // Tooltip Padding
-		var width = 0;
-
-		// Count of all lines in the body
-		var body = model.body;
-		var combinedBodyLength = body.reduce(function(count, bodyItem) {
-			return count + bodyItem.before.length + bodyItem.lines.length + bodyItem.after.length;
-		}, 0);
-		combinedBodyLength += model.beforeBody.length + model.afterBody.length;
-
-		var titleLineCount = model.title.length;
-		var footerLineCount = model.footer.length;
-		var titleFontSize = model.titleFontSize;
-		var bodyFontSize = model.bodyFontSize;
-		var footerFontSize = model.footerFontSize;
-
-		height += titleLineCount * titleFontSize; // Title Lines
-		height += titleLineCount ? (titleLineCount - 1) * model.titleSpacing : 0; // Title Line Spacing
-		height += titleLineCount ? model.titleMarginBottom : 0; // Title's bottom Margin
-		height += combinedBodyLength * bodyFontSize; // Body Lines
-		height += combinedBodyLength ? (combinedBodyLength - 1) * model.bodySpacing : 0; // Body Line Spacing
-		height += footerLineCount ? model.footerMarginTop : 0; // Footer Margin
-		height += footerLineCount * (footerFontSize); // Footer Lines
-		height += footerLineCount ? (footerLineCount - 1) * model.footerSpacing : 0; // Footer Line Spacing
-
-		// Title width
-		var widthPadding = 0;
-		var maxLineWidth = function(line) {
-			width = Math.max(width, ctx.measureText(line).width + widthPadding);
-		};
-
-		ctx.font = helpers.fontString(titleFontSize, model._titleFontStyle, model._titleFontFamily);
-		helpers.each(model.title, maxLineWidth);
-
-		// Body width
-		ctx.font = helpers.fontString(bodyFontSize, model._bodyFontStyle, model._bodyFontFamily);
-		helpers.each(model.beforeBody.concat(model.afterBody), maxLineWidth);
-
-		// Body lines may include some extra width due to the color box
-		widthPadding = model.displayColors ? (bodyFontSize + 2) : 0;
-		helpers.each(body, function(bodyItem) {
-			helpers.each(bodyItem.before, maxLineWidth);
-			helpers.each(bodyItem.lines, maxLineWidth);
-			helpers.each(bodyItem.after, maxLineWidth);
-		});
-
-		// Reset back to 0
-		widthPadding = 0;
-
-		// Footer width
-		ctx.font = helpers.fontString(footerFontSize, model._footerFontStyle, model._footerFontFamily);
-		helpers.each(model.footer, maxLineWidth);
-
-		// Add padding
-		width += 2 * model.xPadding;
-
-		return {
-			width: width,
-			height: height
-		};
-	}
-
-	/**
-	 * Helper to get the alignment of a tooltip given the size
-	 */
-	function determineAlignment(tooltip, size) {
-		var model = tooltip._model;
-		var chart = tooltip._chart;
-		var chartArea = tooltip._chart.chartArea;
-		var xAlign = 'center';
-		var yAlign = 'center';
-
-		if (model.y < size.height) {
-			yAlign = 'top';
-		} else if (model.y > (chart.height - size.height)) {
-			yAlign = 'bottom';
-		}
-
-		var lf, rf; // functions to determine left, right alignment
-		var olf, orf; // functions to determine if left/right alignment causes tooltip to go outside chart
-		var yf; // function to get the y alignment if the tooltip goes outside of the left or right edges
-		var midX = (chartArea.left + chartArea.right) / 2;
-		var midY = (chartArea.top + chartArea.bottom) / 2;
-
-		if (yAlign === 'center') {
-			lf = function(x) {
-				return x <= midX;
-			};
-			rf = function(x) {
-				return x > midX;
-			};
-		} else {
-			lf = function(x) {
-				return x <= (size.width / 2);
-			};
-			rf = function(x) {
-				return x >= (chart.width - (size.width / 2));
-			};
-		}
-
-		olf = function(x) {
-			return x + size.width + model.caretSize + model.caretPadding > chart.width;
-		};
-		orf = function(x) {
-			return x - size.width - model.caretSize - model.caretPadding < 0;
-		};
-		yf = function(y) {
-			return y <= midY ? 'top' : 'bottom';
-		};
-
-		if (lf(model.x)) {
-			xAlign = 'left';
-
-			// Is tooltip too wide and goes over the right side of the chart.?
-			if (olf(model.x)) {
-				xAlign = 'center';
-				yAlign = yf(model.y);
-			}
-		} else if (rf(model.x)) {
-			xAlign = 'right';
-
-			// Is tooltip too wide and goes outside left edge of canvas?
-			if (orf(model.x)) {
-				xAlign = 'center';
-				yAlign = yf(model.y);
+				if (d < minDistance) {
+					minDistance = d;
+					nearestElement = el;
+				}
 			}
 		}
 
-		var opts = tooltip._options;
-		return {
-			xAlign: opts.xAlign ? opts.xAlign : xAlign,
-			yAlign: opts.yAlign ? opts.yAlign : yAlign
-		};
-	}
-
-	/**
-	 * @Helper to get the location a tooltip needs to be placed at given the initial position (via the vm) and the size and alignment
-	 */
-	function getBackgroundPoint(vm, size, alignment, chart) {
-		// Background Position
-		var x = vm.x;
-		var y = vm.y;
-
-		var caretSize = vm.caretSize;
-		var caretPadding = vm.caretPadding;
-		var cornerRadius = vm.cornerRadius;
-		var xAlign = alignment.xAlign;
-		var yAlign = alignment.yAlign;
-		var paddingAndSize = caretSize + caretPadding;
-		var radiusAndPadding = cornerRadius + caretPadding;
-
-		if (xAlign === 'right') {
-			x -= size.width;
-		} else if (xAlign === 'center') {
-			x -= (size.width / 2);
-			if (x + size.width > chart.width) {
-				x = chart.width - size.width;
-			}
-			if (x < 0) {
-				x = 0;
-			}
-		}
-
-		if (yAlign === 'top') {
-			y += paddingAndSize;
-		} else if (yAlign === 'bottom') {
-			y -= size.height + paddingAndSize;
-		} else {
-			y -= (size.height / 2);
-		}
-
-		if (yAlign === 'center') {
-			if (xAlign === 'left') {
-				x += paddingAndSize;
-			} else if (xAlign === 'right') {
-				x -= paddingAndSize;
-			}
-		} else if (xAlign === 'left') {
-			x -= radiusAndPadding;
-		} else if (xAlign === 'right') {
-			x += radiusAndPadding;
+		if (nearestElement) {
+			var tp = nearestElement.tooltipPosition();
+			x = tp.x;
+			y = tp.y;
 		}
 
 		return {
@@ -12979,573 +12765,799 @@ module.exports = function(Chart) {
 			y: y
 		};
 	}
-
-	Chart.Tooltip = Element.extend({
-		initialize: function() {
-			this._model = getBaseModel(this._options);
-			this._lastActive = [];
-		},
-
-		// Get the title
-		// Args are: (tooltipItem, data)
-		getTitle: function() {
-			var me = this;
-			var opts = me._options;
-			var callbacks = opts.callbacks;
-
-			var beforeTitle = callbacks.beforeTitle.apply(me, arguments);
-			var title = callbacks.title.apply(me, arguments);
-			var afterTitle = callbacks.afterTitle.apply(me, arguments);
-
-			var lines = [];
-			lines = pushOrConcat(lines, beforeTitle);
-			lines = pushOrConcat(lines, title);
-			lines = pushOrConcat(lines, afterTitle);
-
-			return lines;
-		},
-
-		// Args are: (tooltipItem, data)
-		getBeforeBody: function() {
-			var lines = this._options.callbacks.beforeBody.apply(this, arguments);
-			return helpers.isArray(lines) ? lines : lines !== undefined ? [lines] : [];
-		},
-
-		// Args are: (tooltipItem, data)
-		getBody: function(tooltipItems, data) {
-			var me = this;
-			var callbacks = me._options.callbacks;
-			var bodyItems = [];
-
-			helpers.each(tooltipItems, function(tooltipItem) {
-				var bodyItem = {
-					before: [],
-					lines: [],
-					after: []
-				};
-				pushOrConcat(bodyItem.before, callbacks.beforeLabel.call(me, tooltipItem, data));
-				pushOrConcat(bodyItem.lines, callbacks.label.call(me, tooltipItem, data));
-				pushOrConcat(bodyItem.after, callbacks.afterLabel.call(me, tooltipItem, data));
-
-				bodyItems.push(bodyItem);
-			});
-
-			return bodyItems;
-		},
-
-		// Args are: (tooltipItem, data)
-		getAfterBody: function() {
-			var lines = this._options.callbacks.afterBody.apply(this, arguments);
-			return helpers.isArray(lines) ? lines : lines !== undefined ? [lines] : [];
-		},
-
-		// Get the footer and beforeFooter and afterFooter lines
-		// Args are: (tooltipItem, data)
-		getFooter: function() {
-			var me = this;
-			var callbacks = me._options.callbacks;
-
-			var beforeFooter = callbacks.beforeFooter.apply(me, arguments);
-			var footer = callbacks.footer.apply(me, arguments);
-			var afterFooter = callbacks.afterFooter.apply(me, arguments);
-
-			var lines = [];
-			lines = pushOrConcat(lines, beforeFooter);
-			lines = pushOrConcat(lines, footer);
-			lines = pushOrConcat(lines, afterFooter);
-
-			return lines;
-		},
-
-		update: function(changed) {
-			var me = this;
-			var opts = me._options;
-
-			// Need to regenerate the model because its faster than using extend and it is necessary due to the optimization in Chart.Element.transition
-			// that does _view = _model if ease === 1. This causes the 2nd tooltip update to set properties in both the view and model at the same time
-			// which breaks any animations.
-			var existingModel = me._model;
-			var model = me._model = getBaseModel(opts);
-			var active = me._active;
-
-			var data = me._data;
-
-			// In the case where active.length === 0 we need to keep these at existing values for good animations
-			var alignment = {
-				xAlign: existingModel.xAlign,
-				yAlign: existingModel.yAlign
-			};
-			var backgroundPoint = {
-				x: existingModel.x,
-				y: existingModel.y
-			};
-			var tooltipSize = {
-				width: existingModel.width,
-				height: existingModel.height
-			};
-			var tooltipPosition = {
-				x: existingModel.caretX,
-				y: existingModel.caretY
-			};
-
-			var i, len;
-
-			if (active.length) {
-				model.opacity = 1;
-
-				var labelColors = [];
-				var labelTextColors = [];
-				tooltipPosition = Chart.Tooltip.positioners[opts.position].call(me, active, me._eventPosition);
-
-				var tooltipItems = [];
-				for (i = 0, len = active.length; i < len; ++i) {
-					tooltipItems.push(createTooltipItem(active[i]));
-				}
-
-				// If the user provided a filter function, use it to modify the tooltip items
-				if (opts.filter) {
-					tooltipItems = tooltipItems.filter(function(a) {
-						return opts.filter(a, data);
-					});
-				}
-
-				// If the user provided a sorting function, use it to modify the tooltip items
-				if (opts.itemSort) {
-					tooltipItems = tooltipItems.sort(function(a, b) {
-						return opts.itemSort(a, b, data);
-					});
-				}
-
-				// Determine colors for boxes
-				helpers.each(tooltipItems, function(tooltipItem) {
-					labelColors.push(opts.callbacks.labelColor.call(me, tooltipItem, me._chart));
-					labelTextColors.push(opts.callbacks.labelTextColor.call(me, tooltipItem, me._chart));
-				});
-
-
-				// Build the Text Lines
-				model.title = me.getTitle(tooltipItems, data);
-				model.beforeBody = me.getBeforeBody(tooltipItems, data);
-				model.body = me.getBody(tooltipItems, data);
-				model.afterBody = me.getAfterBody(tooltipItems, data);
-				model.footer = me.getFooter(tooltipItems, data);
-
-				// Initial positioning and colors
-				model.x = Math.round(tooltipPosition.x);
-				model.y = Math.round(tooltipPosition.y);
-				model.caretPadding = opts.caretPadding;
-				model.labelColors = labelColors;
-				model.labelTextColors = labelTextColors;
-
-				// data points
-				model.dataPoints = tooltipItems;
-
-				// We need to determine alignment of the tooltip
-				tooltipSize = getTooltipSize(this, model);
-				alignment = determineAlignment(this, tooltipSize);
-				// Final Size and Position
-				backgroundPoint = getBackgroundPoint(model, tooltipSize, alignment, me._chart);
-			} else {
-				model.opacity = 0;
-			}
-
-			model.xAlign = alignment.xAlign;
-			model.yAlign = alignment.yAlign;
-			model.x = backgroundPoint.x;
-			model.y = backgroundPoint.y;
-			model.width = tooltipSize.width;
-			model.height = tooltipSize.height;
-
-			// Point where the caret on the tooltip points to
-			model.caretX = tooltipPosition.x;
-			model.caretY = tooltipPosition.y;
-
-			me._model = model;
-
-			if (changed && opts.custom) {
-				opts.custom.call(me, model);
-			}
-
-			return me;
-		},
-		drawCaret: function(tooltipPoint, size) {
-			var ctx = this._chart.ctx;
-			var vm = this._view;
-			var caretPosition = this.getCaretPosition(tooltipPoint, size, vm);
-
-			ctx.lineTo(caretPosition.x1, caretPosition.y1);
-			ctx.lineTo(caretPosition.x2, caretPosition.y2);
-			ctx.lineTo(caretPosition.x3, caretPosition.y3);
-		},
-		getCaretPosition: function(tooltipPoint, size, vm) {
-			var x1, x2, x3, y1, y2, y3;
-			var caretSize = vm.caretSize;
-			var cornerRadius = vm.cornerRadius;
-			var xAlign = vm.xAlign;
-			var yAlign = vm.yAlign;
-			var ptX = tooltipPoint.x;
-			var ptY = tooltipPoint.y;
-			var width = size.width;
-			var height = size.height;
-
-			if (yAlign === 'center') {
-				y2 = ptY + (height / 2);
-
-				if (xAlign === 'left') {
-					x1 = ptX;
-					x2 = x1 - caretSize;
-					x3 = x1;
-
-					y1 = y2 + caretSize;
-					y3 = y2 - caretSize;
-				} else {
-					x1 = ptX + width;
-					x2 = x1 + caretSize;
-					x3 = x1;
-
-					y1 = y2 - caretSize;
-					y3 = y2 + caretSize;
-				}
-			} else {
-				if (xAlign === 'left') {
-					x2 = ptX + cornerRadius + (caretSize);
-					x1 = x2 - caretSize;
-					x3 = x2 + caretSize;
-				} else if (xAlign === 'right') {
-					x2 = ptX + width - cornerRadius - caretSize;
-					x1 = x2 - caretSize;
-					x3 = x2 + caretSize;
-				} else {
-					x2 = vm.caretX;
-					x1 = x2 - caretSize;
-					x3 = x2 + caretSize;
-				}
-				if (yAlign === 'top') {
-					y1 = ptY;
-					y2 = y1 - caretSize;
-					y3 = y1;
-				} else {
-					y1 = ptY + height;
-					y2 = y1 + caretSize;
-					y3 = y1;
-					// invert drawing order
-					var tmp = x3;
-					x3 = x1;
-					x1 = tmp;
-				}
-			}
-			return {x1: x1, x2: x2, x3: x3, y1: y1, y2: y2, y3: y3};
-		},
-		drawTitle: function(pt, vm, ctx, opacity) {
-			var title = vm.title;
-
-			if (title.length) {
-				ctx.textAlign = vm._titleAlign;
-				ctx.textBaseline = 'top';
-
-				var titleFontSize = vm.titleFontSize;
-				var titleSpacing = vm.titleSpacing;
-
-				ctx.fillStyle = mergeOpacity(vm.titleFontColor, opacity);
-				ctx.font = helpers.fontString(titleFontSize, vm._titleFontStyle, vm._titleFontFamily);
-
-				var i, len;
-				for (i = 0, len = title.length; i < len; ++i) {
-					ctx.fillText(title[i], pt.x, pt.y);
-					pt.y += titleFontSize + titleSpacing; // Line Height and spacing
-
-					if (i + 1 === title.length) {
-						pt.y += vm.titleMarginBottom - titleSpacing; // If Last, add margin, remove spacing
-					}
-				}
-			}
-		},
-		drawBody: function(pt, vm, ctx, opacity) {
-			var bodyFontSize = vm.bodyFontSize;
-			var bodySpacing = vm.bodySpacing;
-			var body = vm.body;
-
-			ctx.textAlign = vm._bodyAlign;
-			ctx.textBaseline = 'top';
-			ctx.font = helpers.fontString(bodyFontSize, vm._bodyFontStyle, vm._bodyFontFamily);
-
-			// Before Body
-			var xLinePadding = 0;
-			var fillLineOfText = function(line) {
-				ctx.fillText(line, pt.x + xLinePadding, pt.y);
-				pt.y += bodyFontSize + bodySpacing;
-			};
-
-			// Before body lines
-			ctx.fillStyle = mergeOpacity(vm.bodyFontColor, opacity);
-			helpers.each(vm.beforeBody, fillLineOfText);
-
-			var drawColorBoxes = vm.displayColors;
-			xLinePadding = drawColorBoxes ? (bodyFontSize + 2) : 0;
-
-			// Draw body lines now
-			helpers.each(body, function(bodyItem, i) {
-				var textColor = mergeOpacity(vm.labelTextColors[i], opacity);
-				ctx.fillStyle = textColor;
-				helpers.each(bodyItem.before, fillLineOfText);
-
-				helpers.each(bodyItem.lines, function(line) {
-					// Draw Legend-like boxes if needed
-					if (drawColorBoxes) {
-						// Fill a white rect so that colours merge nicely if the opacity is < 1
-						ctx.fillStyle = mergeOpacity(vm.legendColorBackground, opacity);
-						ctx.fillRect(pt.x, pt.y, bodyFontSize, bodyFontSize);
-
-						// Border
-						ctx.lineWidth = 1;
-						ctx.strokeStyle = mergeOpacity(vm.labelColors[i].borderColor, opacity);
-						ctx.strokeRect(pt.x, pt.y, bodyFontSize, bodyFontSize);
-
-						// Inner square
-						ctx.fillStyle = mergeOpacity(vm.labelColors[i].backgroundColor, opacity);
-						ctx.fillRect(pt.x + 1, pt.y + 1, bodyFontSize - 2, bodyFontSize - 2);
-						ctx.fillStyle = textColor;
-					}
-
-					fillLineOfText(line);
-				});
-
-				helpers.each(bodyItem.after, fillLineOfText);
-			});
-
-			// Reset back to 0 for after body
-			xLinePadding = 0;
-
-			// After body lines
-			helpers.each(vm.afterBody, fillLineOfText);
-			pt.y -= bodySpacing; // Remove last body spacing
-		},
-		drawFooter: function(pt, vm, ctx, opacity) {
-			var footer = vm.footer;
-
-			if (footer.length) {
-				pt.y += vm.footerMarginTop;
-
-				ctx.textAlign = vm._footerAlign;
-				ctx.textBaseline = 'top';
-
-				ctx.fillStyle = mergeOpacity(vm.footerFontColor, opacity);
-				ctx.font = helpers.fontString(vm.footerFontSize, vm._footerFontStyle, vm._footerFontFamily);
-
-				helpers.each(footer, function(line) {
-					ctx.fillText(line, pt.x, pt.y);
-					pt.y += vm.footerFontSize + vm.footerSpacing;
-				});
-			}
-		},
-		drawBackground: function(pt, vm, ctx, tooltipSize, opacity) {
-			ctx.fillStyle = mergeOpacity(vm.backgroundColor, opacity);
-			ctx.strokeStyle = mergeOpacity(vm.borderColor, opacity);
-			ctx.lineWidth = vm.borderWidth;
-			var xAlign = vm.xAlign;
-			var yAlign = vm.yAlign;
-			var x = pt.x;
-			var y = pt.y;
-			var width = tooltipSize.width;
-			var height = tooltipSize.height;
-			var radius = vm.cornerRadius;
-
-			ctx.beginPath();
-			ctx.moveTo(x + radius, y);
-			if (yAlign === 'top') {
-				this.drawCaret(pt, tooltipSize);
-			}
-			ctx.lineTo(x + width - radius, y);
-			ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-			if (yAlign === 'center' && xAlign === 'right') {
-				this.drawCaret(pt, tooltipSize);
-			}
-			ctx.lineTo(x + width, y + height - radius);
-			ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-			if (yAlign === 'bottom') {
-				this.drawCaret(pt, tooltipSize);
-			}
-			ctx.lineTo(x + radius, y + height);
-			ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-			if (yAlign === 'center' && xAlign === 'left') {
-				this.drawCaret(pt, tooltipSize);
-			}
-			ctx.lineTo(x, y + radius);
-			ctx.quadraticCurveTo(x, y, x + radius, y);
-			ctx.closePath();
-
-			ctx.fill();
-
-			if (vm.borderWidth > 0) {
-				ctx.stroke();
-			}
-		},
-		draw: function() {
-			var ctx = this._chart.ctx;
-			var vm = this._view;
-
-			if (vm.opacity === 0) {
-				return;
-			}
-
-			var tooltipSize = {
-				width: vm.width,
-				height: vm.height
-			};
-			var pt = {
-				x: vm.x,
-				y: vm.y
-			};
-
-			// IE11/Edge does not like very small opacities, so snap to 0
-			var opacity = Math.abs(vm.opacity < 1e-3) ? 0 : vm.opacity;
-
-			// Truthy/falsey value for empty tooltip
-			var hasTooltipContent = vm.title.length || vm.beforeBody.length || vm.body.length || vm.afterBody.length || vm.footer.length;
-
-			if (this._options.enabled && hasTooltipContent) {
-				// Draw Background
-				this.drawBackground(pt, vm, ctx, tooltipSize, opacity);
-
-				// Draw Title, Body, and Footer
-				pt.x += vm.xPadding;
-				pt.y += vm.yPadding;
-
-				// Titles
-				this.drawTitle(pt, vm, ctx, opacity);
-
-				// Body
-				this.drawBody(pt, vm, ctx, opacity);
-
-				// Footer
-				this.drawFooter(pt, vm, ctx, opacity);
-			}
-		},
-
-		/**
-		 * Handle an event
-		 * @private
-		 * @param {IEvent} event - The event to handle
-		 * @returns {Boolean} true if the tooltip changed
-		 */
-		handleEvent: function(e) {
-			var me = this;
-			var options = me._options;
-			var changed = false;
-
-			me._lastActive = me._lastActive || [];
-
-			// Find Active Elements for tooltips
-			if (e.type === 'mouseout') {
-				me._active = [];
-			} else {
-				me._active = me._chart.getElementsAtEventForMode(e, options.mode, options);
-			}
-
-			// Remember Last Actives
-			changed = !helpers.arrayEquals(me._active, me._lastActive);
-
-			// Only handle target event on tooltip change
-			if (changed) {
-				me._lastActive = me._active;
-
-				if (options.enabled || options.custom) {
-					me._eventPosition = {
-						x: e.x,
-						y: e.y
-					};
-
-					me.update(true);
-					me.pivot();
-				}
-			}
-
-			return changed;
-		}
-	});
-
-	/**
-	 * @namespace Chart.Tooltip.positioners
-	 */
-	Chart.Tooltip.positioners = {
-		/**
-		 * Average mode places the tooltip at the average position of the elements shown
-		 * @function Chart.Tooltip.positioners.average
-		 * @param elements {ChartElement[]} the elements being displayed in the tooltip
-		 * @returns {Point} tooltip position
-		 */
-		average: function(elements) {
-			if (!elements.length) {
-				return false;
-			}
-
-			var i, len;
-			var x = 0;
-			var y = 0;
-			var count = 0;
-
-			for (i = 0, len = elements.length; i < len; ++i) {
-				var el = elements[i];
-				if (el && el.hasValue()) {
-					var pos = el.tooltipPosition();
-					x += pos.x;
-					y += pos.y;
-					++count;
-				}
-			}
-
-			return {
-				x: Math.round(x / count),
-				y: Math.round(y / count)
-			};
-		},
-
-		/**
-		 * Gets the tooltip position nearest of the item nearest to the event position
-		 * @function Chart.Tooltip.positioners.nearest
-		 * @param elements {Chart.Element[]} the tooltip elements
-		 * @param eventPosition {Point} the position of the event in canvas coordinates
-		 * @returns {Point} the tooltip position
-		 */
-		nearest: function(elements, eventPosition) {
-			var x = eventPosition.x;
-			var y = eventPosition.y;
-			var minDistance = Number.POSITIVE_INFINITY;
-			var i, len, nearestElement;
-
-			for (i = 0, len = elements.length; i < len; ++i) {
-				var el = elements[i];
-				if (el && el.hasValue()) {
-					var center = el.getCenterPoint();
-					var d = helpers.distanceBetweenPoints(eventPosition, center);
-
-					if (d < minDistance) {
-						minDistance = d;
-						nearestElement = el;
-					}
-				}
-			}
-
-			if (nearestElement) {
-				var tp = nearestElement.tooltipPosition();
-				x = tp.x;
-				y = tp.y;
-			}
-
-			return {
-				x: x,
-				y: y
-			};
-		}
-	};
 };
 
-},{"25":25,"26":26,"45":45}],36:[function(require,module,exports){
+/**
+ * Helper method to merge the opacity into a color
+ */
+function mergeOpacity(colorString, opacity) {
+	var color = helpers.color(colorString);
+	return color.alpha(opacity * color.alpha()).rgbaString();
+}
+
+// Helper to push or concat based on if the 2nd parameter is an array or not
+function pushOrConcat(base, toPush) {
+	if (toPush) {
+		if (helpers.isArray(toPush)) {
+			// base = base.concat(toPush);
+			Array.prototype.push.apply(base, toPush);
+		} else {
+			base.push(toPush);
+		}
+	}
+
+	return base;
+}
+
+// Private helper to create a tooltip item model
+// @param element : the chart element (point, arc, bar) to create the tooltip item for
+// @return : new tooltip item
+function createTooltipItem(element) {
+	var xScale = element._xScale;
+	var yScale = element._yScale || element._scale; // handle radar || polarArea charts
+	var index = element._index;
+	var datasetIndex = element._datasetIndex;
+
+	return {
+		xLabel: xScale ? xScale.getLabelForIndex(index, datasetIndex) : '',
+		yLabel: yScale ? yScale.getLabelForIndex(index, datasetIndex) : '',
+		index: index,
+		datasetIndex: datasetIndex,
+		x: element._model.x,
+		y: element._model.y
+	};
+}
+
+/**
+ * Helper to get the reset model for the tooltip
+ * @param tooltipOpts {Object} the tooltip options
+ */
+function getBaseModel(tooltipOpts) {
+	var globalDefaults = defaults.global;
+	var valueOrDefault = helpers.valueOrDefault;
+
+	return {
+		// Positioning
+		xPadding: tooltipOpts.xPadding,
+		yPadding: tooltipOpts.yPadding,
+		xAlign: tooltipOpts.xAlign,
+		yAlign: tooltipOpts.yAlign,
+
+		// Body
+		bodyFontColor: tooltipOpts.bodyFontColor,
+		_bodyFontFamily: valueOrDefault(tooltipOpts.bodyFontFamily, globalDefaults.defaultFontFamily),
+		_bodyFontStyle: valueOrDefault(tooltipOpts.bodyFontStyle, globalDefaults.defaultFontStyle),
+		_bodyAlign: tooltipOpts.bodyAlign,
+		bodyFontSize: valueOrDefault(tooltipOpts.bodyFontSize, globalDefaults.defaultFontSize),
+		bodySpacing: tooltipOpts.bodySpacing,
+
+		// Title
+		titleFontColor: tooltipOpts.titleFontColor,
+		_titleFontFamily: valueOrDefault(tooltipOpts.titleFontFamily, globalDefaults.defaultFontFamily),
+		_titleFontStyle: valueOrDefault(tooltipOpts.titleFontStyle, globalDefaults.defaultFontStyle),
+		titleFontSize: valueOrDefault(tooltipOpts.titleFontSize, globalDefaults.defaultFontSize),
+		_titleAlign: tooltipOpts.titleAlign,
+		titleSpacing: tooltipOpts.titleSpacing,
+		titleMarginBottom: tooltipOpts.titleMarginBottom,
+
+		// Footer
+		footerFontColor: tooltipOpts.footerFontColor,
+		_footerFontFamily: valueOrDefault(tooltipOpts.footerFontFamily, globalDefaults.defaultFontFamily),
+		_footerFontStyle: valueOrDefault(tooltipOpts.footerFontStyle, globalDefaults.defaultFontStyle),
+		footerFontSize: valueOrDefault(tooltipOpts.footerFontSize, globalDefaults.defaultFontSize),
+		_footerAlign: tooltipOpts.footerAlign,
+		footerSpacing: tooltipOpts.footerSpacing,
+		footerMarginTop: tooltipOpts.footerMarginTop,
+
+		// Appearance
+		caretSize: tooltipOpts.caretSize,
+		cornerRadius: tooltipOpts.cornerRadius,
+		backgroundColor: tooltipOpts.backgroundColor,
+		opacity: 0,
+		legendColorBackground: tooltipOpts.multiKeyBackground,
+		displayColors: tooltipOpts.displayColors,
+		borderColor: tooltipOpts.borderColor,
+		borderWidth: tooltipOpts.borderWidth
+	};
+}
+
+/**
+ * Get the size of the tooltip
+ */
+function getTooltipSize(tooltip, model) {
+	var ctx = tooltip._chart.ctx;
+
+	var height = model.yPadding * 2; // Tooltip Padding
+	var width = 0;
+
+	// Count of all lines in the body
+	var body = model.body;
+	var combinedBodyLength = body.reduce(function(count, bodyItem) {
+		return count + bodyItem.before.length + bodyItem.lines.length + bodyItem.after.length;
+	}, 0);
+	combinedBodyLength += model.beforeBody.length + model.afterBody.length;
+
+	var titleLineCount = model.title.length;
+	var footerLineCount = model.footer.length;
+	var titleFontSize = model.titleFontSize;
+	var bodyFontSize = model.bodyFontSize;
+	var footerFontSize = model.footerFontSize;
+
+	height += titleLineCount * titleFontSize; // Title Lines
+	height += titleLineCount ? (titleLineCount - 1) * model.titleSpacing : 0; // Title Line Spacing
+	height += titleLineCount ? model.titleMarginBottom : 0; // Title's bottom Margin
+	height += combinedBodyLength * bodyFontSize; // Body Lines
+	height += combinedBodyLength ? (combinedBodyLength - 1) * model.bodySpacing : 0; // Body Line Spacing
+	height += footerLineCount ? model.footerMarginTop : 0; // Footer Margin
+	height += footerLineCount * (footerFontSize); // Footer Lines
+	height += footerLineCount ? (footerLineCount - 1) * model.footerSpacing : 0; // Footer Line Spacing
+
+	// Title width
+	var widthPadding = 0;
+	var maxLineWidth = function(line) {
+		width = Math.max(width, ctx.measureText(line).width + widthPadding);
+	};
+
+	ctx.font = helpers.fontString(titleFontSize, model._titleFontStyle, model._titleFontFamily);
+	helpers.each(model.title, maxLineWidth);
+
+	// Body width
+	ctx.font = helpers.fontString(bodyFontSize, model._bodyFontStyle, model._bodyFontFamily);
+	helpers.each(model.beforeBody.concat(model.afterBody), maxLineWidth);
+
+	// Body lines may include some extra width due to the color box
+	widthPadding = model.displayColors ? (bodyFontSize + 2) : 0;
+	helpers.each(body, function(bodyItem) {
+		helpers.each(bodyItem.before, maxLineWidth);
+		helpers.each(bodyItem.lines, maxLineWidth);
+		helpers.each(bodyItem.after, maxLineWidth);
+	});
+
+	// Reset back to 0
+	widthPadding = 0;
+
+	// Footer width
+	ctx.font = helpers.fontString(footerFontSize, model._footerFontStyle, model._footerFontFamily);
+	helpers.each(model.footer, maxLineWidth);
+
+	// Add padding
+	width += 2 * model.xPadding;
+
+	return {
+		width: width,
+		height: height
+	};
+}
+
+/**
+ * Helper to get the alignment of a tooltip given the size
+ */
+function determineAlignment(tooltip, size) {
+	var model = tooltip._model;
+	var chart = tooltip._chart;
+	var chartArea = tooltip._chart.chartArea;
+	var xAlign = 'center';
+	var yAlign = 'center';
+
+	if (model.y < size.height) {
+		yAlign = 'top';
+	} else if (model.y > (chart.height - size.height)) {
+		yAlign = 'bottom';
+	}
+
+	var lf, rf; // functions to determine left, right alignment
+	var olf, orf; // functions to determine if left/right alignment causes tooltip to go outside chart
+	var yf; // function to get the y alignment if the tooltip goes outside of the left or right edges
+	var midX = (chartArea.left + chartArea.right) / 2;
+	var midY = (chartArea.top + chartArea.bottom) / 2;
+
+	if (yAlign === 'center') {
+		lf = function(x) {
+			return x <= midX;
+		};
+		rf = function(x) {
+			return x > midX;
+		};
+	} else {
+		lf = function(x) {
+			return x <= (size.width / 2);
+		};
+		rf = function(x) {
+			return x >= (chart.width - (size.width / 2));
+		};
+	}
+
+	olf = function(x) {
+		return x + size.width + model.caretSize + model.caretPadding > chart.width;
+	};
+	orf = function(x) {
+		return x - size.width - model.caretSize - model.caretPadding < 0;
+	};
+	yf = function(y) {
+		return y <= midY ? 'top' : 'bottom';
+	};
+
+	if (lf(model.x)) {
+		xAlign = 'left';
+
+		// Is tooltip too wide and goes over the right side of the chart.?
+		if (olf(model.x)) {
+			xAlign = 'center';
+			yAlign = yf(model.y);
+		}
+	} else if (rf(model.x)) {
+		xAlign = 'right';
+
+		// Is tooltip too wide and goes outside left edge of canvas?
+		if (orf(model.x)) {
+			xAlign = 'center';
+			yAlign = yf(model.y);
+		}
+	}
+
+	var opts = tooltip._options;
+	return {
+		xAlign: opts.xAlign ? opts.xAlign : xAlign,
+		yAlign: opts.yAlign ? opts.yAlign : yAlign
+	};
+}
+
+/**
+ * @Helper to get the location a tooltip needs to be placed at given the initial position (via the vm) and the size and alignment
+ */
+function getBackgroundPoint(vm, size, alignment, chart) {
+	// Background Position
+	var x = vm.x;
+	var y = vm.y;
+
+	var caretSize = vm.caretSize;
+	var caretPadding = vm.caretPadding;
+	var cornerRadius = vm.cornerRadius;
+	var xAlign = alignment.xAlign;
+	var yAlign = alignment.yAlign;
+	var paddingAndSize = caretSize + caretPadding;
+	var radiusAndPadding = cornerRadius + caretPadding;
+
+	if (xAlign === 'right') {
+		x -= size.width;
+	} else if (xAlign === 'center') {
+		x -= (size.width / 2);
+		if (x + size.width > chart.width) {
+			x = chart.width - size.width;
+		}
+		if (x < 0) {
+			x = 0;
+		}
+	}
+
+	if (yAlign === 'top') {
+		y += paddingAndSize;
+	} else if (yAlign === 'bottom') {
+		y -= size.height + paddingAndSize;
+	} else {
+		y -= (size.height / 2);
+	}
+
+	if (yAlign === 'center') {
+		if (xAlign === 'left') {
+			x += paddingAndSize;
+		} else if (xAlign === 'right') {
+			x -= paddingAndSize;
+		}
+	} else if (xAlign === 'left') {
+		x -= radiusAndPadding;
+	} else if (xAlign === 'right') {
+		x += radiusAndPadding;
+	}
+
+	return {
+		x: x,
+		y: y
+	};
+}
+
+var exports = module.exports = Element.extend({
+	initialize: function() {
+		this._model = getBaseModel(this._options);
+		this._lastActive = [];
+	},
+
+	// Get the title
+	// Args are: (tooltipItem, data)
+	getTitle: function() {
+		var me = this;
+		var opts = me._options;
+		var callbacks = opts.callbacks;
+
+		var beforeTitle = callbacks.beforeTitle.apply(me, arguments);
+		var title = callbacks.title.apply(me, arguments);
+		var afterTitle = callbacks.afterTitle.apply(me, arguments);
+
+		var lines = [];
+		lines = pushOrConcat(lines, beforeTitle);
+		lines = pushOrConcat(lines, title);
+		lines = pushOrConcat(lines, afterTitle);
+
+		return lines;
+	},
+
+	// Args are: (tooltipItem, data)
+	getBeforeBody: function() {
+		var lines = this._options.callbacks.beforeBody.apply(this, arguments);
+		return helpers.isArray(lines) ? lines : lines !== undefined ? [lines] : [];
+	},
+
+	// Args are: (tooltipItem, data)
+	getBody: function(tooltipItems, data) {
+		var me = this;
+		var callbacks = me._options.callbacks;
+		var bodyItems = [];
+
+		helpers.each(tooltipItems, function(tooltipItem) {
+			var bodyItem = {
+				before: [],
+				lines: [],
+				after: []
+			};
+			pushOrConcat(bodyItem.before, callbacks.beforeLabel.call(me, tooltipItem, data));
+			pushOrConcat(bodyItem.lines, callbacks.label.call(me, tooltipItem, data));
+			pushOrConcat(bodyItem.after, callbacks.afterLabel.call(me, tooltipItem, data));
+
+			bodyItems.push(bodyItem);
+		});
+
+		return bodyItems;
+	},
+
+	// Args are: (tooltipItem, data)
+	getAfterBody: function() {
+		var lines = this._options.callbacks.afterBody.apply(this, arguments);
+		return helpers.isArray(lines) ? lines : lines !== undefined ? [lines] : [];
+	},
+
+	// Get the footer and beforeFooter and afterFooter lines
+	// Args are: (tooltipItem, data)
+	getFooter: function() {
+		var me = this;
+		var callbacks = me._options.callbacks;
+
+		var beforeFooter = callbacks.beforeFooter.apply(me, arguments);
+		var footer = callbacks.footer.apply(me, arguments);
+		var afterFooter = callbacks.afterFooter.apply(me, arguments);
+
+		var lines = [];
+		lines = pushOrConcat(lines, beforeFooter);
+		lines = pushOrConcat(lines, footer);
+		lines = pushOrConcat(lines, afterFooter);
+
+		return lines;
+	},
+
+	update: function(changed) {
+		var me = this;
+		var opts = me._options;
+
+		// Need to regenerate the model because its faster than using extend and it is necessary due to the optimization in Chart.Element.transition
+		// that does _view = _model if ease === 1. This causes the 2nd tooltip update to set properties in both the view and model at the same time
+		// which breaks any animations.
+		var existingModel = me._model;
+		var model = me._model = getBaseModel(opts);
+		var active = me._active;
+
+		var data = me._data;
+
+		// In the case where active.length === 0 we need to keep these at existing values for good animations
+		var alignment = {
+			xAlign: existingModel.xAlign,
+			yAlign: existingModel.yAlign
+		};
+		var backgroundPoint = {
+			x: existingModel.x,
+			y: existingModel.y
+		};
+		var tooltipSize = {
+			width: existingModel.width,
+			height: existingModel.height
+		};
+		var tooltipPosition = {
+			x: existingModel.caretX,
+			y: existingModel.caretY
+		};
+
+		var i, len;
+
+		if (active.length) {
+			model.opacity = 1;
+
+			var labelColors = [];
+			var labelTextColors = [];
+			tooltipPosition = positioners[opts.position].call(me, active, me._eventPosition);
+
+			var tooltipItems = [];
+			for (i = 0, len = active.length; i < len; ++i) {
+				tooltipItems.push(createTooltipItem(active[i]));
+			}
+
+			// If the user provided a filter function, use it to modify the tooltip items
+			if (opts.filter) {
+				tooltipItems = tooltipItems.filter(function(a) {
+					return opts.filter(a, data);
+				});
+			}
+
+			// If the user provided a sorting function, use it to modify the tooltip items
+			if (opts.itemSort) {
+				tooltipItems = tooltipItems.sort(function(a, b) {
+					return opts.itemSort(a, b, data);
+				});
+			}
+
+			// Determine colors for boxes
+			helpers.each(tooltipItems, function(tooltipItem) {
+				labelColors.push(opts.callbacks.labelColor.call(me, tooltipItem, me._chart));
+				labelTextColors.push(opts.callbacks.labelTextColor.call(me, tooltipItem, me._chart));
+			});
+
+
+			// Build the Text Lines
+			model.title = me.getTitle(tooltipItems, data);
+			model.beforeBody = me.getBeforeBody(tooltipItems, data);
+			model.body = me.getBody(tooltipItems, data);
+			model.afterBody = me.getAfterBody(tooltipItems, data);
+			model.footer = me.getFooter(tooltipItems, data);
+
+			// Initial positioning and colors
+			model.x = Math.round(tooltipPosition.x);
+			model.y = Math.round(tooltipPosition.y);
+			model.caretPadding = opts.caretPadding;
+			model.labelColors = labelColors;
+			model.labelTextColors = labelTextColors;
+
+			// data points
+			model.dataPoints = tooltipItems;
+
+			// We need to determine alignment of the tooltip
+			tooltipSize = getTooltipSize(this, model);
+			alignment = determineAlignment(this, tooltipSize);
+			// Final Size and Position
+			backgroundPoint = getBackgroundPoint(model, tooltipSize, alignment, me._chart);
+		} else {
+			model.opacity = 0;
+		}
+
+		model.xAlign = alignment.xAlign;
+		model.yAlign = alignment.yAlign;
+		model.x = backgroundPoint.x;
+		model.y = backgroundPoint.y;
+		model.width = tooltipSize.width;
+		model.height = tooltipSize.height;
+
+		// Point where the caret on the tooltip points to
+		model.caretX = tooltipPosition.x;
+		model.caretY = tooltipPosition.y;
+
+		me._model = model;
+
+		if (changed && opts.custom) {
+			opts.custom.call(me, model);
+		}
+
+		return me;
+	},
+
+	drawCaret: function(tooltipPoint, size) {
+		var ctx = this._chart.ctx;
+		var vm = this._view;
+		var caretPosition = this.getCaretPosition(tooltipPoint, size, vm);
+
+		ctx.lineTo(caretPosition.x1, caretPosition.y1);
+		ctx.lineTo(caretPosition.x2, caretPosition.y2);
+		ctx.lineTo(caretPosition.x3, caretPosition.y3);
+	},
+	getCaretPosition: function(tooltipPoint, size, vm) {
+		var x1, x2, x3, y1, y2, y3;
+		var caretSize = vm.caretSize;
+		var cornerRadius = vm.cornerRadius;
+		var xAlign = vm.xAlign;
+		var yAlign = vm.yAlign;
+		var ptX = tooltipPoint.x;
+		var ptY = tooltipPoint.y;
+		var width = size.width;
+		var height = size.height;
+
+		if (yAlign === 'center') {
+			y2 = ptY + (height / 2);
+
+			if (xAlign === 'left') {
+				x1 = ptX;
+				x2 = x1 - caretSize;
+				x3 = x1;
+
+				y1 = y2 + caretSize;
+				y3 = y2 - caretSize;
+			} else {
+				x1 = ptX + width;
+				x2 = x1 + caretSize;
+				x3 = x1;
+
+				y1 = y2 - caretSize;
+				y3 = y2 + caretSize;
+			}
+		} else {
+			if (xAlign === 'left') {
+				x2 = ptX + cornerRadius + (caretSize);
+				x1 = x2 - caretSize;
+				x3 = x2 + caretSize;
+			} else if (xAlign === 'right') {
+				x2 = ptX + width - cornerRadius - caretSize;
+				x1 = x2 - caretSize;
+				x3 = x2 + caretSize;
+			} else {
+				x2 = vm.caretX;
+				x1 = x2 - caretSize;
+				x3 = x2 + caretSize;
+			}
+			if (yAlign === 'top') {
+				y1 = ptY;
+				y2 = y1 - caretSize;
+				y3 = y1;
+			} else {
+				y1 = ptY + height;
+				y2 = y1 + caretSize;
+				y3 = y1;
+				// invert drawing order
+				var tmp = x3;
+				x3 = x1;
+				x1 = tmp;
+			}
+		}
+		return {x1: x1, x2: x2, x3: x3, y1: y1, y2: y2, y3: y3};
+	},
+
+	drawTitle: function(pt, vm, ctx, opacity) {
+		var title = vm.title;
+
+		if (title.length) {
+			ctx.textAlign = vm._titleAlign;
+			ctx.textBaseline = 'top';
+
+			var titleFontSize = vm.titleFontSize;
+			var titleSpacing = vm.titleSpacing;
+
+			ctx.fillStyle = mergeOpacity(vm.titleFontColor, opacity);
+			ctx.font = helpers.fontString(titleFontSize, vm._titleFontStyle, vm._titleFontFamily);
+
+			var i, len;
+			for (i = 0, len = title.length; i < len; ++i) {
+				ctx.fillText(title[i], pt.x, pt.y);
+				pt.y += titleFontSize + titleSpacing; // Line Height and spacing
+
+				if (i + 1 === title.length) {
+					pt.y += vm.titleMarginBottom - titleSpacing; // If Last, add margin, remove spacing
+				}
+			}
+		}
+	},
+
+	drawBody: function(pt, vm, ctx, opacity) {
+		var bodyFontSize = vm.bodyFontSize;
+		var bodySpacing = vm.bodySpacing;
+		var body = vm.body;
+
+		ctx.textAlign = vm._bodyAlign;
+		ctx.textBaseline = 'top';
+		ctx.font = helpers.fontString(bodyFontSize, vm._bodyFontStyle, vm._bodyFontFamily);
+
+		// Before Body
+		var xLinePadding = 0;
+		var fillLineOfText = function(line) {
+			ctx.fillText(line, pt.x + xLinePadding, pt.y);
+			pt.y += bodyFontSize + bodySpacing;
+		};
+
+		// Before body lines
+		ctx.fillStyle = mergeOpacity(vm.bodyFontColor, opacity);
+		helpers.each(vm.beforeBody, fillLineOfText);
+
+		var drawColorBoxes = vm.displayColors;
+		xLinePadding = drawColorBoxes ? (bodyFontSize + 2) : 0;
+
+		// Draw body lines now
+		helpers.each(body, function(bodyItem, i) {
+			var textColor = mergeOpacity(vm.labelTextColors[i], opacity);
+			ctx.fillStyle = textColor;
+			helpers.each(bodyItem.before, fillLineOfText);
+
+			helpers.each(bodyItem.lines, function(line) {
+				// Draw Legend-like boxes if needed
+				if (drawColorBoxes) {
+					// Fill a white rect so that colours merge nicely if the opacity is < 1
+					ctx.fillStyle = mergeOpacity(vm.legendColorBackground, opacity);
+					ctx.fillRect(pt.x, pt.y, bodyFontSize, bodyFontSize);
+
+					// Border
+					ctx.lineWidth = 1;
+					ctx.strokeStyle = mergeOpacity(vm.labelColors[i].borderColor, opacity);
+					ctx.strokeRect(pt.x, pt.y, bodyFontSize, bodyFontSize);
+
+					// Inner square
+					ctx.fillStyle = mergeOpacity(vm.labelColors[i].backgroundColor, opacity);
+					ctx.fillRect(pt.x + 1, pt.y + 1, bodyFontSize - 2, bodyFontSize - 2);
+					ctx.fillStyle = textColor;
+				}
+
+				fillLineOfText(line);
+			});
+
+			helpers.each(bodyItem.after, fillLineOfText);
+		});
+
+		// Reset back to 0 for after body
+		xLinePadding = 0;
+
+		// After body lines
+		helpers.each(vm.afterBody, fillLineOfText);
+		pt.y -= bodySpacing; // Remove last body spacing
+	},
+
+	drawFooter: function(pt, vm, ctx, opacity) {
+		var footer = vm.footer;
+
+		if (footer.length) {
+			pt.y += vm.footerMarginTop;
+
+			ctx.textAlign = vm._footerAlign;
+			ctx.textBaseline = 'top';
+
+			ctx.fillStyle = mergeOpacity(vm.footerFontColor, opacity);
+			ctx.font = helpers.fontString(vm.footerFontSize, vm._footerFontStyle, vm._footerFontFamily);
+
+			helpers.each(footer, function(line) {
+				ctx.fillText(line, pt.x, pt.y);
+				pt.y += vm.footerFontSize + vm.footerSpacing;
+			});
+		}
+	},
+
+	drawBackground: function(pt, vm, ctx, tooltipSize, opacity) {
+		ctx.fillStyle = mergeOpacity(vm.backgroundColor, opacity);
+		ctx.strokeStyle = mergeOpacity(vm.borderColor, opacity);
+		ctx.lineWidth = vm.borderWidth;
+		var xAlign = vm.xAlign;
+		var yAlign = vm.yAlign;
+		var x = pt.x;
+		var y = pt.y;
+		var width = tooltipSize.width;
+		var height = tooltipSize.height;
+		var radius = vm.cornerRadius;
+
+		ctx.beginPath();
+		ctx.moveTo(x + radius, y);
+		if (yAlign === 'top') {
+			this.drawCaret(pt, tooltipSize);
+		}
+		ctx.lineTo(x + width - radius, y);
+		ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+		if (yAlign === 'center' && xAlign === 'right') {
+			this.drawCaret(pt, tooltipSize);
+		}
+		ctx.lineTo(x + width, y + height - radius);
+		ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+		if (yAlign === 'bottom') {
+			this.drawCaret(pt, tooltipSize);
+		}
+		ctx.lineTo(x + radius, y + height);
+		ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+		if (yAlign === 'center' && xAlign === 'left') {
+			this.drawCaret(pt, tooltipSize);
+		}
+		ctx.lineTo(x, y + radius);
+		ctx.quadraticCurveTo(x, y, x + radius, y);
+		ctx.closePath();
+
+		ctx.fill();
+
+		if (vm.borderWidth > 0) {
+			ctx.stroke();
+		}
+	},
+
+	draw: function() {
+		var ctx = this._chart.ctx;
+		var vm = this._view;
+
+		if (vm.opacity === 0) {
+			return;
+		}
+
+		var tooltipSize = {
+			width: vm.width,
+			height: vm.height
+		};
+		var pt = {
+			x: vm.x,
+			y: vm.y
+		};
+
+		// IE11/Edge does not like very small opacities, so snap to 0
+		var opacity = Math.abs(vm.opacity < 1e-3) ? 0 : vm.opacity;
+
+		// Truthy/falsey value for empty tooltip
+		var hasTooltipContent = vm.title.length || vm.beforeBody.length || vm.body.length || vm.afterBody.length || vm.footer.length;
+
+		if (this._options.enabled && hasTooltipContent) {
+			// Draw Background
+			this.drawBackground(pt, vm, ctx, tooltipSize, opacity);
+
+			// Draw Title, Body, and Footer
+			pt.x += vm.xPadding;
+			pt.y += vm.yPadding;
+
+			// Titles
+			this.drawTitle(pt, vm, ctx, opacity);
+
+			// Body
+			this.drawBody(pt, vm, ctx, opacity);
+
+			// Footer
+			this.drawFooter(pt, vm, ctx, opacity);
+		}
+	},
+
+	/**
+	 * Handle an event
+	 * @private
+	 * @param {IEvent} event - The event to handle
+	 * @returns {Boolean} true if the tooltip changed
+	 */
+	handleEvent: function(e) {
+		var me = this;
+		var options = me._options;
+		var changed = false;
+
+		me._lastActive = me._lastActive || [];
+
+		// Find Active Elements for tooltips
+		if (e.type === 'mouseout') {
+			me._active = [];
+		} else {
+			me._active = me._chart.getElementsAtEventForMode(e, options.mode, options);
+		}
+
+		// Remember Last Actives
+		changed = !helpers.arrayEquals(me._active, me._lastActive);
+
+		// Only handle target event on tooltip change
+		if (changed) {
+			me._lastActive = me._active;
+
+			if (options.enabled || options.custom) {
+				me._eventPosition = {
+					x: e.x,
+					y: e.y
+				};
+
+				me.update(true);
+				me.pivot();
+			}
+		}
+
+		return changed;
+	}
+});
+
+/**
+ * @namespace Chart.Tooltip.positioners
+ */
+exports.positioners = positioners;
+
+
+},{"26":26,"27":27,"46":46}],37:[function(require,module,exports){
 'use strict';
 
-var defaults = require(25);
-var Element = require(26);
-var helpers = require(45);
+var defaults = require(26);
+var Element = require(27);
+var helpers = require(46);
 
 defaults._set('global', {
 	elements: {
@@ -13649,12 +13661,12 @@ module.exports = Element.extend({
 	}
 });
 
-},{"25":25,"26":26,"45":45}],37:[function(require,module,exports){
+},{"26":26,"27":27,"46":46}],38:[function(require,module,exports){
 'use strict';
 
-var defaults = require(25);
-var Element = require(26);
-var helpers = require(45);
+var defaults = require(26);
+var Element = require(27);
+var helpers = require(46);
 
 var globalDefaults = defaults.global;
 
@@ -13742,12 +13754,12 @@ module.exports = Element.extend({
 	}
 });
 
-},{"25":25,"26":26,"45":45}],38:[function(require,module,exports){
+},{"26":26,"27":27,"46":46}],39:[function(require,module,exports){
 'use strict';
 
-var defaults = require(25);
-var Element = require(26);
-var helpers = require(45);
+var defaults = require(26);
+var Element = require(27);
+var helpers = require(46);
 
 var defaultColor = defaults.global.defaultColor;
 
@@ -13850,11 +13862,11 @@ module.exports = Element.extend({
 	}
 });
 
-},{"25":25,"26":26,"45":45}],39:[function(require,module,exports){
+},{"26":26,"27":27,"46":46}],40:[function(require,module,exports){
 'use strict';
 
-var defaults = require(25);
-var Element = require(26);
+var defaults = require(26);
+var Element = require(27);
 
 defaults._set('global', {
 	elements: {
@@ -14069,19 +14081,19 @@ module.exports = Element.extend({
 	}
 });
 
-},{"25":25,"26":26}],40:[function(require,module,exports){
+},{"26":26,"27":27}],41:[function(require,module,exports){
 'use strict';
 
 module.exports = {};
-module.exports.Arc = require(36);
-module.exports.Line = require(37);
-module.exports.Point = require(38);
-module.exports.Rectangle = require(39);
+module.exports.Arc = require(37);
+module.exports.Line = require(38);
+module.exports.Point = require(39);
+module.exports.Rectangle = require(40);
 
-},{"36":36,"37":37,"38":38,"39":39}],41:[function(require,module,exports){
+},{"37":37,"38":38,"39":39,"40":40}],42:[function(require,module,exports){
 'use strict';
 
-var helpers = require(42);
+var helpers = require(43);
 
 /**
  * @namespace Chart.helpers.canvas
@@ -14294,7 +14306,7 @@ helpers.drawRoundedRectangle = function(ctx) {
 	ctx.closePath();
 };
 
-},{"42":42}],42:[function(require,module,exports){
+},{"43":43}],43:[function(require,module,exports){
 'use strict';
 
 /**
@@ -14635,10 +14647,10 @@ helpers.getValueOrDefault = helpers.valueOrDefault;
  */
 helpers.getValueAtIndexOrDefault = helpers.valueAtIndexOrDefault;
 
-},{}],43:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 'use strict';
 
-var helpers = require(42);
+var helpers = require(43);
 
 /**
  * Easing functions adapted from Robert Penner's easing equations.
@@ -14887,10 +14899,10 @@ module.exports = {
  */
 helpers.easingEffects = effects;
 
-},{"42":42}],44:[function(require,module,exports){
+},{"43":43}],45:[function(require,module,exports){
 'use strict';
 
-var helpers = require(42);
+var helpers = require(43);
 
 /**
  * @alias Chart.helpers.options
@@ -14985,15 +14997,15 @@ module.exports = {
 	}
 };
 
-},{"42":42}],45:[function(require,module,exports){
+},{"43":43}],46:[function(require,module,exports){
 'use strict';
 
-module.exports = require(42);
-module.exports.easing = require(43);
-module.exports.canvas = require(41);
-module.exports.options = require(44);
+module.exports = require(43);
+module.exports.easing = require(44);
+module.exports.canvas = require(42);
+module.exports.options = require(45);
 
-},{"41":41,"42":42,"43":43,"44":44}],46:[function(require,module,exports){
+},{"42":42,"43":43,"44":44,"45":45}],47:[function(require,module,exports){
 /**
  * Platform fallback implementation (minimal).
  * @see https://github.com/chartjs/Chart.js/pull/4591#issuecomment-319575939
@@ -15010,14 +15022,14 @@ module.exports = {
 	}
 };
 
-},{}],47:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 /**
  * Chart.Platform implementation for targeting a web browser
  */
 
 'use strict';
 
-var helpers = require(45);
+var helpers = require(46);
 
 var EXPANDO_KEY = '$chartjs';
 var CSS_PREFIX = 'chartjs-';
@@ -15469,12 +15481,12 @@ helpers.addEvent = addEventListener;
  */
 helpers.removeEvent = removeEventListener;
 
-},{"45":45}],48:[function(require,module,exports){
+},{"46":46}],49:[function(require,module,exports){
 'use strict';
 
-var helpers = require(45);
-var basic = require(46);
-var dom = require(47);
+var helpers = require(46);
+var basic = require(47);
+var dom = require(48);
 
 // @TODO Make possible to select another platform at build time.
 var implementation = dom._enabled ? dom : basic;
@@ -15545,15 +15557,15 @@ module.exports = helpers.extend({
  * @prop {Number} y - The mouse y position, relative to the canvas (null for incompatible events)
  */
 
-},{"45":45,"46":46,"47":47}],49:[function(require,module,exports){
+},{"46":46,"47":47,"48":48}],50:[function(require,module,exports){
 'use strict';
 
 module.exports = {};
-module.exports.filler = require(50);
-module.exports.legend = require(51);
-module.exports.title = require(52);
+module.exports.filler = require(51);
+module.exports.legend = require(52);
+module.exports.title = require(53);
 
-},{"50":50,"51":51,"52":52}],50:[function(require,module,exports){
+},{"51":51,"52":52,"53":53}],51:[function(require,module,exports){
 /**
  * Plugin based on discussion from the following Chart.js issues:
  * @see https://github.com/chartjs/Chart.js/issues/2380#issuecomment-279961569
@@ -15562,9 +15574,9 @@ module.exports.title = require(52);
 
 'use strict';
 
-var defaults = require(25);
-var elements = require(40);
-var helpers = require(45);
+var defaults = require(26);
+var elements = require(41);
+var helpers = require(46);
 
 defaults._set('global', {
 	plugins: {
@@ -15873,13 +15885,13 @@ module.exports = {
 	}
 };
 
-},{"25":25,"40":40,"45":45}],51:[function(require,module,exports){
+},{"26":26,"41":41,"46":46}],52:[function(require,module,exports){
 'use strict';
 
-var defaults = require(25);
-var Element = require(26);
-var helpers = require(45);
-var layouts = require(30);
+var defaults = require(26);
+var Element = require(27);
+var helpers = require(46);
+var layouts = require(31);
 
 var noop = helpers.noop;
 
@@ -16451,13 +16463,13 @@ module.exports = {
 	}
 };
 
-},{"25":25,"26":26,"30":30,"45":45}],52:[function(require,module,exports){
+},{"26":26,"27":27,"31":31,"46":46}],53:[function(require,module,exports){
 'use strict';
 
-var defaults = require(25);
-var Element = require(26);
-var helpers = require(45);
-var layouts = require(30);
+var defaults = require(26);
+var Element = require(27);
+var helpers = require(46);
+var layouts = require(31);
 
 var noop = helpers.noop;
 
@@ -16705,7 +16717,7 @@ module.exports = {
 	}
 };
 
-},{"25":25,"26":26,"30":30,"45":45}],53:[function(require,module,exports){
+},{"26":26,"27":27,"31":31,"46":46}],54:[function(require,module,exports){
 'use strict';
 
 module.exports = function(Chart) {
@@ -16840,12 +16852,12 @@ module.exports = function(Chart) {
 
 };
 
-},{}],54:[function(require,module,exports){
+},{}],55:[function(require,module,exports){
 'use strict';
 
-var defaults = require(25);
-var helpers = require(45);
-var Ticks = require(34);
+var defaults = require(26);
+var helpers = require(46);
+var Ticks = require(35);
 
 module.exports = function(Chart) {
 
@@ -17033,10 +17045,10 @@ module.exports = function(Chart) {
 
 };
 
-},{"25":25,"34":34,"45":45}],55:[function(require,module,exports){
+},{"26":26,"35":35,"46":46}],56:[function(require,module,exports){
 'use strict';
 
-var helpers = require(45);
+var helpers = require(46);
 
 /**
  * Generate a set of linear ticks
@@ -17232,11 +17244,11 @@ module.exports = function(Chart) {
 	});
 };
 
-},{"45":45}],56:[function(require,module,exports){
+},{"46":46}],57:[function(require,module,exports){
 'use strict';
 
-var helpers = require(45);
-var Ticks = require(34);
+var helpers = require(46);
+var Ticks = require(35);
 
 /**
  * Generate a set of logarithmic ticks
@@ -17581,12 +17593,12 @@ module.exports = function(Chart) {
 
 };
 
-},{"34":34,"45":45}],57:[function(require,module,exports){
+},{"35":35,"46":46}],58:[function(require,module,exports){
 'use strict';
 
-var defaults = require(25);
-var helpers = require(45);
-var Ticks = require(34);
+var defaults = require(26);
+var helpers = require(46);
+var Ticks = require(35);
 
 module.exports = function(Chart) {
 
@@ -18112,15 +18124,15 @@ module.exports = function(Chart) {
 
 };
 
-},{"25":25,"34":34,"45":45}],58:[function(require,module,exports){
+},{"26":26,"35":35,"46":46}],59:[function(require,module,exports){
 /* global window: false */
 'use strict';
 
 var moment = require(6);
 moment = typeof moment === 'function' ? moment : window.moment;
 
-var defaults = require(25);
-var helpers = require(45);
+var defaults = require(26);
+var helpers = require(46);
 
 // Integer constants are from the ES6 spec.
 var MIN_INTEGER = Number.MIN_SAFE_INTEGER || -9007199254740991;
@@ -18897,5 +18909,5 @@ module.exports = function(Chart) {
 	Chart.scaleService.registerScaleType('time', TimeScale, defaultConfig);
 };
 
-},{"25":25,"45":45,"6":6}]},{},[7])(7)
+},{"26":26,"46":46,"6":6}]},{},[7])(7)
 });
