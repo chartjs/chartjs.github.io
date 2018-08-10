@@ -10143,7 +10143,7 @@ module.exports = function() {
 	helpers.getRelativePosition = function(evt, chart) {
 		var mouseX, mouseY;
 		var e = evt.originalEvent || evt;
-		var canvas = evt.currentTarget || evt.srcElement;
+		var canvas = evt.target || evt.srcElement;
 		var boundingRect = canvas.getBoundingClientRect();
 
 		var touches = e.touches;
