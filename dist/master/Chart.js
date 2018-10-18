@@ -2263,8 +2263,10 @@ module.exports = function(Chart) {
 			var chart = me.chart;
 			var meta = me.getMeta();
 			var scale = me.getValueScale();
+			var isHorizontal = scale.isHorizontal();
 			var datasets = chart.data.datasets;
 			var value = scale.getRightValue(datasets[datasetIndex].data[index]);
+			var minBarLength = scale.options.minBarLength;
 			var stacked = scale.options.stacked;
 			var stack = meta.stack;
 			var start = 0;
@@ -2290,6 +2292,15 @@ module.exports = function(Chart) {
 			base = scale.getPixelForValue(start);
 			head = scale.getPixelForValue(start + value);
 			size = (head - base) / 2;
+
+			if (minBarLength !== undefined && Math.abs(size) < minBarLength) {
+				size = minBarLength;
+				if (value >= 0 && !isHorizontal || value < 0 && isHorizontal) {
+					head = base - minBarLength;
+				} else {
+					head = base + minBarLength;
+				}
+			}
 
 			return {
 				size: size,
