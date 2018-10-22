@@ -9705,7 +9705,7 @@ function interpolate(start, view, model, ease) {
 						continue;
 					}
 				}
-			} else if (type === 'number' && isFinite(origin) && isFinite(target)) {
+			} else if (helpers.isFinite(origin) && helpers.isFinite(target)) {
 				view[key] = origin + (target - origin) * ease;
 				continue;
 			}
@@ -12123,7 +12123,7 @@ module.exports = Element.extend({
 			return NaN;
 		}
 		// isNaN(object) returns true, so make sure NaN is checking for a number; Discard Infinite values
-		if (typeof rawValue === 'number' && !isFinite(rawValue)) {
+		if ((typeof rawValue === 'number' || rawValue instanceof Number) && !isFinite(rawValue)) {
 			return NaN;
 		}
 		// If it is in fact an object, dive in one more level
@@ -14422,6 +14422,15 @@ var helpers = {
 	},
 
 	/**
+	 * Returns true if `value` is a finite number, else returns false
+	 * @param {*} value  - The value to test.
+	 * @returns {Boolean}
+	 */
+	isFinite: function(value) {
+		return (typeof value === 'number' || value instanceof Number) && isFinite(value);
+	},
+
+	/**
 	 * Returns `value` if defined, else returns `defaultValue`.
 	 * @param {*} value - The value to return if defined.
 	 * @param {*} defaultValue - The value to return if `value` is undefined.
@@ -15757,7 +15766,7 @@ function computeBoundary(source) {
 			return target;
 		}
 
-		if (typeof target === 'number' && isFinite(target)) {
+		if (helpers.isFinite(target)) {
 			horizontal = scale.isHorizontal();
 			return {
 				x: horizontal ? target : null,
