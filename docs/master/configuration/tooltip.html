@@ -908,7 +908,7 @@
 <td><code>enabled</code></td>
 <td><code>Boolean</code></td>
 <td><code>true</code></td>
-<td>Are on-canvas tooltips enabled</td>
+<td>Are on-canvas tooltips enabled?</td>
 </tr>
 <tr>
 <td><code>custom</code></td>
@@ -926,7 +926,7 @@
 <td><code>intersect</code></td>
 <td><code>Boolean</code></td>
 <td><code>true</code></td>
-<td>if true, the tooltip mode applies only when the mouse position intersects with an element. If false, the mode will be applied at all times.</td>
+<td>If true, the tooltip mode applies only when the mouse position intersects with an element. If false, the mode will be applied at all times.</td>
 </tr>
 <tr>
 <td><code>position</code></td>
@@ -938,7 +938,7 @@
 <td><code>callbacks</code></td>
 <td><code>Object</code></td>
 <td></td>
-<td>See the <a href="#tooltip-callbacks">callbacks section</a></td>
+<td>See the <a href="#tooltip-callbacks">callbacks section</a>.</td>
 </tr>
 <tr>
 <td><code>itemSort</code></td>
@@ -962,25 +962,25 @@
 <td><code>titleFontFamily</code></td>
 <td><code>String</code></td>
 <td><code>&quot;&apos;Helvetica Neue&apos;, &apos;Helvetica&apos;, &apos;Arial&apos;, sans-serif&quot;</code></td>
-<td>title font</td>
+<td>Title font.</td>
 </tr>
 <tr>
 <td><code>titleFontSize</code></td>
 <td><code>Number</code></td>
 <td><code>12</code></td>
-<td>Title font size</td>
+<td>Title font size.</td>
 </tr>
 <tr>
 <td><code>titleFontStyle</code></td>
 <td><code>String</code></td>
 <td><code>&apos;bold&apos;</code></td>
-<td>Title font style</td>
+<td>Title font style.</td>
 </tr>
 <tr>
 <td><code>titleFontColor</code></td>
 <td><code>Color</code></td>
 <td><code>&apos;#fff&apos;</code></td>
-<td>Title font color</td>
+<td>Title font color.</td>
 </tr>
 <tr>
 <td><code>titleSpacing</code></td>
@@ -998,25 +998,25 @@
 <td><code>bodyFontFamily</code></td>
 <td><code>String</code></td>
 <td><code>&quot;&apos;Helvetica Neue&apos;, &apos;Helvetica&apos;, &apos;Arial&apos;, sans-serif&quot;</code></td>
-<td>body line font</td>
+<td>Body line font.</td>
 </tr>
 <tr>
 <td><code>bodyFontSize</code></td>
 <td><code>Number</code></td>
 <td><code>12</code></td>
-<td>Body font size</td>
+<td>Body font size.</td>
 </tr>
 <tr>
 <td><code>bodyFontStyle</code></td>
 <td><code>String</code></td>
 <td><code>&apos;normal&apos;</code></td>
-<td>Body font style</td>
+<td>Body font style.</td>
 </tr>
 <tr>
 <td><code>bodyFontColor</code></td>
 <td><code>Color</code></td>
 <td><code>&apos;#fff&apos;</code></td>
-<td>Body font color</td>
+<td>Body font color.</td>
 </tr>
 <tr>
 <td><code>bodySpacing</code></td>
@@ -1028,25 +1028,25 @@
 <td><code>footerFontFamily</code></td>
 <td><code>String</code></td>
 <td><code>&quot;&apos;Helvetica Neue&apos;, &apos;Helvetica&apos;, &apos;Arial&apos;, sans-serif&quot;</code></td>
-<td>footer font</td>
+<td>Footer font.</td>
 </tr>
 <tr>
 <td><code>footerFontSize</code></td>
 <td><code>Number</code></td>
 <td><code>12</code></td>
-<td>Footer font size</td>
+<td>Footer font size.</td>
 </tr>
 <tr>
 <td><code>footerFontStyle</code></td>
 <td><code>String</code></td>
 <td><code>&apos;bold&apos;</code></td>
-<td>Footer font style</td>
+<td>Footer font style.</td>
 </tr>
 <tr>
 <td><code>footerFontColor</code></td>
 <td><code>Color</code></td>
 <td><code>&apos;#fff&apos;</code></td>
-<td>Footer font color</td>
+<td>Footer font color.</td>
 </tr>
 <tr>
 <td><code>footerSpacing</code></td>
@@ -1094,25 +1094,25 @@
 <td><code>multiKeyBackground</code></td>
 <td><code>Color</code></td>
 <td><code>&apos;#fff&apos;</code></td>
-<td>Color to draw behind the colored boxes when multiple items are in the tooltip</td>
+<td>Color to draw behind the colored boxes when multiple items are in the tooltip.</td>
 </tr>
 <tr>
 <td><code>displayColors</code></td>
 <td><code>Boolean</code></td>
 <td><code>true</code></td>
-<td>if true, color boxes are shown in the tooltip</td>
+<td>If true, color boxes are shown in the tooltip.</td>
 </tr>
 <tr>
 <td><code>borderColor</code></td>
 <td><code>Color</code></td>
 <td><code>&apos;rgba(0,0,0,0)&apos;</code></td>
-<td>Color of the border</td>
+<td>Color of the border.</td>
 </tr>
 <tr>
 <td><code>borderWidth</code></td>
 <td><code>Number</code></td>
 <td><code>0</code></td>
-<td>Size of the border</td>
+<td>Size of the border.</td>
 </tr>
 </tbody>
 </table>
@@ -1145,7 +1145,7 @@ Chart.Tooltip.positioners.custom = <span class="hljs-function"><span class="hljs
 }
 </code></pre>
 <h3 id="sort-callback">Sort Callback</h3>
-<p>Allows sorting of <a href="#tooltip-item-interface">tooltip items</a>. Must implement at minimum a function that can be passed to <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort" target="_blank">Array.prototype.sort</a>.  This function can also accept a third parameter that is the data object passed to the chart.</p>
+<p>Allows sorting of <a href="#tooltip-item-interface">tooltip items</a>. Must implement at minimum a function that can be passed to <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort" target="_blank">Array.prototype.sort</a>. This function can also accept a third parameter that is the data object passed to the chart.</p>
 <h3 id="filter-callback">Filter Callback</h3>
 <p>Allows filtering of <a href="#tooltip-item-interface">tooltip items</a>. Must implement at minimum a function that can be passed to <a href="https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Array/filter" target="_blank">Array.prototype.filter</a>. This function can also accept a second parameter that is the data object passed to the chart.</p>
 <h2 id="tooltip-callbacks">Tooltip Callbacks</h2>
@@ -1208,7 +1208,7 @@ Chart.Tooltip.positioners.custom = <span class="hljs-function"><span class="hljs
 <tr>
 <td><code>afterBody</code></td>
 <td><code>Array[tooltipItem], data</code></td>
-<td>Returns text to render after the body section</td>
+<td>Returns text to render after the body section.</td>
 </tr>
 <tr>
 <td><code>beforeFooter</code></td>
@@ -1223,7 +1223,7 @@ Chart.Tooltip.positioners.custom = <span class="hljs-function"><span class="hljs
 <tr>
 <td><code>afterFooter</code></td>
 <td><code>Array[tooltipItem], data</code></td>
-<td>Text to render after the footer section</td>
+<td>Text to render after the footer section.</td>
 </tr>
 </tbody>
 </table>
@@ -1496,7 +1496,7 @@ Chart.Tooltip.positioners.custom = <span class="hljs-function"><span class="hljs
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Tooltip","level":"1.4.5","depth":2,"next":{"title":"Elements","level":"1.4.6","depth":2,"path":"configuration/elements.md","ref":"configuration/elements.md","articles":[]},"previous":{"title":"Title","level":"1.4.4","depth":2,"path":"configuration/title.md","ref":"configuration/title.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"anchorjs":{"icon":"#","placement":"left","visible":"always"},"ga":{"configuration":"auto","token":"UA-28909194-3"},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"search-plus":{},"chartjs":{"defaults":null},"highlight":{},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"configuration/tooltip.md","mtime":"2018-11-02T07:45:21.118Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2018-11-02T07:49:23.514Z"},"basePath":"..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Tooltip","level":"1.4.5","depth":2,"next":{"title":"Elements","level":"1.4.6","depth":2,"path":"configuration/elements.md","ref":"configuration/elements.md","articles":[]},"previous":{"title":"Title","level":"1.4.4","depth":2,"path":"configuration/title.md","ref":"configuration/title.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"anchorjs":{"icon":"#","placement":"left","visible":"always"},"ga":{"configuration":"auto","token":"UA-28909194-3"},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"search-plus":{},"chartjs":{"defaults":null},"highlight":{},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"configuration/tooltip.md","mtime":"2018-11-05T17:58:11.792Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2018-11-05T18:02:37.963Z"},"basePath":"..","book":{"language":""}});
         });
     </script>
 </div>

@@ -921,7 +921,7 @@
 <tr>
 <td><code>xAxisID</code></td>
 <td><code>String</code></td>
-<td>The ID of the x axis to plot this dataset on. If not specified, this defaults to the ID of the first found x axis</td>
+<td>The ID of the x axis to plot this dataset on. If not specified, this defaults to the ID of the first found x axis.</td>
 </tr>
 <tr>
 <td><code>yAxisID</code></td>
@@ -931,12 +931,12 @@
 <tr>
 <td><code>backgroundColor</code></td>
 <td><code>Color</code></td>
-<td>The fill color under the line. See <a href="../general/colors.html#colors">Colors</a></td>
+<td>The fill color under the line. See <a href="../general/colors.html#colors">Colors</a>.</td>
 </tr>
 <tr>
 <td><code>borderColor</code></td>
 <td><code>Color</code></td>
-<td>The color of the line. See <a href="../general/colors.html#colors">Colors</a></td>
+<td>The color of the line. See <a href="../general/colors.html#colors">Colors</a>.</td>
 </tr>
 <tr>
 <td><code>borderWidth</code></td>
@@ -946,22 +946,22 @@
 <tr>
 <td><code>borderDash</code></td>
 <td><code>Number[]</code></td>
-<td>Length and spacing of dashes. See <a href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/setLineDash" target="_blank">MDN</a></td>
+<td>Length and spacing of dashes. See <a href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/setLineDash" target="_blank">MDN</a>.</td>
 </tr>
 <tr>
 <td><code>borderDashOffset</code></td>
 <td><code>Number</code></td>
-<td>Offset for line dashes. See <a href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineDashOffset" target="_blank">MDN</a></td>
+<td>Offset for line dashes. See <a href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineDashOffset" target="_blank">MDN</a>.</td>
 </tr>
 <tr>
 <td><code>borderCapStyle</code></td>
 <td><code>String</code></td>
-<td>Cap style of the line. See <a href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineCap" target="_blank">MDN</a></td>
+<td>Cap style of the line. See <a href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineCap" target="_blank">MDN</a>.</td>
 </tr>
 <tr>
 <td><code>borderJoinStyle</code></td>
 <td><code>String</code></td>
-<td>Line joint style. See <a href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineJoin" target="_blank">MDN</a></td>
+<td>Line joint style. See <a href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineJoin" target="_blank">MDN</a>.</td>
 </tr>
 <tr>
 <td><code>cubicInterpolationMode</code></td>
@@ -971,7 +971,7 @@
 <tr>
 <td><code>fill</code></td>
 <td><code>Boolean/String</code></td>
-<td>How to fill the area under the line. See <a href="area.html">area charts</a></td>
+<td>How to fill the area under the line. See <a href="area.html">area charts</a>.</td>
 </tr>
 <tr>
 <td><code>lineTension</code></td>
@@ -1041,7 +1041,7 @@
 <tr>
 <td><code>spanGaps</code></td>
 <td><code>Boolean</code></td>
-<td>If true, lines will be drawn between points with no or null data. If false, points with <code>NaN</code> data will create a break in the line</td>
+<td>If true, lines will be drawn between points with no or null data. If false, points with <code>NaN</code> data will create a break in the line.</td>
 </tr>
 <tr>
 <td><code>steppedLine</code></td>
@@ -1051,16 +1051,16 @@
 </tbody>
 </table>
 <h3 id="cubicinterpolationmode">cubicInterpolationMode</h3>
-<p>The following interpolation modes are supported:</p>
+<p>The following interpolation modes are supported.</p>
 <ul>
 <li>&apos;default&apos;</li>
-<li>&apos;monotone&apos;.</li>
+<li>&apos;monotone&apos;</li>
 </ul>
 <p>The &apos;default&apos; algorithm uses a custom weighted cubic interpolation, which produces pleasant curves for all types of datasets.</p>
 <p>The &apos;monotone&apos; algorithm is more suited to <code>y = f(x)</code> datasets : it preserves monotonicity (or piecewise monotonicity) of the dataset being interpolated, and ensures local extremums (if any) stay at input data points.</p>
 <p>If left untouched (<code>undefined</code>), the global <code>options.elements.line.cubicInterpolationMode</code> property is used.</p>
 <h3 id="stepped-line">Stepped Line</h3>
-<p>The following values are supported for <code>steppedLine</code>:</p>
+<p>The following values are supported for <code>steppedLine</code>.</p>
 <ul>
 <li><code>false</code>:  No Step Interpolation (default)</li>
 <li><code>true</code>: Step-before Interpolation (eq. &apos;before&apos;)</li>
@@ -1224,7 +1224,7 @@
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Line","level":"1.5.1","depth":2,"next":{"title":"Bar","level":"1.5.2","depth":2,"path":"charts/bar.md","ref":"charts/bar.md","articles":[]},"previous":{"title":"Charts","level":"1.5","depth":1,"path":"charts/README.md","ref":"charts/README.md","articles":[{"title":"Line","level":"1.5.1","depth":2,"path":"charts/line.md","ref":"charts/line.md","articles":[]},{"title":"Bar","level":"1.5.2","depth":2,"path":"charts/bar.md","ref":"charts/bar.md","articles":[]},{"title":"Radar","level":"1.5.3","depth":2,"path":"charts/radar.md","ref":"charts/radar.md","articles":[]},{"title":"Doughnut & Pie","level":"1.5.4","depth":2,"path":"charts/doughnut.md","ref":"charts/doughnut.md","articles":[]},{"title":"Polar Area","level":"1.5.5","depth":2,"path":"charts/polar.md","ref":"charts/polar.md","articles":[]},{"title":"Bubble","level":"1.5.6","depth":2,"path":"charts/bubble.md","ref":"charts/bubble.md","articles":[]},{"title":"Scatter","level":"1.5.7","depth":2,"path":"charts/scatter.md","ref":"charts/scatter.md","articles":[]},{"title":"Area","level":"1.5.8","depth":2,"path":"charts/area.md","ref":"charts/area.md","articles":[]},{"title":"Mixed","level":"1.5.9","depth":2,"path":"charts/mixed.md","ref":"charts/mixed.md","articles":[]}]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"anchorjs":{"icon":"#","placement":"left","visible":"always"},"ga":{"configuration":"auto","token":"UA-28909194-3"},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"search-plus":{},"chartjs":{"defaults":null},"highlight":{},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"charts/line.md","mtime":"2018-11-02T07:45:21.118Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2018-11-02T07:49:23.514Z"},"basePath":"..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Line","level":"1.5.1","depth":2,"next":{"title":"Bar","level":"1.5.2","depth":2,"path":"charts/bar.md","ref":"charts/bar.md","articles":[]},"previous":{"title":"Charts","level":"1.5","depth":1,"path":"charts/README.md","ref":"charts/README.md","articles":[{"title":"Line","level":"1.5.1","depth":2,"path":"charts/line.md","ref":"charts/line.md","articles":[]},{"title":"Bar","level":"1.5.2","depth":2,"path":"charts/bar.md","ref":"charts/bar.md","articles":[]},{"title":"Radar","level":"1.5.3","depth":2,"path":"charts/radar.md","ref":"charts/radar.md","articles":[]},{"title":"Doughnut & Pie","level":"1.5.4","depth":2,"path":"charts/doughnut.md","ref":"charts/doughnut.md","articles":[]},{"title":"Polar Area","level":"1.5.5","depth":2,"path":"charts/polar.md","ref":"charts/polar.md","articles":[]},{"title":"Bubble","level":"1.5.6","depth":2,"path":"charts/bubble.md","ref":"charts/bubble.md","articles":[]},{"title":"Scatter","level":"1.5.7","depth":2,"path":"charts/scatter.md","ref":"charts/scatter.md","articles":[]},{"title":"Area","level":"1.5.8","depth":2,"path":"charts/area.md","ref":"charts/area.md","articles":[]},{"title":"Mixed","level":"1.5.9","depth":2,"path":"charts/mixed.md","ref":"charts/mixed.md","articles":[]}]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"anchorjs":{"icon":"#","placement":"left","visible":"always"},"ga":{"configuration":"auto","token":"UA-28909194-3"},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"search-plus":{},"chartjs":{"defaults":null},"highlight":{},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"charts/line.md","mtime":"2018-11-05T17:58:11.792Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2018-11-05T18:02:37.963Z"},"basePath":"..","book":{"language":""}});
         });
     </script>
 </div>
