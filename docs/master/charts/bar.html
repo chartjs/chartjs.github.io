@@ -902,78 +902,187 @@
 });
 </code></pre>
 <h2 id="dataset-properties">Dataset Properties</h2>
-<p>The bar chart allows a number of properties to be specified for each dataset. These are used to set display properties for a specific dataset. For example, the colour of the bars is generally set this way.</p>
-<p>Some properties can be specified as an array. If these are set to an array value, the first value applies to the first bar, the second value to the second bar, and so on.</p>
+<p>The bar chart allows a number of properties to be specified for each dataset.
+These are used to set display properties for a specific dataset. For example,
+the color of the bars is generally set this way.</p>
 <table>
 <thead>
 <tr>
 <th>Name</th>
 <th>Type</th>
+<th style="text-align:center"><a href="../general/options.html#scriptable-options">Scriptable</a></th>
+<th style="text-align:center"><a href="../general/options.html#indexable-options">Indexable</a></th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#styling"><code>backgroundColor</code></a></td>
+<td><a href="../general/colors.html"><code>Color</code></a></td>
+<td style="text-align:center">Yes</td>
+<td style="text-align:center">Yes</td>
+<td><code>&apos;rgba(0,0,0,0.1)&apos;</code></td>
+</tr>
+<tr>
+<td><a href="#styling"><code>borderColor</code></a></td>
+<td><a href="../general/colors.html"><code>Color</code></a></td>
+<td style="text-align:center">Yes</td>
+<td style="text-align:center">Yes</td>
+<td><code>&apos;rgba(0,0,0,0.1)&apos;</code></td>
+</tr>
+<tr>
+<td><a href="#borderskipped"><code>borderSkipped</code></a></td>
+<td><code>String</code></td>
+<td style="text-align:center">Yes</td>
+<td style="text-align:center">Yes</td>
+<td><code>&apos;bottom&apos;</code></td>
+</tr>
+<tr>
+<td><a href="#styling"><code>borderWidth</code></a></td>
+<td><code>Number</code></td>
+<td style="text-align:center">Yes</td>
+<td style="text-align:center">Yes</td>
+<td><code>0</code></td>
+</tr>
+<tr>
+<td><a href="#data-structure"><code>data</code></a></td>
+<td><code>Object[]</code></td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">-</td>
+<td><strong>required</strong></td>
+</tr>
+<tr>
+<td><a href="#interactions"><code>hoverBackgroundColor</code></a></td>
+<td><a href="../general/colors.html"><code>Color</code></a></td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">-</td>
+<td><code>undefined</code></td>
+</tr>
+<tr>
+<td><a href="#interactions"><code>hoverBorderColor</code></a></td>
+<td><a href="../general/colors.html"><code>Color</code></a></td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">-</td>
+<td><code>undefined</code></td>
+</tr>
+<tr>
+<td><a href="#interactions"><code>hoverBorderWidth</code></a></td>
+<td><code>Number</code></td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">-</td>
+<td><code>1</code></td>
+</tr>
+<tr>
+<td><a href="#general"><code>label</code></a></td>
+<td><code>String</code></td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">-</td>
+<td><code>&apos;&apos;</code></td>
+</tr>
+<tr>
+<td><a href="#general"><code>xAxisID</code></a></td>
+<td><code>String</code></td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">-</td>
+<td>first x axis</td>
+</tr>
+<tr>
+<td><a href="#general"><code>yAxisID</code></a></td>
+<td><code>String</code></td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">-</td>
+<td>first y axis</td>
+</tr>
+</tbody>
+</table>
+<h3 id="general">General</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
 <th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>label</code></td>
-<td><code>String</code></td>
 <td>The label for the dataset which appears in the legend and tooltips.</td>
 </tr>
 <tr>
 <td><code>xAxisID</code></td>
-<td><code>String</code></td>
-<td>The ID of the x axis to plot this dataset on. If not specified, this defaults to the ID of the first found x axis.</td>
+<td>The ID of the x axis to plot this dataset on.</td>
 </tr>
 <tr>
 <td><code>yAxisID</code></td>
-<td><code>String</code></td>
-<td>The ID of the y axis to plot this dataset on. If not specified, this defaults to the ID of the first found y axis.</td>
-</tr>
-<tr>
-<td><code>backgroundColor</code></td>
-<td><code>Color/Color[]</code></td>
-<td>The fill color of the bar. See <a href="../general/colors.html#colors">Colors</a>.</td>
-</tr>
-<tr>
-<td><code>borderColor</code></td>
-<td><code>Color/Color[]</code></td>
-<td>The color of the bar border. See <a href="../general/colors.html#colors">Colors</a>.</td>
-</tr>
-<tr>
-<td><code>borderWidth</code></td>
-<td><code>Number/Number[]</code></td>
-<td>The stroke width of the bar in pixels.</td>
-</tr>
-<tr>
-<td><code>borderSkipped</code></td>
-<td><code>String</code></td>
-<td>Which edge to skip drawing the border for. <a href="#borderskipped">more...</a></td>
-</tr>
-<tr>
-<td><code>hoverBackgroundColor</code></td>
-<td><code>Color/Color[]</code></td>
-<td>The fill colour of the bars when hovered.</td>
-</tr>
-<tr>
-<td><code>hoverBorderColor</code></td>
-<td><code>Color/Color[]</code></td>
-<td>The stroke colour of the bars when hovered.</td>
-</tr>
-<tr>
-<td><code>hoverBorderWidth</code></td>
-<td><code>Number/Number[]</code></td>
-<td>The stroke width of the bars when hovered.</td>
+<td>The ID of the y axis to plot this dataset on.</td>
 </tr>
 </tbody>
 </table>
-<h3 id="borderskipped">borderSkipped</h3>
-<p>This setting is used to avoid drawing the bar stroke at the base of the fill. In general, this does not need to be changed except when creating chart types that derive from a bar chart.</p>
+<h3 id="styling">Styling</h3>
+<p>The style of each bar can be controlled with the following properties:</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>backgroundColor</code></td>
+<td>The bar background color.</td>
+</tr>
+<tr>
+<td><code>borderColor</code></td>
+<td>The bar border color.</td>
+</tr>
+<tr>
+<td><a href="#borderskipped"><code>borderSkipped</code></a></td>
+<td>The edge to skip when drawing bar.</td>
+</tr>
+<tr>
+<td><code>borderWidth</code></td>
+<td>The bar border width (in pixels).</td>
+</tr>
+</tbody>
+</table>
+<p>All these values, if <code>undefined</code>, fallback to the associated <a href="../configuration/elements.html#rectangle-configuration"><code>elements.rectangle.*</code></a> options.</p>
+<h4 id="borderskipped">borderSkipped</h4>
+<p>This setting is used to avoid drawing the bar stroke at the base of the fill.
+In general, this does not need to be changed except when creating chart types
+that derive from a bar chart.</p>
 <p>Options are:</p>
 <ul>
-<li>&apos;bottom&apos;</li>
-<li>&apos;left&apos;</li>
-<li>&apos;top&apos;</li>
-<li>&apos;right&apos;</li>
+<li><code>&apos;bottom&apos;</code></li>
+<li><code>&apos;left&apos;</code></li>
+<li><code>&apos;top&apos;</code></li>
+<li><code>&apos;right&apos;</code></li>
 </ul>
+<h3 id="interactions">Interactions</h3>
+<p>The interaction with each bar can be controlled with the following properties:</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>hoverBackgroundColor</code></td>
+<td>The bar background color when hovered.</td>
+</tr>
+<tr>
+<td><code>hoverBorderColor</code></td>
+<td>The bar border color hovered.</td>
+</tr>
+<tr>
+<td><code>hoverBorderWidth</code></td>
+<td>The bar border width when hovered (in pixels).</td>
+</tr>
+</tbody>
+</table>
+<p>All these values, if <code>undefined</code>, fallback to the associated <a href="../configuration/elements.html#point-configuration"><code>elements.point.*</code></a> options.</p>
 <h2 id="configuration-options">Configuration Options</h2>
 <p>The bar chart defines the following configuration options. These options are merged with the global chart configuration options, <code>Chart.defaults.global</code>, to form the options passed to the chart.</p>
 <table>
@@ -1161,7 +1270,7 @@ Sample:     |==============|
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Bar","level":"1.5.2","depth":2,"next":{"title":"Radar","level":"1.5.3","depth":2,"path":"charts/radar.md","ref":"charts/radar.md","articles":[]},"previous":{"title":"Line","level":"1.5.1","depth":2,"path":"charts/line.md","ref":"charts/line.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"anchorjs":{"icon":"#","placement":"left","visible":"always"},"ga":{"configuration":"auto","token":"UA-28909194-3"},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"search-plus":{},"chartjs":{"defaults":null},"highlight":{},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"charts/bar.md","mtime":"2018-11-12T20:13:28.842Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2018-11-12T20:17:42.744Z"},"basePath":"..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Bar","level":"1.5.2","depth":2,"next":{"title":"Radar","level":"1.5.3","depth":2,"path":"charts/radar.md","ref":"charts/radar.md","articles":[]},"previous":{"title":"Line","level":"1.5.1","depth":2,"path":"charts/line.md","ref":"charts/line.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"anchorjs":{"icon":"#","placement":"left","visible":"always"},"ga":{"configuration":"auto","token":"UA-28909194-3"},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"search-plus":{},"chartjs":{"defaults":null},"highlight":{},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"charts/bar.md","mtime":"2018-11-12T20:18:20.176Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2018-11-12T20:22:28.863Z"},"basePath":"..","book":{"language":""}});
         });
     </script>
 </div>
