@@ -13325,6 +13325,16 @@ module.exports = function(Chart) {
 		};
 	}
 
+	function getTickFontSize(scale) {
+		var opts = scale.options;
+		var tickOpts = opts.ticks;
+
+		if (tickOpts.display && opts.display) {
+			return helpers.valueOrDefault(tickOpts.fontSize, globalDefaults.defaultFontSize);
+		}
+		return 0;
+	}
+
 	function measureLabelSize(ctx, fontSize, label) {
 		if (helpers.isArray(label)) {
 			return {
@@ -13391,6 +13401,7 @@ module.exports = function(Chart) {
 		 */
 
 		var plFont = getPointLabelFontOptions(scale);
+		var paddingTop = getTickFontSize(scale) / 2;
 
 		// Get maximum radius of the polygon. Either half the height (minus the text width) or half the width.
 		// Use this to calculate the offset + change. - Make sure L/R protrusion is at least 0 to stop issues with centre points
@@ -13440,6 +13451,11 @@ module.exports = function(Chart) {
 			}
 		}
 
+		if (paddingTop && -paddingTop < furthestLimits.t) {
+			furthestLimits.t = -paddingTop;
+			furthestAngles.t = 0;
+		}
+
 		scale.setReductions(largestPossibleRadius, furthestLimits, furthestAngles);
 	}
 
@@ -13447,9 +13463,10 @@ module.exports = function(Chart) {
 	 * Helper function to fit a radial linear scale with no point labels
 	 */
 	function fit(scale) {
-		var largestPossibleRadius = Math.min(scale.height / 2, scale.width / 2);
-		scale.drawingArea = Math.round(largestPossibleRadius);
-		scale.setCenterPoint(0, 0, 0, 0);
+		var paddingTop = getTickFontSize(scale) / 2;
+		var largestPossibleRadius = Math.min((scale.height - paddingTop) / 2, scale.width / 2);
+		scale.drawingArea = Math.floor(largestPossibleRadius);
+		scale.setCenterPoint(0, 0, paddingTop, 0);
 	}
 
 	function getTextAlignForAngle(angle) {
@@ -13587,8 +13604,8 @@ module.exports = function(Chart) {
 			// Set the unconstrained dimension before label rotation
 			me.width = me.maxWidth;
 			me.height = me.maxHeight;
-			me.xCenter = Math.round(me.width / 2);
-			me.yCenter = Math.round(me.height / 2);
+			me.xCenter = Math.floor(me.width / 2);
+			me.yCenter = Math.floor(me.height / 2);
 
 			var minSize = helpers.min([me.height, me.width]);
 			var tickFontSize = helpers.valueOrDefault(tickOpts.fontSize, globalDefaults.defaultFontSize);
@@ -13662,8 +13679,8 @@ module.exports = function(Chart) {
 			radiusReductionBottom = numberOrZero(radiusReductionBottom);
 
 			me.drawingArea = Math.min(
-				Math.round(largestPossibleRadius - (radiusReductionLeft + radiusReductionRight) / 2),
-				Math.round(largestPossibleRadius - (radiusReductionTop + radiusReductionBottom) / 2));
+				Math.floor(largestPossibleRadius - (radiusReductionLeft + radiusReductionRight) / 2),
+				Math.floor(largestPossibleRadius - (radiusReductionTop + radiusReductionBottom) / 2));
 			me.setCenterPoint(radiusReductionLeft, radiusReductionRight, radiusReductionTop, radiusReductionBottom);
 		},
 		setCenterPoint: function(leftMovement, rightMovement, topMovement, bottomMovement) {
@@ -13673,8 +13690,8 @@ module.exports = function(Chart) {
 			var maxTop = topMovement + me.drawingArea;
 			var maxBottom = me.height - bottomMovement - me.drawingArea;
 
-			me.xCenter = Math.round(((maxLeft + maxRight) / 2) + me.left);
-			me.yCenter = Math.round(((maxTop + maxBottom) / 2) + me.top);
+			me.xCenter = Math.floor(((maxLeft + maxRight) / 2) + me.left);
+			me.yCenter = Math.floor(((maxTop + maxBottom) / 2) + me.top);
 		},
 
 		getIndexAngle: function(index) {
