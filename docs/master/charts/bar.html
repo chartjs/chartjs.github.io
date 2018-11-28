@@ -1083,8 +1083,8 @@ that derive from a bar chart.</p>
 </tbody>
 </table>
 <p>All these values, if <code>undefined</code>, fallback to the associated <a href="../configuration/elements.html#point-configuration"><code>elements.point.*</code></a> options.</p>
-<h2 id="configuration-options">Configuration Options</h2>
-<p>The bar chart defines the following configuration options. These options are merged with the global chart configuration options, <code>Chart.defaults.global</code>, to form the options passed to the chart.</p>
+<h2 id="scale-configuration">Scale Configuration</h2>
+<p>The bar chart accepts the following configuration from the associated <code>scale</code> options:</p>
 <table>
 <thead>
 <tr>
@@ -1133,16 +1133,14 @@ that derive from a bar chart.</p>
 </tr>
 </tbody>
 </table>
-<h3 id="barthickness">barThickness</h3>
-<p>If this value is a number, it is applied to the width of each bar, in pixels. When this is enforced, <code>barPercentage</code> and <code>categoryPercentage</code> are ignored.</p>
-<p>If set to <code>&apos;flex&apos;</code>, the base sample widths are calculated automatically based on the previous and following samples so that they take the full available widths without overlap. Then, bars are sized using <code>barPercentage</code> and <code>categoryPercentage</code>. There is no gap when the percentage options are 1. This mode generates bars with different widths when data are not evenly spaced.</p>
-<p>If not set (default), the base sample widths are calculated using the smallest interval that prevents bar overlapping, and bars are sized using <code>barPercentage</code> and <code>categoryPercentage</code>. This mode always generates bars equally sized.</p>
-<h3 id="offsetgridlines">offsetGridLines</h3>
-<p>If true, the bars for a particular data point fall between the grid lines. The grid line will move to the left by one half of the tick interval, which is the space between the grid lines. If false, the grid line will go right down the middle of the bars. This is set to true for a category scale in a bar chart while false for other scales or chart types by default.</p>
-<p>This setting applies to the axis configuration. If axes are added to the chart, this setting will need to be set for each new axis.</p>
+<h3 id="example-usage">Example Usage</h3>
 <pre><code class="lang-javascript">options = {
     scales: {
         xAxes: [{
+            barPercentage: <span class="hljs-number">0.5</span>,
+            barThickness: <span class="hljs-number">6</span>,
+            maxBarThickness: <span class="hljs-number">8</span>,
+            minBarLength: <span class="hljs-number">2</span>,
             gridLines: {
                 offsetGridLines: <span class="hljs-literal">true</span>
             }
@@ -1150,6 +1148,12 @@ that derive from a bar chart.</p>
     }
 }
 </code></pre>
+<h3 id="barthickness">barThickness</h3>
+<p>If this value is a number, it is applied to the width of each bar, in pixels. When this is enforced, <code>barPercentage</code> and <code>categoryPercentage</code> are ignored.</p>
+<p>If set to <code>&apos;flex&apos;</code>, the base sample widths are calculated automatically based on the previous and following samples so that they take the full available widths without overlap. Then, bars are sized using <code>barPercentage</code> and <code>categoryPercentage</code>. There is no gap when the percentage options are 1. This mode generates bars with different widths when data are not evenly spaced.</p>
+<p>If not set (default), the base sample widths are calculated using the smallest interval that prevents bar overlapping, and bars are sized using <code>barPercentage</code> and <code>categoryPercentage</code>. This mode always generates bars equally sized.</p>
+<h3 id="offsetgridlines">offsetGridLines</h3>
+<p>If true, the bars for a particular data point fall between the grid lines. The grid line will move to the left by one half of the tick interval, which is the space between the grid lines. If false, the grid line will go right down the middle of the bars. This is set to true for a category scale in a bar chart while false for other scales or chart types by default.</p>
 <h2 id="default-options">Default Options</h2>
 <p>It is common to want to apply a configuration setting to all created bar charts. The global bar chart settings are stored in <code>Chart.defaults.bar</code>. Changing the global options only affects charts created after the change. Existing charts are not changed.</p>
 <h2 id="barpercentage-vs-categorypercentage">barPercentage vs categoryPercentage</h2>
@@ -1225,7 +1229,7 @@ Sample:     |==============|
 });
 </code></pre>
 <h2 id="config-options">Config Options</h2>
-<p>The configuration options for the horizontal bar chart are the same as for the <a href="#configuration-options">bar chart</a>. However, any options specified on the x axis in a bar chart, are applied to the y axis in a horizontal bar chart.</p>
+<p>The configuration options for the horizontal bar chart are the same as for the <a href="#scale-configuration">bar chart</a>. However, any options specified on the x axis in a bar chart, are applied to the y axis in a horizontal bar chart.</p>
 <p>The default horizontal bar configuration is specified in <code>Chart.defaults.horizontalBar</code>.</p>
 
                                 
@@ -1270,7 +1274,7 @@ Sample:     |==============|
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Bar","level":"1.5.2","depth":2,"next":{"title":"Radar","level":"1.5.3","depth":2,"path":"charts/radar.md","ref":"charts/radar.md","articles":[]},"previous":{"title":"Line","level":"1.5.1","depth":2,"path":"charts/line.md","ref":"charts/line.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"anchorjs":{"icon":"#","placement":"left","visible":"always"},"ga":{"configuration":"auto","token":"UA-28909194-3"},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"search-plus":{},"chartjs":{"defaults":null},"highlight":{},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"charts/bar.md","mtime":"2018-11-28T06:55:06.419Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2018-11-28T06:59:07.848Z"},"basePath":"..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Bar","level":"1.5.2","depth":2,"next":{"title":"Radar","level":"1.5.3","depth":2,"path":"charts/radar.md","ref":"charts/radar.md","articles":[]},"previous":{"title":"Line","level":"1.5.1","depth":2,"path":"charts/line.md","ref":"charts/line.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"anchorjs":{"icon":"#","placement":"left","visible":"always"},"ga":{"configuration":"auto","token":"UA-28909194-3"},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"search-plus":{},"chartjs":{"defaults":null},"highlight":{},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"charts/bar.md","mtime":"2018-11-28T06:58:00.181Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2018-11-28T07:02:06.495Z"},"basePath":"..","book":{"language":""}});
         });
     </script>
 </div>
