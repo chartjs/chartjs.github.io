@@ -6176,47 +6176,39 @@ module.exports = {
 /**
  * @namespace Chart
  */
-var Chart = require(30)();
+var Chart = require(23)();
 
-Chart.helpers = require(46);
+Chart.helpers = require(39);
 
 // @todo dispatch these helpers into appropriated helpers/helpers.* file and write unit tests!
-require(28)(Chart);
+require(21)(Chart);
 
-Chart.Animation = require(22);
-Chart.animationService = require(23);
-Chart.defaults = require(26);
-Chart.Element = require(27);
-Chart.elements = require(41);
-Chart.Interaction = require(29);
-Chart.layouts = require(31);
-Chart.platform = require(49);
-Chart.plugins = require(32);
-Chart.Scale = require(33);
-Chart.scaleService = require(34);
-Chart.Ticks = require(35);
-Chart.Tooltip = require(36);
+Chart.Animation = require(15);
+Chart.animationService = require(16);
+Chart.defaults = require(19);
+Chart.Element = require(20);
+Chart.elements = require(34);
+Chart.Interaction = require(22);
+Chart.layouts = require(24);
+Chart.platform = require(42);
+Chart.plugins = require(25);
+Chart.Scale = require(26);
+Chart.scaleService = require(27);
+Chart.Ticks = require(28);
+Chart.Tooltip = require(29);
 
-require(24)(Chart);
-require(25)(Chart);
+require(17)(Chart);
+require(18)(Chart);
 
-require(56)(Chart);
-require(54)(Chart);
-require(55)(Chart);
-require(57)(Chart);
-require(58)(Chart);
-require(59)(Chart);
+require(49)(Chart);
+require(47)(Chart);
+require(48)(Chart);
+require(50)(Chart);
+require(51)(Chart);
+require(52)(Chart);
 
 // Controllers must be loaded after elements
 // See Chart.core.datasetController.dataElementType
-require(15)(Chart);
-require(16)(Chart);
-require(17)(Chart);
-require(18)(Chart);
-require(19)(Chart);
-require(20)(Chart);
-require(21)(Chart);
-
 require(8)(Chart);
 require(9)(Chart);
 require(10)(Chart);
@@ -6226,7 +6218,7 @@ require(13)(Chart);
 require(14)(Chart);
 
 // Loading built-in plugins
-var plugins = require(50);
+var plugins = require(43);
 for (var k in plugins) {
 	if (plugins.hasOwnProperty(k)) {
 		Chart.plugins.register(plugins[k]);
@@ -6291,105 +6283,43 @@ Chart.canvasHelpers = Chart.helpers.canvas;
 /**
  * Provided for backward compatibility, use Chart.layouts instead.
  * @namespace Chart.layoutService
- * @deprecated since version 2.8.0
+ * @deprecated since version 2.7.3
  * @todo remove at version 3
  * @private
  */
 Chart.layoutService = Chart.layouts;
 
-},{"10":10,"11":11,"12":12,"13":13,"14":14,"15":15,"16":16,"17":17,"18":18,"19":19,"20":20,"21":21,"22":22,"23":23,"24":24,"25":25,"26":26,"27":27,"28":28,"29":29,"30":30,"31":31,"32":32,"33":33,"34":34,"35":35,"36":36,"41":41,"46":46,"49":49,"50":50,"54":54,"55":55,"56":56,"57":57,"58":58,"59":59,"8":8,"9":9}],8:[function(require,module,exports){
+/**
+ * Provided for backward compatibility, instead we should create a new Chart
+ * by setting the type in the config (`new Chart(id, {type: '{chart-type}'}`).
+ * @deprecated since version 2.8.0
+ * @todo remove at version 3
+ */
+Chart.helpers.each(
+	[
+		'Bar',
+		'Bubble',
+		'Doughnut',
+		'Line',
+		'PolarArea',
+		'Radar',
+		'Scatter'
+	],
+	function(klass) {
+		Chart[klass] = function(ctx, cfg) {
+			return new Chart(ctx, Chart.helpers.merge(cfg || {}, {
+				type: klass.charAt(0).toLowerCase() + klass.slice(1)
+			}));
+		};
+	}
+);
+
+},{"10":10,"11":11,"12":12,"13":13,"14":14,"15":15,"16":16,"17":17,"18":18,"19":19,"20":20,"21":21,"22":22,"23":23,"24":24,"25":25,"26":26,"27":27,"28":28,"29":29,"34":34,"39":39,"42":42,"43":43,"47":47,"48":48,"49":49,"50":50,"51":51,"52":52,"8":8,"9":9}],8:[function(require,module,exports){
 'use strict';
 
-module.exports = function(Chart) {
-
-	Chart.Bar = function(context, config) {
-		config.type = 'bar';
-
-		return new Chart(context, config);
-	};
-
-};
-
-},{}],9:[function(require,module,exports){
-'use strict';
-
-module.exports = function(Chart) {
-
-	Chart.Bubble = function(context, config) {
-		config.type = 'bubble';
-		return new Chart(context, config);
-	};
-
-};
-
-},{}],10:[function(require,module,exports){
-'use strict';
-
-module.exports = function(Chart) {
-
-	Chart.Doughnut = function(context, config) {
-		config.type = 'doughnut';
-
-		return new Chart(context, config);
-	};
-
-};
-
-},{}],11:[function(require,module,exports){
-'use strict';
-
-module.exports = function(Chart) {
-
-	Chart.Line = function(context, config) {
-		config.type = 'line';
-
-		return new Chart(context, config);
-	};
-
-};
-
-},{}],12:[function(require,module,exports){
-'use strict';
-
-module.exports = function(Chart) {
-
-	Chart.PolarArea = function(context, config) {
-		config.type = 'polarArea';
-
-		return new Chart(context, config);
-	};
-
-};
-
-},{}],13:[function(require,module,exports){
-'use strict';
-
-module.exports = function(Chart) {
-
-	Chart.Radar = function(context, config) {
-		config.type = 'radar';
-
-		return new Chart(context, config);
-	};
-
-};
-
-},{}],14:[function(require,module,exports){
-'use strict';
-
-module.exports = function(Chart) {
-	Chart.Scatter = function(context, config) {
-		config.type = 'scatter';
-		return new Chart(context, config);
-	};
-};
-
-},{}],15:[function(require,module,exports){
-'use strict';
-
-var defaults = require(26);
-var elements = require(41);
-var helpers = require(46);
+var defaults = require(19);
+var elements = require(34);
+var helpers = require(39);
 
 defaults._set('bar', {
 	hover: {
@@ -6916,12 +6846,12 @@ module.exports = function(Chart) {
 	});
 };
 
-},{"26":26,"41":41,"46":46}],16:[function(require,module,exports){
+},{"19":19,"34":34,"39":39}],9:[function(require,module,exports){
 'use strict';
 
-var defaults = require(26);
-var elements = require(41);
-var helpers = require(46);
+var defaults = require(19);
+var elements = require(34);
+var helpers = require(39);
 
 defaults._set('bubble', {
 	hover: {
@@ -7094,12 +7024,12 @@ module.exports = function(Chart) {
 	});
 };
 
-},{"26":26,"41":41,"46":46}],17:[function(require,module,exports){
+},{"19":19,"34":34,"39":39}],10:[function(require,module,exports){
 'use strict';
 
-var defaults = require(26);
-var elements = require(41);
-var helpers = require(46);
+var defaults = require(19);
+var elements = require(34);
+var helpers = require(39);
 
 defaults._set('doughnut', {
 	animation: {
@@ -7397,12 +7327,12 @@ module.exports = function(Chart) {
 	});
 };
 
-},{"26":26,"41":41,"46":46}],18:[function(require,module,exports){
+},{"19":19,"34":34,"39":39}],11:[function(require,module,exports){
 'use strict';
 
-var defaults = require(26);
-var elements = require(41);
-var helpers = require(46);
+var defaults = require(19);
+var elements = require(34);
+var helpers = require(39);
 
 defaults._set('line', {
 	showLines: true,
@@ -7743,12 +7673,12 @@ module.exports = function(Chart) {
 	});
 };
 
-},{"26":26,"41":41,"46":46}],19:[function(require,module,exports){
+},{"19":19,"34":34,"39":39}],12:[function(require,module,exports){
 'use strict';
 
-var defaults = require(26);
-var elements = require(41);
-var helpers = require(46);
+var defaults = require(19);
+var elements = require(34);
+var helpers = require(39);
 
 defaults._set('polarArea', {
 	scale: {
@@ -8000,12 +7930,12 @@ module.exports = function(Chart) {
 	});
 };
 
-},{"26":26,"41":41,"46":46}],20:[function(require,module,exports){
+},{"19":19,"34":34,"39":39}],13:[function(require,module,exports){
 'use strict';
 
-var defaults = require(26);
-var elements = require(41);
-var helpers = require(46);
+var defaults = require(19);
+var elements = require(34);
+var helpers = require(39);
 
 defaults._set('radar', {
 	scale: {
@@ -8174,10 +8104,10 @@ module.exports = function(Chart) {
 	});
 };
 
-},{"26":26,"41":41,"46":46}],21:[function(require,module,exports){
+},{"19":19,"34":34,"39":39}],14:[function(require,module,exports){
 'use strict';
 
-var defaults = require(26);
+var defaults = require(19);
 
 defaults._set('scatter', {
 	hover: {
@@ -8218,10 +8148,10 @@ module.exports = function(Chart) {
 
 };
 
-},{"26":26}],22:[function(require,module,exports){
+},{"19":19}],15:[function(require,module,exports){
 'use strict';
 
-var Element = require(27);
+var Element = require(20);
 
 var exports = module.exports = Element.extend({
 	chart: null, // the animation associated chart instance
@@ -8263,12 +8193,12 @@ Object.defineProperty(exports.prototype, 'chartInstance', {
 	}
 });
 
-},{"27":27}],23:[function(require,module,exports){
+},{"20":20}],16:[function(require,module,exports){
 /* global window: false */
 'use strict';
 
-var defaults = require(26);
-var helpers = require(46);
+var defaults = require(19);
+var helpers = require(39);
 
 defaults._set('global', {
 	animation: {
@@ -8394,19 +8324,19 @@ module.exports = {
 	}
 };
 
-},{"26":26,"46":46}],24:[function(require,module,exports){
+},{"19":19,"39":39}],17:[function(require,module,exports){
 'use strict';
 
-var Animation = require(22);
-var animations = require(23);
-var defaults = require(26);
-var helpers = require(46);
-var Interaction = require(29);
-var layouts = require(31);
-var platform = require(49);
-var plugins = require(32);
-var scaleService = require(34);
-var Tooltip = require(36);
+var Animation = require(15);
+var animations = require(16);
+var defaults = require(19);
+var helpers = require(39);
+var Interaction = require(22);
+var layouts = require(24);
+var platform = require(42);
+var plugins = require(25);
+var scaleService = require(27);
+var Tooltip = require(29);
 
 module.exports = function(Chart) {
 
@@ -9356,10 +9286,10 @@ module.exports = function(Chart) {
 	Chart.Controller = Chart;
 };
 
-},{"22":22,"23":23,"26":26,"29":29,"31":31,"32":32,"34":34,"36":36,"46":46,"49":49}],25:[function(require,module,exports){
+},{"15":15,"16":16,"19":19,"22":22,"24":24,"25":25,"27":27,"29":29,"39":39,"42":42}],18:[function(require,module,exports){
 'use strict';
 
-var helpers = require(46);
+var helpers = require(39);
 
 module.exports = function(Chart) {
 
@@ -9687,10 +9617,10 @@ module.exports = function(Chart) {
 	Chart.DatasetController.extend = helpers.inherits;
 };
 
-},{"46":46}],26:[function(require,module,exports){
+},{"39":39}],19:[function(require,module,exports){
 'use strict';
 
-var helpers = require(46);
+var helpers = require(39);
 
 module.exports = {
 	/**
@@ -9701,11 +9631,11 @@ module.exports = {
 	}
 };
 
-},{"46":46}],27:[function(require,module,exports){
+},{"39":39}],20:[function(require,module,exports){
 'use strict';
 
 var color = require(2);
-var helpers = require(46);
+var helpers = require(39);
 
 function interpolate(start, view, model, ease) {
 	var keys = Object.keys(model);
@@ -9818,15 +9748,15 @@ Element.extend = helpers.inherits;
 
 module.exports = Element;
 
-},{"2":2,"46":46}],28:[function(require,module,exports){
+},{"2":2,"39":39}],21:[function(require,module,exports){
 /* global window: false */
 /* global document: false */
 'use strict';
 
 var color = require(2);
-var defaults = require(26);
-var helpers = require(46);
-var scaleService = require(34);
+var defaults = require(19);
+var helpers = require(39);
+var scaleService = require(27);
 
 module.exports = function() {
 
@@ -10474,10 +10404,10 @@ module.exports = function() {
 	};
 };
 
-},{"2":2,"26":26,"34":34,"46":46}],29:[function(require,module,exports){
+},{"19":19,"2":2,"27":27,"39":39}],22:[function(require,module,exports){
 'use strict';
 
-var helpers = require(46);
+var helpers = require(39);
 
 /**
  * Helper function to get relative position for an event
@@ -10787,10 +10717,10 @@ module.exports = {
 	}
 };
 
-},{"46":46}],30:[function(require,module,exports){
+},{"39":39}],23:[function(require,module,exports){
 'use strict';
 
-var defaults = require(26);
+var defaults = require(19);
 
 defaults._set('global', {
 	responsive: true,
@@ -10838,10 +10768,10 @@ module.exports = function() {
 	return Chart;
 };
 
-},{"26":26}],31:[function(require,module,exports){
+},{"19":19}],24:[function(require,module,exports){
 'use strict';
 
-var helpers = require(46);
+var helpers = require(39);
 
 function filterByPosition(array, position) {
 	return helpers.where(array, function(v) {
@@ -11259,11 +11189,11 @@ module.exports = {
 	}
 };
 
-},{"46":46}],32:[function(require,module,exports){
+},{"39":39}],25:[function(require,module,exports){
 'use strict';
 
-var defaults = require(26);
-var helpers = require(46);
+var defaults = require(19);
+var helpers = require(39);
 
 defaults._set('global', {
 	plugins: {}
@@ -11643,13 +11573,13 @@ module.exports = {
  * @param {Object} options - The plugin options.
  */
 
-},{"26":26,"46":46}],33:[function(require,module,exports){
+},{"19":19,"39":39}],26:[function(require,module,exports){
 'use strict';
 
-var defaults = require(26);
-var Element = require(27);
-var helpers = require(46);
-var Ticks = require(35);
+var defaults = require(19);
+var Element = require(20);
+var helpers = require(39);
+var Ticks = require(28);
 
 defaults._set('scale', {
 	display: true,
@@ -12588,12 +12518,12 @@ module.exports = Element.extend({
 	}
 });
 
-},{"26":26,"27":27,"35":35,"46":46}],34:[function(require,module,exports){
+},{"19":19,"20":20,"28":28,"39":39}],27:[function(require,module,exports){
 'use strict';
 
-var defaults = require(26);
-var helpers = require(46);
-var layouts = require(31);
+var defaults = require(19);
+var helpers = require(39);
+var layouts = require(24);
 
 module.exports = {
 	// Scale registration object. Extensions can register new scale types (such as log or DB scales) and then
@@ -12633,10 +12563,10 @@ module.exports = {
 	}
 };
 
-},{"26":26,"31":31,"46":46}],35:[function(require,module,exports){
+},{"19":19,"24":24,"39":39}],28:[function(require,module,exports){
 'use strict';
 
-var helpers = require(46);
+var helpers = require(39);
 
 /**
  * Namespace to hold static tick generation functions
@@ -12711,12 +12641,12 @@ module.exports = {
 	}
 };
 
-},{"46":46}],36:[function(require,module,exports){
+},{"39":39}],29:[function(require,module,exports){
 'use strict';
 
-var defaults = require(26);
-var Element = require(27);
-var helpers = require(46);
+var defaults = require(19);
+var Element = require(20);
+var helpers = require(39);
 
 defaults._set('global', {
 	tooltips: {
@@ -13686,12 +13616,12 @@ var exports = module.exports = Element.extend({
 exports.positioners = positioners;
 
 
-},{"26":26,"27":27,"46":46}],37:[function(require,module,exports){
+},{"19":19,"20":20,"39":39}],30:[function(require,module,exports){
 'use strict';
 
-var defaults = require(26);
-var Element = require(27);
-var helpers = require(46);
+var defaults = require(19);
+var Element = require(20);
+var helpers = require(39);
 
 defaults._set('global', {
 	elements: {
@@ -13795,12 +13725,12 @@ module.exports = Element.extend({
 	}
 });
 
-},{"26":26,"27":27,"46":46}],38:[function(require,module,exports){
+},{"19":19,"20":20,"39":39}],31:[function(require,module,exports){
 'use strict';
 
-var defaults = require(26);
-var Element = require(27);
-var helpers = require(46);
+var defaults = require(19);
+var Element = require(20);
+var helpers = require(39);
 
 var globalDefaults = defaults.global;
 
@@ -13888,12 +13818,12 @@ module.exports = Element.extend({
 	}
 });
 
-},{"26":26,"27":27,"46":46}],39:[function(require,module,exports){
+},{"19":19,"20":20,"39":39}],32:[function(require,module,exports){
 'use strict';
 
-var defaults = require(26);
-var Element = require(27);
-var helpers = require(46);
+var defaults = require(19);
+var Element = require(20);
+var helpers = require(39);
 
 var defaultColor = defaults.global.defaultColor;
 
@@ -13979,11 +13909,11 @@ module.exports = Element.extend({
 	}
 });
 
-},{"26":26,"27":27,"46":46}],40:[function(require,module,exports){
+},{"19":19,"20":20,"39":39}],33:[function(require,module,exports){
 'use strict';
 
-var defaults = require(26);
-var Element = require(27);
+var defaults = require(19);
+var Element = require(20);
 
 defaults._set('global', {
 	elements: {
@@ -14198,19 +14128,19 @@ module.exports = Element.extend({
 	}
 });
 
-},{"26":26,"27":27}],41:[function(require,module,exports){
+},{"19":19,"20":20}],34:[function(require,module,exports){
 'use strict';
 
 module.exports = {};
-module.exports.Arc = require(37);
-module.exports.Line = require(38);
-module.exports.Point = require(39);
-module.exports.Rectangle = require(40);
+module.exports.Arc = require(30);
+module.exports.Line = require(31);
+module.exports.Point = require(32);
+module.exports.Rectangle = require(33);
 
-},{"37":37,"38":38,"39":39,"40":40}],42:[function(require,module,exports){
+},{"30":30,"31":31,"32":32,"33":33}],35:[function(require,module,exports){
 'use strict';
 
-var helpers = require(43);
+var helpers = require(36);
 
 var PI = Math.PI;
 var RAD_PER_DEG = PI / 180;
@@ -14442,7 +14372,7 @@ helpers.drawRoundedRectangle = function(ctx) {
 	exports.roundedRect.apply(exports, arguments);
 };
 
-},{"43":43}],43:[function(require,module,exports){
+},{"36":36}],36:[function(require,module,exports){
 'use strict';
 
 /**
@@ -14792,10 +14722,10 @@ helpers.getValueOrDefault = helpers.valueOrDefault;
  */
 helpers.getValueAtIndexOrDefault = helpers.valueAtIndexOrDefault;
 
-},{}],44:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 'use strict';
 
-var helpers = require(43);
+var helpers = require(36);
 
 /**
  * Easing functions adapted from Robert Penner's easing equations.
@@ -15044,10 +14974,10 @@ module.exports = {
  */
 helpers.easingEffects = effects;
 
-},{"43":43}],45:[function(require,module,exports){
+},{"36":36}],38:[function(require,module,exports){
 'use strict';
 
-var helpers = require(43);
+var helpers = require(36);
 
 /**
  * @alias Chart.helpers.options
@@ -15142,15 +15072,15 @@ module.exports = {
 	}
 };
 
-},{"43":43}],46:[function(require,module,exports){
+},{"36":36}],39:[function(require,module,exports){
 'use strict';
 
-module.exports = require(43);
-module.exports.easing = require(44);
-module.exports.canvas = require(42);
-module.exports.options = require(45);
+module.exports = require(36);
+module.exports.easing = require(37);
+module.exports.canvas = require(35);
+module.exports.options = require(38);
 
-},{"42":42,"43":43,"44":44,"45":45}],47:[function(require,module,exports){
+},{"35":35,"36":36,"37":37,"38":38}],40:[function(require,module,exports){
 /**
  * Platform fallback implementation (minimal).
  * @see https://github.com/chartjs/Chart.js/pull/4591#issuecomment-319575939
@@ -15167,14 +15097,14 @@ module.exports = {
 	}
 };
 
-},{}],48:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 /**
  * Chart.Platform implementation for targeting a web browser
  */
 
 'use strict';
 
-var helpers = require(46);
+var helpers = require(39);
 
 var EXPANDO_KEY = '$chartjs';
 var CSS_PREFIX = 'chartjs-';
@@ -15628,12 +15558,12 @@ helpers.addEvent = addEventListener;
  */
 helpers.removeEvent = removeEventListener;
 
-},{"46":46}],49:[function(require,module,exports){
+},{"39":39}],42:[function(require,module,exports){
 'use strict';
 
-var helpers = require(46);
-var basic = require(47);
-var dom = require(48);
+var helpers = require(39);
+var basic = require(40);
+var dom = require(41);
 
 // @TODO Make possible to select another platform at build time.
 var implementation = dom._enabled ? dom : basic;
@@ -15704,15 +15634,15 @@ module.exports = helpers.extend({
  * @prop {Number} y - The mouse y position, relative to the canvas (null for incompatible events)
  */
 
-},{"46":46,"47":47,"48":48}],50:[function(require,module,exports){
+},{"39":39,"40":40,"41":41}],43:[function(require,module,exports){
 'use strict';
 
 module.exports = {};
-module.exports.filler = require(51);
-module.exports.legend = require(52);
-module.exports.title = require(53);
+module.exports.filler = require(44);
+module.exports.legend = require(45);
+module.exports.title = require(46);
 
-},{"51":51,"52":52,"53":53}],51:[function(require,module,exports){
+},{"44":44,"45":45,"46":46}],44:[function(require,module,exports){
 /**
  * Plugin based on discussion from the following Chart.js issues:
  * @see https://github.com/chartjs/Chart.js/issues/2380#issuecomment-279961569
@@ -15721,9 +15651,9 @@ module.exports.title = require(53);
 
 'use strict';
 
-var defaults = require(26);
-var elements = require(41);
-var helpers = require(46);
+var defaults = require(19);
+var elements = require(34);
+var helpers = require(39);
 
 defaults._set('global', {
 	plugins: {
@@ -16032,13 +15962,13 @@ module.exports = {
 	}
 };
 
-},{"26":26,"41":41,"46":46}],52:[function(require,module,exports){
+},{"19":19,"34":34,"39":39}],45:[function(require,module,exports){
 'use strict';
 
-var defaults = require(26);
-var Element = require(27);
-var helpers = require(46);
-var layouts = require(31);
+var defaults = require(19);
+var Element = require(20);
+var helpers = require(39);
+var layouts = require(24);
 
 var noop = helpers.noop;
 
@@ -16613,13 +16543,13 @@ module.exports = {
 	}
 };
 
-},{"26":26,"27":27,"31":31,"46":46}],53:[function(require,module,exports){
+},{"19":19,"20":20,"24":24,"39":39}],46:[function(require,module,exports){
 'use strict';
 
-var defaults = require(26);
-var Element = require(27);
-var helpers = require(46);
-var layouts = require(31);
+var defaults = require(19);
+var Element = require(20);
+var helpers = require(39);
+var layouts = require(24);
 
 var noop = helpers.noop;
 
@@ -16867,11 +16797,11 @@ module.exports = {
 	}
 };
 
-},{"26":26,"27":27,"31":31,"46":46}],54:[function(require,module,exports){
+},{"19":19,"20":20,"24":24,"39":39}],47:[function(require,module,exports){
 'use strict';
 
-var Scale = require(33);
-var scaleService = require(34);
+var Scale = require(26);
+var scaleService = require(27);
 
 module.exports = function() {
 
@@ -17004,13 +16934,13 @@ module.exports = function() {
 	scaleService.registerScaleType('category', DatasetScale, defaultConfig);
 };
 
-},{"33":33,"34":34}],55:[function(require,module,exports){
+},{"26":26,"27":27}],48:[function(require,module,exports){
 'use strict';
 
-var defaults = require(26);
-var helpers = require(46);
-var scaleService = require(34);
-var Ticks = require(35);
+var defaults = require(19);
+var helpers = require(39);
+var scaleService = require(27);
+var Ticks = require(28);
 
 module.exports = function(Chart) {
 
@@ -17198,11 +17128,11 @@ module.exports = function(Chart) {
 	scaleService.registerScaleType('linear', LinearScale, defaultConfig);
 };
 
-},{"26":26,"34":34,"35":35,"46":46}],56:[function(require,module,exports){
+},{"19":19,"27":27,"28":28,"39":39}],49:[function(require,module,exports){
 'use strict';
 
-var helpers = require(46);
-var Scale = require(33);
+var helpers = require(39);
+var Scale = require(26);
 
 /**
  * Generate a set of linear ticks
@@ -17398,13 +17328,13 @@ module.exports = function(Chart) {
 	});
 };
 
-},{"33":33,"46":46}],57:[function(require,module,exports){
+},{"26":26,"39":39}],50:[function(require,module,exports){
 'use strict';
 
-var helpers = require(46);
-var Scale = require(33);
-var scaleService = require(34);
-var Ticks = require(35);
+var helpers = require(39);
+var Scale = require(26);
+var scaleService = require(27);
+var Ticks = require(28);
 
 /**
  * Generate a set of logarithmic ticks
@@ -17749,13 +17679,13 @@ module.exports = function(Chart) {
 	scaleService.registerScaleType('logarithmic', LogarithmicScale, defaultConfig);
 };
 
-},{"33":33,"34":34,"35":35,"46":46}],58:[function(require,module,exports){
+},{"26":26,"27":27,"28":28,"39":39}],51:[function(require,module,exports){
 'use strict';
 
-var defaults = require(26);
-var helpers = require(46);
-var scaleService = require(34);
-var Ticks = require(35);
+var defaults = require(19);
+var helpers = require(39);
+var scaleService = require(27);
+var Ticks = require(28);
 
 module.exports = function(Chart) {
 
@@ -18314,17 +18244,17 @@ module.exports = function(Chart) {
 	scaleService.registerScaleType('radialLinear', LinearRadialScale, defaultConfig);
 };
 
-},{"26":26,"34":34,"35":35,"46":46}],59:[function(require,module,exports){
+},{"19":19,"27":27,"28":28,"39":39}],52:[function(require,module,exports){
 /* global window: false */
 'use strict';
 
 var moment = require(6);
 moment = typeof moment === 'function' ? moment : window.moment;
 
-var defaults = require(26);
-var helpers = require(46);
-var Scale = require(33);
-var scaleService = require(34);
+var defaults = require(19);
+var helpers = require(39);
+var Scale = require(26);
+var scaleService = require(27);
 
 // Integer constants are from the ES6 spec.
 var MIN_INTEGER = Number.MIN_SAFE_INTEGER || -9007199254740991;
@@ -19102,5 +19032,5 @@ module.exports = function() {
 	scaleService.registerScaleType('time', TimeScale, defaultConfig);
 };
 
-},{"26":26,"33":33,"34":34,"46":46,"6":6}]},{},[7])(7)
+},{"19":19,"26":26,"27":27,"39":39,"6":6}]},{},[7])(7)
 });
