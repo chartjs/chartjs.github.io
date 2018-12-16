@@ -140,7 +140,7 @@ var helpers = {
 
 	/**
 	 * Returns true if the `a0` and `a1` arrays have the same content, else returns false.
-	 * @see http://stackoverflow.com/a/14853974
+	 * @see https://stackoverflow.com/a/14853974
 	 * @param {Array} a0 - The array to compare
 	 * @param {Array} a1 - The array to compare
 	 * @returns {Boolean}
@@ -3331,7 +3331,7 @@ var core_helpers = function() {
 
 	helpers$1.splineCurve = function(firstPoint, middlePoint, afterPoint, t) {
 		// Props to Rob Spencer at scaled innovation for his post on splining between points
-		// http://scaledinnovation.com/analytics/splines/aboutSplines.html
+		// https://scaledinnovation.com/analytics/splines/aboutSplines.html
 
 		// This function must also respect "skipped" points
 
@@ -3495,7 +3495,7 @@ var core_helpers = function() {
 
 		return niceFraction * Math.pow(10, exponent);
 	};
-	// Request animation polyfill - http://www.paulirish.com/2011/requestanimationframe-for-smart-animating/
+	// Request animation polyfill - https://www.paulirish.com/2011/requestanimationframe-for-smart-animating/
 	helpers$1.requestAnimFrame = (function() {
 		if (typeof window === 'undefined') {
 			return function(callback) {
@@ -3530,7 +3530,7 @@ var core_helpers = function() {
 
 		// Scale mouse coordinates into canvas coordinates
 		// by following the pattern laid out by 'jerryj' in the comments of
-		// http://www.html5canvastutorials.com/advanced/html5-canvas-mouse-coordinates/
+		// https://www.html5canvastutorials.com/advanced/html5-canvas-mouse-coordinates/
 		var paddingLeft = parseFloat(helpers$1.getStyle(canvas, 'padding-left'));
 		var paddingTop = parseFloat(helpers$1.getStyle(canvas, 'padding-top'));
 		var paddingRight = parseFloat(helpers$1.getStyle(canvas, 'padding-right'));
@@ -3579,7 +3579,7 @@ var core_helpers = function() {
 	// @param domNode : the node to check the constraint on
 	// @param maxStyle : the style that defines the maximum for the direction we are using (maxWidth / maxHeight)
 	// @param percentageProperty : property of parent to use when calculating width as a percentage
-	// @see http://www.nathanaeljones.com/blog/2013/reading-max-width-cross-browser
+	// @see https://www.nathanaeljones.com/blog/2013/reading-max-width-cross-browser
 	function getConstraintDimension(domNode, maxStyle, percentageProperty) {
 		var view = document.defaultView;
 		var parentNode = helpers$1._getParentNode(domNode);
@@ -7259,7 +7259,7 @@ function removeResizeListener(node) {
 }
 
 function injectCSS(platform, css) {
-	// http://stackoverflow.com/q/3922139
+	// https://stackoverflow.com/q/3922139
 	var style = platform._style || document.createElement('style');
 	if (!platform._style) {
 		platform._style = style;
@@ -10580,7 +10580,7 @@ var core_controller = function(Chart) {
 function generateTicks(generationOptions, dataRange) {
 	var ticks = [];
 	// To get a "nice" value for the tick spacing, we will use the appropriately named
-	// "nice number" algorithm. See http://stackoverflow.com/questions/8506881/nice-label-algorithm-for-charts-with-minimum-ticks
+	// "nice number" algorithm. See https://stackoverflow.com/questions/8506881/nice-label-algorithm-for-charts-with-minimum-ticks
 	// for details.
 
 	var stepSize = generationOptions.stepSize;
@@ -12105,7 +12105,7 @@ function buildLookupTable(timestamps, min, max, distribution) {
 	return table;
 }
 
-// @see adapted from http://www.anujgakhar.com/2014/03/01/binary-search-in-javascript/
+// @see adapted from https://www.anujgakhar.com/2014/03/01/binary-search-in-javascript/
 function lookup(table, key, value) {
 	var lo = 0;
 	var hi = table.length - 1;
@@ -12154,7 +12154,7 @@ function interpolate$1(table, skey, sval, tkey) {
 
 /**
  * Convert the given value to a moment object using the given time options.
- * @see http://momentjs.com/docs/#/parsing/
+ * @see https://momentjs.com/docs/#/parsing/
  */
 function momentify(value, options) {
 	var parser = options.parser;
@@ -12423,15 +12423,15 @@ var scale_time = function() {
 		bounds: 'data',
 
 		time: {
-			parser: false, // false == a pattern string from http://momentjs.com/docs/#/parsing/string-format/ or a custom callback that converts its argument to a moment
-			format: false, // DEPRECATED false == date objects, moment object, callback or a pattern string from http://momentjs.com/docs/#/parsing/string-format/
+			parser: false, // false == a pattern string from https://momentjs.com/docs/#/parsing/string-format/ or a custom callback that converts its argument to a moment
+			format: false, // DEPRECATED false == date objects, moment object, callback or a pattern string from https://momentjs.com/docs/#/parsing/string-format/
 			unit: false, // false == automatic or override with week, month, year, etc.
 			round: false, // none, or override with week, month, year, etc.
 			displayFormat: false, // DEPRECATED
-			isoWeekday: false, // override week start day - see http://momentjs.com/docs/#/get-set/iso-weekday/
+			isoWeekday: false, // override week start day - see https://momentjs.com/docs/#/get-set/iso-weekday/
 			minUnit: 'millisecond',
 
-			// defaults to unit's corresponding unitFormat below or override using pattern string from http://momentjs.com/docs/#/displaying/format/
+			// defaults to unit's corresponding unitFormat below or override using pattern string from https://momentjs.com/docs/#/displaying/format/
 			displayFormats: {
 				millisecond: 'h:mm:ss.SSS a', // 11:20:01.123 AM,
 				second: 'h:mm:ss a', // 11:20:01 AM
