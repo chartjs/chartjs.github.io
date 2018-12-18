@@ -4372,7 +4372,8 @@ core_defaults._set('global', {
 		arc: {
 			backgroundColor: core_defaults.global.defaultColor,
 			borderColor: '#fff',
-			borderWidth: 2
+			borderWidth: 2,
+			borderAlign: 'center'
 		}
 	}
 });
@@ -4448,24 +4449,52 @@ var element_arc = core_element.extend({
 		var vm = this._view;
 		var sA = vm.startAngle;
 		var eA = vm.endAngle;
+		var pixelMargin = (vm.borderAlign === 'inner') ? 0.33 : 0;
+		var angleMargin;
+
+		ctx.save();
 
 		ctx.beginPath();
-
-		ctx.arc(vm.x, vm.y, vm.outerRadius, sA, eA);
+		ctx.arc(vm.x, vm.y, vm.outerRadius - pixelMargin, sA, eA);
 		ctx.arc(vm.x, vm.y, vm.innerRadius, eA, sA, true);
-
 		ctx.closePath();
-		ctx.strokeStyle = vm.borderColor;
-		ctx.lineWidth = vm.borderWidth;
 
 		ctx.fillStyle = vm.backgroundColor;
-
 		ctx.fill();
-		ctx.lineJoin = 'bevel';
 
 		if (vm.borderWidth) {
+			if (vm.borderAlign === 'inner') {
+				// Draw an inner border by cliping the arc and drawing a double-width border
+				// Enlarge the clipping arc by 0.33 pixels to eliminate glitches between borders
+				ctx.beginPath();
+				angleMargin = pixelMargin / vm.outerRadius;
+				ctx.arc(vm.x, vm.y, vm.outerRadius, sA - angleMargin, eA + angleMargin);
+				if (vm.innerRadius > pixelMargin) {
+					angleMargin = pixelMargin / vm.innerRadius;
+					ctx.arc(vm.x, vm.y, vm.innerRadius - pixelMargin, eA + angleMargin, sA - angleMargin, true);
+				} else {
+					ctx.arc(vm.x, vm.y, pixelMargin, eA + Math.PI / 2, sA - Math.PI / 2);
+				}
+				ctx.closePath();
+				ctx.clip();
+
+				ctx.beginPath();
+				ctx.arc(vm.x, vm.y, vm.outerRadius, sA, eA);
+				ctx.arc(vm.x, vm.y, vm.innerRadius, eA, sA, true);
+				ctx.closePath();
+
+				ctx.lineWidth = vm.borderWidth * 2;
+				ctx.lineJoin = 'round';
+			} else {
+				ctx.lineWidth = vm.borderWidth;
+				ctx.lineJoin = 'bevel';
+			}
+
+			ctx.strokeStyle = vm.borderColor;
 			ctx.stroke();
 		}
+
+		ctx.restore();
 	}
 });
 
@@ -5604,14 +5633,15 @@ var controller_doughnut = core_datasetController.extend({
 		var chart = me.chart;
 		var chartArea = chart.chartArea;
 		var opts = chart.options;
-		var arcOpts = opts.elements.arc;
-		var availableWidth = chartArea.right - chartArea.left - arcOpts.borderWidth;
-		var availableHeight = chartArea.bottom - chartArea.top - arcOpts.borderWidth;
+		var availableWidth = chartArea.right - chartArea.left;
+		var availableHeight = chartArea.bottom - chartArea.top;
 		var minSize = Math.min(availableWidth, availableHeight);
 		var offset = {x: 0, y: 0};
 		var meta = me.getMeta();
+		var arcs = meta.data;
 		var cutoutPercentage = opts.cutoutPercentage;
 		var circumference = opts.circumference;
+		var i, ilen;
 
 		// If the chart's circumference isn't a full circle, calculate minSize as a ratio of the width/height of the arc
 		if (circumference < Math.PI * 2.0) {
@@ -5632,7 +5662,11 @@ var controller_doughnut = core_datasetController.extend({
 			offset = {x: (max.x + min.x) * -0.5, y: (max.y + min.y) * -0.5};
 		}
 
-		chart.borderWidth = me.getMaxBorderWidth(meta.data);
+		for (i = 0, ilen = arcs.length; i < ilen; ++i) {
+			arcs[i]._options = me._resolveElementOptions(arcs[i], i, reset);
+		}
+
+		chart.borderWidth = me.getMaxBorderWidth();
 		chart.outerRadius = Math.max((minSize - chart.borderWidth) / 2, 0);
 		chart.innerRadius = Math.max(cutoutPercentage ? (chart.outerRadius / 100) * (cutoutPercentage) : 0, 0);
 		chart.radiusLength = (chart.outerRadius - chart.innerRadius) / chart.getVisibleDatasetCount();
@@ -5644,9 +5678,9 @@ var controller_doughnut = core_datasetController.extend({
 		me.outerRadius = chart.outerRadius - (chart.radiusLength * me.getRingIndex(me.index));
 		me.innerRadius = Math.max(me.outerRadius - chart.radiusLength, 0);
 
-		helpers$1.each(meta.data, function(arc, index) {
-			me.updateElement(arc, index, reset);
-		});
+		for (i = 0, ilen = arcs.length; i < ilen; ++i) {
+			me.updateElement(arcs[i], i, reset);
+		}
 	},
 
 	updateElement: function(arc, index, reset) {
@@ -5663,7 +5697,7 @@ var controller_doughnut = core_datasetController.extend({
 		var circumference = reset && animationOpts.animateRotate ? 0 : arc.hidden ? 0 : me.calculateCircumference(dataset.data[index]) * (opts.circumference / (2.0 * Math.PI));
 		var innerRadius = reset && animationOpts.animateScale ? 0 : me.innerRadius;
 		var outerRadius = reset && animationOpts.animateScale ? 0 : me.outerRadius;
-		var valueAtIndexOrDefault = helpers$1.valueAtIndexOrDefault;
+		var options = arc._options || {};
 
 		helpers$1.extend(arc, {
 			// Utility
@@ -5672,6 +5706,10 @@ var controller_doughnut = core_datasetController.extend({
 
 			// Desired view properties
 			_model: {
+				backgroundColor: options.backgroundColor,
+				borderColor: options.borderColor,
+				borderWidth: options.borderWidth,
+				borderAlign: options.borderAlign,
 				x: centerX + chart.offsetX,
 				y: centerY + chart.offsetY,
 				startAngle: startAngle,
@@ -5679,19 +5717,11 @@ var controller_doughnut = core_datasetController.extend({
 				circumference: circumference,
 				outerRadius: outerRadius,
 				innerRadius: innerRadius,
-				label: valueAtIndexOrDefault(dataset.label, index, chart.data.labels[index])
+				label: helpers$1.valueAtIndexOrDefault(dataset.label, index, chart.data.labels[index])
 			}
 		});
 
 		var model = arc._model;
-
-		// Resets the visual styles
-		var custom = arc.custom || {};
-		var valueOrDefault = helpers$1.valueAtIndexOrDefault;
-		var elementOpts = this.chart.options.elements.arc;
-		model.backgroundColor = custom.backgroundColor ? custom.backgroundColor : valueOrDefault(dataset.backgroundColor, index, elementOpts.backgroundColor);
-		model.borderColor = custom.borderColor ? custom.borderColor : valueOrDefault(dataset.borderColor, index, elementOpts.borderColor);
-		model.borderWidth = custom.borderWidth ? custom.borderWidth : valueOrDefault(dataset.borderWidth, index, elementOpts.borderWidth);
 
 		// Set correct angles if not resetting
 		if (!reset || !animationOpts.animateRotate) {
@@ -5737,20 +5767,59 @@ var controller_doughnut = core_datasetController.extend({
 
 	// gets the max border or hover width to properly scale pie charts
 	getMaxBorderWidth: function(arcs) {
+		var me = this;
 		var max = 0;
-		var index = this.index;
-		var length = arcs.length;
-		var borderWidth;
-		var hoverWidth;
+		var chart = me.chart;
+		var i, ilen, meta, arc, controller, options, borderWidth, hoverWidth;
 
-		for (var i = 0; i < length; i++) {
-			borderWidth = arcs[i]._model ? arcs[i]._model.borderWidth : 0;
-			hoverWidth = arcs[i]._chart ? arcs[i]._chart.config.data.datasets[index].hoverBorderWidth : 0;
+		if (!arcs) {
+			// Find the outmost visible dataset
+			for (i = 0, ilen = chart.data.datasets.length; i < ilen; ++i) {
+				if (chart.isDatasetVisible(i)) {
+					meta = chart.getDatasetMeta(i);
+					arcs = meta.data;
+					if (i !== me.index) {
+						controller = meta.controller;
+					}
+					break;
+				}
+			}
+		}
 
-			max = borderWidth > max ? borderWidth : max;
-			max = hoverWidth > max ? hoverWidth : max;
+		if (!arcs) {
+			return 0;
+		}
+
+		for (i = 0, ilen = arcs.length; i < ilen; ++i) {
+			arc = arcs[i];
+			options = controller ? controller._resolveElementOptions(arc, i) : arc._options;
+			if (options.borderAlign !== 'inner') {
+				borderWidth = options.borderWidth;
+				hoverWidth = options.hoverBorderWidth;
+
+				max = borderWidth > max ? borderWidth : max;
+				max = hoverWidth > max ? hoverWidth : max;
+			}
 		}
 		return max;
+	},
+
+	/**
+	 * @private
+	 */
+	_resolveElementOptions: function(arc, index) {
+		var me = this;
+		var dataset = me.getDataset();
+		var custom = arc.custom || {};
+		var options = me.chart.options.elements.arc;
+		var valueAtIndexOrDefault = helpers$1.valueAtIndexOrDefault;
+
+		return {
+			backgroundColor: custom.backgroundColor ? custom.backgroundColor : valueAtIndexOrDefault(dataset.backgroundColor, index, options.backgroundColor),
+			borderColor: custom.borderColor ? custom.borderColor : valueAtIndexOrDefault(dataset.borderColor, index, options.borderColor),
+			borderWidth: custom.borderWidth ? custom.borderWidth : valueAtIndexOrDefault(dataset.borderWidth, index, options.borderWidth),
+			borderAlign: custom.borderAlign ? custom.borderAlign : valueAtIndexOrDefault(dataset.borderAlign, index, options.borderAlign)
+		};
 	}
 });
 
@@ -6306,10 +6375,9 @@ var controller_polarArea = core_datasetController.extend({
 		var chart = me.chart;
 		var chartArea = chart.chartArea;
 		var opts = chart.options;
-		var arcOpts = opts.elements.arc;
 		var minSize = Math.min(chartArea.right - chartArea.left, chartArea.bottom - chartArea.top);
 
-		chart.outerRadius = Math.max((minSize - arcOpts.borderWidth / 2) / 2, 0);
+		chart.outerRadius = Math.max(minSize / 2, 0);
 		chart.innerRadius = Math.max(opts.cutoutPercentage ? (chart.outerRadius / 100) * (opts.cutoutPercentage) : 1, 0);
 		chart.radiusLength = (chart.outerRadius - chart.innerRadius) / chart.getVisibleDatasetCount();
 
@@ -6364,6 +6432,7 @@ var controller_polarArea = core_datasetController.extend({
 		model.backgroundColor = custom.backgroundColor ? custom.backgroundColor : valueOrDefault(dataset.backgroundColor, index, elementOpts.backgroundColor);
 		model.borderColor = custom.borderColor ? custom.borderColor : valueOrDefault(dataset.borderColor, index, elementOpts.borderColor);
 		model.borderWidth = custom.borderWidth ? custom.borderWidth : valueOrDefault(dataset.borderWidth, index, elementOpts.borderWidth);
+		model.borderAlign = custom.borderAlign ? custom.borderAlign : valueOrDefault(dataset.borderAlign, index, elementOpts.borderAlign);
 
 		arc.pivot();
 	},

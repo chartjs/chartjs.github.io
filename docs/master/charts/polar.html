@@ -915,36 +915,48 @@
 <tbody>
 <tr>
 <td><code>backgroundColor</code></td>
-<td><code>Color[]</code></td>
+<td><code>Color/Color[]</code></td>
 <td>The fill color of the arcs in the dataset. See <a href="../general/colors.html#colors">Colors</a>.</td>
 </tr>
 <tr>
 <td><code>borderColor</code></td>
-<td><code>Color[]</code></td>
+<td><code>Color/Color[]</code></td>
 <td>The border color of the arcs in the dataset. See <a href="../general/colors.html#colors">Colors</a>.</td>
 </tr>
 <tr>
 <td><code>borderWidth</code></td>
-<td><code>Number[]</code></td>
+<td><code>Number/Number[]</code></td>
 <td>The border width of the arcs in the dataset.</td>
 </tr>
 <tr>
+<td><code>borderAlign</code></td>
+<td><code>String/String[]</code></td>
+<td>The border alignment of the arcs in the dataset. <a href="#border-alignment">more...</a></td>
+</tr>
+<tr>
 <td><code>hoverBackgroundColor</code></td>
-<td><code>Color[]</code></td>
+<td><code>Color/Color[]</code></td>
 <td>The fill colour of the arcs when hovered.</td>
 </tr>
 <tr>
 <td><code>hoverBorderColor</code></td>
-<td><code>Color[]</code></td>
+<td><code>Color/Color[]</code></td>
 <td>The stroke colour of the arcs when hovered.</td>
 </tr>
 <tr>
 <td><code>hoverBorderWidth</code></td>
-<td><code>Number[]</code></td>
+<td><code>Number/Number[]</code></td>
 <td>The stroke width of the arcs when hovered.</td>
 </tr>
 </tbody>
 </table>
+<h3 id="border-alignment">Border Alignment</h3>
+<p>The following values are supported for <code>borderAlign</code>.</p>
+<ul>
+<li><code>&apos;center&apos;</code> (default)</li>
+<li><code>&apos;inner&apos;</code></li>
+</ul>
+<p>When <code>&apos;center&apos;</code> is set, the borders of arcs next to each other will overlap. When <code>&apos;inner&apos;</code> is set, it is guaranteed that all the borders are not overlap.</p>
 <h2 id="config-options">Config Options</h2>
 <p>These are the customisation options specific to Polar Area charts. These options are merged with the <a href="#default-options">global chart default options</a>, and form the options of the chart.</p>
 <table>
@@ -1041,7 +1053,7 @@
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Polar Area","level":"1.5.5","depth":2,"next":{"title":"Bubble","level":"1.5.6","depth":2,"path":"charts/bubble.md","ref":"charts/bubble.md","articles":[]},"previous":{"title":"Doughnut & Pie","level":"1.5.4","depth":2,"path":"charts/doughnut.md","ref":"charts/doughnut.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"anchorjs":{"icon":"#","placement":"left","visible":"always"},"ga":{"configuration":"auto","token":"UA-28909194-3"},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"search-plus":{},"chartjs":{"defaults":null},"highlight":{},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"charts/polar.md","mtime":"2018-12-18T08:34:26.438Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2018-12-18T08:37:16.921Z"},"basePath":"..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Polar Area","level":"1.5.5","depth":2,"next":{"title":"Bubble","level":"1.5.6","depth":2,"path":"charts/bubble.md","ref":"charts/bubble.md","articles":[]},"previous":{"title":"Doughnut & Pie","level":"1.5.4","depth":2,"path":"charts/doughnut.md","ref":"charts/doughnut.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"anchorjs":{"icon":"#","placement":"left","visible":"always"},"ga":{"configuration":"auto","token":"UA-28909194-3"},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"search-plus":{},"chartjs":{"defaults":null},"highlight":{},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"charts/polar.md","mtime":"2018-12-18T12:59:41.973Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2018-12-18T13:02:45.614Z"},"basePath":"..","book":{"language":""}});
         });
     </script>
 </div>
