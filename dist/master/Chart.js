@@ -366,6 +366,62 @@ helpers.getValueOrDefault = helpers.valueOrDefault;
  */
 helpers.getValueAtIndexOrDefault = helpers.valueAtIndexOrDefault;
 
+var core_defaults = {
+	/**
+	 * @private
+	 */
+	_set: function(scope, values) {
+		return helpers_core.merge(this[scope] || (this[scope] = {}), values);
+	}
+};
+
+core_defaults._set('global', {
+	responsive: true,
+	responsiveAnimationDuration: 0,
+	maintainAspectRatio: true,
+	events: ['mousemove', 'mouseout', 'click', 'touchstart', 'touchmove'],
+	hover: {
+		onHover: null,
+		mode: 'nearest',
+		intersect: true,
+		animationDuration: 400
+	},
+	onClick: null,
+	defaultColor: 'rgba(0,0,0,0.1)',
+	defaultFontColor: '#666',
+	defaultFontFamily: "'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
+	defaultFontSize: 12,
+	defaultFontStyle: 'normal',
+	defaultLineHeight: 1.2,
+	showLines: true,
+
+	// Element defaults defined in element extensions
+	elements: {},
+
+	// Layout options such as padding
+	layout: {
+		padding: {
+			top: 0,
+			right: 0,
+			bottom: 0,
+			left: 0
+		}
+	}
+});
+
+var core = function() {
+
+	// Occupy the global variable of Chart, and create a simple base class
+	var Chart = function(item, config) {
+		this.construct(item, config);
+		return this;
+	};
+
+	Chart.Chart = Chart;
+
+	return Chart;
+};
+
 /**
  * Easing functions adapted from Robert Penner's easing equations.
  * @namespace Chart.helpers.easingEffects
@@ -851,6 +907,23 @@ helpers_core.drawRoundedRectangle = function(ctx) {
 };
 
 /**
+ * Converts the given font object into a CSS font string.
+ * @param {Object} font - A font object.
+ * @return {Stringg} The CSS font string. See https://developer.mozilla.org/en-US/docs/Web/CSS/font
+ * @private
+ */
+function toFontString(font) {
+	if (!font || helpers_core.isNullOrUndef(font.size) || helpers_core.isNullOrUndef(font.family)) {
+		return null;
+	}
+
+	return (font.style ? font.style + ' ' : '')
+		+ (font.weight ? font.weight + ' ' : '')
+		+ font.size + 'px '
+		+ font.family;
+}
+
+/**
  * @alias Chart.helpers.options
  * @namespace
  */
@@ -914,6 +987,30 @@ var helpers_options = {
 	},
 
 	/**
+	 * Parses font options and returns the font object.
+	 * @param {Object} options - A object that contains font opttons to be parsed.
+	 * @return {Object} The font object.
+	 * @todo Support font.* options and renamed to toFont().
+	 * @private
+	 */
+	_parseFont: function(options) {
+		var valueOrDefault = helpers_core.valueOrDefault;
+		var globalDefaults = core_defaults.global;
+		var size = valueOrDefault(options.fontSize, globalDefaults.defaultFontSize);
+		var font = {
+			family: valueOrDefault(options.fontFamily, globalDefaults.defaultFontFamily),
+			lineHeight: helpers_core.options.toLineHeight(valueOrDefault(options.lineHeight, globalDefaults.defaultLineHeight), size),
+			size: size,
+			style: valueOrDefault(options.fontStyle, globalDefaults.defaultFontStyle),
+			weight: null,
+			string: ''
+		};
+
+		font.string = toFontString(font);
+		return font;
+	},
+
+	/**
 	 * Evaluates the given `inputs` sequentially and returns the first defined value.
 	 * @param {Array[]} inputs - An array of values, falling back to the last value.
 	 * @param {Object} [context] - If defined and the current value is a function, the value
@@ -950,61 +1047,6 @@ var options = helpers_options;
 helpers$1.easing = easing;
 helpers$1.canvas = canvas;
 helpers$1.options = options;
-
-var core_defaults = {
-	/**
-	 * @private
-	 */
-	_set: function(scope, values) {
-		return helpers$1.merge(this[scope] || (this[scope] = {}), values);
-	}
-};
-
-core_defaults._set('global', {
-	responsive: true,
-	responsiveAnimationDuration: 0,
-	maintainAspectRatio: true,
-	events: ['mousemove', 'mouseout', 'click', 'touchstart', 'touchmove'],
-	hover: {
-		onHover: null,
-		mode: 'nearest',
-		intersect: true,
-		animationDuration: 400
-	},
-	onClick: null,
-	defaultColor: 'rgba(0,0,0,0.1)',
-	defaultFontColor: '#666',
-	defaultFontFamily: "'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
-	defaultFontSize: 12,
-	defaultFontStyle: 'normal',
-	showLines: true,
-
-	// Element defaults defined in element extensions
-	elements: {},
-
-	// Layout options such as padding
-	layout: {
-		padding: {
-			top: 0,
-			right: 0,
-			bottom: 0,
-			left: 0
-		}
-	}
-});
-
-var core = function() {
-
-	// Occupy the global variable of Chart, and create a simple base class
-	var Chart = function(item, config) {
-		this.construct(item, config);
-		return this;
-	};
-
-	Chart.Chart = Chart;
-
-	return Chart;
-};
 
 /* MIT license */
 
@@ -4510,15 +4552,15 @@ var element_arc = core_element.extend({
 	}
 });
 
-var globalDefaults = core_defaults.global;
+var defaultColor = core_defaults.global.defaultColor;
 
 core_defaults._set('global', {
 	elements: {
 		line: {
 			tension: 0.4,
-			backgroundColor: globalDefaults.defaultColor,
+			backgroundColor: defaultColor,
 			borderWidth: 3,
-			borderColor: globalDefaults.defaultColor,
+			borderColor: defaultColor,
 			borderCapStyle: 'butt',
 			borderDash: [],
 			borderDashOffset: 0.0,
@@ -4536,6 +4578,7 @@ var element_line = core_element.extend({
 		var ctx = me._chart.ctx;
 		var spanGaps = vm.spanGaps;
 		var points = me._children.slice(); // clone array
+		var globalDefaults = core_defaults.global;
 		var globalOptionLineElements = globalDefaults.elements.line;
 		var lastDrawnIndex = -1;
 		var index, current, previous, currentVM;
@@ -4596,15 +4639,15 @@ var element_line = core_element.extend({
 	}
 });
 
-var defaultColor = core_defaults.global.defaultColor;
+var defaultColor$1 = core_defaults.global.defaultColor;
 
 core_defaults._set('global', {
 	elements: {
 		point: {
 			radius: 3,
 			pointStyle: 'circle',
-			backgroundColor: defaultColor,
-			borderColor: defaultColor,
+			backgroundColor: defaultColor$1,
+			borderColor: defaultColor$1,
 			borderWidth: 1,
 			// Hover
 			hitRadius: 1,
@@ -4665,6 +4708,8 @@ var element_point = core_element.extend({
 		var x = vm.x;
 		var y = vm.y;
 		var epsilon = 0.0000001; // 0.0000001 is margin in pixels for Accumulated error.
+		var globalDefaults = core_defaults.global;
+		var defaultColor = globalDefaults.defaultColor; // eslint-disable-line no-shadow
 
 		if (vm.skip) {
 			return;
@@ -4673,18 +4718,20 @@ var element_point = core_element.extend({
 		// Clipping for Points.
 		if (chartArea === undefined || (model.x > chartArea.left - epsilon && chartArea.right + epsilon > model.x && model.y > chartArea.top - epsilon && chartArea.bottom + epsilon > model.y)) {
 			ctx.strokeStyle = vm.borderColor || defaultColor;
-			ctx.lineWidth = helpers$1.valueOrDefault(vm.borderWidth, core_defaults.global.elements.point.borderWidth);
+			ctx.lineWidth = helpers$1.valueOrDefault(vm.borderWidth, globalDefaults.elements.point.borderWidth);
 			ctx.fillStyle = vm.backgroundColor || defaultColor;
 			helpers$1.canvas.drawPoint(ctx, pointStyle, radius, x, y, rotation);
 		}
 	}
 });
 
+var defaultColor$2 = core_defaults.global.defaultColor;
+
 core_defaults._set('global', {
 	elements: {
 		rectangle: {
-			backgroundColor: core_defaults.global.defaultColor,
-			borderColor: core_defaults.global.defaultColor,
+			backgroundColor: defaultColor$2,
+			borderColor: defaultColor$2,
 			borderSkipped: 'bottom',
 			borderWidth: 0
 		}
@@ -7819,9 +7866,6 @@ core_defaults._set('scale', {
 		// actual label
 		labelString: '',
 
-		// line height
-		lineHeight: 1.2,
-
 		// top/bottom padding
 		padding: {
 			top: 4,
@@ -7880,27 +7924,6 @@ function computeTextSize(context, tick, font) {
 	return helpers$1.isArray(tick) ?
 		helpers$1.longestText(context, font, tick) :
 		context.measureText(tick).width;
-}
-
-function parseFontOptions(options) {
-	var valueOrDefault = helpers$1.valueOrDefault;
-	var globalDefaults = core_defaults.global;
-	var size = valueOrDefault(options.fontSize, globalDefaults.defaultFontSize);
-	var style = valueOrDefault(options.fontStyle, globalDefaults.defaultFontStyle);
-	var family = valueOrDefault(options.fontFamily, globalDefaults.defaultFontFamily);
-
-	return {
-		size: size,
-		style: style,
-		family: family,
-		font: helpers$1.fontString(size, style, family)
-	};
-}
-
-function parseLineHeight(options) {
-	return helpers$1.options.toLineHeight(
-		helpers$1.valueOrDefault(options.lineHeight, 1.2),
-		helpers$1.valueOrDefault(options.fontSize, core_defaults.global.defaultFontSize));
 }
 
 var core_scale = core_element.extend({
@@ -8124,13 +8147,13 @@ var core_scale = core_element.extend({
 
 		// Get the width of each grid by calculating the difference
 		// between x offsets between 0 and 1.
-		var tickFont = parseFontOptions(tickOpts);
-		context.font = tickFont.font;
+		var tickFont = helpers$1.options._parseFont(tickOpts);
+		context.font = tickFont.string;
 
 		var labelRotation = tickOpts.minRotation || 0;
 
 		if (labels.length && me.options.display && me.isHorizontal()) {
-			var originalLabelWidth = helpers$1.longestText(context, tickFont.font, labels, me.longestTextCache);
+			var originalLabelWidth = helpers$1.longestText(context, tickFont.string, labels, me.longestTextCache);
 			var labelWidth = originalLabelWidth;
 			var cosRotation, sinRotation;
 
@@ -8183,7 +8206,8 @@ var core_scale = core_element.extend({
 		var position = opts.position;
 		var isHorizontal = me.isHorizontal();
 
-		var tickFont = parseFontOptions(tickOpts);
+		var parseFont = helpers$1.options._parseFont;
+		var tickFont = parseFont(tickOpts);
 		var tickMarkLength = opts.gridLines.tickMarkLength;
 
 		// Width
@@ -8203,9 +8227,9 @@ var core_scale = core_element.extend({
 
 		// Are we showing a title for the scale?
 		if (scaleLabelOpts.display && display) {
-			var scaleLabelLineHeight = parseLineHeight(scaleLabelOpts);
+			var scaleLabelFont = parseFont(scaleLabelOpts);
 			var scaleLabelPadding = helpers$1.options.toPadding(scaleLabelOpts.padding);
-			var deltaHeight = scaleLabelLineHeight + scaleLabelPadding.height;
+			var deltaHeight = scaleLabelFont.lineHeight + scaleLabelPadding.height;
 
 			if (isHorizontal) {
 				minSize.height += deltaHeight;
@@ -8216,7 +8240,7 @@ var core_scale = core_element.extend({
 
 		// Don't bother fitting the ticks if we are not showing them
 		if (tickOpts.display && display) {
-			var largestTextWidth = helpers$1.longestText(me.ctx, tickFont.font, labels, me.longestTextCache);
+			var largestTextWidth = helpers$1.longestText(me.ctx, tickFont.string, labels, me.longestTextCache);
 			var tallestLabelHeightInLines = helpers$1.numberOfLabelLines(labels);
 			var lineSpace = tickFont.size * 0.5;
 			var tickPadding = me.options.ticks.padding;
@@ -8231,15 +8255,14 @@ var core_scale = core_element.extend({
 
 				// TODO - improve this calculation
 				var labelHeight = (sinRotation * largestTextWidth)
-					+ (tickFont.size * tallestLabelHeightInLines)
-					+ (lineSpace * (tallestLabelHeightInLines - 1))
+					+ (tickFont.lineHeight * tallestLabelHeightInLines)
 					+ lineSpace; // padding
 
 				minSize.height = Math.min(me.maxHeight, minSize.height + labelHeight + tickPadding);
 
-				me.ctx.font = tickFont.font;
-				var firstLabelWidth = computeTextSize(me.ctx, labels[0], tickFont.font);
-				var lastLabelWidth = computeTextSize(me.ctx, labels[labels.length - 1], tickFont.font);
+				me.ctx.font = tickFont.string;
+				var firstLabelWidth = computeTextSize(me.ctx, labels[0], tickFont.string);
+				var lastLabelWidth = computeTextSize(me.ctx, labels[labels.length - 1], tickFont.string);
 				var offsetLeft = me.getPixelForTick(0) - me.left;
 				var offsetRight = me.right - me.getPixelForTick(labels.length - 1);
 				var paddingLeft, paddingRight;
@@ -8500,6 +8523,7 @@ var core_scale = core_element.extend({
 		var chart = me.chart;
 		var context = me.ctx;
 		var globalDefaults = core_defaults.global;
+		var defaultFontColor = globalDefaults.defaultFontColor;
 		var optionTicks = options.ticks.minor;
 		var optionMajorTicks = options.ticks.major || optionTicks;
 		var gridLines = options.gridLines;
@@ -8510,18 +8534,20 @@ var core_scale = core_element.extend({
 		var isMirrored = optionTicks.mirror;
 		var isHorizontal = me.isHorizontal();
 
+		var parseFont = helpers$1.options._parseFont;
 		var ticks = optionTicks.autoSkip ? me._autoSkip(me.getTicks()) : me.getTicks();
-		var tickFontColor = helpers$1.valueOrDefault(optionTicks.fontColor, globalDefaults.defaultFontColor);
-		var tickFont = parseFontOptions(optionTicks);
-		var majorTickFontColor = helpers$1.valueOrDefault(optionMajorTicks.fontColor, globalDefaults.defaultFontColor);
-		var majorTickFont = parseFontOptions(optionMajorTicks);
+		var tickFontColor = helpers$1.valueOrDefault(optionTicks.fontColor, defaultFontColor);
+		var tickFont = parseFont(optionTicks);
+		var lineHeight = tickFont.lineHeight;
+		var majorTickFontColor = helpers$1.valueOrDefault(optionMajorTicks.fontColor, defaultFontColor);
+		var majorTickFont = parseFont(optionMajorTicks);
 		var tickPadding = optionTicks.padding;
 		var labelOffset = optionTicks.labelOffset;
 
 		var tl = gridLines.drawTicks ? gridLines.tickMarkLength : 0;
 
-		var scaleLabelFontColor = helpers$1.valueOrDefault(scaleLabel.fontColor, globalDefaults.defaultFontColor);
-		var scaleLabelFont = parseFontOptions(scaleLabel);
+		var scaleLabelFontColor = helpers$1.valueOrDefault(scaleLabel.fontColor, defaultFontColor);
+		var scaleLabelFont = parseFont(scaleLabel);
 		var scaleLabelPadding = helpers$1.options.toPadding(scaleLabel.padding);
 		var labelRotationRadians = helpers$1.toRadians(me.labelRotation);
 
@@ -8573,8 +8599,8 @@ var core_scale = core_element.extend({
 			}
 
 			// Common properties
-			var tx1, ty1, tx2, ty2, x1, y1, x2, y2, labelX, labelY, textAlign;
-			var textBaseline = 'middle';
+			var tx1, ty1, tx2, ty2, x1, y1, x2, y2, labelX, labelY, textOffset, textAlign;
+			var labelCount = helpers$1.isArray(label) ? label.length : 1;
 			var lineValue = getPixelForGridLine(me, index, gridLines.offsetGridLines);
 
 			if (isHorizontal) {
@@ -8592,13 +8618,13 @@ var core_scale = core_element.extend({
 				if (position === 'top') {
 					y1 = alignPixel(chart, chartArea.top, axisWidth) + axisWidth / 2;
 					y2 = chartArea.bottom;
-					textBaseline = !isRotated ? 'bottom' : 'middle';
+					textOffset = ((!isRotated ? 0.5 : 1) - labelCount) * lineHeight;
 					textAlign = !isRotated ? 'center' : 'left';
 					labelY = me.bottom - labelYOffset;
 				} else {
 					y1 = chartArea.top;
 					y2 = alignPixel(chart, chartArea.bottom, axisWidth) - axisWidth / 2;
-					textBaseline = !isRotated ? 'top' : 'middle';
+					textOffset = (!isRotated ? 0.5 : 0) * lineHeight;
 					textAlign = !isRotated ? 'center' : 'right';
 					labelY = me.top + labelYOffset;
 				}
@@ -8613,6 +8639,7 @@ var core_scale = core_element.extend({
 				tx2 = tickEnd;
 				ty1 = ty2 = y1 = y2 = alignPixel(chart, lineValue, lineWidth);
 				labelY = me.getPixelForTick(index) + labelOffset;
+				textOffset = (1 - labelCount) * lineHeight / 2;
 
 				if (position === 'left') {
 					x1 = alignPixel(chart, chartArea.left, axisWidth) + axisWidth / 2;
@@ -8645,7 +8672,7 @@ var core_scale = core_element.extend({
 				rotation: -1 * labelRotationRadians,
 				label: label,
 				major: tick.major,
-				textBaseline: textBaseline,
+				textOffset: textOffset,
 				textAlign: textAlign
 			});
 		});
@@ -8685,25 +8712,21 @@ var core_scale = core_element.extend({
 				context.save();
 				context.translate(itemToDraw.labelX, itemToDraw.labelY);
 				context.rotate(itemToDraw.rotation);
-				context.font = itemToDraw.major ? majorTickFont.font : tickFont.font;
+				context.font = itemToDraw.major ? majorTickFont.string : tickFont.string;
 				context.fillStyle = itemToDraw.major ? majorTickFontColor : tickFontColor;
-				context.textBaseline = itemToDraw.textBaseline;
+				context.textBaseline = 'middle';
 				context.textAlign = itemToDraw.textAlign;
 
 				var label = itemToDraw.label;
+				var y = itemToDraw.textOffset;
 				if (helpers$1.isArray(label)) {
-					var lineCount = label.length;
-					var lineHeight = tickFont.size * 1.5;
-					var y = isHorizontal ? 0 : -lineHeight * (lineCount - 1) / 2;
-
-					for (var i = 0; i < lineCount; ++i) {
+					for (var i = 0; i < label.length; ++i) {
 						// We just make sure the multiline element is a string here..
 						context.fillText('' + label[i], 0, y);
-						// apply same lineSpacing as calculated @ L#320
 						y += lineHeight;
 					}
 				} else {
-					context.fillText(label, 0, 0);
+					context.fillText(label, 0, y);
 				}
 				context.restore();
 			}
@@ -8714,7 +8737,7 @@ var core_scale = core_element.extend({
 			var scaleLabelX;
 			var scaleLabelY;
 			var rotation = 0;
-			var halfLineHeight = parseLineHeight(scaleLabel) / 2;
+			var halfLineHeight = scaleLabelFont.lineHeight / 2;
 
 			if (isHorizontal) {
 				scaleLabelX = me.left + ((me.right - me.left) / 2); // midpoint of the width
@@ -8736,7 +8759,7 @@ var core_scale = core_element.extend({
 			context.textAlign = 'center';
 			context.textBaseline = 'middle';
 			context.fillStyle = scaleLabelFontColor; // render in correct colour
-			context.font = scaleLabelFont.font;
+			context.font = scaleLabelFont.string;
 			context.fillText(scaleLabel.labelString, 0, 0);
 			context.restore();
 		}
@@ -11535,8 +11558,6 @@ var scale_logarithmic = function(Chart) {
 
 var scale_radialLinear = function(Chart) {
 
-	var globalDefaults = core_defaults.global;
-
 	var defaultConfig = {
 		display: true,
 
@@ -11592,42 +11613,26 @@ var scale_radialLinear = function(Chart) {
 		return opts.angleLines.display || opts.pointLabels.display ? scale.chart.data.labels.length : 0;
 	}
 
-	function getPointLabelFontOptions(scale) {
-		var pointLabelOptions = scale.options.pointLabels;
-		var fontSize = helpers$1.valueOrDefault(pointLabelOptions.fontSize, globalDefaults.defaultFontSize);
-		var fontStyle = helpers$1.valueOrDefault(pointLabelOptions.fontStyle, globalDefaults.defaultFontStyle);
-		var fontFamily = helpers$1.valueOrDefault(pointLabelOptions.fontFamily, globalDefaults.defaultFontFamily);
-		var font = helpers$1.fontString(fontSize, fontStyle, fontFamily);
-
-		return {
-			size: fontSize,
-			style: fontStyle,
-			family: fontFamily,
-			font: font
-		};
-	}
-
-	function getTickFontSize(scale) {
-		var opts = scale.options;
+	function getTickBackdropHeight(opts) {
 		var tickOpts = opts.ticks;
 
 		if (tickOpts.display && opts.display) {
-			return helpers$1.valueOrDefault(tickOpts.fontSize, globalDefaults.defaultFontSize);
+			return helpers$1.valueOrDefault(tickOpts.fontSize, core_defaults.global.defaultFontSize) + tickOpts.backdropPaddingY * 2;
 		}
 		return 0;
 	}
 
-	function measureLabelSize(ctx, fontSize, label) {
+	function measureLabelSize(ctx, lineHeight, label) {
 		if (helpers$1.isArray(label)) {
 			return {
 				w: helpers$1.longestText(ctx, ctx.font, label),
-				h: (label.length * fontSize) + ((label.length - 1) * 1.5 * fontSize)
+				h: label.length * lineHeight
 			};
 		}
 
 		return {
 			w: ctx.measureText(label).width,
-			h: fontSize
+			h: lineHeight
 		};
 	}
 
@@ -11639,14 +11644,14 @@ var scale_radialLinear = function(Chart) {
 			};
 		} else if (angle < min || angle > max) {
 			return {
-				start: pos - size - 5,
+				start: pos - size,
 				end: pos
 			};
 		}
 
 		return {
 			start: pos,
-			end: pos + size + 5
+			end: pos + size
 		};
 	}
 
@@ -11682,28 +11687,26 @@ var scale_radialLinear = function(Chart) {
 		 * https://dl.dropboxusercontent.com/u/34601363/yeahscience.gif
 		 */
 
-		var plFont = getPointLabelFontOptions(scale);
-		var paddingTop = getTickFontSize(scale) / 2;
+		var plFont = helpers$1.options._parseFont(scale.options.pointLabels);
 
 		// Get maximum radius of the polygon. Either half the height (minus the text width) or half the width.
 		// Use this to calculate the offset + change. - Make sure L/R protrusion is at least 0 to stop issues with centre points
-		var largestPossibleRadius = Math.min(scale.height / 2, scale.width / 2);
 		var furthestLimits = {
-			r: scale.width,
 			l: 0,
-			t: scale.height,
-			b: 0
+			r: scale.width,
+			t: 0,
+			b: scale.height
 		};
 		var furthestAngles = {};
 		var i, textSize, pointPosition;
 
-		scale.ctx.font = plFont.font;
+		scale.ctx.font = plFont.string;
 		scale._pointLabelSizes = [];
 
 		var valueCount = getValueCount(scale);
 		for (i = 0; i < valueCount; i++) {
-			pointPosition = scale.getPointPosition(i, largestPossibleRadius);
-			textSize = measureLabelSize(scale.ctx, plFont.size, scale.pointLabels[i] || '');
+			pointPosition = scale.getPointPosition(i, scale.drawingArea + 5);
+			textSize = measureLabelSize(scale.ctx, plFont.lineHeight, scale.pointLabels[i] || '');
 			scale._pointLabelSizes[i] = textSize;
 
 			// Add quarter circle to make degree 0 mean top of circle
@@ -11733,22 +11736,7 @@ var scale_radialLinear = function(Chart) {
 			}
 		}
 
-		if (paddingTop && -paddingTop < furthestLimits.t) {
-			furthestLimits.t = -paddingTop;
-			furthestAngles.t = 0;
-		}
-
-		scale.setReductions(largestPossibleRadius, furthestLimits, furthestAngles);
-	}
-
-	/**
-	 * Helper function to fit a radial linear scale with no point labels
-	 */
-	function fit(scale) {
-		var paddingTop = getTickFontSize(scale) / 2;
-		var largestPossibleRadius = Math.min((scale.height - paddingTop) / 2, scale.width / 2);
-		scale.drawingArea = Math.floor(largestPossibleRadius);
-		scale.setCenterPoint(0, 0, paddingTop, 0);
+		scale.setReductions(scale.drawingArea, furthestLimits, furthestAngles);
 	}
 
 	function getTextAlignForAngle(angle) {
@@ -11761,17 +11749,17 @@ var scale_radialLinear = function(Chart) {
 		return 'right';
 	}
 
-	function fillText(ctx, text, position, fontSize) {
-		if (helpers$1.isArray(text)) {
-			var y = position.y;
-			var spacing = 1.5 * fontSize;
+	function fillText(ctx, text, position, lineHeight) {
+		var y = position.y + lineHeight / 2;
+		var i, ilen;
 
-			for (var i = 0; i < text.length; ++i) {
+		if (helpers$1.isArray(text)) {
+			for (i = 0, ilen = text.length; i < ilen; ++i) {
 				ctx.fillText(text[i], position.x, y);
-				y += spacing;
+				y += lineHeight;
 			}
 		} else {
-			ctx.fillText(text, position.x, position.y);
+			ctx.fillText(text, position.x, y);
 		}
 	}
 
@@ -11791,6 +11779,7 @@ var scale_radialLinear = function(Chart) {
 		var pointLabelOpts = opts.pointLabels;
 		var lineWidth = helpers$1.valueOrDefault(angleLineOpts.lineWidth, gridLineOpts.lineWidth);
 		var lineColor = helpers$1.valueOrDefault(angleLineOpts.color, gridLineOpts.color);
+		var tickBackdropHeight = getTickBackdropHeight(opts);
 
 		ctx.save();
 		ctx.lineWidth = lineWidth;
@@ -11803,10 +11792,10 @@ var scale_radialLinear = function(Chart) {
 		var outerDistance = scale.getDistanceFromCenterForValue(opts.ticks.reverse ? scale.min : scale.max);
 
 		// Point Label Font
-		var plFont = getPointLabelFontOptions(scale);
+		var plFont = helpers$1.options._parseFont(pointLabelOpts);
 
-		ctx.font = plFont.font;
-		ctx.textBaseline = 'top';
+		ctx.font = plFont.string;
+		ctx.textBaseline = 'middle';
 
 		for (var i = getValueCount(scale) - 1; i >= 0; i--) {
 			if (angleLineOpts.display && lineWidth && lineColor) {
@@ -11818,18 +11807,19 @@ var scale_radialLinear = function(Chart) {
 			}
 
 			if (pointLabelOpts.display) {
-				// Extra 3px out for some label spacing
-				var pointLabelPosition = scale.getPointPosition(i, outerDistance + 5);
+				// Extra pixels out for some label spacing
+				var extra = (i === 0 ? tickBackdropHeight / 2 : 0);
+				var pointLabelPosition = scale.getPointPosition(i, outerDistance + extra + 5);
 
 				// Keep this in loop since we may support array properties here
-				var pointLabelFontColor = helpers$1.valueAtIndexOrDefault(pointLabelOpts.fontColor, i, globalDefaults.defaultFontColor);
+				var pointLabelFontColor = helpers$1.valueAtIndexOrDefault(pointLabelOpts.fontColor, i, core_defaults.global.defaultFontColor);
 				ctx.fillStyle = pointLabelFontColor;
 
 				var angleRadians = scale.getIndexAngle(i);
 				var angle = helpers$1.toDegrees(angleRadians);
 				ctx.textAlign = getTextAlignForAngle(angle);
 				adjustPointPositionForLabelHeight(angle, scale._pointLabelSizes[i], pointLabelPosition);
-				fillText(ctx, scale.pointLabels[i] || '', pointLabelPosition, plFont.size);
+				fillText(ctx, scale.pointLabels[i] || '', pointLabelPosition, plFont.lineHeight);
 			}
 		}
 		ctx.restore();
@@ -11881,17 +11871,14 @@ var scale_radialLinear = function(Chart) {
 	var LinearRadialScale = Chart.LinearScaleBase.extend({
 		setDimensions: function() {
 			var me = this;
-			var opts = me.options;
-			var tickOpts = opts.ticks;
+
 			// Set the unconstrained dimension before label rotation
 			me.width = me.maxWidth;
 			me.height = me.maxHeight;
+			me.paddingTop = getTickBackdropHeight(me.options) / 2;
 			me.xCenter = Math.floor(me.width / 2);
-			me.yCenter = Math.floor(me.height / 2);
-
-			var minSize = helpers$1.min([me.height, me.width]);
-			var tickFontSize = helpers$1.valueOrDefault(tickOpts.fontSize, globalDefaults.defaultFontSize);
-			me.drawingArea = opts.display ? (minSize / 2) - (tickFontSize / 2 + tickOpts.backdropPaddingY) : (minSize / 2);
+			me.yCenter = Math.floor((me.height - me.paddingTop) / 2);
+			me.drawingArea = Math.min(me.height - me.paddingTop, me.width) / 2;
 		},
 		determineDataLimits: function() {
 			var me = this;
@@ -11922,9 +11909,10 @@ var scale_radialLinear = function(Chart) {
 			me.handleTickRangeOptions();
 		},
 		getTickLimit: function() {
-			var tickOpts = this.options.ticks;
-			var tickFontSize = helpers$1.valueOrDefault(tickOpts.fontSize, globalDefaults.defaultFontSize);
-			return Math.min(tickOpts.maxTicksLimit ? tickOpts.maxTicksLimit : 11, Math.ceil(this.drawingArea / (1.5 * tickFontSize)));
+			var opts = this.options;
+			var tickOpts = opts.ticks;
+			var tickBackdropHeight = getTickBackdropHeight(opts);
+			return Math.min(tickOpts.maxTicksLimit ? tickOpts.maxTicksLimit : 11, Math.ceil(this.drawingArea / tickBackdropHeight));
 		},
 		convertTicksToLabels: function() {
 			var me = this;
@@ -11938,10 +11926,13 @@ var scale_radialLinear = function(Chart) {
 			return +this.getRightValue(this.chart.data.datasets[datasetIndex].data[index]);
 		},
 		fit: function() {
-			if (this.options.pointLabels.display) {
-				fitWithPointLabels(this);
+			var me = this;
+			var opts = me.options;
+
+			if (opts.display && opts.pointLabels.display) {
+				fitWithPointLabels(me);
 			} else {
-				fit(this);
+				me.setCenterPoint(0, 0, 0, 0);
 			}
 		},
 		/**
@@ -11953,7 +11944,7 @@ var scale_radialLinear = function(Chart) {
 			var radiusReductionLeft = furthestLimits.l / Math.sin(furthestAngles.l);
 			var radiusReductionRight = Math.max(furthestLimits.r - me.width, 0) / Math.sin(furthestAngles.r);
 			var radiusReductionTop = -furthestLimits.t / Math.cos(furthestAngles.t);
-			var radiusReductionBottom = -Math.max(furthestLimits.b - me.height, 0) / Math.cos(furthestAngles.b);
+			var radiusReductionBottom = -Math.max(furthestLimits.b - (me.height - me.paddingTop), 0) / Math.cos(furthestAngles.b);
 
 			radiusReductionLeft = numberOrZero(radiusReductionLeft);
 			radiusReductionRight = numberOrZero(radiusReductionRight);
@@ -11970,10 +11961,10 @@ var scale_radialLinear = function(Chart) {
 			var maxRight = me.width - rightMovement - me.drawingArea;
 			var maxLeft = leftMovement + me.drawingArea;
 			var maxTop = topMovement + me.drawingArea;
-			var maxBottom = me.height - bottomMovement - me.drawingArea;
+			var maxBottom = (me.height - me.paddingTop) - bottomMovement - me.drawingArea;
 
 			me.xCenter = Math.floor(((maxLeft + maxRight) / 2) + me.left);
-			me.yCenter = Math.floor(((maxTop + maxBottom) / 2) + me.top);
+			me.yCenter = Math.floor(((maxTop + maxBottom) / 2) + me.top + me.paddingTop);
 		},
 
 		getIndexAngle: function(index) {
@@ -12035,12 +12026,7 @@ var scale_radialLinear = function(Chart) {
 			if (opts.display) {
 				var ctx = me.ctx;
 				var startAngle = this.getIndexAngle(0);
-
-				// Tick Font
-				var tickFontSize = valueOrDefault(tickOpts.fontSize, globalDefaults.defaultFontSize);
-				var tickFontStyle = valueOrDefault(tickOpts.fontStyle, globalDefaults.defaultFontStyle);
-				var tickFontFamily = valueOrDefault(tickOpts.fontFamily, globalDefaults.defaultFontFamily);
-				var tickLabelFont = helpers$1.fontString(tickFontSize, tickFontStyle, tickFontFamily);
+				var tickFont = helpers$1.options._parseFont(tickOpts);
 
 				if (opts.angleLines.display || opts.pointLabels.display) {
 					drawPointLabels(me);
@@ -12057,8 +12043,8 @@ var scale_radialLinear = function(Chart) {
 						}
 
 						if (tickOpts.display) {
-							var tickFontColor = valueOrDefault(tickOpts.fontColor, globalDefaults.defaultFontColor);
-							ctx.font = tickLabelFont;
+							var tickFontColor = valueOrDefault(tickOpts.fontColor, core_defaults.global.defaultFontColor);
+							ctx.font = tickFont.string;
 
 							ctx.save();
 							ctx.translate(me.xCenter, me.yCenter);
@@ -12069,9 +12055,9 @@ var scale_radialLinear = function(Chart) {
 								ctx.fillStyle = tickOpts.backdropColor;
 								ctx.fillRect(
 									-labelWidth / 2 - tickOpts.backdropPaddingX,
-									-yCenterOffset - tickFontSize / 2 - tickOpts.backdropPaddingY,
+									-yCenterOffset - tickFont.size / 2 - tickOpts.backdropPaddingY,
 									labelWidth + tickOpts.backdropPaddingX * 2,
-									tickFontSize + tickOpts.backdropPaddingY * 2
+									tickFont.size + tickOpts.backdropPaddingY * 2
 								);
 							}
 
@@ -13379,12 +13365,8 @@ var Legend = core_element.extend({
 
 		var ctx = me.ctx;
 
-		var globalDefault = core_defaults.global;
-		var valueOrDefault = helpers$1.valueOrDefault;
-		var fontSize = valueOrDefault(labelOpts.fontSize, globalDefault.defaultFontSize);
-		var fontStyle = valueOrDefault(labelOpts.fontStyle, globalDefault.defaultFontStyle);
-		var fontFamily = valueOrDefault(labelOpts.fontFamily, globalDefault.defaultFontFamily);
-		var labelFont = helpers$1.fontString(fontSize, fontStyle, fontFamily);
+		var labelFont = helpers$1.options._parseFont(labelOpts);
+		var fontSize = labelFont.size;
 
 		// Reset hit boxes
 		var hitboxes = me.legendHitBoxes = [];
@@ -13402,7 +13384,7 @@ var Legend = core_element.extend({
 
 		// Increase sizes here
 		if (display) {
-			ctx.font = labelFont;
+			ctx.font = labelFont.string;
 
 			if (isHorizontal) {
 				// Labels
@@ -13491,19 +13473,18 @@ var Legend = core_element.extend({
 		var me = this;
 		var opts = me.options;
 		var labelOpts = opts.labels;
-		var globalDefault = core_defaults.global;
-		var lineDefault = globalDefault.elements.line;
+		var globalDefaults = core_defaults.global;
+		var defaultColor = globalDefaults.defaultColor;
+		var lineDefault = globalDefaults.elements.line;
 		var legendWidth = me.width;
 		var lineWidths = me.lineWidths;
 
 		if (opts.display) {
 			var ctx = me.ctx;
 			var valueOrDefault = helpers$1.valueOrDefault;
-			var fontColor = valueOrDefault(labelOpts.fontColor, globalDefault.defaultFontColor);
-			var fontSize = valueOrDefault(labelOpts.fontSize, globalDefault.defaultFontSize);
-			var fontStyle = valueOrDefault(labelOpts.fontStyle, globalDefault.defaultFontStyle);
-			var fontFamily = valueOrDefault(labelOpts.fontFamily, globalDefault.defaultFontFamily);
-			var labelFont = helpers$1.fontString(fontSize, fontStyle, fontFamily);
+			var fontColor = valueOrDefault(labelOpts.fontColor, globalDefaults.defaultFontColor);
+			var labelFont = helpers$1.options._parseFont(labelOpts);
+			var fontSize = labelFont.size;
 			var cursor;
 
 			// Canvas setup
@@ -13512,7 +13493,7 @@ var Legend = core_element.extend({
 			ctx.lineWidth = 0.5;
 			ctx.strokeStyle = fontColor; // for strikethrough effect
 			ctx.fillStyle = fontColor; // render in correct colour
-			ctx.font = labelFont;
+			ctx.font = labelFont.string;
 
 			var boxWidth = getBoxWidth(labelOpts, fontSize);
 			var hitboxes = me.legendHitBoxes;
@@ -13526,13 +13507,13 @@ var Legend = core_element.extend({
 				// Set the ctx for the box
 				ctx.save();
 
-				ctx.fillStyle = valueOrDefault(legendItem.fillStyle, globalDefault.defaultColor);
+				var lineWidth = valueOrDefault(legendItem.lineWidth, lineDefault.borderWidth);
+				ctx.fillStyle = valueOrDefault(legendItem.fillStyle, defaultColor);
 				ctx.lineCap = valueOrDefault(legendItem.lineCap, lineDefault.borderCapStyle);
 				ctx.lineDashOffset = valueOrDefault(legendItem.lineDashOffset, lineDefault.borderDashOffset);
 				ctx.lineJoin = valueOrDefault(legendItem.lineJoin, lineDefault.borderJoinStyle);
-				ctx.lineWidth = valueOrDefault(legendItem.lineWidth, lineDefault.borderWidth);
-				ctx.strokeStyle = valueOrDefault(legendItem.strokeStyle, globalDefault.defaultColor);
-				var isLineWidthZero = (valueOrDefault(legendItem.lineWidth, lineDefault.borderWidth) === 0);
+				ctx.lineWidth = lineWidth;
+				ctx.strokeStyle = valueOrDefault(legendItem.strokeStyle, defaultColor);
 
 				if (ctx.setLineDash) {
 					// IE 9 and 10 do not support line dash
@@ -13551,7 +13532,7 @@ var Legend = core_element.extend({
 					helpers$1.canvas.drawPoint(ctx, legendItem.pointStyle, radius, centerX, centerY);
 				} else {
 					// Draw box as legend symbol
-					if (!isLineWidthZero) {
+					if (lineWidth !== 0) {
 						ctx.strokeRect(x, y, boxWidth, fontSize);
 					}
 					ctx.fillRect(x, y, boxWidth, fontSize);
@@ -13753,7 +13734,6 @@ core_defaults._set('global', {
 		display: false,
 		fontStyle: 'bold',
 		fullWidth: true,
-		lineHeight: 1.2,
 		padding: 10,
 		position: 'top',
 		text: '',
@@ -13852,14 +13832,12 @@ var Title = core_element.extend({
 	beforeFit: noop$1,
 	fit: function() {
 		var me = this;
-		var valueOrDefault = helpers$1.valueOrDefault;
 		var opts = me.options;
 		var display = opts.display;
-		var fontSize = valueOrDefault(opts.fontSize, core_defaults.global.defaultFontSize);
 		var minSize = me.minSize;
 		var lineCount = helpers$1.isArray(opts.text) ? opts.text.length : 1;
-		var lineHeight = helpers$1.options.toLineHeight(opts.lineHeight, fontSize);
-		var textSize = display ? (lineCount * lineHeight) + (opts.padding * 2) : 0;
+		var fontOpts = helpers$1.options._parseFont(opts);
+		var textSize = display ? (lineCount * fontOpts.lineHeight) + (opts.padding * 2) : 0;
 
 		if (me.isHorizontal()) {
 			minSize.width = me.maxWidth; // fill all the width
@@ -13887,14 +13865,10 @@ var Title = core_element.extend({
 		var ctx = me.ctx;
 		var valueOrDefault = helpers$1.valueOrDefault;
 		var opts = me.options;
-		var globalDefaults = core_defaults.global;
 
 		if (opts.display) {
-			var fontSize = valueOrDefault(opts.fontSize, globalDefaults.defaultFontSize);
-			var fontStyle = valueOrDefault(opts.fontStyle, globalDefaults.defaultFontStyle);
-			var fontFamily = valueOrDefault(opts.fontFamily, globalDefaults.defaultFontFamily);
-			var titleFont = helpers$1.fontString(fontSize, fontStyle, fontFamily);
-			var lineHeight = helpers$1.options.toLineHeight(opts.lineHeight, fontSize);
+			var fontOpts = helpers$1.options._parseFont(opts);
+			var lineHeight = fontOpts.lineHeight;
 			var offset = lineHeight / 2 + opts.padding;
 			var rotation = 0;
 			var top = me.top;
@@ -13903,8 +13877,8 @@ var Title = core_element.extend({
 			var right = me.right;
 			var maxWidth, titleX, titleY;
 
-			ctx.fillStyle = valueOrDefault(opts.fontColor, globalDefaults.defaultFontColor); // render in correct colour
-			ctx.font = titleFont;
+			ctx.fillStyle = valueOrDefault(opts.fontColor, core_defaults.global.defaultFontColor); // render in correct colour
+			ctx.font = fontOpts.string;
 
 			// Horizontal
 			if (me.isHorizontal()) {
