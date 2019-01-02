@@ -4980,7 +4980,7 @@ function computeMinSampleSize(scale, pixels) {
 	var prev, curr, i, ilen;
 
 	for (i = 1, ilen = pixels.length; i < ilen; ++i) {
-		min = Math.min(min, pixels[i] - pixels[i - 1]);
+		min = Math.min(min, Math.abs(pixels[i] - pixels[i - 1]));
 	}
 
 	for (i = 0, ilen = ticks.length; i < ilen; ++i) {
@@ -5038,8 +5038,8 @@ function computeFlexCategoryTraits(index, ruler, options) {
 
 	if (prev === null) {
 		// first data: its size is double based on the next point or,
-		// if it's also the last data, we use the scale end extremity.
-		prev = curr - (next === null ? ruler.end - curr : next - curr);
+		// if it's also the last data, we use the scale size.
+		prev = curr - (next === null ? ruler.end - ruler.start : next - curr);
 	}
 
 	if (next === null) {
@@ -5047,8 +5047,8 @@ function computeFlexCategoryTraits(index, ruler, options) {
 		next = curr + curr - prev;
 	}
 
-	start = curr - ((curr - prev) / 2) * percent;
-	size = ((next - prev) / 2) * percent;
+	start = curr - (curr - Math.min(prev, next)) / 2 * percent;
+	size = Math.abs(next - prev) / 2 * percent;
 
 	return {
 		chunk: size / ruler.stackCount,
@@ -16987,34 +16987,36 @@ function generate(min, max, capacity, options) {
 }
 
 /**
- * Returns the end and start offsets from edges in the form of {start, end}.
+ * Returns the start and end offsets from edges in the form of {start, end}
+ * where each value is a relative width to the scale and ranges between 0 and 1.
+ * They add extra margins on the both sides by scaling down the original scale.
  * Offsets are added when the `offset` option is true.
  */
 function computeOffsets(table, ticks, min, max, options) {
 	var start = 0;
 	var end = 0;
-	var upper, lower;
+	var first, last;
 
 	if (options.offset && ticks.length) {
 		if (!options.time.min) {
-			upper = ticks.length > 1 ? ticks[1] : max;
-			lower = ticks[0];
-			start = (
-				interpolate$1(table, 'time', upper, 'pos') -
-				interpolate$1(table, 'time', lower, 'pos')
-			) / 2;
+			first = interpolate$1(table, 'time', ticks[0], 'pos');
+			if (ticks.length === 1) {
+				start = 1 - first;
+			} else {
+				start = (interpolate$1(table, 'time', ticks[1], 'pos') - first) / 2;
+			}
 		}
 		if (!options.time.max) {
-			upper = ticks[ticks.length - 1];
-			lower = ticks.length > 1 ? ticks[ticks.length - 2] : min;
-			end = (
-				interpolate$1(table, 'time', upper, 'pos') -
-				interpolate$1(table, 'time', lower, 'pos')
-			) / 2;
+			last = interpolate$1(table, 'time', ticks[ticks.length - 1], 'pos');
+			if (ticks.length === 1) {
+				end = last;
+			} else {
+				end = (last - interpolate$1(table, 'time', ticks[ticks.length - 2], 'pos')) / 2;
+			}
 		}
 	}
 
-	return options.ticks.reverse ? {start: end, end: start} : {start: start, end: end};
+	return {start: start, end: end};
 }
 
 function ticksFromTimestamps(values, majorUnit) {
