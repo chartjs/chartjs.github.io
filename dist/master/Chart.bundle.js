@@ -3980,9 +3980,7 @@ core_defaults._set('global', {
 });
 
 var core_animations = {
-	frameDuration: 17,
 	animations: [],
-	dropFrames: 0,
 	request: null,
 
 	/**
@@ -3996,6 +3994,8 @@ var core_animations = {
 		var i, ilen;
 
 		animation.chart = chart;
+		animation.startTime = Date.now();
+		animation.duration = duration;
 
 		if (!lazy) {
 			chart.animating = true;
@@ -4045,19 +4045,8 @@ var core_animations = {
 	 */
 	startDigest: function() {
 		var me = this;
-		var startTime = Date.now();
-		var framesToDrop = 0;
 
-		if (me.dropFrames > 1) {
-			framesToDrop = Math.floor(me.dropFrames);
-			me.dropFrames = me.dropFrames % 1;
-		}
-
-		me.advance(1 + framesToDrop);
-
-		var endTime = Date.now();
-
-		me.dropFrames += (endTime - startTime) / me.frameDuration;
+		me.advance();
 
 		// Do we have more stuff to animate?
 		if (me.animations.length > 0) {
@@ -4068,7 +4057,7 @@ var core_animations = {
 	/**
 	 * @private
 	 */
-	advance: function(count) {
+	advance: function() {
 		var animations = this.animations;
 		var animation, chart;
 		var i = 0;
@@ -4077,7 +4066,7 @@ var core_animations = {
 			animation = animations[i];
 			chart = animation.chart;
 
-			animation.currentStep = (animation.currentStep || 0) + count;
+			animation.currentStep = Math.floor((Date.now() - animation.startTime) / animation.duration * animation.numSteps);
 			animation.currentStep = Math.min(animation.currentStep, animation.numSteps);
 
 			helpers$1.callback(animation.render, [chart, animation], chart);
@@ -10276,22 +10265,24 @@ var core_controller = function(Chart) {
 				};
 			}
 
-			var duration = config.duration;
+			var animationOptions = me.options.animation;
+			var duration = typeof config.duration !== 'undefined'
+				? config.duration
+				: animationOptions && animationOptions.duration;
 			var lazy = config.lazy;
 
 			if (core_plugins.notify(me, 'beforeRender') === false) {
 				return;
 			}
 
-			var animationOptions = me.options.animation;
 			var onComplete = function(animation) {
 				core_plugins.notify(me, 'afterRender');
 				helpers$1.callback(animationOptions && animationOptions.onComplete, [animation], me);
 			};
 
-			if (animationOptions && ((typeof duration !== 'undefined' && duration !== 0) || (typeof duration === 'undefined' && animationOptions.duration !== 0))) {
+			if (animationOptions && duration) {
 				var animation = new core_animation({
-					numSteps: (duration || animationOptions.duration) / 16.66, // 60 fps
+					numSteps: duration / 16.66, // 60 fps
 					easing: config.easing || animationOptions.easing,
 
 					render: function(chart, animationObject) {
