@@ -5254,7 +5254,7 @@ var controller_bar = core_datasetController.extend({
 		var scale = me.getValueScale();
 		var isHorizontal = scale.isHorizontal();
 		var datasets = chart.data.datasets;
-		var value = scale.getRightValue(datasets[datasetIndex].data[index]);
+		var value = +scale.getRightValue(datasets[datasetIndex].data[index]);
 		var minBarLength = scale.options.minBarLength;
 		var stacked = scale.options.stacked;
 		var stack = meta.stack;
@@ -5270,7 +5270,7 @@ var controller_bar = core_datasetController.extend({
 					imeta.controller.getValueScaleId() === scale.id &&
 					chart.isDatasetVisible(i)) {
 
-					ivalue = scale.getRightValue(datasets[i].data[index]);
+					ivalue = +scale.getRightValue(datasets[i].data[index]);
 					if ((value < 0 && ivalue < 0) || (value >= 0 && ivalue > 0)) {
 						start += ivalue;
 					}
@@ -5280,7 +5280,7 @@ var controller_bar = core_datasetController.extend({
 
 		base = scale.getPixelForValue(start);
 		head = scale.getPixelForValue(start + value);
-		size = (head - base) / 2;
+		size = head - base;
 
 		if (minBarLength !== undefined && Math.abs(size) < minBarLength) {
 			size = minBarLength;
