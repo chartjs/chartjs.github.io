@@ -839,6 +839,20 @@ var exports$1 = {
 		ctx.stroke();
 	},
 
+	/**
+	 * Returns true if the point is inside the rectangle
+	 * @param {Object} point - The point to test
+	 * @param {Object} area - The rectangle
+	 * @returns {Boolean}
+	 * @private
+	 */
+	_isPointInArea: function(point, area) {
+		var epsilon = 1e-6; // 1e-6 is margin in pixels for accumulated error.
+
+		return point.x > area.left - epsilon && point.x < area.right + epsilon &&
+			point.y > area.top - epsilon && point.y < area.bottom + epsilon;
+	},
+
 	clipArea: function(ctx, area) {
 		ctx.save();
 		ctx.beginPath();
@@ -4689,14 +4703,12 @@ var element_point = core_element.extend({
 
 	draw: function(chartArea) {
 		var vm = this._view;
-		var model = this._model;
 		var ctx = this._chart.ctx;
 		var pointStyle = vm.pointStyle;
 		var rotation = vm.rotation;
 		var radius = vm.radius;
 		var x = vm.x;
 		var y = vm.y;
-		var epsilon = 0.0000001; // 0.0000001 is margin in pixels for Accumulated error.
 		var globalDefaults = core_defaults.global;
 		var defaultColor = globalDefaults.defaultColor; // eslint-disable-line no-shadow
 
@@ -4705,7 +4717,7 @@ var element_point = core_element.extend({
 		}
 
 		// Clipping for Points.
-		if (chartArea === undefined || (model.x > chartArea.left - epsilon && chartArea.right + epsilon > model.x && model.y > chartArea.top - epsilon && chartArea.bottom + epsilon > model.y)) {
+		if (chartArea === undefined || helpers$1.canvas._isPointInArea(vm, chartArea)) {
 			ctx.strokeStyle = vm.borderColor || defaultColor;
 			ctx.lineWidth = helpers$1.valueOrDefault(vm.borderWidth, globalDefaults.elements.point.borderWidth);
 			ctx.fillStyle = vm.backgroundColor || defaultColor;
@@ -5944,6 +5956,8 @@ var controller_horizontalBar = controller_bar.extend({
 	}
 });
 
+var _isPointInArea = helpers$1.canvas._isPointInArea;
+
 core_defaults._set('line', {
 	showLines: true,
 	spanGaps: false,
@@ -6182,13 +6196,15 @@ var controller_line = core_datasetController.extend({
 
 	updateBezierControlPoints: function() {
 		var me = this;
+		var chart = me.chart;
 		var meta = me.getMeta();
-		var area = me.chart.chartArea;
-		var points = (meta.data || []);
+		var lineModel = meta.dataset._model;
+		var area = chart.chartArea;
+		var points = meta.data || [];
 		var i, ilen, point, model, controlPoints;
 
 		// Only consider points that are drawn in case the spanGaps option is used
-		if (meta.dataset._model.spanGaps) {
+		if (lineModel.spanGaps) {
 			points = points.filter(function(pt) {
 				return !pt._model.skip;
 			});
@@ -6198,7 +6214,7 @@ var controller_line = core_datasetController.extend({
 			return Math.max(Math.min(pt, max), min);
 		}
 
-		if (meta.dataset._model.cubicInterpolationMode === 'monotone') {
+		if (lineModel.cubicInterpolationMode === 'monotone') {
 			helpers$1.splineCurveMonotone(points);
 		} else {
 			for (i = 0, ilen = points.length; i < ilen; ++i) {
@@ -6208,7 +6224,7 @@ var controller_line = core_datasetController.extend({
 					helpers$1.previousItem(points, i)._model,
 					model,
 					helpers$1.nextItem(points, i)._model,
-					meta.dataset._model.tension
+					lineModel.tension
 				);
 				model.controlPointPreviousX = controlPoints.previous.x;
 				model.controlPointPreviousY = controlPoints.previous.y;
@@ -6217,13 +6233,19 @@ var controller_line = core_datasetController.extend({
 			}
 		}
 
-		if (me.chart.options.elements.line.capBezierPoints) {
+		if (chart.options.elements.line.capBezierPoints) {
 			for (i = 0, ilen = points.length; i < ilen; ++i) {
 				model = points[i]._model;
-				model.controlPointPreviousX = capControlPoint(model.controlPointPreviousX, area.left, area.right);
-				model.controlPointPreviousY = capControlPoint(model.controlPointPreviousY, area.top, area.bottom);
-				model.controlPointNextX = capControlPoint(model.controlPointNextX, area.left, area.right);
-				model.controlPointNextY = capControlPoint(model.controlPointNextY, area.top, area.bottom);
+				if (_isPointInArea(model, area)) {
+					if (i > 0 && _isPointInArea(points[i - 1]._model, area)) {
+						model.controlPointPreviousX = capControlPoint(model.controlPointPreviousX, area.left, area.right);
+						model.controlPointPreviousY = capControlPoint(model.controlPointPreviousY, area.top, area.bottom);
+					}
+					if (i < points.length - 1 && _isPointInArea(points[i + 1]._model, area)) {
+						model.controlPointNextX = capControlPoint(model.controlPointNextX, area.left, area.right);
+						model.controlPointNextY = capControlPoint(model.controlPointNextY, area.top, area.bottom);
+					}
+				}
 			}
 		}
 	},
