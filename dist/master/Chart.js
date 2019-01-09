@@ -7517,7 +7517,7 @@ var platform_dom = {
 		var canvas = chart.canvas;
 		if (type === 'resize') {
 			// Note: the resize event is not supported on all browsers.
-			removeResizeListener(canvas, listener);
+			removeResizeListener(canvas);
 			return;
 		}
 
