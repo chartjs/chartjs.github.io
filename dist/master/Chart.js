@@ -10894,6 +10894,7 @@ var _defaults = defaultConfig;
 scale_category._defaults = _defaults;
 
 var noop = helpers$1.noop;
+var isNullOrUndef = helpers$1.isNullOrUndef;
 
 /**
  * Generate a set of linear ticks
@@ -10907,24 +10908,31 @@ function generateTicks(generationOptions, dataRange) {
 	// "nice number" algorithm. See https://stackoverflow.com/questions/8506881/nice-label-algorithm-for-charts-with-minimum-ticks
 	// for details.
 
+	var MIN_SPACING = 1e-14;
 	var stepSize = generationOptions.stepSize;
 	var unit = stepSize || 1;
 	var maxNumSpaces = generationOptions.maxTicks - 1;
 	var min = generationOptions.min;
 	var max = generationOptions.max;
 	var precision = generationOptions.precision;
-	var spacing, factor, niceMin, niceMax, numSpaces;
+	var rmin = dataRange.min;
+	var rmax = dataRange.max;
+	var spacing = helpers$1.niceNum((rmax - rmin) / maxNumSpaces / unit) * unit;
+	var factor, niceMin, niceMax, numSpaces;
 
-	// spacing is set to a nice number of the dataRange divided by maxNumSpaces.
-	// stepSize is used as a minimum unit if it is specified.
-	spacing = helpers$1.niceNum((dataRange.max - dataRange.min) / maxNumSpaces / unit) * unit;
-	numSpaces = Math.ceil(dataRange.max / spacing) - Math.floor(dataRange.min / spacing);
+	// Beyond MIN_SPACING floating point numbers being to lose precision
+	// such that we can't do the math necessary to generate ticks
+	if (spacing < MIN_SPACING && isNullOrUndef(min) && isNullOrUndef(max)) {
+		return [rmin, rmax];
+	}
+
+	numSpaces = Math.ceil(rmax / spacing) - Math.floor(rmin / spacing);
 	if (numSpaces > maxNumSpaces) {
 		// If the calculated num of spaces exceeds maxNumSpaces, recalculate it
 		spacing = helpers$1.niceNum(numSpaces * spacing / maxNumSpaces / unit) * unit;
 	}
 
-	if (stepSize || helpers$1.isNullOrUndef(precision)) {
+	if (stepSize || isNullOrUndef(precision)) {
 		// If a precision is not specified, calculate factor based on spacing
 		factor = Math.pow(10, helpers$1.decimalPlaces(spacing));
 	} else {
@@ -10933,16 +10941,16 @@ function generateTicks(generationOptions, dataRange) {
 		spacing = Math.ceil(spacing * factor) / factor;
 	}
 
-	niceMin = Math.floor(dataRange.min / spacing) * spacing;
-	niceMax = Math.ceil(dataRange.max / spacing) * spacing;
+	niceMin = Math.floor(rmin / spacing) * spacing;
+	niceMax = Math.ceil(rmax / spacing) * spacing;
 
 	// If min, max and stepSize is set and they make an evenly spaced scale use it.
 	if (stepSize) {
 		// If very close to our whole number, use it.
-		if (!helpers$1.isNullOrUndef(min) && helpers$1.almostWhole(min / spacing, spacing / 1000)) {
+		if (!isNullOrUndef(min) && helpers$1.almostWhole(min / spacing, spacing / 1000)) {
 			niceMin = min;
 		}
-		if (!helpers$1.isNullOrUndef(max) && helpers$1.almostWhole(max / spacing, spacing / 1000)) {
+		if (!isNullOrUndef(max) && helpers$1.almostWhole(max / spacing, spacing / 1000)) {
 			niceMax = max;
 		}
 	}
@@ -10957,11 +10965,11 @@ function generateTicks(generationOptions, dataRange) {
 
 	niceMin = Math.round(niceMin * factor) / factor;
 	niceMax = Math.round(niceMax * factor) / factor;
-	ticks.push(helpers$1.isNullOrUndef(min) ? niceMin : min);
+	ticks.push(isNullOrUndef(min) ? niceMin : min);
 	for (var j = 1; j < numSpaces; ++j) {
 		ticks.push(Math.round((niceMin + j * spacing) * factor) / factor);
 	}
-	ticks.push(helpers$1.isNullOrUndef(max) ? niceMax : max);
+	ticks.push(isNullOrUndef(max) ? niceMax : max);
 
 	return ticks;
 }
