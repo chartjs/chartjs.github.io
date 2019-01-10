@@ -4717,20 +4717,65 @@ var controller_doughnut = core_datasetController.extend({
 	},
 
 	/**
+	 * @protected
+	 */
+	setHoverStyle: function(arc) {
+		var model = arc._model;
+		var options = arc._options;
+		var getHoverColor = helpers$1.getHoverColor;
+		var valueOrDefault = helpers$1.valueOrDefault;
+
+		arc.$previousStyle = {
+			backgroundColor: model.backgroundColor,
+			borderColor: model.borderColor,
+			borderWidth: model.borderWidth,
+		};
+
+		model.backgroundColor = valueOrDefault(options.hoverBackgroundColor, getHoverColor(options.backgroundColor));
+		model.borderColor = valueOrDefault(options.hoverBorderColor, getHoverColor(options.borderColor));
+		model.borderWidth = valueOrDefault(options.hoverBorderWidth, options.borderWidth);
+	},
+
+	/**
 	 * @private
 	 */
 	_resolveElementOptions: function(arc, index) {
 		var me = this;
+		var chart = me.chart;
 		var dataset = me.getDataset();
 		var custom = arc.custom || {};
-		var options = me.chart.options.elements.arc;
+		var options = chart.options.elements.arc;
+		var values = {};
+		var i, ilen, key;
 
-		return {
-			backgroundColor: resolve$3([custom.backgroundColor, dataset.backgroundColor, options.backgroundColor], undefined, index),
-			borderColor: resolve$3([custom.borderColor, dataset.borderColor, options.borderColor], undefined, index),
-			borderWidth: resolve$3([custom.borderWidth, dataset.borderWidth, options.borderWidth], undefined, index),
-			borderAlign: resolve$3([custom.borderAlign, dataset.borderAlign, options.borderAlign], undefined, index)
+		// Scriptable options
+		var context = {
+			chart: chart,
+			dataIndex: index,
+			dataset: dataset,
+			datasetIndex: me.index
 		};
+
+		var keys = [
+			'backgroundColor',
+			'borderColor',
+			'borderWidth',
+			'borderAlign',
+			'hoverBackgroundColor',
+			'hoverBorderColor',
+			'hoverBorderWidth',
+		];
+
+		for (i = 0, ilen = keys.length; i < ilen; ++i) {
+			key = keys[i];
+			values[key] = resolve$3([
+				custom[key],
+				dataset[key],
+				options[key]
+			], context, index);
+		}
+
+		return values;
 	}
 });
 
