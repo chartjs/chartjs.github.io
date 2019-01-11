@@ -10018,7 +10018,8 @@ var core_scale = core_element.extend({
 		// we still support no return (`this.ticks` internally set by calling this method).
 		ticks = me.buildTicks() || [];
 
-		me.afterBuildTicks();
+		// Allow modification of ticks in callback.
+		ticks = me.afterBuildTicks(ticks) || ticks;
 
 		me.beforeTickToLabelConversion();
 
@@ -10112,8 +10113,15 @@ var core_scale = core_element.extend({
 		helpers$1.callback(this.options.beforeBuildTicks, [this]);
 	},
 	buildTicks: helpers$1.noop,
-	afterBuildTicks: function() {
-		helpers$1.callback(this.options.afterBuildTicks, [this]);
+	afterBuildTicks: function(ticks) {
+		var me = this;
+		// ticks is empty for old axis implementations here
+		if (helpers$1.isArray(ticks) && ticks.length) {
+			return helpers$1.callback(me.options.afterBuildTicks, [me, ticks]);
+		}
+		// Support old implementations (that modified `this.ticks` directly in buildTicks)
+		me.ticks = helpers$1.callback(me.options.afterBuildTicks, [me, me.ticks]) || me.ticks;
+		return ticks;
 	},
 
 	beforeTickToLabelConversion: function() {
