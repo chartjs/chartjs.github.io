@@ -3355,7 +3355,7 @@ var element_arc = core_element.extend({
 		ctx.save();
 
 		ctx.beginPath();
-		ctx.arc(vm.x, vm.y, vm.outerRadius - pixelMargin, sA, eA);
+		ctx.arc(vm.x, vm.y, Math.max(vm.outerRadius - pixelMargin, 0), sA, eA);
 		ctx.arc(vm.x, vm.y, vm.innerRadius, eA, sA, true);
 		ctx.closePath();
 
@@ -4575,7 +4575,7 @@ var controller_doughnut = core_datasetController.extend({
 		}
 
 		for (i = 0, ilen = arcs.length; i < ilen; ++i) {
-			arcs[i]._options = me._resolveElementOptions(arcs[i], i, reset);
+			arcs[i]._options = me._resolveElementOptions(arcs[i], i);
 		}
 
 		chart.borderWidth = me.getMaxBorderWidth();
@@ -5304,6 +5304,7 @@ var controller_polarArea = core_datasetController.extend({
 		var start = me.chart.options.startAngle || 0;
 		var starts = me._starts = [];
 		var angles = me._angles = [];
+		var arcs = meta.data;
 		var i, ilen, angle;
 
 		me._updateRadius();
@@ -5317,9 +5318,10 @@ var controller_polarArea = core_datasetController.extend({
 			start += angle;
 		}
 
-		helpers$1.each(meta.data, function(arc, index) {
-			me.updateElement(arc, index, reset);
-		});
+		for (i = 0, ilen = arcs.length; i < ilen; ++i) {
+			arcs[i]._options = me._resolveElementOptions(arcs[i], i);
+			me.updateElement(arcs[i], i, reset);
+		}
 	},
 
 	/**
@@ -5359,6 +5361,7 @@ var controller_polarArea = core_datasetController.extend({
 		var endAngle = startAngle + (arc.hidden ? 0 : me._angles[index]);
 
 		var resetRadius = animationOpts.animateScale ? 0 : scale.getDistanceFromCenterForValue(dataset.data[index]);
+		var options = arc._options || {};
 
 		helpers$1.extend(arc, {
 			// Utility
@@ -5368,6 +5371,10 @@ var controller_polarArea = core_datasetController.extend({
 
 			// Desired view properties
 			_model: {
+				backgroundColor: options.backgroundColor,
+				borderColor: options.borderColor,
+				borderWidth: options.borderWidth,
+				borderAlign: options.borderAlign,
 				x: centerX,
 				y: centerY,
 				innerRadius: 0,
@@ -5377,16 +5384,6 @@ var controller_polarArea = core_datasetController.extend({
 				label: helpers$1.valueAtIndexOrDefault(labels, index, labels[index])
 			}
 		});
-
-		// Apply border and fill style
-		var elementOpts = this.chart.options.elements.arc;
-		var custom = arc.custom || {};
-		var model = arc._model;
-
-		model.backgroundColor = resolve$5([custom.backgroundColor, dataset.backgroundColor, elementOpts.backgroundColor], undefined, index);
-		model.borderColor = resolve$5([custom.borderColor, dataset.borderColor, elementOpts.borderColor], undefined, index);
-		model.borderWidth = resolve$5([custom.borderWidth, dataset.borderWidth, elementOpts.borderWidth], undefined, index);
-		model.borderAlign = resolve$5([custom.borderAlign, dataset.borderAlign, elementOpts.borderAlign], undefined, index);
 
 		arc.pivot();
 	},
@@ -5403,6 +5400,68 @@ var controller_polarArea = core_datasetController.extend({
 		});
 
 		return count;
+	},
+
+	/**
+	 * @protected
+	 */
+	setHoverStyle: function(arc) {
+		var model = arc._model;
+		var options = arc._options;
+		var getHoverColor = helpers$1.getHoverColor;
+		var valueOrDefault = helpers$1.valueOrDefault;
+
+		arc.$previousStyle = {
+			backgroundColor: model.backgroundColor,
+			borderColor: model.borderColor,
+			borderWidth: model.borderWidth,
+		};
+
+		model.backgroundColor = valueOrDefault(options.hoverBackgroundColor, getHoverColor(options.backgroundColor));
+		model.borderColor = valueOrDefault(options.hoverBorderColor, getHoverColor(options.borderColor));
+		model.borderWidth = valueOrDefault(options.hoverBorderWidth, options.borderWidth);
+	},
+
+	/**
+	 * @private
+	 */
+	_resolveElementOptions: function(arc, index) {
+		var me = this;
+		var chart = me.chart;
+		var dataset = me.getDataset();
+		var custom = arc.custom || {};
+		var options = chart.options.elements.arc;
+		var values = {};
+		var i, ilen, key;
+
+		// Scriptable options
+		var context = {
+			chart: chart,
+			dataIndex: index,
+			dataset: dataset,
+			datasetIndex: me.index
+		};
+
+		var keys = [
+			'backgroundColor',
+			'borderColor',
+			'borderWidth',
+			'borderAlign',
+			'hoverBackgroundColor',
+			'hoverBorderColor',
+			'hoverBorderWidth',
+		];
+
+		for (i = 0, ilen = keys.length; i < ilen; ++i) {
+			key = keys[i];
+			values[key] = resolve$5([
+				custom[key],
+				dataset[key],
+				options[key]
+			], context, index);
+		}
+
+		return values;
 	},
 
 	/**

@@ -909,47 +909,95 @@
 <tr>
 <th>Name</th>
 <th>Type</th>
+<th style="text-align:center"><a href="../general/options.html#scriptable-options">Scriptable</a></th>
+<th style="text-align:center"><a href="../general/options.html#indexable-options">Indexable</a></th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#styling"><code>backgroundColor</code></a></td>
+<td><a href="../general/colors.html"><code>Color</code></a></td>
+<td style="text-align:center">Yes</td>
+<td style="text-align:center">Yes</td>
+<td><code>&apos;rgba(0,0,0,0.1)&apos;</code></td>
+</tr>
+<tr>
+<td><a href="#border-alignment"><code>borderAlign</code></a></td>
+<td><code>String</code></td>
+<td style="text-align:center">Yes</td>
+<td style="text-align:center">Yes</td>
+<td><code>&apos;center&apos;</code></td>
+</tr>
+<tr>
+<td><a href="#styling"><code>borderColor</code></a></td>
+<td><a href="../general/colors.html"><code>Color</code></a></td>
+<td style="text-align:center">Yes</td>
+<td style="text-align:center">Yes</td>
+<td><code>&apos;#fff&apos;</code></td>
+</tr>
+<tr>
+<td><a href="#styling"><code>borderWidth</code></a></td>
+<td><code>Number</code></td>
+<td style="text-align:center">Yes</td>
+<td style="text-align:center">Yes</td>
+<td><code>2</code></td>
+</tr>
+<tr>
+<td><a href="#data-structure"><code>data</code></a></td>
+<td><code>Number[]</code></td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">-</td>
+<td><strong>required</strong></td>
+</tr>
+<tr>
+<td><a href="#interations"><code>hoverBackgroundColor</code></a></td>
+<td><a href="../general/colors.html"><code>Color</code></a></td>
+<td style="text-align:center">Yes</td>
+<td style="text-align:center">Yes</td>
+<td><code>undefined</code></td>
+</tr>
+<tr>
+<td><a href="#interactions"><code>hoverBorderColor</code></a></td>
+<td><a href="../general/colors.html"><code>Color</code></a></td>
+<td style="text-align:center">Yes</td>
+<td style="text-align:center">Yes</td>
+<td><code>undefined</code></td>
+</tr>
+<tr>
+<td><a href="#interactions"><code>hoverBorderWidth</code></a></td>
+<td><code>Number</code></td>
+<td style="text-align:center">Yes</td>
+<td style="text-align:center">Yes</td>
+<td><code>undefined</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="styling">Styling</h3>
+<p>The style of each arc can be controlled with the following properties:</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
 <th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>backgroundColor</code></td>
-<td><code>Color/Color[]</code></td>
-<td>The fill color of the arcs in the dataset. See <a href="../general/colors.html#colors">Colors</a>.</td>
+<td>arc background color.</td>
 </tr>
 <tr>
 <td><code>borderColor</code></td>
-<td><code>Color/Color[]</code></td>
-<td>The border color of the arcs in the dataset. See <a href="../general/colors.html#colors">Colors</a>.</td>
+<td>arc border color.</td>
 </tr>
 <tr>
 <td><code>borderWidth</code></td>
-<td><code>Number/Number[]</code></td>
-<td>The border width of the arcs in the dataset.</td>
-</tr>
-<tr>
-<td><code>borderAlign</code></td>
-<td><code>String/String[]</code></td>
-<td>The border alignment of the arcs in the dataset. <a href="#border-alignment">more...</a></td>
-</tr>
-<tr>
-<td><code>hoverBackgroundColor</code></td>
-<td><code>Color/Color[]</code></td>
-<td>The fill colour of the arcs when hovered.</td>
-</tr>
-<tr>
-<td><code>hoverBorderColor</code></td>
-<td><code>Color/Color[]</code></td>
-<td>The stroke colour of the arcs when hovered.</td>
-</tr>
-<tr>
-<td><code>hoverBorderWidth</code></td>
-<td><code>Number/Number[]</code></td>
-<td>The stroke width of the arcs when hovered.</td>
+<td>arc border width (in pixels).</td>
 </tr>
 </tbody>
 </table>
+<p>All these values, if <code>undefined</code>, fallback to the associated <a href="../configuration/elements.html#arc-configuration"><code>elements.arc.*</code></a> options.</p>
 <h3 id="border-alignment">Border Alignment</h3>
 <p>The following values are supported for <code>borderAlign</code>.</p>
 <ul>
@@ -957,6 +1005,31 @@
 <li><code>&apos;inner&apos;</code></li>
 </ul>
 <p>When <code>&apos;center&apos;</code> is set, the borders of arcs next to each other will overlap. When <code>&apos;inner&apos;</code> is set, it is guaranteed that all the borders are not overlap.</p>
+<h3 id="interactions">Interactions</h3>
+<p>The interaction with each arc can be controlled with the following properties:</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>hoverBackgroundColor</code></td>
+<td>arc background color when hovered.</td>
+</tr>
+<tr>
+<td><code>hoverBorderColor</code></td>
+<td>arc border color when hovered.</td>
+</tr>
+<tr>
+<td><code>hoverBorderWidth</code></td>
+<td>arc border width when hovered (in pixels).</td>
+</tr>
+</tbody>
+</table>
+<p>All these values, if <code>undefined</code>, fallback to the associated <a href="../configuration/elements.html#arc-configuration"><code>elements.arc.*</code></a> options.</p>
 <h2 id="config-options">Config Options</h2>
 <p>These are the customisation options specific to Polar Area charts. These options are merged with the <a href="#default-options">global chart default options</a>, and form the options of the chart.</p>
 <table>
@@ -1053,7 +1126,7 @@
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Polar Area","level":"1.5.5","depth":2,"next":{"title":"Bubble","level":"1.5.6","depth":2,"path":"charts/bubble.md","ref":"charts/bubble.md","articles":[]},"previous":{"title":"Doughnut & Pie","level":"1.5.4","depth":2,"path":"charts/doughnut.md","ref":"charts/doughnut.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"anchorjs":{"icon":"#","placement":"left","visible":"always"},"ga":{"configuration":"auto","token":"UA-28909194-3"},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"search-plus":{},"chartjs":{"defaults":null},"highlight":{},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"charts/polar.md","mtime":"2019-01-12T00:31:04.197Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2019-01-12T00:34:05.722Z"},"basePath":"..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Polar Area","level":"1.5.5","depth":2,"next":{"title":"Bubble","level":"1.5.6","depth":2,"path":"charts/bubble.md","ref":"charts/bubble.md","articles":[]},"previous":{"title":"Doughnut & Pie","level":"1.5.4","depth":2,"path":"charts/doughnut.md","ref":"charts/doughnut.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"anchorjs":{"icon":"#","placement":"left","visible":"always"},"ga":{"configuration":"auto","token":"UA-28909194-3"},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"search-plus":{},"chartjs":{"defaults":null},"highlight":{},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"charts/polar.md","mtime":"2019-01-13T20:18:51.796Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2019-01-13T20:22:06.704Z"},"basePath":"..","book":{"language":""}});
         });
     </script>
 </div>
