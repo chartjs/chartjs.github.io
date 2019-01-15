@@ -903,150 +903,354 @@
 </code></pre>
 <h2 id="dataset-properties">Dataset Properties</h2>
 <p>The line chart allows a number of properties to be specified for each dataset. These are used to set display properties for a specific dataset. For example, the colour of a line is generally set this way.</p>
-<p>All point* properties can be specified as an array. If these are set to an array value, the first value applies to the first point, the second value to the second point, and so on.</p>
 <table>
 <thead>
 <tr>
 <th>Name</th>
 <th>Type</th>
+<th style="text-align:center"><a href="../general/options.html#scriptable-options">Scriptable</a></th>
+<th style="text-align:center"><a href="../general/options.html#indexable-options">Indexable</a></th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#line-styling"><code>backgroundColor</code></a></td>
+<td><a href="../general/colors.html"><code>Color</code></a></td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">-</td>
+<td><code>&apos;rgba(0,0,0,0.1)&apos;</code></td>
+</tr>
+<tr>
+<td><a href="#line-styling"><code>borderCapStyle</code></a></td>
+<td><code>String</code></td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">-</td>
+<td><code>&apos;butt&apos;</code></td>
+</tr>
+<tr>
+<td><a href="#line-styling"><code>borderColor</code></a></td>
+<td><a href="../general/colors.html"><code>Color</code></a></td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">-</td>
+<td><code>&apos;rgba(0,0,0,0.1)&apos;</code></td>
+</tr>
+<tr>
+<td><a href="#line-styling"><code>borderDash</code></a></td>
+<td><code>Number[]</code></td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">-</td>
+<td><code>[]</code></td>
+</tr>
+<tr>
+<td><a href="#line-styling"><code>borderDashOffset</code></a></td>
+<td><code>Number</code></td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">-</td>
+<td><code>0</code></td>
+</tr>
+<tr>
+<td><a href="#line-styling"><code>borderJoinStyle</code></a></td>
+<td><code>String</code></td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">-</td>
+<td><code>&apos;miter&apos;</code></td>
+</tr>
+<tr>
+<td><a href="#line-styling"><code>borderWidth</code></a></td>
+<td><code>Number</code></td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">-</td>
+<td><code>0</code></td>
+</tr>
+<tr>
+<td><a href="#cubicInterpolationMode"><code>cubicInterpolationMode</code></a></td>
+<td><code>String</code></td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">-</td>
+<td><code>&apos;&apos;</code></td>
+</tr>
+<tr>
+<td><a href="#line-styling"><code>fill</code></a></td>
+<td><code>Boolean/String</code></td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">-</td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><a href="#general"><code>label</code></a></td>
+<td><code>String</code></td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">-</td>
+<td><code>&apos;&apos;</code></td>
+</tr>
+<tr>
+<td><a href="#line-styling"><code>lineTension</code></a></td>
+<td><code>Number</code></td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">-</td>
+<td><code>0.4</code></td>
+</tr>
+<tr>
+<td><a href="#point-styling"><code>pointBackgroundColor</code></a></td>
+<td><code>Color</code></td>
+<td style="text-align:center">Yes</td>
+<td style="text-align:center">Yes</td>
+<td><code>&apos;rgba(0,0,0,0.1)&apos;</code></td>
+</tr>
+<tr>
+<td><a href="#point-styling"><code>pointBorderColor</code></a></td>
+<td><code>Color</code></td>
+<td style="text-align:center">Yes</td>
+<td style="text-align:center">Yes</td>
+<td><code>&apos;rgba(0,0,0,0.1)&apos;</code></td>
+</tr>
+<tr>
+<td><a href="#point-styling"><code>pointBorderWidth</code></a></td>
+<td><code>Number</code></td>
+<td style="text-align:center">Yes</td>
+<td style="text-align:center">Yes</td>
+<td><code>1</code></td>
+</tr>
+<tr>
+<td><a href="#point-styling"><code>pointHitRadius</code></a></td>
+<td><code>Number</code></td>
+<td style="text-align:center">Yes</td>
+<td style="text-align:center">Yes</td>
+<td><code>1</code></td>
+</tr>
+<tr>
+<td><a href="#interactions"><code>pointHoverBackgroundColor</code></a></td>
+<td><code>Color</code></td>
+<td style="text-align:center">Yes</td>
+<td style="text-align:center">Yes</td>
+<td><code>undefined</code></td>
+</tr>
+<tr>
+<td><a href="#interactions"><code>pointHoverBorderColor</code></a></td>
+<td><code>Color</code></td>
+<td style="text-align:center">Yes</td>
+<td style="text-align:center">Yes</td>
+<td><code>undefined</code></td>
+</tr>
+<tr>
+<td><a href="#interactions"><code>pointHoverBorderWidth</code></a></td>
+<td><code>Number</code></td>
+<td style="text-align:center">Yes</td>
+<td style="text-align:center">Yes</td>
+<td><code>undefined</code></td>
+</tr>
+<tr>
+<td><a href="#interactions"><code>pointHoverRadius</code></a></td>
+<td><code>Number</code></td>
+<td style="text-align:center">Yes</td>
+<td style="text-align:center">Yes</td>
+<td><code>undefined</code></td>
+</tr>
+<tr>
+<td><a href="#point-styling"><code>pointRadius</code></a></td>
+<td><code>Number</code></td>
+<td style="text-align:center">Yes</td>
+<td style="text-align:center">Yes</td>
+<td><code>3</code></td>
+</tr>
+<tr>
+<td><a href="#point-styling"><code>pointRotation</code></a></td>
+<td><code>Number</code></td>
+<td style="text-align:center">Yes</td>
+<td style="text-align:center">Yes</td>
+<td><code>1</code></td>
+</tr>
+<tr>
+<td><a href="#point-styling"><code>pointStyle</code></a></td>
+<td><code>String/Image</code></td>
+<td style="text-align:center">Yes</td>
+<td style="text-align:center">Yes</td>
+<td><code>&apos;circle&apos;</code></td>
+</tr>
+<tr>
+<td><a href="#general"><code>showLine</code></a></td>
+<td><code>Boolean</code></td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">-</td>
+<td><code>undefined</code></td>
+</tr>
+<tr>
+<td><a href="#general"><code>spanGaps</code></a></td>
+<td><code>Boolean</code></td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">-</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><a href="#stepped-line"><code>steppedLine</code></a></td>
+<td><code>Boolean/String</code></td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">-</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><a href="#general"><code>xAxisID</code></a></td>
+<td><code>String</code></td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">-</td>
+<td>first x axis</td>
+</tr>
+<tr>
+<td><a href="#general"><code>yAxisID</code></a></td>
+<td><code>String</code></td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">-</td>
+<td>first y axis</td>
+</tr>
+</tbody>
+</table>
+<h3 id="general">General</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
 <th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>label</code></td>
-<td><code>String</code></td>
 <td>The label for the dataset which appears in the legend and tooltips.</td>
 </tr>
 <tr>
 <td><code>xAxisID</code></td>
-<td><code>String</code></td>
-<td>The ID of the x axis to plot this dataset on. If not specified, this defaults to the ID of the first found x axis.</td>
+<td>The ID of the x axis to plot this dataset on.</td>
 </tr>
 <tr>
 <td><code>yAxisID</code></td>
-<td><code>String</code></td>
-<td>The ID of the y axis to plot this dataset on. If not specified, this defaults to the ID of the first found y axis.</td>
+<td>The ID of the y axis to plot this dataset on.</td>
 </tr>
+</tbody>
+</table>
+<h3 id="point-styling">Point Styling</h3>
+<p>The style of each point can be controlled with the following properties:</p>
+<table>
+<thead>
 <tr>
-<td><code>backgroundColor</code></td>
-<td><code>Color</code></td>
-<td>The fill color under the line. See <a href="../general/colors.html#colors">Colors</a>.</td>
+<th>Name</th>
+<th>Description</th>
 </tr>
-<tr>
-<td><code>borderColor</code></td>
-<td><code>Color</code></td>
-<td>The color of the line. See <a href="../general/colors.html#colors">Colors</a>.</td>
-</tr>
-<tr>
-<td><code>borderWidth</code></td>
-<td><code>Number</code></td>
-<td>The width of the line in pixels.</td>
-</tr>
-<tr>
-<td><code>borderDash</code></td>
-<td><code>Number[]</code></td>
-<td>Length and spacing of dashes. See <a href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/setLineDash" target="_blank">MDN</a>.</td>
-</tr>
-<tr>
-<td><code>borderDashOffset</code></td>
-<td><code>Number</code></td>
-<td>Offset for line dashes. See <a href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineDashOffset" target="_blank">MDN</a>.</td>
-</tr>
-<tr>
-<td><code>borderCapStyle</code></td>
-<td><code>String</code></td>
-<td>Cap style of the line. See <a href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineCap" target="_blank">MDN</a>.</td>
-</tr>
-<tr>
-<td><code>borderJoinStyle</code></td>
-<td><code>String</code></td>
-<td>Line joint style. See <a href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineJoin" target="_blank">MDN</a>.</td>
-</tr>
-<tr>
-<td><code>cubicInterpolationMode</code></td>
-<td><code>String</code></td>
-<td>Algorithm used to interpolate a smooth curve from the discrete data points. <a href="#cubicinterpolationmode">more...</a></td>
-</tr>
-<tr>
-<td><code>fill</code></td>
-<td><code>Boolean/String</code></td>
-<td>How to fill the area under the line. See <a href="area.html">area charts</a>.</td>
-</tr>
-<tr>
-<td><code>lineTension</code></td>
-<td><code>Number</code></td>
-<td>Bezier curve tension of the line. Set to 0 to draw straightlines. This option is ignored if monotone cubic interpolation is used.</td>
-</tr>
+</thead>
+<tbody>
 <tr>
 <td><code>pointBackgroundColor</code></td>
-<td><code>Color/Color[]</code></td>
 <td>The fill color for points.</td>
 </tr>
 <tr>
 <td><code>pointBorderColor</code></td>
-<td><code>Color/Color[]</code></td>
 <td>The border color for points.</td>
 </tr>
 <tr>
 <td><code>pointBorderWidth</code></td>
-<td><code>Number/Number[]</code></td>
 <td>The width of the point border in pixels.</td>
 </tr>
 <tr>
-<td><code>pointRadius</code></td>
-<td><code>Number/Number[]</code></td>
-<td>The radius of the point shape. If set to 0, the point is not rendered.</td>
-</tr>
-<tr>
-<td><code>pointStyle</code></td>
-<td><code>String/String[]/Image/Image[]</code></td>
-<td>Style of the point. <a href="../configuration/elements#point-styles">more...</a></td>
-</tr>
-<tr>
-<td><code>pointRotation</code></td>
-<td><code>Number/Number[]</code></td>
-<td>The rotation of the point in degrees.</td>
-</tr>
-<tr>
 <td><code>pointHitRadius</code></td>
-<td><code>Number/Number[]</code></td>
 <td>The pixel size of the non-displayed point that reacts to mouse events.</td>
 </tr>
 <tr>
-<td><code>pointHoverBackgroundColor</code></td>
-<td><code>Color/Color[]</code></td>
-<td>Point background color when hovered.</td>
+<td><code>pointRadius</code></td>
+<td>The radius of the point shape. If set to 0, the point is not rendered.</td>
 </tr>
 <tr>
-<td><code>pointHoverBorderColor</code></td>
-<td><code>Color/Color[]</code></td>
-<td>Point border color when hovered.</td>
+<td><code>pointRotation</code></td>
+<td>The rotation of the point in degrees.</td>
 </tr>
 <tr>
-<td><code>pointHoverBorderWidth</code></td>
-<td><code>Number/Number[]</code></td>
-<td>Border width of point when hovered.</td>
+<td><code>pointStyle</code></td>
+<td>Style of the point. <a href="../configuration/elements#point-styles">more...</a></td>
+</tr>
+</tbody>
+</table>
+<p>All these values, if <code>undefined</code>, fallback first to the dataset options then to the associated <a href="../configuration/elements.html#point-configuration"><code>elements.point.*</code></a> options. </p>
+<h3 id="line-styling">Line Styling</h3>
+<p>The style of the line can be controlled with the following properties:</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>backgroundColor</code></td>
+<td>The line fill color.</td>
 </tr>
 <tr>
-<td><code>pointHoverRadius</code></td>
-<td><code>Number/Number[]</code></td>
-<td>The radius of the point when hovered.</td>
+<td><code>borderCapStyle</code></td>
+<td>Cap style of the line. See <a href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineCap" target="_blank">MDN</a>.</td>
+</tr>
+<tr>
+<td><code>borderColor</code></td>
+<td>The line color.</td>
+</tr>
+<tr>
+<td><code>borderDash</code></td>
+<td>Length and spacing of dashes. See <a href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/setLineDash" target="_blank">MDN</a>.</td>
+</tr>
+<tr>
+<td><code>borderDashOffset</code></td>
+<td>Offset for line dashes. See <a href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineDashOffset" target="_blank">MDN</a>.</td>
+</tr>
+<tr>
+<td><code>borderJoinStyle</code></td>
+<td>Line joint style. See <a href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineJoin" target="_blank">MDN</a>.</td>
+</tr>
+<tr>
+<td><code>borderWidth</code></td>
+<td>The line width (in pixels).</td>
+</tr>
+<tr>
+<td><code>fill</code></td>
+<td>How to fill the area under the line. See <a href="area.html">area charts</a>.</td>
+</tr>
+<tr>
+<td><code>lineTension</code></td>
+<td>Bezier curve tension of the line. Set to 0 to draw straightlines. This option is ignored if monotone cubic interpolation is used.</td>
 </tr>
 <tr>
 <td><code>showLine</code></td>
-<td><code>Boolean</code></td>
 <td>If false, the line is not drawn for this dataset.</td>
 </tr>
 <tr>
 <td><code>spanGaps</code></td>
-<td><code>Boolean</code></td>
 <td>If true, lines will be drawn between points with no or null data. If false, points with <code>NaN</code> data will create a break in the line.</td>
 </tr>
+</tbody>
+</table>
+<p>All these values, if <code>undefined</code>, fallback to the associated <a href="../configuration/elements.html#line-configuration"><code>elements.line.*</code></a> options.</p>
+<h3 id="interactions">Interactions</h3>
+<p>The interaction with each point can be controlled with the following properties:</p>
+<table>
+<thead>
 <tr>
-<td><code>steppedLine</code></td>
-<td><code>Boolean/String</code></td>
-<td>If the line is shown as a stepped line. <a href="#stepped-line">more...</a></td>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pointHoverBackgroundColor</code></td>
+<td>Point background color when hovered.</td>
+</tr>
+<tr>
+<td><code>pointHoverBorderColor</code></td>
+<td>Point border color when hovered.</td>
+</tr>
+<tr>
+<td><code>pointHoverBorderWidth</code></td>
+<td>Border width of point when hovered.</td>
+</tr>
+<tr>
+<td><code>pointHoverRadius</code></td>
+<td>The radius of the point when hovered.</td>
 </tr>
 </tbody>
 </table>
@@ -1225,7 +1429,7 @@
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Line","level":"1.5.1","depth":2,"next":{"title":"Bar","level":"1.5.2","depth":2,"path":"charts/bar.md","ref":"charts/bar.md","articles":[]},"previous":{"title":"Charts","level":"1.5","depth":1,"path":"charts/README.md","ref":"charts/README.md","articles":[{"title":"Line","level":"1.5.1","depth":2,"path":"charts/line.md","ref":"charts/line.md","articles":[]},{"title":"Bar","level":"1.5.2","depth":2,"path":"charts/bar.md","ref":"charts/bar.md","articles":[]},{"title":"Radar","level":"1.5.3","depth":2,"path":"charts/radar.md","ref":"charts/radar.md","articles":[]},{"title":"Doughnut & Pie","level":"1.5.4","depth":2,"path":"charts/doughnut.md","ref":"charts/doughnut.md","articles":[]},{"title":"Polar Area","level":"1.5.5","depth":2,"path":"charts/polar.md","ref":"charts/polar.md","articles":[]},{"title":"Bubble","level":"1.5.6","depth":2,"path":"charts/bubble.md","ref":"charts/bubble.md","articles":[]},{"title":"Scatter","level":"1.5.7","depth":2,"path":"charts/scatter.md","ref":"charts/scatter.md","articles":[]},{"title":"Area","level":"1.5.8","depth":2,"path":"charts/area.md","ref":"charts/area.md","articles":[]},{"title":"Mixed","level":"1.5.9","depth":2,"path":"charts/mixed.md","ref":"charts/mixed.md","articles":[]}]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"anchorjs":{"icon":"#","placement":"left","visible":"always"},"ga":{"configuration":"auto","token":"UA-28909194-3"},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"search-plus":{},"chartjs":{"defaults":null},"highlight":{},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"charts/line.md","mtime":"2019-01-13T20:21:59.053Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2019-01-13T20:25:08.479Z"},"basePath":"..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Line","level":"1.5.1","depth":2,"next":{"title":"Bar","level":"1.5.2","depth":2,"path":"charts/bar.md","ref":"charts/bar.md","articles":[]},"previous":{"title":"Charts","level":"1.5","depth":1,"path":"charts/README.md","ref":"charts/README.md","articles":[{"title":"Line","level":"1.5.1","depth":2,"path":"charts/line.md","ref":"charts/line.md","articles":[]},{"title":"Bar","level":"1.5.2","depth":2,"path":"charts/bar.md","ref":"charts/bar.md","articles":[]},{"title":"Radar","level":"1.5.3","depth":2,"path":"charts/radar.md","ref":"charts/radar.md","articles":[]},{"title":"Doughnut & Pie","level":"1.5.4","depth":2,"path":"charts/doughnut.md","ref":"charts/doughnut.md","articles":[]},{"title":"Polar Area","level":"1.5.5","depth":2,"path":"charts/polar.md","ref":"charts/polar.md","articles":[]},{"title":"Bubble","level":"1.5.6","depth":2,"path":"charts/bubble.md","ref":"charts/bubble.md","articles":[]},{"title":"Scatter","level":"1.5.7","depth":2,"path":"charts/scatter.md","ref":"charts/scatter.md","articles":[]},{"title":"Area","level":"1.5.8","depth":2,"path":"charts/area.md","ref":"charts/area.md","articles":[]},{"title":"Mixed","level":"1.5.9","depth":2,"path":"charts/mixed.md","ref":"charts/mixed.md","articles":[]}]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"anchorjs":{"icon":"#","placement":"left","visible":"always"},"ga":{"configuration":"auto","token":"UA-28909194-3"},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"search-plus":{},"chartjs":{"defaults":null},"highlight":{},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"charts/line.md","mtime":"2019-01-15T08:25:34.318Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2019-01-15T08:28:49.268Z"},"basePath":"..","book":{"language":""}});
         });
     </script>
 </div>
