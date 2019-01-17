@@ -3070,6 +3070,34 @@ helpers$1.extend(DatasetController.prototype, {
 		return this.chart.scales[scaleID];
 	},
 
+	/**
+	 * @private
+	 */
+	_getValueScaleId: function() {
+		return this.getMeta().yAxisID;
+	},
+
+	/**
+	 * @private
+	 */
+	_getIndexScaleId: function() {
+		return this.getMeta().xAxisID;
+	},
+
+	/**
+	 * @private
+	 */
+	_getValueScale: function() {
+		return this.getScaleForId(this._getValueScaleId());
+	},
+
+	/**
+	 * @private
+	 */
+	_getIndexScale: function() {
+		return this.getScaleForId(this._getIndexScaleId());
+	},
+
 	reset: function() {
 		this.update(true);
 	},
@@ -3966,7 +3994,7 @@ var controller_bar = core_datasetController.extend({
 	_updateElementGeometry: function(rectangle, index, reset) {
 		var me = this;
 		var model = rectangle._model;
-		var vscale = me.getValueScale();
+		var vscale = me._getValueScale();
 		var base = vscale.getBasePixel();
 		var horizontal = vscale.isHorizontal();
 		var ruler = me._ruler || me.getRuler();
@@ -3982,34 +4010,6 @@ var controller_bar = core_datasetController.extend({
 	},
 
 	/**
-	 * @private
-	 */
-	getValueScaleId: function() {
-		return this.getMeta().yAxisID;
-	},
-
-	/**
-	 * @private
-	 */
-	getIndexScaleId: function() {
-		return this.getMeta().xAxisID;
-	},
-
-	/**
-	 * @private
-	 */
-	getValueScale: function() {
-		return this.getScaleForId(this.getValueScaleId());
-	},
-
-	/**
-	 * @private
-	 */
-	getIndexScale: function() {
-		return this.getScaleForId(this.getIndexScaleId());
-	},
-
-	/**
 	 * Returns the stacks based on groups and bar visibility.
 	 * @param {Number} [last] - The dataset index
 	 * @returns {Array} The stack list
@@ -4018,7 +4018,7 @@ var controller_bar = core_datasetController.extend({
 	_getStacks: function(last) {
 		var me = this;
 		var chart = me.chart;
-		var scale = me.getIndexScale();
+		var scale = me._getIndexScale();
 		var stacked = scale.options.stacked;
 		var ilen = last === undefined ? chart.data.datasets.length : last + 1;
 		var stacks = [];
@@ -4068,7 +4068,7 @@ var controller_bar = core_datasetController.extend({
 	 */
 	getRuler: function() {
 		var me = this;
-		var scale = me.getIndexScale();
+		var scale = me._getIndexScale();
 		var stackCount = me.getStackCount();
 		var datasetIndex = me.index;
 		var isHorizontal = scale.isHorizontal();
@@ -4103,7 +4103,7 @@ var controller_bar = core_datasetController.extend({
 		var me = this;
 		var chart = me.chart;
 		var meta = me.getMeta();
-		var scale = me.getValueScale();
+		var scale = me._getValueScale();
 		var isHorizontal = scale.isHorizontal();
 		var datasets = chart.data.datasets;
 		var value = +scale.getRightValue(datasets[datasetIndex].data[index]);
@@ -4119,7 +4119,7 @@ var controller_bar = core_datasetController.extend({
 
 				if (imeta.bar &&
 					imeta.stack === stack &&
-					imeta.controller.getValueScaleId() === scale.id &&
+					imeta.controller._getValueScaleId() === scale.id &&
 					chart.isDatasetVisible(i)) {
 
 					ivalue = +scale.getRightValue(datasets[i].data[index]);
@@ -4178,7 +4178,7 @@ var controller_bar = core_datasetController.extend({
 	draw: function() {
 		var me = this;
 		var chart = me.chart;
-		var scale = me.getValueScale();
+		var scale = me._getValueScale();
 		var rects = me.getMeta().data;
 		var dataset = me.getDataset();
 		var ilen = rects.length;
@@ -4840,14 +4840,14 @@ var controller_horizontalBar = controller_bar.extend({
 	/**
 	 * @private
 	 */
-	getValueScaleId: function() {
+	_getValueScaleId: function() {
 		return this.getMeta().xAxisID;
 	},
 
 	/**
 	 * @private
 	 */
-	getIndexScaleId: function() {
+	_getIndexScaleId: function() {
 		return this.getMeta().yAxisID;
 	}
 });
@@ -11036,12 +11036,12 @@ var scale_category = core_scale.extend({
 
 	getLabelForIndex: function(index, datasetIndex) {
 		var me = this;
-		var data = me.chart.data;
-		var isHorizontal = me.isHorizontal();
+		var chart = me.chart;
 
-		if (data.yLabels && !isHorizontal) {
-			return me.getRightValue(data.datasets[datasetIndex].data[index]);
+		if (chart.getDatasetMeta(datasetIndex).controller._getValueScaleId() === me.id) {
+			return me.getRightValue(chart.data.datasets[datasetIndex].data[index]);
 		}
+
 		return me.ticks[index - me.minIndex];
 	},
 
