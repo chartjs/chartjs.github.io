@@ -12981,8 +12981,8 @@ var scale_time = core_scale.extend({
 		max = parse(timeOpts.max, me) || max;
 
 		// In case there is no valid min/max, set limits based on unit time option
-		min = min === MAX_INTEGER ? +adapter.startOf(+new Date(), unit) : min;
-		max = max === MIN_INTEGER ? +adapter.endOf(+new Date(), unit) + 1 : max;
+		min = min === MAX_INTEGER ? +adapter.startOf(Date.now(), unit) : min;
+		max = max === MIN_INTEGER ? +adapter.endOf(Date.now(), unit) + 1 : max;
 
 		// Make sure that max is strictly higher than min (required by the lookup table)
 		me.min = Math.min(min, max);
@@ -13238,7 +13238,7 @@ helpers_core.merge(adapter$1, moment ? {
 		} else if (!(value instanceof moment)) {
 			value = moment(value);
 		}
-		return value.isValid() ? +value : null;
+		return value.isValid() ? value.valueOf() : null;
 	},
 
 	format: function(time, format) {
@@ -13246,7 +13246,7 @@ helpers_core.merge(adapter$1, moment ? {
 	},
 
 	add: function(time, amount, unit) {
-		return +moment(time).add(amount, unit);
+		return moment(time).add(amount, unit).valueOf();
 	},
 
 	diff: function(max, min, unit) {
@@ -13256,13 +13256,13 @@ helpers_core.merge(adapter$1, moment ? {
 	startOf: function(time, unit, weekday) {
 		time = moment(time);
 		if (unit === 'isoWeek') {
-			return +time.isoWeekday(weekday);
+			return time.isoWeekday(weekday).valueOf();
 		}
-		return +time.startOf(unit);
+		return time.startOf(unit).valueOf();
 	},
 
 	endOf: function(time, unit) {
-		return +moment(time).endOf(unit);
+		return moment(time).endOf(unit).valueOf();
 	},
 
 	// DEPRECATIONS
