@@ -1853,7 +1853,7 @@ var helpers = {
 
 	/**
 	 * The default merger when Chart.helpers.merge is called without merger option.
-	 * Note(SB): this method is also used by configMerge and scaleMerge as fallback.
+	 * Note(SB): also used by mergeConfig and mergeScaleConfig as fallback.
 	 * @private
 	 */
 	_merger: function(key, target, source, options) {
@@ -8214,16 +8214,80 @@ core_defaults._set('global', {
 	responsiveAnimationDuration: 0
 });
 
+/**
+ * Recursively merge the given config objects representing the `scales` option
+ * by incorporating scale defaults in `xAxes` and `yAxes` array items, then
+ * returns a deep copy of the result, thus doesn't alter inputs.
+ */
+function mergeScaleConfig(/* config objects ... */) {
+	return helpers$1.merge({}, [].slice.call(arguments), {
+		merger: function(key, target, source, options) {
+			if (key === 'xAxes' || key === 'yAxes') {
+				var slen = source[key].length;
+				var i, type, scale;
+
+				if (!target[key]) {
+					target[key] = [];
+				}
+
+				for (i = 0; i < slen; ++i) {
+					scale = source[key][i];
+					type = valueOrDefault$6(scale.type, key === 'xAxes' ? 'category' : 'linear');
+
+					if (i >= target[key].length) {
+						target[key].push({});
+					}
+
+					if (!target[key][i].type || (scale.type && scale.type !== target[key][i].type)) {
+						// new/untyped scale or type changed: let's apply the new defaults
+						// then merge source scale to correctly overwrite the defaults.
+						helpers$1.merge(target[key][i], [core_scaleService.getScaleDefaults(type), scale]);
+					} else {
+						// scales type are the same
+						helpers$1.merge(target[key][i], scale);
+					}
+				}
+			} else {
+				helpers$1._merger(key, target, source, options);
+			}
+		}
+	});
+}
+
+/**
+ * Recursively merge the given config objects as the root options by handling
+ * default scale options for the `scales` and `scale` properties, then returns
+ * a deep copy of the result, thus doesn't alter inputs.
+ */
+function mergeConfig(/* config objects ... */) {
+	return helpers$1.merge({}, [].slice.call(arguments), {
+		merger: function(key, target, source, options) {
+			var tval = target[key] || {};
+			var sval = source[key];
+
+			if (key === 'scales') {
+				// scale config merging is complex. Add our own function here for that
+				target[key] = mergeScaleConfig(tval, sval);
+			} else if (key === 'scale') {
+				// used in polar area & radar charts since there is only one scale
+				target[key] = helpers$1.merge(tval, [core_scaleService.getScaleDefaults(sval.type), sval]);
+			} else {
+				helpers$1._merger(key, target, source, options);
+			}
+		}
+	});
+}
+
 function initConfig(config) {
 	config = config || {};
 
-	// Do NOT use configMerge() for the data object because this method merges arrays
+	// Do NOT use mergeConfig for the data object because this method merges arrays
 	// and so would change references to labels and datasets, preventing data updates.
 	var data = config.data = config.data || {};
 	data.datasets = data.datasets || [];
 	data.labels = data.labels || [];
 
-	config.options = helpers$1.configMerge(
+	config.options = mergeConfig(
 		core_defaults.global,
 		core_defaults[config.type],
 		config.options || {});
@@ -8238,7 +8302,7 @@ function updateConfig(chart) {
 		core_layouts.removeBox(chart, scale);
 	});
 
-	newOptions = helpers$1.configMerge(
+	newOptions = mergeConfig(
 		core_defaults.global,
 		core_defaults[chart.config.type],
 		newOptions);
@@ -9161,63 +9225,27 @@ Chart.Controller = Chart;
  */
 Chart.types = {};
 
+/**
+ * Provided for backward compatibility, not available anymore.
+ * @namespace Chart.helpers.configMerge
+ * @deprecated since version 2.8.0
+ * @todo remove at version 3
+ * @private
+ */
+helpers$1.configMerge = mergeConfig;
+
+/**
+ * Provided for backward compatibility, not available anymore.
+ * @namespace Chart.helpers.scaleMerge
+ * @deprecated since version 2.8.0
+ * @todo remove at version 3
+ * @private
+ */
+helpers$1.scaleMerge = mergeScaleConfig;
+
 var core_helpers = function() {
 
 	// -- Basic js utility methods
-
-	helpers$1.configMerge = function(/* objects ... */) {
-		return helpers$1.merge(helpers$1.clone(arguments[0]), [].slice.call(arguments, 1), {
-			merger: function(key, target, source, options) {
-				var tval = target[key] || {};
-				var sval = source[key];
-
-				if (key === 'scales') {
-					// scale config merging is complex. Add our own function here for that
-					target[key] = helpers$1.scaleMerge(tval, sval);
-				} else if (key === 'scale') {
-					// used in polar area & radar charts since there is only one scale
-					target[key] = helpers$1.merge(tval, [core_scaleService.getScaleDefaults(sval.type), sval]);
-				} else {
-					helpers$1._merger(key, target, source, options);
-				}
-			}
-		});
-	};
-
-	helpers$1.scaleMerge = function(/* objects ... */) {
-		return helpers$1.merge(helpers$1.clone(arguments[0]), [].slice.call(arguments, 1), {
-			merger: function(key, target, source, options) {
-				if (key === 'xAxes' || key === 'yAxes') {
-					var slen = source[key].length;
-					var i, type, scale;
-
-					if (!target[key]) {
-						target[key] = [];
-					}
-
-					for (i = 0; i < slen; ++i) {
-						scale = source[key][i];
-						type = helpers$1.valueOrDefault(scale.type, key === 'xAxes' ? 'category' : 'linear');
-
-						if (i >= target[key].length) {
-							target[key].push({});
-						}
-
-						if (!target[key][i].type || (scale.type && scale.type !== target[key][i].type)) {
-							// new/untyped scale or type changed: let's apply the new defaults
-							// then merge source scale to correctly overwrite the defaults.
-							helpers$1.merge(target[key][i], [core_scaleService.getScaleDefaults(type), scale]);
-						} else {
-							// scales type are the same
-							helpers$1.merge(target[key][i], scale);
-						}
-					}
-				} else {
-					helpers$1._merger(key, target, source, options);
-				}
-			}
-		});
-	};
 
 	helpers$1.where = function(collection, filterCallback) {
 		if (helpers$1.isArray(collection) && Array.prototype.filter) {
