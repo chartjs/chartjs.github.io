@@ -5,8 +5,8 @@
  * Released under the MIT License
  */
 (function (global, factory) {
-typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('moment')) :
-typeof define === 'function' && define.amd ? define(['moment'], factory) :
+typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(function() { try { return require('moment'); } catch(e) { } }()) :
+typeof define === 'function' && define.amd ? define(['require'], function(require) { return factory(function() { try { return require('moment'); } catch(e) { } }()); }) :
 (global.Chart = factory(global.moment));
 }(this, (function (moment) { 'use strict';
 
