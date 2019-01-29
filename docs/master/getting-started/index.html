@@ -897,7 +897,7 @@
 <pre><code class="lang-html"><span class="hljs-tag">&lt;<span class="hljs-name">canvas</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;myChart&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">canvas</span>&gt;</span>
 </code></pre>
 <p>Now that we have a canvas we can use, we need to include Chart.js in our page.</p>
-<pre><code class="lang-html"><span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js&quot;</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+<pre><code class="lang-html"><span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js&quot;</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
 </code></pre>
 <p>Now, we can create a chart. We add a script to our page:</p>
 <pre><code class="lang-javascript"><span class="hljs-keyword">var</span> ctx = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">&apos;myChart&apos;</span>).getContext(<span class="hljs-string">&apos;2d&apos;</span>);
@@ -907,12 +907,12 @@
 
     <span class="hljs-comment">// The data for our dataset</span>
     data: {
-        labels: [<span class="hljs-string">&quot;January&quot;</span>, <span class="hljs-string">&quot;February&quot;</span>, <span class="hljs-string">&quot;March&quot;</span>, <span class="hljs-string">&quot;April&quot;</span>, <span class="hljs-string">&quot;May&quot;</span>, <span class="hljs-string">&quot;June&quot;</span>, <span class="hljs-string">&quot;July&quot;</span>],
+        labels: [<span class="hljs-string">&apos;January&apos;</span>, <span class="hljs-string">&apos;February&apos;</span>, <span class="hljs-string">&apos;March&apos;</span>, <span class="hljs-string">&apos;April&apos;</span>, <span class="hljs-string">&apos;May&apos;</span>, <span class="hljs-string">&apos;June&apos;</span>, <span class="hljs-string">&apos;July&apos;</span>],
         datasets: [{
-            label: <span class="hljs-string">&quot;My First dataset&quot;</span>,
+            label: <span class="hljs-string">&apos;My First dataset&apos;</span>,
             backgroundColor: <span class="hljs-string">&apos;rgb(255, 99, 132)&apos;</span>,
             borderColor: <span class="hljs-string">&apos;rgb(255, 99, 132)&apos;</span>,
-            data: [<span class="hljs-number">0</span>, <span class="hljs-number">10</span>, <span class="hljs-number">5</span>, <span class="hljs-number">2</span>, <span class="hljs-number">20</span>, <span class="hljs-number">30</span>, <span class="hljs-number">45</span>],
+            data: [<span class="hljs-number">0</span>, <span class="hljs-number">10</span>, <span class="hljs-number">5</span>, <span class="hljs-number">2</span>, <span class="hljs-number">20</span>, <span class="hljs-number">30</span>, <span class="hljs-number">45</span>]
         }]
     },
 
@@ -921,7 +921,7 @@
 });
 </code></pre>
 <p>It&apos;s that easy to get started using Chart.js! From here you can explore the many options that can help you customise your charts with scales, tooltips, labels, colors, custom actions, and much more.</p>
-<p>There are many examples of Chart.js that are available in the <code>/samples</code> folder of <code>Chart.js.zip</code> that is attached to every <a href="https://github.com/chartjs/Chart.js/releases" target="_blank">release</a>.</p>
+<p>All our examples are <a href="https://www.chartjs.org/samples/latest/" target="_blank">available online</a> but you can also download the <code>Chart.js.zip</code> archive attached to every <a href="https://github.com/chartjs/Chart.js/releases" target="_blank">release</a> to experiment with our samples locally from the <code>/samples</code> folder.</p>
 
                                 
                                 </section>
@@ -965,7 +965,7 @@
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Getting Started","level":"1.2","depth":1,"next":{"title":"Installation","level":"1.2.1","depth":2,"path":"getting-started/installation.md","ref":"getting-started/installation.md","articles":[]},"previous":{"title":"Chart.js","level":"1.1","depth":1,"path":"README.md","ref":"README.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"anchorjs":{"icon":"#","placement":"left","visible":"always"},"ga":{"configuration":"auto","token":"UA-28909194-3"},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"search-plus":{},"chartjs":{"defaults":null},"highlight":{},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"getting-started/README.md","mtime":"2019-01-28T18:41:40.493Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2019-01-28T18:44:50.603Z"},"basePath":"..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Getting Started","level":"1.2","depth":1,"next":{"title":"Installation","level":"1.2.1","depth":2,"path":"getting-started/installation.md","ref":"getting-started/installation.md","articles":[]},"previous":{"title":"Chart.js","level":"1.1","depth":1,"path":"README.md","ref":"README.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"anchorjs":{"icon":"#","placement":"left","visible":"always"},"ga":{"configuration":"auto","token":"UA-28909194-3"},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"search-plus":{},"chartjs":{"defaults":null},"highlight":{},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"getting-started/README.md","mtime":"2019-01-29T12:36:23.350Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2019-01-29T12:39:45.625Z"},"basePath":"..","book":{"language":""}});
         });
     </script>
 </div>

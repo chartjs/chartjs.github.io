@@ -892,7 +892,7 @@
                                 <section class="normal markdown-section">
                                 
                                 <h1 id="chart-prototype-methods">Chart Prototype Methods</h1>
-<p>For each chart, there are a set of global prototype methods on the shared <code>ChartType</code> which you may find useful. These are available on all charts created with Chart.js, but for the examples, let&apos;s use a line chart we&apos;ve made.</p>
+<p>For each chart, there are a set of global prototype methods on the shared chart type which you may find useful. These are available on all charts created with Chart.js, but for the examples, let&apos;s use a line chart we&apos;ve made.</p>
 <pre><code class="lang-javascript"><span class="hljs-comment">// For example:</span>
 <span class="hljs-keyword">var</span> myLineChart = <span class="hljs-keyword">new</span> Chart(ctx, config);
 </code></pre>
@@ -923,7 +923,7 @@ myLineChart.update(); <span class="hljs-comment">// Calling update now animates 
 <pre><code class="lang-javascript">myChart.update({
     duration: <span class="hljs-number">800</span>,
     easing: <span class="hljs-string">&apos;easeOutBounce&apos;</span>
-})
+});
 </code></pre>
 <p>See <a href="updates.html">Updating Charts</a> for more details.</p>
 <h2 id="reset">.reset()</h2>
@@ -987,7 +987,7 @@ myLineChart.clear();
 <h2 id="getelementsatevente">.getElementsAtEvent(e)</h2>
 <p>Looks for the element under the event point, then returns all elements at the same data index. This is used internally for &apos;label&apos; mode highlighting.</p>
 <p>Calling <code>getElementsAtEvent(event)</code> on your Chart instance passing an argument of an event, or jQuery event, will return the point elements that are at that the same position of that event.</p>
-<pre><code class="lang-javascript">canvas.onclick = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">evt</span>)</span>{
+<pre><code class="lang-javascript">canvas.onclick = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">evt</span>) </span>{
     <span class="hljs-keyword">var</span> activePoints = myLineChart.getElementsAtEvent(evt);
     <span class="hljs-comment">// =&gt; activePoints is an array of points on the canvas that are at the same position as the click event.</span>
 };
@@ -1003,7 +1003,7 @@ myLineChart.clear();
 <p>The <code>data</code> property of the metadata will contain information about each point, rectangle, etc. depending on the chart type.</p>
 <p>Extensive examples of usage are available in the <a href="https://github.com/chartjs/Chart.js/tree/master/test" target="_blank">Chart.js tests</a>.</p>
 <pre><code class="lang-javascript"><span class="hljs-keyword">var</span> meta = myChart.getDatasetMeta(<span class="hljs-number">0</span>);
-<span class="hljs-keyword">var</span> x = meta.data[<span class="hljs-number">0</span>]._model.x
+<span class="hljs-keyword">var</span> x = meta.data[<span class="hljs-number">0</span>]._model.x;
 </code></pre>
 
                                 
@@ -1048,7 +1048,7 @@ myLineChart.clear();
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Chart.js API","level":"1.7.1","depth":2,"next":{"title":"Updating Charts","level":"1.7.2","depth":2,"path":"developers/updates.md","ref":"developers/updates.md","articles":[]},"previous":{"title":"Developers","level":"1.7","depth":1,"path":"developers/README.md","ref":"developers/README.md","articles":[{"title":"Chart.js API","level":"1.7.1","depth":2,"path":"developers/api.md","ref":"developers/api.md","articles":[]},{"title":"Updating Charts","level":"1.7.2","depth":2,"path":"developers/updates.md","ref":"developers/updates.md","articles":[]},{"title":"Plugins","level":"1.7.3","depth":2,"path":"developers/plugins.md","ref":"developers/plugins.md","articles":[]},{"title":"New Charts","level":"1.7.4","depth":2,"path":"developers/charts.md","ref":"developers/charts.md","articles":[]},{"title":"New Axes","level":"1.7.5","depth":2,"path":"developers/axes.md","ref":"developers/axes.md","articles":[]},{"title":"Contributing","level":"1.7.6","depth":2,"path":"developers/contributing.md","ref":"developers/contributing.md","articles":[]}]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"anchorjs":{"icon":"#","placement":"left","visible":"always"},"ga":{"configuration":"auto","token":"UA-28909194-3"},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"search-plus":{},"chartjs":{"defaults":null},"highlight":{},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"developers/api.md","mtime":"2019-01-28T18:41:40.493Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2019-01-28T18:44:50.603Z"},"basePath":"..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Chart.js API","level":"1.7.1","depth":2,"next":{"title":"Updating Charts","level":"1.7.2","depth":2,"path":"developers/updates.md","ref":"developers/updates.md","articles":[]},"previous":{"title":"Developers","level":"1.7","depth":1,"path":"developers/README.md","ref":"developers/README.md","articles":[{"title":"Chart.js API","level":"1.7.1","depth":2,"path":"developers/api.md","ref":"developers/api.md","articles":[]},{"title":"Updating Charts","level":"1.7.2","depth":2,"path":"developers/updates.md","ref":"developers/updates.md","articles":[]},{"title":"Plugins","level":"1.7.3","depth":2,"path":"developers/plugins.md","ref":"developers/plugins.md","articles":[]},{"title":"New Charts","level":"1.7.4","depth":2,"path":"developers/charts.md","ref":"developers/charts.md","articles":[]},{"title":"New Axes","level":"1.7.5","depth":2,"path":"developers/axes.md","ref":"developers/axes.md","articles":[]},{"title":"Contributing","level":"1.7.6","depth":2,"path":"developers/contributing.md","ref":"developers/contributing.md","articles":[]}]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"anchorjs":{"icon":"#","placement":"left","visible":"always"},"ga":{"configuration":"auto","token":"UA-28909194-3"},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"search-plus":{},"chartjs":{"defaults":null},"highlight":{},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"developers/api.md","mtime":"2019-01-29T12:36:23.350Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2019-01-29T12:39:45.625Z"},"basePath":"..","book":{"language":""}});
         });
     </script>
 </div>

@@ -907,43 +907,43 @@
 <tbody>
 <tr>
 <td><code>display</code></td>
-<td><code>Boolean</code></td>
+<td><code>boolean</code></td>
 <td><code>true</code></td>
 <td>Is the legend shown?</td>
 </tr>
 <tr>
 <td><code>position</code></td>
-<td><code>String</code></td>
+<td><code>string</code></td>
 <td><code>&apos;top&apos;</code></td>
 <td>Position of the legend. <a href="#position">more...</a></td>
 </tr>
 <tr>
 <td><code>fullWidth</code></td>
-<td><code>Boolean</code></td>
+<td><code>boolean</code></td>
 <td><code>true</code></td>
 <td>Marks that this box should take the full width of the canvas (pushing down other boxes). This is unlikely to need to be changed in day-to-day use.</td>
 </tr>
 <tr>
 <td><code>onClick</code></td>
-<td><code>Function</code></td>
+<td><code>function</code></td>
 <td></td>
 <td>A callback that is called when a click event is registered on a label item.</td>
 </tr>
 <tr>
 <td><code>onHover</code></td>
-<td><code>Function</code></td>
+<td><code>function</code></td>
 <td></td>
 <td>A callback that is called when a &apos;mousemove&apos; event is registered on top of a label item.</td>
 </tr>
 <tr>
 <td><code>reverse</code></td>
-<td><code>Boolean</code></td>
+<td><code>boolean</code></td>
 <td><code>false</code></td>
 <td>Legend will show datasets in reverse order.</td>
 </tr>
 <tr>
 <td><code>labels</code></td>
-<td><code>Object</code></td>
+<td><code>object</code></td>
 <td></td>
 <td>See the <a href="#legend-label-configuration">Legend Label Configuration</a> section below.</td>
 </tr>
@@ -971,19 +971,19 @@
 <tbody>
 <tr>
 <td><code>boxWidth</code></td>
-<td><code>Number</code></td>
+<td><code>number</code></td>
 <td><code>40</code></td>
 <td>Width of coloured box.</td>
 </tr>
 <tr>
 <td><code>fontSize</code></td>
-<td><code>Number</code></td>
+<td><code>number</code></td>
 <td><code>12</code></td>
 <td>Font size of text.</td>
 </tr>
 <tr>
 <td><code>fontStyle</code></td>
-<td><code>String</code></td>
+<td><code>string</code></td>
 <td><code>&apos;normal&apos;</code></td>
 <td>Font style of text.</td>
 </tr>
@@ -995,31 +995,31 @@
 </tr>
 <tr>
 <td><code>fontFamily</code></td>
-<td><code>String</code></td>
+<td><code>string</code></td>
 <td><code>&quot;&apos;Helvetica Neue&apos;, &apos;Helvetica&apos;, &apos;Arial&apos;, sans-serif&quot;</code></td>
 <td>Font family of legend text.</td>
 </tr>
 <tr>
 <td><code>padding</code></td>
-<td><code>Number</code></td>
+<td><code>number</code></td>
 <td><code>10</code></td>
 <td>Padding between rows of colored boxes.</td>
 </tr>
 <tr>
 <td><code>generateLabels</code></td>
-<td><code>Function</code></td>
+<td><code>function</code></td>
 <td></td>
 <td>Generates legend items for each thing in the legend. Default implementation returns the text + styling for the color box. See <a href="#legend-item-interface">Legend Item</a> for details.</td>
 </tr>
 <tr>
 <td><code>filter</code></td>
-<td><code>Function</code></td>
+<td><code>function</code></td>
 <td><code>null</code></td>
 <td>Filters legend items out of the legend. Receives 2 parameters, a <a href="#legend-item-interface">Legend Item</a> and the chart data.</td>
 </tr>
 <tr>
 <td><code>usePointStyle</code></td>
-<td><code>Boolean</code></td>
+<td><code>boolean</code></td>
 <td><code>false</code></td>
 <td>Label style will match corresponding point style (size is based on fontSize, boxWidth is not used in this case).</td>
 </tr>
@@ -1029,34 +1029,34 @@
 <p>Items passed to the legend <code>onClick</code> function are the ones returned from <code>labels.generateLabels</code>. These items must implement the following interface.</p>
 <pre><code class="lang-javascript">{
     <span class="hljs-comment">// Label that will be displayed</span>
-    text: <span class="hljs-built_in">String</span>,
+    text: string,
 
     <span class="hljs-comment">// Fill style of the legend box</span>
     fillStyle: Color,
 
     <span class="hljs-comment">// If true, this item represents a hidden dataset. Label will be rendered with a strike-through effect</span>
-    hidden: <span class="hljs-built_in">Boolean</span>,
+    hidden: boolean,
 
     <span class="hljs-comment">// For box border. See https://developer.mozilla.org/en/docs/Web/API/CanvasRenderingContext2D/lineCap</span>
-    lineCap: <span class="hljs-built_in">String</span>,
+    lineCap: string,
 
     <span class="hljs-comment">// For box border. See https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/setLineDash</span>
-    lineDash: <span class="hljs-built_in">Array</span>[<span class="hljs-built_in">Number</span>],
+    lineDash: number[],
 
     <span class="hljs-comment">// For box border. See https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineDashOffset</span>
-    lineDashOffset: <span class="hljs-built_in">Number</span>,
+    lineDashOffset: number,
 
     <span class="hljs-comment">// For box border. See https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineJoin</span>
-    lineJoin: <span class="hljs-built_in">String</span>,
+    lineJoin: string,
 
     <span class="hljs-comment">// Width of box border</span>
-    lineWidth: <span class="hljs-built_in">Number</span>,
+    lineWidth: number,
 
     <span class="hljs-comment">// Stroke style of the legend box</span>
-    strokeStyle: Color
+    strokeStyle: Color,
 
     <span class="hljs-comment">// Point style of the legend box (only used if usePointStyle is true)</span>
-    pointStyle: <span class="hljs-built_in">String</span>
+    pointStyle: string
 }
 </code></pre>
 <h2 id="example">Example</h2>
@@ -1071,7 +1071,7 @@
                 fontColor: <span class="hljs-string">&apos;rgb(255, 99, 132)&apos;</span>
             }
         }
-}
+    }
 });
 </code></pre>
 <h2 id="custom-on-click-actions">Custom On Click Actions</h2>
@@ -1083,7 +1083,7 @@
     <span class="hljs-keyword">var</span> meta = ci.getDatasetMeta(index);
 
     <span class="hljs-comment">// See controller.isDatasetVisible comment</span>
-    meta.hidden = meta.hidden === <span class="hljs-literal">null</span>? !ci.data.datasets[index].hidden : <span class="hljs-literal">null</span>;
+    meta.hidden = meta.hidden === <span class="hljs-literal">null</span> ? !ci.data.datasets[index].hidden : <span class="hljs-literal">null</span>;
 
     <span class="hljs-comment">// We hid a dataset ... rerender the chart</span>
     ci.update();
@@ -1099,9 +1099,11 @@
         defaultLegendClickHandler(e, legendItem);
     } <span class="hljs-keyword">else</span> {
         <span class="hljs-keyword">let</span> ci = <span class="hljs-keyword">this</span>.chart;
-        [ci.getDatasetMeta(<span class="hljs-number">0</span>),
-         ci.getDatasetMeta(<span class="hljs-number">1</span>)].forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">meta</span>) </span>{
-            meta.hidden = meta.hidden === <span class="hljs-literal">null</span>? !ci.data.datasets[index].hidden : <span class="hljs-literal">null</span>;
+        [
+            ci.getDatasetMeta(<span class="hljs-number">0</span>),
+            ci.getDatasetMeta(<span class="hljs-number">1</span>)
+        ].forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">meta</span>) </span>{
+            meta.hidden = meta.hidden === <span class="hljs-literal">null</span> ? !ci.data.datasets[index].hidden : <span class="hljs-literal">null</span>;
         });
         ci.update();
     }
@@ -1112,7 +1114,7 @@
     data: data,
     options: {
         legend: {
-
+            onClick: newLegendClickHandler
         }
     }
 });
@@ -1175,7 +1177,7 @@
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Legend","level":"1.4.3","depth":2,"next":{"title":"Title","level":"1.4.4","depth":2,"path":"configuration/title.md","ref":"configuration/title.md","articles":[]},"previous":{"title":"Layout","level":"1.4.2","depth":2,"path":"configuration/layout.md","ref":"configuration/layout.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"anchorjs":{"icon":"#","placement":"left","visible":"always"},"ga":{"configuration":"auto","token":"UA-28909194-3"},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"search-plus":{},"chartjs":{"defaults":null},"highlight":{},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"configuration/legend.md","mtime":"2019-01-28T18:41:40.489Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2019-01-28T18:44:50.603Z"},"basePath":"..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Legend","level":"1.4.3","depth":2,"next":{"title":"Title","level":"1.4.4","depth":2,"path":"configuration/title.md","ref":"configuration/title.md","articles":[]},"previous":{"title":"Layout","level":"1.4.2","depth":2,"path":"configuration/layout.md","ref":"configuration/layout.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"anchorjs":{"icon":"#","placement":"left","visible":"always"},"ga":{"configuration":"auto","token":"UA-28909194-3"},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"search-plus":{},"chartjs":{"defaults":null},"highlight":{},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"configuration/legend.md","mtime":"2019-01-29T12:36:23.350Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2019-01-29T12:39:45.625Z"},"basePath":"..","book":{"language":""}});
         });
     </script>
 </div>

@@ -892,7 +892,7 @@
                                 <section class="normal markdown-section">
                                 
                                 <h1 id="new-axes">New Axes</h1>
-<p>Axes in Chart.js can be individually extended. Axes should always derive from Chart.Scale but this is not a mandatory requirement.</p>
+<p>Axes in Chart.js can be individually extended. Axes should always derive from <code>Chart.Scale</code> but this is not a mandatory requirement.</p>
 <pre><code class="lang-javascript"><span class="hljs-keyword">let</span> MyScale = Chart.Scale.extend({
     <span class="hljs-comment">/* extensions ... */</span>
 });
@@ -913,31 +913,31 @@
             }]
         }
     }
-})
+});
 </code></pre>
 <h2 id="scale-properties">Scale Properties</h2>
 <p>Scale instances are given the following properties during the fitting process.</p>
 <pre><code class="lang-javascript">{
-    left: <span class="hljs-built_in">Number</span>, <span class="hljs-comment">// left edge of the scale bounding box</span>
-    right: <span class="hljs-built_in">Number</span>, <span class="hljs-comment">// right edge of the bounding box&apos;</span>
-    top: <span class="hljs-built_in">Number</span>,
-    bottom: <span class="hljs-built_in">Number</span>,
-    width: <span class="hljs-built_in">Number</span>, <span class="hljs-comment">// the same as right - left</span>
-    height: <span class="hljs-built_in">Number</span>, <span class="hljs-comment">// the same as bottom - top</span>
+    left: number, <span class="hljs-comment">// left edge of the scale bounding box</span>
+    right: number, <span class="hljs-comment">// right edge of the bounding box</span>
+    top: number,
+    bottom: number,
+    width: number, <span class="hljs-comment">// the same as right - left</span>
+    height: number, <span class="hljs-comment">// the same as bottom - top</span>
 
     <span class="hljs-comment">// Margin on each side. Like css, this is outside the bounding box.</span>
     margins: {
-        left: <span class="hljs-built_in">Number</span>,
-        right: <span class="hljs-built_in">Number</span>,
-        top: <span class="hljs-built_in">Number</span>,
-        bottom: <span class="hljs-built_in">Number</span>,
+        left: number,
+        right: number,
+        top: number,
+        bottom: number
     },
 
     <span class="hljs-comment">// Amount of padding on the inside of the bounding box (like CSS)</span>
-    paddingLeft: <span class="hljs-built_in">Number</span>,
-    paddingRight: <span class="hljs-built_in">Number</span>,
-    paddingTop: <span class="hljs-built_in">Number</span>,
-    paddingBottom: <span class="hljs-built_in">Number</span>,
+    paddingLeft: number,
+    paddingRight: number,
+    paddingTop: number,
+    paddingBottom: number
 }
 </code></pre>
 <h2 id="scale-interface">Scale Interface</h2>
@@ -955,15 +955,13 @@
 
     <span class="hljs-comment">// Get the pixel (x coordinate for horizontal axis, y coordinate for vertical axis) for a given value</span>
     <span class="hljs-comment">// @param index: index into the ticks array</span>
-    <span class="hljs-comment">// @param includeOffset: if true, get the pixel halfway between the given tick and the next</span>
-    getPixelForTick: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">index, includeOffset</span>) </span>{},
+    getPixelForTick: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">index</span>) </span>{},
 
     <span class="hljs-comment">// Get the pixel (x coordinate for horizontal axis, y coordinate for vertical axis) for a given value</span>
     <span class="hljs-comment">// @param value : the value to get the pixel for</span>
     <span class="hljs-comment">// @param index : index into the data array of the value</span>
     <span class="hljs-comment">// @param datasetIndex : index of the dataset the value comes from</span>
-    <span class="hljs-comment">// @param includeOffset : if true, get the pixel halfway between the given tick and the next</span>
-    getPixelForValue: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">value, index, datasetIndex, includeOffset</span>) </span>{}
+    getPixelForValue: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">value, index, datasetIndex</span>) </span>{},
 
     <span class="hljs-comment">// Get the value for a given pixel (x coordinate for horizontal axis, y coordinate for vertical axis)</span>
     <span class="hljs-comment">// @param pixel : pixel value</span>
@@ -971,7 +969,8 @@
 }
 </code></pre>
 <p>Optionally, the following methods may also be overwritten, but an implementation is already provided by the <code>Chart.Scale</code> base class.</p>
-<pre><code class="lang-javascript">    <span class="hljs-comment">// Transform the ticks array of the scale instance into strings. The default implementation simply calls this.options.ticks.callback(numericalTick, index, ticks);</span>
+<pre><code class="lang-javascript">{
+    <span class="hljs-comment">// Transform the ticks array of the scale instance into strings. The default implementation simply calls this.options.ticks.callback(numericalTick, index, ticks);</span>
     convertTicksToLabels: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{},
 
     <span class="hljs-comment">// Determine how much the labels will rotate by. The default implementation will only rotate labels if the scale is horizontal.</span>
@@ -986,7 +985,8 @@
 
     <span class="hljs-comment">// Draws the scale onto the canvas. this.(left|right|top|bottom) will have been populated to tell you the area on the canvas to draw in</span>
     <span class="hljs-comment">// @param chartArea : an object containing four properties: left, right, top, bottom. This is the rectangle that lines, bars, etc will be drawn in. It may be used, for example, to draw grid lines.</span>
-    draw: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">chartArea</span>) </span>{},
+    draw: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">chartArea</span>) </span>{}
+}
 </code></pre>
 <p>The Core.Scale base class also has some utility functions that you may find useful.</p>
 <pre><code class="lang-javascript">{
@@ -997,8 +997,11 @@
     <span class="hljs-comment">// If dataValue is an object, returns .x or .y depending on the return of isHorizontal()</span>
     <span class="hljs-comment">// If the value is undefined, returns NaN</span>
     <span class="hljs-comment">// Otherwise returns the value.</span>
-    <span class="hljs-comment">// Note that in all cases, the returned value is not guaranteed to be a Number</span>
+    <span class="hljs-comment">// Note that in all cases, the returned value is not guaranteed to be a number</span>
     getRightValue: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">dataValue</span>) </span>{},
+
+    <span class="hljs-comment">// Returns the scale tick objects ({label, major})</span>
+    getTicks: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{}
 }
 </code></pre>
 
@@ -1044,7 +1047,7 @@
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"New Axes","level":"1.7.5","depth":2,"next":{"title":"Contributing","level":"1.7.6","depth":2,"path":"developers/contributing.md","ref":"developers/contributing.md","articles":[]},"previous":{"title":"New Charts","level":"1.7.4","depth":2,"path":"developers/charts.md","ref":"developers/charts.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"anchorjs":{"icon":"#","placement":"left","visible":"always"},"ga":{"configuration":"auto","token":"UA-28909194-3"},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"search-plus":{},"chartjs":{"defaults":null},"highlight":{},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"developers/axes.md","mtime":"2019-01-28T18:41:40.493Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2019-01-28T18:44:50.603Z"},"basePath":"..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"New Axes","level":"1.7.5","depth":2,"next":{"title":"Contributing","level":"1.7.6","depth":2,"path":"developers/contributing.md","ref":"developers/contributing.md","articles":[]},"previous":{"title":"New Charts","level":"1.7.4","depth":2,"path":"developers/charts.md","ref":"developers/charts.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"anchorjs":{"icon":"#","placement":"left","visible":"always"},"ga":{"configuration":"auto","token":"UA-28909194-3"},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"search-plus":{},"chartjs":{"defaults":null},"highlight":{},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"developers/axes.md","mtime":"2019-01-29T12:36:23.350Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2019-01-29T12:39:45.625Z"},"basePath":"..","book":{"language":""}});
         });
     </script>
 </div>

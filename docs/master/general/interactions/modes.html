@@ -904,7 +904,7 @@
             mode: <span class="hljs-string">&apos;point&apos;</span>
         }
     }
-})
+});
 </code></pre>
 <h2 id="nearest">nearest</h2>
 <p>Gets the items that are at the nearest distance to the point. The nearest item is determined based on the distance to the center of the chart item (point, bar). You can use the <code>axis</code> setting to define which directions are used in distance calculation. If <code>intersect</code> is true, this is only triggered when the mouse position intersects an item in the graph. This is very useful for combo charts where points are hidden behind bars.</p>
@@ -916,10 +916,10 @@
             mode: <span class="hljs-string">&apos;nearest&apos;</span>
         }
     }
-})
+});
 </code></pre>
 <h2 id="single-deprecated">single (deprecated)</h2>
-<p>Finds the first item that intersects the point and returns it. Behaves like &apos;nearest&apos; mode with intersect = true.</p>
+<p>Finds the first item that intersects the point and returns it. Behaves like <code>&apos;nearest&apos;</code> mode with <code>intersect = true</code>.</p>
 <h2 id="label-deprecated">label (deprecated)</h2>
 <p>See <code>&apos;index&apos;</code> mode.</p>
 <h2 id="index">index</h2>
@@ -932,7 +932,7 @@
             mode: <span class="hljs-string">&apos;index&apos;</span>
         }
     }
-})
+});
 </code></pre>
 <p>To use index mode in a chart like the horizontal bar chart, where we search along the y direction, you can use the <code>axis</code> setting introduced in v2.7.0. By setting this value to <code>&apos;y&apos;</code> on the y direction is used.</p>
 <pre><code class="lang-javascript"><span class="hljs-keyword">var</span> chart = <span class="hljs-keyword">new</span> Chart(ctx, {
@@ -944,7 +944,7 @@
             axis: <span class="hljs-string">&apos;y&apos;</span>
         }
     }
-})
+});
 </code></pre>
 <h2 id="x-axis-deprecated">x-axis (deprecated)</h2>
 <p>Behaves like <code>&apos;index&apos;</code> mode with <code>intersect = false</code>.</p>
@@ -958,7 +958,7 @@
             mode: <span class="hljs-string">&apos;dataset&apos;</span>
         }
     }
-})
+});
 </code></pre>
 <h2 id="x">x</h2>
 <p>Returns all items that would intersect based on the <code>X</code> coordinate of the position only. Would be useful for a vertical cursor implementation. Note that this only applies to cartesian charts.</p>
@@ -970,7 +970,7 @@
             mode: <span class="hljs-string">&apos;x&apos;</span>
         }
     }
-})
+});
 </code></pre>
 <h2 id="y">y</h2>
 <p>Returns all items that would intersect based on the <code>Y</code> coordinate of the position. This would be useful for a horizontal cursor implementation. Note that this only applies to cartesian charts.</p>
@@ -982,7 +982,7 @@
             mode: <span class="hljs-string">&apos;y&apos;</span>
         }
     }
-})
+});
 </code></pre>
 
                                 
@@ -1027,7 +1027,7 @@
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Modes","level":"1.3.4.2","depth":3,"next":{"title":"Options","level":"1.3.5","depth":2,"path":"general/options.md","ref":"general/options.md","articles":[]},"previous":{"title":"Events","level":"1.3.4.1","depth":3,"path":"general/interactions/events.md","ref":"general/interactions/events.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"anchorjs":{"icon":"#","placement":"left","visible":"always"},"ga":{"configuration":"auto","token":"UA-28909194-3"},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"search-plus":{},"chartjs":{"defaults":null},"highlight":{},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"general/interactions/modes.md","mtime":"2019-01-28T18:41:40.493Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2019-01-28T18:44:50.603Z"},"basePath":"../..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Modes","level":"1.3.4.2","depth":3,"next":{"title":"Options","level":"1.3.5","depth":2,"path":"general/options.md","ref":"general/options.md","articles":[]},"previous":{"title":"Events","level":"1.3.4.1","depth":3,"path":"general/interactions/events.md","ref":"general/interactions/events.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"anchorjs":{"icon":"#","placement":"left","visible":"always"},"ga":{"configuration":"auto","token":"UA-28909194-3"},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"search-plus":{},"chartjs":{"defaults":null},"highlight":{},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"general/interactions/modes.md","mtime":"2019-01-29T12:36:23.350Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2019-01-29T12:39:45.625Z"},"basePath":"../..","book":{"language":""}});
         });
     </script>
 </div>

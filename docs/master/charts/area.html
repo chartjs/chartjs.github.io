@@ -908,22 +908,22 @@
 <tbody>
 <tr>
 <td style="text-align:left">Absolute dataset index <sup>1</sup></td>
-<td style="text-align:left"><code>Number</code></td>
+<td style="text-align:left"><code>number</code></td>
 <td style="text-align:left"><code>1</code>, <code>2</code>, <code>3</code>, ...</td>
 </tr>
 <tr>
 <td style="text-align:left">Relative dataset index <sup>1</sup></td>
-<td style="text-align:left"><code>String</code></td>
+<td style="text-align:left"><code>string</code></td>
 <td style="text-align:left"><code>&apos;-1&apos;</code>, <code>&apos;-2&apos;</code>, <code>&apos;+1&apos;</code>, ...</td>
 </tr>
 <tr>
 <td style="text-align:left">Boundary <sup>2</sup></td>
-<td style="text-align:left"><code>String</code></td>
+<td style="text-align:left"><code>string</code></td>
 <td style="text-align:left"><code>&apos;start&apos;</code>, <code>&apos;end&apos;</code>, <code>&apos;origin&apos;</code></td>
 </tr>
 <tr>
 <td style="text-align:left">Disabled <sup>3</sup></td>
-<td style="text-align:left"><code>Boolean</code></td>
+<td style="text-align:left"><code>boolean</code></td>
 <td style="text-align:left"><code>false</code></td>
 </tr>
 </tbody>
@@ -944,7 +944,7 @@
             {fill: <span class="hljs-string">&apos;-2&apos;</span>}           <span class="hljs-comment">// 4: fill to dataset 2</span>
         ]
     }
-})
+});
 </code></pre>
 <h2 id="configuration">Configuration</h2>
 <table>
@@ -959,14 +959,14 @@
 <tbody>
 <tr>
 <td style="text-align:left"><a href="#propagate"><code>plugins.filler.propagate</code></a></td>
-<td style="text-align:left"><code>Boolean</code></td>
+<td style="text-align:left"><code>boolean</code></td>
 <td style="text-align:left"><code>true</code></td>
 <td style="text-align:left">Fill propagation when target is hidden.</td>
 </tr>
 </tbody>
 </table>
 <h3 id="propagate">propagate</h3>
-<p>Boolean (default: <code>true</code>)</p>
+<p><code>propagate</code> takes a <code>boolean</code> value (default: <code>true</code>).</p>
 <p>If <code>true</code>, the fill area will be recursively extended to the visible target defined by the <code>fill</code> value of hidden dataset targets:</p>
 <p><strong>Example</strong></p>
 <pre><code class="lang-javascript"><span class="hljs-keyword">new</span> Chart(ctx, {
@@ -986,7 +986,7 @@
             }
         }
     }
-})
+});
 </code></pre>
 <p><code>propagate: true</code>:</p>
 <ul>
@@ -1040,7 +1040,7 @@
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Area","level":"1.5.8","depth":2,"next":{"title":"Mixed","level":"1.5.9","depth":2,"path":"charts/mixed.md","ref":"charts/mixed.md","articles":[]},"previous":{"title":"Scatter","level":"1.5.7","depth":2,"path":"charts/scatter.md","ref":"charts/scatter.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"anchorjs":{"icon":"#","placement":"left","visible":"always"},"ga":{"configuration":"auto","token":"UA-28909194-3"},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"search-plus":{},"chartjs":{"defaults":null},"highlight":{},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"charts/area.md","mtime":"2019-01-28T18:41:40.489Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2019-01-28T18:44:50.603Z"},"basePath":"..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Area","level":"1.5.8","depth":2,"next":{"title":"Mixed","level":"1.5.9","depth":2,"path":"charts/mixed.md","ref":"charts/mixed.md","articles":[]},"previous":{"title":"Scatter","level":"1.5.7","depth":2,"path":"charts/scatter.md","ref":"charts/scatter.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"anchorjs":{"icon":"#","placement":"left","visible":"always"},"ga":{"configuration":"auto","token":"UA-28909194-3"},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"search-plus":{},"chartjs":{"defaults":null},"highlight":{},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"charts/area.md","mtime":"2019-01-29T12:36:23.346Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2019-01-29T12:39:45.625Z"},"basePath":"..","book":{"language":""}});
         });
     </script>
 </div>

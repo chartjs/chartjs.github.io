@@ -912,38 +912,38 @@
 <tbody>
 <tr>
 <td><code>responsive</code></td>
-<td><code>Boolean</code></td>
+<td><code>boolean</code></td>
 <td><code>true</code></td>
 <td>Resizes the chart canvas when its container does (<a href="#important-note">important note...</a>).</td>
 </tr>
 <tr>
 <td><code>responsiveAnimationDuration</code></td>
-<td><code>Number</code></td>
+<td><code>number</code></td>
 <td><code>0</code></td>
 <td>Duration in milliseconds it takes to animate to new size after a resize event.</td>
 </tr>
 <tr>
 <td><code>maintainAspectRatio</code></td>
-<td><code>Boolean</code></td>
+<td><code>boolean</code></td>
 <td><code>true</code></td>
 <td>Maintain the original canvas aspect ratio <code>(width / height)</code> when resizing.</td>
 </tr>
 <tr>
 <td><code>aspectRatio</code></td>
-<td><code>Number</code></td>
+<td><code>number</code></td>
 <td><code>2</code></td>
 <td>Canvas aspect ratio (i.e. <code>width / height</code>, a value of 1 representing a square canvas). Note that this option is ignored if the height is explicitly defined either as attribute or via the style.</td>
 </tr>
 <tr>
 <td><code>onResize</code></td>
-<td><code>Function</code></td>
+<td><code>function</code></td>
 <td><code>null</code></td>
 <td>Called when a resize occurs. Gets passed two arguments: the chart instance and the new size.</td>
 </tr>
 </tbody>
 </table>
 <h2 id="important-note">Important Note</h2>
-<p>Detecting when the canvas size changes can not be done directly from the <code>CANVAS</code> element. Chart.js uses its parent container to update the canvas <em>render</em> and <em>display</em> sizes. However, this method requires the container to be <strong>relatively positioned</strong> and <strong>dedicated to the chart canvas only</strong>. Responsiveness can then be achieved by setting relative values for the container size (<a href="https://codepen.io/chartjs/pen/YVWZbz" target="_blank">example</a>):</p>
+<p>Detecting when the canvas size changes can not be done directly from the <code>canvas</code> element. Chart.js uses its parent container to update the canvas <em>render</em> and <em>display</em> sizes. However, this method requires the container to be <strong>relatively positioned</strong> and <strong>dedicated to the chart canvas only</strong>. Responsiveness can then be achieved by setting relative values for the container size (<a href="https://codepen.io/chartjs/pen/YVWZbz" target="_blank">example</a>):</p>
 <pre><code class="lang-html"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;chart-container&quot;</span> <span class="hljs-attr">style</span>=<span class="hljs-string">&quot;position: relative; height:40vh; width:80vw&quot;</span>&gt;</span>
     <span class="hljs-tag">&lt;<span class="hljs-name">canvas</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;chart&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">canvas</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
@@ -956,9 +956,9 @@ chart.canvas.parentNode.style.width = <span class="hljs-string">&apos;128px&apos
 <h2 id="printing-resizeable-charts">Printing Resizeable Charts</h2>
 <p>CSS media queries allow changing styles when printing a page. The CSS applied from these media queries may cause charts to need to resize. However, the resize won&apos;t happen automatically. To support resizing charts when printing, one needs to hook the <a href="https://developer.mozilla.org/en-US/docs/Web/API/WindowEventHandlers/onbeforeprint" target="_blank">onbeforeprint</a> event and manually trigger resizing of each chart.</p>
 <pre><code class="lang-javascript"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">beforePrintHandler</span> (<span class="hljs-params"></span>) </span>{
-  <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> id <span class="hljs-keyword">in</span> Chart.instances) {
-    Chart.instances[id].resize()
-  }
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> id <span class="hljs-keyword">in</span> Chart.instances) {
+        Chart.instances[id].resize();
+    }
 }
 </code></pre>
 
@@ -1004,7 +1004,7 @@ chart.canvas.parentNode.style.width = <span class="hljs-string">&apos;128px&apos
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Responsive","level":"1.3.2","depth":2,"next":{"title":"Pixel Ratio","level":"1.3.3","depth":2,"path":"general/device-pixel-ratio.md","ref":"general/device-pixel-ratio.md","articles":[]},"previous":{"title":"Accessibility","level":"1.3.1","depth":2,"path":"general/accessibility.md","ref":"general/accessibility.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"anchorjs":{"icon":"#","placement":"left","visible":"always"},"ga":{"configuration":"auto","token":"UA-28909194-3"},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"search-plus":{},"chartjs":{"defaults":null},"highlight":{},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"general/responsive.md","mtime":"2019-01-28T18:41:40.493Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2019-01-28T18:44:50.603Z"},"basePath":"..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Responsive","level":"1.3.2","depth":2,"next":{"title":"Pixel Ratio","level":"1.3.3","depth":2,"path":"general/device-pixel-ratio.md","ref":"general/device-pixel-ratio.md","articles":[]},"previous":{"title":"Accessibility","level":"1.3.1","depth":2,"path":"general/accessibility.md","ref":"general/accessibility.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"anchorjs":{"icon":"#","placement":"left","visible":"always"},"ga":{"configuration":"auto","token":"UA-28909194-3"},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"search-plus":{},"chartjs":{"defaults":null},"highlight":{},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"general/responsive.md","mtime":"2019-01-29T12:36:23.350Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2019-01-29T12:39:45.625Z"},"basePath":"..","book":{"language":""}});
         });
     </script>
 </div>

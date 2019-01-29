@@ -921,32 +921,32 @@ the color of the bars is generally set this way.</p>
 <td><a href="../general/colors.html"><code>Color</code></a></td>
 <td style="text-align:center">Yes</td>
 <td style="text-align:center">Yes</td>
-<td><code>&apos;rgba(0,0,0,0.1)&apos;</code></td>
+<td><code>&apos;rgba(0, 0, 0, 0.1)&apos;</code></td>
 </tr>
 <tr>
 <td><a href="#styling"><code>borderColor</code></a></td>
 <td><a href="../general/colors.html"><code>Color</code></a></td>
 <td style="text-align:center">Yes</td>
 <td style="text-align:center">Yes</td>
-<td><code>&apos;rgba(0,0,0,0.1)&apos;</code></td>
+<td><code>&apos;rgba(0, 0, 0, 0.1)&apos;</code></td>
 </tr>
 <tr>
 <td><a href="#borderskipped"><code>borderSkipped</code></a></td>
-<td><code>String</code></td>
+<td><code>string</code></td>
 <td style="text-align:center">Yes</td>
 <td style="text-align:center">Yes</td>
 <td><code>&apos;bottom&apos;</code></td>
 </tr>
 <tr>
 <td><a href="#styling"><code>borderWidth</code></a></td>
-<td><code>Number</code></td>
+<td><code>number</code></td>
 <td style="text-align:center">Yes</td>
 <td style="text-align:center">Yes</td>
 <td><code>0</code></td>
 </tr>
 <tr>
 <td><a href="#data-structure"><code>data</code></a></td>
-<td><code>Object[]</code></td>
+<td><code>object[]</code></td>
 <td style="text-align:center">-</td>
 <td style="text-align:center">-</td>
 <td><strong>required</strong></td>
@@ -967,28 +967,28 @@ the color of the bars is generally set this way.</p>
 </tr>
 <tr>
 <td><a href="#interactions"><code>hoverBorderWidth</code></a></td>
-<td><code>Number</code></td>
+<td><code>number</code></td>
 <td style="text-align:center">-</td>
 <td style="text-align:center">Yes</td>
 <td><code>1</code></td>
 </tr>
 <tr>
 <td><a href="#general"><code>label</code></a></td>
-<td><code>String</code></td>
+<td><code>string</code></td>
 <td style="text-align:center">-</td>
 <td style="text-align:center">-</td>
 <td><code>&apos;&apos;</code></td>
 </tr>
 <tr>
 <td><a href="#general"><code>xAxisID</code></a></td>
-<td><code>String</code></td>
+<td><code>string</code></td>
 <td style="text-align:center">-</td>
 <td style="text-align:center">-</td>
 <td>first x axis</td>
 </tr>
 <tr>
 <td><a href="#general"><code>yAxisID</code></a></td>
-<td><code>String</code></td>
+<td><code>string</code></td>
 <td style="text-align:center">-</td>
 <td style="text-align:center">-</td>
 <td>first y axis</td>
@@ -1097,37 +1097,37 @@ that derive from a bar chart.</p>
 <tbody>
 <tr>
 <td><code>barPercentage</code></td>
-<td><code>Number</code></td>
+<td><code>number</code></td>
 <td><code>0.9</code></td>
 <td>Percent (0-1) of the available width each bar should be within the category width. 1.0 will take the whole category width and put the bars right next to each other. <a href="#barpercentage-vs-categorypercentage">more...</a></td>
 </tr>
 <tr>
 <td><code>categoryPercentage</code></td>
-<td><code>Number</code></td>
+<td><code>number</code></td>
 <td><code>0.8</code></td>
 <td>Percent (0-1) of the available width each category should be within the sample width. <a href="#barpercentage-vs-categorypercentage">more...</a></td>
 </tr>
 <tr>
 <td><code>barThickness</code></td>
-<td><code>Number/String</code></td>
+<td><code>number|string</code></td>
 <td></td>
 <td>Manually set width of each bar in pixels. If set to <code>&apos;flex&apos;</code>, it computes &quot;optimal&quot; sample widths that globally arrange bars side by side. If not set (default), bars are equally sized based on the smallest interval. <a href="#barthickness">more...</a></td>
 </tr>
 <tr>
 <td><code>maxBarThickness</code></td>
-<td><code>Number</code></td>
+<td><code>number</code></td>
 <td></td>
 <td>Set this to ensure that bars are not sized thicker than this.</td>
 </tr>
 <tr>
 <td><code>minBarLength</code></td>
-<td><code>Number</code></td>
+<td><code>number</code></td>
 <td></td>
 <td>Set this to ensure that bars have a minimum length in pixels.</td>
 </tr>
 <tr>
 <td><code>gridLines.offsetGridLines</code></td>
-<td><code>Boolean</code></td>
+<td><code>boolean</code></td>
 <td><code>true</code></td>
 <td>If true, the bars for a particular data point fall between the grid lines. The grid line will move to the left by one half of the tick interval. If false, the grid line will go right down the middle of the bars. <a href="#offsetgridlines">more...</a></td>
 </tr>
@@ -1146,7 +1146,7 @@ that derive from a bar chart.</p>
             }
         }]
     }
-}
+};
 </code></pre>
 <h3 id="barthickness">barThickness</h3>
 <p>If this value is a number, it is applied to the width of each bar, in pixels. When this is enforced, <code>barPercentage</code> and <code>categoryPercentage</code> are ignored.</p>
@@ -1177,7 +1177,7 @@ Category:       |  .5  |
 Sample:     |==============|
 </code></pre>
 <h2 id="data-structure">Data Structure</h2>
-<p>The <code>data</code> property of a dataset for a bar chart is specified as a an array of numbers. Each point in the data array corresponds to the label at the same index on the x axis.</p>
+<p>The <code>data</code> property of a dataset for a bar chart is specified as an array of numbers. Each point in the data array corresponds to the label at the same index on the x axis.</p>
 <pre><code class="lang-javascript">data: [<span class="hljs-number">20</span>, <span class="hljs-number">10</span>]
 </code></pre>
 <p>You can also specify the dataset as x/y coordinates when using the <a href="../axes/cartesian/time.html#time-cartesian-axis">time scale</a>.</p>
@@ -1213,7 +1213,7 @@ Sample:     |==============|
 <tbody>
 <tr>
 <td><code>stack</code></td>
-<td><code>String</code></td>
+<td><code>string</code></td>
 <td>The ID of the group to which this dataset belongs to (when stacked, each group will be a separate stack).</td>
 </tr>
 </tbody>
@@ -1274,7 +1274,7 @@ Sample:     |==============|
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Bar","level":"1.5.2","depth":2,"next":{"title":"Radar","level":"1.5.3","depth":2,"path":"charts/radar.md","ref":"charts/radar.md","articles":[]},"previous":{"title":"Line","level":"1.5.1","depth":2,"path":"charts/line.md","ref":"charts/line.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"anchorjs":{"icon":"#","placement":"left","visible":"always"},"ga":{"configuration":"auto","token":"UA-28909194-3"},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"search-plus":{},"chartjs":{"defaults":null},"highlight":{},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"charts/bar.md","mtime":"2019-01-28T18:41:40.489Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2019-01-28T18:44:50.603Z"},"basePath":"..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Bar","level":"1.5.2","depth":2,"next":{"title":"Radar","level":"1.5.3","depth":2,"path":"charts/radar.md","ref":"charts/radar.md","articles":[]},"previous":{"title":"Line","level":"1.5.1","depth":2,"path":"charts/line.md","ref":"charts/line.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"anchorjs":{"icon":"#","placement":"left","visible":"always"},"ga":{"configuration":"auto","token":"UA-28909194-3"},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"search-plus":{},"chartjs":{"defaults":null},"highlight":{},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"charts/bar.md","mtime":"2019-01-29T12:36:23.346Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2019-01-29T12:39:45.625Z"},"basePath":"..","book":{"language":""}});
         });
     </script>
 </div>

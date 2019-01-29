@@ -898,7 +898,7 @@
 <pre><code class="lang-javascript">Chart.defaults.global.elements.rectangle.borderWidth = <span class="hljs-number">2</span>;
 </code></pre>
 <h2 id="point-configuration">Point Configuration</h2>
-<p>Point elements are used to represent the points in a line chart or a bubble chart.</p>
+<p>Point elements are used to represent the points in a line, radar or bubble chart.</p>
 <p>Global point options: <code>Chart.defaults.global.elements.point</code>.</p>
 <table>
 <thead>
@@ -912,55 +912,55 @@
 <tbody>
 <tr>
 <td><code>radius</code></td>
-<td><code>Number</code></td>
+<td><code>number</code></td>
 <td><code>3</code></td>
 <td>Point radius.</td>
 </tr>
 <tr>
 <td><a href="#point-styles"><code>pointStyle</code></a></td>
-<td><code>String</code></td>
-<td><code>circle</code></td>
+<td><code>string|Image</code></td>
+<td><code>&apos;circle&apos;</code></td>
 <td>Point style.</td>
 </tr>
 <tr>
 <td><code>rotation</code></td>
-<td><code>Number</code></td>
+<td><code>number</code></td>
 <td><code>0</code></td>
 <td>Point rotation (in degrees).</td>
 </tr>
 <tr>
 <td><code>backgroundColor</code></td>
 <td><code>Color</code></td>
-<td><code>&apos;rgba(0,0,0,0.1)&apos;</code></td>
+<td><code>&apos;rgba(0, 0, 0, 0.1)&apos;</code></td>
 <td>Point fill color.</td>
 </tr>
 <tr>
 <td><code>borderWidth</code></td>
-<td><code>Number</code></td>
+<td><code>number</code></td>
 <td><code>1</code></td>
 <td>Point stroke width.</td>
 </tr>
 <tr>
 <td><code>borderColor</code></td>
 <td><code>Color</code></td>
-<td><code>&apos;rgba(0,0,0,0.1)&apos;</code></td>
+<td><code>&apos;rgba(0, 0, 0, 0.1)&apos;</code></td>
 <td>Point stroke color.</td>
 </tr>
 <tr>
 <td><code>hitRadius</code></td>
-<td><code>Number</code></td>
+<td><code>number</code></td>
 <td><code>1</code></td>
 <td>Extra radius added to point radius for hit detection.</td>
 </tr>
 <tr>
 <td><code>hoverRadius</code></td>
-<td><code>Number</code></td>
+<td><code>number</code></td>
 <td><code>4</code></td>
 <td>Point radius when hovered.</td>
 </tr>
 <tr>
 <td><code>hoverBorderWidth</code></td>
-<td><code>Number</code></td>
+<td><code>number</code></td>
 <td><code>1</code></td>
 <td>Stroke width when hovered.</td>
 </tr>
@@ -996,67 +996,67 @@
 <tbody>
 <tr>
 <td><code>tension</code></td>
-<td><code>Number</code></td>
+<td><code>number</code></td>
 <td><code>0.4</code></td>
 <td>B&#xE9;zier curve tension (<code>0</code> for no B&#xE9;zier curves).</td>
 </tr>
 <tr>
 <td><code>backgroundColor</code></td>
 <td><code>Color</code></td>
-<td><code>&apos;rgba(0,0,0,0.1)&apos;</code></td>
+<td><code>&apos;rgba(0, 0, 0, 0.1)&apos;</code></td>
 <td>Line fill color.</td>
 </tr>
 <tr>
 <td><code>borderWidth</code></td>
-<td><code>Number</code></td>
+<td><code>number</code></td>
 <td><code>3</code></td>
 <td>Line stroke width.</td>
 </tr>
 <tr>
 <td><code>borderColor</code></td>
 <td><code>Color</code></td>
-<td><code>&apos;rgba(0,0,0,0.1)&apos;</code></td>
+<td><code>&apos;rgba(0, 0, 0, 0.1)&apos;</code></td>
 <td>Line stroke color.</td>
 </tr>
 <tr>
 <td><code>borderCapStyle</code></td>
-<td><code>String</code></td>
+<td><code>string</code></td>
 <td><code>&apos;butt&apos;</code></td>
 <td>Line cap style. See <a href="https://developer.mozilla.org/en/docs/Web/API/CanvasRenderingContext2D/lineCap" target="_blank">MDN</a>.</td>
 </tr>
 <tr>
 <td><code>borderDash</code></td>
-<td><code>Array</code></td>
+<td><code>number[]</code></td>
 <td><code>[]</code></td>
 <td>Line dash. See <a href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/setLineDash" target="_blank">MDN</a>.</td>
 </tr>
 <tr>
 <td><code>borderDashOffset</code></td>
-<td><code>Number</code></td>
-<td><code>0</code></td>
+<td><code>number</code></td>
+<td><code>0.0</code></td>
 <td>Line dash offset. See <a href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineDashOffset" target="_blank">MDN</a>.</td>
 </tr>
 <tr>
 <td><code>borderJoinStyle</code></td>
-<td><code>String</code></td>
-<td><code>&apos;miter</code></td>
+<td><code>string</code></td>
+<td><code>&apos;miter&apos;</code></td>
 <td>Line join style. See <a href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineJoin" target="_blank">MDN</a>.</td>
 </tr>
 <tr>
 <td><code>capBezierPoints</code></td>
-<td><code>Boolean</code></td>
+<td><code>boolean</code></td>
 <td><code>true</code></td>
 <td><code>true</code> to keep B&#xE9;zier control inside the chart, <code>false</code> for no restriction.</td>
 </tr>
 <tr>
 <td><code>fill</code></td>
-<td><code>Boolean/String</code></td>
+<td><code>boolean|string</code></td>
 <td><code>true</code></td>
 <td>Fill location: <code>&apos;zero&apos;</code>, <code>&apos;top&apos;</code>, <code>&apos;bottom&apos;</code>, <code>true</code> (eq. <code>&apos;zero&apos;</code>) or <code>false</code> (no fill).</td>
 </tr>
 <tr>
 <td><code>stepped</code></td>
-<td><code>Boolean</code></td>
+<td><code>boolean</code></td>
 <td><code>false</code></td>
 <td><code>true</code> to show the line as a stepped line (<code>tension</code> will be ignored).</td>
 </tr>
@@ -1078,24 +1078,24 @@
 <tr>
 <td><code>backgroundColor</code></td>
 <td><code>Color</code></td>
-<td><code>&apos;rgba(0,0,0,0.1)&apos;</code></td>
+<td><code>&apos;rgba(0, 0, 0, 0.1)&apos;</code></td>
 <td>Bar fill color.</td>
 </tr>
 <tr>
 <td><code>borderWidth</code></td>
-<td><code>Number</code></td>
+<td><code>number</code></td>
 <td><code>0</code></td>
 <td>Bar stroke width.</td>
 </tr>
 <tr>
 <td><code>borderColor</code></td>
 <td><code>Color</code></td>
-<td><code>&apos;rgba(0,0,0,0.1)&apos;</code></td>
+<td><code>&apos;rgba(0, 0, 0, 0.1)&apos;</code></td>
 <td>Bar stroke color.</td>
 </tr>
 <tr>
 <td><code>borderSkipped</code></td>
-<td><code>String</code></td>
+<td><code>string</code></td>
 <td><code>&apos;bottom&apos;</code></td>
 <td>Skipped (excluded) border: <code>&apos;bottom&apos;</code>, <code>&apos;left&apos;</code>, <code>&apos;top&apos;</code> or <code>&apos;right&apos;</code>.</td>
 </tr>
@@ -1117,8 +1117,14 @@
 <tr>
 <td><code>backgroundColor</code></td>
 <td><code>Color</code></td>
-<td><code>&apos;rgba(0,0,0,0.1)&apos;</code></td>
+<td><code>&apos;rgba(0, 0, 0, 0.1)&apos;</code></td>
 <td>Arc fill color.</td>
+</tr>
+<tr>
+<td><code>borderAlign</code></td>
+<td><code>string</code></td>
+<td><code>&apos;center&apos;</code></td>
+<td>Arc stroke alignment.</td>
 </tr>
 <tr>
 <td><code>borderColor</code></td>
@@ -1128,7 +1134,7 @@
 </tr>
 <tr>
 <td><code>borderWidth</code></td>
-<td><code>Number</code></td>
+<td><code>number</code></td>
 <td><code>2</code></td>
 <td>Arc stroke width.</td>
 </tr>
@@ -1177,7 +1183,7 @@
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Elements","level":"1.4.6","depth":2,"next":{"title":"Charts","level":"1.5","depth":1,"path":"charts/README.md","ref":"charts/README.md","articles":[{"title":"Line","level":"1.5.1","depth":2,"path":"charts/line.md","ref":"charts/line.md","articles":[]},{"title":"Bar","level":"1.5.2","depth":2,"path":"charts/bar.md","ref":"charts/bar.md","articles":[]},{"title":"Radar","level":"1.5.3","depth":2,"path":"charts/radar.md","ref":"charts/radar.md","articles":[]},{"title":"Doughnut & Pie","level":"1.5.4","depth":2,"path":"charts/doughnut.md","ref":"charts/doughnut.md","articles":[]},{"title":"Polar Area","level":"1.5.5","depth":2,"path":"charts/polar.md","ref":"charts/polar.md","articles":[]},{"title":"Bubble","level":"1.5.6","depth":2,"path":"charts/bubble.md","ref":"charts/bubble.md","articles":[]},{"title":"Scatter","level":"1.5.7","depth":2,"path":"charts/scatter.md","ref":"charts/scatter.md","articles":[]},{"title":"Area","level":"1.5.8","depth":2,"path":"charts/area.md","ref":"charts/area.md","articles":[]},{"title":"Mixed","level":"1.5.9","depth":2,"path":"charts/mixed.md","ref":"charts/mixed.md","articles":[]}]},"previous":{"title":"Tooltip","level":"1.4.5","depth":2,"path":"configuration/tooltip.md","ref":"configuration/tooltip.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"anchorjs":{"icon":"#","placement":"left","visible":"always"},"ga":{"configuration":"auto","token":"UA-28909194-3"},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"search-plus":{},"chartjs":{"defaults":null},"highlight":{},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"configuration/elements.md","mtime":"2019-01-28T18:41:40.489Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2019-01-28T18:44:50.603Z"},"basePath":"..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Elements","level":"1.4.6","depth":2,"next":{"title":"Charts","level":"1.5","depth":1,"path":"charts/README.md","ref":"charts/README.md","articles":[{"title":"Line","level":"1.5.1","depth":2,"path":"charts/line.md","ref":"charts/line.md","articles":[]},{"title":"Bar","level":"1.5.2","depth":2,"path":"charts/bar.md","ref":"charts/bar.md","articles":[]},{"title":"Radar","level":"1.5.3","depth":2,"path":"charts/radar.md","ref":"charts/radar.md","articles":[]},{"title":"Doughnut & Pie","level":"1.5.4","depth":2,"path":"charts/doughnut.md","ref":"charts/doughnut.md","articles":[]},{"title":"Polar Area","level":"1.5.5","depth":2,"path":"charts/polar.md","ref":"charts/polar.md","articles":[]},{"title":"Bubble","level":"1.5.6","depth":2,"path":"charts/bubble.md","ref":"charts/bubble.md","articles":[]},{"title":"Scatter","level":"1.5.7","depth":2,"path":"charts/scatter.md","ref":"charts/scatter.md","articles":[]},{"title":"Area","level":"1.5.8","depth":2,"path":"charts/area.md","ref":"charts/area.md","articles":[]},{"title":"Mixed","level":"1.5.9","depth":2,"path":"charts/mixed.md","ref":"charts/mixed.md","articles":[]}]},"previous":{"title":"Tooltip","level":"1.4.5","depth":2,"path":"configuration/tooltip.md","ref":"configuration/tooltip.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"anchorjs":{"icon":"#","placement":"left","visible":"always"},"ga":{"configuration":"auto","token":"UA-28909194-3"},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"search-plus":{},"chartjs":{"defaults":null},"highlight":{},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"configuration/elements.md","mtime":"2019-01-29T12:36:23.350Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2019-01-29T12:39:45.625Z"},"basePath":"..","book":{"language":""}});
         });
     </script>
 </div>
