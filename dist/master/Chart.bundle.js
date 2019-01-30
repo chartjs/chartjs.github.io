@@ -6737,7 +6737,19 @@ function addResizeListener(node, listener, chart) {
 	// Let's keep track of this added resizer and thus avoid DOM query when removing it.
 	var resizer = expando.resizer = createResizer(throttled(function() {
 		if (expando.resizer) {
-			return listener(createEvent('resize', chart));
+			var container = chart.options.maintainAspectRatio && node.parentNode;
+			var w = container ? container.clientWidth : 0;
+			listener(createEvent('resize', chart));
+			if (container && container.clientWidth < w && chart.canvas) {
+				// If the container size shrank during chart resize, let's assume
+				// scrollbar appeared. So we resize again with the scrollbar visible -
+				// effectively making chart smaller and the scrollbar hidden again.
+				// Because we are inside `throttled`, and currently `ticking`, scroll
+				// events are ignored during this whole 2 resize process.
+				// If we assumed wrong and something else happened, we are resizing
+				// twice in a frame (potential performance issue)
+				listener(createEvent('resize', chart));
+			}
 		}
 	}));
 
@@ -8442,13 +8454,13 @@ helpers$1.extend(Chart.prototype, /** @lends Chart */ {
 			core_plugins.notify(me, 'resize', [newSize]);
 
 			// Notify of resize
-			if (me.options.onResize) {
-				me.options.onResize(me, newSize);
+			if (options.onResize) {
+				options.onResize(me, newSize);
 			}
 
 			me.stop();
 			me.update({
-				duration: me.options.responsiveAnimationDuration
+				duration: options.responsiveAnimationDuration
 			});
 		}
 	},
