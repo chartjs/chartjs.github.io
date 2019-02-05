@@ -899,7 +899,7 @@
 <li><a href="category.html#category-cartesian-axis">category</a></li>
 <li><a href="time.html#time-cartesian-axis">time</a></li>
 </ul>
-<h1 id="common-configuration">Common Configuration</h1>
+<h2 id="common-configuration">Common Configuration</h2>
 <p>All of the included cartesian axes support a number of common options.</p>
 <table>
 <thead>
@@ -955,7 +955,7 @@
 </tr>
 </tbody>
 </table>
-<h2 id="tick-configuration">Tick Configuration</h2>
+<h3 id="tick-configuration">Tick Configuration</h3>
 <p>The following options are common to all cartesian axes but do not apply to other axes.</p>
 <table>
 <thead>
@@ -1011,7 +1011,7 @@
 </tr>
 </tbody>
 </table>
-<h2 id="axis-id">Axis ID</h2>
+<h3 id="axis-id">Axis ID</h3>
 <p>The properties <code>dataset.xAxisID</code> or <code>dataset.yAxisID</code> have to match the scale properties <code>scales.xAxes.id</code> or <code>scales.yAxes.id</code>. This is especially needed if multi-axes charts are used.</p>
 <pre><code class="lang-javascript"><span class="hljs-keyword">var</span> myChart = <span class="hljs-keyword">new</span> Chart(ctx, {
     type: <span class="hljs-string">&apos;line&apos;</span>,
@@ -1037,7 +1037,7 @@
     }
 });
 </code></pre>
-<h1 id="creating-multiple-axes">Creating Multiple Axes</h1>
+<h2 id="creating-multiple-axes">Creating Multiple Axes</h2>
 <p>With cartesian axes, it is possible to create multiple X and Y axes. To do so, you can add multiple configuration objects to the <code>xAxes</code> and <code>yAxes</code> properties. When adding new axes, it is important to ensure that you specify the type of the new axes as default types are <strong>not</strong> used in this case.</p>
 <p>In the example below, we are creating two Y axes. We then use the <code>yAxisID</code> property to map the datasets to their correct axes.</p>
 <pre><code class="lang-javascript"><span class="hljs-keyword">var</span> myChart = <span class="hljs-keyword">new</span> Chart(ctx, {
@@ -1116,7 +1116,7 @@
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Cartesian","level":"1.6.1","depth":2,"next":{"title":"Category","level":"1.6.1.1","depth":3,"path":"axes/cartesian/category.md","ref":"axes/cartesian/category.md","articles":[]},"previous":{"title":"Axes","level":"1.6","depth":1,"path":"axes/README.md","ref":"axes/README.md","articles":[{"title":"Cartesian","level":"1.6.1","depth":2,"path":"axes/cartesian/README.md","ref":"axes/cartesian/README.md","articles":[{"title":"Category","level":"1.6.1.1","depth":3,"path":"axes/cartesian/category.md","ref":"axes/cartesian/category.md","articles":[]},{"title":"Linear","level":"1.6.1.2","depth":3,"path":"axes/cartesian/linear.md","ref":"axes/cartesian/linear.md","articles":[]},{"title":"Logarithmic","level":"1.6.1.3","depth":3,"path":"axes/cartesian/logarithmic.md","ref":"axes/cartesian/logarithmic.md","articles":[]},{"title":"Time","level":"1.6.1.4","depth":3,"path":"axes/cartesian/time.md","ref":"axes/cartesian/time.md","articles":[]}]},{"title":"Radial","level":"1.6.2","depth":2,"path":"axes/radial/README.md","ref":"axes/radial/README.md","articles":[{"title":"Linear","level":"1.6.2.1","depth":3,"path":"axes/radial/linear.md","ref":"axes/radial/linear.md","articles":[]}]},{"title":"Labelling","level":"1.6.3","depth":2,"path":"axes/labelling.md","ref":"axes/labelling.md","articles":[]},{"title":"Styling","level":"1.6.4","depth":2,"path":"axes/styling.md","ref":"axes/styling.md","articles":[]}]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"anchorjs":{"icon":"#","placement":"left","visible":"always"},"ga":{"configuration":"auto","token":"UA-28909194-3"},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"search-plus":{},"chartjs":{"defaults":null},"highlight":{},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"axes/cartesian/README.md","mtime":"2019-02-04T08:58:13.826Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2019-02-04T09:01:16.034Z"},"basePath":"../..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Cartesian","level":"1.6.1","depth":2,"next":{"title":"Category","level":"1.6.1.1","depth":3,"path":"axes/cartesian/category.md","ref":"axes/cartesian/category.md","articles":[]},"previous":{"title":"Axes","level":"1.6","depth":1,"path":"axes/README.md","ref":"axes/README.md","articles":[{"title":"Cartesian","level":"1.6.1","depth":2,"path":"axes/cartesian/README.md","ref":"axes/cartesian/README.md","articles":[{"title":"Category","level":"1.6.1.1","depth":3,"path":"axes/cartesian/category.md","ref":"axes/cartesian/category.md","articles":[]},{"title":"Linear","level":"1.6.1.2","depth":3,"path":"axes/cartesian/linear.md","ref":"axes/cartesian/linear.md","articles":[]},{"title":"Logarithmic","level":"1.6.1.3","depth":3,"path":"axes/cartesian/logarithmic.md","ref":"axes/cartesian/logarithmic.md","articles":[]},{"title":"Time","level":"1.6.1.4","depth":3,"path":"axes/cartesian/time.md","ref":"axes/cartesian/time.md","articles":[]}]},{"title":"Radial","level":"1.6.2","depth":2,"path":"axes/radial/README.md","ref":"axes/radial/README.md","articles":[{"title":"Linear","level":"1.6.2.1","depth":3,"path":"axes/radial/linear.md","ref":"axes/radial/linear.md","articles":[]}]},{"title":"Labelling","level":"1.6.3","depth":2,"path":"axes/labelling.md","ref":"axes/labelling.md","articles":[]},{"title":"Styling","level":"1.6.4","depth":2,"path":"axes/styling.md","ref":"axes/styling.md","articles":[]}]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"anchorjs":{"icon":"#","placement":"left","visible":"always"},"ga":{"configuration":"auto","token":"UA-28909194-3"},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"search-plus":{},"chartjs":{"defaults":null},"highlight":{},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"axes/cartesian/README.md","mtime":"2019-02-05T01:03:32.697Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2019-02-05T01:06:21.860Z"},"basePath":"../..","book":{"language":""}});
         });
     </script>
 </div>

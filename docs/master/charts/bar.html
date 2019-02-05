@@ -1183,7 +1183,7 @@ Sample:     |==============|
 <p>You can also specify the dataset as x/y coordinates when using the <a href="../axes/cartesian/time.html#time-cartesian-axis">time scale</a>.</p>
 <pre><code class="lang-javascript">data: [{x:<span class="hljs-string">&apos;2016-12-25&apos;</span>, y:<span class="hljs-number">20</span>}, {x:<span class="hljs-string">&apos;2016-12-26&apos;</span>, y:<span class="hljs-number">10</span>}]
 </code></pre>
-<h1 id="stacked-bar-chart">Stacked Bar Chart</h1>
+<h2 id="stacked-bar-chart">Stacked Bar Chart</h2>
 <p>Bar charts can be configured into stacked bar charts by changing the settings on the X and Y axes to enable stacking. Stacked bar charts can be used to show how one data series is made up of a number of smaller pieces.</p>
 <pre><code class="lang-javascript"><span class="hljs-keyword">var</span> stackedBar = <span class="hljs-keyword">new</span> Chart(ctx, {
     type: <span class="hljs-string">&apos;bar&apos;</span>,
@@ -1200,7 +1200,6 @@ Sample:     |==============|
     }
 });
 </code></pre>
-<h2 id="dataset-properties">Dataset Properties</h2>
 <p>The following dataset properties are specific to stacked bar charts.</p>
 <table>
 <thead>
@@ -1218,7 +1217,7 @@ Sample:     |==============|
 </tr>
 </tbody>
 </table>
-<h1 id="horizontal-bar-chart">Horizontal Bar Chart</h1>
+<h2 id="horizontal-bar-chart">Horizontal Bar Chart</h2>
 <p>A horizontal bar chart is a variation on a vertical bar chart. It is sometimes used to show trend data, and the comparison of multiple data sets side by side.
 <div class="chartjs-wrapper"><canvas id="chartjs-2" class="chartjs" width="undefined" height="undefined"></canvas><script>new Chart(document.getElementById("chartjs-2"),{"type":"horizontalBar","data":{"labels":["January","February","March","April","May","June","July"],"datasets":[{"label":"My First Dataset","data":[65,59,80,81,56,55,40],"fill":false,"backgroundColor":["rgba(255, 99, 132, 0.2)","rgba(255, 159, 64, 0.2)","rgba(255, 205, 86, 0.2)","rgba(75, 192, 192, 0.2)","rgba(54, 162, 235, 0.2)","rgba(153, 102, 255, 0.2)","rgba(201, 203, 207, 0.2)"],"borderColor":["rgb(255, 99, 132)","rgb(255, 159, 64)","rgb(255, 205, 86)","rgb(75, 192, 192)","rgb(54, 162, 235)","rgb(153, 102, 255)","rgb(201, 203, 207)"],"borderWidth":1}]},"options":{"scales":{"xAxes":[{"ticks":{"beginAtZero":true}}]}}});</script></div></p>
 <h2 id="example">Example</h2>
@@ -1228,7 +1227,7 @@ Sample:     |==============|
     options: options
 });
 </code></pre>
-<h2 id="config-options">Config Options</h2>
+<h3 id="config-options">Config Options</h3>
 <p>The configuration options for the horizontal bar chart are the same as for the <a href="#scale-configuration">bar chart</a>. However, any options specified on the x axis in a bar chart, are applied to the y axis in a horizontal bar chart.</p>
 <p>The default horizontal bar configuration is specified in <code>Chart.defaults.horizontalBar</code>.</p>
 
@@ -1274,7 +1273,7 @@ Sample:     |==============|
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Bar","level":"1.5.2","depth":2,"next":{"title":"Radar","level":"1.5.3","depth":2,"path":"charts/radar.md","ref":"charts/radar.md","articles":[]},"previous":{"title":"Line","level":"1.5.1","depth":2,"path":"charts/line.md","ref":"charts/line.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"anchorjs":{"icon":"#","placement":"left","visible":"always"},"ga":{"configuration":"auto","token":"UA-28909194-3"},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"search-plus":{},"chartjs":{"defaults":null},"highlight":{},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"charts/bar.md","mtime":"2019-02-04T08:58:13.826Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2019-02-04T09:01:16.034Z"},"basePath":"..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Bar","level":"1.5.2","depth":2,"next":{"title":"Radar","level":"1.5.3","depth":2,"path":"charts/radar.md","ref":"charts/radar.md","articles":[]},"previous":{"title":"Line","level":"1.5.1","depth":2,"path":"charts/line.md","ref":"charts/line.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"anchorjs":{"icon":"#","placement":"left","visible":"always"},"ga":{"configuration":"auto","token":"UA-28909194-3"},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"search-plus":{},"chartjs":{"defaults":null},"highlight":{},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"charts/bar.md","mtime":"2019-02-05T01:03:32.697Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2019-02-05T01:06:21.860Z"},"basePath":"..","book":{"language":""}});
         });
     </script>
 </div>
