@@ -10638,31 +10638,16 @@ var core_scale = core_element.extend({
 	 * @private
 	 */
 	_autoSkip: function(ticks) {
-		var skipRatio;
 		var me = this;
 		var isHorizontal = me.isHorizontal();
 		var optionTicks = me.options.ticks.minor;
 		var tickCount = ticks.length;
-
-		// Calculate space needed by label in axis direction.
-		var rot = helpers$1.toRadians(me.labelRotation);
-		var cos = Math.abs(Math.cos(rot));
-		var sin = Math.abs(Math.sin(rot));
-
-		var padding = optionTicks.autoSkipPadding;
-		var w = me.longestLabelWidth + padding || 0;
-
-		var tickFont = helpers$1.options._parseFont(optionTicks);
-		var h = me._maxLabelLines * tickFont.lineHeight + padding;
-
-		// Calculate space needed for 1 tick in axis direction.
-		var tickSize = isHorizontal
-			? h * cos > w * sin ? w / cos : h / sin
-			: h * sin < w * cos ? h / cos : w / sin;
+		var skipRatio = false;
+		var maxTicks = optionTicks.maxTicksLimit;
 
 		// Total space needed to display all ticks. First and last ticks are
 		// drawn as their center at end of axis, so tickCount-1
-		var ticksLength = tickSize * (tickCount - 1);
+		var ticksLength = me._tickSize() * (tickCount - 1);
 
 		// Axis length
 		var axisLength = isHorizontal
@@ -10672,21 +10657,13 @@ var core_scale = core_element.extend({
 		var result = [];
 		var i, tick;
 
-		// figure out the maximum number of gridlines to show
-		var maxTicks;
-		if (optionTicks.maxTicksLimit) {
-			maxTicks = optionTicks.maxTicksLimit;
-		}
-
-		skipRatio = false;
-
 		if (ticksLength > axisLength) {
 			skipRatio = 1 + Math.floor(ticksLength / axisLength);
 		}
 
 		// if they defined a max number of optionTicks,
 		// increase skipRatio until that number is met
-		if (maxTicks && tickCount > maxTicks) {
+		if (tickCount > maxTicks) {
 			skipRatio = Math.max(skipRatio, 1 + Math.floor(tickCount / maxTicks));
 		}
 
@@ -10700,6 +10677,31 @@ var core_scale = core_element.extend({
 			result.push(tick);
 		}
 		return result;
+	},
+
+	/**
+	 * @private
+	 */
+	_tickSize: function() {
+		var me = this;
+		var isHorizontal = me.isHorizontal();
+		var optionTicks = me.options.ticks.minor;
+
+		// Calculate space needed by label in axis direction.
+		var rot = helpers$1.toRadians(me.labelRotation);
+		var cos = Math.abs(Math.cos(rot));
+		var sin = Math.abs(Math.sin(rot));
+
+		var padding = optionTicks.autoSkipPadding;
+		var w = me.longestLabelWidth + padding || 0;
+
+		var tickFont = helpers$1.options._parseFont(optionTicks);
+		var h = me._maxLabelLines * tickFont.lineHeight + padding;
+
+		// Calculate space needed for 1 tick in axis direction.
+		return isHorizontal
+			? h * cos > w * sin ? w / cos : h / sin
+			: h * sin < w * cos ? h / cos : w / sin;
 	},
 
 	/**
