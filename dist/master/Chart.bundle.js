@@ -4921,6 +4921,7 @@ var controller_line = core_datasetController.extend({
 		var value = dataset.data[index];
 		var yScale = me.getScaleForId(meta.yAxisID);
 		var xScale = me.getScaleForId(meta.xAxisID);
+		var lineModel = meta.dataset._model;
 		var x, y;
 
 		var options = me._resolvePointOptions(point, index);
@@ -4947,10 +4948,10 @@ var controller_line = core_datasetController.extend({
 			backgroundColor: options.backgroundColor,
 			borderColor: options.borderColor,
 			borderWidth: options.borderWidth,
-			tension: meta.dataset._model ? meta.dataset._model.tension : 0,
-			steppedLine: meta.dataset._model ? meta.dataset._model.steppedLine : false,
+			tension: valueOrDefault$4(custom.tension, lineModel ? lineModel.tension : 0),
+			steppedLine: lineModel ? lineModel.steppedLine : false,
 			// Tooltip
-			hitRadius: options.hitRadius,
+			hitRadius: options.hitRadius
 		};
 	},
 
@@ -4985,7 +4986,7 @@ var controller_line = core_datasetController.extend({
 			hoverRadius: 'pointHoverRadius',
 			pointStyle: 'pointStyle',
 			radius: 'pointRadius',
-			rotation: 'pointRotation',
+			rotation: 'pointRotation'
 		};
 		var keys = Object.keys(ELEMENT_OPTIONS);
 
@@ -5040,7 +5041,7 @@ var controller_line = core_datasetController.extend({
 		// to https://github.com/chartjs/Chart.js/issues/2435#issuecomment-216718158
 		// This option gives lines the ability to span gaps
 		values.spanGaps = valueOrDefault$4(dataset.spanGaps, options.spanGaps);
-		values.tension = resolve$4([custom.tension, dataset.lineTension, elementOptions.tension]);
+		values.tension = valueOrDefault$4(dataset.lineTension, elementOptions.tension);
 		values.steppedLine = resolve$4([custom.steppedLine, dataset.steppedLine, elementOptions.stepped]);
 
 		return values;
@@ -5086,7 +5087,7 @@ var controller_line = core_datasetController.extend({
 		var lineModel = meta.dataset._model;
 		var area = chart.chartArea;
 		var points = meta.data || [];
-		var i, ilen, point, model, controlPoints;
+		var i, ilen, model, controlPoints;
 
 		// Only consider points that are drawn in case the spanGaps option is used
 		if (lineModel.spanGaps) {
@@ -5103,8 +5104,7 @@ var controller_line = core_datasetController.extend({
 			helpers$1.splineCurveMonotone(points);
 		} else {
 			for (i = 0, ilen = points.length; i < ilen; ++i) {
-				point = points[i];
-				model = point._model;
+				model = points[i]._model;
 				controlPoints = helpers$1.splineCurve(
 					helpers$1.previousItem(points, i)._model,
 					model,
@@ -5502,6 +5502,7 @@ core_defaults._set('pie', {
 // Pie charts are Doughnut chart with different defaults
 var controller_pie = controller_doughnut;
 
+var valueOrDefault$5 = helpers$1.valueOrDefault;
 var resolve$6 = helpers$1.options.resolve;
 
 core_defaults._set('radar', {
@@ -5528,10 +5529,8 @@ var controller_radar = core_datasetController.extend({
 		var meta = me.getMeta();
 		var line = meta.dataset;
 		var points = meta.data || [];
-		var custom = line.custom || {};
-		var dataset = me.getDataset();
-		var lineElementOptions = me.chart.options.elements.line;
 		var scale = me.chart.scale;
+		var dataset = me.getDataset();
 		var i, ilen;
 
 		// Compatibility: If the properties are defined with only the old name, use those values
@@ -5539,32 +5538,19 @@ var controller_radar = core_datasetController.extend({
 			dataset.lineTension = dataset.tension;
 		}
 
-		helpers$1.extend(meta.dataset, {
-			// Utility
-			_datasetIndex: me.index,
-			_scale: scale,
-			// Data
-			_children: points,
-			_loop: true,
-			// Model
-			_model: {
-				// Appearance
-				tension: resolve$6([custom.tension, dataset.lineTension, lineElementOptions.tension]),
-				backgroundColor: resolve$6([custom.backgroundColor, dataset.backgroundColor, lineElementOptions.backgroundColor]),
-				borderWidth: resolve$6([custom.borderWidth, dataset.borderWidth, lineElementOptions.borderWidth]),
-				borderColor: resolve$6([custom.borderColor, dataset.borderColor, lineElementOptions.borderColor]),
-				fill: resolve$6([custom.fill, dataset.fill, lineElementOptions.fill]),
-				borderCapStyle: resolve$6([custom.borderCapStyle, dataset.borderCapStyle, lineElementOptions.borderCapStyle]),
-				borderDash: resolve$6([custom.borderDash, dataset.borderDash, lineElementOptions.borderDash]),
-				borderDashOffset: resolve$6([custom.borderDashOffset, dataset.borderDashOffset, lineElementOptions.borderDashOffset]),
-				borderJoinStyle: resolve$6([custom.borderJoinStyle, dataset.borderJoinStyle, lineElementOptions.borderJoinStyle]),
-			}
-		});
+		// Utility
+		line._scale = scale;
+		line._datasetIndex = me.index;
+		// Data
+		line._children = points;
+		line._loop = true;
+		// Model
+		line._model = me._resolveLineOptions(line);
 
-		meta.dataset.pivot();
+		line.pivot();
 
 		// Update Points
-		for (i = 0, ilen = points.length; i < ilen; i++) {
+		for (i = 0, ilen = points.length; i < ilen; ++i) {
 			me.updateElement(points[i], i, reset);
 		}
 
@@ -5572,7 +5558,7 @@ var controller_radar = core_datasetController.extend({
 		me.updateBezierControlPoints();
 
 		// Now pivot the point for animation
-		for (i = 0, ilen = points.length; i < ilen; i++) {
+		for (i = 0, ilen = points.length; i < ilen; ++i) {
 			points[i].pivot();
 		}
 	},
@@ -5582,43 +5568,120 @@ var controller_radar = core_datasetController.extend({
 		var custom = point.custom || {};
 		var dataset = me.getDataset();
 		var scale = me.chart.scale;
-		var pointElementOptions = me.chart.options.elements.point;
 		var pointPosition = scale.getPointPositionForValue(index, dataset.data[index]);
+		var options = me._resolvePointOptions(point, index);
+		var lineModel = me.getMeta().dataset._model;
+		var x = reset ? scale.xCenter : pointPosition.x;
+		var y = reset ? scale.yCenter : pointPosition.y;
 
-		// Compatibility: If the properties are defined with only the old name, use those values
-		if ((dataset.radius !== undefined) && (dataset.pointRadius === undefined)) {
-			dataset.pointRadius = dataset.radius;
+		// Utility
+		point._scale = scale;
+		point._options = options;
+		point._datasetIndex = me.index;
+		point._index = index;
+
+		// Desired view properties
+		point._model = {
+			x: x, // value not used in dataset scale, but we want a consistent API between scales
+			y: y,
+			skip: custom.skip || isNaN(x) || isNaN(y),
+			// Appearance
+			radius: options.radius,
+			pointStyle: options.pointStyle,
+			rotation: options.rotation,
+			backgroundColor: options.backgroundColor,
+			borderColor: options.borderColor,
+			borderWidth: options.borderWidth,
+			tension: valueOrDefault$5(custom.tension, lineModel ? lineModel.tension : 0),
+
+			// Tooltip
+			hitRadius: options.hitRadius
+		};
+	},
+
+	/**
+	 * @private
+	 */
+	_resolvePointOptions: function(element, index) {
+		var me = this;
+		var chart = me.chart;
+		var dataset = chart.data.datasets[me.index];
+		var custom = element.custom || {};
+		var options = chart.options.elements.point;
+		var values = {};
+		var i, ilen, key;
+
+		// Scriptable options
+		var context = {
+			chart: chart,
+			dataIndex: index,
+			dataset: dataset,
+			datasetIndex: me.index
+		};
+
+		var ELEMENT_OPTIONS = {
+			backgroundColor: 'pointBackgroundColor',
+			borderColor: 'pointBorderColor',
+			borderWidth: 'pointBorderWidth',
+			hitRadius: 'pointHitRadius',
+			hoverBackgroundColor: 'pointHoverBackgroundColor',
+			hoverBorderColor: 'pointHoverBorderColor',
+			hoverBorderWidth: 'pointHoverBorderWidth',
+			hoverRadius: 'pointHoverRadius',
+			pointStyle: 'pointStyle',
+			radius: 'pointRadius',
+			rotation: 'pointRotation'
+		};
+		var keys = Object.keys(ELEMENT_OPTIONS);
+
+		for (i = 0, ilen = keys.length; i < ilen; ++i) {
+			key = keys[i];
+			values[key] = resolve$6([
+				custom[key],
+				dataset[ELEMENT_OPTIONS[key]],
+				dataset[key],
+				options[key]
+			], context, index);
 		}
-		if ((dataset.hitRadius !== undefined) && (dataset.pointHitRadius === undefined)) {
-			dataset.pointHitRadius = dataset.hitRadius;
+
+		return values;
+	},
+
+	/**
+	 * @private
+	 */
+	_resolveLineOptions: function(element) {
+		var me = this;
+		var chart = me.chart;
+		var dataset = chart.data.datasets[me.index];
+		var custom = element.custom || {};
+		var options = chart.options.elements.line;
+		var values = {};
+		var i, ilen, key;
+
+		var keys = [
+			'backgroundColor',
+			'borderWidth',
+			'borderColor',
+			'borderCapStyle',
+			'borderDash',
+			'borderDashOffset',
+			'borderJoinStyle',
+			'fill'
+		];
+
+		for (i = 0, ilen = keys.length; i < ilen; ++i) {
+			key = keys[i];
+			values[key] = resolve$6([
+				custom[key],
+				dataset[key],
+				options[key]
+			]);
 		}
 
-		helpers$1.extend(point, {
-			// Utility
-			_datasetIndex: me.index,
-			_index: index,
-			_scale: scale,
+		values.tension = valueOrDefault$5(dataset.lineTension, options.tension);
 
-			// Desired view properties
-			_model: {
-				x: reset ? scale.xCenter : pointPosition.x, // value not used in dataset scale, but we want a consistent API between scales
-				y: reset ? scale.yCenter : pointPosition.y,
-
-				// Appearance
-				tension: resolve$6([custom.tension, dataset.lineTension, me.chart.options.elements.line.tension]),
-				radius: resolve$6([custom.radius, dataset.pointRadius, pointElementOptions.radius], undefined, index),
-				backgroundColor: resolve$6([custom.backgroundColor, dataset.pointBackgroundColor, pointElementOptions.backgroundColor], undefined, index),
-				borderColor: resolve$6([custom.borderColor, dataset.pointBorderColor, pointElementOptions.borderColor], undefined, index),
-				borderWidth: resolve$6([custom.borderWidth, dataset.pointBorderWidth, pointElementOptions.borderWidth], undefined, index),
-				pointStyle: resolve$6([custom.pointStyle, dataset.pointStyle, pointElementOptions.pointStyle], undefined, index),
-				rotation: resolve$6([custom.rotation, dataset.pointRotation, pointElementOptions.rotation], undefined, index),
-
-				// Tooltip
-				hitRadius: resolve$6([custom.hitRadius, dataset.pointHitRadius, pointElementOptions.hitRadius], undefined, index)
-			}
-		});
-
-		point._model.skip = custom.skip || isNaN(point._model.x) || isNaN(point._model.y);
+		return values;
 	},
 
 	updateBezierControlPoints: function() {
@@ -5632,7 +5695,7 @@ var controller_radar = core_datasetController.extend({
 			return Math.max(Math.min(pt, max), min);
 		}
 
-		for (i = 0, ilen = points.length; i < ilen; i++) {
+		for (i = 0, ilen = points.length; i < ilen; ++i) {
 			model = points[i]._model;
 			controlPoints = helpers$1.splineCurve(
 				helpers$1.previousItem(points, i, true)._model,
@@ -5650,11 +5713,8 @@ var controller_radar = core_datasetController.extend({
 	},
 
 	setHoverStyle: function(point) {
-		// Point
-		var dataset = this.chart.data.datasets[point._datasetIndex];
-		var custom = point.custom || {};
-		var index = point._index;
 		var model = point._model;
+		var options = point._options;
 		var getHoverColor = helpers$1.getHoverColor;
 
 		point.$previousStyle = {
@@ -5664,10 +5724,10 @@ var controller_radar = core_datasetController.extend({
 			radius: model.radius
 		};
 
-		model.radius = resolve$6([custom.hoverRadius, dataset.pointHoverRadius, this.chart.options.elements.point.hoverRadius], undefined, index);
-		model.backgroundColor = resolve$6([custom.hoverBackgroundColor, dataset.pointHoverBackgroundColor, getHoverColor(model.backgroundColor)], undefined, index);
-		model.borderColor = resolve$6([custom.hoverBorderColor, dataset.pointHoverBorderColor, getHoverColor(model.borderColor)], undefined, index);
-		model.borderWidth = resolve$6([custom.hoverBorderWidth, dataset.pointHoverBorderWidth, model.borderWidth], undefined, index);
+		model.backgroundColor = valueOrDefault$5(options.hoverBackgroundColor, getHoverColor(options.backgroundColor));
+		model.borderColor = valueOrDefault$5(options.hoverBorderColor, getHoverColor(options.borderColor));
+		model.borderWidth = valueOrDefault$5(options.hoverBorderWidth, options.borderWidth);
+		model.radius = valueOrDefault$5(options.hoverRadius, options.radius);
 	}
 });
 
@@ -7179,7 +7239,7 @@ var core_scaleService = {
 	}
 };
 
-var valueOrDefault$5 = helpers$1.valueOrDefault;
+var valueOrDefault$6 = helpers$1.valueOrDefault;
 
 core_defaults._set('global', {
 	tooltips: {
@@ -7417,26 +7477,26 @@ function getBaseModel(tooltipOpts) {
 
 		// Body
 		bodyFontColor: tooltipOpts.bodyFontColor,
-		_bodyFontFamily: valueOrDefault$5(tooltipOpts.bodyFontFamily, globalDefaults.defaultFontFamily),
-		_bodyFontStyle: valueOrDefault$5(tooltipOpts.bodyFontStyle, globalDefaults.defaultFontStyle),
+		_bodyFontFamily: valueOrDefault$6(tooltipOpts.bodyFontFamily, globalDefaults.defaultFontFamily),
+		_bodyFontStyle: valueOrDefault$6(tooltipOpts.bodyFontStyle, globalDefaults.defaultFontStyle),
 		_bodyAlign: tooltipOpts.bodyAlign,
-		bodyFontSize: valueOrDefault$5(tooltipOpts.bodyFontSize, globalDefaults.defaultFontSize),
+		bodyFontSize: valueOrDefault$6(tooltipOpts.bodyFontSize, globalDefaults.defaultFontSize),
 		bodySpacing: tooltipOpts.bodySpacing,
 
 		// Title
 		titleFontColor: tooltipOpts.titleFontColor,
-		_titleFontFamily: valueOrDefault$5(tooltipOpts.titleFontFamily, globalDefaults.defaultFontFamily),
-		_titleFontStyle: valueOrDefault$5(tooltipOpts.titleFontStyle, globalDefaults.defaultFontStyle),
-		titleFontSize: valueOrDefault$5(tooltipOpts.titleFontSize, globalDefaults.defaultFontSize),
+		_titleFontFamily: valueOrDefault$6(tooltipOpts.titleFontFamily, globalDefaults.defaultFontFamily),
+		_titleFontStyle: valueOrDefault$6(tooltipOpts.titleFontStyle, globalDefaults.defaultFontStyle),
+		titleFontSize: valueOrDefault$6(tooltipOpts.titleFontSize, globalDefaults.defaultFontSize),
 		_titleAlign: tooltipOpts.titleAlign,
 		titleSpacing: tooltipOpts.titleSpacing,
 		titleMarginBottom: tooltipOpts.titleMarginBottom,
 
 		// Footer
 		footerFontColor: tooltipOpts.footerFontColor,
-		_footerFontFamily: valueOrDefault$5(tooltipOpts.footerFontFamily, globalDefaults.defaultFontFamily),
-		_footerFontStyle: valueOrDefault$5(tooltipOpts.footerFontStyle, globalDefaults.defaultFontStyle),
-		footerFontSize: valueOrDefault$5(tooltipOpts.footerFontSize, globalDefaults.defaultFontSize),
+		_footerFontFamily: valueOrDefault$6(tooltipOpts.footerFontFamily, globalDefaults.defaultFontFamily),
+		_footerFontStyle: valueOrDefault$6(tooltipOpts.footerFontStyle, globalDefaults.defaultFontStyle),
+		footerFontSize: valueOrDefault$6(tooltipOpts.footerFontSize, globalDefaults.defaultFontSize),
 		_footerAlign: tooltipOpts.footerAlign,
 		footerSpacing: tooltipOpts.footerSpacing,
 		footerMarginTop: tooltipOpts.footerMarginTop,
@@ -8174,7 +8234,7 @@ var positioners_1 = positioners;
 var core_tooltip = exports$3;
 core_tooltip.positioners = positioners_1;
 
-var valueOrDefault$6 = helpers$1.valueOrDefault;
+var valueOrDefault$7 = helpers$1.valueOrDefault;
 
 core_defaults._set('global', {
 	elements: {},
@@ -8215,7 +8275,7 @@ function mergeScaleConfig(/* config objects ... */) {
 
 				for (i = 0; i < slen; ++i) {
 					scale = source[key][i];
-					type = valueOrDefault$6(scale.type, key === 'xAxes' ? 'category' : 'linear');
+					type = valueOrDefault$7(scale.type, key === 'xAxes' ? 'category' : 'linear');
 
 					if (i >= target[key].length) {
 						target[key].push({});
@@ -8504,7 +8564,7 @@ helpers$1.extend(Chart.prototype, /** @lends Chart */ {
 		helpers$1.each(items, function(item) {
 			var scaleOptions = item.options;
 			var id = scaleOptions.id;
-			var scaleType = valueOrDefault$6(scaleOptions.type, item.dtype);
+			var scaleType = valueOrDefault$7(scaleOptions.type, item.dtype);
 
 			if (positionIsHorizontal(scaleOptions.position) !== positionIsHorizontal(item.dposition)) {
 				scaleOptions.position = item.dposition;
@@ -8746,7 +8806,7 @@ helpers$1.extend(Chart.prototype, /** @lends Chart */ {
 		}
 
 		var animationOptions = me.options.animation;
-		var duration = valueOrDefault$6(config.duration, animationOptions && animationOptions.duration);
+		var duration = valueOrDefault$7(config.duration, animationOptions && animationOptions.duration);
 		var lazy = config.lazy;
 
 		if (core_plugins.notify(me, 'beforeRender') === false) {
@@ -10031,7 +10091,7 @@ var core_ticks = {
 	}
 };
 
-var valueOrDefault$7 = helpers$1.valueOrDefault;
+var valueOrDefault$8 = helpers$1.valueOrDefault;
 var valueAtIndexOrDefault = helpers$1.valueAtIndexOrDefault;
 
 core_defaults._set('scale', {
@@ -10769,17 +10829,17 @@ var core_scale = core_element.extend({
 
 		var parseFont = helpers$1.options._parseFont;
 		var ticks = optionTicks.autoSkip ? me._autoSkip(me.getTicks()) : me.getTicks();
-		var tickFontColor = valueOrDefault$7(optionTicks.fontColor, defaultFontColor);
+		var tickFontColor = valueOrDefault$8(optionTicks.fontColor, defaultFontColor);
 		var tickFont = parseFont(optionTicks);
 		var lineHeight = tickFont.lineHeight;
-		var majorTickFontColor = valueOrDefault$7(optionMajorTicks.fontColor, defaultFontColor);
+		var majorTickFontColor = valueOrDefault$8(optionMajorTicks.fontColor, defaultFontColor);
 		var majorTickFont = parseFont(optionMajorTicks);
 		var tickPadding = optionTicks.padding;
 		var labelOffset = optionTicks.labelOffset;
 
 		var tl = gridLines.drawTicks ? gridLines.tickMarkLength : 0;
 
-		var scaleLabelFontColor = valueOrDefault$7(scaleLabel.fontColor, defaultFontColor);
+		var scaleLabelFontColor = valueOrDefault$8(scaleLabel.fontColor, defaultFontColor);
 		var scaleLabelFont = parseFont(scaleLabel);
 		var scaleLabelPadding = helpers$1.options.toPadding(scaleLabel.padding);
 		var labelRotationRadians = helpers$1.toRadians(me.labelRotation);
@@ -11572,7 +11632,7 @@ var scale_linear = scale_linearbase.extend({
 var _defaults$1 = defaultConfig$1;
 scale_linear._defaults = _defaults$1;
 
-var valueOrDefault$8 = helpers$1.valueOrDefault;
+var valueOrDefault$9 = helpers$1.valueOrDefault;
 
 /**
  * Generate a set of logarithmic ticks
@@ -11583,7 +11643,7 @@ var valueOrDefault$8 = helpers$1.valueOrDefault;
 function generateTicks$1(generationOptions, dataRange) {
 	var ticks = [];
 
-	var tickVal = valueOrDefault$8(generationOptions.min, Math.pow(10, Math.floor(helpers$1.log10(dataRange.min))));
+	var tickVal = valueOrDefault$9(generationOptions.min, Math.pow(10, Math.floor(helpers$1.log10(dataRange.min))));
 
 	var endExp = Math.floor(helpers$1.log10(dataRange.max));
 	var endSignificand = Math.ceil(dataRange.max / Math.pow(10, endExp));
@@ -11614,7 +11674,7 @@ function generateTicks$1(generationOptions, dataRange) {
 		tickVal = Math.round(significand * Math.pow(10, exp) * precision) / precision;
 	} while (exp < endExp || (exp === endExp && significand < endSignificand));
 
-	var lastTick = valueOrDefault$8(generationOptions.max, tickVal);
+	var lastTick = valueOrDefault$9(generationOptions.max, tickVal);
 	ticks.push(lastTick);
 
 	return ticks;
@@ -11741,8 +11801,8 @@ var scale_logarithmic = core_scale.extend({
 		var DEFAULT_MIN = 1;
 		var DEFAULT_MAX = 10;
 
-		me.min = valueOrDefault$8(tickOpts.min, me.min);
-		me.max = valueOrDefault$8(tickOpts.max, me.max);
+		me.min = valueOrDefault$9(tickOpts.min, me.min);
+		me.max = valueOrDefault$9(tickOpts.max, me.max);
 
 		if (me.min === me.max) {
 			if (me.min !== 0 && me.min !== null) {
@@ -11858,7 +11918,7 @@ var scale_logarithmic = core_scale.extend({
 		}
 		if (value !== start) {
 			if (start === 0) { // include zero tick
-				offset = valueOrDefault$8(tickOpts.fontSize, core_defaults.global.defaultFontSize);
+				offset = valueOrDefault$9(tickOpts.fontSize, core_defaults.global.defaultFontSize);
 				innerDimension -= offset;
 				start = firstTickValue;
 			}
@@ -11894,7 +11954,7 @@ var scale_logarithmic = core_scale.extend({
 		}
 		if (value !== start) {
 			if (start === 0) { // include zero tick
-				var offset = valueOrDefault$8(tickOpts.fontSize, core_defaults.global.defaultFontSize);
+				var offset = valueOrDefault$9(tickOpts.fontSize, core_defaults.global.defaultFontSize);
 				value -= offset;
 				innerDimension -= offset;
 				start = firstTickValue;
@@ -11911,7 +11971,7 @@ var scale_logarithmic = core_scale.extend({
 var _defaults$2 = defaultConfig$2;
 scale_logarithmic._defaults = _defaults$2;
 
-var valueOrDefault$9 = helpers$1.valueOrDefault;
+var valueOrDefault$a = helpers$1.valueOrDefault;
 var valueAtIndexOrDefault$1 = helpers$1.valueAtIndexOrDefault;
 var resolve$7 = helpers$1.options.resolve;
 
@@ -11974,7 +12034,7 @@ function getTickBackdropHeight(opts) {
 	var tickOpts = opts.ticks;
 
 	if (tickOpts.display && opts.display) {
-		return valueOrDefault$9(tickOpts.fontSize, core_defaults.global.defaultFontSize) + tickOpts.backdropPaddingY * 2;
+		return valueOrDefault$a(tickOpts.fontSize, core_defaults.global.defaultFontSize) + tickOpts.backdropPaddingY * 2;
 	}
 	return 0;
 }
@@ -12133,8 +12193,8 @@ function drawPointLabels(scale) {
 	var angleLineOpts = opts.angleLines;
 	var gridLineOpts = opts.gridLines;
 	var pointLabelOpts = opts.pointLabels;
-	var lineWidth = valueOrDefault$9(angleLineOpts.lineWidth, gridLineOpts.lineWidth);
-	var lineColor = valueOrDefault$9(angleLineOpts.color, gridLineOpts.color);
+	var lineWidth = valueOrDefault$a(angleLineOpts.lineWidth, gridLineOpts.lineWidth);
+	var lineColor = valueOrDefault$a(angleLineOpts.color, gridLineOpts.color);
 	var tickBackdropHeight = getTickBackdropHeight(opts);
 
 	ctx.save();
@@ -12406,7 +12466,7 @@ var scale_radialLinear = scale_linearbase.extend({
 					}
 
 					if (tickOpts.display) {
-						var tickFontColor = valueOrDefault$9(tickOpts.fontColor, core_defaults.global.defaultFontColor);
+						var tickFontColor = valueOrDefault$a(tickOpts.fontColor, core_defaults.global.defaultFontColor);
 						ctx.font = tickFont.string;
 
 						ctx.save();
@@ -12445,7 +12505,7 @@ var adapter = core_adapters._date;
 
 
 
-var valueOrDefault$a = helpers$1.valueOrDefault;
+var valueOrDefault$b = helpers$1.valueOrDefault;
 
 // Integer constants are from the ES6 spec.
 var MIN_INTEGER = Number.MIN_SAFE_INTEGER || -9007199254740991;
@@ -12748,7 +12808,7 @@ function generate(min, max, capacity, options) {
 	var timeOpts = options.time;
 	var minor = timeOpts.unit || determineUnitForAutoTicks(timeOpts.minUnit, min, max, capacity);
 	var major = determineMajorUnit(minor);
-	var stepSize = valueOrDefault$a(timeOpts.stepSize, timeOpts.unitStepSize);
+	var stepSize = valueOrDefault$b(timeOpts.stepSize, timeOpts.unitStepSize);
 	var weekday = minor === 'week' ? timeOpts.isoWeekday : false;
 	var majorTicksEnabled = options.ticks.major.enabled;
 	var interval = INTERVALS[minor];
@@ -13122,7 +13182,7 @@ var scale_time = core_scale.extend({
 		var major = majorTickOpts.enabled && majorUnit && majorFormat && time === majorTime;
 		var label = adapter.format(time, format ? format : major ? majorFormat : minorFormat);
 		var tickOpts = major ? majorTickOpts : options.ticks.minor;
-		var formatter = valueOrDefault$a(tickOpts.callback, tickOpts.userCallback);
+		var formatter = valueOrDefault$b(tickOpts.callback, tickOpts.userCallback);
 
 		return formatter ? formatter(label, index, ticks) : label;
 	},
@@ -13198,7 +13258,7 @@ var scale_time = core_scale.extend({
 		var angle = helpers$1.toRadians(ticksOpts.maxRotation);
 		var cosRotation = Math.cos(angle);
 		var sinRotation = Math.sin(angle);
-		var tickFontSize = valueOrDefault$a(ticksOpts.fontSize, core_defaults.global.defaultFontSize);
+		var tickFontSize = valueOrDefault$b(ticksOpts.fontSize, core_defaults.global.defaultFontSize);
 
 		return (tickLabelWidth * cosRotation) + (tickFontSize * sinRotation);
 	},
@@ -18218,7 +18278,7 @@ var plugin_filler = {
 };
 
 var noop$1 = helpers$1.noop;
-var valueOrDefault$b = helpers$1.valueOrDefault;
+var valueOrDefault$c = helpers$1.valueOrDefault;
 
 core_defaults._set('global', {
 	legend: {
@@ -18540,7 +18600,7 @@ var Legend = core_element.extend({
 
 		if (opts.display) {
 			var ctx = me.ctx;
-			var fontColor = valueOrDefault$b(labelOpts.fontColor, globalDefaults.defaultFontColor);
+			var fontColor = valueOrDefault$c(labelOpts.fontColor, globalDefaults.defaultFontColor);
 			var labelFont = helpers$1.options._parseFont(labelOpts);
 			var fontSize = labelFont.size;
 			var cursor;
@@ -18565,17 +18625,17 @@ var Legend = core_element.extend({
 				// Set the ctx for the box
 				ctx.save();
 
-				var lineWidth = valueOrDefault$b(legendItem.lineWidth, lineDefault.borderWidth);
-				ctx.fillStyle = valueOrDefault$b(legendItem.fillStyle, defaultColor);
-				ctx.lineCap = valueOrDefault$b(legendItem.lineCap, lineDefault.borderCapStyle);
-				ctx.lineDashOffset = valueOrDefault$b(legendItem.lineDashOffset, lineDefault.borderDashOffset);
-				ctx.lineJoin = valueOrDefault$b(legendItem.lineJoin, lineDefault.borderJoinStyle);
+				var lineWidth = valueOrDefault$c(legendItem.lineWidth, lineDefault.borderWidth);
+				ctx.fillStyle = valueOrDefault$c(legendItem.fillStyle, defaultColor);
+				ctx.lineCap = valueOrDefault$c(legendItem.lineCap, lineDefault.borderCapStyle);
+				ctx.lineDashOffset = valueOrDefault$c(legendItem.lineDashOffset, lineDefault.borderDashOffset);
+				ctx.lineJoin = valueOrDefault$c(legendItem.lineJoin, lineDefault.borderJoinStyle);
 				ctx.lineWidth = lineWidth;
-				ctx.strokeStyle = valueOrDefault$b(legendItem.strokeStyle, defaultColor);
+				ctx.strokeStyle = valueOrDefault$c(legendItem.strokeStyle, defaultColor);
 
 				if (ctx.setLineDash) {
 					// IE 9 and 10 do not support line dash
-					ctx.setLineDash(valueOrDefault$b(legendItem.lineDash, lineDefault.borderDash));
+					ctx.setLineDash(valueOrDefault$c(legendItem.lineDash, lineDefault.borderDash));
 				}
 
 				if (opts.labels && opts.labels.usePointStyle) {

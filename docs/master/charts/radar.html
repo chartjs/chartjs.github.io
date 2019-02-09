@@ -904,138 +904,299 @@
 </code></pre>
 <h2 id="dataset-properties">Dataset Properties</h2>
 <p>The radar chart allows a number of properties to be specified for each dataset. These are used to set display properties for a specific dataset. For example, the colour of a line is generally set this way.</p>
-<p>All <code>point*</code> properties can be specified as an array. If these are set to an array value, the first value applies to the first point, the second value to the second point, and so on.</p>
 <table>
 <thead>
 <tr>
 <th>Name</th>
 <th>Type</th>
+<th style="text-align:center"><a href="../general/options.html#scriptable-options">Scriptable</a></th>
+<th style="text-align:center"><a href="../general/options.html#indexable-options">Indexable</a></th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#line-styling"><code>backgroundColor</code></a></td>
+<td><a href="../general/colors.html"><code>Color</code></a></td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">-</td>
+<td><code>&apos;rgba(0, 0, 0, 0.1)&apos;</code></td>
+</tr>
+<tr>
+<td><a href="#line-styling"><code>borderCapStyle</code></a></td>
+<td><code>string</code></td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">-</td>
+<td><code>&apos;butt&apos;</code></td>
+</tr>
+<tr>
+<td><a href="#line-styling"><code>borderColor</code></a></td>
+<td><a href="../general/colors.html"><code>Color</code></a></td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">-</td>
+<td><code>&apos;rgba(0, 0, 0, 0.1)&apos;</code></td>
+</tr>
+<tr>
+<td><a href="#line-styling"><code>borderDash</code></a></td>
+<td><code>number[]</code></td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">-</td>
+<td><code>[]</code></td>
+</tr>
+<tr>
+<td><a href="#line-styling"><code>borderDashOffset</code></a></td>
+<td><code>number</code></td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">-</td>
+<td><code>0.0</code></td>
+</tr>
+<tr>
+<td><a href="#line-styling"><code>borderJoinStyle</code></a></td>
+<td><code>string</code></td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">-</td>
+<td><code>&apos;miter&apos;</code></td>
+</tr>
+<tr>
+<td><a href="#line-styling"><code>borderWidth</code></a></td>
+<td><code>number</code></td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">-</td>
+<td><code>3</code></td>
+</tr>
+<tr>
+<td><a href="#line-styling"><code>fill</code></a></td>
+<td><code>boolean|string</code></td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">-</td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><a href="#general"><code>label</code></a></td>
+<td><code>string</code></td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">-</td>
+<td><code>&apos;&apos;</code></td>
+</tr>
+<tr>
+<td><a href="#line-styling"><code>lineTension</code></a></td>
+<td><code>number</code></td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">-</td>
+<td><code>0.4</code></td>
+</tr>
+<tr>
+<td><a href="#point-styling"><code>pointBackgroundColor</code></a></td>
+<td><code>Color</code></td>
+<td style="text-align:center">Yes</td>
+<td style="text-align:center">Yes</td>
+<td><code>&apos;rgba(0, 0, 0, 0.1)&apos;</code></td>
+</tr>
+<tr>
+<td><a href="#point-styling"><code>pointBorderColor</code></a></td>
+<td><code>Color</code></td>
+<td style="text-align:center">Yes</td>
+<td style="text-align:center">Yes</td>
+<td><code>&apos;rgba(0, 0, 0, 0.1)&apos;</code></td>
+</tr>
+<tr>
+<td><a href="#point-styling"><code>pointBorderWidth</code></a></td>
+<td><code>number</code></td>
+<td style="text-align:center">Yes</td>
+<td style="text-align:center">Yes</td>
+<td><code>1</code></td>
+</tr>
+<tr>
+<td><a href="#point-styling"><code>pointHitRadius</code></a></td>
+<td><code>number</code></td>
+<td style="text-align:center">Yes</td>
+<td style="text-align:center">Yes</td>
+<td><code>1</code></td>
+</tr>
+<tr>
+<td><a href="#interactions"><code>pointHoverBackgroundColor</code></a></td>
+<td><code>Color</code></td>
+<td style="text-align:center">Yes</td>
+<td style="text-align:center">Yes</td>
+<td><code>undefined</code></td>
+</tr>
+<tr>
+<td><a href="#interactions"><code>pointHoverBorderColor</code></a></td>
+<td><code>Color</code></td>
+<td style="text-align:center">Yes</td>
+<td style="text-align:center">Yes</td>
+<td><code>undefined</code></td>
+</tr>
+<tr>
+<td><a href="#interactions"><code>pointHoverBorderWidth</code></a></td>
+<td><code>number</code></td>
+<td style="text-align:center">Yes</td>
+<td style="text-align:center">Yes</td>
+<td><code>1</code></td>
+</tr>
+<tr>
+<td><a href="#interactions"><code>pointHoverRadius</code></a></td>
+<td><code>number</code></td>
+<td style="text-align:center">Yes</td>
+<td style="text-align:center">Yes</td>
+<td><code>4</code></td>
+</tr>
+<tr>
+<td><a href="#point-styling"><code>pointRadius</code></a></td>
+<td><code>number</code></td>
+<td style="text-align:center">Yes</td>
+<td style="text-align:center">Yes</td>
+<td><code>3</code></td>
+</tr>
+<tr>
+<td><a href="#point-styling"><code>pointRotation</code></a></td>
+<td><code>number</code></td>
+<td style="text-align:center">Yes</td>
+<td style="text-align:center">Yes</td>
+<td><code>0</code></td>
+</tr>
+<tr>
+<td><a href="#point-styling"><code>pointStyle</code></a></td>
+<td><code>string|Image</code></td>
+<td style="text-align:center">Yes</td>
+<td style="text-align:center">Yes</td>
+<td><code>&apos;circle&apos;</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="general">General</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
 <th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>label</code></td>
-<td><code>string</code></td>
 <td>The label for the dataset which appears in the legend and tooltips.</td>
 </tr>
+</tbody>
+</table>
+<h3 id="point-styling">Point Styling</h3>
+<p>The style of each point can be controlled with the following properties:</p>
+<table>
+<thead>
 <tr>
-<td><code>backgroundColor</code></td>
-<td><code>Color</code></td>
-<td>The fill color under the line. See <a href="../general/colors.html#colors">Colors</a>.</td>
+<th>Name</th>
+<th>Description</th>
 </tr>
-<tr>
-<td><code>borderColor</code></td>
-<td><code>Color</code></td>
-<td>The color of the line. See <a href="../general/colors.html#colors">Colors</a>.</td>
-</tr>
-<tr>
-<td><code>borderWidth</code></td>
-<td><code>number</code></td>
-<td>The width of the line in pixels.</td>
-</tr>
-<tr>
-<td><code>borderDash</code></td>
-<td><code>number[]</code></td>
-<td>Length and spacing of dashes. See <a href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/setLineDash" target="_blank">MDN</a>.</td>
-</tr>
-<tr>
-<td><code>borderDashOffset</code></td>
-<td><code>number</code></td>
-<td>Offset for line dashes. See <a href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineDashOffset" target="_blank">MDN</a>.</td>
-</tr>
-<tr>
-<td><code>borderCapStyle</code></td>
-<td><code>string</code></td>
-<td>Cap style of the line. See <a href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineCap" target="_blank">MDN</a>.</td>
-</tr>
-<tr>
-<td><code>borderJoinStyle</code></td>
-<td><code>string</code></td>
-<td>Line joint style. See <a href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineJoin" target="_blank">MDN</a>.</td>
-</tr>
-<tr>
-<td><code>fill</code></td>
-<td><code>boolean|string</code></td>
-<td>How to fill the area under the line. See <a href="area.html">area charts</a>.</td>
-</tr>
-<tr>
-<td><code>lineTension</code></td>
-<td><code>number</code></td>
-<td>Bezier curve tension of the line. Set to 0 to draw straightlines.</td>
-</tr>
+</thead>
+<tbody>
 <tr>
 <td><code>pointBackgroundColor</code></td>
-<td><code>Color|Color[]</code></td>
 <td>The fill color for points.</td>
 </tr>
 <tr>
 <td><code>pointBorderColor</code></td>
-<td><code>Color|Color[]</code></td>
 <td>The border color for points.</td>
 </tr>
 <tr>
 <td><code>pointBorderWidth</code></td>
-<td><code>number|number[]</code></td>
 <td>The width of the point border in pixels.</td>
 </tr>
 <tr>
+<td><code>pointHitRadius</code></td>
+<td>The pixel size of the non-displayed point that reacts to mouse events.</td>
+</tr>
+<tr>
 <td><code>pointRadius</code></td>
-<td><code>number|number[]</code></td>
 <td>The radius of the point shape. If set to 0, the point is not rendered.</td>
 </tr>
 <tr>
 <td><code>pointRotation</code></td>
-<td><code>number|number[]</code></td>
 <td>The rotation of the point in degrees.</td>
 </tr>
 <tr>
 <td><code>pointStyle</code></td>
-<td><code>string|string[]|Image|Image[]</code></td>
-<td>Style of the point. <a href="#pointstyle">more...</a></td>
+<td>Style of the point. <a href="../configuration/elements#point-styles">more...</a></td>
+</tr>
+</tbody>
+</table>
+<p>All these values, if <code>undefined</code>, fallback first to the dataset options then to the associated <a href="../configuration/elements.html#point-configuration"><code>elements.point.*</code></a> options.</p>
+<h3 id="line-styling">Line Styling</h3>
+<p>The style of the line can be controlled with the following properties:</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>backgroundColor</code></td>
+<td>The line fill color.</td>
 </tr>
 <tr>
-<td><code>pointHitRadius</code></td>
-<td><code>number|number[]</code></td>
-<td>The pixel size of the non-displayed point that reacts to mouse events.</td>
+<td><code>borderCapStyle</code></td>
+<td>Cap style of the line. See <a href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineCap" target="_blank">MDN</a>.</td>
 </tr>
+<tr>
+<td><code>borderColor</code></td>
+<td>The line color.</td>
+</tr>
+<tr>
+<td><code>borderDash</code></td>
+<td>Length and spacing of dashes. See <a href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/setLineDash" target="_blank">MDN</a>.</td>
+</tr>
+<tr>
+<td><code>borderDashOffset</code></td>
+<td>Offset for line dashes. See <a href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineDashOffset" target="_blank">MDN</a>.</td>
+</tr>
+<tr>
+<td><code>borderJoinStyle</code></td>
+<td>Line joint style. See <a href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineJoin" target="_blank">MDN</a>.</td>
+</tr>
+<tr>
+<td><code>borderWidth</code></td>
+<td>The line width (in pixels).</td>
+</tr>
+<tr>
+<td><code>fill</code></td>
+<td>How to fill the area under the line. See <a href="area.html">area charts</a>.</td>
+</tr>
+<tr>
+<td><code>lineTension</code></td>
+<td>Bezier curve tension of the line. Set to 0 to draw straightlines.</td>
+</tr>
+</tbody>
+</table>
+<p>All these values, if <code>undefined</code>, fallback to the associated <a href="../configuration/elements.html#line-configuration"><code>elements.line.*</code></a> options.</p>
+<h3 id="interactions">Interactions</h3>
+<p>The interaction with each point can be controlled with the following properties:</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
 <tr>
 <td><code>pointHoverBackgroundColor</code></td>
-<td><code>Color|Color[]</code></td>
 <td>Point background color when hovered.</td>
 </tr>
 <tr>
 <td><code>pointHoverBorderColor</code></td>
-<td><code>Color|Color[]</code></td>
 <td>Point border color when hovered.</td>
 </tr>
 <tr>
 <td><code>pointHoverBorderWidth</code></td>
-<td><code>number|number[]</code></td>
 <td>Border width of point when hovered.</td>
 </tr>
 <tr>
 <td><code>pointHoverRadius</code></td>
-<td><code>number|number[]</code></td>
 <td>The radius of the point when hovered.</td>
 </tr>
 </tbody>
 </table>
-<h3 id="pointstyle">pointStyle</h3>
-<p>The style of point. Options are:</p>
-<ul>
-<li><code>&apos;circle&apos;</code></li>
-<li><code>&apos;cross&apos;</code></li>
-<li><code>&apos;crossRot&apos;</code></li>
-<li><code>&apos;dash&apos;.</code></li>
-<li><code>&apos;line&apos;</code></li>
-<li><code>&apos;rect&apos;</code></li>
-<li><code>&apos;rectRounded&apos;</code></li>
-<li><code>&apos;rectRot&apos;</code></li>
-<li><code>&apos;star&apos;</code></li>
-<li><code>&apos;triangle&apos;</code></li>
-</ul>
-<p>If the option is an image, that image is drawn on the canvas using <a href="https://developer.mozilla.org/en/docs/Web/API/CanvasRenderingContext2D/drawImage" target="_blank">drawImage</a>.</p>
 <h2 id="configuration-options">Configuration Options</h2>
 <p>Unlike other charts, the radar chart has no chart specific options.</p>
 <h2 id="scale-options">Scale Options</h2>
@@ -1050,7 +1211,7 @@
 <h2 id="default-options">Default Options</h2>
 <p>It is common to want to apply a configuration setting to all created radar charts. The global radar chart settings are stored in <code>Chart.defaults.radar</code>. Changing the global options only affects charts created after the change. Existing charts are not changed.</p>
 <h2 id="data-structure">Data Structure</h2>
-<p>The <code>data</code> property of a dataset for a radar chart is specified as an array of numbers. Each point in the data array corresponds to the label at the same index on the x axis.</p>
+<p>The <code>data</code> property of a dataset for a radar chart is specified as an array of numbers. Each point in the data array corresponds to the label at the same index.</p>
 <pre><code class="lang-javascript">data: [<span class="hljs-number">20</span>, <span class="hljs-number">10</span>]
 </code></pre>
 <p>For a radar chart, to provide context of what each point means, we include an array of strings that show around each point in the chart.</p>
@@ -1104,7 +1265,7 @@
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Radar","level":"1.5.3","depth":2,"next":{"title":"Doughnut & Pie","level":"1.5.4","depth":2,"path":"charts/doughnut.md","ref":"charts/doughnut.md","articles":[]},"previous":{"title":"Bar","level":"1.5.2","depth":2,"path":"charts/bar.md","ref":"charts/bar.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"anchorjs":{"icon":"#","placement":"left","visible":"always"},"ga":{"configuration":"auto","token":"UA-28909194-3"},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"search-plus":{},"chartjs":{"defaults":null},"highlight":{},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"charts/radar.md","mtime":"2019-02-09T07:21:25.696Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2019-02-09T07:24:24.997Z"},"basePath":"..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Radar","level":"1.5.3","depth":2,"next":{"title":"Doughnut & Pie","level":"1.5.4","depth":2,"path":"charts/doughnut.md","ref":"charts/doughnut.md","articles":[]},"previous":{"title":"Bar","level":"1.5.2","depth":2,"path":"charts/bar.md","ref":"charts/bar.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"anchorjs":{"icon":"#","placement":"left","visible":"always"},"ga":{"configuration":"auto","token":"UA-28909194-3"},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"search-plus":{},"chartjs":{"defaults":null},"highlight":{},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"charts/radar.md","mtime":"2019-02-09T22:09:18.439Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2019-02-09T22:12:06.722Z"},"basePath":"..","book":{"language":""}});
         });
     </script>
 </div>
