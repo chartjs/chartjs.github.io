@@ -9937,19 +9937,11 @@ function abstract() {
 /** @lends Chart._adapters._date */
 var _date = {
 	/**
-	 * Returns a map of time formats for the supported units.
+	 * Returns a map of time formats for the supported formatting units defined
+	 * in Unit as well as 'datetime' representing a detailed date/time string.
 	 * @returns {{string: string}}
 	 */
 	formats: abstract,
-
-	/**
-	 * Returns a map of date/time formats for the following presets:
-	 * 'full': date + time + millisecond
-	 * 'time': date + time
-	 * 'date': date
-	 * @returns {{string: string}}
-	 */
-	presets: abstract,
 
 	/**
 	 * Parses the given `value` and return the associated timestamp.
@@ -12914,29 +12906,6 @@ function ticksFromTimestamps(values, majorUnit) {
 	return ticks;
 }
 
-/**
- * Return the time format for the label with the most parts (milliseconds, second, etc.)
- */
-function determineLabelFormat(timestamps) {
-	var presets = adapter.presets();
-	var ilen = timestamps.length;
-	var i, ts, hasTime;
-
-	for (i = 0; i < ilen; i++) {
-		ts = timestamps[i];
-		if (ts % INTERVALS.second.size !== 0) {
-			return presets.full;
-		}
-		if (!hasTime && adapter.startOf(ts, 'day') !== ts) {
-			hasTime = true;
-		}
-	}
-	if (hasTime) {
-		return presets.time;
-	}
-	return presets.date;
-}
-
 var defaultConfig$4 = {
 	position: 'bottom',
 
@@ -13146,7 +13115,6 @@ var scale_time = core_scale.extend({
 		me._majorUnit = determineMajorUnit(me._unit);
 		me._table = buildLookupTable(me._timestamps.data, min, max, options.distribution);
 		me._offsets = computeOffsets(me._table, ticks, min, max, options);
-		me._labelFormat = determineLabelFormat(me._timestamps.data);
 
 		if (options.ticks.reverse) {
 			ticks.reverse();
@@ -13171,8 +13139,7 @@ var scale_time = core_scale.extend({
 		if (typeof label === 'string') {
 			return label;
 		}
-
-		return adapter.format(toTimestamp(label, timeOpts), me._labelFormat);
+		return adapter.format(toTimestamp(label, timeOpts), timeOpts.displayFormats.datetime);
 	},
 
 	/**
@@ -17905,6 +17872,7 @@ var adapter$1 = core_adapters._date;
 
 
 var FORMATS = {
+	datetime: 'MMM D, YYYY, h:mm:ss a',
 	millisecond: 'h:mm:ss.SSS a',
 	second: 'h:mm:ss a',
 	minute: 'h:mm a',
@@ -17916,21 +17884,11 @@ var FORMATS = {
 	year: 'YYYY'
 };
 
-var PRESETS = {
-	full: 'MMM D, YYYY h:mm:ss.SSS a',
-	time: 'MMM D, YYYY h:mm:ss a',
-	date: 'MMM D, YYYY'
-};
-
 helpers_core.merge(adapter$1, moment ? {
 	_id: 'moment', // DEBUG ONLY
 
 	formats: function() {
 		return FORMATS;
-	},
-
-	presets: function() {
-		return PRESETS;
 	},
 
 	parse: function(value, format) {
