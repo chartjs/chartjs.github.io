@@ -9907,12 +9907,6 @@ var core_helpers = function() {
 	};
 };
 
-/**
- * @namespace Chart._adapters
- * @since 2.8.0
- * @private
- */
-
 function abstract() {
 	throw new Error(
 		'This method is not implemented: either no adapter can ' +
@@ -9934,8 +9928,14 @@ function abstract() {
  * @name Unit
  */
 
-/** @lends Chart._adapters._date */
-var _date = {
+/**
+ * @class
+ */
+function DateAdapter(options) {
+	this.options = options || {};
+}
+
+helpers$1.extend(DateAdapter.prototype, /** @lends DateAdapter */ {
 	/**
 	 * Returns a map of time formats for the supported formatting units defined
 	 * in Unit as well as 'datetime' representing a detailed date/time string.
@@ -10011,7 +10011,13 @@ var _date = {
 	_create: function(value) {
 		return value;
 	}
+});
+
+DateAdapter.override = function(members) {
+	helpers$1.extend(DateAdapter.prototype, members);
 };
+
+var _date = DateAdapter;
 
 var core_adapters = {
 	_date: _date
@@ -12501,11 +12507,6 @@ var scale_radialLinear = scale_linearbase.extend({
 var _defaults$3 = defaultConfig$3;
 scale_radialLinear._defaults = _defaults$3;
 
-var adapter = core_adapters._date;
-
-
-
-
 var valueOrDefault$b = helpers$1.valueOrDefault;
 
 // Integer constants are from the ES6 spec.
@@ -12678,7 +12679,9 @@ function interpolate$1(table, skey, sval, tkey) {
 	return prev[tkey] + offset;
 }
 
-function toTimestamp(input, options) {
+function toTimestamp(scale, input) {
+	var adapter = scale._adapter;
+	var options = scale.options.time;
 	var parser = options.parser;
 	var format = parser || options.format;
 	var value = input;
@@ -12712,19 +12715,19 @@ function toTimestamp(input, options) {
 	return value;
 }
 
-function parse(input, scale) {
+function parse(scale, input) {
 	if (helpers$1.isNullOrUndef(input)) {
 		return null;
 	}
 
 	var options = scale.options.time;
-	var value = toTimestamp(scale.getRightValue(input), options);
+	var value = toTimestamp(scale, scale.getRightValue(input));
 	if (value === null) {
 		return value;
 	}
 
 	if (options.round) {
-		value = +adapter.startOf(value, options.round);
+		value = +scale._adapter.startOf(value, options.round);
 	}
 
 	return value;
@@ -12777,13 +12780,13 @@ function determineUnitForAutoTicks(minUnit, min, max, capacity) {
 /**
  * Figures out what unit to format a set of ticks with
  */
-function determineUnitForFormatting(ticks, minUnit, min, max) {
+function determineUnitForFormatting(scale, ticks, minUnit, min, max) {
 	var ilen = UNITS.length;
 	var i, unit;
 
 	for (i = ilen - 1; i >= UNITS.indexOf(minUnit); i--) {
 		unit = UNITS[i];
-		if (INTERVALS[unit].common && adapter.diff(max, min, unit) >= ticks.length) {
+		if (INTERVALS[unit].common && scale._adapter.diff(max, min, unit) >= ticks.length) {
 			return unit;
 		}
 	}
@@ -12805,7 +12808,9 @@ function determineMajorUnit(unit) {
  * Important: this method can return ticks outside the min and max range, it's the
  * responsibility of the calling code to clamp values if needed.
  */
-function generate(min, max, capacity, options) {
+function generate(scale, min, max, capacity) {
+	var adapter = scale._adapter;
+	var options = scale.options;
 	var timeOpts = options.time;
 	var minor = timeOpts.unit || determineUnitForAutoTicks(timeOpts.minUnit, min, max, capacity);
 	var major = determineMajorUnit(minor);
@@ -12889,13 +12894,13 @@ function computeOffsets(table, ticks, min, max, options) {
 	return {start: start, end: end};
 }
 
-function ticksFromTimestamps(values, majorUnit) {
+function ticksFromTimestamps(scale, values, majorUnit) {
 	var ticks = [];
 	var i, ilen, value, major;
 
 	for (i = 0, ilen = values.length; i < ilen; ++i) {
 		value = values[i];
-		major = majorUnit ? value === +adapter.startOf(value, majorUnit) : false;
+		major = majorUnit ? value === +scale._adapter.startOf(value, majorUnit) : false;
 
 		ticks.push({
 			value: value,
@@ -12927,6 +12932,7 @@ var defaultConfig$4 = {
 	 */
 	bounds: 'data',
 
+	adapters: {},
 	time: {
 		parser: false, // false == a pattern string from https://momentjs.com/docs/#/parsing/string-format/ or a custom callback that converts its argument to a moment
 		format: false, // DEPRECATED false == date objects, moment object, callback or a pattern string from https://momentjs.com/docs/#/parsing/string-format/
@@ -12966,6 +12972,7 @@ var scale_time = core_scale.extend({
 		var me = this;
 		var options = me.options;
 		var time = options.time || (options.time = {});
+		var adapter = me._adapter = new core_adapters._date(options.adapters.date);
 
 		// DEPRECATIONS: output a message only one time per update
 		if (time.format) {
@@ -12994,6 +13001,7 @@ var scale_time = core_scale.extend({
 	determineDataLimits: function() {
 		var me = this;
 		var chart = me.chart;
+		var adapter = me._adapter;
 		var timeOpts = me.options.time;
 		var unit = timeOpts.unit || 'day';
 		var min = MAX_INTEGER;
@@ -13006,7 +13014,7 @@ var scale_time = core_scale.extend({
 
 		// Convert labels to timestamps
 		for (i = 0, ilen = dataLabels.length; i < ilen; ++i) {
-			labels.push(parse(dataLabels[i], me));
+			labels.push(parse(me, dataLabels[i]));
 		}
 
 		// Convert data to timestamps
@@ -13019,7 +13027,7 @@ var scale_time = core_scale.extend({
 					datasets[i] = [];
 
 					for (j = 0, jlen = data.length; j < jlen; ++j) {
-						timestamp = parse(data[j], me);
+						timestamp = parse(me, data[j]);
 						timestamps.push(timestamp);
 						datasets[i][j] = timestamp;
 					}
@@ -13047,8 +13055,8 @@ var scale_time = core_scale.extend({
 			max = Math.max(max, timestamps[timestamps.length - 1]);
 		}
 
-		min = parse(timeOpts.min, me) || min;
-		max = parse(timeOpts.max, me) || max;
+		min = parse(me, timeOpts.min) || min;
+		max = parse(me, timeOpts.max) || max;
 
 		// In case there is no valid min/max, set limits based on unit time option
 		min = min === MAX_INTEGER ? +adapter.startOf(Date.now(), unit) : min;
@@ -13087,7 +13095,7 @@ var scale_time = core_scale.extend({
 			break;
 		case 'auto':
 		default:
-			timestamps = generate(min, max, me.getLabelCapacity(min), options);
+			timestamps = generate(me, min, max, me.getLabelCapacity(min), options);
 		}
 
 		if (options.bounds === 'ticks' && timestamps.length) {
@@ -13096,8 +13104,8 @@ var scale_time = core_scale.extend({
 		}
 
 		// Enforce limits with user min/max options
-		min = parse(timeOpts.min, me) || min;
-		max = parse(timeOpts.max, me) || max;
+		min = parse(me, timeOpts.min) || min;
+		max = parse(me, timeOpts.max) || max;
 
 		// Remove ticks outside the min/max range
 		for (i = 0, ilen = timestamps.length; i < ilen; ++i) {
@@ -13111,7 +13119,7 @@ var scale_time = core_scale.extend({
 		me.max = max;
 
 		// PRIVATE
-		me._unit = timeOpts.unit || determineUnitForFormatting(ticks, timeOpts.minUnit, me.min, me.max);
+		me._unit = timeOpts.unit || determineUnitForFormatting(me, ticks, timeOpts.minUnit, me.min, me.max);
 		me._majorUnit = determineMajorUnit(me._unit);
 		me._table = buildLookupTable(me._timestamps.data, min, max, options.distribution);
 		me._offsets = computeOffsets(me._table, ticks, min, max, options);
@@ -13120,11 +13128,12 @@ var scale_time = core_scale.extend({
 			ticks.reverse();
 		}
 
-		return ticksFromTimestamps(ticks, me._majorUnit);
+		return ticksFromTimestamps(me, ticks, me._majorUnit);
 	},
 
 	getLabelForIndex: function(index, datasetIndex) {
 		var me = this;
+		var adapter = me._adapter;
 		var data = me.chart.data;
 		var timeOpts = me.options.time;
 		var label = data.labels && index < data.labels.length ? data.labels[index] : '';
@@ -13134,12 +13143,12 @@ var scale_time = core_scale.extend({
 			label = me.getRightValue(value);
 		}
 		if (timeOpts.tooltipFormat) {
-			return adapter.format(toTimestamp(label, timeOpts), timeOpts.tooltipFormat);
+			return adapter.format(toTimestamp(me, label), timeOpts.tooltipFormat);
 		}
 		if (typeof label === 'string') {
 			return label;
 		}
-		return adapter.format(toTimestamp(label, timeOpts), timeOpts.displayFormats.datetime);
+		return adapter.format(toTimestamp(me, label), timeOpts.displayFormats.datetime);
 	},
 
 	/**
@@ -13148,6 +13157,7 @@ var scale_time = core_scale.extend({
 	 */
 	tickFormatFunction: function(time, index, ticks, format) {
 		var me = this;
+		var adapter = me._adapter;
 		var options = me.options;
 		var formats = options.time.displayFormats;
 		var minorFormat = formats[me._unit];
@@ -13197,7 +13207,7 @@ var scale_time = core_scale.extend({
 		}
 
 		if (time === null) {
-			time = parse(value, me);
+			time = parse(me, value);
 		}
 
 		if (time !== null) {
@@ -13220,7 +13230,7 @@ var scale_time = core_scale.extend({
 		var time = interpolate$1(me._table, 'pos', pos, 'time');
 
 		// DEPRECATION, we should return time directly
-		return adapter._create(time);
+		return me._adapter._create(time);
 	},
 
 	/**
@@ -17868,9 +17878,6 @@ var moment = createCommonjsModule(function (module, exports) {
 })));
 });
 
-var adapter$1 = core_adapters._date;
-
-
 var FORMATS = {
 	datetime: 'MMM D, YYYY, h:mm:ss a',
 	millisecond: 'h:mm:ss.SSS a',
@@ -17884,7 +17891,7 @@ var FORMATS = {
 	year: 'YYYY'
 };
 
-helpers_core.merge(adapter$1, moment ? {
+core_adapters._date.override(moment ? {
 	_id: 'moment', // DEBUG ONLY
 
 	formats: function() {
