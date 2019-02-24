@@ -11696,6 +11696,11 @@ var defaultConfig$2 = {
 	}
 };
 
+// TODO(v3): change this to positiveOrDefault
+function nonNegativeOrDefault(value, defaultValue) {
+	return helpers$1.isFinite(value) && value >= 0 ? value : defaultValue;
+}
+
 var scale_logarithmic = core_scale.extend({
 	determineDataLimits: function() {
 		var me = this;
@@ -11808,8 +11813,8 @@ var scale_logarithmic = core_scale.extend({
 		var DEFAULT_MIN = 1;
 		var DEFAULT_MAX = 10;
 
-		me.min = valueOrDefault$9(tickOpts.min, me.min);
-		me.max = valueOrDefault$9(tickOpts.max, me.max);
+		me.min = nonNegativeOrDefault(tickOpts.min, me.min);
+		me.max = nonNegativeOrDefault(tickOpts.max, me.max);
 
 		if (me.min === me.max) {
 			if (me.min !== 0 && me.min !== null) {
@@ -11845,8 +11850,8 @@ var scale_logarithmic = core_scale.extend({
 		var reverse = !me.isHorizontal();
 
 		var generationOptions = {
-			min: tickOpts.min,
-			max: tickOpts.max
+			min: nonNegativeOrDefault(tickOpts.min),
+			max: nonNegativeOrDefault(tickOpts.max)
 		};
 		var ticks = me.ticks = generateTicks$1(generationOptions, me);
 
