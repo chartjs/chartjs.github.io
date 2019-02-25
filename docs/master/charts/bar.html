@@ -938,8 +938,8 @@ the color of the bars is generally set this way.</p>
 <td><code>&apos;bottom&apos;</code></td>
 </tr>
 <tr>
-<td><a href="#styling"><code>borderWidth</code></a></td>
-<td><code>number</code></td>
+<td><a href="#borderwidth"><code>borderWidth</code></a></td>
+<td><code>number|object</code></td>
 <td style="text-align:center">Yes</td>
 <td style="text-align:center">Yes</td>
 <td><code>0</code></td>
@@ -1041,7 +1041,7 @@ the color of the bars is generally set this way.</p>
 <td>The edge to skip when drawing bar.</td>
 </tr>
 <tr>
-<td><code>borderWidth</code></td>
+<td><a href="#borderwidth"><code>borderWidth</code></a></td>
 <td>The bar border width (in pixels).</td>
 </tr>
 </tbody>
@@ -1051,13 +1051,17 @@ the color of the bars is generally set this way.</p>
 <p>This setting is used to avoid drawing the bar stroke at the base of the fill.
 In general, this does not need to be changed except when creating chart types
 that derive from a bar chart.</p>
+<p><strong>Note:</strong> for negative bars in vertical chart, <code>top</code> and <code>bottom</code> are flipped. Same goes for <code>left</code> and <code>right</code> in horizontal chart.</p>
 <p>Options are:</p>
 <ul>
 <li><code>&apos;bottom&apos;</code></li>
 <li><code>&apos;left&apos;</code></li>
 <li><code>&apos;top&apos;</code></li>
 <li><code>&apos;right&apos;</code></li>
+<li><code>false</code></li>
 </ul>
+<h4 id="borderwidth">borderWidth</h4>
+<p>If this value is a number, it is applied to all sides of the rectangle (left, top, right, bottom), except <a href="#borderskipped"><code>borderSkipped</code></a>. If this value is an object, the <code>left</code> property defines the left border width. Similarly the <code>right</code>, <code>top</code> and <code>bottom</code> properties can also be specified. Omitted borders and <a href="#borderskipped"><code>borderSkipped</code></a> are skipped.</p>
 <h3 id="interactions">Interactions</h3>
 <p>The interaction with each bar can be controlled with the following properties:</p>
 <table>
@@ -1273,7 +1277,7 @@ Sample:     |==============|
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Bar","level":"1.5.2","depth":2,"next":{"title":"Radar","level":"1.5.3","depth":2,"path":"charts/radar.md","ref":"charts/radar.md","articles":[]},"previous":{"title":"Line","level":"1.5.1","depth":2,"path":"charts/line.md","ref":"charts/line.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"anchorjs":{"icon":"#","placement":"left","visible":"always"},"ga":{"configuration":"auto","token":"UA-28909194-3"},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"search-plus":{},"chartjs":{"defaults":null},"highlight":{},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"charts/bar.md","mtime":"2019-02-25T08:01:53.917Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2019-02-25T08:04:54.302Z"},"basePath":"..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Bar","level":"1.5.2","depth":2,"next":{"title":"Radar","level":"1.5.3","depth":2,"path":"charts/radar.md","ref":"charts/radar.md","articles":[]},"previous":{"title":"Line","level":"1.5.1","depth":2,"path":"charts/line.md","ref":"charts/line.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"anchorjs":{"icon":"#","placement":"left","visible":"always"},"ga":{"configuration":"auto","token":"UA-28909194-3"},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"search-plus":{},"chartjs":{"defaults":null},"highlight":{},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"charts/bar.md","mtime":"2019-02-25T08:04:46.215Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2019-02-25T08:07:42.270Z"},"basePath":"..","book":{"language":""}});
         });
     </script>
 </div>
