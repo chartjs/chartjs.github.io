@@ -558,8 +558,9 @@ body.sidebar-padded {
   text-align: center;
 }
 .hero-title {
+  color: #FF6384;
   font-family: "proxima-nova-soft", sans-serif;
-  font-size: 3.75rem;
+  font-size: 3.5rem;
   font-weight: 600;
   margin: 0;
 }
@@ -698,9 +699,6 @@ pre {
 ul li {
   margin-top: 0.6rem;
 }
-.chart-logo {
-  margin: 1em 0;
-}
 .hero-button-wrapper {
   padding: 20px 0;
 }
@@ -794,10 +792,6 @@ ul li {
 footer {
   padding: 40px 0;
   text-align: center;
-}
-::-moz-selection {
-  color: #FFFFFF;
-  background-color: #FF6384;
 }
 ::selection {
   color: #FFFFFF;
