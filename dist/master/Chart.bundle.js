@@ -11238,7 +11238,7 @@ var scale_category = core_scale.extend({
 	}
 });
 
-// INTERNAL: static default options, registered in src/chart.js
+// INTERNAL: static default options, registered in src/index.js
 var _defaults = defaultConfig;
 scale_category._defaults = _defaults;
 
@@ -11655,7 +11655,7 @@ var scale_linear = scale_linearbase.extend({
 	}
 });
 
-// INTERNAL: static default options, registered in src/chart.js
+// INTERNAL: static default options, registered in src/index.js
 var _defaults$1 = defaultConfig$1;
 scale_linear._defaults = _defaults$1;
 
@@ -11999,7 +11999,7 @@ var scale_logarithmic = core_scale.extend({
 	}
 });
 
-// INTERNAL: static default options, registered in src/chart.js
+// INTERNAL: static default options, registered in src/index.js
 var _defaults$2 = defaultConfig$2;
 scale_logarithmic._defaults = _defaults$2;
 
@@ -12528,7 +12528,7 @@ var scale_radialLinear = scale_linearbase.extend({
 	}
 });
 
-// INTERNAL: static default options, registered in src/chart.js
+// INTERNAL: static default options, registered in src/index.js
 var _defaults$3 = defaultConfig$3;
 scale_radialLinear._defaults = _defaults$3;
 
@@ -13291,7 +13291,7 @@ var scale_time = core_scale.extend({
 	}
 });
 
-// INTERNAL: static default options, registered in src/chart.js
+// INTERNAL: static default options, registered in src/index.js
 var _defaults$4 = defaultConfig$4;
 scale_time._defaults = _defaults$4;
 
@@ -19156,7 +19156,7 @@ for (var k in plugins) {
 
 core_controller.platform.initialize();
 
-var chart = core_controller;
+var src = core_controller;
 if (typeof window !== 'undefined') {
 	window.Chart = core_controller;
 }
@@ -19252,6 +19252,6 @@ core_controller.helpers.each(
 	}
 );
 
-return chart;
+return src;
 
 })));
