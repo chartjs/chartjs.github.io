@@ -17921,7 +17921,7 @@ var FORMATS = {
 	year: 'YYYY'
 };
 
-core_adapters._date.override(moment ? {
+core_adapters._date.override(typeof moment === 'function' ? {
 	_id: 'moment', // DEBUG ONLY
 
 	formats: function() {
