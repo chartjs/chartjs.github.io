@@ -9450,8 +9450,9 @@ var core_helpers = function() {
 	 * i.e. the number of digits after the decimal point, of the value of this Number.
 	 * @param {number} x - A number.
 	 * @returns {number} The number of decimal places.
+	 * @private
 	 */
-	helpers$1.decimalPlaces = function(x) {
+	helpers$1._decimalPlaces = function(x) {
 		if (!helpers$1.isFinite(x)) {
 			return;
 		}
@@ -11304,7 +11305,7 @@ function generateTicks(generationOptions, dataRange) {
 
 	if (stepSize || isNullOrUndef(precision)) {
 		// If a precision is not specified, calculate factor based on spacing
-		factor = Math.pow(10, helpers$1.decimalPlaces(spacing));
+		factor = Math.pow(10, helpers$1._decimalPlaces(spacing));
 	} else {
 		// If the user specified a precision, round to that number of decimal places
 		factor = Math.pow(10, precision);
