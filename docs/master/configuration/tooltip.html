@@ -983,6 +983,12 @@
 <td>Title font color.</td>
 </tr>
 <tr>
+<td><code>titleAlign</code></td>
+<td><code>string</code></td>
+<td><code>&apos;left&apos;</code></td>
+<td>Horizontal alignment of the title text lines. <a href="#alignment">more...</a></td>
+</tr>
+<tr>
 <td><code>titleSpacing</code></td>
 <td><code>number</code></td>
 <td><code>2</code></td>
@@ -1019,6 +1025,12 @@
 <td>Body font color.</td>
 </tr>
 <tr>
+<td><code>bodyAlign</code></td>
+<td><code>string</code></td>
+<td><code>&apos;left&apos;</code></td>
+<td>Horizontal alignment of the body text lines. <a href="#alignment">more...</a></td>
+</tr>
+<tr>
 <td><code>bodySpacing</code></td>
 <td><code>number</code></td>
 <td><code>2</code></td>
@@ -1047,6 +1059,12 @@
 <td><code>Color</code></td>
 <td><code>&apos;#fff&apos;</code></td>
 <td>Footer font color.</td>
+</tr>
+<tr>
+<td><code>footerAlign</code></td>
+<td><code>string</code></td>
+<td><code>&apos;left&apos;</code></td>
+<td>Horizontal alignment of the footer text lines. <a href="#alignment">more...</a></td>
 </tr>
 <tr>
 <td><code>footerSpacing</code></td>
@@ -1144,6 +1162,14 @@ Chart.Tooltip.positioners.custom = <span class="hljs-function"><span class="hljs
     };
 };
 </code></pre>
+<h3 id="alignment">Alignment</h3>
+<p>The <code>titleAlign</code>, <code>bodyAlign</code> and <code>footerAlign</code> options define the horizontal position of the text lines with respect to the tooltip box. The following values are supported.</p>
+<ul>
+<li><code>&apos;left&apos;</code> (default)</li>
+<li><code>&apos;right&apos;</code></li>
+<li><code>&apos;center&apos;</code></li>
+</ul>
+<p>These options are only applied to text lines. Color boxes are always aligned to the left edge.</p>
 <h3 id="sort-callback">Sort Callback</h3>
 <p>Allows sorting of <a href="#tooltip-item-interface">tooltip items</a>. Must implement at minimum a function that can be passed to <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort" target="_blank">Array.prototype.sort</a>. This function can also accept a third parameter that is the data object passed to the chart.</p>
 <h3 id="filter-callback">Filter Callback</h3>
@@ -1508,7 +1534,7 @@ Chart.Tooltip.positioners.custom = <span class="hljs-function"><span class="hljs
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Tooltip","level":"1.4.5","depth":2,"next":{"title":"Elements","level":"1.4.6","depth":2,"path":"configuration/elements.md","ref":"configuration/elements.md","articles":[]},"previous":{"title":"Title","level":"1.4.4","depth":2,"path":"configuration/title.md","ref":"configuration/title.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga","redirect"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"chartjs":{"defaults":null},"fontsettings":{"theme":"white","family":"sans","size":2},"highlight":{},"ga":{"configuration":"auto","token":"UA-28909194-3"},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"redirect":{},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"anchorjs":{"icon":"#","placement":"left","visible":"always"},"search-plus":{}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"configuration/tooltip.md","mtime":"2019-03-13T09:37:20.208Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2019-03-13T09:40:30.525Z"},"basePath":"..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Tooltip","level":"1.4.5","depth":2,"next":{"title":"Elements","level":"1.4.6","depth":2,"path":"configuration/elements.md","ref":"configuration/elements.md","articles":[]},"previous":{"title":"Title","level":"1.4.4","depth":2,"path":"configuration/title.md","ref":"configuration/title.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga","redirect"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"chartjs":{"defaults":null},"fontsettings":{"theme":"white","family":"sans","size":2},"highlight":{},"ga":{"configuration":"auto","token":"UA-28909194-3"},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"redirect":{},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"anchorjs":{"icon":"#","placement":"left","visible":"always"},"search-plus":{}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"configuration/tooltip.md","mtime":"2019-03-18T07:06:59.913Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2019-03-18T07:10:11.072Z"},"basePath":"..","book":{"language":""}});
         });
     </script>
 </div>
