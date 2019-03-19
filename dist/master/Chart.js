@@ -9388,7 +9388,7 @@ var core_helpers = function() {
 	};
 	helpers$1.almostWhole = function(x, epsilon) {
 		var rounded = Math.round(x);
-		return (((rounded - epsilon) < x) && ((rounded + epsilon) > x));
+		return ((rounded - epsilon) <= x) && ((rounded + epsilon) >= x);
 	};
 	helpers$1.max = function(array) {
 		return array.reduce(function(max, value) {
