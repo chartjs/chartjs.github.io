@@ -5049,23 +5049,31 @@ var controller_line = core_datasetController.extend({
 	_resolveLineOptions: function(element) {
 		var me = this;
 		var chart = me.chart;
-		var dataset = chart.data.datasets[me.index];
+		var datasetIndex = me.index;
+		var dataset = chart.data.datasets[datasetIndex];
 		var custom = element.custom || {};
 		var options = chart.options;
 		var elementOptions = options.elements.line;
 		var values = {};
 		var i, ilen, key;
 
+		// Scriptable options
+		var context = {
+			chart: chart,
+			dataset: dataset,
+			datasetIndex: datasetIndex
+		};
+
 		var keys = [
 			'backgroundColor',
-			'borderWidth',
-			'borderColor',
 			'borderCapStyle',
+			'borderColor',
 			'borderDash',
 			'borderDashOffset',
 			'borderJoinStyle',
-			'fill',
-			'cubicInterpolationMode'
+			'borderWidth',
+			'cubicInterpolationMode',
+			'fill'
 		];
 
 		for (i = 0, ilen = keys.length; i < ilen; ++i) {
@@ -5074,7 +5082,7 @@ var controller_line = core_datasetController.extend({
 				custom[key],
 				dataset[key],
 				elementOptions[key]
-			]);
+			], context);
 		}
 
 		// The default behavior of lines is to break at null values, according
