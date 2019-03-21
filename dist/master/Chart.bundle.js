@@ -2752,7 +2752,7 @@ helpers$1.extend(Element.prototype, {
 	pivot: function() {
 		var me = this;
 		if (!me._view) {
-			me._view = helpers$1.clone(me._model);
+			me._view = helpers$1.extend({}, me._model);
 		}
 		me._start = {};
 		return me;
@@ -2766,7 +2766,7 @@ helpers$1.extend(Element.prototype, {
 
 		// No animation -> No Transition
 		if (!model || ease === 1) {
-			me._view = model;
+			me._view = helpers$1.extend({}, model);
 			me._start = null;
 			return me;
 		}
