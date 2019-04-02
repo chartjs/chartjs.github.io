@@ -6555,7 +6555,7 @@ var platform_dom$1 = /*#__PURE__*/Object.freeze({
 default: platform_dom
 });
 
-var commonjsGlobal = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
+var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
 function commonjsRequire () {
 	throw new Error('Dynamic requires are not currently supported by rollup-plugin-commonjs');
@@ -6566,7 +6566,7 @@ function createCommonjsModule(fn, module) {
 }
 
 function getCjsExportFromNamespace (n) {
-	return n && n.default || n;
+	return n && n['default'] || n;
 }
 
 var stylesheet = getCjsExportFromNamespace(platform_dom$1);
@@ -10237,6 +10237,24 @@ function computeTextSize(context, tick, font) {
 		context.measureText(tick).width;
 }
 
+function parseFontOptions(options, nestedOpts) {
+	return helpers$1.extend(helpers$1.options._parseFont({
+		fontFamily: valueOrDefault$9(nestedOpts.fontFamily, options.fontFamily),
+		fontSize: valueOrDefault$9(nestedOpts.fontSize, options.fontSize),
+		fontStyle: valueOrDefault$9(nestedOpts.fontStyle, options.fontStyle),
+		lineHeight: valueOrDefault$9(nestedOpts.lineHeight, options.lineHeight)
+	}), {
+		color: helpers$1.options.resolve([nestedOpts.fontColor, options.fontColor, core_defaults.global.defaultFontColor])
+	});
+}
+
+function parseTickFontOptions(options) {
+	var minor = parseFontOptions(options, options.minor);
+	var major = options.major.enabled ? parseFontOptions(options, options.major) : minor;
+
+	return {minor: minor, major: major};
+}
+
 var core_scale = core_element.extend({
 	/**
 	 * Get the padding needed for the scale
@@ -10266,29 +10284,16 @@ var core_scale = core_element.extend({
 	// Any function defined here is inherited by all scale types.
 	// Any function can be extended by the scale type
 
+	/**
+	 * Provided for backward compatibility, not available anymore
+	 * @function Chart.Scale.mergeTicksOptions
+	 * @deprecated since version 2.8.0
+	 * @todo remove at version 3
+	 */
 	mergeTicksOptions: function() {
-		var ticks = this.options.ticks;
-		if (ticks.minor === false) {
-			ticks.minor = {
-				display: false
-			};
-		}
-		if (ticks.major === false) {
-			ticks.major = {
-				display: false
-			};
-		}
-		for (var key in ticks) {
-			if (key !== 'major' && key !== 'minor') {
-				if (typeof ticks.minor[key] === 'undefined') {
-					ticks.minor[key] = ticks[key];
-				}
-				if (typeof ticks.major[key] === 'undefined') {
-					ticks.major[key] = ticks[key];
-				}
-			}
-		}
+		// noop
 	},
+
 	beforeUpdate: function() {
 		helpers$1.callback(this.options.beforeUpdate, [this]);
 	},
@@ -10766,7 +10771,7 @@ var core_scale = core_element.extend({
 	_autoSkip: function(ticks) {
 		var me = this;
 		var isHorizontal = me.isHorizontal();
-		var optionTicks = me.options.ticks.minor;
+		var optionTicks = me.options.ticks;
 		var tickCount = ticks.length;
 		var skipRatio = false;
 		var maxTicks = optionTicks.maxTicksLimit;
@@ -10811,7 +10816,7 @@ var core_scale = core_element.extend({
 	_tickSize: function() {
 		var me = this;
 		var isHorizontal = me.isHorizontal();
-		var optionTicks = me.options.ticks.minor;
+		var optionTicks = me.options.ticks;
 
 		// Calculate space needed by label in axis direction.
 		var rot = helpers$1.toRadians(me.labelRotation);
@@ -10821,7 +10826,7 @@ var core_scale = core_element.extend({
 		var padding = optionTicks.autoSkipPadding || 0;
 		var w = (me.longestLabelWidth + padding) || 0;
 
-		var tickFont = helpers$1.options._parseFont(optionTicks);
+		var tickFont = parseTickFontOptions(optionTicks).minor;
 		var h = (me._maxLabelLines * tickFont.lineHeight + padding) || 0;
 
 		// Calculate space needed for 1 tick in axis direction.
@@ -10870,10 +10875,7 @@ var core_scale = core_element.extend({
 
 		var chart = me.chart;
 		var context = me.ctx;
-		var globalDefaults = core_defaults.global;
-		var defaultFontColor = globalDefaults.defaultFontColor;
-		var optionTicks = options.ticks.minor;
-		var optionMajorTicks = options.ticks.major || optionTicks;
+		var optionTicks = options.ticks;
 		var gridLines = options.gridLines;
 		var scaleLabel = options.scaleLabel;
 		var position = options.position;
@@ -10882,20 +10884,15 @@ var core_scale = core_element.extend({
 		var isMirrored = optionTicks.mirror;
 		var isHorizontal = me.isHorizontal();
 
-		var parseFont = helpers$1.options._parseFont;
 		var ticks = optionTicks.display && optionTicks.autoSkip ? me._autoSkip(me.getTicks()) : me.getTicks();
-		var tickFontColor = valueOrDefault$9(optionTicks.fontColor, defaultFontColor);
-		var tickFont = parseFont(optionTicks);
-		var lineHeight = tickFont.lineHeight;
-		var majorTickFontColor = valueOrDefault$9(optionMajorTicks.fontColor, defaultFontColor);
-		var majorTickFont = parseFont(optionMajorTicks);
+		var tickFonts = parseTickFontOptions(optionTicks);
 		var tickPadding = optionTicks.padding;
 		var labelOffset = optionTicks.labelOffset;
 
 		var tl = gridLines.drawTicks ? gridLines.tickMarkLength : 0;
 
-		var scaleLabelFontColor = valueOrDefault$9(scaleLabel.fontColor, defaultFontColor);
-		var scaleLabelFont = parseFont(scaleLabel);
+		var scaleLabelFontColor = valueOrDefault$9(scaleLabel.fontColor, core_defaults.global.defaultFontColor);
+		var scaleLabelFont = helpers$1.options._parseFont(scaleLabel);
 		var scaleLabelPadding = helpers$1.options.toPadding(scaleLabel.padding);
 		var labelRotationRadians = helpers$1.toRadians(me.labelRotation);
 
@@ -10932,6 +10929,8 @@ var core_scale = core_element.extend({
 			}
 
 			var label = tick.label;
+			var tickFont = tick.major ? tickFonts.major : tickFonts.minor;
+			var lineHeight = tickFont.lineHeight;
 			var lineWidth, lineColor, borderDash, borderDashOffset;
 			if (index === me.zeroLineIndex && options.offset === gridLines.offsetGridLines) {
 				// Draw the first index specially
@@ -11056,12 +11055,14 @@ var core_scale = core_element.extend({
 			}
 
 			if (optionTicks.display) {
+				var tickFont = itemToDraw.major ? tickFonts.major : tickFonts.minor;
+
 				// Make sure we draw text in the correct color and font
 				context.save();
 				context.translate(itemToDraw.labelX, itemToDraw.labelY);
 				context.rotate(itemToDraw.rotation);
-				context.font = itemToDraw.major ? majorTickFont.string : tickFont.string;
-				context.fillStyle = itemToDraw.major ? majorTickFontColor : tickFontColor;
+				context.font = tickFont.string;
+				context.fillStyle = tickFont.color;
 				context.textBaseline = 'middle';
 				context.textAlign = itemToDraw.textAlign;
 
@@ -11071,7 +11072,7 @@ var core_scale = core_element.extend({
 					for (var i = 0; i < label.length; ++i) {
 						// We just make sure the multiline element is a string here..
 						context.fillText('' + label[i], 0, y);
-						y += lineHeight;
+						y += tickFont.lineHeight;
 					}
 				} else {
 					context.fillText(label, 0, y);
@@ -12615,6 +12616,14 @@ var INTERVALS = {
 
 var UNITS = Object.keys(INTERVALS);
 
+function deprecated(value, previous, current) {
+	if (value !== undefined) {
+		console.warn(
+			'time scale: "' + previous + '" is deprecated. ' +
+			'Please use "' + current + '" instead');
+	}
+}
+
 function sorter(a, b) {
 	return a - b;
 }
@@ -12633,6 +12642,14 @@ function arrayUnique(items) {
 	}
 
 	return out;
+}
+
+function getMin(options) {
+	return helpers$1.valueOrDefault(options.time.min, options.ticks.min);
+}
+
+function getMax(options) {
+	return helpers$1.valueOrDefault(options.time.max, options.ticks.max);
 }
 
 /**
@@ -12926,7 +12943,7 @@ function computeOffsets(table, ticks, min, max, options) {
 	var first, last;
 
 	if (options.offset && ticks.length) {
-		if (!options.time.min) {
+		if (!getMin(options)) {
 			first = interpolate$1(table, 'time', ticks[0], 'pos');
 			if (ticks.length === 1) {
 				start = 1 - first;
@@ -12934,7 +12951,7 @@ function computeOffsets(table, ticks, min, max, options) {
 				start = (interpolate$1(table, 'time', ticks[1], 'pos') - first) / 2;
 			}
 		}
-		if (!options.time.max) {
+		if (!getMax(options)) {
 			last = interpolate$1(table, 'time', ticks[ticks.length - 1], 'pos');
 			if (ticks.length === 1) {
 				end = last;
@@ -13028,9 +13045,9 @@ var scale_time = core_scale.extend({
 		var adapter = me._adapter = new core_adapters._date(options.adapters.date);
 
 		// DEPRECATIONS: output a message only one time per update
-		if (time.format) {
-			console.warn('options.time.format is deprecated and replaced by options.time.parser.');
-		}
+		deprecated(time.format, 'time.format', 'time.parser');
+		deprecated(time.min, 'time.min', 'ticks.min');
+		deprecated(time.max, 'time.max', 'ticks.max');
 
 		// Backward compatibility: before introducing adapter, `displayFormats` was
 		// supposed to contain *all* unit/string pairs but this can't be resolved
@@ -13055,8 +13072,8 @@ var scale_time = core_scale.extend({
 		var me = this;
 		var chart = me.chart;
 		var adapter = me._adapter;
-		var timeOpts = me.options.time;
-		var unit = timeOpts.unit || 'day';
+		var options = me.options;
+		var unit = options.time.unit || 'day';
 		var min = MAX_INTEGER;
 		var max = MIN_INTEGER;
 		var timestamps = [];
@@ -13108,8 +13125,8 @@ var scale_time = core_scale.extend({
 			max = Math.max(max, timestamps[timestamps.length - 1]);
 		}
 
-		min = parse(me, timeOpts.min) || min;
-		max = parse(me, timeOpts.max) || max;
+		min = parse(me, getMin(options)) || min;
+		max = parse(me, getMax(options)) || max;
 
 		// In case there is no valid min/max, set limits based on unit time option
 		min = min === MAX_INTEGER ? +adapter.startOf(Date.now(), unit) : min;
@@ -13157,8 +13174,8 @@ var scale_time = core_scale.extend({
 		}
 
 		// Enforce limits with user min/max options
-		min = parse(me, timeOpts.min) || min;
-		max = parse(me, timeOpts.max) || max;
+		min = parse(me, getMin(options)) || min;
+		max = parse(me, getMax(options)) || max;
 
 		// Remove ticks outside the min/max range
 		for (i = 0, ilen = timestamps.length; i < ilen; ++i) {
@@ -13217,11 +13234,17 @@ var scale_time = core_scale.extend({
 		var majorUnit = me._majorUnit;
 		var majorFormat = formats[majorUnit];
 		var majorTime = +adapter.startOf(time, majorUnit);
-		var majorTickOpts = options.ticks.major;
+		var tickOpts = options.ticks;
+		var majorTickOpts = tickOpts.major;
 		var major = majorTickOpts.enabled && majorUnit && majorFormat && time === majorTime;
 		var label = adapter.format(time, format ? format : major ? majorFormat : minorFormat);
-		var tickOpts = major ? majorTickOpts : options.ticks.minor;
-		var formatter = valueOrDefault$c(tickOpts.callback, tickOpts.userCallback);
+		var nestedTickOpts = major ? majorTickOpts : tickOpts.minor;
+		var formatter = helpers$1.options.resolve([
+			nestedTickOpts.callback,
+			nestedTickOpts.userCallback,
+			tickOpts.callback,
+			tickOpts.userCallback
+		]);
 
 		return formatter ? formatter(label, index, ticks) : label;
 	},
