@@ -5565,6 +5565,19 @@ core_defaults._set('radar', {
 });
 
 var controller_radar = core_datasetController.extend({
+	/**
+	 * @private
+	 */
+	_getValueScaleId: function() {
+		return this.chart.scale.id;
+	},
+
+	/**
+	 * @private
+	 */
+	_getIndexScaleId: function() {
+		return this.chart.scale.id;
+	},
 
 	datasetElementType: elements.Line,
 
