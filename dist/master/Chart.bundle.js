@@ -2534,6 +2534,8 @@ var defaults = {
 	}
 };
 
+// TODO(v3): remove 'global' from namespace.  all default are global and
+// there's inconsistency around which options are under 'global'
 defaults._set('global', {
 	defaultColor: 'rgba(0,0,0,0.1)',
 	defaultFontColor: '#666',
@@ -3057,6 +3059,7 @@ helpers$1.extend(DatasetController.prototype, {
 		me.index = datasetIndex;
 		me.linkScales();
 		me.addElements();
+		me._type = me.getMeta().type;
 	},
 
 	updateIndex: function(datasetIndex) {
@@ -3117,7 +3120,7 @@ helpers$1.extend(DatasetController.prototype, {
 	},
 
 	reset: function() {
-		this.update(true);
+		this._update(true);
 	},
 
 	/**
@@ -3191,6 +3194,30 @@ helpers$1.extend(DatasetController.prototype, {
 		// Re-sync meta data in case the user replaced the data array or if we missed
 		// any updates and so make sure that we handle number of datapoints changing.
 		me.resyncElements();
+	},
+
+	/**
+	 * Returns the merged user-supplied and default dataset-level options
+	 * @private
+	 */
+	_configure: function() {
+		var me = this;
+		me._config = helpers$1.merge({}, [
+			me.chart.options.datasets[me._type],
+			me.getDataset(),
+		], {
+			merger: function(key, target, source) {
+				if (key !== '_meta' && key !== 'data') {
+					helpers$1._merger(key, target, source);
+				}
+			}
+		});
+	},
+
+	_update: function(reset) {
+		var me = this;
+		me._configure();
+		me.update(reset);
 	},
 
 	update: helpers$1.noop,
@@ -4285,6 +4312,7 @@ var controller_bar = core_datasetController.extend({
 		var chart = me.chart;
 		var datasets = chart.data.datasets;
 		var dataset = datasets[me.index];
+		var datasetOpts = me._config;
 		var custom = rectangle.custom || {};
 		var options = chart.options.elements.rectangle;
 		var values = {};
@@ -4309,7 +4337,7 @@ var controller_bar = core_datasetController.extend({
 			key = keys[i];
 			values[key] = resolve$1([
 				custom[key],
-				dataset[key],
+				datasetOpts[key],
 				options[key]
 			], context, index);
 		}
@@ -4440,6 +4468,7 @@ var controller_bubble = core_datasetController.extend({
 		var chart = me.chart;
 		var datasets = chart.data.datasets;
 		var dataset = datasets[me.index];
+		var datasetOpts = me._config;
 		var custom = point.custom || {};
 		var options = chart.options.elements.point;
 		var data = dataset.data[index];
@@ -4471,7 +4500,7 @@ var controller_bubble = core_datasetController.extend({
 			key = keys[i];
 			values[key] = resolve$2([
 				custom[key],
-				dataset[key],
+				datasetOpts[key],
 				options[key]
 			], context, index);
 		}
@@ -4798,7 +4827,12 @@ var controller_doughnut = core_datasetController.extend({
 
 		for (i = 0, ilen = arcs.length; i < ilen; ++i) {
 			arc = arcs[i];
-			options = controller ? controller._resolveElementOptions(arc, i) : arc._options;
+			if (controller) {
+				controller._configure();
+				options = controller._resolveElementOptions(arc, i);
+			} else {
+				options = arc._options;
+			}
 			if (options.borderAlign !== 'inner') {
 				borderWidth = options.borderWidth;
 				hoverWidth = options.hoverBorderWidth;
@@ -4836,6 +4870,7 @@ var controller_doughnut = core_datasetController.extend({
 		var me = this;
 		var chart = me.chart;
 		var dataset = me.getDataset();
+		var datasetOpts = me._config;
 		var custom = arc.custom || {};
 		var options = chart.options.elements.arc;
 		var values = {};
@@ -4863,7 +4898,7 @@ var controller_doughnut = core_datasetController.extend({
 			key = keys[i];
 			values[key] = resolve$3([
 				custom[key],
-				dataset[key],
+				datasetOpts[key],
 				options[key]
 			], context, index);
 		}
@@ -4979,10 +5014,6 @@ core_defaults._set('line', {
 	}
 });
 
-function lineEnabled(dataset, options) {
-	return valueOrDefault$5(dataset.showLine, options.showLines);
-}
-
 var controller_line = core_datasetController.extend({
 
 	datasetElementType: elements.Line,
@@ -4994,9 +5025,10 @@ var controller_line = core_datasetController.extend({
 		var meta = me.getMeta();
 		var line = meta.dataset;
 		var points = meta.data || [];
+		var options = me.chart.options;
 		var scale = me.getScaleForId(meta.yAxisID);
 		var dataset = me.getDataset();
-		var showLine = lineEnabled(dataset, me.chart.options);
+		var showLine = me._showLine = valueOrDefault$5(me._config.showLine, options.showLines);
 		var i, ilen;
 
 		// Update Line
@@ -5082,6 +5114,7 @@ var controller_line = core_datasetController.extend({
 		var me = this;
 		var chart = me.chart;
 		var dataset = chart.data.datasets[me.index];
+		var datasetOpts = me._config;
 		var custom = element.custom || {};
 		var options = chart.options.elements.point;
 		var values = {};
@@ -5114,8 +5147,8 @@ var controller_line = core_datasetController.extend({
 			key = keys[i];
 			values[key] = resolve$4([
 				custom[key],
-				dataset[ELEMENT_OPTIONS[key]],
-				dataset[key],
+				datasetOpts[ELEMENT_OPTIONS[key]],
+				datasetOpts[key],
 				options[key]
 			], context, index);
 		}
@@ -5131,6 +5164,7 @@ var controller_line = core_datasetController.extend({
 		var chart = me.chart;
 		var datasetIndex = me.index;
 		var dataset = chart.data.datasets[datasetIndex];
+		var datasetOpts = me._config;
 		var custom = element.custom || {};
 		var options = chart.options;
 		var elementOptions = options.elements.line;
@@ -5160,7 +5194,7 @@ var controller_line = core_datasetController.extend({
 			key = keys[i];
 			values[key] = resolve$4([
 				custom[key],
-				dataset[key],
+				datasetOpts[key],
 				elementOptions[key]
 			], context);
 		}
@@ -5168,9 +5202,9 @@ var controller_line = core_datasetController.extend({
 		// The default behavior of lines is to break at null values, according
 		// to https://github.com/chartjs/Chart.js/issues/2435#issuecomment-216718158
 		// This option gives lines the ability to span gaps
-		values.spanGaps = valueOrDefault$5(dataset.spanGaps, options.spanGaps);
-		values.tension = valueOrDefault$5(dataset.lineTension, elementOptions.tension);
-		values.steppedLine = resolve$4([custom.steppedLine, dataset.steppedLine, elementOptions.stepped]);
+		values.spanGaps = valueOrDefault$5(datasetOpts.spanGaps, options.spanGaps);
+		values.tension = valueOrDefault$5(datasetOpts.lineTension, elementOptions.tension);
+		values.steppedLine = resolve$4([custom.steppedLine, datasetOpts.steppedLine, elementOptions.stepped]);
 
 		return values;
 	},
@@ -5269,11 +5303,11 @@ var controller_line = core_datasetController.extend({
 		var meta = me.getMeta();
 		var points = meta.data || [];
 		var area = chart.chartArea;
+		var i = 0;
 		var ilen = points.length;
 		var halfBorderWidth;
-		var i = 0;
 
-		if (lineEnabled(me.getDataset(), chart.options)) {
+		if (me._showLine) {
 			halfBorderWidth = (meta.dataset._model.borderWidth || 0) / 2;
 
 			helpers$1.canvas.clipArea(chart.ctx, {
@@ -5559,6 +5593,7 @@ var controller_polarArea = core_datasetController.extend({
 		var me = this;
 		var chart = me.chart;
 		var dataset = me.getDataset();
+		var datasetOpts = me._config;
 		var custom = arc.custom || {};
 		var options = chart.options.elements.arc;
 		var values = {};
@@ -5586,7 +5621,7 @@ var controller_polarArea = core_datasetController.extend({
 			key = keys[i];
 			values[key] = resolve$5([
 				custom[key],
-				dataset[key],
+				datasetOpts[key],
 				options[key]
 			], context, index);
 		}
@@ -5740,6 +5775,7 @@ var controller_radar = core_datasetController.extend({
 		var me = this;
 		var chart = me.chart;
 		var dataset = chart.data.datasets[me.index];
+		var datasetOpts = me._config;
 		var custom = element.custom || {};
 		var options = chart.options.elements.point;
 		var values = {};
@@ -5772,8 +5808,8 @@ var controller_radar = core_datasetController.extend({
 			key = keys[i];
 			values[key] = resolve$6([
 				custom[key],
-				dataset[ELEMENT_OPTIONS[key]],
-				dataset[key],
+				datasetOpts[ELEMENT_OPTIONS[key]],
+				datasetOpts[key],
 				options[key]
 			], context, index);
 		}
@@ -5788,6 +5824,7 @@ var controller_radar = core_datasetController.extend({
 		var me = this;
 		var chart = me.chart;
 		var dataset = chart.data.datasets[me.index];
+		var datasetOpts = me._config;
 		var custom = element.custom || {};
 		var options = chart.options.elements.line;
 		var values = {};
@@ -5808,7 +5845,7 @@ var controller_radar = core_datasetController.extend({
 			key = keys[i];
 			values[key] = resolve$6([
 				custom[key],
-				dataset[key],
+				datasetOpts[key],
 				options[key]
 			]);
 		}
@@ -5883,8 +5920,6 @@ core_defaults._set('scatter', {
 		}]
 	},
 
-	showLines: false,
-
 	tooltips: {
 		callbacks: {
 			title: function() {
@@ -5893,6 +5928,14 @@ core_defaults._set('scatter', {
 			label: function(item) {
 				return '(' + item.xLabel + ', ' + item.yLabel + ')';
 			}
+		}
+	}
+});
+
+core_defaults._set('global', {
+	datasets: {
+		scatter: {
+			showLine: false
 		}
 	}
 });
@@ -8924,7 +8967,7 @@ helpers$1.extend(Chart.prototype, /** @lends Chart */ {
 			return;
 		}
 
-		meta.controller.update();
+		meta.controller._update();
 
 		core_plugins.notify(me, 'afterDatasetUpdate', [args]);
 	},
