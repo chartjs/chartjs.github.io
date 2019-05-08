@@ -5026,10 +5026,12 @@ var controller_line = core_datasetController.extend({
 		var line = meta.dataset;
 		var points = meta.data || [];
 		var options = me.chart.options;
-		var scale = me.getScaleForId(meta.yAxisID);
 		var dataset = me.getDataset();
 		var showLine = me._showLine = valueOrDefault$5(me._config.showLine, options.showLines);
 		var i, ilen;
+
+		me._xScale = me.getScaleForId(meta.xAxisID);
+		me._yScale = me.getScaleForId(meta.yAxisID);
 
 		// Update Line
 		if (showLine) {
@@ -5039,7 +5041,7 @@ var controller_line = core_datasetController.extend({
 			}
 
 			// Utility
-			line._scale = scale;
+			line._scale = me._yScale;
 			line._datasetIndex = me.index;
 			// Data
 			line._children = points;
@@ -5071,8 +5073,8 @@ var controller_line = core_datasetController.extend({
 		var dataset = me.getDataset();
 		var datasetIndex = me.index;
 		var value = dataset.data[index];
-		var yScale = me.getScaleForId(meta.yAxisID);
-		var xScale = me.getScaleForId(meta.xAxisID);
+		var xScale = me._xScale;
+		var yScale = me._yScale;
 		var lineModel = meta.dataset._model;
 		var x, y;
 
@@ -5212,8 +5214,7 @@ var controller_line = core_datasetController.extend({
 	calculatePointY: function(value, index, datasetIndex) {
 		var me = this;
 		var chart = me.chart;
-		var meta = me.getMeta();
-		var yScale = me.getScaleForId(meta.yAxisID);
+		var yScale = me._yScale;
 		var sumPos = 0;
 		var sumNeg = 0;
 		var i, ds, dsMeta;
