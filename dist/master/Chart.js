@@ -2748,6 +2748,7 @@ var Element = function(configuration) {
 };
 
 helpers$1.extend(Element.prototype, {
+	_type: undefined,
 
 	initialize: function() {
 		this.hidden = false;
@@ -3055,6 +3056,35 @@ helpers$1.extend(DatasetController.prototype, {
 	 */
 	dataElementType: null,
 
+	/**
+	 * Dataset element option keys to be resolved in _resolveDatasetElementOptions.
+	 * A derived controller may override this to resolve controller-specific options.
+	 * The keys defined here are for backward compatibility for legend styles.
+	 * @private
+	 */
+	_datasetElementOptions: [
+		'backgroundColor',
+		'borderCapStyle',
+		'borderColor',
+		'borderDash',
+		'borderDashOffset',
+		'borderJoinStyle',
+		'borderWidth'
+	],
+
+	/**
+	 * Data element option keys to be resolved in _resolveDataElementOptions.
+	 * A derived controller may override this to resolve controller-specific options.
+	 * The keys defined here are for backward compatibility for legend styles.
+	 * @private
+	 */
+	_dataElementOptions: [
+		'backgroundColor',
+		'borderColor',
+		'borderWidth',
+		'pointStyle'
+	],
+
 	initialize: function(chart, datasetIndex) {
 		var me = this;
 		me.chart = chart;
@@ -3254,6 +3284,111 @@ helpers$1.extend(DatasetController.prototype, {
 		}
 	},
 
+	/**
+	 * Returns a set of predefined style properties that should be used to represent the dataset
+	 * or the data if the index is specified
+	 * @param {number} index - data index
+	 * @return {IStyleInterface} style object
+	 */
+	getStyle: function(index) {
+		var me = this;
+		var meta = me.getMeta();
+		var dataset = meta.dataset;
+		var style;
+
+		me._configure();
+		if (dataset && index === undefined) {
+			style = me._resolveDatasetElementOptions(dataset || {});
+		} else {
+			index = index || 0;
+			style = me._resolveDataElementOptions(meta.data[index] || {}, index);
+		}
+
+		if (style.fill === false || style.fill === null) {
+			style.backgroundColor = 'rgba(0,0,0,0)';
+		}
+
+		return style;
+	},
+
+	/**
+	 * @private
+	 */
+	_resolveDatasetElementOptions: function(element) {
+		var me = this;
+		var chart = me.chart;
+		var datasetOpts = me._config;
+		var custom = element.custom || {};
+		var options = chart.options.elements[me.datasetElementType.prototype._type] || {};
+		var elementOptions = me._datasetElementOptions;
+		var values = {};
+		var i, ilen, key;
+
+		// Scriptable options
+		var context = {
+			chart: chart,
+			dataset: me.getDataset(),
+			datasetIndex: me.index
+		};
+
+		for (i = 0, ilen = elementOptions.length; i < ilen; ++i) {
+			key = elementOptions[i];
+			values[key] = resolve([
+				custom[key],
+				datasetOpts[key],
+				options[key]
+			], context);
+		}
+
+		return values;
+	},
+
+	/**
+	 * @private
+	 */
+	_resolveDataElementOptions: function(element, index) {
+		var me = this;
+		var chart = me.chart;
+		var datasetOpts = me._config;
+		var custom = element.custom || {};
+		var options = chart.options.elements[me.dataElementType.prototype._type] || {};
+		var elementOptions = me._dataElementOptions;
+		var values = {};
+		var keys, i, ilen, key;
+
+		// Scriptable options
+		var context = {
+			chart: chart,
+			dataIndex: index,
+			dataset: me.getDataset(),
+			datasetIndex: me.index
+		};
+
+		if (helpers$1.isArray(elementOptions)) {
+			for (i = 0, ilen = elementOptions.length; i < ilen; ++i) {
+				key = elementOptions[i];
+				values[key] = resolve([
+					custom[key],
+					datasetOpts[key],
+					options[key]
+				], context, index);
+			}
+		} else {
+			keys = Object.keys(elementOptions);
+			for (i = 0, ilen = keys.length; i < ilen; ++i) {
+				key = keys[i];
+				values[key] = resolve([
+					custom[key],
+					datasetOpts[elementOptions[key]],
+					datasetOpts[key],
+					options[key]
+				], context, index);
+			}
+		}
+
+		return values;
+	},
+
 	removeHoverStyle: function(element) {
 		helpers$1.merge(element._model, element.$previousStyle || {});
 		delete element.$previousStyle;
@@ -3434,6 +3569,8 @@ function drawBorder(ctx, vm, arc) {
 }
 
 var element_arc = core_element.extend({
+	_type: 'arc',
+
 	inLabelRange: function(mouseX) {
 		var vm = this._view;
 
@@ -3568,6 +3705,8 @@ core_defaults._set('global', {
 });
 
 var element_line = core_element.extend({
+	_type: 'line',
+
 	draw: function() {
 		var me = this;
 		var vm = me._view;
@@ -3666,6 +3805,8 @@ function yRange(mouseY) {
 }
 
 var element_point = core_element.extend({
+	_type: 'point',
+
 	inRange: function(mouseX, mouseY) {
 		var vm = this._view;
 		return vm ? ((Math.pow(mouseX - vm.x, 2) + Math.pow(mouseY - vm.y, 2)) < Math.pow(vm.hitRadius + vm.radius, 2)) : false;
@@ -3848,6 +3989,8 @@ function inRange(vm, x, y) {
 }
 
 var element_rectangle = core_element.extend({
+	_type: 'rectangle',
+
 	draw: function() {
 		var ctx = this._chart.ctx;
 		var vm = this._view;
@@ -3936,8 +4079,6 @@ elements.Arc = Arc;
 elements.Line = Line;
 elements.Point = Point;
 elements.Rectangle = Rectangle;
-
-var resolve$1 = helpers$1.options.resolve;
 
 core_defaults._set('bar', {
 	hover: {
@@ -4052,6 +4193,16 @@ var controller_bar = core_datasetController.extend({
 
 	dataElementType: elements.Rectangle,
 
+	/**
+	 * @private
+	 */
+	_dataElementOptions: [
+		'backgroundColor',
+		'borderColor',
+		'borderSkipped',
+		'borderWidth'
+	],
+
 	initialize: function() {
 		var me = this;
 		var meta;
@@ -4079,7 +4230,7 @@ var controller_bar = core_datasetController.extend({
 		var me = this;
 		var meta = me.getMeta();
 		var dataset = me.getDataset();
-		var options = me._resolveElementOptions(rectangle, index);
+		var options = me._resolveDataElementOptions(rectangle, index);
 
 		rectangle._xScale = me.getScaleForId(meta.xAxisID);
 		rectangle._yScale = me.getScaleForId(meta.yAxisID);
@@ -4304,52 +4455,11 @@ var controller_bar = core_datasetController.extend({
 		}
 
 		helpers$1.canvas.unclipArea(chart.ctx);
-	},
-
-	/**
-	 * @private
-	 */
-	_resolveElementOptions: function(rectangle, index) {
-		var me = this;
-		var chart = me.chart;
-		var datasets = chart.data.datasets;
-		var dataset = datasets[me.index];
-		var datasetOpts = me._config;
-		var custom = rectangle.custom || {};
-		var options = chart.options.elements.rectangle;
-		var values = {};
-		var i, ilen, key;
-
-		// Scriptable options
-		var context = {
-			chart: chart,
-			dataIndex: index,
-			dataset: dataset,
-			datasetIndex: me.index
-		};
-
-		var keys = [
-			'backgroundColor',
-			'borderColor',
-			'borderSkipped',
-			'borderWidth'
-		];
-
-		for (i = 0, ilen = keys.length; i < ilen; ++i) {
-			key = keys[i];
-			values[key] = resolve$1([
-				custom[key],
-				datasetOpts[key],
-				options[key]
-			], context, index);
-		}
-
-		return values;
 	}
 });
 
 var valueOrDefault$3 = helpers$1.valueOrDefault;
-var resolve$2 = helpers$1.options.resolve;
+var resolve$1 = helpers$1.options.resolve;
 
 core_defaults._set('bubble', {
 	hover: {
@@ -4391,6 +4501,22 @@ var controller_bubble = core_datasetController.extend({
 	dataElementType: elements.Point,
 
 	/**
+	 * @private
+	 */
+	_dataElementOptions: [
+		'backgroundColor',
+		'borderColor',
+		'borderWidth',
+		'hoverBackgroundColor',
+		'hoverBorderColor',
+		'hoverBorderWidth',
+		'hoverRadius',
+		'hitRadius',
+		'pointStyle',
+		'rotation'
+	],
+
+	/**
 	 * @protected
 	 */
 	update: function(reset) {
@@ -4413,7 +4539,7 @@ var controller_bubble = core_datasetController.extend({
 		var custom = point.custom || {};
 		var xScale = me.getScaleForId(meta.xAxisID);
 		var yScale = me.getScaleForId(meta.yAxisID);
-		var options = me._resolveElementOptions(point, index);
+		var options = me._resolveDataElementOptions(point, index);
 		var data = me.getDataset().data[index];
 		var dsIndex = me.index;
 
@@ -4465,17 +4591,13 @@ var controller_bubble = core_datasetController.extend({
 	/**
 	 * @private
 	 */
-	_resolveElementOptions: function(point, index) {
+	_resolveDataElementOptions: function(point, index) {
 		var me = this;
 		var chart = me.chart;
-		var datasets = chart.data.datasets;
-		var dataset = datasets[me.index];
-		var datasetOpts = me._config;
+		var dataset = me.getDataset();
 		var custom = point.custom || {};
-		var options = chart.options.elements.point;
-		var data = dataset.data[index];
-		var values = {};
-		var i, ilen, key;
+		var data = dataset.data[index] || {};
+		var values = core_datasetController.prototype._resolveDataElementOptions.apply(me, arguments);
 
 		// Scriptable options
 		var context = {
@@ -4485,41 +4607,18 @@ var controller_bubble = core_datasetController.extend({
 			datasetIndex: me.index
 		};
 
-		var keys = [
-			'backgroundColor',
-			'borderColor',
-			'borderWidth',
-			'hoverBackgroundColor',
-			'hoverBorderColor',
-			'hoverBorderWidth',
-			'hoverRadius',
-			'hitRadius',
-			'pointStyle',
-			'rotation'
-		];
-
-		for (i = 0, ilen = keys.length; i < ilen; ++i) {
-			key = keys[i];
-			values[key] = resolve$2([
-				custom[key],
-				datasetOpts[key],
-				options[key]
-			], context, index);
-		}
-
 		// Custom radius resolution
-		values.radius = resolve$2([
+		values.radius = resolve$1([
 			custom.radius,
-			data ? data.r : undefined,
-			dataset.radius,
-			options.radius
+			data.r,
+			me._config.radius,
+			chart.options.elements.point.radius
 		], context, index);
 
 		return values;
 	}
 });
 
-var resolve$3 = helpers$1.options.resolve;
 var valueOrDefault$4 = helpers$1.valueOrDefault;
 
 var PI$1 = Math.PI;
@@ -4564,20 +4663,14 @@ core_defaults._set('doughnut', {
 				if (data.labels.length && data.datasets.length) {
 					return data.labels.map(function(label, i) {
 						var meta = chart.getDatasetMeta(0);
-						var ds = data.datasets[0];
-						var arc = meta.data[i];
-						var custom = arc && arc.custom || {};
-						var arcOpts = chart.options.elements.arc;
-						var fill = resolve$3([custom.backgroundColor, ds.backgroundColor, arcOpts.backgroundColor], undefined, i);
-						var stroke = resolve$3([custom.borderColor, ds.borderColor, arcOpts.borderColor], undefined, i);
-						var bw = resolve$3([custom.borderWidth, ds.borderWidth, arcOpts.borderWidth], undefined, i);
+						var style = meta.controller.getStyle(i);
 
 						return {
 							text: label,
-							fillStyle: fill,
-							strokeStyle: stroke,
-							lineWidth: bw,
-							hidden: isNaN(ds.data[i]) || meta.data[i].hidden,
+							fillStyle: style.backgroundColor,
+							strokeStyle: style.borderColor,
+							lineWidth: style.borderWidth,
+							hidden: isNaN(data.datasets[0].data[i]) || meta.data[i].hidden,
 
 							// Extra data used for toggling the correct item
 							index: i
@@ -4645,6 +4738,19 @@ var controller_doughnut = core_datasetController.extend({
 
 	linkScales: helpers$1.noop,
 
+	/**
+	 * @private
+	 */
+	_dataElementOptions: [
+		'backgroundColor',
+		'borderColor',
+		'borderWidth',
+		'borderAlign',
+		'hoverBackgroundColor',
+		'hoverBorderColor',
+		'hoverBorderWidth',
+	],
+
 	// Get index of the dataset in relation to the visible datasets. This allows determining the inner and outer radius correctly
 	getRingIndex: function(datasetIndex) {
 		var ringIndex = 0;
@@ -4698,7 +4804,7 @@ var controller_doughnut = core_datasetController.extend({
 		}
 
 		for (i = 0, ilen = arcs.length; i < ilen; ++i) {
-			arcs[i]._options = me._resolveElementOptions(arcs[i], i);
+			arcs[i]._options = me._resolveDataElementOptions(arcs[i], i);
 		}
 
 		chart.borderWidth = me.getMaxBorderWidth();
@@ -4831,7 +4937,7 @@ var controller_doughnut = core_datasetController.extend({
 			arc = arcs[i];
 			if (controller) {
 				controller._configure();
-				options = controller._resolveElementOptions(arc, i);
+				options = controller._resolveDataElementOptions(arc, i);
 			} else {
 				options = arc._options;
 			}
@@ -4863,49 +4969,6 @@ var controller_doughnut = core_datasetController.extend({
 		model.backgroundColor = valueOrDefault$4(options.hoverBackgroundColor, getHoverColor(options.backgroundColor));
 		model.borderColor = valueOrDefault$4(options.hoverBorderColor, getHoverColor(options.borderColor));
 		model.borderWidth = valueOrDefault$4(options.hoverBorderWidth, options.borderWidth);
-	},
-
-	/**
-	 * @private
-	 */
-	_resolveElementOptions: function(arc, index) {
-		var me = this;
-		var chart = me.chart;
-		var dataset = me.getDataset();
-		var datasetOpts = me._config;
-		var custom = arc.custom || {};
-		var options = chart.options.elements.arc;
-		var values = {};
-		var i, ilen, key;
-
-		// Scriptable options
-		var context = {
-			chart: chart,
-			dataIndex: index,
-			dataset: dataset,
-			datasetIndex: me.index
-		};
-
-		var keys = [
-			'backgroundColor',
-			'borderColor',
-			'borderWidth',
-			'borderAlign',
-			'hoverBackgroundColor',
-			'hoverBorderColor',
-			'hoverBorderWidth',
-		];
-
-		for (i = 0, ilen = keys.length; i < ilen; ++i) {
-			key = keys[i];
-			values[key] = resolve$3([
-				custom[key],
-				datasetOpts[key],
-				options[key]
-			], context, index);
-		}
-
-		return values;
 	},
 
 	/**
@@ -4993,7 +5056,7 @@ var controller_horizontalBar = controller_bar.extend({
 });
 
 var valueOrDefault$5 = helpers$1.valueOrDefault;
-var resolve$4 = helpers$1.options.resolve;
+var resolve$2 = helpers$1.options.resolve;
 var isPointInArea = helpers$1.canvas._isPointInArea;
 
 core_defaults._set('line', {
@@ -5022,6 +5085,38 @@ var controller_line = core_datasetController.extend({
 
 	dataElementType: elements.Point,
 
+	/**
+	 * @private
+	 */
+	_datasetElementOptions: [
+		'backgroundColor',
+		'borderCapStyle',
+		'borderColor',
+		'borderDash',
+		'borderDashOffset',
+		'borderJoinStyle',
+		'borderWidth',
+		'cubicInterpolationMode',
+		'fill'
+	],
+
+	/**
+	 * @private
+	 */
+	_dataElementOptions: {
+		backgroundColor: 'pointBackgroundColor',
+		borderColor: 'pointBorderColor',
+		borderWidth: 'pointBorderWidth',
+		hitRadius: 'pointHitRadius',
+		hoverBackgroundColor: 'pointHoverBackgroundColor',
+		hoverBorderColor: 'pointHoverBorderColor',
+		hoverBorderWidth: 'pointHoverBorderWidth',
+		hoverRadius: 'pointHoverRadius',
+		pointStyle: 'pointStyle',
+		radius: 'pointRadius',
+		rotation: 'pointRotation'
+	},
+
 	update: function(reset) {
 		var me = this;
 		var meta = me.getMeta();
@@ -5048,7 +5143,7 @@ var controller_line = core_datasetController.extend({
 			// Data
 			line._children = points;
 			// Model
-			line._model = me._resolveLineOptions(line);
+			line._model = me._resolveDatasetElementOptions(line);
 
 			line.pivot();
 		}
@@ -5080,7 +5175,7 @@ var controller_line = core_datasetController.extend({
 		var lineModel = meta.dataset._model;
 		var x, y;
 
-		var options = me._resolvePointOptions(point, index);
+		var options = me._resolveDataElementOptions(point, index);
 
 		x = xScale.getPixelForValue(typeof value === 'object' ? value : NaN, index, datasetIndex);
 		y = reset ? yScale.getBasePixel() : me.calculatePointY(value, index, datasetIndex);
@@ -5114,101 +5209,20 @@ var controller_line = core_datasetController.extend({
 	/**
 	 * @private
 	 */
-	_resolvePointOptions: function(element, index) {
+	_resolveDatasetElementOptions: function(element) {
 		var me = this;
-		var chart = me.chart;
-		var dataset = chart.data.datasets[me.index];
 		var datasetOpts = me._config;
 		var custom = element.custom || {};
-		var options = chart.options.elements.point;
-		var values = {};
-		var i, ilen, key;
-
-		// Scriptable options
-		var context = {
-			chart: chart,
-			dataIndex: index,
-			dataset: dataset,
-			datasetIndex: me.index
-		};
-
-		var ELEMENT_OPTIONS = {
-			backgroundColor: 'pointBackgroundColor',
-			borderColor: 'pointBorderColor',
-			borderWidth: 'pointBorderWidth',
-			hitRadius: 'pointHitRadius',
-			hoverBackgroundColor: 'pointHoverBackgroundColor',
-			hoverBorderColor: 'pointHoverBorderColor',
-			hoverBorderWidth: 'pointHoverBorderWidth',
-			hoverRadius: 'pointHoverRadius',
-			pointStyle: 'pointStyle',
-			radius: 'pointRadius',
-			rotation: 'pointRotation'
-		};
-		var keys = Object.keys(ELEMENT_OPTIONS);
-
-		for (i = 0, ilen = keys.length; i < ilen; ++i) {
-			key = keys[i];
-			values[key] = resolve$4([
-				custom[key],
-				datasetOpts[ELEMENT_OPTIONS[key]],
-				datasetOpts[key],
-				options[key]
-			], context, index);
-		}
-
-		return values;
-	},
-
-	/**
-	 * @private
-	 */
-	_resolveLineOptions: function(element) {
-		var me = this;
-		var chart = me.chart;
-		var datasetIndex = me.index;
-		var dataset = chart.data.datasets[datasetIndex];
-		var datasetOpts = me._config;
-		var custom = element.custom || {};
-		var options = chart.options;
-		var elementOptions = options.elements.line;
-		var values = {};
-		var i, ilen, key;
-
-		// Scriptable options
-		var context = {
-			chart: chart,
-			dataset: dataset,
-			datasetIndex: datasetIndex
-		};
-
-		var keys = [
-			'backgroundColor',
-			'borderCapStyle',
-			'borderColor',
-			'borderDash',
-			'borderDashOffset',
-			'borderJoinStyle',
-			'borderWidth',
-			'cubicInterpolationMode',
-			'fill'
-		];
-
-		for (i = 0, ilen = keys.length; i < ilen; ++i) {
-			key = keys[i];
-			values[key] = resolve$4([
-				custom[key],
-				datasetOpts[key],
-				elementOptions[key]
-			], context);
-		}
+		var options = me.chart.options;
+		var lineOptions = options.elements.line;
+		var values = core_datasetController.prototype._resolveDatasetElementOptions.apply(me, arguments);
 
 		// The default behavior of lines is to break at null values, according
 		// to https://github.com/chartjs/Chart.js/issues/2435#issuecomment-216718158
 		// This option gives lines the ability to span gaps
 		values.spanGaps = valueOrDefault$5(datasetOpts.spanGaps, options.spanGaps);
-		values.tension = valueOrDefault$5(datasetOpts.lineTension, elementOptions.tension);
-		values.steppedLine = resolve$4([custom.steppedLine, datasetOpts.steppedLine, elementOptions.stepped]);
+		values.tension = valueOrDefault$5(datasetOpts.lineTension, lineOptions.tension);
+		values.steppedLine = resolve$2([custom.steppedLine, datasetOpts.steppedLine, lineOptions.stepped]);
 
 		return values;
 	},
@@ -5353,7 +5367,7 @@ var controller_line = core_datasetController.extend({
 	},
 });
 
-var resolve$5 = helpers$1.options.resolve;
+var resolve$3 = helpers$1.options.resolve;
 
 core_defaults._set('polarArea', {
 	scale: {
@@ -5407,20 +5421,14 @@ core_defaults._set('polarArea', {
 				if (data.labels.length && data.datasets.length) {
 					return data.labels.map(function(label, i) {
 						var meta = chart.getDatasetMeta(0);
-						var ds = data.datasets[0];
-						var arc = meta.data[i];
-						var custom = arc.custom || {};
-						var arcOpts = chart.options.elements.arc;
-						var fill = resolve$5([custom.backgroundColor, ds.backgroundColor, arcOpts.backgroundColor], undefined, i);
-						var stroke = resolve$5([custom.borderColor, ds.borderColor, arcOpts.borderColor], undefined, i);
-						var bw = resolve$5([custom.borderWidth, ds.borderWidth, arcOpts.borderWidth], undefined, i);
+						var style = meta.controller.getStyle(i);
 
 						return {
 							text: label,
-							fillStyle: fill,
-							strokeStyle: stroke,
-							lineWidth: bw,
-							hidden: isNaN(ds.data[i]) || meta.data[i].hidden,
+							fillStyle: style.backgroundColor,
+							strokeStyle: style.borderColor,
+							lineWidth: style.borderWidth,
+							hidden: isNaN(data.datasets[0].data[i]) || meta.data[i].hidden,
 
 							// Extra data used for toggling the correct item
 							index: i
@@ -5464,6 +5472,19 @@ var controller_polarArea = core_datasetController.extend({
 
 	linkScales: helpers$1.noop,
 
+	/**
+	 * @private
+	 */
+	_dataElementOptions: [
+		'backgroundColor',
+		'borderColor',
+		'borderWidth',
+		'borderAlign',
+		'hoverBackgroundColor',
+		'hoverBorderColor',
+		'hoverBorderWidth',
+	],
+
 	update: function(reset) {
 		var me = this;
 		var dataset = me.getDataset();
@@ -5486,7 +5507,7 @@ var controller_polarArea = core_datasetController.extend({
 		}
 
 		for (i = 0, ilen = arcs.length; i < ilen; ++i) {
-			arcs[i]._options = me._resolveElementOptions(arcs[i], i);
+			arcs[i]._options = me._resolveDataElementOptions(arcs[i], i);
 			me.updateElement(arcs[i], i, reset);
 		}
 	},
@@ -5592,49 +5613,6 @@ var controller_polarArea = core_datasetController.extend({
 	/**
 	 * @private
 	 */
-	_resolveElementOptions: function(arc, index) {
-		var me = this;
-		var chart = me.chart;
-		var dataset = me.getDataset();
-		var datasetOpts = me._config;
-		var custom = arc.custom || {};
-		var options = chart.options.elements.arc;
-		var values = {};
-		var i, ilen, key;
-
-		// Scriptable options
-		var context = {
-			chart: chart,
-			dataIndex: index,
-			dataset: dataset,
-			datasetIndex: me.index
-		};
-
-		var keys = [
-			'backgroundColor',
-			'borderColor',
-			'borderWidth',
-			'borderAlign',
-			'hoverBackgroundColor',
-			'hoverBorderColor',
-			'hoverBorderWidth',
-		];
-
-		for (i = 0, ilen = keys.length; i < ilen; ++i) {
-			key = keys[i];
-			values[key] = resolve$5([
-				custom[key],
-				datasetOpts[key],
-				options[key]
-			], context, index);
-		}
-
-		return values;
-	},
-
-	/**
-	 * @private
-	 */
 	_computeAngle: function(index) {
 		var me = this;
 		var count = this.getMeta().count;
@@ -5653,7 +5631,7 @@ var controller_polarArea = core_datasetController.extend({
 			datasetIndex: me.index
 		};
 
-		return resolve$5([
+		return resolve$3([
 			me.chart.options.elements.arc.angle,
 			(2 * Math.PI) / count
 		], context, index);
@@ -5669,7 +5647,6 @@ core_defaults._set('pie', {
 var controller_pie = controller_doughnut;
 
 var valueOrDefault$6 = helpers$1.valueOrDefault;
-var resolve$6 = helpers$1.options.resolve;
 
 core_defaults._set('radar', {
 	scale: {
@@ -5696,6 +5673,37 @@ var controller_radar = core_datasetController.extend({
 
 	linkScales: helpers$1.noop,
 
+	/**
+	 * @private
+	 */
+	_datasetElementOptions: [
+		'backgroundColor',
+		'borderWidth',
+		'borderColor',
+		'borderCapStyle',
+		'borderDash',
+		'borderDashOffset',
+		'borderJoinStyle',
+		'fill'
+	],
+
+	/**
+	 * @private
+	 */
+	_dataElementOptions: {
+		backgroundColor: 'pointBackgroundColor',
+		borderColor: 'pointBorderColor',
+		borderWidth: 'pointBorderWidth',
+		hitRadius: 'pointHitRadius',
+		hoverBackgroundColor: 'pointHoverBackgroundColor',
+		hoverBorderColor: 'pointHoverBorderColor',
+		hoverBorderWidth: 'pointHoverBorderWidth',
+		hoverRadius: 'pointHoverRadius',
+		pointStyle: 'pointStyle',
+		radius: 'pointRadius',
+		rotation: 'pointRotation'
+	},
+
 	update: function(reset) {
 		var me = this;
 		var meta = me.getMeta();
@@ -5717,7 +5725,7 @@ var controller_radar = core_datasetController.extend({
 		line._children = points;
 		line._loop = true;
 		// Model
-		line._model = me._resolveLineOptions(line);
+		line._model = me._resolveDatasetElementOptions(line);
 
 		line.pivot();
 
@@ -5741,7 +5749,7 @@ var controller_radar = core_datasetController.extend({
 		var dataset = me.getDataset();
 		var scale = me.chart.scale;
 		var pointPosition = scale.getPointPositionForValue(index, dataset.data[index]);
-		var options = me._resolvePointOptions(point, index);
+		var options = me._resolveDataElementOptions(point, index);
 		var lineModel = me.getMeta().dataset._model;
 		var x = reset ? scale.xCenter : pointPosition.x;
 		var y = reset ? scale.yCenter : pointPosition.y;
@@ -5774,86 +5782,11 @@ var controller_radar = core_datasetController.extend({
 	/**
 	 * @private
 	 */
-	_resolvePointOptions: function(element, index) {
+	_resolveDatasetElementOptions: function() {
 		var me = this;
-		var chart = me.chart;
-		var dataset = chart.data.datasets[me.index];
-		var datasetOpts = me._config;
-		var custom = element.custom || {};
-		var options = chart.options.elements.point;
-		var values = {};
-		var i, ilen, key;
+		var values = core_datasetController.prototype._resolveDatasetElementOptions.apply(me, arguments);
 
-		// Scriptable options
-		var context = {
-			chart: chart,
-			dataIndex: index,
-			dataset: dataset,
-			datasetIndex: me.index
-		};
-
-		var ELEMENT_OPTIONS = {
-			backgroundColor: 'pointBackgroundColor',
-			borderColor: 'pointBorderColor',
-			borderWidth: 'pointBorderWidth',
-			hitRadius: 'pointHitRadius',
-			hoverBackgroundColor: 'pointHoverBackgroundColor',
-			hoverBorderColor: 'pointHoverBorderColor',
-			hoverBorderWidth: 'pointHoverBorderWidth',
-			hoverRadius: 'pointHoverRadius',
-			pointStyle: 'pointStyle',
-			radius: 'pointRadius',
-			rotation: 'pointRotation'
-		};
-		var keys = Object.keys(ELEMENT_OPTIONS);
-
-		for (i = 0, ilen = keys.length; i < ilen; ++i) {
-			key = keys[i];
-			values[key] = resolve$6([
-				custom[key],
-				datasetOpts[ELEMENT_OPTIONS[key]],
-				datasetOpts[key],
-				options[key]
-			], context, index);
-		}
-
-		return values;
-	},
-
-	/**
-	 * @private
-	 */
-	_resolveLineOptions: function(element) {
-		var me = this;
-		var chart = me.chart;
-		var dataset = chart.data.datasets[me.index];
-		var datasetOpts = me._config;
-		var custom = element.custom || {};
-		var options = chart.options.elements.line;
-		var values = {};
-		var i, ilen, key;
-
-		var keys = [
-			'backgroundColor',
-			'borderWidth',
-			'borderColor',
-			'borderCapStyle',
-			'borderDash',
-			'borderDashOffset',
-			'borderJoinStyle',
-			'fill'
-		];
-
-		for (i = 0, ilen = keys.length; i < ilen; ++i) {
-			key = keys[i];
-			values[key] = resolve$6([
-				custom[key],
-				datasetOpts[key],
-				options[key]
-			]);
-		}
-
-		values.tension = valueOrDefault$6(dataset.lineTension, options.tension);
+		values.tension = valueOrDefault$6(me._config.lineTension, me.chart.options.elements.line.tension);
 
 		return values;
 	},
@@ -12212,7 +12145,7 @@ scale_logarithmic._defaults = _defaults$2;
 
 var valueOrDefault$b = helpers$1.valueOrDefault;
 var valueAtIndexOrDefault$1 = helpers$1.valueAtIndexOrDefault;
-var resolve$7 = helpers$1.options.resolve;
+var resolve$4 = helpers$1.options.resolve;
 
 var defaultConfig$3 = {
 	display: true,
@@ -12440,8 +12373,8 @@ function drawPointLabels(scale) {
 	ctx.lineWidth = lineWidth;
 	ctx.strokeStyle = lineColor;
 	if (ctx.setLineDash) {
-		ctx.setLineDash(resolve$7([angleLineOpts.borderDash, gridLineOpts.borderDash, []]));
-		ctx.lineDashOffset = resolve$7([angleLineOpts.borderDashOffset, gridLineOpts.borderDashOffset, 0.0]);
+		ctx.setLineDash(resolve$4([angleLineOpts.borderDash, gridLineOpts.borderDash, []]));
+		ctx.lineDashOffset = resolve$4([angleLineOpts.borderDashOffset, gridLineOpts.borderDashOffset, 0.0]);
 	}
 
 	var outerDistance = scale.getDistanceFromCenterForValue(opts.ticks.reverse ? scale.min : scale.max);
@@ -13956,18 +13889,25 @@ core_defaults._set('global', {
 			// lineWidth :
 			generateLabels: function(chart) {
 				var data = chart.data;
+				var options = chart.options.legend || {};
+				var usePointStyle = options.labels && options.labels.usePointStyle;
+
 				return helpers$1.isArray(data.datasets) ? data.datasets.map(function(dataset, i) {
+					var meta = chart.getDatasetMeta(i);
+					var style = meta.controller.getStyle(usePointStyle ? 0 : undefined);
+
 					return {
 						text: dataset.label,
-						fillStyle: (!helpers$1.isArray(dataset.backgroundColor) ? dataset.backgroundColor : dataset.backgroundColor[0]),
+						fillStyle: style.backgroundColor,
 						hidden: !chart.isDatasetVisible(i),
-						lineCap: dataset.borderCapStyle,
-						lineDash: dataset.borderDash,
-						lineDashOffset: dataset.borderDashOffset,
-						lineJoin: dataset.borderJoinStyle,
-						lineWidth: dataset.borderWidth,
-						strokeStyle: dataset.borderColor,
-						pointStyle: dataset.pointStyle,
+						lineCap: style.borderCapStyle,
+						lineDash: style.borderDash,
+						lineDashOffset: style.borderDashOffset,
+						lineJoin: style.borderJoinStyle,
+						lineWidth: style.borderWidth,
+						strokeStyle: style.borderColor,
+						pointStyle: style.pointStyle,
+						rotation: style.rotation,
 
 						// Below is extra data used for toggling the datasets
 						datasetIndex: i
@@ -14284,7 +14224,7 @@ var Legend = core_element.extend({
 					ctx.setLineDash(valueOrDefault$d(legendItem.lineDash, lineDefault.borderDash));
 				}
 
-				if (opts.labels && opts.labels.usePointStyle) {
+				if (labelOpts && labelOpts.usePointStyle) {
 					// Recalculate x and y for drawPoint() because its expecting
 					// x and y to be center of figure (instead of top left)
 					var radius = boxWidth * Math.SQRT2 / 2;
@@ -14292,13 +14232,13 @@ var Legend = core_element.extend({
 					var centerY = y + fontSize / 2;
 
 					// Draw pointStyle as legend symbol
-					helpers$1.canvas.drawPoint(ctx, legendItem.pointStyle, radius, centerX, centerY);
+					helpers$1.canvas.drawPoint(ctx, legendItem.pointStyle, radius, centerX, centerY, legendItem.rotation);
 				} else {
 					// Draw box as legend symbol
+					ctx.fillRect(x, y, boxWidth, fontSize);
 					if (lineWidth !== 0) {
 						ctx.strokeRect(x, y, boxWidth, fontSize);
 					}
-					ctx.fillRect(x, y, boxWidth, fontSize);
 				}
 
 				ctx.restore();
