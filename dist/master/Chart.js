@@ -13120,7 +13120,7 @@ function determineUnitForFormatting(scale, ticks, minUnit, min, max) {
 
 	for (i = ilen - 1; i >= UNITS.indexOf(minUnit); i--) {
 		unit = UNITS[i];
-		if (INTERVALS[unit].common && scale._adapter.diff(max, min, unit) >= ticks.length) {
+		if (INTERVALS[unit].common && scale._adapter.diff(max, min, unit) >= ticks.length - 1) {
 			return unit;
 		}
 	}
@@ -13665,7 +13665,7 @@ core_adapters._date.override(typeof moment === 'function' ? {
 	},
 
 	diff: function(max, min, unit) {
-		return moment.duration(moment(max).diff(moment(min))).as(unit);
+		return moment(max).diff(moment(min), unit);
 	},
 
 	startOf: function(time, unit, weekday) {
