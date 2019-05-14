@@ -13492,10 +13492,10 @@ var scale_time = core_scale.extend({
 		var minorFormat = formats[me._unit];
 		var majorUnit = me._majorUnit;
 		var majorFormat = formats[majorUnit];
-		var majorTime = +adapter.startOf(time, majorUnit);
+		var tick = ticks[index];
 		var tickOpts = options.ticks;
 		var majorTickOpts = tickOpts.major;
-		var major = majorTickOpts.enabled && majorUnit && majorFormat && time === majorTime;
+		var major = majorTickOpts.enabled && majorUnit && majorFormat && tick && tick.major;
 		var label = adapter.format(time, format ? format : major ? majorFormat : minorFormat);
 		var nestedTickOpts = major ? majorTickOpts : tickOpts.minor;
 		var formatter = helpers$1.options.resolve([
@@ -13605,7 +13605,7 @@ var scale_time = core_scale.extend({
 
 		// pick the longest format (milliseconds) for guestimation
 		var format = displayFormats[timeOpts.unit] || displayFormats.millisecond;
-		var exampleLabel = me.tickFormatFunction(exampleTime, 0, [], format);
+		var exampleLabel = me.tickFormatFunction(exampleTime, 0, ticksFromTimestamps(me, [exampleTime], me._majorUnit), format);
 		var size = me._getLabelSize(exampleLabel);
 
 		// Using margins instead of padding because padding is not calculated
