@@ -12422,7 +12422,7 @@ function fitWithPointLabels(scale) {
 	var valueCount = getValueCount(scale);
 	for (i = 0; i < valueCount; i++) {
 		pointPosition = scale.getPointPosition(i, scale.drawingArea + 5);
-		textSize = measureLabelSize(scale.ctx, plFont.lineHeight, scale.pointLabels[i] || '');
+		textSize = measureLabelSize(scale.ctx, plFont.lineHeight, scale.pointLabels[i]);
 		scale._pointLabelSizes[i] = textSize;
 
 		// Add quarter circle to make degree 0 mean top of circle
@@ -12513,7 +12513,7 @@ function drawPointLabels(scale) {
 		var angle = helpers$1.toDegrees(angleRadians);
 		ctx.textAlign = getTextAlignForAngle(angle);
 		adjustPointPositionForLabelHeight(angle, scale._pointLabelSizes[i], pointLabelPosition);
-		fillText(ctx, scale.pointLabels[i] || '', pointLabelPosition, plFont.lineHeight);
+		fillText(ctx, scale.pointLabels[i], pointLabelPosition, plFont.lineHeight);
 	}
 	ctx.restore();
 }
@@ -12614,7 +12614,10 @@ var scale_radialLinear = scale_linearbase.extend({
 		scale_linearbase.prototype.convertTicksToLabels.call(me);
 
 		// Point labels
-		me.pointLabels = me.chart.data.labels.map(me.options.pointLabels.callback, me);
+		me.pointLabels = me.chart.data.labels.map(function() {
+			var label = helpers$1.callback(me.options.pointLabels.callback, arguments, me);
+			return label || label === 0 ? label : '';
+		});
 	},
 
 	getLabelForIndex: function(index, datasetIndex) {
