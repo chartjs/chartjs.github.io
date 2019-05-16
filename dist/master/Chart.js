@@ -12325,11 +12325,6 @@ var defaultConfig$3 = {
 	}
 };
 
-function getValueCount(scale) {
-	var opts = scale.options;
-	return opts.angleLines.display || opts.pointLabels.display ? scale.chart.data.labels.length : 0;
-}
-
 function getTickBackdropHeight(opts) {
 	var tickOpts = opts.ticks;
 
@@ -12419,7 +12414,7 @@ function fitWithPointLabels(scale) {
 	scale.ctx.font = plFont.string;
 	scale._pointLabelSizes = [];
 
-	var valueCount = getValueCount(scale);
+	var valueCount = scale.chart.data.labels.length;
 	for (i = 0; i < valueCount; i++) {
 		pointPosition = scale.getPointPosition(i, scale.drawingArea + 5);
 		textSize = measureLabelSize(scale.ctx, plFont.lineHeight, scale.pointLabels[i]);
@@ -12500,7 +12495,7 @@ function drawPointLabels(scale) {
 	ctx.font = plFont.string;
 	ctx.textBaseline = 'middle';
 
-	for (var i = getValueCount(scale) - 1; i >= 0; i--) {
+	for (var i = scale.chart.data.labels.length - 1; i >= 0; i--) {
 		// Extra pixels out for some label spacing
 		var extra = (i === 0 ? tickBackdropHeight / 2 : 0);
 		var pointLabelPosition = scale.getPointPosition(i, outerDistance + extra + 5);
@@ -12521,7 +12516,7 @@ function drawPointLabels(scale) {
 function drawRadiusLine(scale, gridLineOpts, radius, index) {
 	var ctx = scale.ctx;
 	var circular = gridLineOpts.circular;
-	var valueCount = getValueCount(scale);
+	var valueCount = scale.chart.data.labels.length;
 	var lineColor = valueAtIndexOrDefault$1(gridLineOpts.color, index - 1);
 	var lineWidth = valueAtIndexOrDefault$1(gridLineOpts.lineWidth, index - 1);
 	var pointPosition;
@@ -12669,8 +12664,9 @@ var scale_radialLinear = scale_linearbase.extend({
 	},
 
 	getIndexAngle: function(index) {
-		var angleMultiplier = 360 / getValueCount(this);
-		var options = this.chart.options || {};
+		var chart = this.chart;
+		var angleMultiplier = 360 / chart.data.labels.length;
+		var options = chart.options || {};
 		var startAngle = options.startAngle || 0;
 
 		// Start from the top instead of right, so remove a quarter of the circle
@@ -12754,7 +12750,7 @@ var scale_radialLinear = scale_linearbase.extend({
 				ctx.lineDashOffset = resolve$4([angleLineOpts.borderDashOffset, gridLineOpts.borderDashOffset, 0.0]);
 			}
 
-			for (i = getValueCount(me) - 1; i >= 0; i--) {
+			for (i = me.chart.data.labels.length - 1; i >= 0; i--) {
 				offset = me.getDistanceFromCenterForValue(opts.ticks.reverse ? me.min : me.max);
 				position = me.getPointPosition(i, offset);
 				ctx.beginPath();
