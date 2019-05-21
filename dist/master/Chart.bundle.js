@@ -12749,8 +12749,8 @@ var scale_radialLinear = scale_linearbase.extend({
 	getDistanceFromCenterForValue: function(value) {
 		var me = this;
 
-		if (value === null) {
-			return 0; // null always in center
+		if (helpers$1.isNullOrUndef(value)) {
+			return NaN;
 		}
 
 		// Take into account half font size + the yPadding of the top value
