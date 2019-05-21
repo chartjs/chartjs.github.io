@@ -10466,6 +10466,14 @@ var Scale = core_element.extend({
 		return this._ticks;
 	},
 
+	/**
+	* @private
+	*/
+	_getLabels: function() {
+		var data = this.chart.data;
+		return this.options.labels || (this.isHorizontal() ? data.xLabels : data.yLabels) || data.labels;
+	},
+
 	// These methods are ordered by lifecyle. Utilities then follow.
 	// Any function defined here is inherited by all scale types.
 	// Any function can be extended by the scale type
@@ -11448,19 +11456,9 @@ var defaultConfig = {
 };
 
 var scale_category = core_scale.extend({
-	/**
-	* Internal function to get the correct labels. If data.xLabels or data.yLabels are defined, use those
-	* else fall back to data.labels
-	* @private
-	*/
-	getLabels: function() {
-		var data = this.chart.data;
-		return this.options.labels || (this.isHorizontal() ? data.xLabels : data.yLabels) || data.labels;
-	},
-
 	determineDataLimits: function() {
 		var me = this;
-		var labels = me.getLabels();
+		var labels = me._getLabels();
 		me.minIndex = 0;
 		me.maxIndex = labels.length - 1;
 		var findIndex;
@@ -11483,7 +11481,7 @@ var scale_category = core_scale.extend({
 
 	buildTicks: function() {
 		var me = this;
-		var labels = me.getLabels();
+		var labels = me._getLabels();
 		// If we are viewing some subset of labels, slice the original array
 		me.ticks = (me.minIndex === 0 && me.maxIndex === labels.length - 1) ? labels : labels.slice(me.minIndex, me.maxIndex + 1);
 	},
@@ -11513,7 +11511,7 @@ var scale_category = core_scale.extend({
 			valueCategory = me.isHorizontal() ? value.x : value.y;
 		}
 		if (valueCategory !== undefined || (value !== undefined && isNaN(index))) {
-			var labels = me.getLabels();
+			var labels = me._getLabels();
 			value = valueCategory || value;
 			var idx = labels.indexOf(value);
 			index = idx !== -1 ? idx : index;
@@ -13401,7 +13399,7 @@ var scale_time = core_scale.extend({
 		var datasets = [];
 		var labels = [];
 		var i, j, ilen, jlen, data, timestamp;
-		var dataLabels = chart.data.labels || [];
+		var dataLabels = me._getLabels();
 
 		// Convert labels to timestamps
 		for (i = 0, ilen = dataLabels.length; i < ilen; ++i) {
