@@ -5148,8 +5148,8 @@ var controller_line = core_datasetController.extend({
 		var line = meta.dataset;
 		var points = meta.data || [];
 		var options = me.chart.options;
-		var dataset = me.getDataset();
-		var showLine = me._showLine = valueOrDefault$5(me._config.showLine, options.showLines);
+		var config = me._config;
+		var showLine = me._showLine = valueOrDefault$5(config.showLine, options.showLines);
 		var i, ilen;
 
 		me._xScale = me.getScaleForId(meta.xAxisID);
@@ -5158,8 +5158,8 @@ var controller_line = core_datasetController.extend({
 		// Update Line
 		if (showLine) {
 			// Compatibility: If the properties are defined with only the old name, use those values
-			if ((dataset.tension !== undefined) && (dataset.lineTension === undefined)) {
-				dataset.lineTension = dataset.tension;
+			if (config.tension !== undefined && config.lineTension === undefined) {
+				config.lineTension = config.tension;
 			}
 
 			// Utility
@@ -5236,7 +5236,7 @@ var controller_line = core_datasetController.extend({
 	 */
 	_resolveDatasetElementOptions: function(element) {
 		var me = this;
-		var datasetOpts = me._config;
+		var config = me._config;
 		var custom = element.custom || {};
 		var options = me.chart.options;
 		var lineOptions = options.elements.line;
@@ -5245,9 +5245,9 @@ var controller_line = core_datasetController.extend({
 		// The default behavior of lines is to break at null values, according
 		// to https://github.com/chartjs/Chart.js/issues/2435#issuecomment-216718158
 		// This option gives lines the ability to span gaps
-		values.spanGaps = valueOrDefault$5(datasetOpts.spanGaps, options.spanGaps);
-		values.tension = valueOrDefault$5(datasetOpts.lineTension, lineOptions.tension);
-		values.steppedLine = resolve$2([custom.steppedLine, datasetOpts.steppedLine, lineOptions.stepped]);
+		values.spanGaps = valueOrDefault$5(config.spanGaps, options.spanGaps);
+		values.tension = valueOrDefault$5(config.lineTension, lineOptions.tension);
+		values.steppedLine = resolve$2([custom.steppedLine, config.steppedLine, lineOptions.stepped]);
 
 		return values;
 	},
@@ -5735,12 +5735,12 @@ var controller_radar = core_datasetController.extend({
 		var line = meta.dataset;
 		var points = meta.data || [];
 		var scale = me.chart.scale;
-		var dataset = me.getDataset();
+		var config = me._config;
 		var i, ilen;
 
 		// Compatibility: If the properties are defined with only the old name, use those values
-		if ((dataset.tension !== undefined) && (dataset.lineTension === undefined)) {
-			dataset.lineTension = dataset.tension;
+		if (config.tension !== undefined && config.lineTension === undefined) {
+			config.lineTension = config.tension;
 		}
 
 		// Utility
