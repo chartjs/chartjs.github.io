@@ -8508,6 +8508,19 @@ function updateConfig(chart) {
 	chart.tooltip.initialize();
 }
 
+function nextAvailableScaleId(axesOpts, prefix, index) {
+	var id;
+	var hasId = function(obj) {
+		return obj.id === id;
+	};
+
+	do {
+		id = prefix + index++;
+	} while (helpers$1.findIndex(axesOpts, hasId) >= 0);
+
+	return id;
+}
+
 function positionIsHorizontal(position) {
 	return position === 'top' || position === 'bottom';
 }
@@ -8666,11 +8679,15 @@ helpers$1.extend(Chart.prototype, /** @lends Chart */ {
 		var scaleOptions = options.scale;
 
 		helpers$1.each(scalesOptions.xAxes, function(xAxisOptions, index) {
-			xAxisOptions.id = xAxisOptions.id || ('x-axis-' + index);
+			if (!xAxisOptions.id) {
+				xAxisOptions.id = nextAvailableScaleId(scalesOptions.xAxes, 'x-axis-', index);
+			}
 		});
 
 		helpers$1.each(scalesOptions.yAxes, function(yAxisOptions, index) {
-			yAxisOptions.id = yAxisOptions.id || ('y-axis-' + index);
+			if (!yAxisOptions.id) {
+				yAxisOptions.id = nextAvailableScaleId(scalesOptions.yAxes, 'y-axis-', index);
+			}
 		});
 
 		if (scaleOptions) {
