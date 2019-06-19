@@ -3722,17 +3722,16 @@ var element_line = core_element.extend({
 		var globalOptionLineElements = globalDefaults.elements.line;
 		var lastDrawnIndex = -1;
 		var closePath = me._loop;
-		var index, current, previous, currentVM;
+		var index, previous, currentVM;
 
 		if (me._loop && points.length) {
-			if (!spanGaps) {
-				for (index = points.length - 1; index >= 0; --index) {
-					// If the line has an open path, shift the point array
-					if (points[index]._view.skip) {
-						points = points.slice(index).concat(points.slice(0, index));
-						closePath = false;
-						break;
-					}
+			for (index = 0; index < points.length; ++index) {
+				previous = helpers$1.previousItem(points, index);
+				// If the line has an open path, shift the point array
+				if (!points[index]._view.skip && previous._view.skip) {
+					points = points.slice(index).concat(points.slice(0, index));
+					closePath = spanGaps;
+					break;
 				}
 			}
 			// If the line has a close path, add the first point again
@@ -3761,9 +3760,8 @@ var element_line = core_element.extend({
 		lastDrawnIndex = -1;
 
 		for (index = 0; index < points.length; ++index) {
-			current = points[index];
 			previous = helpers$1.previousItem(points, index);
-			currentVM = current._view;
+			currentVM = points[index]._view;
 
 			// First point moves to it's starting position no matter what
 			if (index === 0) {
@@ -3780,7 +3778,7 @@ var element_line = core_element.extend({
 						ctx.moveTo(currentVM.x, currentVM.y);
 					} else {
 						// Line to next point
-						helpers$1.canvas.lineTo(ctx, previous._view, current._view);
+						helpers$1.canvas.lineTo(ctx, previous._view, currentVM);
 					}
 					lastDrawnIndex = index;
 				}
@@ -5814,9 +5812,12 @@ var controller_radar = core_datasetController.extend({
 	 */
 	_resolveDatasetElementOptions: function() {
 		var me = this;
+		var config = me._config;
+		var options = me.chart.options;
 		var values = core_datasetController.prototype._resolveDatasetElementOptions.apply(me, arguments);
 
-		values.tension = valueOrDefault$6(me._config.lineTension, me.chart.options.elements.line.tension);
+		values.spanGaps = valueOrDefault$6(config.spanGaps, options.spanGaps);
+		values.tension = valueOrDefault$6(config.lineTension, options.elements.line.tension);
 
 		return values;
 	},
@@ -5827,6 +5828,13 @@ var controller_radar = core_datasetController.extend({
 		var area = me.chart.chartArea;
 		var points = meta.data || [];
 		var i, ilen, model, controlPoints;
+
+		// Only consider points that are drawn in case the spanGaps option is used
+		if (meta.dataset._model.spanGaps) {
+			points = points.filter(function(pt) {
+				return !pt._model.skip;
+			});
+		}
 
 		function capControlPoint(pt, min, max) {
 			return Math.max(Math.min(pt, max), min);
@@ -18692,16 +18700,21 @@ function doFill(ctx, points, mapper, view, color, loop) {
 	var curve1 = [];
 	var len0 = 0;
 	var len1 = 0;
-	var i, ilen, index, p0, p1, d0, d1;
+	var i, ilen, index, p0, p1, d0, d1, loopOffset;
 
 	ctx.beginPath();
 
-	for (i = 0, ilen = (count + !!loop); i < ilen; ++i) {
+	for (i = 0, ilen = count; i < ilen; ++i) {
 		index = i % count;
 		p0 = points[index]._view;
 		p1 = mapper(p0, index, view);
 		d0 = isDrawable(p0);
 		d1 = isDrawable(p1);
+
+		if (loop && loopOffset === undefined && d0) {
+			loopOffset = i + 1;
+			ilen = count + loopOffset;
+		}
 
 		if (d0 && d1) {
 			len0 = curve0.push(p0);
