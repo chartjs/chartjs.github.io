@@ -2689,13 +2689,48 @@ var helpers_options = {
 	}
 };
 
+/**
+ * @alias Chart.helpers.math
+ * @namespace
+ */
+var exports$2 = {
+	/**
+	 * Returns an array of factors sorted from 1 to sqrt(value)
+	 * @private
+	 */
+	_factorize: function(value) {
+		var result = [];
+		var sqrt = Math.sqrt(value);
+		var i;
+
+		for (i = 1; i < sqrt; i++) {
+			if (value % i === 0) {
+				result.push(i);
+				result.push(value / i);
+			}
+		}
+		if (sqrt === (sqrt | 0)) { // if value is a square number
+			result.push(sqrt);
+		}
+
+		result.sort(function(a, b) {
+			return a - b;
+		}).pop();
+		return result;
+	}
+};
+
+var helpers_math = exports$2;
+
 var helpers$1 = helpers_core;
 var easing = helpers_easing;
 var canvas = helpers_canvas;
 var options = helpers_options;
+var math = helpers_math;
 helpers$1.easing = easing;
 helpers$1.canvas = canvas;
 helpers$1.options = options;
+helpers$1.math = math;
 
 function interpolate(start, view, model, ease) {
 	var keys = Object.keys(model);
@@ -2809,7 +2844,7 @@ Element.extend = helpers$1.inherits;
 
 var core_element = Element;
 
-var exports$2 = core_element.extend({
+var exports$3 = core_element.extend({
 	chart: null, // the animation associated chart instance
 	currentStep: 0, // the current animation step
 	numSteps: 60, // default number of steps
@@ -2820,7 +2855,7 @@ var exports$2 = core_element.extend({
 	onAnimationComplete: null, // user specified callback to fire when the animation finishes
 });
 
-var core_animation = exports$2;
+var core_animation = exports$3;
 
 // DEPRECATIONS
 
@@ -2830,7 +2865,7 @@ var core_animation = exports$2;
  * @deprecated since version 2.6.0
  * @todo remove at version 3
  */
-Object.defineProperty(exports$2.prototype, 'animationObject', {
+Object.defineProperty(exports$3.prototype, 'animationObject', {
 	get: function() {
 		return this;
 	}
@@ -2842,7 +2877,7 @@ Object.defineProperty(exports$2.prototype, 'animationObject', {
  * @deprecated since version 2.6.0
  * @todo remove at version 3
  */
-Object.defineProperty(exports$2.prototype, 'chartInstance', {
+Object.defineProperty(exports$3.prototype, 'chartInstance', {
 	get: function() {
 		return this.chart;
 	},
@@ -7855,7 +7890,7 @@ function getBeforeAfterBodyLines(callback) {
 	return pushOrConcat([], splitNewlines(callback));
 }
 
-var exports$3 = core_element.extend({
+var exports$4 = core_element.extend({
 	initialize: function() {
 		this._model = getBaseModel(this._options);
 		this._lastActive = [];
@@ -8371,7 +8406,7 @@ var exports$3 = core_element.extend({
  */
 var positioners_1 = positioners;
 
-var core_tooltip = exports$3;
+var core_tooltip = exports$4;
 core_tooltip.positioners = positioners_1;
 
 var valueOrDefault$8 = helpers$1.valueOrDefault;
@@ -12932,6 +12967,7 @@ var _defaults$3 = defaultConfig$3;
 scale_radialLinear._defaults = _defaults$3;
 
 var valueOrDefault$c = helpers$1.valueOrDefault;
+var factorize = helpers$1.math._factorize;
 
 // Integer constants are from the ES6 spec.
 var MIN_INTEGER = Number.MIN_SAFE_INTEGER || -9007199254740991;
@@ -12941,42 +12977,42 @@ var INTERVALS = {
 	millisecond: {
 		common: true,
 		size: 1,
-		steps: [1, 2, 5, 10, 20, 50, 100, 250, 500]
+		steps: factorize(1000)
 	},
 	second: {
 		common: true,
 		size: 1000,
-		steps: [1, 2, 5, 10, 15, 30]
+		steps: factorize(60)
 	},
 	minute: {
 		common: true,
 		size: 60000,
-		steps: [1, 2, 5, 10, 15, 30]
+		steps: factorize(60)
 	},
 	hour: {
 		common: true,
 		size: 3600000,
-		steps: [1, 2, 3, 6, 12]
+		steps: factorize(24)
 	},
 	day: {
 		common: true,
 		size: 86400000,
-		steps: [1, 2, 5]
+		steps: factorize(10)
 	},
 	week: {
 		common: false,
 		size: 604800000,
-		steps: [1, 2, 3, 4]
+		steps: factorize(4)
 	},
 	month: {
 		common: true,
 		size: 2.628e9,
-		steps: [1, 2, 3]
+		steps: factorize(12)
 	},
 	quarter: {
 		common: false,
 		size: 7.884e9,
-		steps: [1, 2, 3, 4]
+		steps: factorize(4)
 	},
 	year: {
 		common: true,
