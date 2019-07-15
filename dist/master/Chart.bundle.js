@@ -2715,10 +2715,31 @@ var exports$2 = {
 			return a - b;
 		}).pop();
 		return result;
+	},
+
+	log10: Math.log10 || function(x) {
+		var exponent = Math.log(x) * Math.LOG10E; // Math.LOG10E = 1 / Math.LN10.
+		// Check for whole powers of 10,
+		// which due to floating point rounding error should be corrected.
+		var powerOf10 = Math.round(exponent);
+		var isPowerOf10 = x === Math.pow(10, powerOf10);
+
+		return isPowerOf10 ? powerOf10 : exponent;
 	}
 };
 
 var helpers_math = exports$2;
+
+// DEPRECATIONS
+
+/**
+ * Provided for backward compatibility, use Chart.helpers.math.log10 instead.
+ * @namespace Chart.helpers.log10
+ * @deprecated since version 2.9.0
+ * @todo remove at version 3
+ * @private
+ */
+helpers_core.log10 = exports$2.log10;
 
 var helpers$1 = helpers_core;
 var easing = helpers_easing;
@@ -4162,7 +4183,7 @@ core_defaults._set('bar', {
  * @private
  */
 function computeMinSampleSize(scale, pixels) {
-	var min = scale.isHorizontal() ? scale.width : scale.height;
+	var min = scale._length;
 	var ticks = scale.getTicks();
 	var prev, curr, i, ilen;
 
@@ -4172,7 +4193,7 @@ function computeMinSampleSize(scale, pixels) {
 
 	for (i = 0, ilen = ticks.length; i < ilen; ++i) {
 		curr = scale.getPixelForTick(i);
-		min = i > 0 ? Math.min(min, curr - prev) : min;
+		min = i > 0 ? Math.min(min, Math.abs(curr - prev)) : min;
 		prev = curr;
 	}
 
@@ -4392,9 +4413,6 @@ var controller_bar = core_datasetController.extend({
 		var scale = me._getIndexScale();
 		var stackCount = me.getStackCount();
 		var datasetIndex = me.index;
-		var isHorizontal = scale.isHorizontal();
-		var start = isHorizontal ? scale.left : scale.top;
-		var end = start + (isHorizontal ? scale.width : scale.height);
 		var pixels = [];
 		var i, ilen, min;
 
@@ -4409,8 +4427,8 @@ var controller_bar = core_datasetController.extend({
 		return {
 			min: min,
 			pixels: pixels,
-			start: start,
-			end: end,
+			start: scale._startPixel,
+			end: scale._endPixel,
 			stackCount: stackCount,
 			scale: scale
 		};
@@ -8951,6 +8969,11 @@ helpers$1.extend(Chart.prototype, /** @lends Chart */ {
 
 		me._layers = [];
 		helpers$1.each(me.boxes, function(box) {
+			// _configure is called twice, once in core.scale.update and once here.
+			// Here the boxes are fully updated and at their final positions.
+			if (box._configure) {
+				box._configure();
+			}
 			me._layers.push.apply(me._layers, box._layers());
 		}, me);
 
@@ -9607,19 +9630,6 @@ var core_helpers = function() {
 				return x;
 			}
 			return x > 0 ? 1 : -1;
-		};
-	helpers$1.log10 = Math.log10 ?
-		function(x) {
-			return Math.log10(x);
-		} :
-		function(x) {
-			var exponent = Math.log(x) * Math.LOG10E; // Math.LOG10E = 1 / Math.LN10.
-			// Check for whole powers of 10,
-			// which due to floating point rounding error should be corrected.
-			var powerOf10 = Math.round(exponent);
-			var isPowerOf10 = x === Math.pow(10, powerOf10);
-
-			return isPowerOf10 ? powerOf10 : exponent;
 		};
 	helpers$1.toRadians = function(degrees) {
 		return degrees * (Math.PI / 180);
@@ -10394,9 +10404,7 @@ function getPixelForGridLine(scale, index, offsetGridLines) {
 
 	if (offsetGridLines) {
 		if (scale.getTicks().length === 1) {
-			lineValue -= scale.isHorizontal() ?
-				Math.max(lineValue - scale.left, scale.right - lineValue) :
-				Math.max(lineValue - scale.top, scale.bottom - lineValue);
+			lineValue -= Math.max(lineValue - scale._startPixel, scale._endPixel - lineValue);
 		} else if (index === 0) {
 			lineValue -= (scale.getPixelForTick(1) - lineValue) / 2;
 		} else {
@@ -10642,6 +10650,12 @@ var Scale = core_element.extend({
 
 		me._ticks = ticks;
 
+		// _configure is called twice, once here, once from core.controller.updateLayout.
+		// Here we haven't been positioned yet, but dimensions are correct.
+		// Variables set in _configure are needed for calculateTickRotation, and
+		// it's ok that coordinates are not correct there, only dimensions matter.
+		me._configure();
+
 		// Tick Rotation
 		me.beforeCalculateTickRotation();
 		me.calculateTickRotation();
@@ -10656,6 +10670,30 @@ var Scale = core_element.extend({
 		return me.minSize;
 
 	},
+
+	/**
+	 * @private
+	 */
+	_configure: function() {
+		var me = this;
+		var reversePixels = me.options.ticks.reverse;
+		var startPixel, endPixel;
+
+		if (me.isHorizontal()) {
+			startPixel = me.left;
+			endPixel = me.right;
+		} else {
+			startPixel = me.top;
+			endPixel = me.bottom;
+			// by default vertical scales are from bottom to top, so pixels are reversed
+			reversePixels = !reversePixels;
+		}
+		me._startPixel = startPixel;
+		me._endPixel = endPixel;
+		me._reversePixels = reversePixels;
+		me._length = endPixel - startPixel;
+	},
+
 	afterUpdate: function() {
 		helpers$1.callback(this.options.afterUpdate, [this]);
 	},
@@ -10900,10 +10938,11 @@ var Scale = core_element.extend({
 
 	// Shared Methods
 	isHorizontal: function() {
-		return this.options.position === 'top' || this.options.position === 'bottom';
+		var pos = this.options.position;
+		return pos === 'top' || pos === 'bottom';
 	},
 	isFullWidth: function() {
-		return (this.options.fullWidth);
+		return this.options.fullWidth;
 	},
 
 	// Get the correct value. NaN bad inputs, If the value type is object get the x or y based on whether we are horizontal or not
@@ -11017,20 +11056,11 @@ var Scale = core_element.extend({
 		var me = this;
 		var offset = me.options.offset;
 		var numTicks = me._ticks.length;
-		if (index < 0 || index > numTicks - 1) {
-			return null;
-		}
-		if (me.isHorizontal()) {
-			var tickWidth = me.width / Math.max((numTicks - (offset ? 0 : 1)), 1);
-			var pixel = (tickWidth * index);
+		var tickWidth = 1 / Math.max(numTicks - (offset ? 0 : 1), 1);
 
-			if (offset) {
-				pixel += tickWidth / 2;
-			}
-
-			return me.left + pixel;
-		}
-		return me.top + (index * (me.height / (numTicks - 1)));
+		return index < 0 || index > numTicks - 1
+			? null
+			: me.getPixelForDecimal(index * tickWidth + (offset ? tickWidth / 2 : 0));
 	},
 
 	/**
@@ -11039,9 +11069,17 @@ var Scale = core_element.extend({
 	 */
 	getPixelForDecimal: function(decimal) {
 		var me = this;
-		return me.isHorizontal()
-			? me.left + decimal * me.width
-			: me.top + decimal * me.height;
+
+		if (me._reversePixels) {
+			decimal = 1 - decimal;
+		}
+
+		return me._startPixel + decimal * me._length;
+	},
+
+	getDecimalForPixel: function(pixel) {
+		var decimal = (pixel - this._startPixel) / this._length;
+		return Math.min(1, Math.max(0, this._reversePixels ? 1 - decimal : decimal));
 	},
 
 	/**
@@ -11069,7 +11107,6 @@ var Scale = core_element.extend({
 	 */
 	_autoSkip: function(ticks) {
 		var me = this;
-		var isHorizontal = me.isHorizontal();
 		var optionTicks = me.options.ticks;
 		var tickCount = ticks.length;
 		var skipRatio = false;
@@ -11079,9 +11116,7 @@ var Scale = core_element.extend({
 		// drawn as their center at end of axis, so tickCount-1
 		var ticksLength = me._tickSize() * (tickCount - 1);
 
-		// Axis length
-		var axisLength = isHorizontal ? me.width : me.height;
-
+		var axisLength = me._length;
 		var result = [];
 		var i, tick;
 
@@ -11112,7 +11147,6 @@ var Scale = core_element.extend({
 	 */
 	_tickSize: function() {
 		var me = this;
-		var isHorizontal = me.isHorizontal();
 		var optionTicks = me.options.ticks;
 
 		// Calculate space needed by label in axis direction.
@@ -11126,7 +11160,7 @@ var Scale = core_element.extend({
 		var h = labelSizes ? labelSizes.highest.height + padding : 0;
 
 		// Calculate space needed for 1 tick in axis direction.
-		return isHorizontal
+		return me.isHorizontal()
 			? h * cos > w * sin ? w / cos : h / sin
 			: h * sin < w * cos ? h / cos : w / sin;
 	},
@@ -11454,7 +11488,7 @@ var Scale = core_element.extend({
 		var scaleLabelX, scaleLabelY;
 
 		if (me.isHorizontal()) {
-			scaleLabelX = me.left + ((me.right - me.left) / 2); // midpoint of the width
+			scaleLabelX = me.left + me.width / 2; // midpoint of the width
 			scaleLabelY = position === 'bottom'
 				? me.bottom - halfLineHeight - scaleLabelPadding.bottom
 				: me.top + halfLineHeight + scaleLabelPadding.top;
@@ -11463,7 +11497,7 @@ var Scale = core_element.extend({
 			scaleLabelX = isLeft
 				? me.left + halfLineHeight + scaleLabelPadding.top
 				: me.right - halfLineHeight - scaleLabelPadding.top;
-			scaleLabelY = me.top + ((me.bottom - me.top) / 2);
+			scaleLabelY = me.top + me.height / 2;
 			rotation = isLeft ? -0.5 * Math.PI : 0.5 * Math.PI;
 		}
 
@@ -11588,17 +11622,30 @@ var scale_category = core_scale.extend({
 		return me.ticks[index - me.minIndex];
 	},
 
+	_configure: function() {
+		var me = this;
+		var offset = me.options.offset;
+		var ticks = me.ticks;
+
+		core_scale.prototype._configure.call(me);
+
+		if (!me.isHorizontal()) {
+			// For backward compatibility, vertical category scale reverse is inverted.
+			me._reversePixels = !me._reversePixels;
+		}
+
+		if (!ticks) {
+			return;
+		}
+
+		me._startValue = me.minIndex - (offset ? 0.5 : 0);
+		me._valueRange = Math.max(ticks.length - (offset ? 0 : 1), 1);
+	},
+
 	// Used to get data value locations.  Value can either be an index or a numerical value
 	getPixelForValue: function(value, index, datasetIndex) {
 		var me = this;
-		var offset = me.options.offset;
-
-		// 1 is added because we need the length but we have the indexes
-		var offsetAmt = Math.max(me.maxIndex + 1 - me.minIndex - (offset ? 0 : 1), 1);
-
-		var isHorizontal = me.isHorizontal();
-		var valueDimension = (isHorizontal ? me.width : me.height) / offsetAmt;
-		var valueCategory, labels, idx, pixel;
+		var valueCategory, labels, idx;
 
 		if (!isNullOrUndef(index) && !isNullOrUndef(datasetIndex)) {
 			value = me.chart.data.datasets[datasetIndex].data[index];
@@ -11607,53 +11654,31 @@ var scale_category = core_scale.extend({
 		// If value is a data object, then index is the index in the data array,
 		// not the index of the scale. We need to change that.
 		if (!isNullOrUndef(value)) {
-			valueCategory = isHorizontal ? value.x : value.y;
+			valueCategory = me.isHorizontal() ? value.x : value.y;
 		}
 		if (valueCategory !== undefined || (value !== undefined && isNaN(index))) {
 			labels = me._getLabels();
 			value = helpers$1.valueOrDefault(valueCategory, value);
 			idx = labels.indexOf(value);
 			index = idx !== -1 ? idx : index;
+			if (isNaN(index)) {
+				index = value;
+			}
 		}
-
-		pixel = valueDimension * (index - me.minIndex);
-
-		if (offset) {
-			pixel += valueDimension / 2;
-		}
-
-		return (isHorizontal ? me.left : me.top) + pixel;
+		return me.getPixelForDecimal((index - me._startValue) / me._valueRange);
 	},
 
 	getPixelForTick: function(index) {
 		var ticks = this.ticks;
-		if (index < 0 || index > ticks.length - 1) {
-			return null;
-		}
-		return this.getPixelForValue(ticks[index], index + this.minIndex);
+		return index < 0 || index > ticks.length - 1
+			? null
+			: this.getPixelForValue(ticks[index], index + this.minIndex);
 	},
 
 	getValueForPixel: function(pixel) {
 		var me = this;
-		var offset = me.options.offset;
-		var offsetAmt = Math.max(me._ticks.length - (offset ? 0 : 1), 1);
-		var isHorizontal = me.isHorizontal();
-		var valueDimension = (isHorizontal ? me.width : me.height) / offsetAmt;
-		var value;
-
-		pixel -= isHorizontal ? me.left : me.top;
-
-		if (offset) {
-			pixel -= valueDimension / 2;
-		}
-
-		if (pixel <= 0) {
-			value = 0;
-		} else {
-			value = Math.round(pixel / valueDimension);
-		}
-
-		return value + me.minIndex;
+		var value = Math.round(me._startValue + me.getDecimalForPixel(pixel) * me._valueRange);
+		return Math.min(Math.max(value, 0), me.ticks.length - 1);
 	},
 
 	getBasePixel: function() {
@@ -11893,6 +11918,25 @@ var scale_linearbase = core_scale.extend({
 		me.zeroLineIndex = me.ticks.indexOf(0);
 
 		core_scale.prototype.convertTicksToLabels.call(me);
+	},
+
+	_configure: function() {
+		var me = this;
+		var ticks = me.getTicks();
+		var start = me.min;
+		var end = me.max;
+		var offset;
+
+		core_scale.prototype._configure.call(me);
+
+		if (me.options.offset && ticks.length) {
+			offset = (end - start) / Math.max(ticks.length - 1, 1) / 2;
+			start -= offset;
+			end += offset;
+		}
+		me._startValue = start;
+		me._endValue = end;
+		me._valueRange = end - start;
 	}
 });
 
@@ -12041,29 +12085,12 @@ var scale_linear = scale_linearbase.extend({
 
 	// Utils
 	getPixelForValue: function(value) {
-		// This must be called after fit has been run so that
-		// this.left, this.top, this.right, and this.bottom have been defined
 		var me = this;
-		var start = me.start;
-
-		var rightValue = +me.getRightValue(value);
-		var pixel;
-		var range = me.end - start;
-
-		if (me.isHorizontal()) {
-			pixel = me.left + (me.width / range * (rightValue - start));
-		} else {
-			pixel = me.bottom - (me.height / range * (rightValue - start));
-		}
-		return pixel;
+		return me.getPixelForDecimal((+me.getRightValue(value) - me._startValue) / me._valueRange);
 	},
 
 	getValueForPixel: function(pixel) {
-		var me = this;
-		var isHorizontal = me.isHorizontal();
-		var innerDimension = isHorizontal ? me.width : me.height;
-		var offset = (isHorizontal ? pixel - me.left : me.bottom - pixel) / innerDimension;
-		return me.start + ((me.end - me.start) * offset);
+		return this._startValue + this.getDecimalForPixel(pixel) * this._valueRange;
 	},
 
 	getPixelForTick: function(index) {
@@ -12080,6 +12107,7 @@ var _defaults$1 = defaultConfig$1;
 scale_linear._defaults = _defaults$1;
 
 var valueOrDefault$a = helpers$1.valueOrDefault;
+var log10 = helpers$1.math.log10;
 
 /**
  * Generate a set of logarithmic ticks
@@ -12090,20 +12118,20 @@ var valueOrDefault$a = helpers$1.valueOrDefault;
 function generateTicks$1(generationOptions, dataRange) {
 	var ticks = [];
 
-	var tickVal = valueOrDefault$a(generationOptions.min, Math.pow(10, Math.floor(helpers$1.log10(dataRange.min))));
+	var tickVal = valueOrDefault$a(generationOptions.min, Math.pow(10, Math.floor(log10(dataRange.min))));
 
-	var endExp = Math.floor(helpers$1.log10(dataRange.max));
+	var endExp = Math.floor(log10(dataRange.max));
 	var endSignificand = Math.ceil(dataRange.max / Math.pow(10, endExp));
 	var exp, significand;
 
 	if (tickVal === 0) {
-		exp = Math.floor(helpers$1.log10(dataRange.minNotZero));
+		exp = Math.floor(log10(dataRange.minNotZero));
 		significand = Math.floor(dataRange.minNotZero / Math.pow(10, exp));
 
 		ticks.push(tickVal);
 		tickVal = significand * Math.pow(10, exp);
 	} else {
-		exp = Math.floor(helpers$1.log10(tickVal));
+		exp = Math.floor(log10(tickVal));
 		significand = Math.floor(tickVal / Math.pow(10, exp));
 	}
 	var precision = exp < 0 ? Math.pow(10, Math.abs(exp)) : 1;
@@ -12252,26 +12280,26 @@ var scale_logarithmic = core_scale.extend({
 
 		if (me.min === me.max) {
 			if (me.min !== 0 && me.min !== null) {
-				me.min = Math.pow(10, Math.floor(helpers$1.log10(me.min)) - 1);
-				me.max = Math.pow(10, Math.floor(helpers$1.log10(me.max)) + 1);
+				me.min = Math.pow(10, Math.floor(log10(me.min)) - 1);
+				me.max = Math.pow(10, Math.floor(log10(me.max)) + 1);
 			} else {
 				me.min = DEFAULT_MIN;
 				me.max = DEFAULT_MAX;
 			}
 		}
 		if (me.min === null) {
-			me.min = Math.pow(10, Math.floor(helpers$1.log10(me.max)) - 1);
+			me.min = Math.pow(10, Math.floor(log10(me.max)) - 1);
 		}
 		if (me.max === null) {
 			me.max = me.min !== 0
-				? Math.pow(10, Math.floor(helpers$1.log10(me.min)) + 1)
+				? Math.pow(10, Math.floor(log10(me.min)) + 1)
 				: DEFAULT_MAX;
 		}
 		if (me.minNotZero === null) {
 			if (me.min > 0) {
 				me.minNotZero = me.min;
 			} else if (me.max < 1) {
-				me.minNotZero = Math.pow(10, Math.floor(helpers$1.log10(me.max)));
+				me.minNotZero = Math.pow(10, Math.floor(log10(me.max)));
 			} else {
 				me.minNotZero = DEFAULT_MIN;
 			}
@@ -12333,87 +12361,47 @@ var scale_logarithmic = core_scale.extend({
 	 * @private
 	 */
 	_getFirstTickValue: function(value) {
-		var exp = Math.floor(helpers$1.log10(value));
+		var exp = Math.floor(log10(value));
 		var significand = Math.floor(value / Math.pow(10, exp));
 
 		return significand * Math.pow(10, exp);
 	},
 
+	_configure: function() {
+		var me = this;
+		var start = me.min;
+		var offset = 0;
+
+		core_scale.prototype._configure.call(me);
+
+		if (start === 0) {
+			start = me._getFirstTickValue(me.minNotZero);
+			offset = valueOrDefault$a(me.options.ticks.fontSize, core_defaults.global.defaultFontSize) / me._length;
+		}
+
+		me._startValue = log10(start);
+		me._valueOffset = offset;
+		me._valueRange = (log10(me.max) - log10(start)) / (1 - offset);
+	},
+
 	getPixelForValue: function(value) {
 		var me = this;
-		var tickOpts = me.options.ticks;
-		var reverse = tickOpts.reverse;
-		var log10 = helpers$1.log10;
-		var firstTickValue = me._getFirstTickValue(me.minNotZero);
-		var offset = 0;
-		var innerDimension, pixel, start, end, sign;
+		var decimal = 0;
 
 		value = +me.getRightValue(value);
-		if (reverse) {
-			start = me.end;
-			end = me.start;
-			sign = -1;
-		} else {
-			start = me.start;
-			end = me.end;
-			sign = 1;
+
+		if (value > me.min && value > 0) {
+			decimal = (log10(value) - me._startValue) / me._valueRange + me._valueOffset;
 		}
-		if (me.isHorizontal()) {
-			innerDimension = me.width;
-			pixel = reverse ? me.right : me.left;
-		} else {
-			innerDimension = me.height;
-			sign *= -1; // invert, since the upper-left corner of the canvas is at pixel (0, 0)
-			pixel = reverse ? me.top : me.bottom;
-		}
-		if (value !== start) {
-			if (start === 0) { // include zero tick
-				offset = valueOrDefault$a(tickOpts.fontSize, core_defaults.global.defaultFontSize);
-				innerDimension -= offset;
-				start = firstTickValue;
-			}
-			if (value !== 0) {
-				offset += innerDimension / (log10(end) - log10(start)) * (log10(value) - log10(start));
-			}
-			pixel += sign * offset;
-		}
-		return pixel;
+		return me.getPixelForDecimal(decimal);
 	},
 
 	getValueForPixel: function(pixel) {
 		var me = this;
-		var tickOpts = me.options.ticks;
-		var reverse = tickOpts.reverse;
-		var log10 = helpers$1.log10;
-		var firstTickValue = me._getFirstTickValue(me.minNotZero);
-		var innerDimension, start, end, value;
-
-		if (reverse) {
-			start = me.end;
-			end = me.start;
-		} else {
-			start = me.start;
-			end = me.end;
-		}
-		if (me.isHorizontal()) {
-			innerDimension = me.width;
-			value = reverse ? me.right - pixel : pixel - me.left;
-		} else {
-			innerDimension = me.height;
-			value = reverse ? pixel - me.top : me.bottom - pixel;
-		}
-		if (value !== start) {
-			if (start === 0) { // include zero tick
-				var offset = valueOrDefault$a(tickOpts.fontSize, core_defaults.global.defaultFontSize);
-				value -= offset;
-				innerDimension -= offset;
-				start = firstTickValue;
-			}
-			value *= log10(end) - log10(start);
-			value /= innerDimension;
-			value = Math.pow(10, log10(start) + value);
-		}
-		return value;
+		var decimal = me.getDecimalForPixel(pixel);
+		return decimal === 0 && me.min === 0
+			? 0
+			: Math.pow(10, me._startValue + (decimal - me._valueOffset) * me._valueRange);
 	}
 });
 
@@ -13565,7 +13553,6 @@ var scale_time = core_scale.extend({
 		me.max = Math.max(min + 1, max);
 
 		// PRIVATE
-		me._horizontal = me.isHorizontal();
 		me._table = [];
 		me._timestamps = {
 			data: timestamps,
@@ -13580,16 +13567,16 @@ var scale_time = core_scale.extend({
 		var max = me.max;
 		var options = me.options;
 		var timeOpts = options.time;
-		var timestamps = [];
+		var timestamps = me._timestamps;
 		var ticks = [];
 		var i, ilen, timestamp;
 
 		switch (options.ticks.source) {
 		case 'data':
-			timestamps = me._timestamps.data;
+			timestamps = timestamps.data;
 			break;
 		case 'labels':
-			timestamps = me._timestamps.labels;
+			timestamps = timestamps.labels;
 			break;
 		case 'auto':
 		default:
@@ -13694,13 +13681,8 @@ var scale_time = core_scale.extend({
 	getPixelForOffset: function(time) {
 		var me = this;
 		var offsets = me._offsets;
-		var size = me._horizontal ? me.width : me.height;
 		var pos = interpolate$1(me._table, 'time', time, 'pos');
-		var offset = size * (offsets.start + pos) * offsets.factor;
-
-		return me.options.ticks.reverse ?
-			(me._horizontal ? me.right : me.bottom) - offset :
-			(me._horizontal ? me.left : me.top) + offset;
+		return me.getPixelForDecimal((offsets.start + pos) * offsets.factor);
 	},
 
 	getPixelForValue: function(value, index, datasetIndex) {
@@ -13730,11 +13712,7 @@ var scale_time = core_scale.extend({
 	getValueForPixel: function(pixel) {
 		var me = this;
 		var offsets = me._offsets;
-		var size = me._horizontal ? me.width : me.height;
-		var offset = me.options.ticks.reverse ?
-			(me._horizontal ? me.right : me.bottom) - pixel :
-			pixel - (me._horizontal ? me.left : me.top);
-		var pos = offset / size / offsets.factor - offsets.start;
+		var pos = me.getDecimalForPixel(pixel) / offsets.factor - offsets.end;
 		var time = interpolate$1(me._table, 'pos', pos, 'time');
 
 		// DEPRECATION, we should return time directly
