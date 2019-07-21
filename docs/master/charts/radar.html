@@ -1209,7 +1209,25 @@
 </tbody>
 </table>
 <h2 id="configuration-options">Configuration Options</h2>
-<p>Unlike other charts, the radar chart has no chart specific options.</p>
+<p>The radar chart defines the following configuration options. These options are merged with the global chart configuration options, <code>Chart.defaults.global</code>, to form the options passed to the chart.</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>spanGaps</code></td>
+<td><code>boolean</code></td>
+<td><code>false</code></td>
+<td>If false, NaN data causes a break in the line.</td>
+</tr>
+</tbody>
+</table>
 <h2 id="scale-options">Scale Options</h2>
 <p>The radar chart supports only a single scale. The options for this scale are defined in the <code>scale</code> property.</p>
 <pre><code class="lang-javascript">options = {
@@ -1276,7 +1294,7 @@
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Radar","level":"1.5.3","depth":2,"next":{"title":"Doughnut & Pie","level":"1.5.4","depth":2,"path":"charts/doughnut.md","ref":"charts/doughnut.md","articles":[]},"previous":{"title":"Bar","level":"1.5.2","depth":2,"path":"charts/bar.md","ref":"charts/bar.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga","redirect"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"chartjs":{"defaults":null},"fontsettings":{"theme":"white","family":"sans","size":2},"highlight":{},"ga":{"configuration":"auto","token":"UA-28909194-3"},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"redirect":{},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"anchorjs":{"icon":"#","placement":"left","visible":"always"},"search-plus":{}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"charts/radar.md","mtime":"2019-07-18T22:26:45.504Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2019-07-18T22:29:52.332Z"},"basePath":"..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Radar","level":"1.5.3","depth":2,"next":{"title":"Doughnut & Pie","level":"1.5.4","depth":2,"path":"charts/doughnut.md","ref":"charts/doughnut.md","articles":[]},"previous":{"title":"Bar","level":"1.5.2","depth":2,"path":"charts/bar.md","ref":"charts/bar.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga","redirect"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"chartjs":{"defaults":null},"fontsettings":{"theme":"white","family":"sans","size":2},"highlight":{},"ga":{"configuration":"auto","token":"UA-28909194-3"},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"redirect":{},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"anchorjs":{"icon":"#","placement":"left","visible":"always"},"search-plus":{}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"charts/radar.md","mtime":"2019-07-21T12:01:44.497Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2019-07-21T12:04:56.752Z"},"basePath":"..","book":{"language":""}});
         });
     </script>
 </div>

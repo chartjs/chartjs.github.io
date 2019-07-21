@@ -5732,6 +5732,7 @@ var controller_pie = controller_doughnut;
 var valueOrDefault$6 = helpers$1.valueOrDefault;
 
 core_defaults._set('radar', {
+	spanGaps: false,
 	scale: {
 		type: 'radialLinear'
 	},
