@@ -4184,14 +4184,13 @@ core_defaults._set('bar', {
  */
 function computeMinSampleSize(scale, pixels) {
 	var min = scale._length;
-	var ticks = scale.getTicks();
 	var prev, curr, i, ilen;
 
 	for (i = 1, ilen = pixels.length; i < ilen; ++i) {
 		min = Math.min(min, Math.abs(pixels[i] - pixels[i - 1]));
 	}
 
-	for (i = 0, ilen = ticks.length; i < ilen; ++i) {
+	for (i = 0, ilen = scale.getTicks().length; i < ilen; ++i) {
 		curr = scale.getPixelForTick(i);
 		min = i > 0 ? Math.min(min, Math.abs(curr - prev)) : min;
 		prev = curr;
@@ -4411,13 +4410,11 @@ var controller_bar = core_datasetController.extend({
 	getRuler: function() {
 		var me = this;
 		var scale = me._getIndexScale();
-		var stackCount = me.getStackCount();
-		var datasetIndex = me.index;
 		var pixels = [];
 		var i, ilen, min;
 
 		for (i = 0, ilen = me.getMeta().data.length; i < ilen; ++i) {
-			pixels.push(scale.getPixelForValue(null, i, datasetIndex));
+			pixels.push(scale.getPixelForValue(null, i, me.index));
 		}
 
 		min = helpers$1.isNullOrUndef(scale.options.barThickness)
@@ -4429,7 +4426,7 @@ var controller_bar = core_datasetController.extend({
 			pixels: pixels,
 			start: scale._startPixel,
 			end: scale._endPixel,
-			stackCount: stackCount,
+			stackCount: me.getStackCount(),
 			scale: scale
 		};
 	},
@@ -4441,14 +4438,13 @@ var controller_bar = core_datasetController.extend({
 	calculateBarValuePixels: function(datasetIndex, index) {
 		var me = this;
 		var chart = me.chart;
-		var meta = me.getMeta();
 		var scale = me._getValueScale();
 		var isHorizontal = scale.isHorizontal();
 		var datasets = chart.data.datasets;
 		var value = scale._parseValue(datasets[datasetIndex].data[index]);
 		var minBarLength = scale.options.minBarLength;
 		var stacked = scale.options.stacked;
-		var stack = meta.stack;
+		var stack = me.getMeta().stack;
 		var start = value.start === undefined ? 0 : value.max >= 0 && value.min >= 0 ? value.min : value.max;
 		var length = value.start === undefined ? value.end : value.max >= 0 && value.min >= 0 ? value.max - value.min : value.min - value.max;
 		var i, imeta, ivalue, base, head, size, stackLength;
@@ -10793,13 +10789,13 @@ var Scale = core_element.extend({
 		var me = this;
 		var options = me.options;
 		var tickOpts = options.ticks;
-		var ticks = me.getTicks();
+		var numTicks = me.getTicks().length;
 		var minRotation = tickOpts.minRotation || 0;
 		var maxRotation = tickOpts.maxRotation;
 		var labelRotation = minRotation;
 		var labelSizes, maxLabelWidth, maxLabelHeight, maxWidth, tickWidth, maxHeight, maxLabelDiagonal;
 
-		if (!me._isVisible() || !tickOpts.display || minRotation >= maxRotation || ticks.length <= 1 || !me.isHorizontal()) {
+		if (!me._isVisible() || !tickOpts.display || minRotation >= maxRotation || numTicks <= 1 || !me.isHorizontal()) {
 			me.labelRotation = minRotation;
 			return;
 		}
@@ -10811,11 +10807,11 @@ var Scale = core_element.extend({
 		// Estimate the width of each grid based on the canvas width, the maximum
 		// label width and the number of tick intervals
 		maxWidth = Math.min(me.maxWidth, me.chart.width - maxLabelWidth);
-		tickWidth = options.offset ? me.maxWidth / ticks.length : maxWidth / (ticks.length - 1);
+		tickWidth = options.offset ? me.maxWidth / numTicks : maxWidth / (numTicks - 1);
 
 		// Allow 3 pixels x2 padding either side for label readability
 		if (maxLabelWidth + 6 > tickWidth) {
-			tickWidth = maxWidth / (ticks.length - (options.offset ? 0.5 : 1));
+			tickWidth = maxWidth / (numTicks - (options.offset ? 0.5 : 1));
 			maxHeight = me.maxHeight - getTickMarkLength(options.gridLines)
 				- tickOpts.padding - getScaleLabelHeight(options.scaleLabel);
 			maxLabelDiagonal = Math.sqrt(maxLabelWidth * maxLabelWidth + maxLabelHeight * maxLabelHeight);
@@ -10845,13 +10841,12 @@ var Scale = core_element.extend({
 			height: 0
 		};
 
-		var ticks = me.getTicks();
 		var opts = me.options;
 		var tickOpts = opts.ticks;
 		var scaleLabelOpts = opts.scaleLabel;
 		var gridLineOpts = opts.gridLines;
 		var display = me._isVisible();
-		var position = opts.position;
+		var isBottom = opts.position === 'bottom';
 		var isHorizontal = me.isHorizontal();
 
 		// Width
@@ -10893,16 +10888,16 @@ var Scale = core_element.extend({
 				minSize.height = Math.min(me.maxHeight, minSize.height + labelHeight + tickPadding);
 
 				var offsetLeft = me.getPixelForTick(0) - me.left;
-				var offsetRight = me.right - me.getPixelForTick(ticks.length - 1);
+				var offsetRight = me.right - me.getPixelForTick(me.getTicks().length - 1);
 				var paddingLeft, paddingRight;
 
 				// Ensure that our ticks are always inside the canvas. When rotated, ticks are right aligned
 				// which means that the right padding is dominated by the font height
 				if (isRotated) {
-					paddingLeft = position === 'bottom' ?
+					paddingLeft = isBottom ?
 						cosRotation * firstLabelSize.width + sinRotation * firstLabelSize.offset :
 						sinRotation * (firstLabelSize.height - firstLabelSize.offset);
-					paddingRight = position === 'bottom' ?
+					paddingRight = isBottom ?
 						sinRotation * (lastLabelSize.height - lastLabelSize.offset) :
 						cosRotation * lastLabelSize.width + sinRotation * lastLabelSize.offset;
 				} else {
@@ -11677,7 +11672,7 @@ var scale_category = core_scale.extend({
 			return me.getRightValue(chart.data.datasets[datasetIndex].data[index]);
 		}
 
-		return me.ticks[index - me.minIndex];
+		return me._getLabels()[index];
 	},
 
 	_configure: function() {
