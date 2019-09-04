@@ -7,8 +7,8 @@
 (function (global, factory) {
 typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(function() { try { return require('moment'); } catch(e) { } }()) :
 typeof define === 'function' && define.amd ? define(['require'], function(require) { return factory(function() { try { return require('moment'); } catch(e) { } }()); }) :
-(global.Chart = factory(global.moment));
-}(this, (function (moment) { 'use strict';
+(global = global || self, global.Chart = factory(global.moment));
+}(this, function (moment) { 'use strict';
 
 moment = moment && moment.hasOwnProperty('default') ? moment['default'] : moment;
 
@@ -6649,7 +6649,7 @@ var core_layouts = {
 			fitBoxes(verticalBoxes, chartArea, params);
 		}
 
-		handleMaxPadding(chartArea, params);
+		handleMaxPadding(chartArea);
 
 		// Finally place the boxes to correct coordinates
 		placeBoxes(boxes.leftAndTop, chartArea, params);
@@ -6695,7 +6695,7 @@ var platform_basic = {
 var platform_dom = "/*\n * DOM element rendering detection\n * https://davidwalsh.name/detect-node-insertion\n */\n@keyframes chartjs-render-animation {\n\tfrom { opacity: 0.99; }\n\tto { opacity: 1; }\n}\n\n.chartjs-render-monitor {\n\tanimation: chartjs-render-animation 0.001s;\n}\n\n/*\n * DOM element resizing detection\n * https://github.com/marcj/css-element-queries\n */\n.chartjs-size-monitor,\n.chartjs-size-monitor-expand,\n.chartjs-size-monitor-shrink {\n\tposition: absolute;\n\tdirection: ltr;\n\tleft: 0;\n\ttop: 0;\n\tright: 0;\n\tbottom: 0;\n\toverflow: hidden;\n\tpointer-events: none;\n\tvisibility: hidden;\n\tz-index: -1;\n}\n\n.chartjs-size-monitor-expand > div {\n\tposition: absolute;\n\twidth: 1000000px;\n\theight: 1000000px;\n\tleft: 0;\n\ttop: 0;\n}\n\n.chartjs-size-monitor-shrink > div {\n\tposition: absolute;\n\twidth: 200%;\n\theight: 200%;\n\tleft: 0;\n\ttop: 0;\n}\n";
 
 var platform_dom$1 = /*#__PURE__*/Object.freeze({
-default: platform_dom
+'default': platform_dom
 });
 
 function getCjsExportFromNamespace (n) {
@@ -13622,7 +13622,7 @@ var scale_time = core_scale.extend({
 			break;
 		case 'auto':
 		default:
-			timestamps = generate(me, min, max, me.getLabelCapacity(min), options);
+			timestamps = generate(me, min, max, me.getLabelCapacity(min));
 		}
 
 		if (options.bounds === 'ticks' && timestamps.length) {
@@ -15121,7 +15121,7 @@ plugins.title = title;
 core_controller.helpers = helpers$1;
 
 // @todo dispatch these helpers into appropriated helpers/helpers.* file and write unit tests!
-core_helpers(core_controller);
+core_helpers();
 
 core_controller._adapters = core_adapters;
 core_controller.Animation = core_animation;
@@ -15266,4 +15266,4 @@ core_controller.helpers.each(
 
 return src;
 
-})));
+}));
