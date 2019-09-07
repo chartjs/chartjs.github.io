@@ -10330,6 +10330,8 @@ var core_ticks = {
 	}
 };
 
+var isArray = helpers$1.isArray;
+var isNullOrUndef = helpers$1.isNullOrUndef;
 var valueOrDefault$9 = helpers$1.valueOrDefault;
 var valueAtIndexOrDefault = helpers$1.valueAtIndexOrDefault;
 
@@ -10450,15 +10452,15 @@ function computeLabelSizes(ctx, tickFonts, ticks, caches) {
 		lineHeight = tickFont.lineHeight;
 		width = height = 0;
 		// Undefined labels and arrays should not be measured
-		if (!helpers$1.isNullOrUndef(label) && !helpers$1.isArray(label)) {
+		if (!isNullOrUndef(label) && !isArray(label)) {
 			width = helpers$1.measureText(ctx, cache.data, cache.gc, width, label);
 			height = lineHeight;
-		} else if (helpers$1.isArray(label)) {
+		} else if (isArray(label)) {
 			// if it is an array let's measure each element
 			for (j = 0, jlen = label.length; j < jlen; ++j) {
 				nestedLabel = label[j];
 				// Undefined labels and arrays should not be measured
-				if (!helpers$1.isNullOrUndef(nestedLabel) && !helpers$1.isArray(nestedLabel)) {
+				if (!isNullOrUndef(nestedLabel) && !isArray(nestedLabel)) {
 					width = helpers$1.measureText(ctx, cache.data, cache.gc, width, nestedLabel);
 					height += lineHeight;
 				}
@@ -10763,7 +10765,7 @@ var Scale = core_element.extend({
 	afterBuildTicks: function(ticks) {
 		var me = this;
 		// ticks is empty for old axis implementations here
-		if (helpers$1.isArray(ticks) && ticks.length) {
+		if (isArray(ticks) && ticks.length) {
 			return helpers$1.callback(me.options.afterBuildTicks, [me, ticks]);
 		}
 		// Support old implementations (that modified `this.ticks` directly in buildTicks)
@@ -10970,7 +10972,7 @@ var Scale = core_element.extend({
 	// Get the correct value. NaN bad inputs, If the value type is object get the x or y based on whether we are horizontal or not
 	getRightValue: function(rawValue) {
 		// Null and undefined values first
-		if (helpers$1.isNullOrUndef(rawValue)) {
+		if (isNullOrUndef(rawValue)) {
 			return NaN;
 		}
 		// isNaN(object) returns true, so make sure NaN is checking for a number; Discard Infinite values
@@ -11014,7 +11016,7 @@ var Scale = core_element.extend({
 	_parseValue: function(value) {
 		var start, end, min, max;
 
-		if (helpers$1.isArray(value)) {
+		if (isArray(value)) {
 			start = +this.getRightValue(value[0]);
 			end = +this.getRightValue(value[1]);
 			min = Math.min(start, end);
@@ -11269,7 +11271,7 @@ var Scale = core_element.extend({
 			label = tick.label;
 
 			// autoskipper skipped this tick (#4635)
-			if (helpers$1.isNullOrUndef(label) && i < ticks.length) {
+			if (isNullOrUndef(label) && i < ticks.length) {
 				continue;
 			}
 
@@ -11360,14 +11362,14 @@ var Scale = core_element.extend({
 			label = tick.label;
 
 			// autoskipper skipped this tick (#4635)
-			if (helpers$1.isNullOrUndef(label)) {
+			if (isNullOrUndef(label)) {
 				continue;
 			}
 
 			pixel = me.getPixelForTick(i) + optionTicks.labelOffset;
 			font = tick.major ? fonts.major : fonts.minor;
 			lineHeight = font.lineHeight;
-			lineCount = helpers$1.isArray(label) ? label.length : 1;
+			lineCount = isArray(label) ? label.length : 1;
 
 			if (isHorizontal) {
 				x = pixel;
@@ -11498,7 +11500,7 @@ var Scale = core_element.extend({
 
 			label = item.label;
 			y = item.textOffset;
-			if (helpers$1.isArray(label)) {
+			if (isArray(label)) {
 				for (j = 0, jlen = label.length; j < jlen; ++j) {
 					// We just make sure the multiline element is a string here..
 					ctx.fillText('' + label[j], 0, y);
@@ -11607,7 +11609,7 @@ Scale.prototype._draw = Scale.prototype.draw;
 
 var core_scale = Scale;
 
-var isNullOrUndef = helpers$1.isNullOrUndef;
+var isNullOrUndef$1 = helpers$1.isNullOrUndef;
 
 var defaultConfig = {
 	position: 'bottom'
@@ -11692,13 +11694,13 @@ var scale_category = core_scale.extend({
 		var me = this;
 		var valueCategory, labels, idx;
 
-		if (!isNullOrUndef(index) && !isNullOrUndef(datasetIndex)) {
+		if (!isNullOrUndef$1(index) && !isNullOrUndef$1(datasetIndex)) {
 			value = me.chart.data.datasets[datasetIndex].data[index];
 		}
 
 		// If value is a data object, then index is the index in the data array,
 		// not the index of the scale. We need to change that.
-		if (!isNullOrUndef(value)) {
+		if (!isNullOrUndef$1(value)) {
 			valueCategory = me.isHorizontal() ? value.x : value.y;
 		}
 		if (valueCategory !== undefined || (value !== undefined && isNaN(index))) {
@@ -11736,7 +11738,7 @@ var _defaults = defaultConfig;
 scale_category._defaults = _defaults;
 
 var noop = helpers$1.noop;
-var isNullOrUndef$1 = helpers$1.isNullOrUndef;
+var isNullOrUndef$2 = helpers$1.isNullOrUndef;
 
 /**
  * Generate a set of linear ticks
@@ -11764,7 +11766,7 @@ function generateTicks(generationOptions, dataRange) {
 
 	// Beyond MIN_SPACING floating point numbers being to lose precision
 	// such that we can't do the math necessary to generate ticks
-	if (spacing < MIN_SPACING && isNullOrUndef$1(min) && isNullOrUndef$1(max)) {
+	if (spacing < MIN_SPACING && isNullOrUndef$2(min) && isNullOrUndef$2(max)) {
 		return [rmin, rmax];
 	}
 
@@ -11774,7 +11776,7 @@ function generateTicks(generationOptions, dataRange) {
 		spacing = helpers$1.niceNum(numSpaces * spacing / maxNumSpaces / unit) * unit;
 	}
 
-	if (stepSize || isNullOrUndef$1(precision)) {
+	if (stepSize || isNullOrUndef$2(precision)) {
 		// If a precision is not specified, calculate factor based on spacing
 		factor = Math.pow(10, helpers$1._decimalPlaces(spacing));
 	} else {
@@ -11789,10 +11791,10 @@ function generateTicks(generationOptions, dataRange) {
 	// If min, max and stepSize is set and they make an evenly spaced scale use it.
 	if (stepSize) {
 		// If very close to our whole number, use it.
-		if (!isNullOrUndef$1(min) && helpers$1.almostWhole(min / spacing, spacing / 1000)) {
+		if (!isNullOrUndef$2(min) && helpers$1.almostWhole(min / spacing, spacing / 1000)) {
 			niceMin = min;
 		}
-		if (!isNullOrUndef$1(max) && helpers$1.almostWhole(max / spacing, spacing / 1000)) {
+		if (!isNullOrUndef$2(max) && helpers$1.almostWhole(max / spacing, spacing / 1000)) {
 			niceMax = max;
 		}
 	}
@@ -11807,11 +11809,11 @@ function generateTicks(generationOptions, dataRange) {
 
 	niceMin = Math.round(niceMin * factor) / factor;
 	niceMax = Math.round(niceMax * factor) / factor;
-	ticks.push(isNullOrUndef$1(min) ? niceMin : min);
+	ticks.push(isNullOrUndef$2(min) ? niceMin : min);
 	for (var j = 1; j < numSpaces; ++j) {
 		ticks.push(Math.round((niceMin + j * spacing) * factor) / factor);
 	}
-	ticks.push(isNullOrUndef$1(max) ? niceMax : max);
+	ticks.push(isNullOrUndef$2(max) ? niceMax : max);
 
 	return ticks;
 }
