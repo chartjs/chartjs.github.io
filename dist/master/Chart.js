@@ -2743,15 +2743,91 @@ var helpers_math = exports$2;
  */
 helpers_core.log10 = exports$2.log10;
 
+var getRtlAdapter = function(rectX, width) {
+	return {
+		x: function(x) {
+			return rectX + rectX + width - x;
+		},
+		setWidth: function(w) {
+			width = w;
+		},
+		textAlign: function(align) {
+			if (align === 'center') {
+				return align;
+			}
+			return align === 'right' ? 'left' : 'right';
+		},
+		xPlus: function(x, value) {
+			return x - value;
+		},
+		leftForLtr: function(x, itemWidth) {
+			return x - itemWidth;
+		},
+	};
+};
+
+var getLtrAdapter = function() {
+	return {
+		x: function(x) {
+			return x;
+		},
+		setWidth: function(w) { // eslint-disable-line no-unused-vars
+		},
+		textAlign: function(align) {
+			return align;
+		},
+		xPlus: function(x, value) {
+			return x + value;
+		},
+		leftForLtr: function(x, _itemWidth) { // eslint-disable-line no-unused-vars
+			return x;
+		},
+	};
+};
+
+var getAdapter = function(rtl, rectX, width) {
+	return rtl ? getRtlAdapter(rectX, width) : getLtrAdapter();
+};
+
+var overrideTextDirection = function(ctx, direction) {
+	var style, original;
+	if (direction === 'ltr' || direction === 'rtl') {
+		style = ctx.canvas.style;
+		original = [
+			style.getPropertyValue('direction'),
+			style.getPropertyPriority('direction'),
+		];
+
+		style.setProperty('direction', direction, 'important');
+		ctx.prevTextDirection = original;
+	}
+};
+
+var restoreTextDirection = function(ctx) {
+	var original = ctx.prevTextDirection;
+	if (original !== undefined) {
+		delete ctx.prevTextDirection;
+		ctx.canvas.style.setProperty('direction', original[0], original[1]);
+	}
+};
+
+var helpers_rtl = {
+	getRtlAdapter: getAdapter,
+	overrideTextDirection: overrideTextDirection,
+	restoreTextDirection: restoreTextDirection,
+};
+
 var helpers$1 = helpers_core;
 var easing = helpers_easing;
 var canvas = helpers_canvas;
 var options = helpers_options;
 var math = helpers_math;
+var rtl = helpers_rtl;
 helpers$1.easing = easing;
 helpers$1.canvas = canvas;
 helpers$1.options = options;
 helpers$1.math = math;
+helpers$1.rtl = rtl;
 
 function interpolate(start, view, model, ease) {
 	var keys = Object.keys(model);
@@ -7420,6 +7496,7 @@ var core_scaleService = {
 };
 
 var valueOrDefault$7 = helpers$1.valueOrDefault;
+var getRtlHelper = helpers$1.rtl.getRtlAdapter;
 
 core_defaults._set('global', {
 	tooltips: {
@@ -7656,6 +7733,10 @@ function getBaseModel(tooltipOpts) {
 		yPadding: tooltipOpts.yPadding,
 		xAlign: tooltipOpts.xAlign,
 		yAlign: tooltipOpts.yAlign,
+
+		// Drawing direction and text direction
+		rtl: tooltipOpts.rtl,
+		textDirection: tooltipOpts.textDirection,
 
 		// Body
 		bodyFontColor: tooltipOpts.bodyFontColor,
@@ -8167,9 +8248,11 @@ var exports$4 = core_element.extend({
 		var titleFontSize, titleSpacing, i;
 
 		if (length) {
+			var rtlHelper = getRtlHelper(vm.rtl, vm.x, vm.width);
+
 			pt.x = getAlignedX(vm, vm._titleAlign);
 
-			ctx.textAlign = vm._titleAlign;
+			ctx.textAlign = rtlHelper.textAlign(vm._titleAlign);
 			ctx.textBaseline = 'middle';
 
 			titleFontSize = vm.titleFontSize;
@@ -8179,7 +8262,7 @@ var exports$4 = core_element.extend({
 			ctx.font = helpers$1.fontString(titleFontSize, vm._titleFontStyle, vm._titleFontFamily);
 
 			for (i = 0; i < length; ++i) {
-				ctx.fillText(title[i], pt.x, pt.y + titleFontSize / 2);
+				ctx.fillText(title[i], rtlHelper.x(pt.x), pt.y + titleFontSize / 2);
 				pt.y += titleFontSize + titleSpacing; // Line Height and spacing
 
 				if (i + 1 === length) {
@@ -8198,24 +8281,27 @@ var exports$4 = core_element.extend({
 		var xLinePadding = 0;
 		var colorX = drawColorBoxes ? getAlignedX(vm, 'left') : 0;
 
+		var rtlHelper = getRtlHelper(vm.rtl, vm.x, vm.width);
+
 		var fillLineOfText = function(line) {
-			ctx.fillText(line, pt.x + xLinePadding, pt.y + bodyFontSize / 2);
+			ctx.fillText(line, rtlHelper.x(pt.x + xLinePadding), pt.y + bodyFontSize / 2);
 			pt.y += bodyFontSize + bodySpacing;
 		};
 
 		var bodyItem, textColor, labelColors, lines, i, j, ilen, jlen;
+		var bodyAlignForCalculation = rtlHelper.textAlign(bodyAlign);
 
 		ctx.textAlign = bodyAlign;
 		ctx.textBaseline = 'middle';
 		ctx.font = helpers$1.fontString(bodyFontSize, vm._bodyFontStyle, vm._bodyFontFamily);
 
-		pt.x = getAlignedX(vm, bodyAlign);
+		pt.x = getAlignedX(vm, bodyAlignForCalculation);
 
 		// Before body lines
 		ctx.fillStyle = vm.bodyFontColor;
 		helpers$1.each(vm.beforeBody, fillLineOfText);
 
-		xLinePadding = drawColorBoxes && bodyAlign !== 'right'
+		xLinePadding = drawColorBoxes && bodyAlignForCalculation !== 'right'
 			? bodyAlign === 'center' ? (bodyFontSize / 2 + 1) : (bodyFontSize + 2)
 			: 0;
 
@@ -8232,18 +8318,20 @@ var exports$4 = core_element.extend({
 			for (j = 0, jlen = lines.length; j < jlen; ++j) {
 				// Draw Legend-like boxes if needed
 				if (drawColorBoxes) {
+					var rtlColorX = rtlHelper.x(colorX);
+
 					// Fill a white rect so that colours merge nicely if the opacity is < 1
 					ctx.fillStyle = vm.legendColorBackground;
-					ctx.fillRect(colorX, pt.y, bodyFontSize, bodyFontSize);
+					ctx.fillRect(rtlHelper.leftForLtr(rtlColorX, bodyFontSize), pt.y, bodyFontSize, bodyFontSize);
 
 					// Border
 					ctx.lineWidth = 1;
 					ctx.strokeStyle = labelColors.borderColor;
-					ctx.strokeRect(colorX, pt.y, bodyFontSize, bodyFontSize);
+					ctx.strokeRect(rtlHelper.leftForLtr(rtlColorX, bodyFontSize), pt.y, bodyFontSize, bodyFontSize);
 
 					// Inner square
 					ctx.fillStyle = labelColors.backgroundColor;
-					ctx.fillRect(colorX + 1, pt.y + 1, bodyFontSize - 2, bodyFontSize - 2);
+					ctx.fillRect(rtlHelper.leftForLtr(rtlHelper.xPlus(rtlColorX, 1), bodyFontSize - 2), pt.y + 1, bodyFontSize - 2, bodyFontSize - 2);
 					ctx.fillStyle = textColor;
 				}
 
@@ -8267,10 +8355,12 @@ var exports$4 = core_element.extend({
 		var footerFontSize, i;
 
 		if (length) {
+			var rtlHelper = getRtlHelper(vm.rtl, vm.x, vm.width);
+
 			pt.x = getAlignedX(vm, vm._footerAlign);
 			pt.y += vm.footerMarginTop;
 
-			ctx.textAlign = vm._footerAlign;
+			ctx.textAlign = rtlHelper.textAlign(vm._footerAlign);
 			ctx.textBaseline = 'middle';
 
 			footerFontSize = vm.footerFontSize;
@@ -8279,7 +8369,7 @@ var exports$4 = core_element.extend({
 			ctx.font = helpers$1.fontString(footerFontSize, vm._footerFontStyle, vm._footerFontFamily);
 
 			for (i = 0; i < length; ++i) {
-				ctx.fillText(footer[i], pt.x, pt.y + footerFontSize / 2);
+				ctx.fillText(footer[i], rtlHelper.x(pt.x), pt.y + footerFontSize / 2);
 				pt.y += footerFontSize + vm.footerSpacing;
 			}
 		}
@@ -8361,6 +8451,8 @@ var exports$4 = core_element.extend({
 			// Draw Title, Body, and Footer
 			pt.y += vm.yPadding;
 
+			helpers$1.rtl.overrideTextDirection(ctx, vm.textDirection);
+
 			// Titles
 			this.drawTitle(pt, vm, ctx);
 
@@ -8369,6 +8461,8 @@ var exports$4 = core_element.extend({
 
 			// Footer
 			this.drawFooter(pt, vm, ctx);
+
+			helpers$1.rtl.restoreTextDirection(ctx, vm.textDirection);
 
 			ctx.restore();
 		}
@@ -14259,6 +14353,7 @@ var plugin_filler = {
 	}
 };
 
+var getRtlHelper$1 = helpers$1.rtl.getRtlAdapter;
 var noop$1 = helpers$1.noop;
 var valueOrDefault$d = helpers$1.valueOrDefault;
 
@@ -14609,6 +14704,7 @@ var Legend = core_element.extend({
 			return;
 		}
 
+		var rtlHelper = getRtlHelper$1(opts.rtl, me.left, me.minSize.width);
 		var ctx = me.ctx;
 		var fontColor = valueOrDefault$d(labelOpts.fontColor, globalDefaults.defaultFontColor);
 		var labelFont = helpers$1.options._parseFont(labelOpts);
@@ -14616,7 +14712,7 @@ var Legend = core_element.extend({
 		var cursor;
 
 		// Canvas setup
-		ctx.textAlign = 'left';
+		ctx.textAlign = rtlHelper.textAlign('left');
 		ctx.textBaseline = 'middle';
 		ctx.lineWidth = 0.5;
 		ctx.strokeStyle = fontColor; // for strikethrough effect
@@ -14652,24 +14748,25 @@ var Legend = core_element.extend({
 				// Recalculate x and y for drawPoint() because its expecting
 				// x and y to be center of figure (instead of top left)
 				var radius = boxWidth * Math.SQRT2 / 2;
-				var centerX = x + boxWidth / 2;
+				var centerX = rtlHelper.xPlus(x, boxWidth / 2);
 				var centerY = y + fontSize / 2;
 
 				// Draw pointStyle as legend symbol
 				helpers$1.canvas.drawPoint(ctx, legendItem.pointStyle, radius, centerX, centerY, legendItem.rotation);
 			} else {
 				// Draw box as legend symbol
-				ctx.fillRect(x, y, boxWidth, fontSize);
+				ctx.fillRect(rtlHelper.leftForLtr(x, boxWidth), y, boxWidth, fontSize);
 				if (lineWidth !== 0) {
-					ctx.strokeRect(x, y, boxWidth, fontSize);
+					ctx.strokeRect(rtlHelper.leftForLtr(x, boxWidth), y, boxWidth, fontSize);
 				}
 			}
 
 			ctx.restore();
 		};
+
 		var fillText = function(x, y, legendItem, textWidth) {
 			var halfFontSize = fontSize / 2;
-			var xLeft = boxWidth + halfFontSize + x;
+			var xLeft = rtlHelper.xPlus(x, boxWidth + halfFontSize);
 			var yMiddle = y + halfFontSize;
 
 			ctx.fillText(legendItem.text, xLeft, yMiddle);
@@ -14679,7 +14776,7 @@ var Legend = core_element.extend({
 				ctx.beginPath();
 				ctx.lineWidth = 2;
 				ctx.moveTo(xLeft, yMiddle);
-				ctx.lineTo(xLeft + textWidth, yMiddle);
+				ctx.lineTo(rtlHelper.xPlus(xLeft, textWidth), yMiddle);
 				ctx.stroke();
 			}
 		};
@@ -14711,12 +14808,16 @@ var Legend = core_element.extend({
 			};
 		}
 
+		helpers$1.rtl.overrideTextDirection(me.ctx, opts.textDirection);
+
 		var itemHeight = fontSize + labelOpts.padding;
 		helpers$1.each(me.legendItems, function(legendItem, i) {
 			var textWidth = ctx.measureText(legendItem.text).width;
 			var width = boxWidth + (fontSize / 2) + textWidth;
 			var x = cursor.x;
 			var y = cursor.y;
+
+			rtlHelper.setWidth(me.minSize.width);
 
 			// Use (me.left + me.minSize.width) and (me.top + me.minSize.height)
 			// instead of me.right and me.bottom because me.width and me.height
@@ -14733,13 +14834,15 @@ var Legend = core_element.extend({
 				y = cursor.y = me.top + alignmentOffset(legendHeight, columnHeights[cursor.line]);
 			}
 
-			drawLegendBox(x, y, legendItem);
+			var realX = rtlHelper.x(x);
 
-			hitboxes[i].left = x;
+			drawLegendBox(realX, y, legendItem);
+
+			hitboxes[i].left = rtlHelper.leftForLtr(realX, hitboxes[i].width);
 			hitboxes[i].top = y;
 
 			// Fill the actual label
-			fillText(x, y, legendItem, textWidth);
+			fillText(realX, y, legendItem, textWidth);
 
 			if (isHorizontal) {
 				cursor.x += width + labelOpts.padding;
@@ -14747,6 +14850,8 @@ var Legend = core_element.extend({
 				cursor.y += itemHeight;
 			}
 		});
+
+		helpers$1.rtl.restoreTextDirection(me.ctx, opts.textDirection);
 	},
 
 	/**
