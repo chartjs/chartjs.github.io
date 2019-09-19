@@ -10629,6 +10629,9 @@ function parseTickFontOptions(options) {
 }
 
 var Scale = core_element.extend({
+
+	zeroLineIndex: 0,
+
 	/**
 	 * Get the padding needed for the scale
 	 * @method getPadding
