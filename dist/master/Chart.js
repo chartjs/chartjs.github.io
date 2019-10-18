@@ -3858,7 +3858,11 @@ var element_line = core_element.extend({
 		var closePath = me._loop;
 		var index, previous, currentVM;
 
-		if (me._loop && points.length) {
+		if (!points.length) {
+			return;
+		}
+
+		if (me._loop) {
 			for (index = 0; index < points.length; ++index) {
 				previous = helpers$1.previousItem(points, index);
 				// If the line has an open path, shift the point array
@@ -3891,31 +3895,27 @@ var element_line = core_element.extend({
 
 		// Stroke Line
 		ctx.beginPath();
-		lastDrawnIndex = -1;
 
-		for (index = 0; index < points.length; ++index) {
-			previous = helpers$1.previousItem(points, index);
+		// First point moves to it's starting position no matter what
+		currentVM = points[0]._view;
+		if (!currentVM.skip) {
+			ctx.moveTo(currentVM.x, currentVM.y);
+			lastDrawnIndex = 0;
+		}
+
+		for (index = 1; index < points.length; ++index) {
 			currentVM = points[index]._view;
+			previous = lastDrawnIndex === -1 ? helpers$1.previousItem(points, index) : points[lastDrawnIndex];
 
-			// First point moves to it's starting position no matter what
-			if (index === 0) {
-				if (!currentVM.skip) {
+			if (!currentVM.skip) {
+				if ((lastDrawnIndex !== (index - 1) && !spanGaps) || lastDrawnIndex === -1) {
+					// There was a gap and this is the first point after the gap
 					ctx.moveTo(currentVM.x, currentVM.y);
-					lastDrawnIndex = index;
+				} else {
+					// Line to next point
+					helpers$1.canvas.lineTo(ctx, previous._view, currentVM);
 				}
-			} else {
-				previous = lastDrawnIndex === -1 ? previous : points[lastDrawnIndex];
-
-				if (!currentVM.skip) {
-					if ((lastDrawnIndex !== (index - 1) && !spanGaps) || lastDrawnIndex === -1) {
-						// There was a gap and this is the first point after the gap
-						ctx.moveTo(currentVM.x, currentVM.y);
-					} else {
-						// Line to next point
-						helpers$1.canvas.lineTo(ctx, previous._view, currentVM);
-					}
-					lastDrawnIndex = index;
-				}
+				lastDrawnIndex = index;
 			}
 		}
 
