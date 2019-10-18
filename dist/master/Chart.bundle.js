@@ -10707,7 +10707,7 @@ var Scale = core_element.extend({
 		var me = this;
 		var tickOpts = me.options.ticks;
 		var sampleSize = tickOpts.sampleSize;
-		var i, ilen, labels, ticks;
+		var i, ilen, labels, ticks, samplingEnabled;
 
 		// Update Lifecycle - Probably don't want to ever extend or overwrite this function ;)
 		me.beforeUpdate();
@@ -10772,7 +10772,8 @@ var Scale = core_element.extend({
 
 		// Compute tick rotation and fit using a sampled subset of labels
 		// We generally don't need to compute the size of every single label for determining scale size
-		labels = me._convertTicksToLabels(sampleSize ? sample(ticks, sampleSize) : ticks);
+		samplingEnabled = sampleSize > ticks.length;
+		labels = me._convertTicksToLabels(samplingEnabled ? sample(ticks, sampleSize) : ticks);
 
 		// _configure is called twice, once here, once from core.controller.updateLayout.
 		// Here we haven't been positioned yet, but dimensions are correct.
@@ -10792,7 +10793,7 @@ var Scale = core_element.extend({
 		// Auto-skip
 		me._ticksToDraw = tickOpts.display && tickOpts.autoSkip ? me._autoSkip(ticks) : ticks;
 
-		if (sampleSize) {
+		if (samplingEnabled) {
 			// Generate labels using all non-skipped ticks
 			labels = me._convertTicksToLabels(me._ticksToDraw);
 		}
