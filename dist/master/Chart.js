@@ -5668,6 +5668,20 @@ var controller_polarArea = core_datasetController.extend({
 		'hoverBorderWidth',
 	],
 
+	/**
+	 * @private
+	 */
+	_getIndexScaleId: function() {
+		return this.chart.scale.id;
+	},
+
+	/**
+	 * @private
+	 */
+	_getValueScaleId: function() {
+		return this.chart.scale.id;
+	},
+
 	update: function(reset) {
 		var me = this;
 		var dataset = me.getDataset();
@@ -5844,13 +5858,6 @@ core_defaults._set('radar', {
 });
 
 var controller_radar = core_datasetController.extend({
-	/**
-	 * @private
-	 */
-	_getValueScaleId: function() {
-		return this.chart.scale.id;
-	},
-
 	datasetElementType: elements.Line,
 
 	dataElementType: elements.Point,
@@ -5886,6 +5893,20 @@ var controller_radar = core_datasetController.extend({
 		pointStyle: 'pointStyle',
 		radius: 'pointRadius',
 		rotation: 'pointRotation'
+	},
+
+	/**
+	 * @private
+	 */
+	_getIndexScaleId: function() {
+		return this.chart.scale.id;
+	},
+
+	/**
+	 * @private
+	 */
+	_getValueScaleId: function() {
+		return this.chart.scale.id;
 	},
 
 	update: function(reset) {
