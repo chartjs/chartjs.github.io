@@ -10661,6 +10661,109 @@ function parseTickFontOptions(options) {
 	return {minor: minor, major: major};
 }
 
+function nonSkipped(ticksToFilter) {
+	var filtered = [];
+	var item, index, len;
+	for (index = 0, len = ticksToFilter.length; index < len; ++index) {
+		item = ticksToFilter[index];
+		if (typeof item._index !== 'undefined') {
+			filtered.push(item);
+		}
+	}
+	return filtered;
+}
+
+function getEvenSpacing(arr) {
+	var len = arr.length;
+	var i, diff;
+
+	if (len < 2) {
+		return false;
+	}
+
+	for (diff = arr[0], i = 1; i < len; ++i) {
+		if (arr[i] - arr[i - 1] !== diff) {
+			return false;
+		}
+	}
+	return diff;
+}
+
+function calculateSpacing(majorIndices, ticks, axisLength, ticksLimit) {
+	var evenMajorSpacing = getEvenSpacing(majorIndices);
+	var spacing = (ticks.length - 1) / ticksLimit;
+	var factors, factor, i, ilen;
+
+	// If the major ticks are evenly spaced apart, place the minor ticks
+	// so that they divide the major ticks into even chunks
+	if (!evenMajorSpacing) {
+		return Math.max(spacing, 1);
+	}
+
+	factors = helpers$1.math._factorize(evenMajorSpacing);
+	for (i = 0, ilen = factors.length - 1; i < ilen; i++) {
+		factor = factors[i];
+		if (factor > spacing) {
+			return factor;
+		}
+	}
+	return Math.max(spacing, 1);
+}
+
+function getMajorIndices(ticks) {
+	var result = [];
+	var i, ilen;
+	for (i = 0, ilen = ticks.length; i < ilen; i++) {
+		if (ticks[i].major) {
+			result.push(i);
+		}
+	}
+	return result;
+}
+
+function skipMajors(ticks, majorIndices, spacing) {
+	var count = 0;
+	var next = majorIndices[0];
+	var i, tick;
+
+	spacing = Math.ceil(spacing);
+	for (i = 0; i < ticks.length; i++) {
+		tick = ticks[i];
+		if (i === next) {
+			tick._index = i;
+			count++;
+			next = majorIndices[count * spacing];
+		} else {
+			delete tick.label;
+		}
+	}
+}
+
+function skip(ticks, spacing, majorStart, majorEnd) {
+	var start = valueOrDefault$9(majorStart, 0);
+	var end = Math.min(valueOrDefault$9(majorEnd, ticks.length), ticks.length);
+	var count = 0;
+	var length, i, tick, next;
+
+	spacing = Math.ceil(spacing);
+	if (majorEnd) {
+		length = majorEnd - majorStart;
+		spacing = length / Math.floor(length / spacing);
+	}
+
+	next = start;
+	for (i = Math.max(start, 0); i < end; i++) {
+		tick = ticks[i];
+		if (i === next) {
+			tick._index = i;
+			count++;
+			next = Math.round(start + count * spacing);
+		} else {
+			delete tick.label;
+		}
+	}
+}
+
 var Scale = core_element.extend({
 
 	zeroLineIndex: 0,
@@ -10811,7 +10914,7 @@ var Scale = core_element.extend({
 		me.afterFit();
 
 		// Auto-skip
-		me._ticksToDraw = tickOpts.display && tickOpts.autoSkip ? me._autoSkip(ticks) : ticks;
+		me._ticksToDraw = tickOpts.display && (tickOpts.autoSkip || tickOpts.source === 'auto') ? me._autoSkip(ticks) : ticks;
 
 		if (samplingEnabled) {
 			// Generate labels using all non-skipped ticks
@@ -11295,40 +11398,34 @@ var Scale = core_element.extend({
 	 */
 	_autoSkip: function(ticks) {
 		var me = this;
-		var optionTicks = me.options.ticks;
-		var tickCount = ticks.length;
-		var skipRatio = false;
-		var maxTicks = optionTicks.maxTicksLimit;
-
-		// Total space needed to display all ticks. First and last ticks are
-		// drawn as their center at end of axis, so tickCount-1
-		var ticksLength = me._tickSize() * (tickCount - 1);
-
+		var tickOpts = me.options.ticks;
 		var axisLength = me._length;
-		var result = [];
-		var i, tick;
+		var ticksLimit = tickOpts.maxTicksLimit || axisLength / me._tickSize() + 1;
+		var majorIndices = tickOpts.major.enabled ? getMajorIndices(ticks) : [];
+		var numMajorIndices = majorIndices.length;
+		var first = majorIndices[0];
+		var last = majorIndices[numMajorIndices - 1];
+		var i, ilen, spacing, avgMajorSpacing;
 
-		if (ticksLength > axisLength) {
-			skipRatio = 1 + Math.floor(ticksLength / axisLength);
+		// If there are too many major ticks to display them all
+		if (numMajorIndices > ticksLimit) {
+			skipMajors(ticks, majorIndices, numMajorIndices / ticksLimit);
+			return nonSkipped(ticks);
 		}
 
-		// if they defined a max number of optionTicks,
-		// increase skipRatio until that number is met
-		if (tickCount > maxTicks) {
-			skipRatio = Math.max(skipRatio, 1 + Math.floor(tickCount / maxTicks));
-		}
+		spacing = calculateSpacing(majorIndices, ticks, axisLength, ticksLimit);
 
-		for (i = 0; i < tickCount; i++) {
-			tick = ticks[i];
-
-			if (skipRatio <= 1 || i % skipRatio === 0) {
-				tick._index = i;
-				result.push(tick);
-			} else {
-				delete tick.label;
+		if (numMajorIndices > 0) {
+			for (i = 0, ilen = numMajorIndices - 1; i < ilen; i++) {
+				skip(ticks, spacing, majorIndices[i], majorIndices[i + 1]);
 			}
+			avgMajorSpacing = numMajorIndices > 1 ? (last - first) / (numMajorIndices - 1) : null;
+			skip(ticks, spacing, helpers$1.isNullOrUndef(avgMajorSpacing) ? 0 : first - avgMajorSpacing, first);
+			skip(ticks, spacing, last, helpers$1.isNullOrUndef(avgMajorSpacing) ? ticks.length : last + avgMajorSpacing);
+			return nonSkipped(ticks);
 		}
-		return result;
+		skip(ticks, spacing);
+		return nonSkipped(ticks);
 	},
 
 	/**
@@ -11402,7 +11499,7 @@ var Scale = core_element.extend({
 		var alignBorderValue = function(pixel) {
 			return alignPixel(chart, pixel, axisWidth);
 		};
-		var borderValue, i, tick, label, lineValue, alignedLineValue;
+		var borderValue, i, tick, lineValue, alignedLineValue;
 		var tx1, ty1, tx2, ty2, x1, y1, x2, y2, lineWidth, lineColor, borderDash, borderDashOffset;
 
 		if (position === 'top') {
@@ -11433,10 +11530,9 @@ var Scale = core_element.extend({
 
 		for (i = 0; i < ticksLength; ++i) {
 			tick = ticks[i] || {};
-			label = tick.label;
 
 			// autoskipper skipped this tick (#4635)
-			if (isNullOrUndef(label) && i < ticks.length) {
+			if (isNullOrUndef(tick.label) && i < ticks.length) {
 				continue;
 			}
 
@@ -13174,8 +13270,8 @@ var scale_radialLinear = scale_linearbase.extend({
 var _defaults$3 = defaultConfig$3;
 scale_radialLinear._defaults = _defaults$3;
 
+var resolve$5 = helpers$1.options.resolve;
 var valueOrDefault$c = helpers$1.valueOrDefault;
-var factorize = helpers$1.math._factorize;
 
 // Integer constants are from the ES6 spec.
 var MIN_INTEGER = Number.MIN_SAFE_INTEGER || -9007199254740991;
@@ -13185,42 +13281,42 @@ var INTERVALS = {
 	millisecond: {
 		common: true,
 		size: 1,
-		steps: factorize(1000)
+		steps: 1000
 	},
 	second: {
 		common: true,
 		size: 1000,
-		steps: factorize(60)
+		steps: 60
 	},
 	minute: {
 		common: true,
 		size: 60000,
-		steps: factorize(60)
+		steps: 60
 	},
 	hour: {
 		common: true,
 		size: 3600000,
-		steps: factorize(24)
+		steps: 24
 	},
 	day: {
 		common: true,
 		size: 86400000,
-		steps: factorize(10)
+		steps: 30
 	},
 	week: {
 		common: false,
 		size: 604800000,
-		steps: factorize(4)
+		steps: 4
 	},
 	month: {
 		common: true,
 		size: 2.628e9,
-		steps: factorize(12)
+		steps: 12
 	},
 	quarter: {
 		common: false,
 		size: 7.884e9,
-		steps: factorize(4)
+		steps: 4
 	},
 	year: {
 		common: true,
@@ -13418,31 +13514,6 @@ function parse(scale, input) {
 }
 
 /**
- * Returns the number of unit to skip to be able to display up to `capacity` number of ticks
- * in `unit` for the given `min` / `max` range and respecting the interval steps constraints.
- */
-function determineStepSize(min, max, unit, capacity) {
-	var range = max - min;
-	var interval = INTERVALS[unit];
-	var milliseconds = interval.size;
-	var steps = interval.steps;
-	var i, ilen, factor;
-
-	if (!steps) {
-		return Math.ceil(range / (capacity * milliseconds));
-	}
-
-	for (i = 0, ilen = steps.length; i < ilen; ++i) {
-		factor = steps[i];
-		if (Math.ceil(range / (milliseconds * factor)) <= capacity) {
-			break;
-		}
-	}
-
-	return factor;
-}
-
-/**
  * Figures out what unit results in an appropriate number of auto-generated ticks
  */
 function determineUnitForAutoTicks(minUnit, min, max, capacity) {
@@ -13451,7 +13522,7 @@ function determineUnitForAutoTicks(minUnit, min, max, capacity) {
 
 	for (i = UNITS.indexOf(minUnit); i < ilen - 1; ++i) {
 		interval = INTERVALS[UNITS[i]];
-		factor = interval.steps ? interval.steps[interval.steps.length - 1] : MAX_INTEGER;
+		factor = interval.steps ? interval.steps / 2 : MAX_INTEGER;
 
 		if (interval.common && Math.ceil((max - min) / (factor * interval.size)) <= capacity) {
 			return UNITS[i];
@@ -13465,10 +13536,9 @@ function determineUnitForAutoTicks(minUnit, min, max, capacity) {
  * Figures out what unit to format a set of ticks with
  */
 function determineUnitForFormatting(scale, ticks, minUnit, min, max) {
-	var ilen = UNITS.length;
 	var i, unit;
 
-	for (i = ilen - 1; i >= UNITS.indexOf(minUnit); i--) {
+	for (i = UNITS.length - 1; i >= UNITS.indexOf(minUnit); i--) {
 		unit = UNITS[i];
 		if (INTERVALS[unit].common && scale._adapter.diff(max, min, unit) >= ticks.length - 1) {
 			return unit;
@@ -13488,7 +13558,7 @@ function determineMajorUnit(unit) {
 
 /**
  * Generates a maximum of `capacity` timestamps between min and max, rounded to the
- * `minor` unit, aligned on the `major` unit and using the given scale time `options`.
+ * `minor` unit using the given scale time `options`.
  * Important: this method can return ticks outside the min and max range, it's the
  * responsibility of the calling code to clamp values if needed.
  */
@@ -13497,50 +13567,32 @@ function generate(scale, min, max, capacity) {
 	var options = scale.options;
 	var timeOpts = options.time;
 	var minor = timeOpts.unit || determineUnitForAutoTicks(timeOpts.minUnit, min, max, capacity);
-	var major = determineMajorUnit(minor);
-	var stepSize = valueOrDefault$c(timeOpts.stepSize, timeOpts.unitStepSize);
+	var stepSize = resolve$5([timeOpts.stepSize, timeOpts.unitStepSize, 1]);
 	var weekday = minor === 'week' ? timeOpts.isoWeekday : false;
-	var majorTicksEnabled = options.ticks.major.enabled;
-	var interval = INTERVALS[minor];
 	var first = min;
-	var last = max;
 	var ticks = [];
 	var time;
-
-	if (!stepSize) {
-		stepSize = determineStepSize(min, max, minor, capacity);
-	}
 
 	// For 'week' unit, handle the first day of week option
 	if (weekday) {
 		first = +adapter.startOf(first, 'isoWeek', weekday);
-		last = +adapter.startOf(last, 'isoWeek', weekday);
 	}
 
-	// Align first/last ticks on unit
+	// Align first ticks on unit
 	first = +adapter.startOf(first, weekday ? 'day' : minor);
-	last = +adapter.startOf(last, weekday ? 'day' : minor);
 
-	// Make sure that the last tick include max
-	if (last < max) {
-		last = +adapter.add(last, 1, minor);
+	// Prevent browser from freezing in case user options request millions of milliseconds
+	if (adapter.diff(max, min, minor) > 100000 * stepSize) {
+		throw min + ' and ' + max + ' are too far apart with stepSize of ' + stepSize + ' ' + minor;
 	}
 
-	time = first;
-
-	if (majorTicksEnabled && major && !weekday && !timeOpts.round) {
-		// Align the first tick on the previous `minor` unit aligned on the `major` unit:
-		// we first aligned time on the previous `major` unit then add the number of full
-		// stepSize there is between first and the previous major time.
-		time = +adapter.startOf(time, major);
-		time = +adapter.add(time, ~~((first - time) / (interval.size * stepSize)) * stepSize, minor);
+	for (time = first; time < max; time = +adapter.add(time, stepSize, minor)) {
+		ticks.push(time);
 	}
 
-	for (; time < last; time = +adapter.add(time, stepSize, minor)) {
-		ticks.push(+time);
+	if (time === max || options.bounds === 'ticks') {
+		ticks.push(time);
 	}
-
-	ticks.push(+time);
 
 	return ticks;
 }
@@ -13778,18 +13830,17 @@ var scale_time = core_scale.extend({
 		var timeOpts = options.time;
 		var timestamps = me._timestamps;
 		var ticks = [];
+		var capacity = me.getLabelCapacity(min);
+		var source = options.ticks.source;
+		var distribution = options.distribution;
 		var i, ilen, timestamp;
 
-		switch (options.ticks.source) {
-		case 'data':
+		if (source === 'data' || (source === 'auto' && distribution === 'series')) {
 			timestamps = timestamps.data;
-			break;
-		case 'labels':
+		} else if (source === 'labels') {
 			timestamps = timestamps.labels;
-			break;
-		case 'auto':
-		default:
-			timestamps = generate(me, min, max, me.getLabelCapacity(min));
+		} else {
+			timestamps = generate(me, min, max, capacity);
 		}
 
 		if (options.bounds === 'ticks' && timestamps.length) {
@@ -13814,8 +13865,9 @@ var scale_time = core_scale.extend({
 
 		// PRIVATE
 		me._unit = timeOpts.unit || determineUnitForFormatting(me, ticks, timeOpts.minUnit, me.min, me.max);
-		me._majorUnit = determineMajorUnit(me._unit);
-		me._table = buildLookupTable(me._timestamps.data, min, max, options.distribution);
+		me._majorUnit = !options.ticks.major.enabled || me._unit === 'year' ? undefined
+			: determineMajorUnit(me._unit);
+		me._table = buildLookupTable(me._timestamps.data, min, max, distribution);
 		me._offsets = computeOffsets(me._table, ticks, min, max, options);
 
 		if (options.ticks.reverse) {
@@ -13859,11 +13911,10 @@ var scale_time = core_scale.extend({
 		var majorFormat = formats[majorUnit];
 		var tick = ticks[index];
 		var tickOpts = options.ticks;
-		var majorTickOpts = tickOpts.major;
-		var major = majorTickOpts.enabled && majorUnit && majorFormat && tick && tick.major;
+		var major = majorUnit && majorFormat && tick && tick.major;
 		var label = adapter.format(time, format ? format : major ? majorFormat : minorFormat);
-		var nestedTickOpts = major ? majorTickOpts : tickOpts.minor;
-		var formatter = helpers$1.options.resolve([
+		var nestedTickOpts = major ? tickOpts.major : tickOpts.minor;
+		var formatter = resolve$5([
 			nestedTickOpts.callback,
 			nestedTickOpts.userCallback,
 			tickOpts.callback,
