@@ -2664,9 +2664,12 @@ var helpers_options = {
 	 * is called with `context` as first argument and the result becomes the new input.
 	 * @param {number} [index] - If defined and the current value is an array, the value
 	 * at `index` become the new input.
+	 * @param {object} [info] - object to return information about resolution in
+	 * @param {boolean} [info.cacheable] - Will be set to `false` if option is not cacheable.
 	 * @since 2.7.0
 	 */
-	resolve: function(inputs, context, index) {
+	resolve: function(inputs, context, index, info) {
+		var cacheable = true;
 		var i, ilen, value;
 
 		for (i = 0, ilen = inputs.length; i < ilen; ++i) {
@@ -2676,11 +2679,16 @@ var helpers_options = {
 			}
 			if (context !== undefined && typeof value === 'function') {
 				value = value(context);
+				cacheable = false;
 			}
 			if (index !== undefined && helpers_core.isArray(value)) {
 				value = value[index];
+				cacheable = false;
 			}
 			if (value !== undefined) {
+				if (info && !cacheable) {
+					info.cacheable = false;
+				}
 				return value;
 			}
 		}
@@ -3386,6 +3394,7 @@ helpers$1.extend(DatasetController.prototype, {
 	_update: function(reset) {
 		var me = this;
 		me._configure();
+		me._cachedDataOpts = null;
 		me.update(reset);
 	},
 
@@ -3485,13 +3494,16 @@ helpers$1.extend(DatasetController.prototype, {
 	 */
 	_resolveDataElementOptions: function(element, index) {
 		var me = this;
+		var custom = element && element.custom;
+		var cached = me._cachedDataOpts;
+		if (cached && !custom) {
+			return cached;
+		}
 		var chart = me.chart;
 		var datasetOpts = me._config;
-		var custom = element.custom || {};
 		var options = chart.options.elements[me.dataElementType.prototype._type] || {};
 		var elementOptions = me._dataElementOptions;
 		var values = {};
-		var keys, i, ilen, key;
 
 		// Scriptable options
 		var context = {
@@ -3501,6 +3513,13 @@ helpers$1.extend(DatasetController.prototype, {
 			datasetIndex: me.index
 		};
 
+		// `resolve` sets cacheable to `false` if any option is indexed or scripted
+		var info = {cacheable: !custom};
+
+		var keys, i, ilen, key;
+
+		custom = custom || {};
+
 		if (helpers$1.isArray(elementOptions)) {
 			for (i = 0, ilen = elementOptions.length; i < ilen; ++i) {
 				key = elementOptions[i];
@@ -3508,7 +3527,7 @@ helpers$1.extend(DatasetController.prototype, {
 					custom[key],
 					datasetOpts[key],
 					options[key]
-				], context, index);
+				], context, index, info);
 			}
 		} else {
 			keys = Object.keys(elementOptions);
@@ -3519,8 +3538,12 @@ helpers$1.extend(DatasetController.prototype, {
 					datasetOpts[elementOptions[key]],
 					datasetOpts[key],
 					options[key]
-				], context, index);
+				], context, index, info);
 			}
+		}
+
+		if (info.cacheable) {
+			me._cachedDataOpts = Object.freeze(values);
 		}
 
 		return values;
@@ -4759,6 +4782,11 @@ var controller_bubble = core_datasetController.extend({
 			dataset: dataset,
 			datasetIndex: me.index
 		};
+
+		// In case values were cached (and thus frozen), we need to clone the values
+		if (me._cachedDataOpts === values) {
+			values = helpers$1.extend({}, values);
+		}
 
 		// Custom radius resolution
 		values.radius = resolve$1([
