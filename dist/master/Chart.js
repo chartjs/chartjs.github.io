@@ -4459,20 +4459,26 @@ var controller_bar = core_datasetController.extend({
 	 */
 	_getStacks: function(last) {
 		var me = this;
-		var chart = me.chart;
 		var scale = me._getIndexScale();
+		var metasets = scale._getMatchingVisibleMetas(me._type);
 		var stacked = scale.options.stacked;
-		var ilen = last === undefined ? chart.data.datasets.length : last + 1;
+		var ilen = metasets.length;
 		var stacks = [];
 		var i, meta;
 
 		for (i = 0; i < ilen; ++i) {
-			meta = chart.getDatasetMeta(i);
-			if (meta.bar && chart.isDatasetVisible(i) &&
-				(stacked === false ||
-				(stacked === true && stacks.indexOf(meta.stack) === -1) ||
-				(stacked === undefined && (meta.stack === undefined || stacks.indexOf(meta.stack) === -1)))) {
+			meta = metasets[i];
+			// stacked   | meta.stack
+			//           | found | not found | undefined
+			// false     |   x   |     x     |     x
+			// true      |       |     x     |
+			// undefined |       |     x     |     x
+			if (stacked === false || stacks.indexOf(meta.stack) === -1 ||
+				(stacked === undefined && meta.stack === undefined)) {
 				stacks.push(meta.stack);
+			}
+			if (meta.index === last) {
+				break;
 			}
 		}
 
@@ -4542,24 +4548,26 @@ var controller_bar = core_datasetController.extend({
 		var scale = me._getValueScale();
 		var isHorizontal = scale.isHorizontal();
 		var datasets = chart.data.datasets;
+		var metasets = scale._getMatchingVisibleMetas(me._type);
 		var value = scale._parseValue(datasets[datasetIndex].data[index]);
 		var minBarLength = scale.options.minBarLength;
 		var stacked = scale.options.stacked;
 		var stack = me.getMeta().stack;
 		var start = value.start === undefined ? 0 : value.max >= 0 && value.min >= 0 ? value.min : value.max;
 		var length = value.start === undefined ? value.end : value.max >= 0 && value.min >= 0 ? value.max - value.min : value.min - value.max;
+		var ilen = metasets.length;
 		var i, imeta, ivalue, base, head, size, stackLength;
 
 		if (stacked || (stacked === undefined && stack !== undefined)) {
-			for (i = 0; i < datasetIndex; ++i) {
-				imeta = chart.getDatasetMeta(i);
+			for (i = 0; i < ilen; ++i) {
+				imeta = metasets[i];
 
-				if (imeta.bar &&
-					imeta.stack === stack &&
-					imeta.controller._getValueScaleId() === scale.id &&
-					chart.isDatasetVisible(i)) {
+				if (imeta.index === datasetIndex) {
+					break;
+				}
 
-					stackLength = scale._parseValue(datasets[i].data[index]);
+				if (imeta.stack === stack) {
+					stackLength = scale._parseValue(datasets[imeta.index].data[index]);
 					ivalue = stackLength.start === undefined ? stackLength.end : stackLength.min >= 0 && stackLength.max >= 0 ? stackLength.max : stackLength.min;
 
 					if ((value.min < 0 && ivalue < 0) || (value.max >= 0 && ivalue > 0)) {
@@ -5416,14 +5424,21 @@ var controller_line = core_datasetController.extend({
 		var yScale = me._yScale;
 		var sumPos = 0;
 		var sumNeg = 0;
-		var i, ds, dsMeta;
+		var rightValue = +yScale.getRightValue(value);
+		var metasets = chart._getSortedVisibleDatasetMetas();
+		var ilen = metasets.length;
+		var i, ds, dsMeta, stackedRightValue;
 
 		if (yScale.options.stacked) {
-			for (i = 0; i < datasetIndex; i++) {
-				ds = chart.data.datasets[i];
-				dsMeta = chart.getDatasetMeta(i);
-				if (dsMeta.type === 'line' && dsMeta.yAxisID === yScale.id && chart.isDatasetVisible(i)) {
-					var stackedRightValue = Number(yScale.getRightValue(ds.data[index]));
+			for (i = 0; i < ilen; ++i) {
+				dsMeta = metasets[i];
+				if (dsMeta.index === datasetIndex) {
+					break;
+				}
+
+				ds = chart.data.datasets[dsMeta.index];
+				if (dsMeta.type === 'line' && dsMeta.yAxisID === yScale.id) {
+					stackedRightValue = +yScale.getRightValue(ds.data[index]);
 					if (stackedRightValue < 0) {
 						sumNeg += stackedRightValue || 0;
 					} else {
@@ -5432,14 +5447,11 @@ var controller_line = core_datasetController.extend({
 				}
 			}
 
-			var rightValue = Number(yScale.getRightValue(value));
 			if (rightValue < 0) {
 				return yScale.getPixelForValue(sumNeg + rightValue);
 			}
-			return yScale.getPixelForValue(sumPos + rightValue);
 		}
-
-		return yScale.getPixelForValue(value);
+		return yScale.getPixelForValue(sumPos + rightValue);
 	},
 
 	updateBezierControlPoints: function() {
@@ -6133,17 +6145,13 @@ function getRelativePosition(e, chart) {
  * @param {function} handler - the callback to execute for each visible item
  */
 function parseVisibleItems(chart, handler) {
-	var datasets = chart.data.datasets;
-	var meta, i, j, ilen, jlen;
+	var metasets = chart._getSortedVisibleDatasetMetas();
+	var metadata, i, j, ilen, jlen, element;
 
-	for (i = 0, ilen = datasets.length; i < ilen; ++i) {
-		if (!chart.isDatasetVisible(i)) {
-			continue;
-		}
-
-		meta = chart.getDatasetMeta(i);
-		for (j = 0, jlen = meta.data.length; j < jlen; ++j) {
-			var element = meta.data[j];
+	for (i = 0, ilen = metasets.length; i < ilen; ++i) {
+		metadata = metasets[i].data;
+		for (j = 0, jlen = metadata.length; j < jlen; ++j) {
+			element = metadata[j];
 			if (!element._view.skip) {
 				handler(element);
 			}
@@ -6228,15 +6236,12 @@ function indexMode(chart, e, options) {
 		return [];
 	}
 
-	chart.data.datasets.forEach(function(dataset, datasetIndex) {
-		if (chart.isDatasetVisible(datasetIndex)) {
-			var meta = chart.getDatasetMeta(datasetIndex);
-			var element = meta.data[items[0]._index];
+	chart._getSortedVisibleDatasetMetas().forEach(function(meta) {
+		var element = meta.data[items[0]._index];
 
-			// don't count items that are skipped (null data)
-			if (element && !element._view.skip) {
-				elements.push(element);
-			}
+		// don't count items that are skipped (null data)
+		if (element && !element._view.skip) {
+			elements.push(element);
 		}
 	});
 
@@ -8535,6 +8540,9 @@ var exports$4 = core_element.extend({
 			me._active = [];
 		} else {
 			me._active = me._chart.getElementsAtEventForMode(e, options.mode, options);
+			if (options.reverse) {
+				me._active.reverse();
+			}
 		}
 
 		// Remember Last Actives
@@ -8709,6 +8717,14 @@ function positionIsHorizontal(position) {
 	return position === 'top' || position === 'bottom';
 }
 
+function compare2Level(l1, l2) {
+	return function(a, b) {
+		return a[l1] === b[l1]
+			? a[l2] - b[l2]
+			: a[l1] - b[l1];
+	};
+}
+
 var Chart = function(item, config) {
 	this.construct(item, config);
 	return this;
@@ -8794,9 +8810,6 @@ helpers$1.extend(Chart.prototype, /** @lends Chart */ {
 			me.resize(true);
 		}
 
-		// Make sure scales have IDs and are built before we build any controllers.
-		me.ensureScalesHaveIDs();
-		me.buildOrUpdateScales();
 		me.initToolTip();
 
 		// After init plugin notification
@@ -8977,6 +8990,8 @@ helpers$1.extend(Chart.prototype, /** @lends Chart */ {
 				meta = me.getDatasetMeta(datasetIndex);
 			}
 			meta.type = type;
+			meta.order = dataset.order || 0;
+			meta.index = datasetIndex;
 
 			if (meta.controller) {
 				meta.controller.updateIndex(datasetIndex);
@@ -9068,11 +9083,7 @@ helpers$1.extend(Chart.prototype, /** @lends Chart */ {
 		// Do this before render so that any plugins that need final scale updates can use it
 		core_plugins.notify(me, 'afterUpdate');
 
-		me._layers.sort(function(a, b) {
-			return a.z === b.z
-				? a._idx - b._idx
-				: a.z - b.z;
-		});
+		me._layers.sort(compare2Level('z', '_idx'));
 
 		if (me._bufferedRender) {
 			me._bufferedRequest = {
@@ -9273,22 +9284,48 @@ helpers$1.extend(Chart.prototype, /** @lends Chart */ {
 	},
 
 	/**
+	 * @private
+	 */
+	_getSortedDatasetMetas: function(filterVisible) {
+		var me = this;
+		var datasets = me.data.datasets || [];
+		var result = [];
+		var i, ilen;
+
+		for (i = 0, ilen = datasets.length; i < ilen; ++i) {
+			if (!filterVisible || me.isDatasetVisible(i)) {
+				result.push(me.getDatasetMeta(i));
+			}
+		}
+
+		result.sort(compare2Level('order', 'index'));
+
+		return result;
+	},
+
+	/**
+	 * @private
+	 */
+	_getSortedVisibleDatasetMetas: function() {
+		return this._getSortedDatasetMetas(true);
+	},
+
+	/**
 	 * Draws all datasets unless a plugin returns `false` to the `beforeDatasetsDraw`
 	 * hook, in which case, plugins will not be called on `afterDatasetsDraw`.
 	 * @private
 	 */
 	drawDatasets: function(easingValue) {
 		var me = this;
+		var metasets, i;
 
 		if (core_plugins.notify(me, 'beforeDatasetsDraw', [easingValue]) === false) {
 			return;
 		}
 
-		// Draw datasets reversed to support proper line stacking
-		for (var i = (me.data.datasets || []).length - 1; i >= 0; --i) {
-			if (me.isDatasetVisible(i)) {
-				me.drawDataset(i, easingValue);
-			}
+		metasets = me._getSortedVisibleDatasetMetas();
+		for (i = metasets.length - 1; i >= 0; --i) {
+			me.drawDataset(metasets[i], easingValue);
 		}
 
 		core_plugins.notify(me, 'afterDatasetsDraw', [easingValue]);
@@ -9299,12 +9336,11 @@ helpers$1.extend(Chart.prototype, /** @lends Chart */ {
 	 * hook, in which case, plugins will not be called on `afterDatasetDraw`.
 	 * @private
 	 */
-	drawDataset: function(index, easingValue) {
+	drawDataset: function(meta, easingValue) {
 		var me = this;
-		var meta = me.getDatasetMeta(index);
 		var args = {
 			meta: meta,
-			index: index,
+			index: meta.index,
 			easingValue: easingValue
 		};
 
@@ -9384,7 +9420,9 @@ helpers$1.extend(Chart.prototype, /** @lends Chart */ {
 				controller: null,
 				hidden: null,			// See isDatasetVisible() comment
 				xAxisID: null,
-				yAxisID: null
+				yAxisID: null,
+				order: dataset.order || 0,
+				index: datasetIndex
 			};
 		}
 
@@ -11884,6 +11922,19 @@ var Scale = core_element.extend({
 				me._drawLabels.apply(me, arguments);
 			}
 		}];
+	},
+
+	/**
+	 * @private
+	 */
+	_getMatchingVisibleMetas: function(type) {
+		var me = this;
+		var isHorizontal = me.isHorizontal();
+		return me.chart._getSortedVisibleDatasetMetas()
+			.filter(function(meta) {
+				return (!type || meta.type === type)
+					&& (isHorizontal ? meta.xAxisID === me.id : meta.yAxisID === me.id);
+			});
 	}
 });
 
@@ -12276,116 +12327,113 @@ var defaultConfig$1 = {
 	}
 };
 
+var DEFAULT_MIN = 0;
+var DEFAULT_MAX = 1;
+
+function getOrCreateStack(stacks, stacked, meta) {
+	var key = [
+		meta.type,
+		// we have a separate stack for stack=undefined datasets when the opts.stacked is undefined
+		stacked === undefined && meta.stack === undefined ? meta.index : '',
+		meta.stack
+	].join('.');
+
+	if (stacks[key] === undefined) {
+		stacks[key] = {
+			pos: [],
+			neg: []
+		};
+	}
+
+	return stacks[key];
+}
+
+function stackData(scale, stacks, meta, data) {
+	var opts = scale.options;
+	var stacked = opts.stacked;
+	var stack = getOrCreateStack(stacks, stacked, meta);
+	var pos = stack.pos;
+	var neg = stack.neg;
+	var ilen = data.length;
+	var i, value;
+
+	for (i = 0; i < ilen; ++i) {
+		value = scale._parseValue(data[i]);
+		if (isNaN(value.min) || isNaN(value.max) || meta.data[i].hidden) {
+			continue;
+		}
+
+		pos[i] = pos[i] || 0;
+		neg[i] = neg[i] || 0;
+
+		if (opts.relativePoints) {
+			pos[i] = 100;
+		} else if (value.min < 0 || value.max < 0) {
+			neg[i] += value.min;
+		} else {
+			pos[i] += value.max;
+		}
+	}
+}
+
+function updateMinMax(scale, meta, data) {
+	var ilen = data.length;
+	var i, value;
+
+	for (i = 0; i < ilen; ++i) {
+		value = scale._parseValue(data[i]);
+		if (isNaN(value.min) || isNaN(value.max) || meta.data[i].hidden) {
+			continue;
+		}
+
+		scale.min = Math.min(scale.min, value.min);
+		scale.max = Math.max(scale.max, value.max);
+	}
+}
+
 var scale_linear = scale_linearbase.extend({
 	determineDataLimits: function() {
 		var me = this;
 		var opts = me.options;
 		var chart = me.chart;
 		var datasets = chart.data.datasets;
-		var isHorizontal = me.isHorizontal();
-		var DEFAULT_MIN = 0;
-		var DEFAULT_MAX = 1;
-		var datasetIndex, meta, value, data, i, ilen;
+		var metasets = me._getMatchingVisibleMetas();
+		var hasStacks = opts.stacked;
+		var stacks = {};
+		var ilen = metasets.length;
+		var i, meta, data, values;
 
-		function IDMatches(datasetMeta) {
-			return isHorizontal ? datasetMeta.xAxisID === me.id : datasetMeta.yAxisID === me.id;
-		}
-
-		// First Calculate the range
 		me.min = Number.POSITIVE_INFINITY;
 		me.max = Number.NEGATIVE_INFINITY;
 
-		var hasStacks = opts.stacked;
 		if (hasStacks === undefined) {
-			for (datasetIndex = 0; datasetIndex < datasets.length; datasetIndex++) {
-				meta = chart.getDatasetMeta(datasetIndex);
-				if (chart.isDatasetVisible(datasetIndex) && IDMatches(meta) && meta.stack !== undefined) {
-					hasStacks = true;
-					break;
-				}
+			for (i = 0; !hasStacks && i < ilen; ++i) {
+				meta = metasets[i];
+				hasStacks = meta.stack !== undefined;
 			}
 		}
 
-		if (opts.stacked || hasStacks) {
-			var valuesPerStack = {};
-
-			for (datasetIndex = 0; datasetIndex < datasets.length; datasetIndex++) {
-				meta = chart.getDatasetMeta(datasetIndex);
-				var key = [
-					meta.type,
-					// we have a separate stack for stack=undefined datasets when the opts.stacked is undefined
-					((opts.stacked === undefined && meta.stack === undefined) ? datasetIndex : ''),
-					meta.stack
-				].join('.');
-
-				if (valuesPerStack[key] === undefined) {
-					valuesPerStack[key] = {
-						positiveValues: [],
-						negativeValues: []
-					};
-				}
-
-				// Store these per type
-				var positiveValues = valuesPerStack[key].positiveValues;
-				var negativeValues = valuesPerStack[key].negativeValues;
-
-				if (chart.isDatasetVisible(datasetIndex) && IDMatches(meta)) {
-					data = datasets[datasetIndex].data;
-					for (i = 0, ilen = data.length; i < ilen; i++) {
-						value = me._parseValue(data[i]);
-
-						if (isNaN(value.min) || isNaN(value.max) || meta.data[i].hidden) {
-							continue;
-						}
-
-						positiveValues[i] = positiveValues[i] || 0;
-						negativeValues[i] = negativeValues[i] || 0;
-
-						if (value.min === 0 && !opts.ticks.beginAtZero) {
-							value.min = value.max;
-						}
-
-						if (opts.relativePoints) {
-							positiveValues[i] = 100;
-						} else if (value.min < 0 || value.max < 0) {
-							negativeValues[i] += value.min;
-						} else {
-							positiveValues[i] += value.max;
-						}
-					}
-				}
-			}
-
-			helpers$1.each(valuesPerStack, function(valuesForType) {
-				var values = valuesForType.positiveValues.concat(valuesForType.negativeValues);
-				me.min = Math.min(me.min, helpers$1.min(values));
-				me.max = Math.max(me.max, helpers$1.max(values));
-			});
-
-		} else {
-			for (datasetIndex = 0; datasetIndex < datasets.length; datasetIndex++) {
-				meta = chart.getDatasetMeta(datasetIndex);
-				if (chart.isDatasetVisible(datasetIndex) && IDMatches(meta)) {
-					data = datasets[datasetIndex].data;
-					for (i = 0, ilen = data.length; i < ilen; i++) {
-						value = me._parseValue(data[i]);
-
-						if (isNaN(value.min) || isNaN(value.max) || meta.data[i].hidden) {
-							continue;
-						}
-
-						me.min = Math.min(value.min, me.min);
-						me.max = Math.max(value.max, me.max);
-					}
-				}
+		for (i = 0; i < ilen; ++i) {
+			meta = metasets[i];
+			data = datasets[meta.index].data;
+			if (hasStacks) {
+				stackData(me, stacks, meta, data);
+			} else {
+				updateMinMax(me, meta, data);
 			}
 		}
+
+		helpers$1.each(stacks, function(stackValues) {
+			values = stackValues.pos.concat(stackValues.neg);
+			me.min = Math.min(me.min, helpers$1.min(values));
+			me.max = Math.max(me.max, helpers$1.max(values));
+		});
 
 		me.min = helpers$1.isFinite(me.min) && !isNaN(me.min) ? me.min : DEFAULT_MIN;
 		me.max = helpers$1.isFinite(me.max) && !isNaN(me.max) ? me.max : DEFAULT_MAX;
 
 		// Common base implementation to handle ticks.min, ticks.max, ticks.beginAtZero
-		this.handleTickRangeOptions();
+		me.handleTickRangeOptions();
 	},
 
 	// Returns the maximum number of ticks based on the scale dimension
@@ -14470,12 +14518,12 @@ var plugin_filler = {
 	},
 
 	beforeDatasetsDraw: function(chart) {
-		var count = (chart.data.datasets || []).length - 1;
+		var metasets = chart._getSortedVisibleDatasetMetas();
 		var ctx = chart.ctx;
 		var meta, i, el, view, points, mapper, color;
 
-		for (i = count; i >= 0; --i) {
-			meta = chart.getDatasetMeta(i).$filler;
+		for (i = metasets.length - 1; i >= 0; --i) {
+			meta = metasets[i].$filler;
 
 			if (!meta || !meta.visible) {
 				continue;
@@ -14540,16 +14588,15 @@ core_defaults._set('global', {
 			// lineJoin :
 			// lineWidth :
 			generateLabels: function(chart) {
-				var data = chart.data;
+				var datasets = chart.data.datasets;
 				var options = chart.options.legend || {};
 				var usePointStyle = options.labels && options.labels.usePointStyle;
 
-				return helpers$1.isArray(data.datasets) ? data.datasets.map(function(dataset, i) {
-					var meta = chart.getDatasetMeta(i);
+				return chart._getSortedDatasetMetas().map(function(meta, i) {
 					var style = meta.controller.getStyle(usePointStyle ? 0 : undefined);
 
 					return {
-						text: dataset.label,
+						text: datasets[meta.index].label,
 						fillStyle: style.backgroundColor,
 						hidden: !chart.isDatasetVisible(i),
 						lineCap: style.borderCapStyle,
@@ -14564,7 +14611,7 @@ core_defaults._set('global', {
 						// Below is extra data used for toggling the datasets
 						datasetIndex: i
 					};
-				}, this) : [];
+				}, this);
 			}
 		}
 	},
