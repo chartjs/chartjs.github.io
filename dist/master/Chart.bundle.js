@@ -10962,7 +10962,7 @@ var Scale = core_element.extend({
 
 		// Compute tick rotation and fit using a sampled subset of labels
 		// We generally don't need to compute the size of every single label for determining scale size
-		samplingEnabled = sampleSize > ticks.length;
+		samplingEnabled = sampleSize < ticks.length;
 		labels = me._convertTicksToLabels(samplingEnabled ? sample(ticks, sampleSize) : ticks);
 
 		// _configure is called twice, once here, once from core.controller.updateLayout.
