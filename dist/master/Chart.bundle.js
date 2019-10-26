@@ -5290,8 +5290,6 @@ core_defaults._set('horizontalBar', {
 		yAxes: [{
 			type: 'category',
 			position: 'left',
-			categoryPercentage: 0.8,
-			barPercentage: 0.9,
 			offset: true,
 			gridLines: {
 				offsetGridLines: true
@@ -5308,6 +5306,15 @@ core_defaults._set('horizontalBar', {
 	tooltips: {
 		mode: 'index',
 		axis: 'y'
+	}
+});
+
+core_defaults._set('global', {
+	datasets: {
+		horizontalBar: {
+			categoryPercentage: 0.8,
+			barPercentage: 0.9
+		}
 	}
 });
 
