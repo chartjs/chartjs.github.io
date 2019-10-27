@@ -2025,55 +2025,13 @@ var helpers = {
     }
   }
 };
-var helpers_core = helpers; // DEPRECATIONS
-
-/**
- * Provided for backward compatibility, use Chart.helpers.callback instead.
- * @function Chart.helpers.callCallback
- * @deprecated since version 2.6.0
- * @todo remove at version 3
- * @private
- */
-
-helpers.callCallback = helpers.callback;
-/**
- * Provided for backward compatibility, use Array.prototype.indexOf instead.
- * Array.prototype.indexOf compatibility: Chrome, Opera, Safari, FF1.5+, IE9+
- * @function Chart.helpers.indexOf
- * @deprecated since version 2.7.0
- * @todo remove at version 3
- * @private
- */
-
-helpers.indexOf = function (array, item, fromIndex) {
-  return Array.prototype.indexOf.call(array, item, fromIndex);
-};
-/**
- * Provided for backward compatibility, use Chart.helpers.valueOrDefault instead.
- * @function Chart.helpers.getValueOrDefault
- * @deprecated since version 2.7.0
- * @todo remove at version 3
- * @private
- */
-
-
-helpers.getValueOrDefault = helpers.valueOrDefault;
-/**
- * Provided for backward compatibility, use Chart.helpers.valueAtIndexOrDefault instead.
- * @function Chart.helpers.getValueAtIndexOrDefault
- * @deprecated since version 2.7.0
- * @todo remove at version 3
- * @private
- */
-
-helpers.getValueAtIndexOrDefault = helpers.valueAtIndexOrDefault;
+var helpers_core = helpers;
 
 /**
  * Easing functions adapted from Robert Penner's easing equations.
- * @namespace Chart.helpers.easingEffects
+ * @namespace Chart.helpers.effects
  * @see http://www.robertpenner.com/easing/
  */
-
 
 var effects = {
   linear: function linear(t) {
@@ -2305,17 +2263,7 @@ var effects = {
 };
 var helpers_easing = {
   effects: effects
-}; // DEPRECATIONS
-
-/**
- * Provided for backward compatibility, use Chart.helpers.easing.effects instead.
- * @function Chart.helpers.easingEffects
- * @deprecated since version 2.7.0
- * @todo remove at version 3
- * @private
- */
-
-helpers_core.easingEffects = effects;
+};
 
 var PI = Math.PI;
 var RAD_PER_DEG = PI / 180;
@@ -2551,29 +2499,7 @@ var exports$1 = {
     ctx.bezierCurveTo(flip ? previous.controlPointPreviousX : previous.controlPointNextX, flip ? previous.controlPointPreviousY : previous.controlPointNextY, flip ? target.controlPointNextX : target.controlPointPreviousX, flip ? target.controlPointNextY : target.controlPointPreviousY, target.x, target.y);
   }
 };
-var helpers_canvas = exports$1; // DEPRECATIONS
-
-/**
- * Provided for backward compatibility, use Chart.helpers.canvas.clear instead.
- * @namespace Chart.helpers.clear
- * @deprecated since version 2.7.0
- * @todo remove at version 3
- * @private
- */
-
-helpers_core.clear = exports$1.clear;
-/**
- * Provided for backward compatibility, use Chart.helpers.canvas.roundedRect instead.
- * @namespace Chart.helpers.drawRoundedRectangle
- * @deprecated since version 2.7.0
- * @todo remove at version 3
- * @private
- */
-
-helpers_core.drawRoundedRectangle = function (ctx) {
-  ctx.beginPath();
-  exports$1.roundedRect.apply(exports$1, arguments);
-};
+var helpers_canvas = exports$1;
 
 var defaults = {
   /**
@@ -2750,7 +2676,6 @@ var helpers_options = {
  * @namespace
  */
 
-
 var exports$2 = {
   /**
    * Returns an array of factors sorted from 1 to sqrt(value)
@@ -2788,17 +2713,7 @@ var exports$2 = {
     return isPowerOf10 ? powerOf10 : exponent;
   }
 };
-var helpers_math = exports$2; // DEPRECATIONS
-
-/**
- * Provided for backward compatibility, use Chart.helpers.math.log10 instead.
- * @namespace Chart.helpers.log10
- * @deprecated since version 2.9.0
- * @todo remove at version 3
- * @private
- */
-
-helpers_core.log10 = exports$2.log10;
+var helpers_math = exports$2;
 
 var getRtlAdapter = function getRtlAdapter(rectX, width) {
   return {
@@ -3452,10 +3367,10 @@ helpers$1.extend(DatasetController.prototype, {
     me._configure();
 
     if (dataset && index === undefined) {
-      style = me._resolveDatasetElementOptions(dataset || {});
+      style = me._resolveDatasetElementOptions();
     } else {
       index = index || 0;
-      style = me._resolveDataElementOptions(meta.data[index] || {}, index);
+      style = me._resolveDataElementOptions(index);
     }
 
     if (style.fill === false || style.fill === null) {
@@ -3468,11 +3383,10 @@ helpers$1.extend(DatasetController.prototype, {
   /**
    * @private
    */
-  _resolveDatasetElementOptions: function _resolveDatasetElementOptions(element, hover) {
+  _resolveDatasetElementOptions: function _resolveDatasetElementOptions(hover) {
     var me = this;
     var chart = me.chart;
     var datasetOpts = me._config;
-    var custom = element.custom || {};
     var options = chart.options.elements[me.datasetElementType.prototype._type] || {};
     var elementOptions = me._datasetElementOptions;
     var values = {};
@@ -3488,7 +3402,7 @@ helpers$1.extend(DatasetController.prototype, {
     for (i = 0, ilen = elementOptions.length; i < ilen; ++i) {
       key = elementOptions[i];
       readKey = hover ? 'hover' + key.charAt(0).toUpperCase() + key.slice(1) : key;
-      values[key] = resolve([custom[readKey], datasetOpts[readKey], options[readKey]], context);
+      values[key] = resolve([datasetOpts[readKey], options[readKey]], context);
     }
 
     return values;
@@ -3497,12 +3411,11 @@ helpers$1.extend(DatasetController.prototype, {
   /**
    * @private
    */
-  _resolveDataElementOptions: function _resolveDataElementOptions(element, index) {
+  _resolveDataElementOptions: function _resolveDataElementOptions(index) {
     var me = this;
-    var custom = element && element.custom;
     var cached = me._cachedDataOpts;
 
-    if (cached && !custom) {
+    if (cached) {
       return cached;
     }
 
@@ -3520,22 +3433,21 @@ helpers$1.extend(DatasetController.prototype, {
     }; // `resolve` sets cacheable to `false` if any option is indexed or scripted
 
     var info = {
-      cacheable: !custom
+      cacheable: true
     };
     var keys, i, ilen, key;
-    custom = custom || {};
 
     if (helpers$1.isArray(elementOptions)) {
       for (i = 0, ilen = elementOptions.length; i < ilen; ++i) {
         key = elementOptions[i];
-        values[key] = resolve([custom[key], datasetOpts[key], options[key]], context, index, info);
+        values[key] = resolve([datasetOpts[key], options[key]], context, index, info);
       }
     } else {
       keys = Object.keys(elementOptions);
 
       for (i = 0, ilen = keys.length; i < ilen; ++i) {
         key = keys[i];
-        values[key] = resolve([custom[key], datasetOpts[elementOptions[key]], datasetOpts[key], options[key]], context, index, info);
+        values[key] = resolve([datasetOpts[elementOptions[key]], datasetOpts[key], options[key]], context, index, info);
       }
     }
 
@@ -3552,7 +3464,6 @@ helpers$1.extend(DatasetController.prototype, {
   setHoverStyle: function setHoverStyle(element) {
     var dataset = this.chart.data.datasets[element._datasetIndex];
     var index = element._index;
-    var custom = element.custom || {};
     var model = element._model;
     var getHoverColor = helpers$1.getHoverColor;
     element.$previousStyle = {
@@ -3560,9 +3471,9 @@ helpers$1.extend(DatasetController.prototype, {
       borderColor: model.borderColor,
       borderWidth: model.borderWidth
     };
-    model.backgroundColor = resolve([custom.hoverBackgroundColor, dataset.hoverBackgroundColor, getHoverColor(model.backgroundColor)], undefined, index);
-    model.borderColor = resolve([custom.hoverBorderColor, dataset.hoverBorderColor, getHoverColor(model.borderColor)], undefined, index);
-    model.borderWidth = resolve([custom.hoverBorderWidth, dataset.hoverBorderWidth, model.borderWidth], undefined, index);
+    model.backgroundColor = resolve([dataset.hoverBackgroundColor, getHoverColor(model.backgroundColor)], undefined, index);
+    model.borderColor = resolve([dataset.hoverBorderColor, getHoverColor(model.borderColor)], undefined, index);
+    model.borderWidth = resolve([dataset.hoverBorderWidth, model.borderWidth], undefined, index);
   },
 
   /**
@@ -3589,7 +3500,7 @@ helpers$1.extend(DatasetController.prototype, {
     }
 
     model = element._model;
-    hoverOptions = this._resolveDatasetElementOptions(element, true);
+    hoverOptions = this._resolveDatasetElementOptions(true);
     keys = Object.keys(hoverOptions);
 
     for (i = 0, ilen = keys.length; i < ilen; ++i) {
@@ -4420,7 +4331,7 @@ var controller_bar = core_datasetController.extend({
     var meta = me.getMeta();
     var dataset = me.getDataset();
 
-    var options = me._resolveDataElementOptions(rectangle, index);
+    var options = me._resolveDataElementOptions(index);
 
     rectangle._xScale = me.getScaleForId(meta.xAxisID);
     rectangle._yScale = me.getScaleForId(meta.yAxisID);
@@ -4741,11 +4652,10 @@ var controller_bubble = core_datasetController.extend({
   updateElement: function updateElement(point, index, reset) {
     var me = this;
     var meta = me.getMeta();
-    var custom = point.custom || {};
     var xScale = me.getScaleForId(meta.xAxisID);
     var yScale = me.getScaleForId(meta.yAxisID);
 
-    var options = me._resolveDataElementOptions(point, index);
+    var options = me._resolveDataElementOptions(index);
 
     var data = me.getDataset().data[index];
     var dsIndex = me.index;
@@ -4764,7 +4674,7 @@ var controller_bubble = core_datasetController.extend({
       pointStyle: options.pointStyle,
       rotation: options.rotation,
       radius: reset ? 0 : options.radius,
-      skip: custom.skip || isNaN(x) || isNaN(y),
+      skip: isNaN(x) || isNaN(y),
       x: x,
       y: y
     };
@@ -4793,11 +4703,10 @@ var controller_bubble = core_datasetController.extend({
   /**
    * @private
    */
-  _resolveDataElementOptions: function _resolveDataElementOptions(point, index) {
+  _resolveDataElementOptions: function _resolveDataElementOptions(index) {
     var me = this;
     var chart = me.chart;
     var dataset = me.getDataset();
-    var custom = point.custom || {};
     var data = dataset.data[index] || {};
 
     var values = core_datasetController.prototype._resolveDataElementOptions.apply(me, arguments); // Scriptable options
@@ -4815,7 +4724,7 @@ var controller_bubble = core_datasetController.extend({
     } // Custom radius resolution
 
 
-    values.radius = resolve$1([custom.radius, data.r, me._config.radius, chart.options.elements.point.radius], context, index);
+    values.radius = resolve$1([data.r, me._config.radius, chart.options.elements.point.radius], context, index);
     return values;
   }
 });
@@ -4989,7 +4898,7 @@ var controller_doughnut = core_datasetController.extend({
     }
 
     for (i = 0, ilen = arcs.length; i < ilen; ++i) {
-      arcs[i]._options = me._resolveDataElementOptions(arcs[i], i);
+      arcs[i]._options = me._resolveDataElementOptions(i);
     }
 
     chart.borderWidth = me.getMaxBorderWidth();
@@ -5119,7 +5028,7 @@ var controller_doughnut = core_datasetController.extend({
       if (controller) {
         controller._configure();
 
-        options = controller._resolveDataElementOptions(arc, i);
+        options = controller._resolveDataElementOptions(i);
       } else {
         options = arc._options;
       }
@@ -5310,7 +5219,7 @@ var controller_line = core_datasetController.extend({
 
       line._children = points; // Model
 
-      line._model = me._resolveDatasetElementOptions(line);
+      line._model = me._resolveDatasetElementOptions();
       line.pivot();
     } // Update Points
 
@@ -5331,7 +5240,6 @@ var controller_line = core_datasetController.extend({
   updateElement: function updateElement(point, index, reset) {
     var me = this;
     var meta = me.getMeta();
-    var custom = point.custom || {};
     var dataset = me.getDataset();
     var datasetIndex = me.index;
     var value = dataset.data[index];
@@ -5340,7 +5248,7 @@ var controller_line = core_datasetController.extend({
     var lineModel = meta.dataset._model;
     var x, y;
 
-    var options = me._resolveDataElementOptions(point, index);
+    var options = me._resolveDataElementOptions(index);
 
     x = xScale.getPixelForValue(_typeof(value) === 'object' ? value : NaN, index, datasetIndex);
     y = reset ? yScale.getBasePixel() : me.calculatePointY(value, index, datasetIndex); // Utility
@@ -5354,7 +5262,7 @@ var controller_line = core_datasetController.extend({
     point._model = {
       x: x,
       y: y,
-      skip: custom.skip || isNaN(x) || isNaN(y),
+      skip: isNaN(x) || isNaN(y),
       // Appearance
       radius: options.radius,
       pointStyle: options.pointStyle,
@@ -5362,7 +5270,7 @@ var controller_line = core_datasetController.extend({
       backgroundColor: options.backgroundColor,
       borderColor: options.borderColor,
       borderWidth: options.borderWidth,
-      tension: valueOrDefault$6(custom.tension, lineModel ? lineModel.tension : 0),
+      tension: lineModel ? lineModel.tension : 0,
       steppedLine: lineModel ? lineModel.steppedLine : false,
       // Tooltip
       hitRadius: options.hitRadius
@@ -5372,10 +5280,9 @@ var controller_line = core_datasetController.extend({
   /**
    * @private
    */
-  _resolveDatasetElementOptions: function _resolveDatasetElementOptions(element) {
+  _resolveDatasetElementOptions: function _resolveDatasetElementOptions() {
     var me = this;
     var config = me._config;
-    var custom = element.custom || {};
     var options = me.chart.options;
     var lineOptions = options.elements.line;
 
@@ -5386,7 +5293,7 @@ var controller_line = core_datasetController.extend({
 
     values.spanGaps = valueOrDefault$6(config.spanGaps, options.spanGaps);
     values.tension = valueOrDefault$6(config.lineTension, lineOptions.tension);
-    values.steppedLine = resolve$2([custom.steppedLine, config.steppedLine, lineOptions.stepped]);
+    values.steppedLine = resolve$2([config.steppedLine, lineOptions.stepped]);
     return values;
   },
   calculatePointY: function calculatePointY(value, index, datasetIndex) {
@@ -5670,7 +5577,7 @@ var controller_polarArea = core_datasetController.extend({
     }
 
     for (i = 0, ilen = arcs.length; i < ilen; ++i) {
-      arcs[i]._options = me._resolveDataElementOptions(arcs[i], i);
+      arcs[i]._options = me._resolveDataElementOptions(i);
       me.updateElement(arcs[i], i, reset);
     }
   },
@@ -5867,7 +5774,7 @@ var controller_radar = core_datasetController.extend({
     line._children = points;
     line._loop = true; // Model
 
-    line._model = me._resolveDatasetElementOptions(line);
+    line._model = me._resolveDatasetElementOptions();
     line.pivot(); // Update Points
 
     for (i = 0, ilen = points.length; i < ilen; ++i) {
@@ -5883,12 +5790,11 @@ var controller_radar = core_datasetController.extend({
   },
   updateElement: function updateElement(point, index, reset) {
     var me = this;
-    var custom = point.custom || {};
     var dataset = me.getDataset();
     var scale = me.chart.scale;
     var pointPosition = scale.getPointPositionForValue(index, dataset.data[index]);
 
-    var options = me._resolveDataElementOptions(point, index);
+    var options = me._resolveDataElementOptions(index);
 
     var lineModel = me.getMeta().dataset._model;
 
@@ -5904,7 +5810,7 @@ var controller_radar = core_datasetController.extend({
       x: x,
       // value not used in dataset scale, but we want a consistent API between scales
       y: y,
-      skip: custom.skip || isNaN(x) || isNaN(y),
+      skip: isNaN(x) || isNaN(y),
       // Appearance
       radius: options.radius,
       pointStyle: options.pointStyle,
@@ -5912,7 +5818,7 @@ var controller_radar = core_datasetController.extend({
       backgroundColor: options.backgroundColor,
       borderColor: options.borderColor,
       borderWidth: options.borderWidth,
-      tension: valueOrDefault$7(custom.tension, lineModel ? lineModel.tension : 0),
+      tension: lineModel ? lineModel.tension : 0,
       // Tooltip
       hitRadius: options.hitRadius
     };
@@ -7179,30 +7085,7 @@ var platform_dom$2 = {
 
     removeListener(canvas, type, proxy);
   }
-}; // DEPRECATIONS
-
-/**
- * Provided for backward compatibility, use EventTarget.addEventListener instead.
- * EventTarget.addEventListener compatibility: Chrome, Opera 7, Safari, FF1.5+, IE9+
- * @see https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
- * @function Chart.helpers.addEvent
- * @deprecated since version 2.7.0
- * @todo remove at version 3
- * @private
- */
-
-helpers$1.addEvent = addListener;
-/**
- * Provided for backward compatibility, use EventTarget.removeEventListener instead.
- * EventTarget.removeEventListener compatibility: Chrome, Opera 7, Safari, FF1.5+, IE9+
- * @see https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/removeEventListener
- * @function Chart.helpers.removeEvent
- * @deprecated since version 2.7.0
- * @todo remove at version 3
- * @private
- */
-
-helpers$1.removeEvent = removeListener;
+};
 
 var implementation = platform_dom$2._enabled ? platform_dom$2 : platform_basic;
 /**
@@ -9690,17 +9573,6 @@ var core_helpers = function core_helpers() {
     return Math.sqrt(Math.pow(pt2.x - pt1.x, 2) + Math.pow(pt2.y - pt1.y, 2));
   };
   /**
-   * Provided for backward compatibility, not available anymore
-   * @function Chart.helpers.aliasPixel
-   * @deprecated since version 2.8.0
-   * @todo remove at version 3
-   */
-
-
-  helpers$1.aliasPixel = function (pixelWidth) {
-    return pixelWidth % 2 === 0 ? 0 : 0.5;
-  };
-  /**
    * Returns the aligned pixel value to avoid anti-aliasing blur
    * @param {Chart} chart - The chart instance.
    * @param {number} pixel - A pixel value.
@@ -9864,7 +9736,7 @@ var core_helpers = function core_helpers() {
 
 
   helpers$1.niceNum = function (range, round) {
-    var exponent = Math.floor(helpers$1.log10(range));
+    var exponent = Math.floor(helpers$1.math.log10(range));
     var fraction = range / Math.pow(10, exponent);
     var niceFraction;
 
@@ -10153,22 +10025,6 @@ var core_helpers = function core_helpers() {
 
     return longest;
   };
-  /**
-   * @deprecated
-   */
-
-
-  helpers$1.numberOfLabelLines = function (arrayOfThings) {
-    var numberOfLines = 1;
-    helpers$1.each(arrayOfThings, function (thing) {
-      if (helpers$1.isArray(thing)) {
-        if (thing.length > numberOfLines) {
-          numberOfLines = thing.length;
-        }
-      }
-    });
-    return numberOfLines;
-  };
 
   helpers$1.color = !chartjsColor ? function (value) {
     console.error('Color.js not found!');
@@ -10302,11 +10158,11 @@ var core_adapters = {
   _date: _date
 };
 
+var math$1 = helpers$1.math;
 /**
  * Namespace to hold static tick generation functions
  * @namespace Chart.Ticks
  */
-
 
 var core_ticks = {
   /**
@@ -10343,7 +10199,7 @@ var core_ticks = {
         }
       }
 
-      var logDelta = helpers$1.log10(Math.abs(delta));
+      var logDelta = math$1.log10(Math.abs(delta));
       var tickString = '';
 
       if (tickValue !== 0) {
@@ -10351,7 +10207,7 @@ var core_ticks = {
 
         if (maxTick < 1e-4) {
           // all ticks are small numbers; use scientific notation
-          var logTick = helpers$1.log10(Math.abs(tickValue));
+          var logTick = math$1.log10(Math.abs(tickValue));
           var numExponential = Math.floor(logTick) - Math.floor(logDelta);
           numExponential = Math.max(Math.min(numExponential, 20), 0);
           tickString = tickValue.toExponential(numExponential);
@@ -10368,7 +10224,7 @@ var core_ticks = {
       return tickString;
     },
     logarithmic: function logarithmic(tickValue, index, ticks) {
-      var remain = tickValue / Math.pow(10, Math.floor(helpers$1.log10(tickValue)));
+      var remain = tickValue / Math.pow(10, Math.floor(math$1.log10(tickValue)));
 
       if (tickValue === 0) {
         return '0';
