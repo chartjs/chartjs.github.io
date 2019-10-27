@@ -4,12 +4,6 @@
  * (c) 2019 Chart.js Contributors
  * Released under the MIT License
  */
-(function (global, factory) {
-typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
-typeof define === 'function' && define.amd ? define(factory) :
-(global = global || self, global.Chart = factory());
-}(this, function () { 'use strict';
-
 function _typeof(obj) {
   if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
     _typeof = function (obj) {
@@ -2273,7 +2267,7 @@ var TWO_THIRDS_PI = PI * 2 / 3;
  * @namespace Chart.helpers.canvas
  */
 
-var exports$1 = {
+var exports = {
   /**
    * Clears the entire canvas associated to the given `chart`.
    * @param {Chart} chart - The chart for which to clear the canvas.
@@ -2497,7 +2491,7 @@ var exports$1 = {
     ctx.bezierCurveTo(flip ? previous.controlPointPreviousX : previous.controlPointNextX, flip ? previous.controlPointPreviousY : previous.controlPointNextY, flip ? target.controlPointNextX : target.controlPointPreviousX, flip ? target.controlPointNextY : target.controlPointPreviousY, target.x, target.y);
   }
 };
-var helpers_canvas = exports$1;
+var helpers_canvas = exports;
 
 var defaults = {
   /**
@@ -2674,7 +2668,7 @@ var helpers_options = {
  * @namespace
  */
 
-var exports$2 = {
+var exports$1 = {
   /**
    * Returns an array of factors sorted from 1 to sqrt(value)
    * @private
@@ -2711,7 +2705,7 @@ var exports$2 = {
     return isPowerOf10 ? powerOf10 : exponent;
   }
 };
-var helpers_math = exports$2;
+var helpers_math = exports$1;
 
 var getRtlAdapter = function getRtlAdapter(rectX, width) {
   return {
@@ -2903,7 +2897,7 @@ helpers$1.extend(Element.prototype, {
 Element.extend = helpers$1.inherits;
 var core_element = Element;
 
-var exports$3 = core_element.extend({
+var exports$2 = core_element.extend({
   chart: null,
   // the animation associated chart instance
   currentStep: 0,
@@ -2919,7 +2913,7 @@ var exports$3 = core_element.extend({
   onAnimationComplete: null // user specified callback to fire when the animation finishes
 
 });
-var core_animation = exports$3;
+var core_animation = exports$2;
 
 core_defaults._set('global', {
   animation: {
@@ -7798,7 +7792,7 @@ function getBeforeAfterBodyLines(callback) {
   return pushOrConcat([], splitNewlines(callback));
 }
 
-var exports$4 = core_element.extend({
+var exports$3 = core_element.extend({
   initialize: function initialize() {
     this._model = getBaseModel(this._options);
     this._lastActive = [];
@@ -8274,7 +8268,7 @@ var exports$4 = core_element.extend({
  */
 
 var positioners_1 = positioners;
-var core_tooltip = exports$4;
+var core_tooltip = exports$3;
 core_tooltip.positioners = positioners_1;
 
 var valueOrDefault$9 = helpers$1.valueOrDefault;
@@ -19575,6 +19569,4 @@ core_controller.helpers.each(['Bar', 'Bubble', 'Doughnut', 'Line', 'PolarArea', 
   };
 });
 
-return src;
-
-}));
+export default src;

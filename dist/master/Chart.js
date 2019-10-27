@@ -2921,35 +2921,7 @@ var exports$3 = core_element.extend({
   onAnimationComplete: null // user specified callback to fire when the animation finishes
 
 });
-var core_animation = exports$3; // DEPRECATIONS
-
-/**
- * Provided for backward compatibility, use Chart.Animation instead
- * @prop Chart.Animation#animationObject
- * @deprecated since version 2.6.0
- * @todo remove at version 3
- */
-
-Object.defineProperty(exports$3.prototype, 'animationObject', {
-  get: function get() {
-    return this;
-  }
-});
-/**
- * Provided for backward compatibility, use Chart.Animation#chart instead
- * @prop Chart.Animation#chartInstance
- * @deprecated since version 2.6.0
- * @todo remove at version 3
- */
-
-Object.defineProperty(exports$3.prototype, 'chartInstance', {
-  get: function get() {
-    return this.chart;
-  },
-  set: function set(value) {
-    this.chart = value;
-  }
-});
+var core_animation = exports$3;
 
 core_defaults._set('global', {
   animation: {
@@ -8460,19 +8432,7 @@ helpers$1.extend(Chart.prototype,
     me.aspectRatio = height ? width / height : null;
     me.options = config.options;
     me._bufferedRender = false;
-    me._layers = [];
-    /**
-     * Provided for backward compatibility, Chart and Chart.Controller have been merged,
-     * the "instance" still need to be defined since it might be called from plugins.
-     * @prop Chart#chart
-     * @deprecated since version 2.6.0
-     * @todo remove at version 3
-     * @private
-     */
-
-    me.chart = me;
-    me.controller = me; // chart.chart.controller #inception
-    // Add the chart instance to the global namespace
+    me._layers = []; // Add the chart instance to the global namespace
 
     Chart.instances[me.id] = me; // Define alias to the config data: `chart.data === chart.config.data`
 
@@ -8818,16 +8778,7 @@ helpers$1.extend(Chart.prototype,
     me._layers.forEach(function (item, index) {
       item._idx = index;
     });
-    /**
-     * Provided for backward compatibility, use `afterLayout` instead.
-     * @method IPlugin#afterScaleUpdate
-     * @deprecated since version 2.5.0
-     * @todo remove at version 3
-     * @private
-     */
 
-
-    core_plugins.notify(me, 'afterScaleUpdate');
     core_plugins.notify(me, 'afterLayout');
   },
 
@@ -9348,44 +9299,7 @@ helpers$1.extend(Chart.prototype,
  */
 
 Chart.instances = {};
-var core_controller = Chart; // DEPRECATIONS
-
-/**
- * Provided for backward compatibility, use Chart instead.
- * @class Chart.Controller
- * @deprecated since version 2.6
- * @todo remove at version 3
- * @private
- */
-
-Chart.Controller = Chart;
-/**
- * Provided for backward compatibility, not available anymore.
- * @namespace Chart
- * @deprecated since version 2.8
- * @todo remove at version 3
- * @private
- */
-
-Chart.types = {};
-/**
- * Provided for backward compatibility, not available anymore.
- * @namespace Chart.helpers.configMerge
- * @deprecated since version 2.8.0
- * @todo remove at version 3
- * @private
- */
-
-helpers$1.configMerge = mergeConfig;
-/**
- * Provided for backward compatibility, not available anymore.
- * @namespace Chart.helpers.scaleMerge
- * @deprecated since version 2.8.0
- * @todo remove at version 3
- * @private
- */
-
-helpers$1.scaleMerge = mergeScaleConfig;
+var core_controller = Chart;
 
 var core_helpers = function core_helpers() {
   // -- Basic js utility methods
