@@ -5540,8 +5540,9 @@ var controller_line = core_datasetController.extend({
 			if (rightValue < 0) {
 				return yScale.getPixelForValue(sumNeg + rightValue);
 			}
+			return yScale.getPixelForValue(sumPos + rightValue);
 		}
-		return yScale.getPixelForValue(sumPos + rightValue);
+		return yScale.getPixelForValue(value);
 	},
 
 	updateBezierControlPoints: function() {
