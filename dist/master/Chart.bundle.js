@@ -8664,11 +8664,10 @@ helpers$1.extend(Chart.prototype,
           chart: me
         });
         scales[scale.id] = scale;
-      }
-
-      scale.mergeTicksOptions(); // TODO(SB): I think we should be able to remove this custom case (options.scale)
+      } // TODO(SB): I think we should be able to remove this custom case (options.scale)
       // and consider it as a regular scale part of the "scales"" map only! This would
       // make the logic easier and remove some useless? custom code.
+
 
       if (item.isDefault) {
         me.scale = scale;
@@ -10579,15 +10578,6 @@ var Scale = core_element.extend({
   // These methods are ordered by lifecyle. Utilities then follow.
   // Any function defined here is inherited by all scale types.
   // Any function can be extended by the scale type
-
-  /**
-   * Provided for backward compatibility, not available anymore
-   * @function Chart.Scale.mergeTicksOptions
-   * @deprecated since version 2.8.0
-   * @todo remove at version 3
-   */
-  mergeTicksOptions: function mergeTicksOptions() {// noop
-  },
   beforeUpdate: function beforeUpdate() {
     helpers$1.callback(this.options.beforeUpdate, [this]);
   },
@@ -13398,10 +13388,6 @@ var defaultConfig$4 = {
   }
 };
 var scale_time = core_scale.extend({
-  initialize: function initialize() {
-    this.mergeTicksOptions();
-    core_scale.prototype.initialize.call(this);
-  },
   update: function update() {
     var me = this;
     var options = me.options;
