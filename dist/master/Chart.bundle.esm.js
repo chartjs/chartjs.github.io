@@ -4140,7 +4140,6 @@ elements.Line = Line;
 elements.Point = Point;
 elements.Rectangle = Rectangle;
 
-var deprecated = helpers$1._deprecated;
 var valueOrDefault$3 = helpers$1.valueOrDefault;
 
 core_defaults._set('bar', {
@@ -4268,17 +4267,11 @@ var controller_bar = core_datasetController.extend({
   _dataElementOptions: ['backgroundColor', 'borderColor', 'borderSkipped', 'borderWidth', 'barPercentage', 'barThickness', 'categoryPercentage', 'maxBarThickness', 'minBarLength'],
   initialize: function initialize() {
     var me = this;
-    var meta, scaleOpts;
+    var meta;
     core_datasetController.prototype.initialize.apply(me, arguments);
     meta = me.getMeta();
     meta.stack = me.getDataset().stack;
     meta.bar = true;
-    scaleOpts = me._getIndexScale().options;
-    deprecated('bar chart', scaleOpts.barPercentage, 'scales.[x/y]Axes.barPercentage', 'dataset.barPercentage');
-    deprecated('bar chart', scaleOpts.barThickness, 'scales.[x/y]Axes.barThickness', 'dataset.barThickness');
-    deprecated('bar chart', scaleOpts.categoryPercentage, 'scales.[x/y]Axes.categoryPercentage', 'dataset.categoryPercentage');
-    deprecated('bar chart', me._getValueScale().options.minBarLength, 'scales.[x/y]Axes.minBarLength', 'dataset.minBarLength');
-    deprecated('bar chart', scaleOpts.maxBarThickness, 'scales.[x/y]Axes.maxBarThickness', 'dataset.maxBarThickness');
   },
   update: function update(reset) {
     var me = this;
@@ -4525,25 +4518,6 @@ var controller_bar = core_datasetController.extend({
     }
 
     helpers$1.canvas.unclipArea(chart.ctx);
-  },
-
-  /**
-   * @private
-   */
-  _resolveDataElementOptions: function _resolveDataElementOptions() {
-    var me = this;
-    var values = helpers$1.extend({}, core_datasetController.prototype._resolveDataElementOptions.apply(me, arguments));
-
-    var indexOpts = me._getIndexScale().options;
-
-    var valueOpts = me._getValueScale().options;
-
-    values.barPercentage = valueOrDefault$3(indexOpts.barPercentage, values.barPercentage);
-    values.barThickness = valueOrDefault$3(indexOpts.barThickness, values.barThickness);
-    values.categoryPercentage = valueOrDefault$3(indexOpts.categoryPercentage, values.categoryPercentage);
-    values.maxBarThickness = valueOrDefault$3(indexOpts.maxBarThickness, values.maxBarThickness);
-    values.minBarLength = valueOrDefault$3(valueOpts.minBarLength, values.minBarLength);
-    return values;
   }
 });
 
@@ -12837,7 +12811,6 @@ var scale_radialLinear = scale_linearbase.extend({
 var _defaults$3 = defaultConfig$3;
 scale_radialLinear._defaults = _defaults$3;
 
-var deprecated$1 = helpers$1._deprecated;
 var resolve$5 = helpers$1.options.resolve;
 var valueOrDefault$d = helpers$1.valueOrDefault; // Integer constants are from the ES6 spec.
 
@@ -12910,14 +12883,6 @@ function arrayUnique(items) {
   }
 
   return out;
-}
-
-function getMin(options) {
-  return helpers$1.valueOrDefault(options.time.min, options.ticks.min);
-}
-
-function getMax(options) {
-  return helpers$1.valueOrDefault(options.time.max, options.ticks.max);
 }
 /**
  * Returns an array of {time, pos} objects used to interpolate a specific `time` or position
@@ -13035,7 +13000,6 @@ function toTimestamp(scale, input) {
   var adapter = scale._adapter;
   var options = scale.options.time;
   var parser = options.parser;
-  var format = parser || options.format;
   var value = input;
 
   if (typeof parser === 'function') {
@@ -13044,24 +13008,10 @@ function toTimestamp(scale, input) {
 
 
   if (!helpers$1.isFinite(value)) {
-    value = typeof format === 'string' ? adapter.parse(value, format) : adapter.parse(value);
+    value = typeof parser === 'string' ? adapter.parse(value, parser) : adapter.parse(value);
   }
 
-  if (value !== null) {
-    return +value;
-  } // Labels are in an incompatible format and no `parser` has been provided.
-  // The user might still use the deprecated `format` option for parsing.
-
-
-  if (!parser && typeof format === 'function') {
-    value = format(input); // `format` could return something else than a timestamp, if so, parse it
-
-    if (!helpers$1.isFinite(value)) {
-      value = adapter.parse(value);
-    }
-  }
-
-  return value;
+  return value !== null ? +value : value;
 }
 
 function parse(scale, input) {
@@ -13271,8 +13221,6 @@ var defaultConfig$4 = {
     // false == automatic or override with week, month, year, etc.
     round: false,
     // none, or override with week, month, year, etc.
-    displayFormat: false,
-    // DEPRECATED
     isoWeekday: false,
     // override week start day - see https://momentjs.com/docs/#/get-set/iso-weekday/
     minUnit: 'millisecond',
@@ -13300,11 +13248,7 @@ var scale_time = core_scale.extend({
     var me = this;
     var options = me.options;
     var time = options.time || (options.time = {});
-    var adapter = me._adapter = new core_adapters._date(options.adapters.date); // DEPRECATIONS: output a message only one time per update
-
-    deprecated$1('time scale', time.format, 'time.format', 'time.parser');
-    deprecated$1('time scale', time.min, 'time.min', 'ticks.min');
-    deprecated$1('time scale', time.max, 'time.max', 'ticks.max'); // Backward compatibility: before introducing adapter, `displayFormats` was
+    var adapter = me._adapter = new core_adapters._date(options.adapters.date); // Backward compatibility: before introducing adapter, `displayFormats` was
     // supposed to contain *all* unit/string pairs but this can't be resolved
     // when loading the scale (adapters are loaded afterward), so let's populate
     // missing formats on update
@@ -13328,6 +13272,7 @@ var scale_time = core_scale.extend({
     var chart = me.chart;
     var adapter = me._adapter;
     var options = me.options;
+    var tickOpts = options.ticks;
     var unit = options.time.unit || 'day';
     var min = MAX_INTEGER;
     var max = MIN_INTEGER;
@@ -13378,8 +13323,8 @@ var scale_time = core_scale.extend({
       max = Math.max(max, timestamps[timestamps.length - 1]);
     }
 
-    min = parse(me, getMin(options)) || min;
-    max = parse(me, getMax(options)) || max; // In case there is no valid min/max, set limits based on unit time option
+    min = parse(me, tickOpts.min) || min;
+    max = parse(me, tickOpts.max) || max; // In case there is no valid min/max, set limits based on unit time option
 
     min = min === MAX_INTEGER ? +adapter.startOf(Date.now(), unit) : min;
     max = max === MIN_INTEGER ? +adapter.endOf(Date.now(), unit) + 1 : max; // Make sure that max is strictly higher than min (required by the lookup table)
@@ -13422,8 +13367,8 @@ var scale_time = core_scale.extend({
     } // Enforce limits with user min/max options
 
 
-    min = parse(me, getMin(options)) || min;
-    max = parse(me, getMax(options)) || max; // Remove ticks outside the min/max range
+    min = parse(me, tickOpts.min) || min;
+    max = parse(me, tickOpts.max) || max; // Remove ticks outside the min/max range
 
     for (i = 0, ilen = timestamps.length; i < ilen; ++i) {
       timestamp = timestamps[i];
