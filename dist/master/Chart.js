@@ -3244,7 +3244,7 @@ helpers$1.extend(DatasetController.prototype, {
     var me = this;
     var type = me.datasetElementType;
     return type && new type({
-      _chart: me.chart,
+      _ctx: me.chart.ctx,
       _datasetIndex: me.index
     });
   },
@@ -3252,7 +3252,7 @@ helpers$1.extend(DatasetController.prototype, {
     var me = this;
     var type = me.dataElementType;
     return type && new type({
-      _chart: me.chart,
+      _ctx: me.chart.ctx,
       _datasetIndex: me.index,
       _index: index
     });
@@ -3738,7 +3738,7 @@ var element_arc = core_element.extend({
     };
   },
   draw: function draw() {
-    var ctx = this._chart.ctx;
+    var ctx = this._ctx;
     var vm = this._view;
     var pixelMargin = vm.borderAlign === 'inner' ? 0.33 : 0;
     var arc = {
@@ -3810,7 +3810,7 @@ var element_line = core_element.extend({
   draw: function draw() {
     var me = this;
     var vm = me._view;
-    var ctx = me._chart.ctx;
+    var ctx = me._ctx;
     var spanGaps = vm.spanGaps;
 
     var points = me._children.slice(); // clone array
@@ -3949,7 +3949,7 @@ var element_point = core_element.extend({
   },
   draw: function draw(chartArea) {
     var vm = this._view;
-    var ctx = this._chart.ctx;
+    var ctx = this._ctx;
     var pointStyle = vm.pointStyle;
     var rotation = vm.rotation;
     var radius = vm.radius;
@@ -4098,7 +4098,7 @@ function _inRange(vm, x, y) {
 var element_rectangle = core_element.extend({
   _type: 'rectangle',
   draw: function draw() {
-    var ctx = this._chart.ctx;
+    var ctx = this._ctx;
     var vm = this._view;
     var rects = boundingRects(vm);
     var outer = rects.outer;
@@ -4328,13 +4328,10 @@ var controller_bar = core_datasetController.extend({
   },
   updateElement: function updateElement(rectangle, index, reset) {
     var me = this;
-    var meta = me.getMeta();
     var dataset = me.getDataset();
 
     var options = me._resolveDataElementOptions(index);
 
-    rectangle._xScale = me.getScaleForId(meta.xAxisID);
-    rectangle._yScale = me.getScaleForId(meta.yAxisID);
     rectangle._datasetIndex = me.index;
     rectangle._index = index;
     rectangle._model = {
@@ -4616,7 +4613,7 @@ core_defaults._set('bubble', {
       label: function label(item, data) {
         var datasetLabel = data.datasets[item.datasetIndex].label || '';
         var dataPoint = data.datasets[item.datasetIndex].data[item.index];
-        return datasetLabel + ': (' + item.xLabel + ', ' + item.yLabel + ', ' + dataPoint.r + ')';
+        return datasetLabel + ': (' + item.label + ', ' + item.value + ', ' + dataPoint.r + ')';
       }
     }
   }
@@ -4661,8 +4658,6 @@ var controller_bubble = core_datasetController.extend({
     var dsIndex = me.index;
     var x = reset ? xScale.getPixelForDecimal(0.5) : xScale.getPixelForValue(_typeof(data) === 'object' ? data : NaN, index, dsIndex);
     var y = reset ? yScale.getBasePixel() : yScale.getPixelForValue(data, index, dsIndex);
-    point._xScale = xScale;
-    point._yScale = yScale;
     point._options = options;
     point._datasetIndex = dsIndex;
     point._index = index;
@@ -5214,7 +5209,6 @@ var controller_line = core_datasetController.extend({
       } // Utility
 
 
-      line._scale = me._yScale;
       line._datasetIndex = me.index; // Data
 
       line._children = points; // Model
@@ -5243,18 +5237,14 @@ var controller_line = core_datasetController.extend({
     var dataset = me.getDataset();
     var datasetIndex = me.index;
     var value = dataset.data[index];
-    var xScale = me._xScale;
-    var yScale = me._yScale;
     var lineModel = meta.dataset._model;
     var x, y;
 
     var options = me._resolveDataElementOptions(index);
 
-    x = xScale.getPixelForValue(_typeof(value) === 'object' ? value : NaN, index, datasetIndex);
-    y = reset ? yScale.getBasePixel() : me.calculatePointY(value, index, datasetIndex); // Utility
+    x = me._xScale.getPixelForValue(_typeof(value) === 'object' ? value : NaN, index, datasetIndex);
+    y = reset ? me._yScale.getBasePixel() : me.calculatePointY(value, index, datasetIndex); // Utility
 
-    point._xScale = xScale;
-    point._yScale = yScale;
     point._options = options;
     point._datasetIndex = datasetIndex;
     point._index = index; // Desired view properties
@@ -5527,7 +5517,7 @@ core_defaults._set('polarArea', {
         return '';
       },
       label: function label(item, data) {
-        return data.labels[item.index] + ': ' + item.yLabel;
+        return data.labels[item.index] + ': ' + item.value;
       }
     }
   }
@@ -5618,7 +5608,6 @@ var controller_polarArea = core_datasetController.extend({
       // Utility
       _datasetIndex: me.index,
       _index: index,
-      _scale: scale,
       // Desired view properties
       _model: {
         backgroundColor: options.backgroundColor,
@@ -5759,7 +5748,6 @@ var controller_radar = core_datasetController.extend({
     var meta = me.getMeta();
     var line = meta.dataset;
     var points = meta.data || [];
-    var scale = me.chart.scale;
     var config = me._config;
     var i, ilen; // Compatibility: If the properties are defined with only the old name, use those values
 
@@ -5768,7 +5756,6 @@ var controller_radar = core_datasetController.extend({
     } // Utility
 
 
-    line._scale = scale;
     line._datasetIndex = me.index; // Data
 
     line._children = points;
@@ -5801,7 +5788,6 @@ var controller_radar = core_datasetController.extend({
     var x = reset ? scale.xCenter : pointPosition.x;
     var y = reset ? scale.yCenter : pointPosition.y; // Utility
 
-    point._scale = scale;
     point._options = options;
     point._datasetIndex = me.index;
     point._index = index; // Desired view properties
@@ -5906,7 +5892,7 @@ core_defaults._set('scatter', {
         return ''; // doesn't make sense for scatter since data are formatted as a point
       },
       label: function label(item) {
-        return '(' + item.xLabel + ', ' + item.yLabel + ')';
+        return '(' + item.label + ', ' + item.value + ')';
       }
     }
   }
@@ -7391,8 +7377,6 @@ core_defaults._set('global', {
 
           if (item.label) {
             title = item.label;
-          } else if (item.xLabel) {
-            title = item.xLabel;
           } else if (labelCount > 0 && item.index < labelCount) {
             title = labels[item.index];
           }
@@ -7414,8 +7398,6 @@ core_defaults._set('global', {
 
         if (!helpers$1.isNullOrUndef(tooltipItem.value)) {
           label += tooltipItem.value;
-        } else {
-          label += tooltipItem.yLabel;
         }
 
         return label;
@@ -7551,22 +7533,16 @@ function splitNewlines(str) {
  */
 
 
-function createTooltipItem(element) {
-  var xScale = element._xScale;
-  var yScale = element._yScale || element._scale; // handle radar || polarArea charts
-
-  var index = element._index;
+function createTooltipItem(chart, element) {
   var datasetIndex = element._datasetIndex;
-
-  var controller = element._chart.getDatasetMeta(datasetIndex).controller;
+  var index = element._index;
+  var controller = chart.getDatasetMeta(datasetIndex).controller;
 
   var indexScale = controller._getIndexScale();
 
   var valueScale = controller._getValueScale();
 
   return {
-    xLabel: xScale ? xScale.getLabelForIndex(index, datasetIndex) : '',
-    yLabel: yScale ? yScale.getLabelForIndex(index, datasetIndex) : '',
     label: indexScale ? '' + indexScale.getLabelForIndex(index, datasetIndex) : '',
     value: valueScale ? '' + valueScale.getLabelForIndex(index, datasetIndex) : '',
     index: index,
@@ -7702,7 +7678,7 @@ function getTooltipSize(tooltip, model) {
 function determineAlignment(tooltip, size) {
   var model = tooltip._model;
   var chart = tooltip._chart;
-  var chartArea = tooltip._chart.chartArea;
+  var chartArea = chart.chartArea;
   var xAlign = 'center';
   var yAlign = 'center';
 
@@ -7939,7 +7915,7 @@ var exports$4 = core_element.extend({
       var tooltipItems = [];
 
       for (i = 0, len = active.length; i < len; ++i) {
-        tooltipItems.push(createTooltipItem(active[i]));
+        tooltipItems.push(createTooltipItem(me._chart, active[i]));
       } // If the user provided a filter function, use it to modify the tooltip items
 
 
@@ -9210,8 +9186,6 @@ helpers$1.extend(Chart.prototype,
     var me = this;
     me.tooltip = new core_tooltip({
       _chart: me,
-      _chartInstance: me,
-      // deprecated, backward compatibility
       _data: me.data,
       _options: me.options.tooltips
     }, me);
@@ -13862,7 +13836,7 @@ function decodeFill(el, index, count) {
 
 function computeLinearBoundary(source) {
   var model = source.el._model || {};
-  var scale = source.el._scale || {};
+  var scale = source.scale || {};
   var fill = source.fill;
   var target = null;
   var horizontal;
@@ -13902,7 +13876,7 @@ function computeLinearBoundary(source) {
 }
 
 function computeCircularBoundary(source) {
-  var scale = source.el._scale;
+  var scale = source.scale;
   var options = scale.options;
   var length = scale.chart.data.labels.length;
   var fill = source.fill;
@@ -13933,7 +13907,7 @@ function computeCircularBoundary(source) {
 }
 
 function computeBoundary(source) {
-  var scale = source.el._scale || {};
+  var scale = source.scale || {};
 
   if (scale.getPointPositionForValue) {
     return computeCircularBoundary(source);
@@ -14094,6 +14068,7 @@ var plugin_filler = {
           visible: chart.isDatasetVisible(i),
           fill: decodeFill(el, i, count),
           chart: chart,
+          scale: meta.controller.getScaleForId(meta.yAxisID) || chart.scale,
           el: el
         };
       }
