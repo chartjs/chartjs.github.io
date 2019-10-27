@@ -10108,19 +10108,7 @@ helpers$1.extend(DateAdapter.prototype,
    * @param {Unit} unit - the unit as string
    * @function
    */
-  endOf: _abstract,
-  // DEPRECATIONS
-
-  /**
-   * Provided for backward compatibility for scale.getValueForPixel(),
-   * this method should be overridden only by the moment adapter.
-   * @deprecated since version 2.8.0
-   * @todo remove at version 3
-   * @private
-   */
-  _create: function _create(value) {
-    return value;
-  }
+  endOf: _abstract
 });
 
 DateAdapter.override = function (members) {
@@ -13646,9 +13634,7 @@ var scale_time = core_scale.extend({
     var me = this;
     var offsets = me._offsets;
     var pos = me.getDecimalForPixel(pixel) / offsets.factor - offsets.end;
-    var time = interpolate$1(me._table, 'pos', pos, 'time'); // DEPRECATION, we should return time directly
-
-    return me._adapter._create(time);
+    return interpolate$1(me._table, 'pos', pos, 'time');
   },
 
   /**
@@ -13758,17 +13744,6 @@ core_adapters._date.override(typeof moment === 'function' ? {
   },
   endOf: function endOf(time, unit) {
     return moment(time).endOf(unit).valueOf();
-  },
-  // DEPRECATIONS
-
-  /**
-   * Provided for backward compatibility with scale.getValueForPixel().
-   * @deprecated since version 2.8.0
-   * @todo remove at version 3
-   * @private
-   */
-  _create: function _create(time) {
-    return moment(time);
   }
 } : {});
 
