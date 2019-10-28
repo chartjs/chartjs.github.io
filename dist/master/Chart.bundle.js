@@ -4150,7 +4150,7 @@ var valueOrDefault$3 = helpers$1.valueOrDefault;
 
 core_defaults._set('bar', {
   hover: {
-    mode: 'label'
+    mode: 'index'
   },
   scales: {
     xAxes: [{
@@ -4531,9 +4531,6 @@ var valueOrDefault$4 = helpers$1.valueOrDefault;
 var resolve$1 = helpers$1.options.resolve;
 
 core_defaults._set('bubble', {
-  hover: {
-    mode: 'single'
-  },
   scales: {
     xAxes: [{
       type: 'linear',
@@ -4679,9 +4676,6 @@ core_defaults._set('doughnut', {
     animateRotate: true,
     // Boolean - Whether we animate scaling the Doughnut from the centre
     animateScale: false
-  },
-  hover: {
-    mode: 'single'
   },
   legendCallback: function legendCallback(chart) {
     var list = document.createElement('ul');
@@ -5095,7 +5089,7 @@ core_defaults._set('line', {
   showLines: true,
   spanGaps: false,
   hover: {
-    mode: 'label'
+    mode: 'index'
   },
   scales: {
     xAxes: [{
@@ -5813,9 +5807,6 @@ var controller_radar = core_datasetController.extend({
 });
 
 core_defaults._set('scatter', {
-  hover: {
-    mode: 'single'
-  },
   scales: {
     xAxes: [{
       id: 'x-axis-1',
@@ -6017,26 +6008,6 @@ function indexMode(chart, e, options) {
 var core_interaction = {
   // Helper function for different modes
   modes: {
-    single: function single(chart, e) {
-      var position = getRelativePosition(e, chart);
-      var elements = [];
-      parseVisibleItems(chart, function (element) {
-        if (element.inRange(position.x, position.y)) {
-          elements.push(element);
-          return elements;
-        }
-      });
-      return elements.slice(0, 1);
-    },
-
-    /**
-     * @function Chart.Interaction.modes.label
-     * @deprecated since version 2.4.0
-     * @todo remove at version 3
-     * @private
-     */
-    label: indexMode,
-
     /**
      * Returns items at the same index. If the options.intersect parameter is true, we only return items if we intersect something
      * If the options.intersect mode is false, we find the nearest item and return the items at the same index as that item
@@ -6069,18 +6040,6 @@ var core_interaction = {
       }
 
       return items;
-    },
-
-    /**
-     * @function Chart.Interaction.modes.x-axis
-     * @deprecated since version 2.4.0. Use index mode and intersect == true
-     * @todo remove at version 3
-     * @private
-     */
-    'x-axis': function xAxis(chart, e) {
-      return indexMode(chart, e, {
-        intersect: false
-      });
     },
 
     /**
@@ -9003,16 +8962,18 @@ helpers$1.extend(Chart.prototype,
    * @return An object containing the dataset index and element index of the matching element. Also contains the rectangle that was draw
    */
   getElementAtEvent: function getElementAtEvent(e) {
-    return core_interaction.modes.single(this, e);
+    return core_interaction.modes.nearest(this, e, {
+      intersect: true
+    });
   },
   getElementsAtEvent: function getElementsAtEvent(e) {
-    return core_interaction.modes.label(this, e, {
+    return core_interaction.modes.index(this, e, {
       intersect: true
     });
   },
   getElementsAtXAxis: function getElementsAtXAxis(e) {
-    return core_interaction.modes['x-axis'](this, e, {
-      intersect: true
+    return core_interaction.modes.index(this, e, {
+      intersect: false
     });
   },
   getElementsAtEventForMode: function getElementsAtEventForMode(e, mode, options) {
