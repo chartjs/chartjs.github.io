@@ -2029,7 +2029,7 @@ var helpers_core = helpers;
 
 /**
  * Easing functions adapted from Robert Penner's easing equations.
- * @namespace Chart.helpers.effects
+ * @namespace Chart.helpers.easing.effects
  * @see http://www.robertpenner.com/easing/
  */
 
@@ -6871,7 +6871,7 @@ var platform_dom$2 = {
       // If the canvas is in a shadow DOM, then the styles must also be inserted
       // into the same shadow DOM.
       // https://github.com/chartjs/Chart.js/issues/5763
-      var root = canvas.getRootNode();
+      var root = canvas.getRootNode ? canvas.getRootNode() : document;
       var targetNode = root.host ? root : document.head;
       injectCSS(targetNode, stylesheet);
     }
@@ -10650,7 +10650,7 @@ var Scale = core_element.extend({
     var me = this; // Convert ticks to strings
 
     var tickOpts = me.options.ticks;
-    me.ticks = me.ticks.map(tickOpts.userCallback || tickOpts.callback, this);
+    me.ticks = me.ticks.map(tickOpts.callback, this);
   },
   afterTickToLabelConversion: function afterTickToLabelConversion() {
     helpers$1.callback(this.options.afterTickToLabelConversion, [this]);
@@ -13436,7 +13436,7 @@ var scale_time = core_scale.extend({
     var major = majorUnit && majorFormat && tick && tick.major;
     var label = adapter.format(time, format ? format : major ? majorFormat : minorFormat);
     var nestedTickOpts = major ? tickOpts.major : tickOpts.minor;
-    var formatter = resolve$5([nestedTickOpts.callback, nestedTickOpts.userCallback, tickOpts.callback, tickOpts.userCallback]);
+    var formatter = resolve$5([nestedTickOpts.callback, tickOpts.callback]);
     return formatter ? formatter(label, index, ticks) : label;
   },
   convertTicksToLabels: function convertTicksToLabels(ticks) {
