@@ -7318,7 +7318,7 @@ core_defaults._set('global', {
       labelColor: function labelColor(tooltipItem, chart) {
         var meta = chart.getDatasetMeta(tooltipItem.datasetIndex);
         var activeElement = meta.data[tooltipItem.index];
-        var view = activeElement._view;
+        var view = activeElement.$previousStyle || activeElement._view;
         return {
           borderColor: view.borderColor,
           backgroundColor: view.backgroundColor
@@ -7733,8 +7733,24 @@ function getBeforeAfterBodyLines(callback) {
 
 var exports$4 = core_element.extend({
   initialize: function initialize() {
-    this._model = getBaseModel(this._options);
-    this._lastActive = [];
+    var me = this;
+    me._model = getBaseModel(me._options);
+    me._view = {};
+    me._lastActive = [];
+  },
+  transition: function transition(easingValue) {
+    var me = this;
+    var options = me._options;
+
+    if (me._lastEvent && me._chart.animating) {
+      // Let's react to changes during animation
+      me._active = me._chart.getElementsAtEventForMode(me._lastEvent, options.mode, options);
+      me.update(true);
+      me.pivot();
+      me._lastActive = me.active;
+    }
+
+    core_element.prototype.transition.call(me, easingValue);
   },
   // Get the title
   // Args are: (tooltipItem, data)
@@ -8175,8 +8191,13 @@ var exports$4 = core_element.extend({
 
     if (e.type === 'mouseout') {
       me._active = [];
+      me._lastEvent = null;
     } else {
       me._active = me._chart.getElementsAtEventForMode(e, options.mode, options);
+
+      if (e.type !== 'click') {
+        me._lastEvent = e.type === 'click' ? null : e;
+      }
 
       if (options.reverse) {
         me._active.reverse();
@@ -8672,8 +8693,7 @@ helpers$1.extend(Chart.prototype,
     me.updateDatasets(); // Need to reset tooltip in case it is displayed with elements that are removed
     // after update.
 
-    me.tooltip.initialize(); // Last active contains items that were previously in the tooltip.
-    // When we reset the tooltip, we need to clear it
+    me.tooltip.initialize(); // Last active contains items that were previously hovered.
 
     me.lastActive = []; // Do this before render so that any plugins that need final scale updates can use it
 
@@ -8689,6 +8709,11 @@ helpers$1.extend(Chart.prototype,
       };
     } else {
       me.render(config);
+    } // Replay last event from before update
+
+
+    if (me._lastEvent) {
+      me.eventHandler(me._lastEvent);
     }
   },
 
@@ -8857,14 +8882,20 @@ helpers$1.extend(Chart.prototype,
    */
   transition: function transition(easingValue) {
     var me = this;
+    var i, ilen;
 
-    for (var i = 0, ilen = (me.data.datasets || []).length; i < ilen; ++i) {
+    for (i = 0, ilen = (me.data.datasets || []).length; i < ilen; ++i) {
       if (me.isDatasetVisible(i)) {
         me.getDatasetMeta(i).controller.transition(easingValue);
       }
     }
 
     me.tooltip.transition(easingValue);
+
+    if (me._lastEvent && me.animating) {
+      // If, during animation, element under mouse changes, let's react to that.
+      me.handleEvent(me._lastEvent);
+    }
   },
 
   /**
@@ -9147,6 +9178,24 @@ helpers$1.extend(Chart.prototype,
   /**
    * @private
    */
+  _updateHoverStyles: function _updateHoverStyles() {
+    var me = this;
+    var options = me.options || {};
+    var hoverOptions = options.hover; // Remove styling for last active (even if it may still be active)
+
+    if (me.lastActive.length) {
+      me.updateHoverStyle(me.lastActive, hoverOptions.mode, false);
+    } // Built-in hover styling
+
+
+    if (me.active.length && hoverOptions.mode) {
+      me.updateHoverStyle(me.active, hoverOptions.mode, true);
+    }
+  },
+
+  /**
+   * @private
+   */
   eventHandler: function eventHandler(e) {
     var me = this;
     var tooltip = me.tooltip;
@@ -9204,8 +9253,10 @@ helpers$1.extend(Chart.prototype,
 
     if (e.type === 'mouseout') {
       me.active = [];
+      me._lastEvent = null;
     } else {
       me.active = me.getElementsAtEventForMode(e, hoverOptions.mode, hoverOptions);
+      me._lastEvent = e.type === 'click' ? null : e;
     } // Invoke onHover hook
     // Need to call with native event here to not break backwards compatibility
 
@@ -9217,17 +9268,9 @@ helpers$1.extend(Chart.prototype,
         // Use e.native here for backwards compatibility
         options.onClick.call(me, e["native"], me.active);
       }
-    } // Remove styling for last active (even if it may still be active)
-
-
-    if (me.lastActive.length) {
-      me.updateHoverStyle(me.lastActive, hoverOptions.mode, false);
-    } // Built in hover styling
-
-
-    if (me.active.length && hoverOptions.mode) {
-      me.updateHoverStyle(me.active, hoverOptions.mode, true);
     }
+
+    me._updateHoverStyles();
 
     changed = !helpers$1.arrayEquals(me.active, me.lastActive); // Remember Last Actives
 
