@@ -9772,24 +9772,30 @@ var core_helpers = function core_helpers() {
     return rounded - epsilon <= x && rounded + epsilon >= x;
   };
 
-  helpers$1.max = function (array) {
-    return array.reduce(function (max, value) {
-      if (!isNaN(value)) {
-        return Math.max(max, value);
-      }
+  helpers$1._setMinAndMax = function (array, target) {
+    var i, ilen, value;
 
-      return max;
-    }, Number.NEGATIVE_INFINITY);
+    for (i = 0, ilen = array.length; i < ilen; i++) {
+      value = array[i];
+
+      if (!isNaN(value)) {
+        target.min = Math.min(target.min, value);
+        target.max = Math.max(target.max, value);
+      }
+    }
   };
 
-  helpers$1.min = function (array) {
-    return array.reduce(function (min, value) {
-      if (!isNaN(value)) {
-        return Math.min(min, value);
-      }
+  helpers$1._setMinAndMaxByKey = function (array, target, property) {
+    var i, ilen, value;
 
-      return min;
-    }, Number.POSITIVE_INFINITY);
+    for (i = 0, ilen = array.length; i < ilen; i++) {
+      value = array[i][property];
+
+      if (!isNaN(value)) {
+        target.min = Math.min(target.min, value);
+        target.max = Math.max(target.max, value);
+      }
+    }
   };
 
   helpers$1.sign = Math.sign ? function (x) {
@@ -10460,7 +10466,7 @@ var core_ticks = {
      */
     linear: function linear(tickValue, index, ticks) {
       // If we have lots of ticks, don't use the ones
-      var delta = ticks.length > 3 ? ticks[2] - ticks[1] : ticks[1] - ticks[0]; // If we have a number like 2.5 as the delta, figure out how many decimal places we need
+      var delta = ticks.length > 3 ? ticks[2].value - ticks[1].value : ticks[1].value - ticks[0].value; // If we have a number like 2.5 as the delta, figure out how many decimal places we need
 
       if (Math.abs(delta) > 1) {
         if (tickValue !== Math.floor(tickValue)) {
@@ -10473,7 +10479,7 @@ var core_ticks = {
       var tickString = '';
 
       if (tickValue !== 0) {
-        var maxTick = Math.max(Math.abs(ticks[0]), Math.abs(ticks[ticks.length - 1]));
+        var maxTick = Math.max(Math.abs(ticks[0].value), Math.abs(ticks[ticks.length - 1].value));
 
         if (maxTick < 1e-4) {
           // all ticks are small numbers; use scientific notation
@@ -10580,7 +10586,7 @@ function sample(arr, numItems) {
 }
 
 function getPixelForGridLine(scale, index, offsetGridLines) {
-  var length = scale.getTicks().length;
+  var length = scale.ticks.length;
   var validIndex = Math.min(index, length - 1);
   var lineValue = scale.getPixelForTick(validIndex);
   var start = scale._startPixel;
@@ -10866,7 +10872,7 @@ var Scale = core_element.extend({
    * @since 2.7
    */
   getTicks: function getTicks() {
-    return this._ticks;
+    return this.ticks;
   },
 
   /**
@@ -10895,7 +10901,7 @@ var Scale = core_element.extend({
     var me = this;
     var tickOpts = me.options.ticks;
     var sampleSize = tickOpts.sampleSize;
-    var i, ilen, labels, ticks, samplingEnabled; // Update Lifecycle - Probably don't want to ever extend or overwrite this function ;)
+    var samplingEnabled; // Update Lifecycle - Probably don't want to ever extend or overwrite this function ;)
 
     me.beforeUpdate(); // Absorb the master measurements
 
@@ -10907,7 +10913,6 @@ var Scale = core_element.extend({
       top: 0,
       bottom: 0
     }, margins);
-    me._ticks = null;
     me.ticks = null;
     me._labelSizes = null;
     me._maxLabelLines = 0;
@@ -10922,39 +10927,20 @@ var Scale = core_element.extend({
 
     me.beforeDataLimits();
     me.determineDataLimits();
-    me.afterDataLimits(); // Ticks - `this.ticks` is now DEPRECATED!
-    // Internal ticks are now stored as objects in the PRIVATE `this._ticks` member
-    // and must not be accessed directly from outside this class. `this.ticks` being
-    // around for long time and not marked as private, we can't change its structure
-    // without unexpected breaking changes. If you need to access the scale ticks,
-    // use scale.getTicks() instead.
+    me.afterDataLimits();
+    me.beforeBuildTicks();
+    me.ticks = me.buildTicks() || []; // Allow modification of ticks in callback.
 
-    me.beforeBuildTicks(); // New implementations should return an array of objects but for BACKWARD COMPAT,
-    // we still support no return (`this.ticks` internally set by calling this method).
-
-    ticks = me.buildTicks() || []; // Allow modification of ticks in callback.
-
-    ticks = me.afterBuildTicks(ticks) || ticks; // Ensure ticks contains ticks in new tick format
-
-    if ((!ticks || !ticks.length) && me.ticks) {
-      ticks = [];
-
-      for (i = 0, ilen = me.ticks.length; i < ilen; ++i) {
-        ticks.push({
-          value: me.ticks[i],
-          major: false
-        });
-      }
-    }
-
-    me._ticks = ticks; // Compute tick rotation and fit using a sampled subset of labels
+    me.afterBuildTicks(); // Compute tick rotation and fit using a sampled subset of labels
     // We generally don't need to compute the size of every single label for determining scale size
 
-    samplingEnabled = sampleSize < ticks.length;
-    labels = me._convertTicksToLabels(samplingEnabled ? sample(ticks, sampleSize) : ticks); // _configure is called twice, once here, once from core.controller.updateLayout.
+    samplingEnabled = sampleSize < me.ticks.length;
+
+    me._convertTicksToLabels(samplingEnabled ? sample(me.ticks, sampleSize) : me.ticks); // _configure is called twice, once here, once from core.controller.updateLayout.
     // Here we haven't been positioned yet, but dimensions are correct.
     // Variables set in _configure are needed for calculateTickRotation, and
     // it's ok that coordinates are not correct there, only dimensions matter.
+
 
     me._configure(); // Tick Rotation
 
@@ -10966,15 +10952,13 @@ var Scale = core_element.extend({
     me.fit();
     me.afterFit(); // Auto-skip
 
-    me._ticksToDraw = tickOpts.display && (tickOpts.autoSkip || tickOpts.source === 'auto') ? me._autoSkip(ticks) : ticks;
+    me._ticksToDraw = tickOpts.display && (tickOpts.autoSkip || tickOpts.source === 'auto') ? me._autoSkip(me.ticks) : me.ticks;
 
     if (samplingEnabled) {
       // Generate labels using all non-skipped ticks
-      labels = me._convertTicksToLabels(me._ticksToDraw);
-    }
+      me._convertTicksToLabels(me._ticksToDraw);
+    } // IMPORTANT: after this point, we consider that `this.ticks` will NEVER change!
 
-    me.ticks = labels; // BACKWARD COMPATIBILITY
-    // IMPORTANT: after this point, we consider that `this.ticks` will NEVER change!
 
     me.afterUpdate(); // TODO(v3): remove minSize as a public property and return value from all layout boxes. It is unused
     // make maxWidth and maxHeight private
@@ -11049,25 +11033,25 @@ var Scale = core_element.extend({
     helpers$1.callback(this.options.beforeBuildTicks, [this]);
   },
   buildTicks: helpers$1.noop,
-  afterBuildTicks: function afterBuildTicks(ticks) {
-    var me = this; // ticks is empty for old axis implementations here
-
-    if (isArray(ticks) && ticks.length) {
-      return helpers$1.callback(me.options.afterBuildTicks, [me, ticks]);
-    } // Support old implementations (that modified `this.ticks` directly in buildTicks)
-
-
-    me.ticks = helpers$1.callback(me.options.afterBuildTicks, [me, me.ticks]) || me.ticks;
-    return ticks;
+  afterBuildTicks: function afterBuildTicks() {
+    helpers$1.callback(this.options.afterBuildTicks, [this]);
   },
   beforeTickToLabelConversion: function beforeTickToLabelConversion() {
     helpers$1.callback(this.options.beforeTickToLabelConversion, [this]);
   },
-  convertTicksToLabels: function convertTicksToLabels() {
-    var me = this; // Convert ticks to strings
 
+  /**
+   * Convert ticks to label strings
+   */
+  generateTickLabels: function generateTickLabels(ticks) {
+    var me = this;
     var tickOpts = me.options.ticks;
-    me.ticks = me.ticks.map(tickOpts.callback, this);
+    var i, ilen, tick;
+
+    for (i = 0, ilen = ticks.length; i < ilen; i++) {
+      tick = ticks[i];
+      tick.label = helpers$1.callback(tickOpts.callback, [tick.value, i, ticks], me);
+    }
   },
   afterTickToLabelConversion: function afterTickToLabelConversion() {
     helpers$1.callback(this.options.afterTickToLabelConversion, [this]);
@@ -11080,7 +11064,7 @@ var Scale = core_element.extend({
     var me = this;
     var options = me.options;
     var tickOpts = options.ticks;
-    var numTicks = me.getTicks().length;
+    var numTicks = me.ticks.length;
     var minRotation = tickOpts.minRotation || 0;
     var maxRotation = tickOpts.maxRotation;
     var labelRotation = minRotation;
@@ -11170,7 +11154,7 @@ var Scale = core_element.extend({
 
         minSize.height = Math.min(me.maxHeight, minSize.height + labelHeight + tickPadding);
         var offsetLeft = me.getPixelForTick(0) - me.left;
-        var offsetRight = me.right - me.getPixelForTick(me.getTicks().length - 1);
+        var offsetRight = me.right - me.getPixelForTick(me.ticks.length - 1);
         var paddingLeft, paddingRight; // Ensure that our ticks are always inside the canvas. When rotated, ticks are right aligned
         // which means that the right padding is dominated by the font height
 
@@ -11262,22 +11246,9 @@ var Scale = core_element.extend({
   },
   _convertTicksToLabels: function _convertTicksToLabels(ticks) {
     var me = this;
-    var labels, i, ilen;
-    me.ticks = ticks.map(function (tick) {
-      return tick.value;
-    });
-    me.beforeTickToLabelConversion(); // New implementations should return the formatted tick labels but for BACKWARD
-    // COMPAT, we still support no return (`this.ticks` internally changed by calling
-    // this method and supposed to contain only string values).
-
-    labels = me.convertTicksToLabels(ticks) || me.ticks;
-    me.afterTickToLabelConversion(); // BACKWARD COMPAT: synchronize `_ticks` with labels (so potentially `this.ticks`)
-
-    for (i = 0, ilen = ticks.length; i < ilen; ++i) {
-      ticks[i].label = labels[i];
-    }
-
-    return labels;
+    me.beforeTickToLabelConversion();
+    me.generateTickLabels(ticks);
+    me.afterTickToLabelConversion();
   },
 
   /**
@@ -11288,7 +11259,7 @@ var Scale = core_element.extend({
     var labelSizes = me._labelSizes;
 
     if (!labelSizes) {
-      me._labelSizes = labelSizes = computeLabelSizes(me.ctx, parseTickFontOptions(me.options.ticks), me.getTicks(), me.longestTextCache);
+      me._labelSizes = labelSizes = computeLabelSizes(me.ctx, parseTickFontOptions(me.options.ticks), me.ticks, me.longestTextCache);
       me.longestLabelWidth = labelSizes.widest.width;
     }
 
@@ -11365,7 +11336,7 @@ var Scale = core_element.extend({
   getPixelForTick: function getPixelForTick(index) {
     var me = this;
     var offset = me.options.offset;
-    var numTicks = me._ticks.length;
+    var numTicks = me.ticks.length;
     var tickWidth = 1 / Math.max(numTicks - (offset ? 0 : 1), 1);
     return index < 0 || index > numTicks - 1 ? null : me.getPixelForDecimal(index * tickWidth + (offset ? tickWidth / 2 : 0));
   },
@@ -11970,7 +11941,12 @@ var scale_category = core_scale.extend({
     var minIndex = me.minIndex;
     var maxIndex = me.maxIndex; // If we are viewing some subset of labels, slice the original array
 
-    me.ticks = minIndex === 0 && maxIndex === labels.length - 1 ? labels : labels.slice(minIndex, maxIndex + 1);
+    labels = minIndex === 0 && maxIndex === labels.length - 1 ? labels : labels.slice(minIndex, maxIndex + 1);
+    return labels.map(function (l) {
+      return {
+        value: l
+      };
+    });
   },
   getLabelForIndex: function getLabelForIndex(index, datasetIndex) {
     var me = this;
@@ -12046,7 +12022,6 @@ var scale_category = core_scale.extend({
 var _defaults = defaultConfig;
 scale_category._defaults = _defaults;
 
-var noop = helpers$1.noop;
 var isNullOrUndef$2 = helpers$1.isNullOrUndef;
 /**
  * Generate a set of linear ticks
@@ -12074,7 +12049,11 @@ function generateTicks(generationOptions, dataRange) {
   // such that we can't do the math necessary to generate ticks
 
   if (spacing < MIN_SPACING && isNullOrUndef$2(min) && isNullOrUndef$2(max)) {
-    return [rmin, rmax];
+    return [{
+      value: rmin
+    }, {
+      value: rmax
+    }];
   }
 
   numSpaces = Math.ceil(rmax / spacing) - Math.floor(rmin / spacing);
@@ -12117,13 +12096,19 @@ function generateTicks(generationOptions, dataRange) {
 
   niceMin = Math.round(niceMin * factor) / factor;
   niceMax = Math.round(niceMax * factor) / factor;
-  ticks.push(isNullOrUndef$2(min) ? niceMin : min);
+  ticks.push({
+    value: isNullOrUndef$2(min) ? niceMin : min
+  });
 
   for (var j = 1; j < numSpaces; ++j) {
-    ticks.push(Math.round((niceMin + j * spacing) * factor) / factor);
+    ticks.push({
+      value: Math.round((niceMin + j * spacing) * factor) / factor
+    });
   }
 
-  ticks.push(isNullOrUndef$2(max) ? niceMax : max);
+  ticks.push({
+    value: isNullOrUndef$2(max) ? niceMax : max
+  });
   return ticks;
 }
 
@@ -12223,7 +12208,9 @@ var scale_linearbase = core_scale.extend({
   _computeTickLimit: function _computeTickLimit() {
     return Number.POSITIVE_INFINITY;
   },
-  handleDirectionalChanges: noop,
+  _handleDirectionalChanges: function _handleDirectionalChanges(ticks) {
+    return ticks;
+  },
   buildTicks: function buildTicks() {
     var me = this;
     var opts = me.options;
@@ -12241,12 +12228,11 @@ var scale_linearbase = core_scale.extend({
       precision: tickOpts.precision,
       stepSize: helpers$1.valueOrDefault(tickOpts.fixedStepSize, tickOpts.stepSize)
     };
-    var ticks = me.ticks = generateTicks(numericGeneratorOptions, me);
-    me.handleDirectionalChanges(); // At this point, we need to update our max and min given the tick values since we have expanded the
+    var ticks = generateTicks(numericGeneratorOptions, me);
+    ticks = me._handleDirectionalChanges(ticks); // At this point, we need to update our max and min given the tick values since we have expanded the
     // range of the scale
 
-    me.max = helpers$1.max(ticks);
-    me.min = helpers$1.min(ticks);
+    helpers$1._setMinAndMaxByKey(ticks, me, 'value');
 
     if (tickOpts.reverse) {
       ticks.reverse();
@@ -12256,12 +12242,16 @@ var scale_linearbase = core_scale.extend({
       me.start = me.min;
       me.end = me.max;
     }
+
+    return ticks;
   },
-  convertTicksToLabels: function convertTicksToLabels() {
+  generateTickLabels: function generateTickLabels(ticks) {
     var me = this;
-    me.ticksAsNumbers = me.ticks.slice();
-    me.zeroLineIndex = me.ticks.indexOf(0);
-    core_scale.prototype.convertTicksToLabels.call(me);
+    me._tickValues = ticks.map(function (t) {
+      return t.value;
+    });
+    me.zeroLineIndex = me._tickValues.indexOf(0);
+    core_scale.prototype.generateTickLabels.call(me, ticks);
   },
   _configure: function _configure() {
     var me = this;
@@ -12386,8 +12376,8 @@ var scale_linear = scale_linearbase.extend({
 
     helpers$1.each(stacks, function (stackValues) {
       values = stackValues.pos.concat(stackValues.neg);
-      me.min = Math.min(me.min, helpers$1.min(values));
-      me.max = Math.max(me.max, helpers$1.max(values));
+
+      helpers$1._setMinAndMax(values, me);
     });
     me.min = helpers$1.isFinite(me.min) && !isNaN(me.min) ? me.min : DEFAULT_MIN;
     me.max = helpers$1.isFinite(me.max) && !isNaN(me.max) ? me.max : DEFAULT_MAX; // Common base implementation to handle ticks.min, ticks.max, ticks.beginAtZero
@@ -12406,12 +12396,14 @@ var scale_linear = scale_linearbase.extend({
     tickFont = helpers$1.options._parseFont(me.options.ticks);
     return Math.ceil(me.height / tickFont.lineHeight);
   },
-  // Called after the ticks are built. We need
-  handleDirectionalChanges: function handleDirectionalChanges() {
-    if (!this.isHorizontal()) {
-      // We are in a vertical orientation. The top value is the highest. So reverse the array
-      this.ticks.reverse();
-    }
+
+  /**
+   * Called after the ticks are built
+   * @private
+   */
+  _handleDirectionalChanges: function _handleDirectionalChanges(ticks) {
+    // If we are in a vertical orientation the top value is the highest so reverse the array
+    return this.isHorizontal() ? ticks : ticks.reverse();
   },
   getLabelForIndex: function getLabelForIndex(index, datasetIndex) {
     return this._getScaleLabel(this.chart.data.datasets[datasetIndex].data[index]);
@@ -12425,7 +12417,7 @@ var scale_linear = scale_linearbase.extend({
     return this._startValue + this.getDecimalForPixel(pixel) * this._valueRange;
   },
   getPixelForTick: function getPixelForTick(index) {
-    var ticks = this.ticksAsNumbers;
+    var ticks = this._tickValues;
 
     if (index < 0 || index > ticks.length - 1) {
       return null;
@@ -12457,7 +12449,9 @@ function generateTicks$1(generationOptions, dataRange) {
   if (tickVal === 0) {
     exp = Math.floor(log10(dataRange.minNotZero));
     significand = Math.floor(dataRange.minNotZero / Math.pow(10, exp));
-    ticks.push(tickVal);
+    ticks.push({
+      value: tickVal
+    });
     tickVal = significand * Math.pow(10, exp);
   } else {
     exp = Math.floor(log10(tickVal));
@@ -12467,7 +12461,9 @@ function generateTicks$1(generationOptions, dataRange) {
   var precision = exp < 0 ? Math.pow(10, Math.abs(exp)) : 1;
 
   do {
-    ticks.push(tickVal);
+    ticks.push({
+      value: tickVal
+    });
     ++significand;
 
     if (significand === 10) {
@@ -12480,7 +12476,9 @@ function generateTicks$1(generationOptions, dataRange) {
   } while (exp < endExp || exp === endExp && significand < endSignificand);
 
   var lastTick = valueOrDefault$b(generationOptions.max, tickVal);
-  ticks.push(lastTick);
+  ticks.push({
+    value: lastTick
+  });
   return ticks;
 }
 
@@ -12557,10 +12555,7 @@ var scale_logarithmic = core_scale.extend({
 
       helpers$1.each(valuesPerStack, function (valuesForType) {
         if (valuesForType.length > 0) {
-          var minVal = helpers$1.min(valuesForType);
-          var maxVal = helpers$1.max(valuesForType);
-          me.min = Math.min(me.min, minVal);
-          me.max = Math.max(me.max, maxVal);
+          helpers$1._setMinAndMax(valuesForType, me);
         }
       });
     } else {
@@ -12638,11 +12633,10 @@ var scale_logarithmic = core_scale.extend({
       min: nonNegativeOrDefault(tickOpts.min),
       max: nonNegativeOrDefault(tickOpts.max)
     };
-    var ticks = me.ticks = generateTicks$1(generationOptions, me); // At this point, we need to update our max and min given the tick values since we have expanded the
+    var ticks = generateTicks$1(generationOptions, me); // At this point, we need to update our max and min given the tick values since we have expanded the
     // range of the scale
 
-    me.max = helpers$1.max(ticks);
-    me.min = helpers$1.min(ticks);
+    helpers$1._setMinAndMaxByKey(ticks, me, 'value');
 
     if (tickOpts.reverse) {
       reverse = !reverse;
@@ -12656,17 +12650,21 @@ var scale_logarithmic = core_scale.extend({
     if (reverse) {
       ticks.reverse();
     }
+
+    return ticks;
   },
-  convertTicksToLabels: function convertTicksToLabels() {
-    this.tickValues = this.ticks.slice();
-    core_scale.prototype.convertTicksToLabels.call(this);
+  generateTickLabels: function generateTickLabels(ticks) {
+    this._tickValues = ticks.map(function (t) {
+      return t.value;
+    });
+    return core_scale.prototype.generateTickLabels.call(this, ticks);
   },
   // Get the correct tooltip label
   getLabelForIndex: function getLabelForIndex(index, datasetIndex) {
     return this._getScaleLabel(this.chart.data.datasets[datasetIndex].data[index]);
   },
   getPixelForTick: function getPixelForTick(index) {
-    var ticks = this.tickValues;
+    var ticks = this._tickValues;
 
     if (index < 0 || index > ticks.length - 1) {
       return null;
@@ -13036,9 +13034,9 @@ var scale_radialLinear = scale_linearbase.extend({
   _computeTickLimit: function _computeTickLimit() {
     return Math.ceil(this.drawingArea / getTickBackdropHeight(this.options));
   },
-  convertTicksToLabels: function convertTicksToLabels() {
+  generateTickLabels: function generateTickLabels(ticks) {
     var me = this;
-    scale_linearbase.prototype.convertTicksToLabels.call(me); // Point labels
+    scale_linearbase.prototype.generateTickLabels.call(me, ticks); // Point labels
 
     me.pointLabels = me.chart.data.labels.map(function () {
       var label = helpers$1.callback(me.options.pointLabels.callback, arguments, me);
@@ -13146,9 +13144,9 @@ var scale_radialLinear = scale_linearbase.extend({
     }
 
     if (gridLineOpts.display) {
-      helpers$1.each(me.ticks, function (label, index) {
+      helpers$1.each(me.ticks, function (tick, index) {
         if (index !== 0) {
-          offset = me.getDistanceFromCenterForValue(me.ticksAsNumbers[index]);
+          offset = me.getDistanceFromCenterForValue(me._tickValues[index]);
           drawRadiusLine(me, gridLineOpts, offset, index);
         }
       });
@@ -13202,21 +13200,21 @@ var scale_radialLinear = scale_linearbase.extend({
     ctx.rotate(startAngle);
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    helpers$1.each(me.ticks, function (label, index) {
+    helpers$1.each(me.ticks, function (tick, index) {
       if (index === 0 && !tickOpts.reverse) {
         return;
       }
 
-      offset = me.getDistanceFromCenterForValue(me.ticksAsNumbers[index]);
+      offset = me.getDistanceFromCenterForValue(me._tickValues[index]);
 
       if (tickOpts.showLabelBackdrop) {
-        width = ctx.measureText(label).width;
+        width = ctx.measureText(tick.label).width;
         ctx.fillStyle = tickOpts.backdropColor;
         ctx.fillRect(-width / 2 - tickOpts.backdropPaddingX, -offset - tickFont.size / 2 - tickOpts.backdropPaddingY, width + tickOpts.backdropPaddingX * 2, tickFont.size + tickOpts.backdropPaddingY * 2);
       }
 
       ctx.fillStyle = tickFontColor;
-      ctx.fillText(label, 0, -offset);
+      ctx.fillText(tick.label, 0, -offset);
     });
     ctx.restore();
   },
@@ -13856,15 +13854,13 @@ var scale_time = core_scale.extend({
     var formatter = resolve$5([nestedTickOpts.callback, tickOpts.callback]);
     return formatter ? formatter(label, index, ticks) : label;
   },
-  convertTicksToLabels: function convertTicksToLabels(ticks) {
-    var labels = [];
-    var i, ilen;
+  generateTickLabels: function generateTickLabels(ticks) {
+    var i, ilen, tick;
 
     for (i = 0, ilen = ticks.length; i < ilen; ++i) {
-      labels.push(this.tickFormatFunction(ticks[i].value, i, ticks));
+      tick = ticks[i];
+      tick.label = this.tickFormatFunction(tick.value, i, ticks);
     }
-
-    return labels;
   },
 
   /**
@@ -14391,7 +14387,7 @@ var plugin_filler = {
 };
 
 var getRtlHelper$1 = helpers$1.rtl.getRtlAdapter;
-var noop$1 = helpers$1.noop;
+var noop = helpers$1.noop;
 var valueOrDefault$e = helpers$1.valueOrDefault;
 
 core_defaults._set('global', {
@@ -14505,7 +14501,7 @@ var Legend = core_element.extend({
   // These methods are ordered by lifecycle. Utilities then follow.
   // Any function defined here is inherited by all legend types.
   // Any function can be extended by the legend type
-  beforeUpdate: noop$1,
+  beforeUpdate: noop,
   update: function update(maxWidth, maxHeight, margins) {
     var me = this; // Update Lifecycle - Probably don't want to ever extend or overwrite this function ;)
 
@@ -14530,9 +14526,9 @@ var Legend = core_element.extend({
     me.afterUpdate();
     return me.minSize;
   },
-  afterUpdate: noop$1,
+  afterUpdate: noop,
   //
-  beforeSetDimensions: noop$1,
+  beforeSetDimensions: noop,
   setDimensions: function setDimensions() {
     var me = this; // Set the unconstrained dimension before label rotation
 
@@ -14559,9 +14555,9 @@ var Legend = core_element.extend({
       height: 0
     };
   },
-  afterSetDimensions: noop$1,
+  afterSetDimensions: noop,
   //
-  beforeBuildLabels: noop$1,
+  beforeBuildLabels: noop,
   buildLabels: function buildLabels() {
     var me = this;
     var labelOpts = me.options.labels || {};
@@ -14579,9 +14575,9 @@ var Legend = core_element.extend({
 
     me.legendItems = legendItems;
   },
-  afterBuildLabels: noop$1,
+  afterBuildLabels: noop,
   //
-  beforeFit: noop$1,
+  beforeFit: noop,
   fit: function fit() {
     var me = this;
     var opts = me.options;
@@ -14680,7 +14676,7 @@ var Legend = core_element.extend({
     me.width = minSize.width;
     me.height = minSize.height;
   },
-  afterFit: noop$1,
+  afterFit: noop,
   // Shared Methods
   isHorizontal: function isHorizontal() {
     return this.options.position === 'top' || this.options.position === 'bottom';
@@ -14976,7 +14972,7 @@ var plugin_legend = {
   }
 };
 
-var noop$2 = helpers$1.noop;
+var noop$1 = helpers$1.noop;
 
 core_defaults._set('global', {
   title: {
@@ -15003,7 +14999,7 @@ var Title = core_element.extend({
     me.legendHitBoxes = [];
   },
   // These methods are ordered by lifecycle. Utilities then follow.
-  beforeUpdate: noop$2,
+  beforeUpdate: noop$1,
   update: function update(maxWidth, maxHeight, margins) {
     var me = this; // Update Lifecycle - Probably don't want to ever extend or overwrite this function ;)
 
@@ -15028,9 +15024,9 @@ var Title = core_element.extend({
     me.afterUpdate();
     return me.minSize;
   },
-  afterUpdate: noop$2,
+  afterUpdate: noop$1,
   //
-  beforeSetDimensions: noop$2,
+  beforeSetDimensions: noop$1,
   setDimensions: function setDimensions() {
     var me = this; // Set the unconstrained dimension before label rotation
 
@@ -15057,13 +15053,13 @@ var Title = core_element.extend({
       height: 0
     };
   },
-  afterSetDimensions: noop$2,
+  afterSetDimensions: noop$1,
   //
-  beforeBuildLabels: noop$2,
-  buildLabels: noop$2,
-  afterBuildLabels: noop$2,
+  beforeBuildLabels: noop$1,
+  buildLabels: noop$1,
+  afterBuildLabels: noop$1,
   //
-  beforeFit: noop$2,
+  beforeFit: noop$1,
   fit: function fit() {
     var me = this;
     var opts = me.options;
@@ -15081,7 +15077,7 @@ var Title = core_element.extend({
     me.width = minSize.width = isHorizontal ? me.maxWidth : textSize;
     me.height = minSize.height = isHorizontal ? textSize : me.maxHeight;
   },
-  afterFit: noop$2,
+  afterFit: noop$1,
   // Shared Methods
   isHorizontal: function isHorizontal() {
     var pos = this.options.position;
