@@ -19032,12 +19032,12 @@ core_defaults._set('global', {
         var datasets = chart.data.datasets;
         var options = chart.options.legend || {};
         var usePointStyle = options.labels && options.labels.usePointStyle;
-        return chart._getSortedDatasetMetas().map(function (meta, i) {
+        return chart._getSortedDatasetMetas().map(function (meta) {
           var style = meta.controller.getStyle(usePointStyle ? 0 : undefined);
           return {
             text: datasets[meta.index].label,
             fillStyle: style.backgroundColor,
-            hidden: !chart.isDatasetVisible(i),
+            hidden: !chart.isDatasetVisible(meta.index),
             lineCap: style.borderCapStyle,
             lineDash: style.borderDash,
             lineDashOffset: style.borderDashOffset,
@@ -19047,7 +19047,7 @@ core_defaults._set('global', {
             pointStyle: style.pointStyle,
             rotation: style.rotation,
             // Below is extra data used for toggling the datasets
-            datasetIndex: i
+            datasetIndex: meta.index
           };
         }, this);
       }
