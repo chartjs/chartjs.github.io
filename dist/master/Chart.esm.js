@@ -3293,6 +3293,8 @@ helpers$1.extend(Element.prototype, {
     var view = me._view; // No animation -> No Transition
 
     if (!model || ease === 1) {
+      // _model has to be cloned to _view
+      // Otherwise, when _model properties are set on hover, _view.* is also set to the same value, and hover animation doesn't occur
       me._view = helpers$1.extend({}, model);
       me._start = null;
       return me;
