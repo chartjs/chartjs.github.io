@@ -9070,15 +9070,6 @@ helpers$1.extend(Chart.prototype,
   update: function update(config) {
     var me = this;
     var i, ilen;
-
-    if (!config || _typeof(config) !== 'object') {
-      // backwards compatibility
-      config = {
-        duration: config,
-        lazy: arguments[1]
-      };
-    }
-
     updateConfig(me); // plugins options references might have change, let's invalidate the cache
     // https://github.com/chartjs/Chart.js/issues/5111#issuecomment-355934167
 
