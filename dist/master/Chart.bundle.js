@@ -9227,9 +9227,8 @@ helpers$1.extend(Chart.prototype,
         easing: config.easing || animationOptions.easing,
         render: function render(chart, animationObject) {
           var easingFunction = helpers$1.easing.effects[animationObject.easing];
-          var currentStep = animationObject.currentStep;
-          var stepDecimal = currentStep / animationObject.numSteps;
-          chart.draw(easingFunction(stepDecimal), stepDecimal, currentStep);
+          var stepDecimal = animationObject.currentStep / animationObject.numSteps;
+          chart.draw(easingFunction(stepDecimal));
         },
         onAnimationProgress: animationOptions.onProgress,
         onAnimationComplete: onComplete
