@@ -3592,23 +3592,6 @@ function getStackKey(xScale, yScale, meta) {
   return isStacked(yScale, meta) && xScale.id + '.' + yScale.id + '.' + meta.stack + '.' + meta.type;
 }
 
-function arraysEqual(array1, array2) {
-  var ilen = array1.length;
-  var i;
-
-  if (ilen !== array2.length) {
-    return false;
-  }
-
-  for (i = 0; i < ilen; i++) {
-    if (array1[i] !== array2[i]) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
 function getFirstScaleId(chart, axis) {
   var scalesOpts = chart.options.scales;
   var scale = chart.options.scale;
@@ -3758,7 +3741,7 @@ helpers$1.extend(DatasetController.prototype, {
       me._data = convertObjectDataToArray(data);
       me._objectData = data;
     } else {
-      if (me._data === data && arraysEqual(data, me._dataCopy)) {
+      if (me._data === data && helpers$1.arrayEquals(data, me._dataCopy)) {
         return false;
       }
 
