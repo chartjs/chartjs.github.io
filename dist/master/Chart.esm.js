@@ -6062,12 +6062,7 @@ var controller_line = core_datasetController.extend({
     me._yScale = me.getScaleForId(meta.yAxisID); // Update Line
 
     if (showLine) {
-      // Compatibility: If the properties are defined with only the old name, use those values
-      if (config.tension !== undefined && config.lineTension === undefined) {
-        config.lineTension = config.tension;
-      } // Utility
-
-
+      // Utility
       line._datasetIndex = me.index; // Data
 
       line._children = points; // Model
