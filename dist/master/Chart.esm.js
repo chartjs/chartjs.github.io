@@ -9512,7 +9512,7 @@ helpers$1.extend(Chart.prototype,
   },
 
   /**
-  * Resets the chart back to it's state before the initial animation
+  * Resets the chart back to its state before the initial animation
   */
   reset: function reset() {
     this.resetElements();
@@ -9521,6 +9521,7 @@ helpers$1.extend(Chart.prototype,
   update: function update(config) {
     var me = this;
     var i, ilen;
+    config = config || {};
     updateConfig(me); // plugins options references might have change, let's invalidate the cache
     // https://github.com/chartjs/Chart.js/issues/5111#issuecomment-355934167
 
