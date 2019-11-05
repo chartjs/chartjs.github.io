@@ -4457,15 +4457,6 @@ function drawBorder(ctx, vm, arc) {
 
 var element_arc = core_element.extend({
   _type: 'arc',
-  inLabelRange: function inLabelRange(mouseX) {
-    var vm = this._view;
-
-    if (vm) {
-      return Math.pow(mouseX - vm.x, 2) < Math.pow(vm.radius + vm.hoverRadius, 2);
-    }
-
-    return false;
-  },
   inRange: function inRange(chartX, chartY) {
     var vm = this._view;
 
@@ -4508,10 +4499,6 @@ var element_arc = core_element.extend({
       x: vm.x + Math.cos(halfAngle) * halfRadius,
       y: vm.y + Math.sin(halfAngle) * halfRadius
     };
-  },
-  getArea: function getArea() {
-    var vm = this._view;
-    return Math.PI * ((vm.endAngle - vm.startAngle) / (2 * Math.PI)) * (Math.pow(vm.outerRadius, 2) - Math.pow(vm.innerRadius, 2));
   },
   tooltipPosition: function tooltipPosition() {
     var vm = this._view;
@@ -4711,7 +4698,6 @@ var element_point = core_element.extend({
     var vm = this._view;
     return vm ? Math.pow(mouseX - vm.x, 2) + Math.pow(mouseY - vm.y, 2) < Math.pow(vm.hitRadius + vm.radius, 2) : false;
   },
-  inLabelRange: xRange,
   inXRange: xRange,
   inYRange: yRange,
   getCenterPoint: function getCenterPoint() {
@@ -4720,9 +4706,6 @@ var element_point = core_element.extend({
       x: vm.x,
       y: vm.y
     };
-  },
-  getArea: function getArea() {
-    return Math.PI * Math.pow(this._view.radius, 2);
   },
   tooltipPosition: function tooltipPosition() {
     var vm = this._view;
@@ -4904,16 +4887,8 @@ var element_rectangle = core_element.extend({
     ctx.fill('evenodd');
     ctx.restore();
   },
-  height: function height() {
-    var vm = this._view;
-    return vm.base - vm.y;
-  },
   inRange: function inRange(mouseX, mouseY) {
     return _inRange(this._view, mouseX, mouseY);
-  },
-  inLabelRange: function inLabelRange(mouseX, mouseY) {
-    var vm = this._view;
-    return isVertical(vm) ? _inRange(vm, mouseX, null) : _inRange(vm, null, mouseY);
   },
   inXRange: function inXRange(mouseX) {
     return _inRange(this._view, mouseX, null);
@@ -4937,10 +4912,6 @@ var element_rectangle = core_element.extend({
       x: x,
       y: y
     };
-  },
-  getArea: function getArea() {
-    var vm = this._view;
-    return isVertical(vm) ? vm.width * Math.abs(vm.y - vm.base) : vm.height * Math.abs(vm.x - vm.base);
   },
   tooltipPosition: function tooltipPosition() {
     var vm = this._view;
