@@ -5151,7 +5151,6 @@ var controller_bar = core_datasetController.extend({
   },
   updateElement: function updateElement(rectangle, index, reset) {
     var me = this;
-    var dataset = me.getDataset();
 
     var options = me._resolveDataElementOptions(index);
 
@@ -5161,9 +5160,7 @@ var controller_bar = core_datasetController.extend({
       backgroundColor: options.backgroundColor,
       borderColor: options.borderColor,
       borderSkipped: options.borderSkipped,
-      borderWidth: options.borderWidth,
-      datasetLabel: dataset.label,
-      label: me.chart.data.labels[index]
+      borderWidth: options.borderWidth
     }; // all borders are drawn for floating bar
 
     if (me._getParsed(index)._custom) {
@@ -5744,7 +5741,6 @@ var controller_doughnut = core_datasetController.extend({
 
     var endAngle = opts.rotation; // non reset case handled later
 
-    var dataset = me.getDataset();
     var circumference = reset && animationOpts.animateRotate ? 0 : arc.hidden ? 0 : me.calculateCircumference(arc._val * opts.circumference / DOUBLE_PI$1);
     var innerRadius = reset && animationOpts.animateScale ? 0 : me.innerRadius;
     var outerRadius = reset && animationOpts.animateScale ? 0 : me.outerRadius;
@@ -5765,8 +5761,7 @@ var controller_doughnut = core_datasetController.extend({
         endAngle: endAngle,
         circumference: circumference,
         outerRadius: outerRadius,
-        innerRadius: innerRadius,
-        label: helpers$1.valueAtIndexOrDefault(dataset.label, index, chart.data.labels[index])
+        innerRadius: innerRadius
       }
     });
     var model = arc._model; // Set correct angles if not resetting
@@ -6366,7 +6361,6 @@ var controller_polarArea = core_datasetController.extend({
     var opts = chart.options;
     var animationOpts = opts.animation;
     var scale = chart.scale;
-    var labels = chart.data.labels;
     var centerX = scale.xCenter;
     var centerY = scale.yCenter; // var negHalfPI = -0.5 * Math.PI;
 
@@ -6391,8 +6385,7 @@ var controller_polarArea = core_datasetController.extend({
         innerRadius: 0,
         outerRadius: reset ? resetRadius : distance,
         startAngle: reset && animationOpts.animateRotate ? datasetStartAngle : startAngle,
-        endAngle: reset && animationOpts.animateRotate ? datasetStartAngle : endAngle,
-        label: helpers$1.valueAtIndexOrDefault(labels, index, labels[index])
+        endAngle: reset && animationOpts.animateRotate ? datasetStartAngle : endAngle
       }
     });
     arc.pivot();
