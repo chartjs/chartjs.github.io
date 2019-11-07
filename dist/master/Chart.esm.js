@@ -10919,10 +10919,6 @@ core_defaults._set('scale', {
     drawOnChartArea: true,
     drawTicks: true,
     tickMarkLength: 10,
-    zeroLineWidth: 1,
-    zeroLineColor: 'rgba(0,0,0,0.25)',
-    zeroLineBorderDash: [],
-    zeroLineBorderDashOffset: 0.0,
     offsetGridLines: false,
     borderDash: [],
     borderDashOffset: 0.0
@@ -11237,8 +11233,6 @@ function skip(ticks, spacing, majorStart, majorEnd) {
 }
 
 var Scale = core_element.extend({
-  zeroLineIndex: 0,
-
   /**
    * Parse a supported input value to internal representation.
    * @param {*} raw
@@ -11842,7 +11836,7 @@ var Scale = core_element.extend({
     };
 
     var borderValue, i, tick, lineValue, alignedLineValue;
-    var tx1, ty1, tx2, ty2, x1, y1, x2, y2, lineWidth, lineColor, borderDash, borderDashOffset;
+    var tx1, ty1, tx2, ty2, x1, y1, x2, y2;
 
     if (position === 'top') {
       borderValue = alignBorderValue(me.bottom);
@@ -11872,20 +11866,10 @@ var Scale = core_element.extend({
 
     for (i = 0; i < ticksLength; ++i) {
       tick = ticks[i] || {};
-
-      if (i === me.zeroLineIndex && options.offset === offsetGridLines) {
-        // Draw the first index specially
-        lineWidth = gridLines.zeroLineWidth;
-        lineColor = gridLines.zeroLineColor;
-        borderDash = gridLines.zeroLineBorderDash || [];
-        borderDashOffset = gridLines.zeroLineBorderDashOffset || 0.0;
-      } else {
-        lineWidth = valueAtIndexOrDefault(gridLines.lineWidth, i, 1);
-        lineColor = valueAtIndexOrDefault(gridLines.color, i, 'rgba(0,0,0,0.1)');
-        borderDash = gridLines.borderDash || [];
-        borderDashOffset = gridLines.borderDashOffset || 0.0;
-      }
-
+      var lineWidth = valueAtIndexOrDefault(gridLines.lineWidth, i, 1);
+      var lineColor = valueAtIndexOrDefault(gridLines.color, i, 'rgba(0,0,0,0.1)');
+      var borderDash = gridLines.borderDash || [];
+      var borderDashOffset = gridLines.borderDashOffset || 0.0;
       lineValue = getPixelForGridLine(me, tick._index || i, offsetGridLines); // Skip if the pixel is out of the range
 
       if (lineValue === undefined) {
@@ -12624,7 +12608,6 @@ var scale_linearbase = core_scale.extend({
     me._tickValues = ticks.map(function (t) {
       return t.value;
     });
-    me.zeroLineIndex = me._tickValues.indexOf(0);
     core_scale.prototype.generateTickLabels.call(me, ticks);
   },
   _configure: function _configure() {
