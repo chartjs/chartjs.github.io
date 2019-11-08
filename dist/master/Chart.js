@@ -26,6 +26,75 @@ function _typeof(obj) {
   return _typeof(obj);
 }
 
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+}
+
+function _defineProperties(target, props) {
+  for (var i = 0; i < props.length; i++) {
+    var descriptor = props[i];
+    descriptor.enumerable = descriptor.enumerable || false;
+    descriptor.configurable = true;
+    if ("value" in descriptor) descriptor.writable = true;
+    Object.defineProperty(target, descriptor.key, descriptor);
+  }
+}
+
+function _createClass(Constructor, protoProps, staticProps) {
+  if (protoProps) _defineProperties(Constructor.prototype, protoProps);
+  if (staticProps) _defineProperties(Constructor, staticProps);
+  return Constructor;
+}
+
+function _inherits(subClass, superClass) {
+  if (typeof superClass !== "function" && superClass !== null) {
+    throw new TypeError("Super expression must either be null or a function");
+  }
+
+  subClass.prototype = Object.create(superClass && superClass.prototype, {
+    constructor: {
+      value: subClass,
+      writable: true,
+      configurable: true
+    }
+  });
+  if (superClass) _setPrototypeOf(subClass, superClass);
+}
+
+function _getPrototypeOf(o) {
+  _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) {
+    return o.__proto__ || Object.getPrototypeOf(o);
+  };
+  return _getPrototypeOf(o);
+}
+
+function _setPrototypeOf(o, p) {
+  _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
+    o.__proto__ = p;
+    return o;
+  };
+
+  return _setPrototypeOf(o, p);
+}
+
+function _assertThisInitialized(self) {
+  if (self === void 0) {
+    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+  }
+
+  return self;
+}
+
+function _possibleConstructorReturn(self, call) {
+  if (call && (typeof call === "object" || typeof call === "function")) {
+    return call;
+  }
+
+  return _assertThisInitialized(self);
+}
+
 function createCommonjsModule(fn, module) {
 	return module = { exports: {} }, fn(module, module.exports), module.exports;
 }
@@ -3272,81 +3341,115 @@ function interpolate(start, view, model, ease) {
   }
 }
 
-var Element = function Element(configuration) {
-  helpers$1.extend(this, configuration);
-  this.initialize.apply(this, arguments);
-};
+var Element =
+/*#__PURE__*/
+function () {
+  function Element(configuration) {
+    _classCallCheck(this, Element);
 
-helpers$1.extend(Element.prototype, {
-  _type: undefined,
-  initialize: function initialize() {
-    this.hidden = false;
-  },
-  pivot: function pivot() {
-    var me = this;
+    helpers$1.extend(this, configuration);
+    this.initialize.apply(this, arguments);
+  }
 
-    if (!me._view) {
-      me._view = helpers$1.extend({}, me._model);
+  _createClass(Element, [{
+    key: "initialize",
+    value: function initialize() {
+      this.hidden = false;
     }
+  }, {
+    key: "pivot",
+    value: function pivot() {
+      var me = this;
 
-    me._start = {};
-    return me;
-  },
-  transition: function transition(ease) {
-    var me = this;
-    var model = me._model;
-    var start = me._start;
-    var view = me._view; // No animation -> No Transition
+      if (!me._view) {
+        me._view = helpers$1.extend({}, me._model);
+      }
 
-    if (!model || ease === 1) {
-      // _model has to be cloned to _view
-      // Otherwise, when _model properties are set on hover, _view.* is also set to the same value, and hover animation doesn't occur
-      me._view = helpers$1.extend({}, model);
-      me._start = null;
+      me._start = {};
       return me;
     }
+  }, {
+    key: "transition",
+    value: function transition(ease) {
+      var me = this;
+      var model = me._model;
+      var start = me._start;
+      var view = me._view; // No animation -> No Transition
 
-    if (!view) {
-      view = me._view = {};
+      if (!model || ease === 1) {
+        // _model has to be cloned to _view
+        // Otherwise, when _model properties are set on hover, _view.* is also set to the same value, and hover animation doesn't occur
+        me._view = helpers$1.extend({}, model);
+        me._start = null;
+        return me;
+      }
+
+      if (!view) {
+        view = me._view = {};
+      }
+
+      if (!start) {
+        start = me._start = {};
+      }
+
+      interpolate(start, view, model, ease);
+      return me;
     }
-
-    if (!start) {
-      start = me._start = {};
+  }, {
+    key: "tooltipPosition",
+    value: function tooltipPosition() {
+      return {
+        x: this._model.x,
+        y: this._model.y
+      };
     }
+  }, {
+    key: "hasValue",
+    value: function hasValue() {
+      return helpers$1.isNumber(this._model.x) && helpers$1.isNumber(this._model.y);
+    }
+  }]);
 
-    interpolate(start, view, model, ease);
-    return me;
-  },
-  tooltipPosition: function tooltipPosition() {
-    return {
-      x: this._model.x,
-      y: this._model.y
-    };
-  },
-  hasValue: function hasValue() {
-    return helpers$1.isNumber(this._model.x) && helpers$1.isNumber(this._model.y);
-  }
-});
+  return Element;
+}();
+
 Element.extend = helpers$1.inherits;
 var core_element = Element;
 
-var exports$3 = core_element.extend({
-  chart: null,
-  // the animation associated chart instance
-  currentStep: 0,
-  // the current animation step
-  numSteps: 60,
-  // default number of steps
-  easing: '',
-  // the easing to use for this animation
-  render: null,
-  // render function used by the animation service
-  onAnimationProgress: null,
-  // user specified callback to fire on each step of the animation
-  onAnimationComplete: null // user specified callback to fire when the animation finishes
+var Animation =
+/*#__PURE__*/
+function (_Element) {
+  _inherits(Animation, _Element);
 
-});
-var core_animation = exports$3;
+  function Animation(props) {
+    var _this;
+
+    _classCallCheck(this, Animation);
+
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(Animation).call(this, {
+      chart: null,
+      // the animation associated chart instance
+      currentStep: 0,
+      // the current animation step
+      numSteps: 60,
+      // default number of steps
+      easing: '',
+      // the easing to use for this animation
+      render: null,
+      // render function used by the animation service
+      onAnimationProgress: null,
+      // user specified callback to fire on each step of the animation
+      onAnimationComplete: null // user specified callback to fire when the animation finishes
+
+    }));
+    helpers$1.extend(_assertThisInitialized(_this), props);
+    return _this;
+  }
+
+  return Animation;
+}(core_element);
+
+var core_animation = Animation;
 
 core_defaults._set('global', {
   animation: {
@@ -4455,106 +4558,129 @@ function drawBorder(ctx, vm, arc) {
   ctx.stroke();
 }
 
-var element_arc = core_element.extend({
-  _type: 'arc',
-  inRange: function inRange(chartX, chartY) {
-    var vm = this._view;
+var Arc =
+/*#__PURE__*/
+function (_Element) {
+  _inherits(Arc, _Element);
 
-    if (vm) {
-      var pointRelativePosition = helpers$1.getAngleFromPoint(vm, {
-        x: chartX,
-        y: chartY
-      });
-      var angle = pointRelativePosition.angle;
-      var distance = pointRelativePosition.distance; // Sanitise angle range
+  function Arc(props) {
+    _classCallCheck(this, Arc);
 
-      var startAngle = vm.startAngle;
-      var endAngle = vm.endAngle;
+    return _possibleConstructorReturn(this, _getPrototypeOf(Arc).call(this, props));
+  }
 
-      while (endAngle < startAngle) {
-        endAngle += TAU;
+  _createClass(Arc, [{
+    key: "inRange",
+    value: function inRange(chartX, chartY) {
+      var vm = this._view;
+
+      if (vm) {
+        var pointRelativePosition = helpers$1.getAngleFromPoint(vm, {
+          x: chartX,
+          y: chartY
+        });
+        var angle = pointRelativePosition.angle;
+        var distance = pointRelativePosition.distance; // Sanitise angle range
+
+        var startAngle = vm.startAngle;
+        var endAngle = vm.endAngle;
+
+        while (endAngle < startAngle) {
+          endAngle += TAU;
+        }
+
+        while (angle > endAngle) {
+          angle -= TAU;
+        }
+
+        while (angle < startAngle) {
+          angle += TAU;
+        } // Check if within the range of the open/close angle
+
+
+        var betweenAngles = angle >= startAngle && angle <= endAngle;
+        var withinRadius = distance >= vm.innerRadius && distance <= vm.outerRadius;
+        return betweenAngles && withinRadius;
       }
 
-      while (angle > endAngle) {
-        angle -= TAU;
-      }
-
-      while (angle < startAngle) {
-        angle += TAU;
-      } // Check if within the range of the open/close angle
-
-
-      var betweenAngles = angle >= startAngle && angle <= endAngle;
-      var withinRadius = distance >= vm.innerRadius && distance <= vm.outerRadius;
-      return betweenAngles && withinRadius;
+      return false;
     }
+  }, {
+    key: "getCenterPoint",
+    value: function getCenterPoint() {
+      var vm = this._view;
+      var halfAngle = (vm.startAngle + vm.endAngle) / 2;
+      var halfRadius = (vm.innerRadius + vm.outerRadius) / 2;
+      return {
+        x: vm.x + Math.cos(halfAngle) * halfRadius,
+        y: vm.y + Math.sin(halfAngle) * halfRadius
+      };
+    }
+  }, {
+    key: "tooltipPosition",
+    value: function tooltipPosition() {
+      var vm = this._view;
+      var centreAngle = vm.startAngle + (vm.endAngle - vm.startAngle) / 2;
+      var rangeFromCentre = (vm.outerRadius - vm.innerRadius) / 2 + vm.innerRadius;
+      return {
+        x: vm.x + Math.cos(centreAngle) * rangeFromCentre,
+        y: vm.y + Math.sin(centreAngle) * rangeFromCentre
+      };
+    }
+  }, {
+    key: "draw",
+    value: function draw() {
+      var ctx = this._ctx;
+      var vm = this._view;
+      var pixelMargin = vm.borderAlign === 'inner' ? 0.33 : 0;
+      var arc = {
+        x: vm.x,
+        y: vm.y,
+        innerRadius: vm.innerRadius,
+        outerRadius: Math.max(vm.outerRadius - pixelMargin, 0),
+        pixelMargin: pixelMargin,
+        startAngle: vm.startAngle,
+        endAngle: vm.endAngle,
+        fullCircles: Math.floor(vm.circumference / TAU)
+      };
+      var i;
+      ctx.save();
+      ctx.fillStyle = vm.backgroundColor;
+      ctx.strokeStyle = vm.borderColor;
 
-    return false;
-  },
-  getCenterPoint: function getCenterPoint() {
-    var vm = this._view;
-    var halfAngle = (vm.startAngle + vm.endAngle) / 2;
-    var halfRadius = (vm.innerRadius + vm.outerRadius) / 2;
-    return {
-      x: vm.x + Math.cos(halfAngle) * halfRadius,
-      y: vm.y + Math.sin(halfAngle) * halfRadius
-    };
-  },
-  tooltipPosition: function tooltipPosition() {
-    var vm = this._view;
-    var centreAngle = vm.startAngle + (vm.endAngle - vm.startAngle) / 2;
-    var rangeFromCentre = (vm.outerRadius - vm.innerRadius) / 2 + vm.innerRadius;
-    return {
-      x: vm.x + Math.cos(centreAngle) * rangeFromCentre,
-      y: vm.y + Math.sin(centreAngle) * rangeFromCentre
-    };
-  },
-  draw: function draw() {
-    var ctx = this._ctx;
-    var vm = this._view;
-    var pixelMargin = vm.borderAlign === 'inner' ? 0.33 : 0;
-    var arc = {
-      x: vm.x,
-      y: vm.y,
-      innerRadius: vm.innerRadius,
-      outerRadius: Math.max(vm.outerRadius - pixelMargin, 0),
-      pixelMargin: pixelMargin,
-      startAngle: vm.startAngle,
-      endAngle: vm.endAngle,
-      fullCircles: Math.floor(vm.circumference / TAU)
-    };
-    var i;
-    ctx.save();
-    ctx.fillStyle = vm.backgroundColor;
-    ctx.strokeStyle = vm.borderColor;
+      if (arc.fullCircles) {
+        arc.endAngle = arc.startAngle + TAU;
+        ctx.beginPath();
+        ctx.arc(arc.x, arc.y, arc.outerRadius, arc.startAngle, arc.endAngle);
+        ctx.arc(arc.x, arc.y, arc.innerRadius, arc.endAngle, arc.startAngle, true);
+        ctx.closePath();
 
-    if (arc.fullCircles) {
-      arc.endAngle = arc.startAngle + TAU;
+        for (i = 0; i < arc.fullCircles; ++i) {
+          ctx.fill();
+        }
+
+        arc.endAngle = arc.startAngle + vm.circumference % TAU;
+      }
+
       ctx.beginPath();
       ctx.arc(arc.x, arc.y, arc.outerRadius, arc.startAngle, arc.endAngle);
       ctx.arc(arc.x, arc.y, arc.innerRadius, arc.endAngle, arc.startAngle, true);
       ctx.closePath();
+      ctx.fill();
 
-      for (i = 0; i < arc.fullCircles; ++i) {
-        ctx.fill();
+      if (vm.borderWidth) {
+        drawBorder(ctx, vm, arc);
       }
 
-      arc.endAngle = arc.startAngle + vm.circumference % TAU;
+      ctx.restore();
     }
+  }]);
 
-    ctx.beginPath();
-    ctx.arc(arc.x, arc.y, arc.outerRadius, arc.startAngle, arc.endAngle);
-    ctx.arc(arc.x, arc.y, arc.innerRadius, arc.endAngle, arc.startAngle, true);
-    ctx.closePath();
-    ctx.fill();
+  return Arc;
+}(core_element);
 
-    if (vm.borderWidth) {
-      drawBorder(ctx, vm, arc);
-    }
-
-    ctx.restore();
-  }
-});
+Arc.prototype._type = 'arc';
+var element_arc = Arc;
 
 var valueOrDefault$1 = helpers$1.valueOrDefault;
 var defaultColor = core_defaults.global.defaultColor;
@@ -4577,91 +4703,108 @@ core_defaults._set('global', {
   }
 });
 
-var element_line = core_element.extend({
-  _type: 'line',
-  draw: function draw() {
-    var me = this;
-    var vm = me._view;
-    var ctx = me._ctx;
-    var spanGaps = vm.spanGaps;
+var Line =
+/*#__PURE__*/
+function (_Element) {
+  _inherits(Line, _Element);
 
-    var points = me._children.slice(); // clone array
+  function Line(props) {
+    _classCallCheck(this, Line);
 
+    return _possibleConstructorReturn(this, _getPrototypeOf(Line).call(this, props));
+  }
 
-    var globalDefaults = core_defaults.global;
-    var globalOptionLineElements = globalDefaults.elements.line;
-    var lastDrawnIndex = -1;
-    var closePath = me._loop;
-    var index, previous, currentVM;
+  _createClass(Line, [{
+    key: "draw",
+    value: function draw() {
+      var me = this;
+      var vm = me._view;
+      var ctx = me._ctx;
+      var spanGaps = vm.spanGaps;
 
-    if (!points.length) {
-      return;
-    }
-
-    if (me._loop) {
-      for (index = 0; index < points.length; ++index) {
-        previous = helpers$1.previousItem(points, index); // If the line has an open path, shift the point array
-
-        if (!points[index]._view.skip && previous._view.skip) {
-          points = points.slice(index).concat(points.slice(0, index));
-          closePath = spanGaps;
-          break;
-        }
-      } // If the line has a close path, add the first point again
+      var points = me._children.slice(); // clone array
 
 
-      if (closePath) {
-        points.push(points[0]);
+      var globalDefaults = core_defaults.global;
+      var globalOptionLineElements = globalDefaults.elements.line;
+      var lastDrawnIndex = -1;
+      var closePath = me._loop;
+      var index, previous, currentVM;
+
+      if (!points.length) {
+        return;
       }
-    }
 
-    ctx.save(); // Stroke Line Options
+      if (me._loop) {
+        for (index = 0; index < points.length; ++index) {
+          previous = helpers$1.previousItem(points, index); // If the line has an open path, shift the point array
 
-    ctx.lineCap = vm.borderCapStyle || globalOptionLineElements.borderCapStyle; // IE 9 and 10 do not support line dash
+          if (!points[index]._view.skip && previous._view.skip) {
+            points = points.slice(index).concat(points.slice(0, index));
+            closePath = spanGaps;
+            break;
+          }
+        } // If the line has a close path, add the first point again
 
-    if (ctx.setLineDash) {
-      ctx.setLineDash(vm.borderDash || globalOptionLineElements.borderDash);
-    }
 
-    ctx.lineDashOffset = valueOrDefault$1(vm.borderDashOffset, globalOptionLineElements.borderDashOffset);
-    ctx.lineJoin = vm.borderJoinStyle || globalOptionLineElements.borderJoinStyle;
-    ctx.lineWidth = valueOrDefault$1(vm.borderWidth, globalOptionLineElements.borderWidth);
-    ctx.strokeStyle = vm.borderColor || globalDefaults.defaultColor; // Stroke Line
+        if (closePath) {
+          points.push(points[0]);
+        }
+      }
 
-    ctx.beginPath(); // First point moves to it's starting position no matter what
+      ctx.save(); // Stroke Line Options
 
-    currentVM = points[0]._view;
+      ctx.lineCap = vm.borderCapStyle || globalOptionLineElements.borderCapStyle; // IE 9 and 10 do not support line dash
 
-    if (!currentVM.skip) {
-      ctx.moveTo(currentVM.x, currentVM.y);
-      lastDrawnIndex = 0;
-    }
+      if (ctx.setLineDash) {
+        ctx.setLineDash(vm.borderDash || globalOptionLineElements.borderDash);
+      }
 
-    for (index = 1; index < points.length; ++index) {
-      currentVM = points[index]._view;
-      previous = lastDrawnIndex === -1 ? helpers$1.previousItem(points, index) : points[lastDrawnIndex];
+      ctx.lineDashOffset = valueOrDefault$1(vm.borderDashOffset, globalOptionLineElements.borderDashOffset);
+      ctx.lineJoin = vm.borderJoinStyle || globalOptionLineElements.borderJoinStyle;
+      ctx.lineWidth = valueOrDefault$1(vm.borderWidth, globalOptionLineElements.borderWidth);
+      ctx.strokeStyle = vm.borderColor || globalDefaults.defaultColor; // Stroke Line
+
+      ctx.beginPath(); // First point moves to it's starting position no matter what
+
+      currentVM = points[0]._view;
 
       if (!currentVM.skip) {
-        if (lastDrawnIndex !== index - 1 && !spanGaps || lastDrawnIndex === -1) {
-          // There was a gap and this is the first point after the gap
-          ctx.moveTo(currentVM.x, currentVM.y);
-        } else {
-          // Line to next point
-          helpers$1.canvas.lineTo(ctx, previous._view, currentVM);
-        }
-
-        lastDrawnIndex = index;
+        ctx.moveTo(currentVM.x, currentVM.y);
+        lastDrawnIndex = 0;
       }
-    }
 
-    if (closePath) {
-      ctx.closePath();
-    }
+      for (index = 1; index < points.length; ++index) {
+        currentVM = points[index]._view;
+        previous = lastDrawnIndex === -1 ? helpers$1.previousItem(points, index) : points[lastDrawnIndex];
 
-    ctx.stroke();
-    ctx.restore();
-  }
-});
+        if (!currentVM.skip) {
+          if (lastDrawnIndex !== index - 1 && !spanGaps || lastDrawnIndex === -1) {
+            // There was a gap and this is the first point after the gap
+            ctx.moveTo(currentVM.x, currentVM.y);
+          } else {
+            // Line to next point
+            helpers$1.canvas.lineTo(ctx, previous._view, currentVM);
+          }
+
+          lastDrawnIndex = index;
+        }
+      }
+
+      if (closePath) {
+        ctx.closePath();
+      }
+
+      ctx.stroke();
+      ctx.restore();
+    }
+  }]);
+
+  return Line;
+}(core_element);
+
+Line.prototype._type = 'line';
+var element_line = Line;
 
 var valueOrDefault$2 = helpers$1.valueOrDefault;
 var defaultColor$1 = core_defaults.global.defaultColor;
@@ -4682,63 +4825,86 @@ core_defaults._set('global', {
   }
 });
 
-function xRange(mouseX) {
-  var vm = this._view;
-  return vm ? Math.abs(mouseX - vm.x) < vm.radius + vm.hitRadius : false;
-}
+var Point =
+/*#__PURE__*/
+function (_Element) {
+  _inherits(Point, _Element);
 
-function yRange(mouseY) {
-  var vm = this._view;
-  return vm ? Math.abs(mouseY - vm.y) < vm.radius + vm.hitRadius : false;
-}
+  function Point(props) {
+    _classCallCheck(this, Point);
 
-var element_point = core_element.extend({
-  _type: 'point',
-  inRange: function inRange(mouseX, mouseY) {
-    var vm = this._view;
-    return vm ? Math.pow(mouseX - vm.x, 2) + Math.pow(mouseY - vm.y, 2) < Math.pow(vm.hitRadius + vm.radius, 2) : false;
-  },
-  inXRange: xRange,
-  inYRange: yRange,
-  getCenterPoint: function getCenterPoint() {
-    var vm = this._view;
-    return {
-      x: vm.x,
-      y: vm.y
-    };
-  },
-  tooltipPosition: function tooltipPosition() {
-    var vm = this._view;
-    return {
-      x: vm.x,
-      y: vm.y,
-      padding: vm.radius + vm.borderWidth
-    };
-  },
-  draw: function draw(chartArea) {
-    var vm = this._view;
-    var ctx = this._ctx;
-    var pointStyle = vm.pointStyle;
-    var rotation = vm.rotation;
-    var radius = vm.radius;
-    var x = vm.x;
-    var y = vm.y;
-    var globalDefaults = core_defaults.global;
-    var defaultColor = globalDefaults.defaultColor; // eslint-disable-line no-shadow
-
-    if (vm.skip) {
-      return;
-    } // Clipping for Points.
-
-
-    if (chartArea === undefined || helpers$1.canvas._isPointInArea(vm, chartArea)) {
-      ctx.strokeStyle = vm.borderColor || defaultColor;
-      ctx.lineWidth = valueOrDefault$2(vm.borderWidth, globalDefaults.elements.point.borderWidth);
-      ctx.fillStyle = vm.backgroundColor || defaultColor;
-      helpers$1.canvas.drawPoint(ctx, pointStyle, radius, x, y, rotation);
-    }
+    return _possibleConstructorReturn(this, _getPrototypeOf(Point).call(this, props));
   }
-});
+
+  _createClass(Point, [{
+    key: "inRange",
+    value: function inRange(mouseX, mouseY) {
+      var vm = this._view;
+      return vm ? Math.pow(mouseX - vm.x, 2) + Math.pow(mouseY - vm.y, 2) < Math.pow(vm.hitRadius + vm.radius, 2) : false;
+    }
+  }, {
+    key: "inXRange",
+    value: function inXRange(mouseX) {
+      var vm = this._view;
+      return vm ? Math.abs(mouseX - vm.x) < vm.radius + vm.hitRadius : false;
+    }
+  }, {
+    key: "inYRange",
+    value: function inYRange(mouseY) {
+      var vm = this._view;
+      return vm ? Math.abs(mouseY - vm.y) < vm.radius + vm.hitRadius : false;
+    }
+  }, {
+    key: "getCenterPoint",
+    value: function getCenterPoint() {
+      var vm = this._view;
+      return {
+        x: vm.x,
+        y: vm.y
+      };
+    }
+  }, {
+    key: "tooltipPosition",
+    value: function tooltipPosition() {
+      var vm = this._view;
+      return {
+        x: vm.x,
+        y: vm.y,
+        padding: vm.radius + vm.borderWidth
+      };
+    }
+  }, {
+    key: "draw",
+    value: function draw(chartArea) {
+      var vm = this._view;
+      var ctx = this._ctx;
+      var pointStyle = vm.pointStyle;
+      var rotation = vm.rotation;
+      var radius = vm.radius;
+      var x = vm.x;
+      var y = vm.y;
+      var globalDefaults = core_defaults.global;
+      var defaultColor = globalDefaults.defaultColor; // eslint-disable-line no-shadow
+
+      if (vm.skip) {
+        return;
+      } // Clipping for Points.
+
+
+      if (chartArea === undefined || helpers$1.canvas._isPointInArea(vm, chartArea)) {
+        ctx.strokeStyle = vm.borderColor || defaultColor;
+        ctx.lineWidth = valueOrDefault$2(vm.borderWidth, globalDefaults.elements.point.borderWidth);
+        ctx.fillStyle = vm.backgroundColor || defaultColor;
+        helpers$1.canvas.drawPoint(ctx, pointStyle, radius, x, y, rotation);
+      }
+    }
+  }]);
+
+  return Point;
+}(core_element);
+
+Point.prototype._type = 'point';
+var element_point = Point;
 
 var defaultColor$2 = core_defaults.global.defaultColor;
 
@@ -4863,74 +5029,101 @@ function _inRange(vm, x, y) {
   return bounds && (skipX || x >= bounds.left && x <= bounds.right) && (skipY || y >= bounds.top && y <= bounds.bottom);
 }
 
-var element_rectangle = core_element.extend({
-  _type: 'rectangle',
-  draw: function draw() {
-    var ctx = this._ctx;
-    var vm = this._view;
-    var rects = boundingRects(vm);
-    var outer = rects.outer;
-    var inner = rects.inner;
-    ctx.fillStyle = vm.backgroundColor;
-    ctx.fillRect(outer.x, outer.y, outer.w, outer.h);
+var Rectangle =
+/*#__PURE__*/
+function (_Element) {
+  _inherits(Rectangle, _Element);
 
-    if (outer.w === inner.w && outer.h === inner.h) {
-      return;
-    }
+  function Rectangle(props) {
+    _classCallCheck(this, Rectangle);
 
-    ctx.save();
-    ctx.beginPath();
-    ctx.rect(outer.x, outer.y, outer.w, outer.h);
-    ctx.clip();
-    ctx.fillStyle = vm.borderColor;
-    ctx.rect(inner.x, inner.y, inner.w, inner.h);
-    ctx.fill('evenodd');
-    ctx.restore();
-  },
-  inRange: function inRange(mouseX, mouseY) {
-    return _inRange(this._view, mouseX, mouseY);
-  },
-  inXRange: function inXRange(mouseX) {
-    return _inRange(this._view, mouseX, null);
-  },
-  inYRange: function inYRange(mouseY) {
-    return _inRange(this._view, null, mouseY);
-  },
-  getCenterPoint: function getCenterPoint() {
-    var vm = this._view;
-    var x, y;
-
-    if (isVertical(vm)) {
-      x = vm.x;
-      y = (vm.y + vm.base) / 2;
-    } else {
-      x = (vm.x + vm.base) / 2;
-      y = vm.y;
-    }
-
-    return {
-      x: x,
-      y: y
-    };
-  },
-  tooltipPosition: function tooltipPosition() {
-    var vm = this._view;
-    return {
-      x: vm.x,
-      y: vm.y
-    };
+    return _possibleConstructorReturn(this, _getPrototypeOf(Rectangle).call(this, props));
   }
-});
+
+  _createClass(Rectangle, [{
+    key: "draw",
+    value: function draw() {
+      var ctx = this._ctx;
+      var vm = this._view;
+      var rects = boundingRects(vm);
+      var outer = rects.outer;
+      var inner = rects.inner;
+      ctx.fillStyle = vm.backgroundColor;
+      ctx.fillRect(outer.x, outer.y, outer.w, outer.h);
+
+      if (outer.w === inner.w && outer.h === inner.h) {
+        return;
+      }
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(outer.x, outer.y, outer.w, outer.h);
+      ctx.clip();
+      ctx.fillStyle = vm.borderColor;
+      ctx.rect(inner.x, inner.y, inner.w, inner.h);
+      ctx.fill('evenodd');
+      ctx.restore();
+    }
+  }, {
+    key: "inRange",
+    value: function inRange(mouseX, mouseY) {
+      return _inRange(this._view, mouseX, mouseY);
+    }
+  }, {
+    key: "inXRange",
+    value: function inXRange(mouseX) {
+      return _inRange(this._view, mouseX, null);
+    }
+  }, {
+    key: "inYRange",
+    value: function inYRange(mouseY) {
+      return _inRange(this._view, null, mouseY);
+    }
+  }, {
+    key: "getCenterPoint",
+    value: function getCenterPoint() {
+      var vm = this._view;
+      var x, y;
+
+      if (isVertical(vm)) {
+        x = vm.x;
+        y = (vm.y + vm.base) / 2;
+      } else {
+        x = (vm.x + vm.base) / 2;
+        y = vm.y;
+      }
+
+      return {
+        x: x,
+        y: y
+      };
+    }
+  }, {
+    key: "tooltipPosition",
+    value: function tooltipPosition() {
+      var vm = this._view;
+      return {
+        x: vm.x,
+        y: vm.y
+      };
+    }
+  }]);
+
+  return Rectangle;
+}(core_element);
+
+Rectangle.prototype._type = 'rectangle';
+var element_rectangle = Rectangle;
 
 var elements = {};
-var Arc = element_arc;
-var Line = element_line;
-var Point = element_point;
-var Rectangle = element_rectangle;
-elements.Arc = Arc;
-elements.Line = Line;
-elements.Point = Point;
-elements.Rectangle = Rectangle;
+var Arc$1 = element_arc;
+var Line$1 = element_line;
+var Point$1 = element_point;
+var Rectangle$1 = element_rectangle;
+elements.Arc = Arc$1;
+elements.Line = Line$1;
+elements.Point = Point$1;
+elements.Rectangle = Rectangle$1;
 
 var valueOrDefault$3 = helpers$1.valueOrDefault;
 
@@ -8545,505 +8738,550 @@ function getBeforeAfterBodyLines(callback) {
   return pushOrConcat([], splitNewlines(callback));
 }
 
-var exports$4 = core_element.extend({
-  initialize: function initialize() {
-    var me = this;
-    me._model = getBaseModel(me._options);
-    me._view = {};
-    me._lastActive = [];
-  },
-  transition: function transition(easingValue) {
-    var me = this;
-    var options = me._options;
+var Tooltip =
+/*#__PURE__*/
+function (_Element) {
+  _inherits(Tooltip, _Element);
 
-    if (me._lastEvent && me._chart.animating) {
-      // Let's react to changes during animation
-      me._active = me._chart.getElementsAtEventForMode(me._lastEvent, options.mode, options);
-      me.update(true);
-      me.pivot();
-      me._lastActive = me.active;
+  function Tooltip() {
+    _classCallCheck(this, Tooltip);
+
+    return _possibleConstructorReturn(this, _getPrototypeOf(Tooltip).apply(this, arguments));
+  }
+
+  _createClass(Tooltip, [{
+    key: "initialize",
+    value: function initialize() {
+      var me = this;
+      me._model = getBaseModel(me._options);
+      me._view = {};
+      me._lastActive = [];
     }
-
-    core_element.prototype.transition.call(me, easingValue);
-  },
-  // Get the title
-  // Args are: (tooltipItem, data)
-  getTitle: function getTitle() {
-    var me = this;
-    var opts = me._options;
-    var callbacks = opts.callbacks;
-    var beforeTitle = callbacks.beforeTitle.apply(me, arguments);
-    var title = callbacks.title.apply(me, arguments);
-    var afterTitle = callbacks.afterTitle.apply(me, arguments);
-    var lines = [];
-    lines = pushOrConcat(lines, splitNewlines(beforeTitle));
-    lines = pushOrConcat(lines, splitNewlines(title));
-    lines = pushOrConcat(lines, splitNewlines(afterTitle));
-    return lines;
-  },
-  // Args are: (tooltipItem, data)
-  getBeforeBody: function getBeforeBody() {
-    return getBeforeAfterBodyLines(this._options.callbacks.beforeBody.apply(this, arguments));
-  },
-  // Args are: (tooltipItem, data)
-  getBody: function getBody(tooltipItems, data) {
-    var me = this;
-    var callbacks = me._options.callbacks;
-    var bodyItems = [];
-    helpers$1.each(tooltipItems, function (tooltipItem) {
-      var bodyItem = {
-        before: [],
-        lines: [],
-        after: []
-      };
-      pushOrConcat(bodyItem.before, splitNewlines(callbacks.beforeLabel.call(me, tooltipItem, data)));
-      pushOrConcat(bodyItem.lines, callbacks.label.call(me, tooltipItem, data));
-      pushOrConcat(bodyItem.after, splitNewlines(callbacks.afterLabel.call(me, tooltipItem, data)));
-      bodyItems.push(bodyItem);
-    });
-    return bodyItems;
-  },
-  // Args are: (tooltipItem, data)
-  getAfterBody: function getAfterBody() {
-    return getBeforeAfterBodyLines(this._options.callbacks.afterBody.apply(this, arguments));
-  },
-  // Get the footer and beforeFooter and afterFooter lines
-  // Args are: (tooltipItem, data)
-  getFooter: function getFooter() {
-    var me = this;
-    var callbacks = me._options.callbacks;
-    var beforeFooter = callbacks.beforeFooter.apply(me, arguments);
-    var footer = callbacks.footer.apply(me, arguments);
-    var afterFooter = callbacks.afterFooter.apply(me, arguments);
-    var lines = [];
-    lines = pushOrConcat(lines, splitNewlines(beforeFooter));
-    lines = pushOrConcat(lines, splitNewlines(footer));
-    lines = pushOrConcat(lines, splitNewlines(afterFooter));
-    return lines;
-  },
-  update: function update(changed) {
-    var me = this;
-    var opts = me._options; // Need to regenerate the model because its faster than using extend and it is necessary due to the optimization in Chart.Element.transition
-    // that does _view = _model if ease === 1. This causes the 2nd tooltip update to set properties in both the view and model at the same time
-    // which breaks any animations.
-
-    var existingModel = me._model;
-    var model = me._model = getBaseModel(opts);
-    var active = me._active;
-    var data = me._data; // In the case where active.length === 0 we need to keep these at existing values for good animations
-
-    var alignment = {
-      xAlign: existingModel.xAlign,
-      yAlign: existingModel.yAlign
-    };
-    var backgroundPoint = {
-      x: existingModel.x,
-      y: existingModel.y
-    };
-    var tooltipSize = {
-      width: existingModel.width,
-      height: existingModel.height
-    };
-    var tooltipPosition = {
-      x: existingModel.caretX,
-      y: existingModel.caretY
-    };
-    var i, len;
-
-    if (active.length) {
-      model.opacity = 1;
-      var labelColors = [];
-      var labelTextColors = [];
-      tooltipPosition = positioners[opts.position].call(me, active, me._eventPosition);
-      var tooltipItems = [];
-
-      for (i = 0, len = active.length; i < len; ++i) {
-        tooltipItems.push(createTooltipItem(me._chart, active[i]));
-      } // If the user provided a filter function, use it to modify the tooltip items
-
-
-      if (opts.filter) {
-        tooltipItems = tooltipItems.filter(function (a) {
-          return opts.filter(a, data);
-        });
-      } // If the user provided a sorting function, use it to modify the tooltip items
-
-
-      if (opts.itemSort) {
-        tooltipItems = tooltipItems.sort(function (a, b) {
-          return opts.itemSort(a, b, data);
-        });
-      } // Determine colors for boxes
-
-
-      helpers$1.each(tooltipItems, function (tooltipItem) {
-        labelColors.push(opts.callbacks.labelColor.call(me, tooltipItem, me._chart));
-        labelTextColors.push(opts.callbacks.labelTextColor.call(me, tooltipItem, me._chart));
-      }); // Build the Text Lines
-
-      model.title = me.getTitle(tooltipItems, data);
-      model.beforeBody = me.getBeforeBody(tooltipItems, data);
-      model.body = me.getBody(tooltipItems, data);
-      model.afterBody = me.getAfterBody(tooltipItems, data);
-      model.footer = me.getFooter(tooltipItems, data); // Initial positioning and colors
-
-      model.x = tooltipPosition.x;
-      model.y = tooltipPosition.y;
-      model.caretPadding = opts.caretPadding;
-      model.labelColors = labelColors;
-      model.labelTextColors = labelTextColors; // data points
-
-      model.dataPoints = tooltipItems; // We need to determine alignment of the tooltip
-
-      tooltipSize = getTooltipSize(this, model);
-      alignment = determineAlignment(this, tooltipSize); // Final Size and Position
-
-      backgroundPoint = getBackgroundPoint(model, tooltipSize, alignment, me._chart);
-    } else {
-      model.opacity = 0;
-    }
-
-    model.xAlign = alignment.xAlign;
-    model.yAlign = alignment.yAlign;
-    model.x = backgroundPoint.x;
-    model.y = backgroundPoint.y;
-    model.width = tooltipSize.width;
-    model.height = tooltipSize.height; // Point where the caret on the tooltip points to
-
-    model.caretX = tooltipPosition.x;
-    model.caretY = tooltipPosition.y;
-    me._model = model;
-
-    if (changed && opts.custom) {
-      opts.custom.call(me, model);
-    }
-
-    return me;
-  },
-  drawCaret: function drawCaret(tooltipPoint, size) {
-    var ctx = this._chart.ctx;
-    var vm = this._view;
-    var caretPosition = this.getCaretPosition(tooltipPoint, size, vm);
-    ctx.lineTo(caretPosition.x1, caretPosition.y1);
-    ctx.lineTo(caretPosition.x2, caretPosition.y2);
-    ctx.lineTo(caretPosition.x3, caretPosition.y3);
-  },
-  getCaretPosition: function getCaretPosition(tooltipPoint, size, vm) {
-    var x1, x2, x3, y1, y2, y3;
-    var caretSize = vm.caretSize;
-    var cornerRadius = vm.cornerRadius;
-    var xAlign = vm.xAlign;
-    var yAlign = vm.yAlign;
-    var ptX = tooltipPoint.x;
-    var ptY = tooltipPoint.y;
-    var width = size.width;
-    var height = size.height;
-
-    if (yAlign === 'center') {
-      y2 = ptY + height / 2;
-
-      if (xAlign === 'left') {
-        x1 = ptX;
-        x2 = x1 - caretSize;
-        x3 = x1;
-        y1 = y2 + caretSize;
-        y3 = y2 - caretSize;
-      } else {
-        x1 = ptX + width;
-        x2 = x1 + caretSize;
-        x3 = x1;
-        y1 = y2 - caretSize;
-        y3 = y2 + caretSize;
-      }
-    } else {
-      if (xAlign === 'left') {
-        x2 = ptX + cornerRadius + caretSize;
-        x1 = x2 - caretSize;
-        x3 = x2 + caretSize;
-      } else if (xAlign === 'right') {
-        x2 = ptX + width - cornerRadius - caretSize;
-        x1 = x2 - caretSize;
-        x3 = x2 + caretSize;
-      } else {
-        x2 = vm.caretX;
-        x1 = x2 - caretSize;
-        x3 = x2 + caretSize;
-      }
-
-      if (yAlign === 'top') {
-        y1 = ptY;
-        y2 = y1 - caretSize;
-        y3 = y1;
-      } else {
-        y1 = ptY + height;
-        y2 = y1 + caretSize;
-        y3 = y1; // invert drawing order
-
-        var tmp = x3;
-        x3 = x1;
-        x1 = tmp;
-      }
-    }
-
-    return {
-      x1: x1,
-      x2: x2,
-      x3: x3,
-      y1: y1,
-      y2: y2,
-      y3: y3
-    };
-  },
-  drawTitle: function drawTitle(pt, vm, ctx) {
-    var title = vm.title;
-    var length = title.length;
-    var titleFontSize, titleSpacing, i;
-
-    if (length) {
-      var rtlHelper = getRtlHelper(vm.rtl, vm.x, vm.width);
-      pt.x = getAlignedX(vm, vm._titleAlign);
-      ctx.textAlign = rtlHelper.textAlign(vm._titleAlign);
-      ctx.textBaseline = 'middle';
-      titleFontSize = vm.titleFontSize;
-      titleSpacing = vm.titleSpacing;
-      ctx.fillStyle = vm.titleFontColor;
-      ctx.font = helpers$1.fontString(titleFontSize, vm._titleFontStyle, vm._titleFontFamily);
-
-      for (i = 0; i < length; ++i) {
-        ctx.fillText(title[i], rtlHelper.x(pt.x), pt.y + titleFontSize / 2);
-        pt.y += titleFontSize + titleSpacing; // Line Height and spacing
-
-        if (i + 1 === length) {
-          pt.y += vm.titleMarginBottom - titleSpacing; // If Last, add margin, remove spacing
-        }
-      }
-    }
-  },
-  drawBody: function drawBody(pt, vm, ctx) {
-    var bodyFontSize = vm.bodyFontSize;
-    var bodySpacing = vm.bodySpacing;
-    var bodyAlign = vm._bodyAlign;
-    var body = vm.body;
-    var drawColorBoxes = vm.displayColors;
-    var xLinePadding = 0;
-    var colorX = drawColorBoxes ? getAlignedX(vm, 'left') : 0;
-    var rtlHelper = getRtlHelper(vm.rtl, vm.x, vm.width);
-
-    var fillLineOfText = function fillLineOfText(line) {
-      ctx.fillText(line, rtlHelper.x(pt.x + xLinePadding), pt.y + bodyFontSize / 2);
-      pt.y += bodyFontSize + bodySpacing;
-    };
-
-    var bodyItem, textColor, labelColors, lines, i, j, ilen, jlen;
-    var bodyAlignForCalculation = rtlHelper.textAlign(bodyAlign);
-    ctx.textAlign = bodyAlign;
-    ctx.textBaseline = 'middle';
-    ctx.font = helpers$1.fontString(bodyFontSize, vm._bodyFontStyle, vm._bodyFontFamily);
-    pt.x = getAlignedX(vm, bodyAlignForCalculation); // Before body lines
-
-    ctx.fillStyle = vm.bodyFontColor;
-    helpers$1.each(vm.beforeBody, fillLineOfText);
-    xLinePadding = drawColorBoxes && bodyAlignForCalculation !== 'right' ? bodyAlign === 'center' ? bodyFontSize / 2 + 1 : bodyFontSize + 2 : 0; // Draw body lines now
-
-    for (i = 0, ilen = body.length; i < ilen; ++i) {
-      bodyItem = body[i];
-      textColor = vm.labelTextColors[i];
-      labelColors = vm.labelColors[i];
-      ctx.fillStyle = textColor;
-      helpers$1.each(bodyItem.before, fillLineOfText);
-      lines = bodyItem.lines;
-
-      for (j = 0, jlen = lines.length; j < jlen; ++j) {
-        // Draw Legend-like boxes if needed
-        if (drawColorBoxes) {
-          var rtlColorX = rtlHelper.x(colorX); // Fill a white rect so that colours merge nicely if the opacity is < 1
-
-          ctx.fillStyle = vm.legendColorBackground;
-          ctx.fillRect(rtlHelper.leftForLtr(rtlColorX, bodyFontSize), pt.y, bodyFontSize, bodyFontSize); // Border
-
-          ctx.lineWidth = 1;
-          ctx.strokeStyle = labelColors.borderColor;
-          ctx.strokeRect(rtlHelper.leftForLtr(rtlColorX, bodyFontSize), pt.y, bodyFontSize, bodyFontSize); // Inner square
-
-          ctx.fillStyle = labelColors.backgroundColor;
-          ctx.fillRect(rtlHelper.leftForLtr(rtlHelper.xPlus(rtlColorX, 1), bodyFontSize - 2), pt.y + 1, bodyFontSize - 2, bodyFontSize - 2);
-          ctx.fillStyle = textColor;
-        }
-
-        fillLineOfText(lines[j]);
-      }
-
-      helpers$1.each(bodyItem.after, fillLineOfText);
-    } // Reset back to 0 for after body
-
-
-    xLinePadding = 0; // After body lines
-
-    helpers$1.each(vm.afterBody, fillLineOfText);
-    pt.y -= bodySpacing; // Remove last body spacing
-  },
-  drawFooter: function drawFooter(pt, vm, ctx) {
-    var footer = vm.footer;
-    var length = footer.length;
-    var footerFontSize, i;
-
-    if (length) {
-      var rtlHelper = getRtlHelper(vm.rtl, vm.x, vm.width);
-      pt.x = getAlignedX(vm, vm._footerAlign);
-      pt.y += vm.footerMarginTop;
-      ctx.textAlign = rtlHelper.textAlign(vm._footerAlign);
-      ctx.textBaseline = 'middle';
-      footerFontSize = vm.footerFontSize;
-      ctx.fillStyle = vm.footerFontColor;
-      ctx.font = helpers$1.fontString(footerFontSize, vm._footerFontStyle, vm._footerFontFamily);
-
-      for (i = 0; i < length; ++i) {
-        ctx.fillText(footer[i], rtlHelper.x(pt.x), pt.y + footerFontSize / 2);
-        pt.y += footerFontSize + vm.footerSpacing;
-      }
-    }
-  },
-  drawBackground: function drawBackground(pt, vm, ctx, tooltipSize) {
-    ctx.fillStyle = vm.backgroundColor;
-    ctx.strokeStyle = vm.borderColor;
-    ctx.lineWidth = vm.borderWidth;
-    var xAlign = vm.xAlign;
-    var yAlign = vm.yAlign;
-    var x = pt.x;
-    var y = pt.y;
-    var width = tooltipSize.width;
-    var height = tooltipSize.height;
-    var radius = vm.cornerRadius;
-    ctx.beginPath();
-    ctx.moveTo(x + radius, y);
-
-    if (yAlign === 'top') {
-      this.drawCaret(pt, tooltipSize);
-    }
-
-    ctx.lineTo(x + width - radius, y);
-    ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-
-    if (yAlign === 'center' && xAlign === 'right') {
-      this.drawCaret(pt, tooltipSize);
-    }
-
-    ctx.lineTo(x + width, y + height - radius);
-    ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-
-    if (yAlign === 'bottom') {
-      this.drawCaret(pt, tooltipSize);
-    }
-
-    ctx.lineTo(x + radius, y + height);
-    ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-
-    if (yAlign === 'center' && xAlign === 'left') {
-      this.drawCaret(pt, tooltipSize);
-    }
-
-    ctx.lineTo(x, y + radius);
-    ctx.quadraticCurveTo(x, y, x + radius, y);
-    ctx.closePath();
-    ctx.fill();
-
-    if (vm.borderWidth > 0) {
-      ctx.stroke();
-    }
-  },
-  draw: function draw() {
-    var ctx = this._chart.ctx;
-    var vm = this._view;
-
-    if (vm.opacity === 0) {
-      return;
-    }
-
-    var tooltipSize = {
-      width: vm.width,
-      height: vm.height
-    };
-    var pt = {
-      x: vm.x,
-      y: vm.y
-    }; // IE11/Edge does not like very small opacities, so snap to 0
-
-    var opacity = Math.abs(vm.opacity < 1e-3) ? 0 : vm.opacity; // Truthy/falsey value for empty tooltip
-
-    var hasTooltipContent = vm.title.length || vm.beforeBody.length || vm.body.length || vm.afterBody.length || vm.footer.length;
-
-    if (this._options.enabled && hasTooltipContent) {
-      ctx.save();
-      ctx.globalAlpha = opacity; // Draw Background
-
-      this.drawBackground(pt, vm, ctx, tooltipSize); // Draw Title, Body, and Footer
-
-      pt.y += vm.yPadding;
-      helpers$1.rtl.overrideTextDirection(ctx, vm.textDirection); // Titles
-
-      this.drawTitle(pt, vm, ctx); // Body
-
-      this.drawBody(pt, vm, ctx); // Footer
-
-      this.drawFooter(pt, vm, ctx);
-      helpers$1.rtl.restoreTextDirection(ctx, vm.textDirection);
-      ctx.restore();
-    }
-  },
-
-  /**
-   * Handle an event
-   * @private
-   * @param {IEvent} event - The event to handle
-   * @returns {boolean} true if the tooltip changed
-   */
-  handleEvent: function handleEvent(e) {
-    var me = this;
-    var options = me._options;
-    var changed = false;
-    me._lastActive = me._lastActive || []; // Find Active Elements for tooltips
-
-    if (e.type === 'mouseout') {
-      me._active = [];
-      me._lastEvent = null;
-    } else {
-      me._active = me._chart.getElementsAtEventForMode(e, options.mode, options);
-
-      if (e.type !== 'click') {
-        me._lastEvent = e.type === 'click' ? null : e;
-      }
-
-      if (options.reverse) {
-        me._active.reverse();
-      }
-    } // Remember Last Actives
-
-
-    changed = !helpers$1.arrayEquals(me._active, me._lastActive); // Only handle target event on tooltip change
-
-    if (changed) {
-      me._lastActive = me._active;
-
-      if (options.enabled || options.custom) {
-        me._eventPosition = {
-          x: e.x,
-          y: e.y
-        };
+  }, {
+    key: "transition",
+    value: function transition(easingValue) {
+      var me = this;
+      var options = me._options;
+
+      if (me._lastEvent && me._chart.animating) {
+        // Let's react to changes during animation
+        me._active = me._chart.getElementsAtEventForMode(me._lastEvent, options.mode, options);
         me.update(true);
         me.pivot();
+        me._lastActive = me.active;
+      }
+
+      core_element.prototype.transition.call(me, easingValue);
+    } // Get the title
+    // Args are: (tooltipItem, data)
+
+  }, {
+    key: "getTitle",
+    value: function getTitle() {
+      var me = this;
+      var opts = me._options;
+      var callbacks = opts.callbacks;
+      var beforeTitle = callbacks.beforeTitle.apply(me, arguments);
+      var title = callbacks.title.apply(me, arguments);
+      var afterTitle = callbacks.afterTitle.apply(me, arguments);
+      var lines = [];
+      lines = pushOrConcat(lines, splitNewlines(beforeTitle));
+      lines = pushOrConcat(lines, splitNewlines(title));
+      lines = pushOrConcat(lines, splitNewlines(afterTitle));
+      return lines;
+    } // Args are: (tooltipItem, data)
+
+  }, {
+    key: "getBeforeBody",
+    value: function getBeforeBody() {
+      return getBeforeAfterBodyLines(this._options.callbacks.beforeBody.apply(this, arguments));
+    } // Args are: (tooltipItem, data)
+
+  }, {
+    key: "getBody",
+    value: function getBody(tooltipItems, data) {
+      var me = this;
+      var callbacks = me._options.callbacks;
+      var bodyItems = [];
+      helpers$1.each(tooltipItems, function (tooltipItem) {
+        var bodyItem = {
+          before: [],
+          lines: [],
+          after: []
+        };
+        pushOrConcat(bodyItem.before, splitNewlines(callbacks.beforeLabel.call(me, tooltipItem, data)));
+        pushOrConcat(bodyItem.lines, callbacks.label.call(me, tooltipItem, data));
+        pushOrConcat(bodyItem.after, splitNewlines(callbacks.afterLabel.call(me, tooltipItem, data)));
+        bodyItems.push(bodyItem);
+      });
+      return bodyItems;
+    } // Args are: (tooltipItem, data)
+
+  }, {
+    key: "getAfterBody",
+    value: function getAfterBody() {
+      return getBeforeAfterBodyLines(this._options.callbacks.afterBody.apply(this, arguments));
+    } // Get the footer and beforeFooter and afterFooter lines
+    // Args are: (tooltipItem, data)
+
+  }, {
+    key: "getFooter",
+    value: function getFooter() {
+      var me = this;
+      var callbacks = me._options.callbacks;
+      var beforeFooter = callbacks.beforeFooter.apply(me, arguments);
+      var footer = callbacks.footer.apply(me, arguments);
+      var afterFooter = callbacks.afterFooter.apply(me, arguments);
+      var lines = [];
+      lines = pushOrConcat(lines, splitNewlines(beforeFooter));
+      lines = pushOrConcat(lines, splitNewlines(footer));
+      lines = pushOrConcat(lines, splitNewlines(afterFooter));
+      return lines;
+    }
+  }, {
+    key: "update",
+    value: function update(changed) {
+      var me = this;
+      var opts = me._options; // Need to regenerate the model because its faster than using extend and it is necessary due to the optimization in Chart.Element.transition
+      // that does _view = _model if ease === 1. This causes the 2nd tooltip update to set properties in both the view and model at the same time
+      // which breaks any animations.
+
+      var existingModel = me._model;
+      var model = me._model = getBaseModel(opts);
+      var active = me._active;
+      var data = me._data; // In the case where active.length === 0 we need to keep these at existing values for good animations
+
+      var alignment = {
+        xAlign: existingModel.xAlign,
+        yAlign: existingModel.yAlign
+      };
+      var backgroundPoint = {
+        x: existingModel.x,
+        y: existingModel.y
+      };
+      var tooltipSize = {
+        width: existingModel.width,
+        height: existingModel.height
+      };
+      var tooltipPosition = {
+        x: existingModel.caretX,
+        y: existingModel.caretY
+      };
+      var i, len;
+
+      if (active.length) {
+        model.opacity = 1;
+        var labelColors = [];
+        var labelTextColors = [];
+        tooltipPosition = positioners[opts.position].call(me, active, me._eventPosition);
+        var tooltipItems = [];
+
+        for (i = 0, len = active.length; i < len; ++i) {
+          tooltipItems.push(createTooltipItem(me._chart, active[i]));
+        } // If the user provided a filter function, use it to modify the tooltip items
+
+
+        if (opts.filter) {
+          tooltipItems = tooltipItems.filter(function (a) {
+            return opts.filter(a, data);
+          });
+        } // If the user provided a sorting function, use it to modify the tooltip items
+
+
+        if (opts.itemSort) {
+          tooltipItems = tooltipItems.sort(function (a, b) {
+            return opts.itemSort(a, b, data);
+          });
+        } // Determine colors for boxes
+
+
+        helpers$1.each(tooltipItems, function (tooltipItem) {
+          labelColors.push(opts.callbacks.labelColor.call(me, tooltipItem, me._chart));
+          labelTextColors.push(opts.callbacks.labelTextColor.call(me, tooltipItem, me._chart));
+        }); // Build the Text Lines
+
+        model.title = me.getTitle(tooltipItems, data);
+        model.beforeBody = me.getBeforeBody(tooltipItems, data);
+        model.body = me.getBody(tooltipItems, data);
+        model.afterBody = me.getAfterBody(tooltipItems, data);
+        model.footer = me.getFooter(tooltipItems, data); // Initial positioning and colors
+
+        model.x = tooltipPosition.x;
+        model.y = tooltipPosition.y;
+        model.caretPadding = opts.caretPadding;
+        model.labelColors = labelColors;
+        model.labelTextColors = labelTextColors; // data points
+
+        model.dataPoints = tooltipItems; // We need to determine alignment of the tooltip
+
+        tooltipSize = getTooltipSize(this, model);
+        alignment = determineAlignment(this, tooltipSize); // Final Size and Position
+
+        backgroundPoint = getBackgroundPoint(model, tooltipSize, alignment, me._chart);
+      } else {
+        model.opacity = 0;
+      }
+
+      model.xAlign = alignment.xAlign;
+      model.yAlign = alignment.yAlign;
+      model.x = backgroundPoint.x;
+      model.y = backgroundPoint.y;
+      model.width = tooltipSize.width;
+      model.height = tooltipSize.height; // Point where the caret on the tooltip points to
+
+      model.caretX = tooltipPosition.x;
+      model.caretY = tooltipPosition.y;
+      me._model = model;
+
+      if (changed && opts.custom) {
+        opts.custom.call(me, model);
+      }
+
+      return me;
+    }
+  }, {
+    key: "drawCaret",
+    value: function drawCaret(tooltipPoint, size) {
+      var ctx = this._chart.ctx;
+      var vm = this._view;
+      var caretPosition = this.getCaretPosition(tooltipPoint, size, vm);
+      ctx.lineTo(caretPosition.x1, caretPosition.y1);
+      ctx.lineTo(caretPosition.x2, caretPosition.y2);
+      ctx.lineTo(caretPosition.x3, caretPosition.y3);
+    }
+  }, {
+    key: "getCaretPosition",
+    value: function getCaretPosition(tooltipPoint, size, vm) {
+      var x1, x2, x3, y1, y2, y3;
+      var caretSize = vm.caretSize;
+      var cornerRadius = vm.cornerRadius;
+      var xAlign = vm.xAlign;
+      var yAlign = vm.yAlign;
+      var ptX = tooltipPoint.x;
+      var ptY = tooltipPoint.y;
+      var width = size.width;
+      var height = size.height;
+
+      if (yAlign === 'center') {
+        y2 = ptY + height / 2;
+
+        if (xAlign === 'left') {
+          x1 = ptX;
+          x2 = x1 - caretSize;
+          x3 = x1;
+          y1 = y2 + caretSize;
+          y3 = y2 - caretSize;
+        } else {
+          x1 = ptX + width;
+          x2 = x1 + caretSize;
+          x3 = x1;
+          y1 = y2 - caretSize;
+          y3 = y2 + caretSize;
+        }
+      } else {
+        if (xAlign === 'left') {
+          x2 = ptX + cornerRadius + caretSize;
+          x1 = x2 - caretSize;
+          x3 = x2 + caretSize;
+        } else if (xAlign === 'right') {
+          x2 = ptX + width - cornerRadius - caretSize;
+          x1 = x2 - caretSize;
+          x3 = x2 + caretSize;
+        } else {
+          x2 = vm.caretX;
+          x1 = x2 - caretSize;
+          x3 = x2 + caretSize;
+        }
+
+        if (yAlign === 'top') {
+          y1 = ptY;
+          y2 = y1 - caretSize;
+          y3 = y1;
+        } else {
+          y1 = ptY + height;
+          y2 = y1 + caretSize;
+          y3 = y1; // invert drawing order
+
+          var tmp = x3;
+          x3 = x1;
+          x1 = tmp;
+        }
+      }
+
+      return {
+        x1: x1,
+        x2: x2,
+        x3: x3,
+        y1: y1,
+        y2: y2,
+        y3: y3
+      };
+    }
+  }, {
+    key: "drawTitle",
+    value: function drawTitle(pt, vm, ctx) {
+      var title = vm.title;
+      var length = title.length;
+      var titleFontSize, titleSpacing, i;
+
+      if (length) {
+        var rtlHelper = getRtlHelper(vm.rtl, vm.x, vm.width);
+        pt.x = getAlignedX(vm, vm._titleAlign);
+        ctx.textAlign = rtlHelper.textAlign(vm._titleAlign);
+        ctx.textBaseline = 'middle';
+        titleFontSize = vm.titleFontSize;
+        titleSpacing = vm.titleSpacing;
+        ctx.fillStyle = vm.titleFontColor;
+        ctx.font = helpers$1.fontString(titleFontSize, vm._titleFontStyle, vm._titleFontFamily);
+
+        for (i = 0; i < length; ++i) {
+          ctx.fillText(title[i], rtlHelper.x(pt.x), pt.y + titleFontSize / 2);
+          pt.y += titleFontSize + titleSpacing; // Line Height and spacing
+
+          if (i + 1 === length) {
+            pt.y += vm.titleMarginBottom - titleSpacing; // If Last, add margin, remove spacing
+          }
+        }
       }
     }
+  }, {
+    key: "drawBody",
+    value: function drawBody(pt, vm, ctx) {
+      var bodyFontSize = vm.bodyFontSize;
+      var bodySpacing = vm.bodySpacing;
+      var bodyAlign = vm._bodyAlign;
+      var body = vm.body;
+      var drawColorBoxes = vm.displayColors;
+      var xLinePadding = 0;
+      var colorX = drawColorBoxes ? getAlignedX(vm, 'left') : 0;
+      var rtlHelper = getRtlHelper(vm.rtl, vm.x, vm.width);
 
-    return changed;
-  }
-});
+      var fillLineOfText = function fillLineOfText(line) {
+        ctx.fillText(line, rtlHelper.x(pt.x + xLinePadding), pt.y + bodyFontSize / 2);
+        pt.y += bodyFontSize + bodySpacing;
+      };
+
+      var bodyItem, textColor, labelColors, lines, i, j, ilen, jlen;
+      var bodyAlignForCalculation = rtlHelper.textAlign(bodyAlign);
+      ctx.textAlign = bodyAlign;
+      ctx.textBaseline = 'middle';
+      ctx.font = helpers$1.fontString(bodyFontSize, vm._bodyFontStyle, vm._bodyFontFamily);
+      pt.x = getAlignedX(vm, bodyAlignForCalculation); // Before body lines
+
+      ctx.fillStyle = vm.bodyFontColor;
+      helpers$1.each(vm.beforeBody, fillLineOfText);
+      xLinePadding = drawColorBoxes && bodyAlignForCalculation !== 'right' ? bodyAlign === 'center' ? bodyFontSize / 2 + 1 : bodyFontSize + 2 : 0; // Draw body lines now
+
+      for (i = 0, ilen = body.length; i < ilen; ++i) {
+        bodyItem = body[i];
+        textColor = vm.labelTextColors[i];
+        labelColors = vm.labelColors[i];
+        ctx.fillStyle = textColor;
+        helpers$1.each(bodyItem.before, fillLineOfText);
+        lines = bodyItem.lines;
+
+        for (j = 0, jlen = lines.length; j < jlen; ++j) {
+          // Draw Legend-like boxes if needed
+          if (drawColorBoxes) {
+            var rtlColorX = rtlHelper.x(colorX); // Fill a white rect so that colours merge nicely if the opacity is < 1
+
+            ctx.fillStyle = vm.legendColorBackground;
+            ctx.fillRect(rtlHelper.leftForLtr(rtlColorX, bodyFontSize), pt.y, bodyFontSize, bodyFontSize); // Border
+
+            ctx.lineWidth = 1;
+            ctx.strokeStyle = labelColors.borderColor;
+            ctx.strokeRect(rtlHelper.leftForLtr(rtlColorX, bodyFontSize), pt.y, bodyFontSize, bodyFontSize); // Inner square
+
+            ctx.fillStyle = labelColors.backgroundColor;
+            ctx.fillRect(rtlHelper.leftForLtr(rtlHelper.xPlus(rtlColorX, 1), bodyFontSize - 2), pt.y + 1, bodyFontSize - 2, bodyFontSize - 2);
+            ctx.fillStyle = textColor;
+          }
+
+          fillLineOfText(lines[j]);
+        }
+
+        helpers$1.each(bodyItem.after, fillLineOfText);
+      } // Reset back to 0 for after body
+
+
+      xLinePadding = 0; // After body lines
+
+      helpers$1.each(vm.afterBody, fillLineOfText);
+      pt.y -= bodySpacing; // Remove last body spacing
+    }
+  }, {
+    key: "drawFooter",
+    value: function drawFooter(pt, vm, ctx) {
+      var footer = vm.footer;
+      var length = footer.length;
+      var footerFontSize, i;
+
+      if (length) {
+        var rtlHelper = getRtlHelper(vm.rtl, vm.x, vm.width);
+        pt.x = getAlignedX(vm, vm._footerAlign);
+        pt.y += vm.footerMarginTop;
+        ctx.textAlign = rtlHelper.textAlign(vm._footerAlign);
+        ctx.textBaseline = 'middle';
+        footerFontSize = vm.footerFontSize;
+        ctx.fillStyle = vm.footerFontColor;
+        ctx.font = helpers$1.fontString(footerFontSize, vm._footerFontStyle, vm._footerFontFamily);
+
+        for (i = 0; i < length; ++i) {
+          ctx.fillText(footer[i], rtlHelper.x(pt.x), pt.y + footerFontSize / 2);
+          pt.y += footerFontSize + vm.footerSpacing;
+        }
+      }
+    }
+  }, {
+    key: "drawBackground",
+    value: function drawBackground(pt, vm, ctx, tooltipSize) {
+      ctx.fillStyle = vm.backgroundColor;
+      ctx.strokeStyle = vm.borderColor;
+      ctx.lineWidth = vm.borderWidth;
+      var xAlign = vm.xAlign;
+      var yAlign = vm.yAlign;
+      var x = pt.x;
+      var y = pt.y;
+      var width = tooltipSize.width;
+      var height = tooltipSize.height;
+      var radius = vm.cornerRadius;
+      ctx.beginPath();
+      ctx.moveTo(x + radius, y);
+
+      if (yAlign === 'top') {
+        this.drawCaret(pt, tooltipSize);
+      }
+
+      ctx.lineTo(x + width - radius, y);
+      ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+
+      if (yAlign === 'center' && xAlign === 'right') {
+        this.drawCaret(pt, tooltipSize);
+      }
+
+      ctx.lineTo(x + width, y + height - radius);
+      ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+
+      if (yAlign === 'bottom') {
+        this.drawCaret(pt, tooltipSize);
+      }
+
+      ctx.lineTo(x + radius, y + height);
+      ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+
+      if (yAlign === 'center' && xAlign === 'left') {
+        this.drawCaret(pt, tooltipSize);
+      }
+
+      ctx.lineTo(x, y + radius);
+      ctx.quadraticCurveTo(x, y, x + radius, y);
+      ctx.closePath();
+      ctx.fill();
+
+      if (vm.borderWidth > 0) {
+        ctx.stroke();
+      }
+    }
+  }, {
+    key: "draw",
+    value: function draw() {
+      var ctx = this._chart.ctx;
+      var vm = this._view;
+
+      if (vm.opacity === 0) {
+        return;
+      }
+
+      var tooltipSize = {
+        width: vm.width,
+        height: vm.height
+      };
+      var pt = {
+        x: vm.x,
+        y: vm.y
+      }; // IE11/Edge does not like very small opacities, so snap to 0
+
+      var opacity = Math.abs(vm.opacity < 1e-3) ? 0 : vm.opacity; // Truthy/falsey value for empty tooltip
+
+      var hasTooltipContent = vm.title.length || vm.beforeBody.length || vm.body.length || vm.afterBody.length || vm.footer.length;
+
+      if (this._options.enabled && hasTooltipContent) {
+        ctx.save();
+        ctx.globalAlpha = opacity; // Draw Background
+
+        this.drawBackground(pt, vm, ctx, tooltipSize); // Draw Title, Body, and Footer
+
+        pt.y += vm.yPadding;
+        helpers$1.rtl.overrideTextDirection(ctx, vm.textDirection); // Titles
+
+        this.drawTitle(pt, vm, ctx); // Body
+
+        this.drawBody(pt, vm, ctx); // Footer
+
+        this.drawFooter(pt, vm, ctx);
+        helpers$1.rtl.restoreTextDirection(ctx, vm.textDirection);
+        ctx.restore();
+      }
+    }
+    /**
+     * Handle an event
+     * @private
+     * @param {IEvent} event - The event to handle
+     * @returns {boolean} true if the tooltip changed
+     */
+
+  }, {
+    key: "handleEvent",
+    value: function handleEvent(e) {
+      var me = this;
+      var options = me._options;
+      var changed = false;
+      me._lastActive = me._lastActive || []; // Find Active Elements for tooltips
+
+      if (e.type === 'mouseout') {
+        me._active = [];
+        me._lastEvent = null;
+      } else {
+        me._active = me._chart.getElementsAtEventForMode(e, options.mode, options);
+
+        if (e.type !== 'click') {
+          me._lastEvent = e.type === 'click' ? null : e;
+        }
+
+        if (options.reverse) {
+          me._active.reverse();
+        }
+      } // Remember Last Actives
+
+
+      changed = !helpers$1.arrayEquals(me._active, me._lastActive); // Only handle target event on tooltip change
+
+      if (changed) {
+        me._lastActive = me._active;
+
+        if (options.enabled || options.custom) {
+          me._eventPosition = {
+            x: e.x,
+            y: e.y
+          };
+          me.update(true);
+          me.pivot();
+        }
+      }
+
+      return changed;
+    }
+  }]);
+
+  return Tooltip;
+}(core_element);
 /**
  * @namespace Chart.Tooltip.positioners
  */
 
-var positioners_1 = positioners;
-var core_tooltip = exports$4;
-core_tooltip.positioners = positioners_1;
+
+Tooltip.positioners = positioners;
+var core_tooltip = Tooltip;
 
 var valueOrDefault$9 = helpers$1.valueOrDefault;
 
@@ -11238,1022 +11476,1145 @@ function skip(ticks, spacing, majorStart, majorEnd) {
   }
 }
 
-var Scale = core_element.extend({
-  /**
-   * Parse a supported input value to internal representation.
-   * @param {*} raw
-   * @param {number} index
-   * @private
-   * @since 3.0
-   */
-  _parse: function _parse(raw, index) {
-    // eslint-disable-line no-unused-vars
-    return raw;
-  },
+var Scale =
+/*#__PURE__*/
+function (_Element) {
+  _inherits(Scale, _Element);
 
-  /**
-   * Parse an object for axis to internal representation.
-   * @param {object} obj
-   * @param {string} axis
-   * @param {number} index
-   * @private
-   * @since 3.0
-   */
-  _parseObject: function _parseObject(obj, axis, index) {
-    if (obj[axis] !== undefined) {
-      return this._parse(obj[axis], index);
+  function Scale() {
+    _classCallCheck(this, Scale);
+
+    return _possibleConstructorReturn(this, _getPrototypeOf(Scale).apply(this, arguments));
+  }
+
+  _createClass(Scale, [{
+    key: "_parse",
+
+    /**
+     * Parse a supported input value to internal representation.
+     * @param {*} raw
+     * @param {number} index
+     * @private
+     * @since 3.0
+     */
+    value: function _parse(raw, index) {
+      // eslint-disable-line no-unused-vars
+      return raw;
     }
+    /**
+     * Parse an object for axis to internal representation.
+     * @param {object} obj
+     * @param {string} axis
+     * @param {number} index
+     * @private
+     * @since 3.0
+     */
 
-    return null;
-  },
-  _getMinMax: function _getMinMax(canStack) {
-    var me = this;
+  }, {
+    key: "_parseObject",
+    value: function _parseObject(obj, axis, index) {
+      if (obj[axis] !== undefined) {
+        return this._parse(obj[axis], index);
+      }
 
-    var metas = me._getMatchingVisibleMetas();
-
-    var min = Number.POSITIVE_INFINITY;
-    var max = Number.NEGATIVE_INFINITY;
-    var minPositive = Number.POSITIVE_INFINITY;
-    var i, ilen, minmax;
-
-    for (i = 0, ilen = metas.length; i < ilen; ++i) {
-      minmax = metas[i].controller._getMinMax(me, canStack);
-      min = Math.min(min, minmax.min);
-      max = Math.max(max, minmax.max);
-      minPositive = Math.min(minPositive, minmax.minPositive);
+      return null;
     }
+  }, {
+    key: "_getMinMax",
+    value: function _getMinMax(canStack) {
+      var me = this;
 
-    return {
-      min: min,
-      max: max,
-      minPositive: minPositive
-    };
-  },
-  _invalidateCaches: helpers$1.noop,
+      var metas = me._getMatchingVisibleMetas();
 
-  /**
-   * Get the padding needed for the scale
-   * @method getPadding
-   * @private
-   * @returns {Padding} the necessary padding
-   */
-  getPadding: function getPadding() {
-    var me = this;
-    return {
-      left: me.paddingLeft || 0,
-      top: me.paddingTop || 0,
-      right: me.paddingRight || 0,
-      bottom: me.paddingBottom || 0
-    };
-  },
+      var min = Number.POSITIVE_INFINITY;
+      var max = Number.NEGATIVE_INFINITY;
+      var minPositive = Number.POSITIVE_INFINITY;
+      var i, ilen, minmax;
 
-  /**
-   * Returns the scale tick objects ({label, major})
-   * @since 2.7
-   */
-  getTicks: function getTicks() {
-    return this.ticks;
-  },
+      for (i = 0, ilen = metas.length; i < ilen; ++i) {
+        minmax = metas[i].controller._getMinMax(me, canStack);
+        min = Math.min(min, minmax.min);
+        max = Math.max(max, minmax.max);
+        minPositive = Math.min(minPositive, minmax.minPositive);
+      }
 
-  /**
-  * @private
-  */
-  _getLabels: function _getLabels() {
-    var data = this.chart.data;
-    return this.options.labels || (this.isHorizontal() ? data.xLabels : data.yLabels) || data.labels;
-  },
-  // These methods are ordered by lifecyle. Utilities then follow.
-  // Any function defined here is inherited by all scale types.
-  // Any function can be extended by the scale type
-  beforeUpdate: function beforeUpdate() {
-    helpers$1.callback(this.options.beforeUpdate, [this]);
-  },
-
-  /**
-   * @param {number} maxWidth - the max width in pixels
-   * @param {number} maxHeight - the max height in pixels
-   * @param {object} margins - the space between the edge of the other scales and edge of the chart
-   *   This space comes from two sources:
-   *     - padding - space that's required to show the labels at the edges of the scale
-   *     - thickness of scales or legends in another orientation
-   */
-  update: function update(maxWidth, maxHeight, margins) {
-    var me = this;
-    var tickOpts = me.options.ticks;
-    var sampleSize = tickOpts.sampleSize;
-    var samplingEnabled; // Update Lifecycle - Probably don't want to ever extend or overwrite this function ;)
-
-    me.beforeUpdate(); // Absorb the master measurements
-
-    me.maxWidth = maxWidth;
-    me.maxHeight = maxHeight;
-    me.margins = helpers$1.extend({
-      left: 0,
-      right: 0,
-      top: 0,
-      bottom: 0
-    }, margins);
-    me.ticks = null;
-    me._labelSizes = null;
-    me._maxLabelLines = 0;
-    me.longestLabelWidth = 0;
-    me.longestTextCache = me.longestTextCache || {};
-    me._gridLineItems = null;
-    me._labelItems = null; // Dimensions
-
-    me.beforeSetDimensions();
-    me.setDimensions();
-    me.afterSetDimensions(); // Data min/max
-
-    me.beforeDataLimits();
-    me.determineDataLimits();
-    me.afterDataLimits();
-    me.beforeBuildTicks();
-    me.ticks = me.buildTicks() || []; // Allow modification of ticks in callback.
-
-    me.afterBuildTicks(); // Compute tick rotation and fit using a sampled subset of labels
-    // We generally don't need to compute the size of every single label for determining scale size
-
-    samplingEnabled = sampleSize < me.ticks.length;
-
-    me._convertTicksToLabels(samplingEnabled ? sample(me.ticks, sampleSize) : me.ticks); // _configure is called twice, once here, once from core.controller.updateLayout.
-    // Here we haven't been positioned yet, but dimensions are correct.
-    // Variables set in _configure are needed for calculateTickRotation, and
-    // it's ok that coordinates are not correct there, only dimensions matter.
-
-
-    me._configure(); // Tick Rotation
-
-
-    me.beforeCalculateTickRotation();
-    me.calculateTickRotation();
-    me.afterCalculateTickRotation();
-    me.beforeFit();
-    me.fit();
-    me.afterFit(); // Auto-skip
-
-    me._ticksToDraw = tickOpts.display && (tickOpts.autoSkip || tickOpts.source === 'auto') ? me._autoSkip(me.ticks) : me.ticks;
-
-    if (samplingEnabled) {
-      // Generate labels using all non-skipped ticks
-      me._convertTicksToLabels(me._ticksToDraw);
-    } // IMPORTANT: after this point, we consider that `this.ticks` will NEVER change!
-
-
-    me.afterUpdate(); // TODO(v3): remove minSize as a public property and return value from all layout boxes. It is unused
-    // make maxWidth and maxHeight private
-
-    return me.minSize;
-  },
-
-  /**
-   * @private
-   */
-  _configure: function _configure() {
-    var me = this;
-    var reversePixels = me.options.ticks.reverse;
-    var startPixel, endPixel;
-
-    if (me.isHorizontal()) {
-      startPixel = me.left;
-      endPixel = me.right;
-    } else {
-      startPixel = me.top;
-      endPixel = me.bottom; // by default vertical scales are from bottom to top, so pixels are reversed
-
-      reversePixels = !reversePixels;
+      return {
+        min: min,
+        max: max,
+        minPositive: minPositive
+      };
     }
+  }, {
+    key: "_invalidateCaches",
+    value: function _invalidateCaches() {}
+    /**
+     * Get the padding needed for the scale
+     * @method getPadding
+     * @private
+     * @returns {Padding} the necessary padding
+     */
 
-    me._startPixel = startPixel;
-    me._endPixel = endPixel;
-    me._reversePixels = reversePixels;
-    me._length = endPixel - startPixel;
-  },
-  afterUpdate: function afterUpdate() {
-    helpers$1.callback(this.options.afterUpdate, [this]);
-  },
-  //
-  beforeSetDimensions: function beforeSetDimensions() {
-    helpers$1.callback(this.options.beforeSetDimensions, [this]);
-  },
-  setDimensions: function setDimensions() {
-    var me = this; // Set the unconstrained dimension before label rotation
-
-    if (me.isHorizontal()) {
-      // Reset position before calculating rotation
-      me.width = me.maxWidth;
-      me.left = 0;
-      me.right = me.width;
-    } else {
-      me.height = me.maxHeight; // Reset position before calculating rotation
-
-      me.top = 0;
-      me.bottom = me.height;
-    } // Reset padding
-
-
-    me.paddingLeft = 0;
-    me.paddingTop = 0;
-    me.paddingRight = 0;
-    me.paddingBottom = 0;
-  },
-  afterSetDimensions: function afterSetDimensions() {
-    helpers$1.callback(this.options.afterSetDimensions, [this]);
-  },
-  // Data limits
-  beforeDataLimits: function beforeDataLimits() {
-    helpers$1.callback(this.options.beforeDataLimits, [this]);
-  },
-  determineDataLimits: helpers$1.noop,
-  afterDataLimits: function afterDataLimits() {
-    helpers$1.callback(this.options.afterDataLimits, [this]);
-  },
-  //
-  beforeBuildTicks: function beforeBuildTicks() {
-    helpers$1.callback(this.options.beforeBuildTicks, [this]);
-  },
-  buildTicks: helpers$1.noop,
-  afterBuildTicks: function afterBuildTicks() {
-    helpers$1.callback(this.options.afterBuildTicks, [this]);
-  },
-  beforeTickToLabelConversion: function beforeTickToLabelConversion() {
-    helpers$1.callback(this.options.beforeTickToLabelConversion, [this]);
-  },
-
-  /**
-   * Convert ticks to label strings
-   */
-  generateTickLabels: function generateTickLabels(ticks) {
-    var me = this;
-    var tickOpts = me.options.ticks;
-    var i, ilen, tick;
-
-    for (i = 0, ilen = ticks.length; i < ilen; i++) {
-      tick = ticks[i];
-      tick.label = helpers$1.callback(tickOpts.callback, [tick.value, i, ticks], me);
+  }, {
+    key: "getPadding",
+    value: function getPadding() {
+      var me = this;
+      return {
+        left: me.paddingLeft || 0,
+        top: me.paddingTop || 0,
+        right: me.paddingRight || 0,
+        bottom: me.paddingBottom || 0
+      };
     }
-  },
-  afterTickToLabelConversion: function afterTickToLabelConversion() {
-    helpers$1.callback(this.options.afterTickToLabelConversion, [this]);
-  },
-  //
-  beforeCalculateTickRotation: function beforeCalculateTickRotation() {
-    helpers$1.callback(this.options.beforeCalculateTickRotation, [this]);
-  },
-  calculateTickRotation: function calculateTickRotation() {
-    var me = this;
-    var options = me.options;
-    var tickOpts = options.ticks;
-    var numTicks = me.ticks.length;
-    var minRotation = tickOpts.minRotation || 0;
-    var maxRotation = tickOpts.maxRotation;
-    var labelRotation = minRotation;
-    var labelSizes, maxLabelWidth, maxLabelHeight, maxWidth, tickWidth, maxHeight, maxLabelDiagonal;
+    /**
+     * Returns the scale tick objects ({label, major})
+     * @since 2.7
+     */
 
-    if (!me._isVisible() || !tickOpts.display || minRotation >= maxRotation || numTicks <= 1 || !me.isHorizontal()) {
-      me.labelRotation = minRotation;
-      return;
+  }, {
+    key: "getTicks",
+    value: function getTicks() {
+      return this.ticks;
     }
+    /**
+    * @private
+    */
 
-    labelSizes = me._getLabelSizes();
-    maxLabelWidth = labelSizes.widest.width;
-    maxLabelHeight = labelSizes.highest.height - labelSizes.highest.offset; // Estimate the width of each grid based on the canvas width, the maximum
-    // label width and the number of tick intervals
+  }, {
+    key: "_getLabels",
+    value: function _getLabels() {
+      var data = this.chart.data;
+      return this.options.labels || (this.isHorizontal() ? data.xLabels : data.yLabels) || data.labels;
+    } // These methods are ordered by lifecyle. Utilities then follow.
+    // Any function defined here is inherited by all scale types.
+    // Any function can be extended by the scale type
 
-    maxWidth = Math.min(me.maxWidth, me.chart.width - maxLabelWidth);
-    tickWidth = options.offset ? me.maxWidth / numTicks : maxWidth / (numTicks - 1); // Allow 3 pixels x2 padding either side for label readability
-
-    if (maxLabelWidth + 6 > tickWidth) {
-      tickWidth = maxWidth / (numTicks - (options.offset ? 0.5 : 1));
-      maxHeight = me.maxHeight - getTickMarkLength(options.gridLines) - tickOpts.padding - getScaleLabelHeight(options.scaleLabel);
-      maxLabelDiagonal = Math.sqrt(maxLabelWidth * maxLabelWidth + maxLabelHeight * maxLabelHeight);
-      labelRotation = helpers$1.toDegrees(Math.min(Math.asin(Math.min((labelSizes.highest.height + 6) / tickWidth, 1)), Math.asin(Math.min(maxHeight / maxLabelDiagonal, 1)) - Math.asin(maxLabelHeight / maxLabelDiagonal)));
-      labelRotation = Math.max(minRotation, Math.min(maxRotation, labelRotation));
+  }, {
+    key: "beforeUpdate",
+    value: function beforeUpdate() {
+      helpers$1.callback(this.options.beforeUpdate, [this]);
     }
+    /**
+     * @param {number} maxWidth - the max width in pixels
+     * @param {number} maxHeight - the max height in pixels
+     * @param {object} margins - the space between the edge of the other scales and edge of the chart
+     *   This space comes from two sources:
+     *     - padding - space that's required to show the labels at the edges of the scale
+     *     - thickness of scales or legends in another orientation
+     */
 
-    me.labelRotation = labelRotation;
-  },
-  afterCalculateTickRotation: function afterCalculateTickRotation() {
-    helpers$1.callback(this.options.afterCalculateTickRotation, [this]);
-  },
-  //
-  beforeFit: function beforeFit() {
-    helpers$1.callback(this.options.beforeFit, [this]);
-  },
-  fit: function fit() {
-    var me = this; // Reset
+  }, {
+    key: "update",
+    value: function update(maxWidth, maxHeight, margins) {
+      var me = this;
+      var tickOpts = me.options.ticks;
+      var sampleSize = tickOpts.sampleSize;
+      var samplingEnabled; // Update Lifecycle - Probably don't want to ever extend or overwrite this function ;)
 
-    var minSize = me.minSize = {
-      width: 0,
-      height: 0
-    };
-    var chart = me.chart;
-    var opts = me.options;
-    var tickOpts = opts.ticks;
-    var scaleLabelOpts = opts.scaleLabel;
-    var gridLineOpts = opts.gridLines;
+      me.beforeUpdate(); // Absorb the master measurements
 
-    var display = me._isVisible();
+      me.maxWidth = maxWidth;
+      me.maxHeight = maxHeight;
+      me.margins = helpers$1.extend({
+        left: 0,
+        right: 0,
+        top: 0,
+        bottom: 0
+      }, margins);
+      me.ticks = null;
+      me._labelSizes = null;
+      me._maxLabelLines = 0;
+      me.longestLabelWidth = 0;
+      me.longestTextCache = me.longestTextCache || {};
+      me._gridLineItems = null;
+      me._labelItems = null; // Dimensions
 
-    var isBottom = opts.position === 'bottom';
-    var isHorizontal = me.isHorizontal(); // Width
+      me.beforeSetDimensions();
+      me.setDimensions();
+      me.afterSetDimensions(); // Data min/max
 
-    if (isHorizontal) {
-      minSize.width = me.maxWidth;
-    } else if (display) {
-      minSize.width = getTickMarkLength(gridLineOpts) + getScaleLabelHeight(scaleLabelOpts);
-    } // height
+      me.beforeDataLimits();
+      me.determineDataLimits();
+      me.afterDataLimits();
+      me.beforeBuildTicks();
+      me.ticks = me.buildTicks() || []; // Allow modification of ticks in callback.
+
+      me.afterBuildTicks(); // Compute tick rotation and fit using a sampled subset of labels
+      // We generally don't need to compute the size of every single label for determining scale size
+
+      samplingEnabled = sampleSize < me.ticks.length;
+
+      me._convertTicksToLabels(samplingEnabled ? sample(me.ticks, sampleSize) : me.ticks); // _configure is called twice, once here, once from core.controller.updateLayout.
+      // Here we haven't been positioned yet, but dimensions are correct.
+      // Variables set in _configure are needed for calculateTickRotation, and
+      // it's ok that coordinates are not correct there, only dimensions matter.
 
 
-    if (!isHorizontal) {
-      minSize.height = me.maxHeight; // fill all the height
-    } else if (display) {
-      minSize.height = getTickMarkLength(gridLineOpts) + getScaleLabelHeight(scaleLabelOpts);
-    } // Don't bother fitting the ticks if we are not showing the labels
+      me._configure(); // Tick Rotation
 
 
-    if (tickOpts.display && display) {
-      var tickFonts = parseTickFontOptions(tickOpts);
+      me.beforeCalculateTickRotation();
+      me.calculateTickRotation();
+      me.afterCalculateTickRotation();
+      me.beforeFit();
+      me.fit();
+      me.afterFit(); // Auto-skip
+
+      me._ticksToDraw = tickOpts.display && (tickOpts.autoSkip || tickOpts.source === 'auto') ? me._autoSkip(me.ticks) : me.ticks;
+
+      if (samplingEnabled) {
+        // Generate labels using all non-skipped ticks
+        me._convertTicksToLabels(me._ticksToDraw);
+      } // IMPORTANT: after this point, we consider that `this.ticks` will NEVER change!
+
+
+      me.afterUpdate(); // TODO(v3): remove minSize as a public property and return value from all layout boxes. It is unused
+      // make maxWidth and maxHeight private
+
+      return me.minSize;
+    }
+    /**
+     * @private
+     */
+
+  }, {
+    key: "_configure",
+    value: function _configure() {
+      var me = this;
+      var reversePixels = me.options.ticks.reverse;
+      var startPixel, endPixel;
+
+      if (me.isHorizontal()) {
+        startPixel = me.left;
+        endPixel = me.right;
+      } else {
+        startPixel = me.top;
+        endPixel = me.bottom; // by default vertical scales are from bottom to top, so pixels are reversed
+
+        reversePixels = !reversePixels;
+      }
+
+      me._startPixel = startPixel;
+      me._endPixel = endPixel;
+      me._reversePixels = reversePixels;
+      me._length = endPixel - startPixel;
+    }
+  }, {
+    key: "afterUpdate",
+    value: function afterUpdate() {
+      helpers$1.callback(this.options.afterUpdate, [this]);
+    } //
+
+  }, {
+    key: "beforeSetDimensions",
+    value: function beforeSetDimensions() {
+      helpers$1.callback(this.options.beforeSetDimensions, [this]);
+    }
+  }, {
+    key: "setDimensions",
+    value: function setDimensions() {
+      var me = this; // Set the unconstrained dimension before label rotation
+
+      if (me.isHorizontal()) {
+        // Reset position before calculating rotation
+        me.width = me.maxWidth;
+        me.left = 0;
+        me.right = me.width;
+      } else {
+        me.height = me.maxHeight; // Reset position before calculating rotation
+
+        me.top = 0;
+        me.bottom = me.height;
+      } // Reset padding
+
+
+      me.paddingLeft = 0;
+      me.paddingTop = 0;
+      me.paddingRight = 0;
+      me.paddingBottom = 0;
+    }
+  }, {
+    key: "afterSetDimensions",
+    value: function afterSetDimensions() {
+      helpers$1.callback(this.options.afterSetDimensions, [this]);
+    } // Data limits
+
+  }, {
+    key: "beforeDataLimits",
+    value: function beforeDataLimits() {
+      helpers$1.callback(this.options.beforeDataLimits, [this]);
+    }
+  }, {
+    key: "determineDataLimits",
+    value: function determineDataLimits() {}
+  }, {
+    key: "afterDataLimits",
+    value: function afterDataLimits() {
+      helpers$1.callback(this.options.afterDataLimits, [this]);
+    } //
+
+  }, {
+    key: "beforeBuildTicks",
+    value: function beforeBuildTicks() {
+      helpers$1.callback(this.options.beforeBuildTicks, [this]);
+    }
+  }, {
+    key: "buildTicks",
+    value: function buildTicks() {}
+  }, {
+    key: "afterBuildTicks",
+    value: function afterBuildTicks() {
+      helpers$1.callback(this.options.afterBuildTicks, [this]);
+    }
+  }, {
+    key: "beforeTickToLabelConversion",
+    value: function beforeTickToLabelConversion() {
+      helpers$1.callback(this.options.beforeTickToLabelConversion, [this]);
+    }
+    /**
+     * Convert ticks to label strings
+     */
+
+  }, {
+    key: "generateTickLabels",
+    value: function generateTickLabels(ticks) {
+      var me = this;
+      var tickOpts = me.options.ticks;
+      var i, ilen, tick;
+
+      for (i = 0, ilen = ticks.length; i < ilen; i++) {
+        tick = ticks[i];
+        tick.label = helpers$1.callback(tickOpts.callback, [tick.value, i, ticks], me);
+      }
+    }
+  }, {
+    key: "afterTickToLabelConversion",
+    value: function afterTickToLabelConversion() {
+      helpers$1.callback(this.options.afterTickToLabelConversion, [this]);
+    } //
+
+  }, {
+    key: "beforeCalculateTickRotation",
+    value: function beforeCalculateTickRotation() {
+      helpers$1.callback(this.options.beforeCalculateTickRotation, [this]);
+    }
+  }, {
+    key: "calculateTickRotation",
+    value: function calculateTickRotation() {
+      var me = this;
+      var options = me.options;
+      var tickOpts = options.ticks;
+      var numTicks = me.ticks.length;
+      var minRotation = tickOpts.minRotation || 0;
+      var maxRotation = tickOpts.maxRotation;
+      var labelRotation = minRotation;
+      var labelSizes, maxLabelWidth, maxLabelHeight, maxWidth, tickWidth, maxHeight, maxLabelDiagonal;
+
+      if (!me._isVisible() || !tickOpts.display || minRotation >= maxRotation || numTicks <= 1 || !me.isHorizontal()) {
+        me.labelRotation = minRotation;
+        return;
+      }
+
+      labelSizes = me._getLabelSizes();
+      maxLabelWidth = labelSizes.widest.width;
+      maxLabelHeight = labelSizes.highest.height - labelSizes.highest.offset; // Estimate the width of each grid based on the canvas width, the maximum
+      // label width and the number of tick intervals
+
+      maxWidth = Math.min(me.maxWidth, me.chart.width - maxLabelWidth);
+      tickWidth = options.offset ? me.maxWidth / numTicks : maxWidth / (numTicks - 1); // Allow 3 pixels x2 padding either side for label readability
+
+      if (maxLabelWidth + 6 > tickWidth) {
+        tickWidth = maxWidth / (numTicks - (options.offset ? 0.5 : 1));
+        maxHeight = me.maxHeight - getTickMarkLength(options.gridLines) - tickOpts.padding - getScaleLabelHeight(options.scaleLabel);
+        maxLabelDiagonal = Math.sqrt(maxLabelWidth * maxLabelWidth + maxLabelHeight * maxLabelHeight);
+        labelRotation = helpers$1.toDegrees(Math.min(Math.asin(Math.min((labelSizes.highest.height + 6) / tickWidth, 1)), Math.asin(Math.min(maxHeight / maxLabelDiagonal, 1)) - Math.asin(maxLabelHeight / maxLabelDiagonal)));
+        labelRotation = Math.max(minRotation, Math.min(maxRotation, labelRotation));
+      }
+
+      me.labelRotation = labelRotation;
+    }
+  }, {
+    key: "afterCalculateTickRotation",
+    value: function afterCalculateTickRotation() {
+      helpers$1.callback(this.options.afterCalculateTickRotation, [this]);
+    } //
+
+  }, {
+    key: "beforeFit",
+    value: function beforeFit() {
+      helpers$1.callback(this.options.beforeFit, [this]);
+    }
+  }, {
+    key: "fit",
+    value: function fit() {
+      var me = this; // Reset
+
+      var minSize = me.minSize = {
+        width: 0,
+        height: 0
+      };
+      var chart = me.chart;
+      var opts = me.options;
+      var tickOpts = opts.ticks;
+      var scaleLabelOpts = opts.scaleLabel;
+      var gridLineOpts = opts.gridLines;
+
+      var display = me._isVisible();
+
+      var isBottom = opts.position === 'bottom';
+      var isHorizontal = me.isHorizontal(); // Width
+
+      if (isHorizontal) {
+        minSize.width = me.maxWidth;
+      } else if (display) {
+        minSize.width = getTickMarkLength(gridLineOpts) + getScaleLabelHeight(scaleLabelOpts);
+      } // height
+
+
+      if (!isHorizontal) {
+        minSize.height = me.maxHeight; // fill all the height
+      } else if (display) {
+        minSize.height = getTickMarkLength(gridLineOpts) + getScaleLabelHeight(scaleLabelOpts);
+      } // Don't bother fitting the ticks if we are not showing the labels
+
+
+      if (tickOpts.display && display) {
+        var tickFonts = parseTickFontOptions(tickOpts);
+
+        var labelSizes = me._getLabelSizes();
+
+        var firstLabelSize = labelSizes.first;
+        var lastLabelSize = labelSizes.last;
+        var widestLabelSize = labelSizes.widest;
+        var highestLabelSize = labelSizes.highest;
+        var lineSpace = tickFonts.minor.lineHeight * 0.4;
+        var tickPadding = tickOpts.padding;
+
+        if (isHorizontal) {
+          // A horizontal axis is more constrained by the height.
+          var isRotated = me.labelRotation !== 0;
+          var angleRadians = helpers$1.toRadians(me.labelRotation);
+          var cosRotation = Math.cos(angleRadians);
+          var sinRotation = Math.sin(angleRadians);
+          var labelHeight = sinRotation * widestLabelSize.width + cosRotation * (highestLabelSize.height - (isRotated ? highestLabelSize.offset : 0)) + (isRotated ? 0 : lineSpace); // padding
+
+          minSize.height = Math.min(me.maxHeight, minSize.height + labelHeight + tickPadding);
+          var offsetLeft = me.getPixelForTick(0) - me.left;
+          var offsetRight = me.right - me.getPixelForTick(me.ticks.length - 1);
+          var paddingLeft, paddingRight; // Ensure that our ticks are always inside the canvas. When rotated, ticks are right aligned
+          // which means that the right padding is dominated by the font height
+
+          if (isRotated) {
+            paddingLeft = isBottom ? cosRotation * firstLabelSize.width + sinRotation * firstLabelSize.offset : sinRotation * (firstLabelSize.height - firstLabelSize.offset);
+            paddingRight = isBottom ? sinRotation * (lastLabelSize.height - lastLabelSize.offset) : cosRotation * lastLabelSize.width + sinRotation * lastLabelSize.offset;
+          } else {
+            paddingLeft = firstLabelSize.width / 2;
+            paddingRight = lastLabelSize.width / 2;
+          } // Adjust padding taking into account changes in offsets
+          // and add 3 px to move away from canvas edges
+
+
+          me.paddingLeft = Math.max((paddingLeft - offsetLeft) * me.width / (me.width - offsetLeft), 0) + 3;
+          me.paddingRight = Math.max((paddingRight - offsetRight) * me.width / (me.width - offsetRight), 0) + 3;
+        } else {
+          // A vertical axis is more constrained by the width. Labels are the
+          // dominant factor here, so get that length first and account for padding
+          var labelWidth = tickOpts.mirror ? 0 : // use lineSpace for consistency with horizontal axis
+          // tickPadding is not implemented for horizontal
+          widestLabelSize.width + tickPadding + lineSpace;
+          minSize.width = Math.min(me.maxWidth, minSize.width + labelWidth);
+          me.paddingTop = firstLabelSize.height / 2;
+          me.paddingBottom = lastLabelSize.height / 2;
+        }
+      }
+
+      me.handleMargins();
+
+      if (isHorizontal) {
+        me.width = me._length = chart.width - me.margins.left - me.margins.right;
+        me.height = minSize.height;
+      } else {
+        me.width = minSize.width;
+        me.height = me._length = chart.height - me.margins.top - me.margins.bottom;
+      }
+    }
+    /**
+     * Handle margins and padding interactions
+     * @private
+     */
+
+  }, {
+    key: "handleMargins",
+    value: function handleMargins() {
+      var me = this;
+
+      if (me.margins) {
+        me.margins.left = Math.max(me.paddingLeft, me.margins.left);
+        me.margins.top = Math.max(me.paddingTop, me.margins.top);
+        me.margins.right = Math.max(me.paddingRight, me.margins.right);
+        me.margins.bottom = Math.max(me.paddingBottom, me.margins.bottom);
+      }
+    }
+  }, {
+    key: "afterFit",
+    value: function afterFit() {
+      helpers$1.callback(this.options.afterFit, [this]);
+    } // Shared Methods
+
+  }, {
+    key: "isHorizontal",
+    value: function isHorizontal() {
+      var pos = this.options.position;
+      return pos === 'top' || pos === 'bottom';
+    }
+  }, {
+    key: "isFullWidth",
+    value: function isFullWidth() {
+      return this.options.fullWidth;
+    }
+  }, {
+    key: "_convertTicksToLabels",
+    value: function _convertTicksToLabels(ticks) {
+      var me = this;
+      me.beforeTickToLabelConversion();
+      me.generateTickLabels(ticks);
+      me.afterTickToLabelConversion();
+    }
+    /**
+     * @private
+     */
+
+  }, {
+    key: "_getLabelSizes",
+    value: function _getLabelSizes() {
+      var me = this;
+      var labelSizes = me._labelSizes;
+
+      if (!labelSizes) {
+        me._labelSizes = labelSizes = computeLabelSizes(me.ctx, parseTickFontOptions(me.options.ticks), me.ticks, me.longestTextCache);
+        me.longestLabelWidth = labelSizes.widest.width;
+      }
+
+      return labelSizes;
+    }
+    /**
+     * Used to get the label to display in the tooltip for the given value
+     * @param value
+     */
+
+  }, {
+    key: "getLabelForValue",
+    value: function getLabelForValue(value) {
+      return value;
+    }
+    /**
+     * Returns the location of the given data point. Value can either be an index or a numerical value
+     * The coordinate (0, 0) is at the upper-left corner of the canvas
+     * @param value
+     * @param index
+     * @param datasetIndex
+     */
+
+  }, {
+    key: "getPixelForValue",
+    value: function getPixelForValue() {}
+    /**
+     * Used to get the data value from a given pixel. This is the inverse of getPixelForValue
+     * The coordinate (0, 0) is at the upper-left corner of the canvas
+     * @param pixel
+     */
+
+  }, {
+    key: "getValueForPixel",
+    value: function getValueForPixel() {}
+    /**
+     * Returns the location of the tick at the given index
+     * The coordinate (0, 0) is at the upper-left corner of the canvas
+     */
+
+  }, {
+    key: "getPixelForTick",
+    value: function getPixelForTick(index) {
+      var me = this;
+      var offset = me.options.offset;
+      var numTicks = me.ticks.length;
+      var tickWidth = 1 / Math.max(numTicks - (offset ? 0 : 1), 1);
+      return index < 0 || index > numTicks - 1 ? null : me.getPixelForDecimal(index * tickWidth + (offset ? tickWidth / 2 : 0));
+    }
+    /**
+     * Utility for getting the pixel location of a percentage of scale
+     * The coordinate (0, 0) is at the upper-left corner of the canvas
+     */
+
+  }, {
+    key: "getPixelForDecimal",
+    value: function getPixelForDecimal(decimal) {
+      var me = this;
+
+      if (me._reversePixels) {
+        decimal = 1 - decimal;
+      }
+
+      return me._startPixel + decimal * me._length;
+    }
+  }, {
+    key: "getDecimalForPixel",
+    value: function getDecimalForPixel(pixel) {
+      var decimal = (pixel - this._startPixel) / this._length;
+      return this._reversePixels ? 1 - decimal : decimal;
+    }
+    /**
+     * Returns the pixel for the minimum chart value
+     * The coordinate (0, 0) is at the upper-left corner of the canvas
+     */
+
+  }, {
+    key: "getBasePixel",
+    value: function getBasePixel() {
+      return this.getPixelForValue(this.getBaseValue());
+    }
+  }, {
+    key: "getBaseValue",
+    value: function getBaseValue() {
+      var me = this;
+      var min = me.min;
+      var max = me.max;
+      return me.beginAtZero ? 0 : min < 0 && max < 0 ? max : min > 0 && max > 0 ? min : 0;
+    }
+    /**
+     * Returns a subset of ticks to be plotted to avoid overlapping labels.
+     * @private
+     */
+
+  }, {
+    key: "_autoSkip",
+    value: function _autoSkip(ticks) {
+      var me = this;
+      var tickOpts = me.options.ticks;
+      var axisLength = me._length;
+      var ticksLimit = tickOpts.maxTicksLimit || axisLength / me._tickSize() + 1;
+      var majorIndices = tickOpts.major.enabled ? getMajorIndices(ticks) : [];
+      var numMajorIndices = majorIndices.length;
+      var first = majorIndices[0];
+      var last = majorIndices[numMajorIndices - 1];
+      var i, ilen, spacing, avgMajorSpacing; // If there are too many major ticks to display them all
+
+      if (numMajorIndices > ticksLimit) {
+        skipMajors(ticks, majorIndices, numMajorIndices / ticksLimit);
+        return nonSkipped(ticks);
+      }
+
+      spacing = calculateSpacing(majorIndices, ticks, axisLength, ticksLimit);
+
+      if (numMajorIndices > 0) {
+        for (i = 0, ilen = numMajorIndices - 1; i < ilen; i++) {
+          skip(ticks, spacing, majorIndices[i], majorIndices[i + 1]);
+        }
+
+        avgMajorSpacing = numMajorIndices > 1 ? (last - first) / (numMajorIndices - 1) : null;
+        skip(ticks, spacing, helpers$1.isNullOrUndef(avgMajorSpacing) ? 0 : first - avgMajorSpacing, first);
+        skip(ticks, spacing, last, helpers$1.isNullOrUndef(avgMajorSpacing) ? ticks.length : last + avgMajorSpacing);
+        return nonSkipped(ticks);
+      }
+
+      skip(ticks, spacing);
+      return nonSkipped(ticks);
+    }
+    /**
+     * @private
+     */
+
+  }, {
+    key: "_tickSize",
+    value: function _tickSize() {
+      var me = this;
+      var optionTicks = me.options.ticks; // Calculate space needed by label in axis direction.
+
+      var rot = helpers$1.toRadians(me.labelRotation);
+      var cos = Math.abs(Math.cos(rot));
+      var sin = Math.abs(Math.sin(rot));
 
       var labelSizes = me._getLabelSizes();
 
-      var firstLabelSize = labelSizes.first;
-      var lastLabelSize = labelSizes.last;
-      var widestLabelSize = labelSizes.widest;
-      var highestLabelSize = labelSizes.highest;
-      var lineSpace = tickFonts.minor.lineHeight * 0.4;
-      var tickPadding = tickOpts.padding;
+      var padding = optionTicks.autoSkipPadding || 0;
+      var w = labelSizes ? labelSizes.widest.width + padding : 0;
+      var h = labelSizes ? labelSizes.highest.height + padding : 0; // Calculate space needed for 1 tick in axis direction.
 
-      if (isHorizontal) {
-        // A horizontal axis is more constrained by the height.
-        var isRotated = me.labelRotation !== 0;
-        var angleRadians = helpers$1.toRadians(me.labelRotation);
-        var cosRotation = Math.cos(angleRadians);
-        var sinRotation = Math.sin(angleRadians);
-        var labelHeight = sinRotation * widestLabelSize.width + cosRotation * (highestLabelSize.height - (isRotated ? highestLabelSize.offset : 0)) + (isRotated ? 0 : lineSpace); // padding
+      return me.isHorizontal() ? h * cos > w * sin ? w / cos : h / sin : h * sin < w * cos ? h / cos : w / sin;
+    }
+    /**
+     * @private
+     */
 
-        minSize.height = Math.min(me.maxHeight, minSize.height + labelHeight + tickPadding);
-        var offsetLeft = me.getPixelForTick(0) - me.left;
-        var offsetRight = me.right - me.getPixelForTick(me.ticks.length - 1);
-        var paddingLeft, paddingRight; // Ensure that our ticks are always inside the canvas. When rotated, ticks are right aligned
-        // which means that the right padding is dominated by the font height
+  }, {
+    key: "_isVisible",
+    value: function _isVisible() {
+      var display = this.options.display;
 
-        if (isRotated) {
-          paddingLeft = isBottom ? cosRotation * firstLabelSize.width + sinRotation * firstLabelSize.offset : sinRotation * (firstLabelSize.height - firstLabelSize.offset);
-          paddingRight = isBottom ? sinRotation * (lastLabelSize.height - lastLabelSize.offset) : cosRotation * lastLabelSize.width + sinRotation * lastLabelSize.offset;
+      if (display !== 'auto') {
+        return !!display;
+      }
+
+      return this._getMatchingVisibleMetas().length > 0;
+    }
+    /**
+     * @private
+     */
+
+  }, {
+    key: "_computeGridLineItems",
+    value: function _computeGridLineItems(chartArea) {
+      var me = this;
+      var chart = me.chart;
+      var options = me.options;
+      var gridLines = options.gridLines;
+      var position = options.position;
+      var offsetGridLines = gridLines.offsetGridLines;
+      var isHorizontal = me.isHorizontal();
+      var ticks = me._ticksToDraw;
+      var ticksLength = ticks.length + (offsetGridLines ? 1 : 0);
+      var tl = getTickMarkLength(gridLines);
+      var items = [];
+      var axisWidth = gridLines.drawBorder ? valueAtIndexOrDefault(gridLines.lineWidth, 0, 0) : 0;
+      var axisHalfWidth = axisWidth / 2;
+      var alignPixel = helpers$1._alignPixel;
+
+      var alignBorderValue = function alignBorderValue(pixel) {
+        return alignPixel(chart, pixel, axisWidth);
+      };
+
+      var borderValue, i, tick, lineValue, alignedLineValue;
+      var tx1, ty1, tx2, ty2, x1, y1, x2, y2;
+
+      if (position === 'top') {
+        borderValue = alignBorderValue(me.bottom);
+        ty1 = me.bottom - tl;
+        ty2 = borderValue - axisHalfWidth;
+        y1 = alignBorderValue(chartArea.top) + axisHalfWidth;
+        y2 = chartArea.bottom;
+      } else if (position === 'bottom') {
+        borderValue = alignBorderValue(me.top);
+        y1 = chartArea.top;
+        y2 = alignBorderValue(chartArea.bottom) - axisHalfWidth;
+        ty1 = borderValue + axisHalfWidth;
+        ty2 = me.top + tl;
+      } else if (position === 'left') {
+        borderValue = alignBorderValue(me.right);
+        tx1 = me.right - tl;
+        tx2 = borderValue - axisHalfWidth;
+        x1 = alignBorderValue(chartArea.left) + axisHalfWidth;
+        x2 = chartArea.right;
+      } else {
+        borderValue = alignBorderValue(me.left);
+        x1 = chartArea.left;
+        x2 = alignBorderValue(chartArea.right) - axisHalfWidth;
+        tx1 = borderValue + axisHalfWidth;
+        tx2 = me.left + tl;
+      }
+
+      for (i = 0; i < ticksLength; ++i) {
+        tick = ticks[i] || {};
+        var lineWidth = valueAtIndexOrDefault(gridLines.lineWidth, i, 1);
+        var lineColor = valueAtIndexOrDefault(gridLines.color, i, 'rgba(0,0,0,0.1)');
+        var borderDash = gridLines.borderDash || [];
+        var borderDashOffset = gridLines.borderDashOffset || 0.0;
+        lineValue = getPixelForGridLine(me, tick._index || i, offsetGridLines); // Skip if the pixel is out of the range
+
+        if (lineValue === undefined) {
+          continue;
+        }
+
+        alignedLineValue = alignPixel(chart, lineValue, lineWidth);
+
+        if (isHorizontal) {
+          tx1 = tx2 = x1 = x2 = alignedLineValue;
         } else {
-          paddingLeft = firstLabelSize.width / 2;
-          paddingRight = lastLabelSize.width / 2;
-        } // Adjust padding taking into account changes in offsets
-        // and add 3 px to move away from canvas edges
-
-
-        me.paddingLeft = Math.max((paddingLeft - offsetLeft) * me.width / (me.width - offsetLeft), 0) + 3;
-        me.paddingRight = Math.max((paddingRight - offsetRight) * me.width / (me.width - offsetRight), 0) + 3;
-      } else {
-        // A vertical axis is more constrained by the width. Labels are the
-        // dominant factor here, so get that length first and account for padding
-        var labelWidth = tickOpts.mirror ? 0 : // use lineSpace for consistency with horizontal axis
-        // tickPadding is not implemented for horizontal
-        widestLabelSize.width + tickPadding + lineSpace;
-        minSize.width = Math.min(me.maxWidth, minSize.width + labelWidth);
-        me.paddingTop = firstLabelSize.height / 2;
-        me.paddingBottom = lastLabelSize.height / 2;
-      }
-    }
-
-    me.handleMargins();
-
-    if (isHorizontal) {
-      me.width = me._length = chart.width - me.margins.left - me.margins.right;
-      me.height = minSize.height;
-    } else {
-      me.width = minSize.width;
-      me.height = me._length = chart.height - me.margins.top - me.margins.bottom;
-    }
-  },
-
-  /**
-   * Handle margins and padding interactions
-   * @private
-   */
-  handleMargins: function handleMargins() {
-    var me = this;
-
-    if (me.margins) {
-      me.margins.left = Math.max(me.paddingLeft, me.margins.left);
-      me.margins.top = Math.max(me.paddingTop, me.margins.top);
-      me.margins.right = Math.max(me.paddingRight, me.margins.right);
-      me.margins.bottom = Math.max(me.paddingBottom, me.margins.bottom);
-    }
-  },
-  afterFit: function afterFit() {
-    helpers$1.callback(this.options.afterFit, [this]);
-  },
-  // Shared Methods
-  isHorizontal: function isHorizontal() {
-    var pos = this.options.position;
-    return pos === 'top' || pos === 'bottom';
-  },
-  isFullWidth: function isFullWidth() {
-    return this.options.fullWidth;
-  },
-  _convertTicksToLabels: function _convertTicksToLabels(ticks) {
-    var me = this;
-    me.beforeTickToLabelConversion();
-    me.generateTickLabels(ticks);
-    me.afterTickToLabelConversion();
-  },
-
-  /**
-   * @private
-   */
-  _getLabelSizes: function _getLabelSizes() {
-    var me = this;
-    var labelSizes = me._labelSizes;
-
-    if (!labelSizes) {
-      me._labelSizes = labelSizes = computeLabelSizes(me.ctx, parseTickFontOptions(me.options.ticks), me.ticks, me.longestTextCache);
-      me.longestLabelWidth = labelSizes.widest.width;
-    }
-
-    return labelSizes;
-  },
-
-  /**
-   * Used to get the label to display in the tooltip for the given value
-   * @param value
-   */
-  getLabelForValue: function getLabelForValue(value) {
-    return value;
-  },
-
-  /**
-   * Returns the location of the given data point. Value can either be an index or a numerical value
-   * The coordinate (0, 0) is at the upper-left corner of the canvas
-   * @param value
-   * @param index
-   * @param datasetIndex
-   */
-  getPixelForValue: helpers$1.noop,
-
-  /**
-   * Used to get the data value from a given pixel. This is the inverse of getPixelForValue
-   * The coordinate (0, 0) is at the upper-left corner of the canvas
-   * @param pixel
-   */
-  getValueForPixel: helpers$1.noop,
-
-  /**
-   * Returns the location of the tick at the given index
-   * The coordinate (0, 0) is at the upper-left corner of the canvas
-   */
-  getPixelForTick: function getPixelForTick(index) {
-    var me = this;
-    var offset = me.options.offset;
-    var numTicks = me.ticks.length;
-    var tickWidth = 1 / Math.max(numTicks - (offset ? 0 : 1), 1);
-    return index < 0 || index > numTicks - 1 ? null : me.getPixelForDecimal(index * tickWidth + (offset ? tickWidth / 2 : 0));
-  },
-
-  /**
-   * Utility for getting the pixel location of a percentage of scale
-   * The coordinate (0, 0) is at the upper-left corner of the canvas
-   */
-  getPixelForDecimal: function getPixelForDecimal(decimal) {
-    var me = this;
-
-    if (me._reversePixels) {
-      decimal = 1 - decimal;
-    }
-
-    return me._startPixel + decimal * me._length;
-  },
-  getDecimalForPixel: function getDecimalForPixel(pixel) {
-    var decimal = (pixel - this._startPixel) / this._length;
-    return this._reversePixels ? 1 - decimal : decimal;
-  },
-
-  /**
-   * Returns the pixel for the minimum chart value
-   * The coordinate (0, 0) is at the upper-left corner of the canvas
-   */
-  getBasePixel: function getBasePixel() {
-    return this.getPixelForValue(this.getBaseValue());
-  },
-  getBaseValue: function getBaseValue() {
-    var me = this;
-    var min = me.min;
-    var max = me.max;
-    return me.beginAtZero ? 0 : min < 0 && max < 0 ? max : min > 0 && max > 0 ? min : 0;
-  },
-
-  /**
-   * Returns a subset of ticks to be plotted to avoid overlapping labels.
-   * @private
-   */
-  _autoSkip: function _autoSkip(ticks) {
-    var me = this;
-    var tickOpts = me.options.ticks;
-    var axisLength = me._length;
-    var ticksLimit = tickOpts.maxTicksLimit || axisLength / me._tickSize() + 1;
-    var majorIndices = tickOpts.major.enabled ? getMajorIndices(ticks) : [];
-    var numMajorIndices = majorIndices.length;
-    var first = majorIndices[0];
-    var last = majorIndices[numMajorIndices - 1];
-    var i, ilen, spacing, avgMajorSpacing; // If there are too many major ticks to display them all
-
-    if (numMajorIndices > ticksLimit) {
-      skipMajors(ticks, majorIndices, numMajorIndices / ticksLimit);
-      return nonSkipped(ticks);
-    }
-
-    spacing = calculateSpacing(majorIndices, ticks, axisLength, ticksLimit);
-
-    if (numMajorIndices > 0) {
-      for (i = 0, ilen = numMajorIndices - 1; i < ilen; i++) {
-        skip(ticks, spacing, majorIndices[i], majorIndices[i + 1]);
-      }
-
-      avgMajorSpacing = numMajorIndices > 1 ? (last - first) / (numMajorIndices - 1) : null;
-      skip(ticks, spacing, helpers$1.isNullOrUndef(avgMajorSpacing) ? 0 : first - avgMajorSpacing, first);
-      skip(ticks, spacing, last, helpers$1.isNullOrUndef(avgMajorSpacing) ? ticks.length : last + avgMajorSpacing);
-      return nonSkipped(ticks);
-    }
-
-    skip(ticks, spacing);
-    return nonSkipped(ticks);
-  },
-
-  /**
-   * @private
-   */
-  _tickSize: function _tickSize() {
-    var me = this;
-    var optionTicks = me.options.ticks; // Calculate space needed by label in axis direction.
-
-    var rot = helpers$1.toRadians(me.labelRotation);
-    var cos = Math.abs(Math.cos(rot));
-    var sin = Math.abs(Math.sin(rot));
-
-    var labelSizes = me._getLabelSizes();
-
-    var padding = optionTicks.autoSkipPadding || 0;
-    var w = labelSizes ? labelSizes.widest.width + padding : 0;
-    var h = labelSizes ? labelSizes.highest.height + padding : 0; // Calculate space needed for 1 tick in axis direction.
-
-    return me.isHorizontal() ? h * cos > w * sin ? w / cos : h / sin : h * sin < w * cos ? h / cos : w / sin;
-  },
-
-  /**
-   * @private
-   */
-  _isVisible: function _isVisible() {
-    var display = this.options.display;
-
-    if (display !== 'auto') {
-      return !!display;
-    }
-
-    return this._getMatchingVisibleMetas().length > 0;
-  },
-
-  /**
-   * @private
-   */
-  _computeGridLineItems: function _computeGridLineItems(chartArea) {
-    var me = this;
-    var chart = me.chart;
-    var options = me.options;
-    var gridLines = options.gridLines;
-    var position = options.position;
-    var offsetGridLines = gridLines.offsetGridLines;
-    var isHorizontal = me.isHorizontal();
-    var ticks = me._ticksToDraw;
-    var ticksLength = ticks.length + (offsetGridLines ? 1 : 0);
-    var tl = getTickMarkLength(gridLines);
-    var items = [];
-    var axisWidth = gridLines.drawBorder ? valueAtIndexOrDefault(gridLines.lineWidth, 0, 0) : 0;
-    var axisHalfWidth = axisWidth / 2;
-    var alignPixel = helpers$1._alignPixel;
-
-    var alignBorderValue = function alignBorderValue(pixel) {
-      return alignPixel(chart, pixel, axisWidth);
-    };
-
-    var borderValue, i, tick, lineValue, alignedLineValue;
-    var tx1, ty1, tx2, ty2, x1, y1, x2, y2;
-
-    if (position === 'top') {
-      borderValue = alignBorderValue(me.bottom);
-      ty1 = me.bottom - tl;
-      ty2 = borderValue - axisHalfWidth;
-      y1 = alignBorderValue(chartArea.top) + axisHalfWidth;
-      y2 = chartArea.bottom;
-    } else if (position === 'bottom') {
-      borderValue = alignBorderValue(me.top);
-      y1 = chartArea.top;
-      y2 = alignBorderValue(chartArea.bottom) - axisHalfWidth;
-      ty1 = borderValue + axisHalfWidth;
-      ty2 = me.top + tl;
-    } else if (position === 'left') {
-      borderValue = alignBorderValue(me.right);
-      tx1 = me.right - tl;
-      tx2 = borderValue - axisHalfWidth;
-      x1 = alignBorderValue(chartArea.left) + axisHalfWidth;
-      x2 = chartArea.right;
-    } else {
-      borderValue = alignBorderValue(me.left);
-      x1 = chartArea.left;
-      x2 = alignBorderValue(chartArea.right) - axisHalfWidth;
-      tx1 = borderValue + axisHalfWidth;
-      tx2 = me.left + tl;
-    }
-
-    for (i = 0; i < ticksLength; ++i) {
-      tick = ticks[i] || {};
-      var lineWidth = valueAtIndexOrDefault(gridLines.lineWidth, i, 1);
-      var lineColor = valueAtIndexOrDefault(gridLines.color, i, 'rgba(0,0,0,0.1)');
-      var borderDash = gridLines.borderDash || [];
-      var borderDashOffset = gridLines.borderDashOffset || 0.0;
-      lineValue = getPixelForGridLine(me, tick._index || i, offsetGridLines); // Skip if the pixel is out of the range
-
-      if (lineValue === undefined) {
-        continue;
-      }
-
-      alignedLineValue = alignPixel(chart, lineValue, lineWidth);
-
-      if (isHorizontal) {
-        tx1 = tx2 = x1 = x2 = alignedLineValue;
-      } else {
-        ty1 = ty2 = y1 = y2 = alignedLineValue;
-      }
-
-      items.push({
-        tx1: tx1,
-        ty1: ty1,
-        tx2: tx2,
-        ty2: ty2,
-        x1: x1,
-        y1: y1,
-        x2: x2,
-        y2: y2,
-        width: lineWidth,
-        color: lineColor,
-        borderDash: borderDash,
-        borderDashOffset: borderDashOffset
-      });
-    }
-
-    items.ticksLength = ticksLength;
-    items.borderValue = borderValue;
-    return items;
-  },
-
-  /**
-   * @private
-   */
-  _computeLabelItems: function _computeLabelItems() {
-    var me = this;
-    var options = me.options;
-    var optionTicks = options.ticks;
-    var position = options.position;
-    var isMirrored = optionTicks.mirror;
-    var isHorizontal = me.isHorizontal();
-    var ticks = me._ticksToDraw;
-    var fonts = parseTickFontOptions(optionTicks);
-    var tickPadding = optionTicks.padding;
-    var tl = getTickMarkLength(options.gridLines);
-    var rotation = -helpers$1.toRadians(me.labelRotation);
-    var items = [];
-    var i, ilen, tick, label, x, y, textAlign, pixel, font, lineHeight, lineCount, textOffset;
-
-    if (position === 'top') {
-      y = me.bottom - tl - tickPadding;
-      textAlign = !rotation ? 'center' : 'left';
-    } else if (position === 'bottom') {
-      y = me.top + tl + tickPadding;
-      textAlign = !rotation ? 'center' : 'right';
-    } else if (position === 'left') {
-      x = me.right - (isMirrored ? 0 : tl) - tickPadding;
-      textAlign = isMirrored ? 'left' : 'right';
-    } else {
-      x = me.left + (isMirrored ? 0 : tl) + tickPadding;
-      textAlign = isMirrored ? 'right' : 'left';
-    }
-
-    for (i = 0, ilen = ticks.length; i < ilen; ++i) {
-      tick = ticks[i];
-      label = tick.label;
-      pixel = me.getPixelForTick(tick._index || i) + optionTicks.labelOffset;
-      font = tick.major ? fonts.major : fonts.minor;
-      lineHeight = font.lineHeight;
-      lineCount = isArray(label) ? label.length : 1;
-
-      if (isHorizontal) {
-        x = pixel;
-        textOffset = position === 'top' ? ((!rotation ? 0.5 : 1) - lineCount) * lineHeight : (!rotation ? 0.5 : 0) * lineHeight;
-      } else {
-        y = pixel;
-        textOffset = (1 - lineCount) * lineHeight / 2;
-      }
-
-      items.push({
-        x: x,
-        y: y,
-        rotation: rotation,
-        label: label,
-        font: font,
-        textOffset: textOffset,
-        textAlign: textAlign
-      });
-    }
-
-    return items;
-  },
-
-  /**
-   * @private
-   */
-  _drawGrid: function _drawGrid(chartArea) {
-    var me = this;
-    var gridLines = me.options.gridLines;
-
-    if (!gridLines.display) {
-      return;
-    }
-
-    var ctx = me.ctx;
-    var chart = me.chart;
-    var alignPixel = helpers$1._alignPixel;
-    var axisWidth = gridLines.drawBorder ? valueAtIndexOrDefault(gridLines.lineWidth, 0, 0) : 0;
-
-    var items = me._gridLineItems || (me._gridLineItems = me._computeGridLineItems(chartArea));
-
-    var width, color, i, ilen, item;
-
-    for (i = 0, ilen = items.length; i < ilen; ++i) {
-      item = items[i];
-      width = item.width;
-      color = item.color;
-
-      if (width && color) {
-        ctx.save();
-        ctx.lineWidth = width;
-        ctx.strokeStyle = color;
-
-        if (ctx.setLineDash) {
-          ctx.setLineDash(item.borderDash);
-          ctx.lineDashOffset = item.borderDashOffset;
+          ty1 = ty2 = y1 = y2 = alignedLineValue;
         }
 
+        items.push({
+          tx1: tx1,
+          ty1: ty1,
+          tx2: tx2,
+          ty2: ty2,
+          x1: x1,
+          y1: y1,
+          x2: x2,
+          y2: y2,
+          width: lineWidth,
+          color: lineColor,
+          borderDash: borderDash,
+          borderDashOffset: borderDashOffset
+        });
+      }
+
+      items.ticksLength = ticksLength;
+      items.borderValue = borderValue;
+      return items;
+    }
+    /**
+     * @private
+     */
+
+  }, {
+    key: "_computeLabelItems",
+    value: function _computeLabelItems() {
+      var me = this;
+      var options = me.options;
+      var optionTicks = options.ticks;
+      var position = options.position;
+      var isMirrored = optionTicks.mirror;
+      var isHorizontal = me.isHorizontal();
+      var ticks = me._ticksToDraw;
+      var fonts = parseTickFontOptions(optionTicks);
+      var tickPadding = optionTicks.padding;
+      var tl = getTickMarkLength(options.gridLines);
+      var rotation = -helpers$1.toRadians(me.labelRotation);
+      var items = [];
+      var i, ilen, tick, label, x, y, textAlign, pixel, font, lineHeight, lineCount, textOffset;
+
+      if (position === 'top') {
+        y = me.bottom - tl - tickPadding;
+        textAlign = !rotation ? 'center' : 'left';
+      } else if (position === 'bottom') {
+        y = me.top + tl + tickPadding;
+        textAlign = !rotation ? 'center' : 'right';
+      } else if (position === 'left') {
+        x = me.right - (isMirrored ? 0 : tl) - tickPadding;
+        textAlign = isMirrored ? 'left' : 'right';
+      } else {
+        x = me.left + (isMirrored ? 0 : tl) + tickPadding;
+        textAlign = isMirrored ? 'right' : 'left';
+      }
+
+      for (i = 0, ilen = ticks.length; i < ilen; ++i) {
+        tick = ticks[i];
+        label = tick.label;
+        pixel = me.getPixelForTick(tick._index || i) + optionTicks.labelOffset;
+        font = tick.major ? fonts.major : fonts.minor;
+        lineHeight = font.lineHeight;
+        lineCount = isArray(label) ? label.length : 1;
+
+        if (isHorizontal) {
+          x = pixel;
+          textOffset = position === 'top' ? ((!rotation ? 0.5 : 1) - lineCount) * lineHeight : (!rotation ? 0.5 : 0) * lineHeight;
+        } else {
+          y = pixel;
+          textOffset = (1 - lineCount) * lineHeight / 2;
+        }
+
+        items.push({
+          x: x,
+          y: y,
+          rotation: rotation,
+          label: label,
+          font: font,
+          textOffset: textOffset,
+          textAlign: textAlign
+        });
+      }
+
+      return items;
+    }
+    /**
+     * @private
+     */
+
+  }, {
+    key: "_drawGrid",
+    value: function _drawGrid(chartArea) {
+      var me = this;
+      var gridLines = me.options.gridLines;
+
+      if (!gridLines.display) {
+        return;
+      }
+
+      var ctx = me.ctx;
+      var chart = me.chart;
+      var alignPixel = helpers$1._alignPixel;
+      var axisWidth = gridLines.drawBorder ? valueAtIndexOrDefault(gridLines.lineWidth, 0, 0) : 0;
+
+      var items = me._gridLineItems || (me._gridLineItems = me._computeGridLineItems(chartArea));
+
+      var width, color, i, ilen, item;
+
+      for (i = 0, ilen = items.length; i < ilen; ++i) {
+        item = items[i];
+        width = item.width;
+        color = item.color;
+
+        if (width && color) {
+          ctx.save();
+          ctx.lineWidth = width;
+          ctx.strokeStyle = color;
+
+          if (ctx.setLineDash) {
+            ctx.setLineDash(item.borderDash);
+            ctx.lineDashOffset = item.borderDashOffset;
+          }
+
+          ctx.beginPath();
+
+          if (gridLines.drawTicks) {
+            ctx.moveTo(item.tx1, item.ty1);
+            ctx.lineTo(item.tx2, item.ty2);
+          }
+
+          if (gridLines.drawOnChartArea) {
+            ctx.moveTo(item.x1, item.y1);
+            ctx.lineTo(item.x2, item.y2);
+          }
+
+          ctx.stroke();
+          ctx.restore();
+        }
+      }
+
+      if (axisWidth) {
+        // Draw the line at the edge of the axis
+        var firstLineWidth = axisWidth;
+        var lastLineWidth = valueAtIndexOrDefault(gridLines.lineWidth, items.ticksLength - 1, 1);
+        var borderValue = items.borderValue;
+        var x1, x2, y1, y2;
+
+        if (me.isHorizontal()) {
+          x1 = alignPixel(chart, me.left, firstLineWidth) - firstLineWidth / 2;
+          x2 = alignPixel(chart, me.right, lastLineWidth) + lastLineWidth / 2;
+          y1 = y2 = borderValue;
+        } else {
+          y1 = alignPixel(chart, me.top, firstLineWidth) - firstLineWidth / 2;
+          y2 = alignPixel(chart, me.bottom, lastLineWidth) + lastLineWidth / 2;
+          x1 = x2 = borderValue;
+        }
+
+        ctx.lineWidth = axisWidth;
+        ctx.strokeStyle = valueAtIndexOrDefault(gridLines.color, 0);
         ctx.beginPath();
-
-        if (gridLines.drawTicks) {
-          ctx.moveTo(item.tx1, item.ty1);
-          ctx.lineTo(item.tx2, item.ty2);
-        }
-
-        if (gridLines.drawOnChartArea) {
-          ctx.moveTo(item.x1, item.y1);
-          ctx.lineTo(item.x2, item.y2);
-        }
-
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
         ctx.stroke();
+      }
+    }
+    /**
+     * @private
+     */
+
+  }, {
+    key: "_drawLabels",
+    value: function _drawLabels() {
+      var me = this;
+      var optionTicks = me.options.ticks;
+
+      if (!optionTicks.display) {
+        return;
+      }
+
+      var ctx = me.ctx;
+
+      var items = me._labelItems || (me._labelItems = me._computeLabelItems());
+
+      var i, j, ilen, jlen, item, tickFont, label, y;
+
+      for (i = 0, ilen = items.length; i < ilen; ++i) {
+        item = items[i];
+        tickFont = item.font; // Make sure we draw text in the correct color and font
+
+        ctx.save();
+        ctx.translate(item.x, item.y);
+        ctx.rotate(item.rotation);
+        ctx.font = tickFont.string;
+        ctx.fillStyle = tickFont.color;
+        ctx.textBaseline = 'middle';
+        ctx.textAlign = item.textAlign;
+        label = item.label;
+        y = item.textOffset;
+
+        if (isArray(label)) {
+          for (j = 0, jlen = label.length; j < jlen; ++j) {
+            // We just make sure the multiline element is a string here..
+            ctx.fillText('' + label[j], 0, y);
+            y += tickFont.lineHeight;
+          }
+        } else {
+          ctx.fillText(label, 0, y);
+        }
+
         ctx.restore();
       }
     }
+    /**
+     * @private
+     */
 
-    if (axisWidth) {
-      // Draw the line at the edge of the axis
-      var firstLineWidth = axisWidth;
-      var lastLineWidth = valueAtIndexOrDefault(gridLines.lineWidth, items.ticksLength - 1, 1);
-      var borderValue = items.borderValue;
-      var x1, x2, y1, y2;
+  }, {
+    key: "_drawTitle",
+    value: function _drawTitle() {
+      var me = this;
+      var ctx = me.ctx;
+      var options = me.options;
+      var scaleLabel = options.scaleLabel;
+
+      if (!scaleLabel.display) {
+        return;
+      }
+
+      var scaleLabelFontColor = valueOrDefault$a(scaleLabel.fontColor, core_defaults.global.defaultFontColor);
+
+      var scaleLabelFont = helpers$1.options._parseFont(scaleLabel);
+
+      var scaleLabelPadding = helpers$1.options.toPadding(scaleLabel.padding);
+      var halfLineHeight = scaleLabelFont.lineHeight / 2;
+      var scaleLabelAlign = scaleLabel.align;
+      var position = options.position;
+      var rotation = 0;
+      var isReverse = me.options.ticks.reverse;
+      var scaleLabelX, scaleLabelY, textAlign;
 
       if (me.isHorizontal()) {
-        x1 = alignPixel(chart, me.left, firstLineWidth) - firstLineWidth / 2;
-        x2 = alignPixel(chart, me.right, lastLineWidth) + lastLineWidth / 2;
-        y1 = y2 = borderValue;
+        switch (scaleLabelAlign) {
+          case 'start':
+            scaleLabelX = me.left + (isReverse ? me.width : 0);
+            textAlign = isReverse ? 'right' : 'left';
+            break;
+
+          case 'end':
+            scaleLabelX = me.left + (isReverse ? 0 : me.width);
+            textAlign = isReverse ? 'left' : 'right';
+            break;
+
+          default:
+            scaleLabelX = me.left + me.width / 2;
+            textAlign = 'center';
+        }
+
+        scaleLabelY = position === 'top' ? me.top + halfLineHeight + scaleLabelPadding.top : me.bottom - halfLineHeight - scaleLabelPadding.bottom;
       } else {
-        y1 = alignPixel(chart, me.top, firstLineWidth) - firstLineWidth / 2;
-        y2 = alignPixel(chart, me.bottom, lastLineWidth) + lastLineWidth / 2;
-        x1 = x2 = borderValue;
+        var isLeft = position === 'left';
+        scaleLabelX = isLeft ? me.left + halfLineHeight + scaleLabelPadding.top : me.right - halfLineHeight - scaleLabelPadding.top;
+
+        switch (scaleLabelAlign) {
+          case 'start':
+            scaleLabelY = me.top + (isReverse ? 0 : me.height);
+            textAlign = isReverse === isLeft ? 'right' : 'left';
+            break;
+
+          case 'end':
+            scaleLabelY = me.top + (isReverse ? me.height : 0);
+            textAlign = isReverse === isLeft ? 'left' : 'right';
+            break;
+
+          default:
+            scaleLabelY = me.top + me.height / 2;
+            textAlign = 'center';
+        }
+
+        rotation = isLeft ? -0.5 * Math.PI : 0.5 * Math.PI;
       }
-
-      ctx.lineWidth = axisWidth;
-      ctx.strokeStyle = valueAtIndexOrDefault(gridLines.color, 0);
-      ctx.beginPath();
-      ctx.moveTo(x1, y1);
-      ctx.lineTo(x2, y2);
-      ctx.stroke();
-    }
-  },
-
-  /**
-   * @private
-   */
-  _drawLabels: function _drawLabels() {
-    var me = this;
-    var optionTicks = me.options.ticks;
-
-    if (!optionTicks.display) {
-      return;
-    }
-
-    var ctx = me.ctx;
-
-    var items = me._labelItems || (me._labelItems = me._computeLabelItems());
-
-    var i, j, ilen, jlen, item, tickFont, label, y;
-
-    for (i = 0, ilen = items.length; i < ilen; ++i) {
-      item = items[i];
-      tickFont = item.font; // Make sure we draw text in the correct color and font
 
       ctx.save();
-      ctx.translate(item.x, item.y);
-      ctx.rotate(item.rotation);
-      ctx.font = tickFont.string;
-      ctx.fillStyle = tickFont.color;
+      ctx.translate(scaleLabelX, scaleLabelY);
+      ctx.rotate(rotation);
+      ctx.textAlign = textAlign;
       ctx.textBaseline = 'middle';
-      ctx.textAlign = item.textAlign;
-      label = item.label;
-      y = item.textOffset;
+      ctx.fillStyle = scaleLabelFontColor; // render in correct colour
 
-      if (isArray(label)) {
-        for (j = 0, jlen = label.length; j < jlen; ++j) {
-          // We just make sure the multiline element is a string here..
-          ctx.fillText('' + label[j], 0, y);
-          y += tickFont.lineHeight;
-        }
-      } else {
-        ctx.fillText(label, 0, y);
-      }
-
+      ctx.font = scaleLabelFont.string;
+      ctx.fillText(scaleLabel.labelString, 0, 0);
       ctx.restore();
     }
-  },
+  }, {
+    key: "draw",
+    value: function draw(chartArea) {
+      var me = this;
 
-  /**
-   * @private
-   */
-  _drawTitle: function _drawTitle() {
-    var me = this;
-    var ctx = me.ctx;
-    var options = me.options;
-    var scaleLabel = options.scaleLabel;
-
-    if (!scaleLabel.display) {
-      return;
-    }
-
-    var scaleLabelFontColor = valueOrDefault$a(scaleLabel.fontColor, core_defaults.global.defaultFontColor);
-
-    var scaleLabelFont = helpers$1.options._parseFont(scaleLabel);
-
-    var scaleLabelPadding = helpers$1.options.toPadding(scaleLabel.padding);
-    var halfLineHeight = scaleLabelFont.lineHeight / 2;
-    var scaleLabelAlign = scaleLabel.align;
-    var position = options.position;
-    var rotation = 0;
-    var isReverse = me.options.ticks.reverse;
-    var scaleLabelX, scaleLabelY, textAlign;
-
-    if (me.isHorizontal()) {
-      switch (scaleLabelAlign) {
-        case 'start':
-          scaleLabelX = me.left + (isReverse ? me.width : 0);
-          textAlign = isReverse ? 'right' : 'left';
-          break;
-
-        case 'end':
-          scaleLabelX = me.left + (isReverse ? 0 : me.width);
-          textAlign = isReverse ? 'left' : 'right';
-          break;
-
-        default:
-          scaleLabelX = me.left + me.width / 2;
-          textAlign = 'center';
+      if (!me._isVisible()) {
+        return;
       }
 
-      scaleLabelY = position === 'top' ? me.top + halfLineHeight + scaleLabelPadding.top : me.bottom - halfLineHeight - scaleLabelPadding.bottom;
-    } else {
-      var isLeft = position === 'left';
-      scaleLabelX = isLeft ? me.left + halfLineHeight + scaleLabelPadding.top : me.right - halfLineHeight - scaleLabelPadding.top;
+      me._drawGrid(chartArea);
 
-      switch (scaleLabelAlign) {
-        case 'start':
-          scaleLabelY = me.top + (isReverse ? 0 : me.height);
-          textAlign = isReverse === isLeft ? 'right' : 'left';
-          break;
+      me._drawTitle();
 
-        case 'end':
-          scaleLabelY = me.top + (isReverse ? me.height : 0);
-          textAlign = isReverse === isLeft ? 'left' : 'right';
-          break;
+      me._drawLabels();
+    }
+    /**
+     * @private
+     */
 
-        default:
-          scaleLabelY = me.top + me.height / 2;
-          textAlign = 'center';
+  }, {
+    key: "_layers",
+    value: function _layers() {
+      var me = this;
+      var opts = me.options;
+      var tz = opts.ticks && opts.ticks.z || 0;
+      var gz = opts.gridLines && opts.gridLines.z || 0;
+
+      if (!me._isVisible() || tz === gz || me.draw !== me._draw) {
+        // backward compatibility: draw has been overridden by custom scale
+        return [{
+          z: tz,
+          draw: function draw() {
+            me.draw.apply(me, arguments);
+          }
+        }];
       }
 
-      rotation = isLeft ? -0.5 * Math.PI : 0.5 * Math.PI;
-    }
-
-    ctx.save();
-    ctx.translate(scaleLabelX, scaleLabelY);
-    ctx.rotate(rotation);
-    ctx.textAlign = textAlign;
-    ctx.textBaseline = 'middle';
-    ctx.fillStyle = scaleLabelFontColor; // render in correct colour
-
-    ctx.font = scaleLabelFont.string;
-    ctx.fillText(scaleLabel.labelString, 0, 0);
-    ctx.restore();
-  },
-  draw: function draw(chartArea) {
-    var me = this;
-
-    if (!me._isVisible()) {
-      return;
-    }
-
-    me._drawGrid(chartArea);
-
-    me._drawTitle();
-
-    me._drawLabels();
-  },
-
-  /**
-   * @private
-   */
-  _layers: function _layers() {
-    var me = this;
-    var opts = me.options;
-    var tz = opts.ticks && opts.ticks.z || 0;
-    var gz = opts.gridLines && opts.gridLines.z || 0;
-
-    if (!me._isVisible() || tz === gz || me.draw !== me._draw) {
-      // backward compatibility: draw has been overridden by custom scale
       return [{
+        z: gz,
+        draw: function draw() {
+          me._drawGrid.apply(me, arguments);
+
+          me._drawTitle.apply(me, arguments);
+        }
+      }, {
         z: tz,
         draw: function draw() {
-          me.draw.apply(me, arguments);
+          me._drawLabels.apply(me, arguments);
         }
       }];
     }
+    /**
+     * @private
+     */
 
-    return [{
-      z: gz,
-      draw: function draw() {
-        me._drawGrid.apply(me, arguments);
-
-        me._drawTitle.apply(me, arguments);
-      }
-    }, {
-      z: tz,
-      draw: function draw() {
-        me._drawLabels.apply(me, arguments);
-      }
-    }];
-  },
-
-  /**
-   * @private
-   */
-  _getAxisID: function _getAxisID() {
-    return this.isHorizontal() ? 'xAxisID' : 'yAxisID';
-  },
-
-  /**
-   * Returns visible dataset metas that are attached to this scale
-   * @param {string} [type] - if specified, also filter by dataset type
-   * @private
-   */
-  _getMatchingVisibleMetas: function _getMatchingVisibleMetas(type) {
-    var me = this;
-
-    var metas = me.chart._getSortedVisibleDatasetMetas();
-
-    var axisID = me._getAxisID();
-
-    var result = [];
-    var i, ilen, meta;
-
-    for (i = 0, ilen = metas.length; i < ilen; ++i) {
-      meta = metas[i];
-
-      if (meta[axisID] === me.id && (!type || meta.type === type)) {
-        result.push(meta);
-      }
+  }, {
+    key: "_getAxisID",
+    value: function _getAxisID() {
+      return this.isHorizontal() ? 'xAxisID' : 'yAxisID';
     }
+    /**
+     * Returns visible dataset metas that are attached to this scale
+     * @param {string} [type] - if specified, also filter by dataset type
+     * @private
+     */
 
-    return result;
-  }
-});
+  }, {
+    key: "_getMatchingVisibleMetas",
+    value: function _getMatchingVisibleMetas(type) {
+      var me = this;
+
+      var metas = me.chart._getSortedVisibleDatasetMetas();
+
+      var axisID = me._getAxisID();
+
+      var result = [];
+      var i, ilen, meta;
+
+      for (i = 0, ilen = metas.length; i < ilen; ++i) {
+        meta = metas[i];
+
+        if (meta[axisID] === me.id && (!type || meta.type === type)) {
+          result.push(meta);
+        }
+      }
+
+      return result;
+    }
+  }]);
+
+  return Scale;
+}(core_element);
+
 Scale.prototype._draw = Scale.prototype.draw;
 var core_scale = Scale;
 
@@ -14580,7 +14941,6 @@ var plugin_filler = {
 };
 
 var getRtlHelper$1 = helpers$1.rtl.getRtlAdapter;
-var noop = helpers$1.noop;
 var valueOrDefault$e = helpers$1.valueOrDefault;
 
 core_defaults._set('global', {
@@ -14677,437 +15037,484 @@ function getBoxWidth(labelOpts, fontSize) {
  */
 
 
-var Legend = core_element.extend({
-  initialize: function initialize(config) {
-    var me = this;
-    helpers$1.extend(me, config); // Contains hit boxes for each dataset (in dataset order)
-
-    me.legendHitBoxes = [];
-    /**
-    	 * @private
-    	 */
-
-    me._hoveredItem = null; // Are we in doughnut mode which has a different data type
-
-    me.doughnutMode = false;
-  },
-  // These methods are ordered by lifecycle. Utilities then follow.
-  // Any function defined here is inherited by all legend types.
-  // Any function can be extended by the legend type
-  beforeUpdate: noop,
-  update: function update(maxWidth, maxHeight, margins) {
-    var me = this; // Update Lifecycle - Probably don't want to ever extend or overwrite this function ;)
-
-    me.beforeUpdate(); // Absorb the master measurements
-
-    me.maxWidth = maxWidth;
-    me.maxHeight = maxHeight;
-    me.margins = margins; // Dimensions
-
-    me.beforeSetDimensions();
-    me.setDimensions();
-    me.afterSetDimensions(); // Labels
-
-    me.beforeBuildLabels();
-    me.buildLabels();
-    me.afterBuildLabels(); // Fit
-
-    me.beforeFit();
-    me.fit();
-    me.afterFit(); //
-
-    me.afterUpdate();
-    return me.minSize;
-  },
-  afterUpdate: noop,
-  //
-  beforeSetDimensions: noop,
-  setDimensions: function setDimensions() {
-    var me = this; // Set the unconstrained dimension before label rotation
-
-    if (me.isHorizontal()) {
-      // Reset position before calculating rotation
-      me.width = me.maxWidth;
-      me.left = 0;
-      me.right = me.width;
-    } else {
-      me.height = me.maxHeight; // Reset position before calculating rotation
-
-      me.top = 0;
-      me.bottom = me.height;
-    } // Reset padding
-
-
-    me.paddingLeft = 0;
-    me.paddingTop = 0;
-    me.paddingRight = 0;
-    me.paddingBottom = 0; // Reset minSize
-
-    me.minSize = {
-      width: 0,
-      height: 0
-    };
-  },
-  afterSetDimensions: noop,
-  //
-  beforeBuildLabels: noop,
-  buildLabels: function buildLabels() {
-    var me = this;
-    var labelOpts = me.options.labels || {};
-    var legendItems = helpers$1.callback(labelOpts.generateLabels, [me.chart], me) || [];
-
-    if (labelOpts.filter) {
-      legendItems = legendItems.filter(function (item) {
-        return labelOpts.filter(item, me.chart.data);
-      });
-    }
-
-    if (me.options.reverse) {
-      legendItems.reverse();
-    }
-
-    me.legendItems = legendItems;
-  },
-  afterBuildLabels: noop,
-  //
-  beforeFit: noop,
-  fit: function fit() {
-    var me = this;
-    var opts = me.options;
-    var labelOpts = opts.labels;
-    var display = opts.display;
-    var ctx = me.ctx;
-
-    var labelFont = helpers$1.options._parseFont(labelOpts);
-
-    var fontSize = labelFont.size; // Reset hit boxes
-
-    var hitboxes = me.legendHitBoxes = [];
-    var minSize = me.minSize;
-    var isHorizontal = me.isHorizontal();
-
-    if (isHorizontal) {
-      minSize.width = me.maxWidth; // fill all the width
-
-      minSize.height = display ? 10 : 0;
-    } else {
-      minSize.width = display ? 10 : 0;
-      minSize.height = me.maxHeight; // fill all the height
-    } // Increase sizes here
-
-
-    if (!display) {
-      me.width = minSize.width = me.height = minSize.height = 0;
-      return;
-    }
-
-    ctx.font = labelFont.string;
-
-    if (isHorizontal) {
-      // Labels
-      // Width of each line of legend boxes. Labels wrap onto multiple lines when there are too many to fit on one
-      var lineWidths = me.lineWidths = [0];
-      var totalHeight = 0;
-      ctx.textAlign = 'left';
-      ctx.textBaseline = 'middle';
-      helpers$1.each(me.legendItems, function (legendItem, i) {
-        var boxWidth = getBoxWidth(labelOpts, fontSize);
-        var width = boxWidth + fontSize / 2 + ctx.measureText(legendItem.text).width;
-
-        if (i === 0 || lineWidths[lineWidths.length - 1] + width + 2 * labelOpts.padding > minSize.width) {
-          totalHeight += fontSize + labelOpts.padding;
-          lineWidths[lineWidths.length - (i > 0 ? 0 : 1)] = 0;
-        } // Store the hitbox width and height here. Final position will be updated in `draw`
-
-
-        hitboxes[i] = {
-          left: 0,
-          top: 0,
-          width: width,
-          height: fontSize
-        };
-        lineWidths[lineWidths.length - 1] += width + labelOpts.padding;
-      });
-      minSize.height += totalHeight;
-    } else {
-      var vPadding = labelOpts.padding;
-      var columnWidths = me.columnWidths = [];
-      var columnHeights = me.columnHeights = [];
-      var totalWidth = labelOpts.padding;
-      var currentColWidth = 0;
-      var currentColHeight = 0;
-      helpers$1.each(me.legendItems, function (legendItem, i) {
-        var boxWidth = getBoxWidth(labelOpts, fontSize);
-        var itemWidth = boxWidth + fontSize / 2 + ctx.measureText(legendItem.text).width; // If too tall, go to new column
-
-        if (i > 0 && currentColHeight + fontSize + 2 * vPadding > minSize.height) {
-          totalWidth += currentColWidth + labelOpts.padding;
-          columnWidths.push(currentColWidth); // previous column width
-
-          columnHeights.push(currentColHeight);
-          currentColWidth = 0;
-          currentColHeight = 0;
-        } // Get max width
-
-
-        currentColWidth = Math.max(currentColWidth, itemWidth);
-        currentColHeight += fontSize + vPadding; // Store the hitbox width and height here. Final position will be updated in `draw`
-
-        hitboxes[i] = {
-          left: 0,
-          top: 0,
-          width: itemWidth,
-          height: fontSize
-        };
-      });
-      totalWidth += currentColWidth;
-      columnWidths.push(currentColWidth);
-      columnHeights.push(currentColHeight);
-      minSize.width += totalWidth;
-    }
-
-    me.width = minSize.width;
-    me.height = minSize.height;
-  },
-  afterFit: noop,
-  // Shared Methods
-  isHorizontal: function isHorizontal() {
-    return this.options.position === 'top' || this.options.position === 'bottom';
-  },
-  // Actually draw the legend on the canvas
-  draw: function draw() {
-    var me = this;
-    var opts = me.options;
-    var labelOpts = opts.labels;
-    var globalDefaults = core_defaults.global;
-    var defaultColor = globalDefaults.defaultColor;
-    var lineDefault = globalDefaults.elements.line;
-    var legendHeight = me.height;
-    var columnHeights = me.columnHeights;
-    var legendWidth = me.width;
-    var lineWidths = me.lineWidths;
-
-    if (!opts.display) {
-      return;
-    }
-
-    var rtlHelper = getRtlHelper$1(opts.rtl, me.left, me.minSize.width);
-    var ctx = me.ctx;
-    var fontColor = valueOrDefault$e(labelOpts.fontColor, globalDefaults.defaultFontColor);
-
-    var labelFont = helpers$1.options._parseFont(labelOpts);
-
-    var fontSize = labelFont.size;
-    var cursor; // Canvas setup
-
-    ctx.textAlign = rtlHelper.textAlign('left');
-    ctx.textBaseline = 'middle';
-    ctx.lineWidth = 0.5;
-    ctx.strokeStyle = fontColor; // for strikethrough effect
-
-    ctx.fillStyle = fontColor; // render in correct colour
-
-    ctx.font = labelFont.string;
-    var boxWidth = getBoxWidth(labelOpts, fontSize);
-    var hitboxes = me.legendHitBoxes; // current position
-
-    var drawLegendBox = function drawLegendBox(x, y, legendItem) {
-      if (isNaN(boxWidth) || boxWidth <= 0) {
-        return;
-      } // Set the ctx for the box
-
-
-      ctx.save();
-      var lineWidth = valueOrDefault$e(legendItem.lineWidth, lineDefault.borderWidth);
-      ctx.fillStyle = valueOrDefault$e(legendItem.fillStyle, defaultColor);
-      ctx.lineCap = valueOrDefault$e(legendItem.lineCap, lineDefault.borderCapStyle);
-      ctx.lineDashOffset = valueOrDefault$e(legendItem.lineDashOffset, lineDefault.borderDashOffset);
-      ctx.lineJoin = valueOrDefault$e(legendItem.lineJoin, lineDefault.borderJoinStyle);
-      ctx.lineWidth = lineWidth;
-      ctx.strokeStyle = valueOrDefault$e(legendItem.strokeStyle, defaultColor);
-
-      if (ctx.setLineDash) {
-        // IE 9 and 10 do not support line dash
-        ctx.setLineDash(valueOrDefault$e(legendItem.lineDash, lineDefault.borderDash));
-      }
-
-      if (labelOpts && labelOpts.usePointStyle) {
-        // Recalculate x and y for drawPoint() because its expecting
-        // x and y to be center of figure (instead of top left)
-        var radius = boxWidth * Math.SQRT2 / 2;
-        var centerX = rtlHelper.xPlus(x, boxWidth / 2);
-        var centerY = y + fontSize / 2; // Draw pointStyle as legend symbol
-
-        helpers$1.canvas.drawPoint(ctx, legendItem.pointStyle, radius, centerX, centerY, legendItem.rotation);
-      } else {
-        // Draw box as legend symbol
-        ctx.fillRect(rtlHelper.leftForLtr(x, boxWidth), y, boxWidth, fontSize);
-
-        if (lineWidth !== 0) {
-          ctx.strokeRect(rtlHelper.leftForLtr(x, boxWidth), y, boxWidth, fontSize);
-        }
-      }
-
-      ctx.restore();
-    };
-
-    var fillText = function fillText(x, y, legendItem, textWidth) {
-      var halfFontSize = fontSize / 2;
-      var xLeft = rtlHelper.xPlus(x, boxWidth + halfFontSize);
-      var yMiddle = y + halfFontSize;
-      ctx.fillText(legendItem.text, xLeft, yMiddle);
-
-      if (legendItem.hidden) {
-        // Strikethrough the text if hidden
-        ctx.beginPath();
-        ctx.lineWidth = 2;
-        ctx.moveTo(xLeft, yMiddle);
-        ctx.lineTo(rtlHelper.xPlus(xLeft, textWidth), yMiddle);
-        ctx.stroke();
-      }
-    };
-
-    var alignmentOffset = function alignmentOffset(dimension, blockSize) {
-      switch (opts.align) {
-        case 'start':
-          return labelOpts.padding;
-
-        case 'end':
-          return dimension - blockSize;
-
-        default:
-          // center
-          return (dimension - blockSize + labelOpts.padding) / 2;
-      }
-    }; // Horizontal
-
-
-    var isHorizontal = me.isHorizontal();
-
-    if (isHorizontal) {
-      cursor = {
-        x: me.left + alignmentOffset(legendWidth, lineWidths[0]),
-        y: me.top + labelOpts.padding,
-        line: 0
-      };
-    } else {
-      cursor = {
-        x: me.left + labelOpts.padding,
-        y: me.top + alignmentOffset(legendHeight, columnHeights[0]),
-        line: 0
-      };
-    }
-
-    helpers$1.rtl.overrideTextDirection(me.ctx, opts.textDirection);
-    var itemHeight = fontSize + labelOpts.padding;
-    helpers$1.each(me.legendItems, function (legendItem, i) {
-      var textWidth = ctx.measureText(legendItem.text).width;
-      var width = boxWidth + fontSize / 2 + textWidth;
-      var x = cursor.x;
-      var y = cursor.y;
-      rtlHelper.setWidth(me.minSize.width); // Use (me.left + me.minSize.width) and (me.top + me.minSize.height)
-      // instead of me.right and me.bottom because me.width and me.height
-      // may have been changed since me.minSize was calculated
-
-      if (isHorizontal) {
-        if (i > 0 && x + width + labelOpts.padding > me.left + me.minSize.width) {
-          y = cursor.y += itemHeight;
-          cursor.line++;
-          x = cursor.x = me.left + alignmentOffset(legendWidth, lineWidths[cursor.line]);
-        }
-      } else if (i > 0 && y + itemHeight > me.top + me.minSize.height) {
-        x = cursor.x = x + me.columnWidths[cursor.line] + labelOpts.padding;
-        cursor.line++;
-        y = cursor.y = me.top + alignmentOffset(legendHeight, columnHeights[cursor.line]);
-      }
-
-      var realX = rtlHelper.x(x);
-      drawLegendBox(realX, y, legendItem);
-      hitboxes[i].left = rtlHelper.leftForLtr(realX, hitboxes[i].width);
-      hitboxes[i].top = y; // Fill the actual label
-
-      fillText(realX, y, legendItem, textWidth);
-
-      if (isHorizontal) {
-        cursor.x += width + labelOpts.padding;
-      } else {
-        cursor.y += itemHeight;
-      }
-    });
-    helpers$1.rtl.restoreTextDirection(me.ctx, opts.textDirection);
-  },
-
-  /**
-   * @private
-   */
-  _getLegendItemAt: function _getLegendItemAt(x, y) {
-    var me = this;
-    var i, hitBox, lh;
-
-    if (x >= me.left && x <= me.right && y >= me.top && y <= me.bottom) {
-      // See if we are touching one of the dataset boxes
-      lh = me.legendHitBoxes;
-
-      for (i = 0; i < lh.length; ++i) {
-        hitBox = lh[i];
-
-        if (x >= hitBox.left && x <= hitBox.left + hitBox.width && y >= hitBox.top && y <= hitBox.top + hitBox.height) {
-          // Touching an element
-          return me.legendItems[i];
-        }
-      }
-    }
-
-    return null;
-  },
-
-  /**
-   * Handle an event
-   * @private
-   * @param {IEvent} event - The event to handle
-   */
-  handleEvent: function handleEvent(e) {
-    var me = this;
-    var opts = me.options;
-    var type = e.type === 'mouseup' ? 'click' : e.type;
-    var hoveredItem;
-
-    if (type === 'mousemove') {
-      if (!opts.onHover && !opts.onLeave) {
-        return;
-      }
-    } else if (type === 'click') {
-      if (!opts.onClick) {
-        return;
-      }
-    } else {
-      return;
-    } // Chart event already has relative position in it
-
-
-    hoveredItem = me._getLegendItemAt(e.x, e.y);
-
-    if (type === 'click') {
-      if (hoveredItem && opts.onClick) {
-        // use e.native for backwards compatibility
-        opts.onClick.call(me, e["native"], hoveredItem);
-      }
-    } else {
-      if (opts.onLeave && hoveredItem !== me._hoveredItem) {
-        if (me._hoveredItem) {
-          opts.onLeave.call(me, e["native"], me._hoveredItem);
-        }
-
-        me._hoveredItem = hoveredItem;
-      }
-
-      if (opts.onHover && hoveredItem) {
-        // use e.native for backwards compatibility
-        opts.onHover.call(me, e["native"], hoveredItem);
-      }
-    }
+var Legend =
+/*#__PURE__*/
+function (_Element) {
+  _inherits(Legend, _Element);
+
+  function Legend() {
+    _classCallCheck(this, Legend);
+
+    return _possibleConstructorReturn(this, _getPrototypeOf(Legend).apply(this, arguments));
   }
-});
+
+  _createClass(Legend, [{
+    key: "initialize",
+    value: function initialize(config) {
+      var me = this;
+      helpers$1.extend(me, config); // Contains hit boxes for each dataset (in dataset order)
+
+      me.legendHitBoxes = [];
+      /**
+      	 * @private
+      	 */
+
+      me._hoveredItem = null; // Are we in doughnut mode which has a different data type
+
+      me.doughnutMode = false;
+    } // These methods are ordered by lifecycle. Utilities then follow.
+    // Any function defined here is inherited by all legend types.
+    // Any function can be extended by the legend type
+
+  }, {
+    key: "beforeUpdate",
+    value: function beforeUpdate() {}
+  }, {
+    key: "update",
+    value: function update(maxWidth, maxHeight, margins) {
+      var me = this; // Update Lifecycle - Probably don't want to ever extend or overwrite this function ;)
+
+      me.beforeUpdate(); // Absorb the master measurements
+
+      me.maxWidth = maxWidth;
+      me.maxHeight = maxHeight;
+      me.margins = margins; // Dimensions
+
+      me.beforeSetDimensions();
+      me.setDimensions();
+      me.afterSetDimensions(); // Labels
+
+      me.beforeBuildLabels();
+      me.buildLabels();
+      me.afterBuildLabels(); // Fit
+
+      me.beforeFit();
+      me.fit();
+      me.afterFit(); //
+
+      me.afterUpdate();
+      return me.minSize;
+    }
+  }, {
+    key: "afterUpdate",
+    value: function afterUpdate() {} //
+
+  }, {
+    key: "beforeSetDimensions",
+    value: function beforeSetDimensions() {}
+  }, {
+    key: "setDimensions",
+    value: function setDimensions() {
+      var me = this; // Set the unconstrained dimension before label rotation
+
+      if (me.isHorizontal()) {
+        // Reset position before calculating rotation
+        me.width = me.maxWidth;
+        me.left = 0;
+        me.right = me.width;
+      } else {
+        me.height = me.maxHeight; // Reset position before calculating rotation
+
+        me.top = 0;
+        me.bottom = me.height;
+      } // Reset padding
+
+
+      me.paddingLeft = 0;
+      me.paddingTop = 0;
+      me.paddingRight = 0;
+      me.paddingBottom = 0; // Reset minSize
+
+      me.minSize = {
+        width: 0,
+        height: 0
+      };
+    }
+  }, {
+    key: "afterSetDimensions",
+    value: function afterSetDimensions() {} //
+
+  }, {
+    key: "beforeBuildLabels",
+    value: function beforeBuildLabels() {}
+  }, {
+    key: "buildLabels",
+    value: function buildLabels() {
+      var me = this;
+      var labelOpts = me.options.labels || {};
+      var legendItems = helpers$1.callback(labelOpts.generateLabels, [me.chart], me) || [];
+
+      if (labelOpts.filter) {
+        legendItems = legendItems.filter(function (item) {
+          return labelOpts.filter(item, me.chart.data);
+        });
+      }
+
+      if (me.options.reverse) {
+        legendItems.reverse();
+      }
+
+      me.legendItems = legendItems;
+    }
+  }, {
+    key: "afterBuildLabels",
+    value: function afterBuildLabels() {} //
+
+  }, {
+    key: "beforeFit",
+    value: function beforeFit() {}
+  }, {
+    key: "fit",
+    value: function fit() {
+      var me = this;
+      var opts = me.options;
+      var labelOpts = opts.labels;
+      var display = opts.display;
+      var ctx = me.ctx;
+
+      var labelFont = helpers$1.options._parseFont(labelOpts);
+
+      var fontSize = labelFont.size; // Reset hit boxes
+
+      var hitboxes = me.legendHitBoxes = [];
+      var minSize = me.minSize;
+      var isHorizontal = me.isHorizontal();
+
+      if (isHorizontal) {
+        minSize.width = me.maxWidth; // fill all the width
+
+        minSize.height = display ? 10 : 0;
+      } else {
+        minSize.width = display ? 10 : 0;
+        minSize.height = me.maxHeight; // fill all the height
+      } // Increase sizes here
+
+
+      if (!display) {
+        me.width = minSize.width = me.height = minSize.height = 0;
+        return;
+      }
+
+      ctx.font = labelFont.string;
+
+      if (isHorizontal) {
+        // Labels
+        // Width of each line of legend boxes. Labels wrap onto multiple lines when there are too many to fit on one
+        var lineWidths = me.lineWidths = [0];
+        var totalHeight = 0;
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        helpers$1.each(me.legendItems, function (legendItem, i) {
+          var boxWidth = getBoxWidth(labelOpts, fontSize);
+          var width = boxWidth + fontSize / 2 + ctx.measureText(legendItem.text).width;
+
+          if (i === 0 || lineWidths[lineWidths.length - 1] + width + 2 * labelOpts.padding > minSize.width) {
+            totalHeight += fontSize + labelOpts.padding;
+            lineWidths[lineWidths.length - (i > 0 ? 0 : 1)] = 0;
+          } // Store the hitbox width and height here. Final position will be updated in `draw`
+
+
+          hitboxes[i] = {
+            left: 0,
+            top: 0,
+            width: width,
+            height: fontSize
+          };
+          lineWidths[lineWidths.length - 1] += width + labelOpts.padding;
+        });
+        minSize.height += totalHeight;
+      } else {
+        var vPadding = labelOpts.padding;
+        var columnWidths = me.columnWidths = [];
+        var columnHeights = me.columnHeights = [];
+        var totalWidth = labelOpts.padding;
+        var currentColWidth = 0;
+        var currentColHeight = 0;
+        helpers$1.each(me.legendItems, function (legendItem, i) {
+          var boxWidth = getBoxWidth(labelOpts, fontSize);
+          var itemWidth = boxWidth + fontSize / 2 + ctx.measureText(legendItem.text).width; // If too tall, go to new column
+
+          if (i > 0 && currentColHeight + fontSize + 2 * vPadding > minSize.height) {
+            totalWidth += currentColWidth + labelOpts.padding;
+            columnWidths.push(currentColWidth); // previous column width
+
+            columnHeights.push(currentColHeight);
+            currentColWidth = 0;
+            currentColHeight = 0;
+          } // Get max width
+
+
+          currentColWidth = Math.max(currentColWidth, itemWidth);
+          currentColHeight += fontSize + vPadding; // Store the hitbox width and height here. Final position will be updated in `draw`
+
+          hitboxes[i] = {
+            left: 0,
+            top: 0,
+            width: itemWidth,
+            height: fontSize
+          };
+        });
+        totalWidth += currentColWidth;
+        columnWidths.push(currentColWidth);
+        columnHeights.push(currentColHeight);
+        minSize.width += totalWidth;
+      }
+
+      me.width = minSize.width;
+      me.height = minSize.height;
+    }
+  }, {
+    key: "afterFit",
+    value: function afterFit() {} // Shared Methods
+
+  }, {
+    key: "isHorizontal",
+    value: function isHorizontal() {
+      return this.options.position === 'top' || this.options.position === 'bottom';
+    } // Actually draw the legend on the canvas
+
+  }, {
+    key: "draw",
+    value: function draw() {
+      var me = this;
+      var opts = me.options;
+      var labelOpts = opts.labels;
+      var globalDefaults = core_defaults.global;
+      var defaultColor = globalDefaults.defaultColor;
+      var lineDefault = globalDefaults.elements.line;
+      var legendHeight = me.height;
+      var columnHeights = me.columnHeights;
+      var legendWidth = me.width;
+      var lineWidths = me.lineWidths;
+
+      if (!opts.display) {
+        return;
+      }
+
+      var rtlHelper = getRtlHelper$1(opts.rtl, me.left, me.minSize.width);
+      var ctx = me.ctx;
+      var fontColor = valueOrDefault$e(labelOpts.fontColor, globalDefaults.defaultFontColor);
+
+      var labelFont = helpers$1.options._parseFont(labelOpts);
+
+      var fontSize = labelFont.size;
+      var cursor; // Canvas setup
+
+      ctx.textAlign = rtlHelper.textAlign('left');
+      ctx.textBaseline = 'middle';
+      ctx.lineWidth = 0.5;
+      ctx.strokeStyle = fontColor; // for strikethrough effect
+
+      ctx.fillStyle = fontColor; // render in correct colour
+
+      ctx.font = labelFont.string;
+      var boxWidth = getBoxWidth(labelOpts, fontSize);
+      var hitboxes = me.legendHitBoxes; // current position
+
+      var drawLegendBox = function drawLegendBox(x, y, legendItem) {
+        if (isNaN(boxWidth) || boxWidth <= 0) {
+          return;
+        } // Set the ctx for the box
+
+
+        ctx.save();
+        var lineWidth = valueOrDefault$e(legendItem.lineWidth, lineDefault.borderWidth);
+        ctx.fillStyle = valueOrDefault$e(legendItem.fillStyle, defaultColor);
+        ctx.lineCap = valueOrDefault$e(legendItem.lineCap, lineDefault.borderCapStyle);
+        ctx.lineDashOffset = valueOrDefault$e(legendItem.lineDashOffset, lineDefault.borderDashOffset);
+        ctx.lineJoin = valueOrDefault$e(legendItem.lineJoin, lineDefault.borderJoinStyle);
+        ctx.lineWidth = lineWidth;
+        ctx.strokeStyle = valueOrDefault$e(legendItem.strokeStyle, defaultColor);
+
+        if (ctx.setLineDash) {
+          // IE 9 and 10 do not support line dash
+          ctx.setLineDash(valueOrDefault$e(legendItem.lineDash, lineDefault.borderDash));
+        }
+
+        if (labelOpts && labelOpts.usePointStyle) {
+          // Recalculate x and y for drawPoint() because its expecting
+          // x and y to be center of figure (instead of top left)
+          var radius = boxWidth * Math.SQRT2 / 2;
+          var centerX = rtlHelper.xPlus(x, boxWidth / 2);
+          var centerY = y + fontSize / 2; // Draw pointStyle as legend symbol
+
+          helpers$1.canvas.drawPoint(ctx, legendItem.pointStyle, radius, centerX, centerY, legendItem.rotation);
+        } else {
+          // Draw box as legend symbol
+          ctx.fillRect(rtlHelper.leftForLtr(x, boxWidth), y, boxWidth, fontSize);
+
+          if (lineWidth !== 0) {
+            ctx.strokeRect(rtlHelper.leftForLtr(x, boxWidth), y, boxWidth, fontSize);
+          }
+        }
+
+        ctx.restore();
+      };
+
+      var fillText = function fillText(x, y, legendItem, textWidth) {
+        var halfFontSize = fontSize / 2;
+        var xLeft = rtlHelper.xPlus(x, boxWidth + halfFontSize);
+        var yMiddle = y + halfFontSize;
+        ctx.fillText(legendItem.text, xLeft, yMiddle);
+
+        if (legendItem.hidden) {
+          // Strikethrough the text if hidden
+          ctx.beginPath();
+          ctx.lineWidth = 2;
+          ctx.moveTo(xLeft, yMiddle);
+          ctx.lineTo(rtlHelper.xPlus(xLeft, textWidth), yMiddle);
+          ctx.stroke();
+        }
+      };
+
+      var alignmentOffset = function alignmentOffset(dimension, blockSize) {
+        switch (opts.align) {
+          case 'start':
+            return labelOpts.padding;
+
+          case 'end':
+            return dimension - blockSize;
+
+          default:
+            // center
+            return (dimension - blockSize + labelOpts.padding) / 2;
+        }
+      }; // Horizontal
+
+
+      var isHorizontal = me.isHorizontal();
+
+      if (isHorizontal) {
+        cursor = {
+          x: me.left + alignmentOffset(legendWidth, lineWidths[0]),
+          y: me.top + labelOpts.padding,
+          line: 0
+        };
+      } else {
+        cursor = {
+          x: me.left + labelOpts.padding,
+          y: me.top + alignmentOffset(legendHeight, columnHeights[0]),
+          line: 0
+        };
+      }
+
+      helpers$1.rtl.overrideTextDirection(me.ctx, opts.textDirection);
+      var itemHeight = fontSize + labelOpts.padding;
+      helpers$1.each(me.legendItems, function (legendItem, i) {
+        var textWidth = ctx.measureText(legendItem.text).width;
+        var width = boxWidth + fontSize / 2 + textWidth;
+        var x = cursor.x;
+        var y = cursor.y;
+        rtlHelper.setWidth(me.minSize.width); // Use (me.left + me.minSize.width) and (me.top + me.minSize.height)
+        // instead of me.right and me.bottom because me.width and me.height
+        // may have been changed since me.minSize was calculated
+
+        if (isHorizontal) {
+          if (i > 0 && x + width + labelOpts.padding > me.left + me.minSize.width) {
+            y = cursor.y += itemHeight;
+            cursor.line++;
+            x = cursor.x = me.left + alignmentOffset(legendWidth, lineWidths[cursor.line]);
+          }
+        } else if (i > 0 && y + itemHeight > me.top + me.minSize.height) {
+          x = cursor.x = x + me.columnWidths[cursor.line] + labelOpts.padding;
+          cursor.line++;
+          y = cursor.y = me.top + alignmentOffset(legendHeight, columnHeights[cursor.line]);
+        }
+
+        var realX = rtlHelper.x(x);
+        drawLegendBox(realX, y, legendItem);
+        hitboxes[i].left = rtlHelper.leftForLtr(realX, hitboxes[i].width);
+        hitboxes[i].top = y; // Fill the actual label
+
+        fillText(realX, y, legendItem, textWidth);
+
+        if (isHorizontal) {
+          cursor.x += width + labelOpts.padding;
+        } else {
+          cursor.y += itemHeight;
+        }
+      });
+      helpers$1.rtl.restoreTextDirection(me.ctx, opts.textDirection);
+    }
+    /**
+     * @private
+     */
+
+  }, {
+    key: "_getLegendItemAt",
+    value: function _getLegendItemAt(x, y) {
+      var me = this;
+      var i, hitBox, lh;
+
+      if (x >= me.left && x <= me.right && y >= me.top && y <= me.bottom) {
+        // See if we are touching one of the dataset boxes
+        lh = me.legendHitBoxes;
+
+        for (i = 0; i < lh.length; ++i) {
+          hitBox = lh[i];
+
+          if (x >= hitBox.left && x <= hitBox.left + hitBox.width && y >= hitBox.top && y <= hitBox.top + hitBox.height) {
+            // Touching an element
+            return me.legendItems[i];
+          }
+        }
+      }
+
+      return null;
+    }
+    /**
+     * Handle an event
+     * @private
+     * @param {IEvent} event - The event to handle
+     */
+
+  }, {
+    key: "handleEvent",
+    value: function handleEvent(e) {
+      var me = this;
+      var opts = me.options;
+      var type = e.type === 'mouseup' ? 'click' : e.type;
+      var hoveredItem;
+
+      if (type === 'mousemove') {
+        if (!opts.onHover && !opts.onLeave) {
+          return;
+        }
+      } else if (type === 'click') {
+        if (!opts.onClick) {
+          return;
+        }
+      } else {
+        return;
+      } // Chart event already has relative position in it
+
+
+      hoveredItem = me._getLegendItemAt(e.x, e.y);
+
+      if (type === 'click') {
+        if (hoveredItem && opts.onClick) {
+          // use e.native for backwards compatibility
+          opts.onClick.call(me, e["native"], hoveredItem);
+        }
+      } else {
+        if (opts.onLeave && hoveredItem !== me._hoveredItem) {
+          if (me._hoveredItem) {
+            opts.onLeave.call(me, e["native"], me._hoveredItem);
+          }
+
+          me._hoveredItem = hoveredItem;
+        }
+
+        if (opts.onHover && hoveredItem) {
+          // use e.native for backwards compatibility
+          opts.onHover.call(me, e["native"], hoveredItem);
+        }
+      }
+    }
+  }]);
+
+  return Legend;
+}(core_element);
 
 function createNewLegendAndAttach(chart, legendOpts) {
   var legend = new Legend({
@@ -15165,8 +15572,6 @@ var plugin_legend = {
   }
 };
 
-var noop$1 = helpers$1.noop;
-
 core_defaults._set('global', {
   title: {
     display: false,
@@ -15184,155 +15589,198 @@ core_defaults._set('global', {
  */
 
 
-var Title = core_element.extend({
-  initialize: function initialize(config) {
-    var me = this;
-    helpers$1.extend(me, config); // Contains hit boxes for each dataset (in dataset order)
+var Title =
+/*#__PURE__*/
+function (_Element) {
+  _inherits(Title, _Element);
 
-    me.legendHitBoxes = [];
-  },
-  // These methods are ordered by lifecycle. Utilities then follow.
-  beforeUpdate: noop$1,
-  update: function update(maxWidth, maxHeight, margins) {
-    var me = this; // Update Lifecycle - Probably don't want to ever extend or overwrite this function ;)
+  function Title() {
+    _classCallCheck(this, Title);
 
-    me.beforeUpdate(); // Absorb the master measurements
-
-    me.maxWidth = maxWidth;
-    me.maxHeight = maxHeight;
-    me.margins = margins; // Dimensions
-
-    me.beforeSetDimensions();
-    me.setDimensions();
-    me.afterSetDimensions(); // Labels
-
-    me.beforeBuildLabels();
-    me.buildLabels();
-    me.afterBuildLabels(); // Fit
-
-    me.beforeFit();
-    me.fit();
-    me.afterFit(); //
-
-    me.afterUpdate();
-    return me.minSize;
-  },
-  afterUpdate: noop$1,
-  //
-  beforeSetDimensions: noop$1,
-  setDimensions: function setDimensions() {
-    var me = this; // Set the unconstrained dimension before label rotation
-
-    if (me.isHorizontal()) {
-      // Reset position before calculating rotation
-      me.width = me.maxWidth;
-      me.left = 0;
-      me.right = me.width;
-    } else {
-      me.height = me.maxHeight; // Reset position before calculating rotation
-
-      me.top = 0;
-      me.bottom = me.height;
-    } // Reset padding
-
-
-    me.paddingLeft = 0;
-    me.paddingTop = 0;
-    me.paddingRight = 0;
-    me.paddingBottom = 0; // Reset minSize
-
-    me.minSize = {
-      width: 0,
-      height: 0
-    };
-  },
-  afterSetDimensions: noop$1,
-  //
-  beforeBuildLabels: noop$1,
-  buildLabels: noop$1,
-  afterBuildLabels: noop$1,
-  //
-  beforeFit: noop$1,
-  fit: function fit() {
-    var me = this;
-    var opts = me.options;
-    var minSize = me.minSize = {};
-    var isHorizontal = me.isHorizontal();
-    var lineCount, textSize;
-
-    if (!opts.display) {
-      me.width = minSize.width = me.height = minSize.height = 0;
-      return;
-    }
-
-    lineCount = helpers$1.isArray(opts.text) ? opts.text.length : 1;
-    textSize = lineCount * helpers$1.options._parseFont(opts).lineHeight + opts.padding * 2;
-    me.width = minSize.width = isHorizontal ? me.maxWidth : textSize;
-    me.height = minSize.height = isHorizontal ? textSize : me.maxHeight;
-  },
-  afterFit: noop$1,
-  // Shared Methods
-  isHorizontal: function isHorizontal() {
-    var pos = this.options.position;
-    return pos === 'top' || pos === 'bottom';
-  },
-  // Actually draw the title block on the canvas
-  draw: function draw() {
-    var me = this;
-    var ctx = me.ctx;
-    var opts = me.options;
-
-    if (!opts.display) {
-      return;
-    }
-
-    var fontOpts = helpers$1.options._parseFont(opts);
-
-    var lineHeight = fontOpts.lineHeight;
-    var offset = lineHeight / 2 + opts.padding;
-    var rotation = 0;
-    var top = me.top;
-    var left = me.left;
-    var bottom = me.bottom;
-    var right = me.right;
-    var maxWidth, titleX, titleY;
-    ctx.fillStyle = helpers$1.valueOrDefault(opts.fontColor, core_defaults.global.defaultFontColor); // render in correct colour
-
-    ctx.font = fontOpts.string; // Horizontal
-
-    if (me.isHorizontal()) {
-      titleX = left + (right - left) / 2; // midpoint of the width
-
-      titleY = top + offset;
-      maxWidth = right - left;
-    } else {
-      titleX = opts.position === 'left' ? left + offset : right - offset;
-      titleY = top + (bottom - top) / 2;
-      maxWidth = bottom - top;
-      rotation = Math.PI * (opts.position === 'left' ? -0.5 : 0.5);
-    }
-
-    ctx.save();
-    ctx.translate(titleX, titleY);
-    ctx.rotate(rotation);
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    var text = opts.text;
-
-    if (helpers$1.isArray(text)) {
-      var y = 0;
-
-      for (var i = 0; i < text.length; ++i) {
-        ctx.fillText(text[i], 0, y, maxWidth);
-        y += lineHeight;
-      }
-    } else {
-      ctx.fillText(text, 0, 0, maxWidth);
-    }
-
-    ctx.restore();
+    return _possibleConstructorReturn(this, _getPrototypeOf(Title).apply(this, arguments));
   }
-});
+
+  _createClass(Title, [{
+    key: "initialize",
+    value: function initialize(config) {
+      var me = this;
+      helpers$1.extend(me, config); // Contains hit boxes for each dataset (in dataset order)
+
+      me.legendHitBoxes = [];
+    } // These methods are ordered by lifecycle. Utilities then follow.
+
+  }, {
+    key: "beforeUpdate",
+    value: function beforeUpdate() {}
+  }, {
+    key: "update",
+    value: function update(maxWidth, maxHeight, margins) {
+      var me = this; // Update Lifecycle - Probably don't want to ever extend or overwrite this function ;)
+
+      me.beforeUpdate(); // Absorb the master measurements
+
+      me.maxWidth = maxWidth;
+      me.maxHeight = maxHeight;
+      me.margins = margins; // Dimensions
+
+      me.beforeSetDimensions();
+      me.setDimensions();
+      me.afterSetDimensions(); // Labels
+
+      me.beforeBuildLabels();
+      me.buildLabels();
+      me.afterBuildLabels(); // Fit
+
+      me.beforeFit();
+      me.fit();
+      me.afterFit(); //
+
+      me.afterUpdate();
+      return me.minSize;
+    }
+  }, {
+    key: "afterUpdate",
+    value: function afterUpdate() {} //
+
+  }, {
+    key: "beforeSetDimensions",
+    value: function beforeSetDimensions() {}
+  }, {
+    key: "setDimensions",
+    value: function setDimensions() {
+      var me = this; // Set the unconstrained dimension before label rotation
+
+      if (me.isHorizontal()) {
+        // Reset position before calculating rotation
+        me.width = me.maxWidth;
+        me.left = 0;
+        me.right = me.width;
+      } else {
+        me.height = me.maxHeight; // Reset position before calculating rotation
+
+        me.top = 0;
+        me.bottom = me.height;
+      } // Reset padding
+
+
+      me.paddingLeft = 0;
+      me.paddingTop = 0;
+      me.paddingRight = 0;
+      me.paddingBottom = 0; // Reset minSize
+
+      me.minSize = {
+        width: 0,
+        height: 0
+      };
+    }
+  }, {
+    key: "afterSetDimensions",
+    value: function afterSetDimensions() {} //
+
+  }, {
+    key: "beforeBuildLabels",
+    value: function beforeBuildLabels() {}
+  }, {
+    key: "buildLabels",
+    value: function buildLabels() {}
+  }, {
+    key: "afterBuildLabels",
+    value: function afterBuildLabels() {} //
+
+  }, {
+    key: "beforeFit",
+    value: function beforeFit() {}
+  }, {
+    key: "fit",
+    value: function fit() {
+      var me = this;
+      var opts = me.options;
+      var minSize = me.minSize = {};
+      var isHorizontal = me.isHorizontal();
+      var lineCount, textSize;
+
+      if (!opts.display) {
+        me.width = minSize.width = me.height = minSize.height = 0;
+        return;
+      }
+
+      lineCount = helpers$1.isArray(opts.text) ? opts.text.length : 1;
+      textSize = lineCount * helpers$1.options._parseFont(opts).lineHeight + opts.padding * 2;
+      me.width = minSize.width = isHorizontal ? me.maxWidth : textSize;
+      me.height = minSize.height = isHorizontal ? textSize : me.maxHeight;
+    }
+  }, {
+    key: "afterFit",
+    value: function afterFit() {} // Shared Methods
+
+  }, {
+    key: "isHorizontal",
+    value: function isHorizontal() {
+      var pos = this.options.position;
+      return pos === 'top' || pos === 'bottom';
+    } // Actually draw the title block on the canvas
+
+  }, {
+    key: "draw",
+    value: function draw() {
+      var me = this;
+      var ctx = me.ctx;
+      var opts = me.options;
+
+      if (!opts.display) {
+        return;
+      }
+
+      var fontOpts = helpers$1.options._parseFont(opts);
+
+      var lineHeight = fontOpts.lineHeight;
+      var offset = lineHeight / 2 + opts.padding;
+      var rotation = 0;
+      var top = me.top;
+      var left = me.left;
+      var bottom = me.bottom;
+      var right = me.right;
+      var maxWidth, titleX, titleY;
+      ctx.fillStyle = helpers$1.valueOrDefault(opts.fontColor, core_defaults.global.defaultFontColor); // render in correct colour
+
+      ctx.font = fontOpts.string; // Horizontal
+
+      if (me.isHorizontal()) {
+        titleX = left + (right - left) / 2; // midpoint of the width
+
+        titleY = top + offset;
+        maxWidth = right - left;
+      } else {
+        titleX = opts.position === 'left' ? left + offset : right - offset;
+        titleY = top + (bottom - top) / 2;
+        maxWidth = bottom - top;
+        rotation = Math.PI * (opts.position === 'left' ? -0.5 : 0.5);
+      }
+
+      ctx.save();
+      ctx.translate(titleX, titleY);
+      ctx.rotate(rotation);
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      var text = opts.text;
+
+      if (helpers$1.isArray(text)) {
+        var y = 0;
+
+        for (var i = 0; i < text.length; ++i) {
+          ctx.fillText(text[i], 0, y, maxWidth);
+          y += lineHeight;
+        }
+      } else {
+        ctx.fillText(text, 0, 0, maxWidth);
+      }
+
+      ctx.restore();
+    }
+  }]);
+
+  return Title;
+}(core_element);
 
 function createNewTitleBlockAndAttach(chart, titleOpts) {
   var title = new Title({
