@@ -4265,7 +4265,7 @@ helpers$1.extend(DatasetController.prototype, {
   /**
    * @private
    */
-  _resolveDatasetElementOptions: function _resolveDatasetElementOptions(hover) {
+  _resolveDatasetElementOptions: function _resolveDatasetElementOptions(active) {
     var me = this;
     var chart = me.chart;
     var datasetOpts = me._config;
@@ -4278,12 +4278,12 @@ helpers$1.extend(DatasetController.prototype, {
       chart: chart,
       dataset: me.getDataset(),
       datasetIndex: me.index,
-      hover: hover
+      active: active
     };
 
     for (i = 0, ilen = elementOptions.length; i < ilen; ++i) {
       key = elementOptions[i];
-      readKey = hover ? 'hover' + key.charAt(0).toUpperCase() + key.slice(1) : key;
+      readKey = active ? 'hover' + key.charAt(0).toUpperCase() + key.slice(1) : key;
       values[key] = resolve([datasetOpts[readKey], options[readKey]], context);
     }
 
@@ -11583,7 +11583,7 @@ function (_Element) {
     key: "_getLabels",
     value: function _getLabels() {
       var data = this.chart.data;
-      return this.options.labels || (this.isHorizontal() ? data.xLabels : data.yLabels) || data.labels;
+      return this.options.labels || (this.isHorizontal() ? data.xLabels : data.yLabels) || data.labels || [];
     } // These methods are ordered by lifecyle. Utilities then follow.
     // Any function defined here is inherited by all scale types.
     // Any function can be extended by the scale type
