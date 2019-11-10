@@ -2368,6 +2368,31 @@ var helpers = {
   },
 
   /**
+   * Returns true if the `a0` and `a1` arrays have the same content, else returns false.
+   * @param {Array} a0 - The array to compare
+   * @param {Array} a1 - The array to compare
+   * @returns {boolean}
+   */
+  _elementsEqual: function _elementsEqual(a0, a1) {
+    var i, ilen, v0, v1;
+
+    if (!a0 || !a1 || a0.length !== a1.length) {
+      return false;
+    }
+
+    for (i = 0, ilen = a0.length; i < ilen; ++i) {
+      v0 = a0[i];
+      v1 = a1[i];
+
+      if (v0.datasetIndex !== v1.datasetIndex || v0.index !== v1.index) {
+        return false;
+      }
+    }
+
+    return true;
+  },
+
+  /**
    * Returns a deep copy of `source` without keeping references on objects and arrays.
    * @param {*} source - The value to clone.
    * @returns {*}
@@ -3347,15 +3372,14 @@ function () {
   function Element(configuration) {
     _classCallCheck(this, Element);
 
-    helpers$1.extend(this, configuration);
+    helpers$1.extend(this, configuration); // this.hidden = false; we assume Element has an attribute called hidden, but do not initialize to save memory
+
     this.initialize.apply(this, arguments);
   }
 
   _createClass(Element, [{
     key: "initialize",
-    value: function initialize() {
-      this.hidden = false;
-    }
+    value: function initialize() {}
   }, {
     key: "pivot",
     value: function pivot(animationsDisabled) {
@@ -4348,9 +4372,8 @@ helpers$1.extend(DatasetController.prototype, {
     helpers$1.merge(element._model, element.$previousStyle || {});
     delete element.$previousStyle;
   },
-  setHoverStyle: function setHoverStyle(element) {
-    var dataset = this.chart.data.datasets[element._datasetIndex];
-    var index = element._index;
+  setHoverStyle: function setHoverStyle(element, datasetIndex, index) {
+    var dataset = this.chart.data.datasets[datasetIndex];
     var model = element._model;
     var getHoverColor = helpers$1.getHoverColor;
     element.$previousStyle = {
@@ -5352,8 +5375,6 @@ var controller_bar = core_datasetController.extend({
 
     var options = me._resolveDataElementOptions(index);
 
-    rectangle._datasetIndex = me.index;
-    rectangle._index = index;
     rectangle._model = {
       backgroundColor: options.backgroundColor,
       borderColor: options.borderColor,
@@ -5662,8 +5683,6 @@ var controller_bubble = core_datasetController.extend({
     var x = reset ? xScale.getPixelForDecimal(0.5) : xScale.getPixelForValue(parsed[xScale.id]);
     var y = reset ? yScale.getBasePixel() : yScale.getPixelForValue(parsed[yScale.id]);
     point._options = options;
-    point._datasetIndex = me.index;
-    point._index = index;
     point._model = {
       backgroundColor: options.backgroundColor,
       borderColor: options.borderColor,
@@ -5944,9 +5963,6 @@ var controller_doughnut = core_datasetController.extend({
     var outerRadius = reset && animationOpts.animateScale ? 0 : me.outerRadius;
     var options = arc._options || {};
     helpers$1.extend(arc, {
-      // Utility
-      _datasetIndex: me.index,
-      _index: index,
       // Desired view properties
       _model: {
         backgroundColor: options.backgroundColor,
@@ -6215,9 +6231,7 @@ var controller_line = core_datasetController.extend({
     me._yScale = me.getScaleForId(meta.yAxisID); // Update Line
 
     if (showLine) {
-      // Utility
-      line._datasetIndex = me.index; // Data
-
+      // Data
       line._children = points; // Model
 
       line._model = me._resolveDatasetElementOptions();
@@ -6241,7 +6255,6 @@ var controller_line = core_datasetController.extend({
   updateElement: function updateElement(point, index, reset) {
     var me = this;
     var meta = me.getMeta();
-    var datasetIndex = me.index;
     var xScale = me._xScale;
     var yScale = me._yScale;
     var lineModel = meta.dataset._model;
@@ -6254,9 +6267,7 @@ var controller_line = core_datasetController.extend({
     var x = xScale.getPixelForValue(parsed[xScale.id]);
     var y = reset ? yScale.getBasePixel() : yScale.getPixelForValue(stacked ? me._applyStack(yScale, parsed) : parsed[yScale.id]); // Utility
 
-    point._options = options;
-    point._datasetIndex = datasetIndex;
-    point._index = index; // Desired view properties
+    point._options = options; // Desired view properties
 
     point._model = {
       x: x,
@@ -6569,9 +6580,6 @@ var controller_polarArea = core_datasetController.extend({
     var resetRadius = animationOpts.animateScale ? 0 : scale.getDistanceFromCenterForValue(dataset.data[index]);
     var options = arc._options || {};
     helpers$1.extend(arc, {
-      // Utility
-      _datasetIndex: me.index,
-      _index: index,
       // Desired view properties
       _model: {
         backgroundColor: options.backgroundColor,
@@ -6716,10 +6724,8 @@ var controller_radar = core_datasetController.extend({
 
     if (config.tension !== undefined && config.lineTension === undefined) {
       config.lineTension = config.tension;
-    } // Utility
+    } // Data
 
-
-    line._datasetIndex = me.index; // Data
 
     line._children = points;
     line._loop = true; // Model
@@ -6751,9 +6757,7 @@ var controller_radar = core_datasetController.extend({
     var x = reset ? scale.xCenter : pointPosition.x;
     var y = reset ? scale.yCenter : pointPosition.y; // Utility
 
-    point._options = options;
-    point._datasetIndex = me.index;
-    point._index = index; // Desired view properties
+    point._options = options; // Desired view properties
 
     point._model = {
       x: x,
@@ -6922,7 +6926,7 @@ function parseVisibleItems(chart, handler) {
       element = metadata[j];
 
       if (!element._view.skip) {
-        handler(element);
+        handler(element, i, j);
       }
     }
   }
@@ -6937,9 +6941,13 @@ function parseVisibleItems(chart, handler) {
 
 function getIntersectItems(chart, position) {
   var elements = [];
-  parseVisibleItems(chart, function (element) {
+  parseVisibleItems(chart, function (element, datasetIndex, index) {
     if (element.inRange(position.x, position.y)) {
-      elements.push(element);
+      elements.push({
+        element: element,
+        datasetIndex: datasetIndex,
+        index: index
+      });
     }
   });
   return elements;
@@ -6957,7 +6965,7 @@ function getIntersectItems(chart, position) {
 function getNearestItems(chart, position, intersect, distanceMetric) {
   var minDistance = Number.POSITIVE_INFINITY;
   var nearestItems = [];
-  parseVisibleItems(chart, function (element) {
+  parseVisibleItems(chart, function (element, datasetIndex, index) {
     if (intersect && !element.inRange(position.x, position.y)) {
       return;
     }
@@ -6966,11 +6974,19 @@ function getNearestItems(chart, position, intersect, distanceMetric) {
     var distance = distanceMetric(position, center);
 
     if (distance < minDistance) {
-      nearestItems = [element];
+      nearestItems = [{
+        element: element,
+        datasetIndex: datasetIndex,
+        index: index
+      }];
       minDistance = distance;
     } else if (distance === minDistance) {
       // Can have multiple items at the same distance in which case we sort by size
-      nearestItems.push(element);
+      nearestItems.push({
+        element: element,
+        datasetIndex: datasetIndex,
+        index: index
+      });
     }
   });
   return nearestItems;
@@ -7005,10 +7021,15 @@ function indexMode(chart, e, options) {
   }
 
   chart._getSortedVisibleDatasetMetas().forEach(function (meta) {
-    var element = meta.data[items[0]._index]; // don't count items that are skipped (null data)
+    var index = items[0].index;
+    var element = meta.data[index]; // don't count items that are skipped (null data)
 
     if (element && !element._view.skip) {
-      elements.push(element);
+      elements.push({
+        element: element,
+        datasetIndex: meta.index,
+        index: index
+      });
     }
   });
 
@@ -7041,7 +7062,7 @@ var core_interaction = {
      * @param {Chart} chart - the chart we are returning items from
      * @param {Event} e - the event we are find things at
      * @param {IInteractionOptions} options - options to use during interaction
-     * @return {Chart.Element[]} Array of elements that are under the point. If none are found, an empty array is returned
+     * @return {Object[]} Array of elements that are under the point. If none are found, an empty array is returned
      */
     index: indexMode,
 
@@ -7052,7 +7073,7 @@ var core_interaction = {
      * @param {Chart} chart - the chart we are returning items from
      * @param {Event} e - the event we are find things at
      * @param {IInteractionOptions} options - options to use during interaction
-     * @return {Chart.Element[]} Array of elements that are under the point. If none are found, an empty array is returned
+     * @return {Object[]} Array of elements that are under the point. If none are found, an empty array is returned
      */
     dataset: function dataset(chart, e, options) {
       var position = getRelativePosition(e, chart);
@@ -7061,7 +7082,9 @@ var core_interaction = {
       var items = options.intersect ? getIntersectItems(chart, position) : getNearestItems(chart, position, false, distanceMetric);
 
       if (items.length > 0) {
-        items = chart.getDatasetMeta(items[0]._datasetIndex).data;
+        items = [{
+          datasetIndex: items[0].datasetIndex
+        }]; // when mode: 'dataset' we only need to return datasetIndex
       }
 
       return items;
@@ -7073,7 +7096,7 @@ var core_interaction = {
      * @function Chart.Interaction.modes.intersect
      * @param {Chart} chart - the chart we are returning items from
      * @param {Event} e - the event we are find things at
-     * @return {Chart.Element[]} Array of elements that are under the point. If none are found, an empty array is returned
+     * @return {Object[]} Array of elements that are under the point. If none are found, an empty array is returned
      */
     point: function point(chart, e) {
       var position = getRelativePosition(e, chart);
@@ -7086,7 +7109,7 @@ var core_interaction = {
      * @param {Chart} chart - the chart we are returning items from
      * @param {Event} e - the event we are find things at
      * @param {IInteractionOptions} options - options to use
-     * @return {Chart.Element[]} Array of elements that are under the point. If none are found, an empty array is returned
+     * @return {Object[]} Array of elements that are under the point. If none are found, an empty array is returned
      */
     nearest: function nearest(chart, e, options) {
       var position = getRelativePosition(e, chart);
@@ -7101,15 +7124,19 @@ var core_interaction = {
      * @param {Chart} chart - the chart we are returning items from
      * @param {Event} e - the event we are find things at
      * @param {IInteractionOptions} options - options to use
-     * @return {Chart.Element[]} Array of elements that are under the point. If none are found, an empty array is returned
+     * @return {Object[]} Array of elements that are under the point. If none are found, an empty array is returned
      */
     x: function x(chart, e, options) {
       var position = getRelativePosition(e, chart);
       var items = [];
       var intersectsItem = false;
-      parseVisibleItems(chart, function (element) {
+      parseVisibleItems(chart, function (element, datasetIndex, index) {
         if (element.inXRange(position.x)) {
-          items.push(element);
+          items.push({
+            element: element,
+            datasetIndex: datasetIndex,
+            index: index
+          });
         }
 
         if (element.inRange(position.x, position.y)) {
@@ -7131,15 +7158,19 @@ var core_interaction = {
      * @param {Chart} chart - the chart we are returning items from
      * @param {Event} e - the event we are find things at
      * @param {IInteractionOptions} options - options to use
-     * @return {Chart.Element[]} Array of elements that are under the point. If none are found, an empty array is returned
+     * @return {Object[]} Array of elements that are under the point. If none are found, an empty array is returned
      */
     y: function y(chart, e, options) {
       var position = getRelativePosition(e, chart);
       var items = [];
       var intersectsItem = false;
-      parseVisibleItems(chart, function (element) {
+      parseVisibleItems(chart, function (element, datasetIndex, index) {
         if (element.inYRange(position.y)) {
-          items.push(element);
+          items.push({
+            element: element,
+            datasetIndex: datasetIndex,
+            index: index
+          });
         }
 
         if (element.inRange(position.x, position.y)) {
@@ -8367,7 +8398,7 @@ var positioners = {
     var count = 0;
 
     for (i = 0, len = elements.length; i < len; ++i) {
-      var el = elements[i];
+      var el = elements[i].element;
 
       if (el && el.hasValue()) {
         var pos = el.tooltipPosition();
@@ -8397,7 +8428,7 @@ var positioners = {
     var i, len, nearestElement;
 
     for (i = 0, len = elements.length; i < len; ++i) {
-      var el = elements[i];
+      var el = elements[i].element;
 
       if (el && el.hasValue()) {
         var center = el.getCenterPoint();
@@ -8452,14 +8483,15 @@ function splitNewlines(str) {
 }
 /**
  * Private helper to create a tooltip item model
- * @param element - the chart element (point, arc, bar) to create the tooltip item for
+ * @param item - the chart element (point, arc, bar) to create the tooltip item for
  * @return new tooltip item
  */
 
 
-function createTooltipItem(chart, element) {
-  var datasetIndex = element._datasetIndex;
-  var index = element._index;
+function createTooltipItem(chart, item) {
+  var datasetIndex = item.datasetIndex,
+      element = item.element,
+      index = item.index;
   var controller = chart.getDatasetMeta(datasetIndex).controller;
 
   var indexScale = controller._getIndexScale();
@@ -9260,7 +9292,7 @@ function (_Element) {
       } // Remember Last Actives
 
 
-      changed = !helpers$1.arrayEquals(me._active, me._lastActive); // Only handle target event on tooltip change
+      changed = !helpers$1._elementsEqual(me._active, me._lastActive); // Only handle target event on tooltip change
 
       if (changed) {
         me._lastActive = me._active;
@@ -10214,20 +10246,27 @@ helpers$1.extend(Chart.prototype,
       platform.removeEventListener(me, type, listener);
     });
   },
-  updateHoverStyle: function updateHoverStyle(elements, mode, enabled) {
+  updateHoverStyle: function updateHoverStyle(items, mode, enabled) {
     var prefix = enabled ? 'set' : 'remove';
-    var element, i, ilen;
-
-    for (i = 0, ilen = elements.length; i < ilen; ++i) {
-      element = elements[i];
-
-      if (element) {
-        this.getDatasetMeta(element._datasetIndex).controller[prefix + 'HoverStyle'](element);
-      }
-    }
+    var meta, item, i, ilen;
 
     if (mode === 'dataset') {
-      this.getDatasetMeta(elements[0]._datasetIndex).controller['_' + prefix + 'DatasetHoverStyle']();
+      meta = this.getDatasetMeta(items[0].datasetIndex);
+      meta.controller['_' + prefix + 'DatasetHoverStyle']();
+
+      for (i = 0, ilen = meta.data.length; i < ilen; ++i) {
+        meta.controller[prefix + 'HoverStyle'](meta.data[i], items[0].datasetIndex, i);
+      }
+
+      return;
+    }
+
+    for (i = 0, ilen = items.length; i < ilen; ++i) {
+      item = items[i];
+
+      if (item) {
+        this.getDatasetMeta(item.datasetIndex).controller[prefix + 'HoverStyle'](item.element, item.datasetIndex, item.index);
+      }
     }
   },
 
@@ -10328,7 +10367,7 @@ helpers$1.extend(Chart.prototype,
 
     me._updateHoverStyles();
 
-    changed = !helpers$1.arrayEquals(me.active, me.lastActive); // Remember Last Actives
+    changed = !helpers$1._elementsEqual(me.active, me.lastActive); // Remember Last Actives
 
     me.lastActive = me.active;
     return changed;
