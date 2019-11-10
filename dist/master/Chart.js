@@ -14207,7 +14207,9 @@ function getTimestampsForTicks(scale) {
   var min = scale.min;
   var max = scale.max;
   var options = scale.options;
-  var capacity = scale.getLabelCapacity(min);
+
+  var capacity = scale._getLabelCapacity(min);
+
   var source = options.ticks.source;
   var timestamps;
 
@@ -14383,7 +14385,7 @@ var scale_time = core_scale.extend({
     // determineUnitForFormatting relies on the number of ticks so we don't use it when
     // autoSkip is enabled because we don't yet know what the final number of ticks will be
 
-    me._unit = timeOpts.unit || (tickOpts.autoSkip ? determineUnitForAutoTicks(timeOpts.minUnit, me.min, me.max, me.getLabelCapacity(min)) : determineUnitForFormatting(me, ticks.length, timeOpts.minUnit, me.min, me.max));
+    me._unit = timeOpts.unit || (tickOpts.autoSkip ? determineUnitForAutoTicks(timeOpts.minUnit, me.min, me.max, me._getLabelCapacity(min)) : determineUnitForFormatting(me, ticks.length, timeOpts.minUnit, me.min, me.max));
     me._majorUnit = !tickOpts.major.enabled || me._unit === 'year' ? undefined : determineMajorUnit(me._unit);
     me._table = buildLookupTable(getAllTimestamps(me), min, max, distribution);
     me._offsets = computeOffsets(me._table, ticks, min, max, options);
@@ -14410,7 +14412,7 @@ var scale_time = core_scale.extend({
    * Function to format an individual tick mark
    * @private
    */
-  tickFormatFunction: function tickFormatFunction(time, index, ticks, format) {
+  _tickFormatFunction: function _tickFormatFunction(time, index, ticks, format) {
     var me = this;
     var adapter = me._adapter;
     var options = me.options;
@@ -14431,14 +14433,14 @@ var scale_time = core_scale.extend({
 
     for (i = 0, ilen = ticks.length; i < ilen; ++i) {
       tick = ticks[i];
-      tick.label = this.tickFormatFunction(tick.value, i, ticks);
+      tick.label = this._tickFormatFunction(tick.value, i, ticks);
     }
   },
 
   /**
    * @private
    */
-  getPixelForOffset: function getPixelForOffset(time) {
+  _getPixelForOffset: function _getPixelForOffset(time) {
     var me = this;
     var offsets = me._offsets;
     var pos = interpolate$1(me._table, 'time', time, 'pos');
@@ -14452,12 +14454,12 @@ var scale_time = core_scale.extend({
     }
 
     if (value !== null) {
-      return me.getPixelForOffset(value);
+      return me._getPixelForOffset(value);
     }
   },
   getPixelForTick: function getPixelForTick(index) {
     var ticks = this.getTicks();
-    return index >= 0 && index < ticks.length ? this.getPixelForOffset(ticks[index].value) : null;
+    return index >= 0 && index < ticks.length ? this._getPixelForOffset(ticks[index].value) : null;
   },
   getValueForPixel: function getValueForPixel(pixel) {
     var me = this;
@@ -14484,23 +14486,16 @@ var scale_time = core_scale.extend({
   },
 
   /**
-   * Crude approximation of what the label width might be
    * @private
    */
-  getLabelWidth: function getLabelWidth(label) {
-    return this._getLabelSize(label).w;
-  },
-
-  /**
-   * @private
-   */
-  getLabelCapacity: function getLabelCapacity(exampleTime) {
+  _getLabelCapacity: function _getLabelCapacity(exampleTime) {
     var me = this;
     var timeOpts = me.options.time;
     var displayFormats = timeOpts.displayFormats; // pick the longest format (milliseconds) for guestimation
 
     var format = displayFormats[timeOpts.unit] || displayFormats.millisecond;
-    var exampleLabel = me.tickFormatFunction(exampleTime, 0, ticksFromTimestamps(me, [exampleTime], me._majorUnit), format);
+
+    var exampleLabel = me._tickFormatFunction(exampleTime, 0, ticksFromTimestamps(me, [exampleTime], me._majorUnit), format);
 
     var size = me._getLabelSize(exampleLabel);
 
