@@ -3358,8 +3358,13 @@ function () {
     }
   }, {
     key: "pivot",
-    value: function pivot() {
+    value: function pivot(animationsDisabled) {
       var me = this;
+
+      if (animationsDisabled) {
+        me._view = me._model;
+        return me;
+      }
 
       if (!me._view) {
         me._view = helpers$1.extend({}, me._model);
@@ -5362,7 +5367,7 @@ var controller_bar = core_datasetController.extend({
 
     me._updateElementGeometry(rectangle, index, reset, options);
 
-    rectangle.pivot();
+    rectangle.pivot(me.chart._animationsDisabled);
   },
 
   /**
@@ -5671,7 +5676,7 @@ var controller_bubble = core_datasetController.extend({
       x: x,
       y: y
     };
-    point.pivot();
+    point.pivot(me.chart._animationsDisabled);
   },
 
   /**
@@ -5969,7 +5974,7 @@ var controller_doughnut = core_datasetController.extend({
       model.endAngle = model.startAngle + model.circumference;
     }
 
-    arc.pivot();
+    arc.pivot(chart._animationsDisabled);
   },
   calculateTotal: function calculateTotal() {
     var metaData = this.getMeta().data;
@@ -6230,7 +6235,7 @@ var controller_line = core_datasetController.extend({
 
 
     for (i = 0, ilen = points.length; i < ilen; ++i) {
-      points[i].pivot();
+      points[i].pivot(me.chart._animationsDisabled);
     }
   },
   updateElement: function updateElement(point, index, reset) {
@@ -6581,7 +6586,7 @@ var controller_polarArea = core_datasetController.extend({
         endAngle: reset && animationOpts.animateRotate ? datasetStartAngle : endAngle
       }
     });
-    arc.pivot();
+    arc.pivot(chart._animationsDisabled);
   },
   countVisibleElements: function countVisibleElements() {
     var dataset = this.getDataset();
@@ -6706,6 +6711,7 @@ var controller_radar = core_datasetController.extend({
     var line = meta.dataset;
     var points = meta.data || [];
     var config = me._config;
+    var animationsDisabled = me.chart._animationsDisabled;
     var i, ilen; // Compatibility: If the properties are defined with only the old name, use those values
 
     if (config.tension !== undefined && config.lineTension === undefined) {
@@ -6719,7 +6725,7 @@ var controller_radar = core_datasetController.extend({
     line._loop = true; // Model
 
     line._model = me._resolveDatasetElementOptions();
-    line.pivot(); // Update Points
+    line.pivot(animationsDisabled); // Update Points
 
     for (i = 0, ilen = points.length; i < ilen; ++i) {
       me.updateElement(points[i], i, reset);
@@ -6729,7 +6735,7 @@ var controller_radar = core_datasetController.extend({
     me.updateBezierControlPoints(); // Now pivot the point for animation
 
     for (i = 0, ilen = points.length; i < ilen; ++i) {
-      points[i].pivot();
+      points[i].pivot(animationsDisabled);
     }
   },
   updateElement: function updateElement(point, index, reset) {
@@ -9381,6 +9387,10 @@ function initConfig(config) {
   return config;
 }
 
+function isAnimationDisabled(config) {
+  return !config.animation || !(config.animation.duration || config.hover && config.hover.animationDuration || config.responsiveAnimationDuration);
+}
+
 function updateConfig(chart) {
   var newOptions = chart.options;
   helpers$1.each(chart.scales, function (scale) {
@@ -9388,6 +9398,7 @@ function updateConfig(chart) {
   });
   newOptions = mergeConfig(core_defaults.global, core_defaults[chart.config.type], newOptions);
   chart.options = chart.config.options = newOptions;
+  chart._animationsDisabled = isAnimationDisabled(newOptions);
   chart.ensureScalesHaveIDs();
   chart.buildOrUpdateScales(); // Tooltip
 
@@ -9927,9 +9938,11 @@ helpers$1.extend(Chart.prototype,
     var me = this;
     var i, ilen;
 
-    for (i = 0, ilen = (me.data.datasets || []).length; i < ilen; ++i) {
-      if (me.isDatasetVisible(i)) {
-        me.getDatasetMeta(i).controller.transition(easingValue);
+    if (!me._animationsDisabled) {
+      for (i = 0, ilen = (me.data.datasets || []).length; i < ilen; ++i) {
+        if (me.isDatasetVisible(i)) {
+          me.getDatasetMeta(i).controller.transition(easingValue);
+        }
       }
     }
 
