@@ -997,6 +997,13 @@ the color of the bars is generally set this way.</p>
 <td><code>0</code></td>
 </tr>
 <tr>
+<td><a href="#general"><code>clip</code></a></td>
+<td><code>number|object</code></td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">-</td>
+<td><code>undefined</code></td>
+</tr>
+<tr>
 <td><a href="#data-structure"><code>data</code></a></td>
 <td><code>object[]</code></td>
 <td style="text-align:center">-</td>
@@ -1064,6 +1071,10 @@ the color of the bars is generally set this way.</p>
 </thead>
 <tbody>
 <tr>
+<td><code>clip</code></td>
+<td>How to clip relative to chartArea. Positive value allows overflow, negative value clips that many pixels inside chartArea. <code>0</code> = clip at chartArea. Clipping can also be configured per side: <code>clip: {left: 5, top: false, right: -2, bottom: 0}</code></td>
+</tr>
+<tr>
 <td><code>label</code></td>
 <td>The label for the dataset which appears in the legend and tooltips.</td>
 </tr>
@@ -1106,6 +1117,10 @@ the color of the bars is generally set this way.</p>
 <tr>
 <td><a href="#borderwidth"><code>borderWidth</code></a></td>
 <td>The bar border width (in pixels).</td>
+</tr>
+<tr>
+<td><code>clip</code></td>
+<td>How to clip relative to chartArea. Positive value allows overflow, negative value clips that many pixels inside chartArea. <code>0</code> = clip at chartArea. Clipping can also be configured per side: <code>clip: {left: 5, top: false, right: -2, bottom: 0}</code></td>
 </tr>
 </tbody>
 </table>
@@ -1370,7 +1385,7 @@ Sample:     |==============|
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Bar","level":"1.6.2","depth":2,"next":{"title":"Radar","level":"1.6.3","depth":2,"path":"charts/radar.md","ref":"charts/radar.md","articles":[]},"previous":{"title":"Line","level":"1.6.1","depth":2,"path":"charts/line.md","ref":"charts/line.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga","redirect"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"chartjs":{"defaults":null},"fontsettings":{"theme":"white","family":"sans","size":2},"highlight":{},"ga":{"configuration":"auto","token":"UA-28909194-3"},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"redirect":{},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"anchorjs":{"icon":"#","placement":"left","visible":"always"},"search-plus":{}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"charts/bar.md","mtime":"2019-11-10T12:53:22.804Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2019-11-10T12:57:11.787Z"},"basePath":"..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Bar","level":"1.6.2","depth":2,"next":{"title":"Radar","level":"1.6.3","depth":2,"path":"charts/radar.md","ref":"charts/radar.md","articles":[]},"previous":{"title":"Line","level":"1.6.1","depth":2,"path":"charts/line.md","ref":"charts/line.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga","redirect"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"chartjs":{"defaults":null},"fontsettings":{"theme":"white","family":"sans","size":2},"highlight":{},"ga":{"configuration":"auto","token":"UA-28909194-3"},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"redirect":{},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"anchorjs":{"icon":"#","placement":"left","visible":"always"},"search-plus":{}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"charts/bar.md","mtime":"2019-11-10T22:42:13.130Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2019-11-10T22:46:05.780Z"},"basePath":"..","book":{"language":""}});
         });
     </script>
 </div>

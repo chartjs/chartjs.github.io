@@ -3630,6 +3630,52 @@ function listenArrayEvents(array, listener) {
     });
   });
 }
+
+function scaleClip(scale, allowedOverflow) {
+  var tickOpts = scale && scale.options.ticks || {};
+  var reverse = tickOpts.reverse;
+  var min = tickOpts.min === undefined ? allowedOverflow : 0;
+  var max = tickOpts.max === undefined ? allowedOverflow : 0;
+  return {
+    start: reverse ? max : min,
+    end: reverse ? min : max
+  };
+}
+
+function defaultClip(xScale, yScale, allowedOverflow) {
+  if (allowedOverflow === false) {
+    return false;
+  }
+
+  var x = scaleClip(xScale, allowedOverflow);
+  var y = scaleClip(yScale, allowedOverflow);
+  return {
+    top: y.end,
+    right: x.end,
+    bottom: y.start,
+    left: x.start
+  };
+}
+
+function toClip(value) {
+  var t, r, b, l;
+
+  if (helpers$1.isObject(value)) {
+    t = value.top;
+    r = value.right;
+    b = value.bottom;
+    l = value.left;
+  } else {
+    t = r = b = l = value;
+  }
+
+  return {
+    top: t,
+    right: r,
+    bottom: b,
+    left: l
+  };
+}
 /**
  * Removes the given array event listener and cleanup extra attached properties (such as
  * the _chartjs stub and overridden methods) if array doesn't have any more listeners.
@@ -4140,6 +4186,10 @@ helpers$1.extend(DatasetController.prototype, {
     };
     return applyStack(stack, value, meta.index);
   },
+
+  /**
+   * @private
+   */
   _getMinMax: function _getMinMax(scale, canStack) {
     var chart = this.chart;
     var meta = this._cachedMeta;
@@ -4183,6 +4233,10 @@ helpers$1.extend(DatasetController.prototype, {
       minPositive: minPositive
     };
   },
+
+  /**
+   * @private
+   */
   _getAllParsedValues: function _getAllParsedValues(scale) {
     var meta = this._cachedMeta;
     var metaData = meta.data;
@@ -4199,6 +4253,10 @@ helpers$1.extend(DatasetController.prototype, {
 
     return values;
   },
+
+  /**
+   * @private
+   */
   _cacheScaleStackStatus: function _cacheScaleStackStatus() {
     var me = this;
 
@@ -4213,6 +4271,10 @@ helpers$1.extend(DatasetController.prototype, {
       cache[valueScale.id] = valueScale.options.stacked;
     }
   },
+
+  /**
+   * @private
+   */
   _scaleCheck: function _scaleCheck() {
     var me = this;
 
@@ -4223,6 +4285,13 @@ helpers$1.extend(DatasetController.prototype, {
     var cache = me._scaleStacked;
     return !cache || !indexScale || !valueScale || cache[indexScale.id] !== indexScale.options.stacked || cache[valueScale.id] !== valueScale.options.stacked;
   },
+
+  /**
+   * @private
+   */
+  _getMaxOverflow: function _getMaxOverflow() {
+    return false;
+  },
   _update: function _update(reset) {
     var me = this;
 
@@ -4230,6 +4299,7 @@ helpers$1.extend(DatasetController.prototype, {
 
     me._cachedDataOpts = null;
     me.update(reset);
+    me._cachedMeta._clip = toClip(helpers$1.valueOrDefault(me._config.clip, defaultClip(me._xScale, me._yScale, me._getMaxOverflow())));
 
     me._cacheScaleStackStatus();
   },
@@ -4890,6 +4960,14 @@ function (_Element) {
         x: vm.x,
         y: vm.y
       };
+    }
+  }, {
+    key: "size",
+    value: function size() {
+      var vm = this._view;
+      var radius = vm.radius || 0;
+      var borderWidth = vm.borderWidth || 0;
+      return (radius + borderWidth) * 2;
     }
   }, {
     key: "tooltipPosition",
@@ -5655,6 +5733,23 @@ var controller_bubble = core_datasetController.extend({
   },
 
   /**
+   * @private
+   */
+  _getMaxOverflow: function _getMaxOverflow() {
+    var me = this;
+    var meta = me._cachedMeta;
+    var data = meta.data || [];
+
+    if (!data.length) {
+      return false;
+    }
+
+    var firstPoint = data[0].size();
+    var lastPoint = data[data.length - 1].size();
+    return Math.max(firstPoint, lastPoint) / 2;
+  },
+
+  /**
    * @protected
    */
   update: function update(reset) {
@@ -6306,6 +6401,24 @@ var controller_line = core_datasetController.extend({
     values.steppedLine = resolve$2([config.steppedLine, lineOptions.stepped]);
     return values;
   },
+
+  /**
+   * @private
+   */
+  _getMaxOverflow: function _getMaxOverflow() {
+    var me = this;
+    var meta = me._cachedMeta;
+    var data = meta.data || [];
+
+    if (!data.length) {
+      return false;
+    }
+
+    var border = me._showLine ? meta.dataset._model.borderWidth : 0;
+    var firstPoint = data[0].size();
+    var lastPoint = data[data.length - 1].size();
+    return Math.max(border, firstPoint, lastPoint) / 2;
+  },
   updateBezierControlPoints: function updateBezierControlPoints() {
     var me = this;
     var chart = me.chart;
@@ -6364,18 +6477,9 @@ var controller_line = core_datasetController.extend({
     var area = chart.chartArea;
     var i = 0;
     var ilen = points.length;
-    var halfBorderWidth;
 
     if (me._showLine) {
-      halfBorderWidth = (meta.dataset._model.borderWidth || 0) / 2;
-      helpers$1.canvas.clipArea(chart.ctx, {
-        left: area.left - halfBorderWidth,
-        right: area.right + halfBorderWidth,
-        top: area.top - halfBorderWidth,
-        bottom: area.bottom + halfBorderWidth
-      });
       meta.dataset.draw();
-      helpers$1.canvas.unclipArea(chart.ctx);
     } // Draw the points
 
 
@@ -10041,6 +10145,10 @@ helpers$1.extend(Chart.prototype,
    */
   drawDataset: function drawDataset(meta, easingValue) {
     var me = this;
+    var ctx = me.ctx;
+    var clip = meta._clip;
+    var canvas = me.canvas;
+    var area = me.chartArea;
     var args = {
       meta: meta,
       index: meta.index,
@@ -10051,7 +10159,14 @@ helpers$1.extend(Chart.prototype,
       return;
     }
 
+    helpers$1.canvas.clipArea(ctx, {
+      left: clip.left === false ? 0 : area.left - clip.left,
+      right: clip.right === false ? canvas.width : area.right + clip.right,
+      top: clip.top === false ? 0 : area.top - clip.top,
+      bottom: clip.bottom === false ? canvas.height : area.bottom + clip.bottom
+    });
     meta.controller.draw(easingValue);
+    helpers$1.canvas.unclipArea(ctx);
     core_plugins.notify(me, 'afterDatasetDraw', [args]);
   },
 
