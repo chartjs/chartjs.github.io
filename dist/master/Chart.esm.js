@@ -4813,10 +4813,7 @@ function (_Element) {
       var vm = me._view;
       var ctx = me._ctx;
       var spanGaps = vm.spanGaps;
-
-      var points = me._children.slice(); // clone array
-
-
+      var points = me._children;
       var globalDefaults = core_defaults.global;
       var globalOptionLineElements = globalDefaults.elements.line;
       var lastDrawnIndex = -1;
@@ -4828,6 +4825,8 @@ function (_Element) {
       }
 
       if (me._loop) {
+        points = points.slice(); // clone array
+
         for (index = 0; index < points.length; ++index) {
           previous = helpers$1.previousItem(points, index); // If the line has an open path, shift the point array
 
@@ -4898,7 +4897,6 @@ function (_Element) {
 Line.prototype._type = 'line';
 var element_line = Line;
 
-var valueOrDefault$2 = helpers$1.valueOrDefault;
 var defaultColor$1 = core_defaults.global.defaultColor;
 
 core_defaults._set('global', {
@@ -4983,18 +4981,16 @@ function (_Element) {
       var radius = vm.radius;
       var x = vm.x;
       var y = vm.y;
-      var globalDefaults = core_defaults.global;
-      var defaultColor = globalDefaults.defaultColor; // eslint-disable-line no-shadow
 
-      if (vm.skip) {
+      if (vm.skip || radius <= 0) {
         return;
       } // Clipping for Points.
 
 
       if (chartArea === undefined || helpers$1.canvas._isPointInArea(vm, chartArea)) {
-        ctx.strokeStyle = vm.borderColor || defaultColor;
-        ctx.lineWidth = valueOrDefault$2(vm.borderWidth, globalDefaults.elements.point.borderWidth);
-        ctx.fillStyle = vm.backgroundColor || defaultColor;
+        ctx.strokeStyle = vm.borderColor;
+        ctx.lineWidth = vm.borderWidth;
+        ctx.fillStyle = vm.backgroundColor;
         helpers$1.canvas.drawPoint(ctx, pointStyle, radius, x, y, rotation);
       }
     }
@@ -5225,7 +5221,7 @@ elements.Line = Line$1;
 elements.Point = Point$1;
 elements.Rectangle = Rectangle$1;
 
-var valueOrDefault$3 = helpers$1.valueOrDefault;
+var valueOrDefault$2 = helpers$1.valueOrDefault;
 
 core_defaults._set('bar', {
   hover: {
@@ -5629,7 +5625,7 @@ var controller_bar = core_datasetController.extend({
     var range = options.barThickness === 'flex' ? computeFlexCategoryTraits(index, ruler, options) : computeFitCategoryTraits(index, ruler, options);
     var stackIndex = me.getStackIndex(me.index, me.getMeta().stack);
     var center = range.start + range.chunk * stackIndex + range.chunk / 2;
-    var size = Math.min(valueOrDefault$3(options.maxBarThickness, Infinity), range.chunk * range.ratio);
+    var size = Math.min(valueOrDefault$2(options.maxBarThickness, Infinity), range.chunk * range.ratio);
     return {
       base: center - size / 2,
       head: center + size / 2,
@@ -5658,7 +5654,7 @@ var controller_bar = core_datasetController.extend({
   }
 });
 
-var valueOrDefault$4 = helpers$1.valueOrDefault;
+var valueOrDefault$3 = helpers$1.valueOrDefault;
 var resolve$1 = helpers$1.options.resolve;
 
 core_defaults._set('bubble', {
@@ -5800,9 +5796,9 @@ var controller_bubble = core_datasetController.extend({
       borderWidth: model.borderWidth,
       radius: model.radius
     };
-    model.backgroundColor = valueOrDefault$4(options.hoverBackgroundColor, getHoverColor(options.backgroundColor));
-    model.borderColor = valueOrDefault$4(options.hoverBorderColor, getHoverColor(options.borderColor));
-    model.borderWidth = valueOrDefault$4(options.hoverBorderWidth, options.borderWidth);
+    model.backgroundColor = valueOrDefault$3(options.hoverBackgroundColor, getHoverColor(options.backgroundColor));
+    model.borderColor = valueOrDefault$3(options.hoverBorderColor, getHoverColor(options.borderColor));
+    model.borderWidth = valueOrDefault$3(options.hoverBorderWidth, options.borderWidth);
     model.radius = options.radius + options.hoverRadius;
   },
 
@@ -5836,7 +5832,7 @@ var controller_bubble = core_datasetController.extend({
   }
 });
 
-var valueOrDefault$5 = helpers$1.valueOrDefault;
+var valueOrDefault$4 = helpers$1.valueOrDefault;
 var PI$1 = Math.PI;
 var DOUBLE_PI$1 = PI$1 * 2;
 var HALF_PI$1 = PI$1 / 2;
@@ -6168,9 +6164,9 @@ var controller_doughnut = core_datasetController.extend({
       borderColor: model.borderColor,
       borderWidth: model.borderWidth
     };
-    model.backgroundColor = valueOrDefault$5(options.hoverBackgroundColor, getHoverColor(options.backgroundColor));
-    model.borderColor = valueOrDefault$5(options.hoverBorderColor, getHoverColor(options.borderColor));
-    model.borderWidth = valueOrDefault$5(options.hoverBorderWidth, options.borderWidth);
+    model.backgroundColor = valueOrDefault$4(options.hoverBackgroundColor, getHoverColor(options.backgroundColor));
+    model.borderColor = valueOrDefault$4(options.hoverBorderColor, getHoverColor(options.borderColor));
+    model.borderWidth = valueOrDefault$4(options.hoverBorderWidth, options.borderWidth);
   },
 
   /**
@@ -6193,7 +6189,7 @@ var controller_doughnut = core_datasetController.extend({
    * @private
    */
   _getRingWeight: function _getRingWeight(dataSetIndex) {
-    return Math.max(valueOrDefault$5(this.chart.data.datasets[dataSetIndex].weight, 1), 0);
+    return Math.max(valueOrDefault$4(this.chart.data.datasets[dataSetIndex].weight, 1), 0);
   },
 
   /**
@@ -6260,7 +6256,7 @@ var controller_horizontalBar = controller_bar.extend({
   }
 });
 
-var valueOrDefault$6 = helpers$1.valueOrDefault;
+var valueOrDefault$5 = helpers$1.valueOrDefault;
 var resolve$2 = helpers$1.options.resolve;
 var isPointInArea = helpers$1.canvas._isPointInArea;
 
@@ -6314,7 +6310,7 @@ var controller_line = core_datasetController.extend({
     var points = meta.data || [];
     var options = me.chart.options;
     var config = me._config;
-    var showLine = me._showLine = valueOrDefault$6(config.showLine, options.showLines);
+    var showLine = me._showLine = valueOrDefault$5(config.showLine, options.showLines);
     var i, ilen;
     me._xScale = me.getScaleForId(meta.xAxisID);
     me._yScale = me.getScaleForId(meta.yAxisID); // Update Line
@@ -6390,8 +6386,8 @@ var controller_line = core_datasetController.extend({
     // This option gives lines the ability to span gaps
 
 
-    values.spanGaps = valueOrDefault$6(config.spanGaps, options.spanGaps);
-    values.tension = valueOrDefault$6(config.lineTension, lineOptions.tension);
+    values.spanGaps = valueOrDefault$5(config.spanGaps, options.spanGaps);
+    values.tension = valueOrDefault$5(config.lineTension, lineOptions.tension);
     values.steppedLine = resolve$2([config.steppedLine, lineOptions.stepped]);
     return values;
   },
@@ -6495,10 +6491,10 @@ var controller_line = core_datasetController.extend({
       borderWidth: model.borderWidth,
       radius: model.radius
     };
-    model.backgroundColor = valueOrDefault$6(options.hoverBackgroundColor, getHoverColor(options.backgroundColor));
-    model.borderColor = valueOrDefault$6(options.hoverBorderColor, getHoverColor(options.borderColor));
-    model.borderWidth = valueOrDefault$6(options.hoverBorderWidth, options.borderWidth);
-    model.radius = valueOrDefault$6(options.hoverRadius, options.radius);
+    model.backgroundColor = valueOrDefault$5(options.hoverBackgroundColor, getHoverColor(options.backgroundColor));
+    model.borderColor = valueOrDefault$5(options.hoverBorderColor, getHoverColor(options.borderColor));
+    model.borderWidth = valueOrDefault$5(options.hoverBorderWidth, options.borderWidth);
+    model.radius = valueOrDefault$5(options.hoverRadius, options.radius);
   }
 });
 
@@ -6757,7 +6753,7 @@ core_defaults._set('pie', {
 
 var controller_pie = controller_doughnut;
 
-var valueOrDefault$7 = helpers$1.valueOrDefault;
+var valueOrDefault$6 = helpers$1.valueOrDefault;
 
 core_defaults._set('radar', {
   spanGaps: false,
@@ -6885,8 +6881,8 @@ var controller_radar = core_datasetController.extend({
 
     var values = core_datasetController.prototype._resolveDatasetElementOptions.apply(me, arguments);
 
-    values.spanGaps = valueOrDefault$7(config.spanGaps, options.spanGaps);
-    values.tension = valueOrDefault$7(config.lineTension, options.elements.line.tension);
+    values.spanGaps = valueOrDefault$6(config.spanGaps, options.spanGaps);
+    values.tension = valueOrDefault$6(config.lineTension, options.elements.line.tension);
     return values;
   },
   updateBezierControlPoints: function updateBezierControlPoints() {
@@ -6926,10 +6922,10 @@ var controller_radar = core_datasetController.extend({
       borderWidth: model.borderWidth,
       radius: model.radius
     };
-    model.backgroundColor = valueOrDefault$7(options.hoverBackgroundColor, getHoverColor(options.backgroundColor));
-    model.borderColor = valueOrDefault$7(options.hoverBorderColor, getHoverColor(options.borderColor));
-    model.borderWidth = valueOrDefault$7(options.hoverBorderWidth, options.borderWidth);
-    model.radius = valueOrDefault$7(options.hoverRadius, options.radius);
+    model.backgroundColor = valueOrDefault$6(options.hoverBackgroundColor, getHoverColor(options.backgroundColor));
+    model.borderColor = valueOrDefault$6(options.hoverBorderColor, getHoverColor(options.borderColor));
+    model.borderWidth = valueOrDefault$6(options.hoverBorderWidth, options.borderWidth);
+    model.radius = valueOrDefault$6(options.hoverRadius, options.radius);
   }
 });
 
@@ -8384,7 +8380,7 @@ var core_scaleService = {
   }
 };
 
-var valueOrDefault$8 = helpers$1.valueOrDefault;
+var valueOrDefault$7 = helpers$1.valueOrDefault;
 var getRtlHelper = helpers$1.rtl.getRtlAdapter;
 
 core_defaults._set('global', {
@@ -8626,24 +8622,24 @@ function getBaseModel(tooltipOpts) {
     textDirection: tooltipOpts.textDirection,
     // Body
     bodyFontColor: tooltipOpts.bodyFontColor,
-    _bodyFontFamily: valueOrDefault$8(tooltipOpts.bodyFontFamily, globalDefaults.defaultFontFamily),
-    _bodyFontStyle: valueOrDefault$8(tooltipOpts.bodyFontStyle, globalDefaults.defaultFontStyle),
+    _bodyFontFamily: valueOrDefault$7(tooltipOpts.bodyFontFamily, globalDefaults.defaultFontFamily),
+    _bodyFontStyle: valueOrDefault$7(tooltipOpts.bodyFontStyle, globalDefaults.defaultFontStyle),
     _bodyAlign: tooltipOpts.bodyAlign,
-    bodyFontSize: valueOrDefault$8(tooltipOpts.bodyFontSize, globalDefaults.defaultFontSize),
+    bodyFontSize: valueOrDefault$7(tooltipOpts.bodyFontSize, globalDefaults.defaultFontSize),
     bodySpacing: tooltipOpts.bodySpacing,
     // Title
     titleFontColor: tooltipOpts.titleFontColor,
-    _titleFontFamily: valueOrDefault$8(tooltipOpts.titleFontFamily, globalDefaults.defaultFontFamily),
-    _titleFontStyle: valueOrDefault$8(tooltipOpts.titleFontStyle, globalDefaults.defaultFontStyle),
-    titleFontSize: valueOrDefault$8(tooltipOpts.titleFontSize, globalDefaults.defaultFontSize),
+    _titleFontFamily: valueOrDefault$7(tooltipOpts.titleFontFamily, globalDefaults.defaultFontFamily),
+    _titleFontStyle: valueOrDefault$7(tooltipOpts.titleFontStyle, globalDefaults.defaultFontStyle),
+    titleFontSize: valueOrDefault$7(tooltipOpts.titleFontSize, globalDefaults.defaultFontSize),
     _titleAlign: tooltipOpts.titleAlign,
     titleSpacing: tooltipOpts.titleSpacing,
     titleMarginBottom: tooltipOpts.titleMarginBottom,
     // Footer
     footerFontColor: tooltipOpts.footerFontColor,
-    _footerFontFamily: valueOrDefault$8(tooltipOpts.footerFontFamily, globalDefaults.defaultFontFamily),
-    _footerFontStyle: valueOrDefault$8(tooltipOpts.footerFontStyle, globalDefaults.defaultFontStyle),
-    footerFontSize: valueOrDefault$8(tooltipOpts.footerFontSize, globalDefaults.defaultFontSize),
+    _footerFontFamily: valueOrDefault$7(tooltipOpts.footerFontFamily, globalDefaults.defaultFontFamily),
+    _footerFontStyle: valueOrDefault$7(tooltipOpts.footerFontStyle, globalDefaults.defaultFontStyle),
+    footerFontSize: valueOrDefault$7(tooltipOpts.footerFontSize, globalDefaults.defaultFontSize),
     _footerAlign: tooltipOpts.footerAlign,
     footerSpacing: tooltipOpts.footerSpacing,
     footerMarginTop: tooltipOpts.footerMarginTop,
@@ -9419,7 +9415,7 @@ function (_Element) {
 Tooltip.positioners = positioners;
 var core_tooltip = Tooltip;
 
-var valueOrDefault$9 = helpers$1.valueOrDefault;
+var valueOrDefault$8 = helpers$1.valueOrDefault;
 
 core_defaults._set('global', {
   elements: {},
@@ -9457,7 +9453,7 @@ function mergeScaleConfig()
 
         for (i = 0; i < slen; ++i) {
           scale = source[key][i];
-          type = valueOrDefault$9(scale.type, key === 'xAxes' ? 'category' : 'linear');
+          type = valueOrDefault$8(scale.type, key === 'xAxes' ? 'category' : 'linear');
 
           if (i >= target[key].length) {
             target[key].push({});
@@ -9742,7 +9738,7 @@ helpers$1.extend(Chart.prototype,
     helpers$1.each(items, function (item) {
       var scaleOptions = item.options;
       var id = scaleOptions.id;
-      var scaleType = valueOrDefault$9(scaleOptions.type, item.dtype);
+      var scaleType = valueOrDefault$8(scaleOptions.type, item.dtype);
 
       if (positionIsHorizontal(scaleOptions.position) !== positionIsHorizontal(item.dposition)) {
         scaleOptions.position = item.dposition;
@@ -9985,7 +9981,7 @@ helpers$1.extend(Chart.prototype,
     }
 
     var animationOptions = me.options.animation;
-    var duration = valueOrDefault$9(config.duration, animationOptions && animationOptions.duration);
+    var duration = valueOrDefault$8(config.duration, animationOptions && animationOptions.duration);
     var lazy = config.lazy;
 
     if (core_plugins.notify(me, 'beforeRender') === false) {
@@ -11308,7 +11304,7 @@ var core_ticks = {
 
 var isArray = helpers$1.isArray;
 var isNullOrUndef = helpers$1.isNullOrUndef;
-var valueOrDefault$a = helpers$1.valueOrDefault;
+var valueOrDefault$9 = helpers$1.valueOrDefault;
 var valueAtIndexOrDefault = helpers$1.valueAtIndexOrDefault;
 
 core_defaults._set('scale', {
@@ -11500,10 +11496,10 @@ function getScaleLabelHeight(options) {
 
 function parseFontOptions(options, nestedOpts) {
   return helpers$1.extend(helpers$1.options._parseFont({
-    fontFamily: valueOrDefault$a(nestedOpts.fontFamily, options.fontFamily),
-    fontSize: valueOrDefault$a(nestedOpts.fontSize, options.fontSize),
-    fontStyle: valueOrDefault$a(nestedOpts.fontStyle, options.fontStyle),
-    lineHeight: valueOrDefault$a(nestedOpts.lineHeight, options.lineHeight)
+    fontFamily: valueOrDefault$9(nestedOpts.fontFamily, options.fontFamily),
+    fontSize: valueOrDefault$9(nestedOpts.fontSize, options.fontSize),
+    fontStyle: valueOrDefault$9(nestedOpts.fontStyle, options.fontStyle),
+    lineHeight: valueOrDefault$9(nestedOpts.lineHeight, options.lineHeight)
   }), {
     color: helpers$1.options.resolve([nestedOpts.fontColor, options.fontColor, core_defaults.global.defaultFontColor])
   });
@@ -11606,8 +11602,8 @@ function skipMajors(ticks, majorIndices, spacing) {
 }
 
 function skip(ticks, spacing, majorStart, majorEnd) {
-  var start = valueOrDefault$a(majorStart, 0);
-  var end = Math.min(valueOrDefault$a(majorEnd, ticks.length), ticks.length);
+  var start = valueOrDefault$9(majorStart, 0);
+  var end = Math.min(valueOrDefault$9(majorEnd, ticks.length), ticks.length);
   var count = 0;
   var length, i, tick, next;
   spacing = Math.ceil(spacing);
@@ -12619,7 +12615,7 @@ function (_Element) {
         return;
       }
 
-      var scaleLabelFontColor = valueOrDefault$a(scaleLabel.fontColor, core_defaults.global.defaultFontColor);
+      var scaleLabelFontColor = valueOrDefault$9(scaleLabel.fontColor, core_defaults.global.defaultFontColor);
 
       var scaleLabelFont = helpers$1.options._parseFont(scaleLabel);
 
@@ -13228,7 +13224,7 @@ var scale_linear = scale_linearbase.extend({
 var _defaults$1 = defaultConfig$1;
 scale_linear._defaults = _defaults$1;
 
-var valueOrDefault$b = helpers$1.valueOrDefault;
+var valueOrDefault$a = helpers$1.valueOrDefault;
 var log10 = helpers$1.math.log10;
 /**
  * Generate a set of logarithmic ticks
@@ -13239,7 +13235,7 @@ var log10 = helpers$1.math.log10;
 
 function generateTicks$1(generationOptions, dataRange) {
   var ticks = [];
-  var tickVal = valueOrDefault$b(generationOptions.min, Math.pow(10, Math.floor(log10(dataRange.min))));
+  var tickVal = valueOrDefault$a(generationOptions.min, Math.pow(10, Math.floor(log10(dataRange.min))));
   var endExp = Math.floor(log10(dataRange.max));
   var endSignificand = Math.ceil(dataRange.max / Math.pow(10, endExp));
   var exp, significand;
@@ -13273,7 +13269,7 @@ function generateTicks$1(generationOptions, dataRange) {
     tickVal = Math.round(significand * Math.pow(10, exp) * precision) / precision;
   } while (exp < endExp || exp === endExp && significand < endSignificand);
 
-  var lastTick = valueOrDefault$b(generationOptions.max, tickVal);
+  var lastTick = valueOrDefault$a(generationOptions.max, tickVal);
   ticks.push({
     value: lastTick
   });
@@ -13407,7 +13403,7 @@ var scale_logarithmic = core_scale.extend({
 
     if (start === 0) {
       start = me._getFirstTickValue(me.minNotZero);
-      offset = valueOrDefault$b(me.options.ticks.fontSize, core_defaults.global.defaultFontSize) / me._length;
+      offset = valueOrDefault$a(me.options.ticks.fontSize, core_defaults.global.defaultFontSize) / me._length;
     }
 
     me._startValue = log10(start);
@@ -13434,7 +13430,7 @@ var scale_logarithmic = core_scale.extend({
 var _defaults$2 = defaultConfig$2;
 scale_logarithmic._defaults = _defaults$2;
 
-var valueOrDefault$c = helpers$1.valueOrDefault;
+var valueOrDefault$b = helpers$1.valueOrDefault;
 var valueAtIndexOrDefault$1 = helpers$1.valueAtIndexOrDefault;
 var resolve$4 = helpers$1.options.resolve;
 var defaultConfig$3 = {
@@ -13480,7 +13476,7 @@ function getTickBackdropHeight(opts) {
   var tickOpts = opts.ticks;
 
   if (tickOpts.display && opts.display) {
-    return valueOrDefault$c(tickOpts.fontSize, core_defaults.global.defaultFontSize) + tickOpts.backdropPaddingY * 2;
+    return valueOrDefault$b(tickOpts.fontSize, core_defaults.global.defaultFontSize) + tickOpts.backdropPaddingY * 2;
   }
 
   return 0;
@@ -13832,8 +13828,8 @@ var scale_radialLinear = scale_linearbase.extend({
     var opts = me.options;
     var gridLineOpts = opts.gridLines;
     var angleLineOpts = opts.angleLines;
-    var lineWidth = valueOrDefault$c(angleLineOpts.lineWidth, gridLineOpts.lineWidth);
-    var lineColor = valueOrDefault$c(angleLineOpts.color, gridLineOpts.color);
+    var lineWidth = valueOrDefault$b(angleLineOpts.lineWidth, gridLineOpts.lineWidth);
+    var lineColor = valueOrDefault$b(angleLineOpts.color, gridLineOpts.color);
     var i, offset, position;
 
     if (opts.pointLabels.display) {
@@ -13889,7 +13885,7 @@ var scale_radialLinear = scale_linearbase.extend({
 
     var tickFont = helpers$1.options._parseFont(tickOpts);
 
-    var tickFontColor = valueOrDefault$c(tickOpts.fontColor, core_defaults.global.defaultFontColor);
+    var tickFontColor = valueOrDefault$b(tickOpts.fontColor, core_defaults.global.defaultFontColor);
     var offset, width;
     ctx.save();
     ctx.font = tickFont.string;
@@ -13926,7 +13922,7 @@ var _defaults$3 = defaultConfig$3;
 scale_radialLinear._defaults = _defaults$3;
 
 var resolve$5 = helpers$1.options.resolve;
-var valueOrDefault$d = helpers$1.valueOrDefault; // Integer constants are from the ES6 spec.
+var valueOrDefault$c = helpers$1.valueOrDefault; // Integer constants are from the ES6 spec.
 
 var MAX_INTEGER = Number.MAX_SAFE_INTEGER || 9007199254740991;
 var INTERVALS = {
@@ -14626,7 +14622,7 @@ var scale_time = core_scale.extend({
     var angle = helpers$1.toRadians(me.isHorizontal() ? ticksOpts.maxRotation : ticksOpts.minRotation);
     var cosRotation = Math.cos(angle);
     var sinRotation = Math.sin(angle);
-    var tickFontSize = valueOrDefault$d(ticksOpts.fontSize, core_defaults.global.defaultFontSize);
+    var tickFontSize = valueOrDefault$c(ticksOpts.fontSize, core_defaults.global.defaultFontSize);
     return {
       w: tickLabelWidth * cosRotation + tickFontSize * sinRotation,
       h: tickLabelWidth * sinRotation + tickFontSize * cosRotation
@@ -15097,7 +15093,7 @@ var plugin_filler = {
 };
 
 var getRtlHelper$1 = helpers$1.rtl.getRtlAdapter;
-var valueOrDefault$e = helpers$1.valueOrDefault;
+var valueOrDefault$d = helpers$1.valueOrDefault;
 
 core_defaults._set('global', {
   legend: {
@@ -15449,7 +15445,7 @@ function (_Element) {
 
       var rtlHelper = getRtlHelper$1(opts.rtl, me.left, me.minSize.width);
       var ctx = me.ctx;
-      var fontColor = valueOrDefault$e(labelOpts.fontColor, globalDefaults.defaultFontColor);
+      var fontColor = valueOrDefault$d(labelOpts.fontColor, globalDefaults.defaultFontColor);
 
       var labelFont = helpers$1.options._parseFont(labelOpts);
 
@@ -15474,17 +15470,17 @@ function (_Element) {
 
 
         ctx.save();
-        var lineWidth = valueOrDefault$e(legendItem.lineWidth, lineDefault.borderWidth);
-        ctx.fillStyle = valueOrDefault$e(legendItem.fillStyle, defaultColor);
-        ctx.lineCap = valueOrDefault$e(legendItem.lineCap, lineDefault.borderCapStyle);
-        ctx.lineDashOffset = valueOrDefault$e(legendItem.lineDashOffset, lineDefault.borderDashOffset);
-        ctx.lineJoin = valueOrDefault$e(legendItem.lineJoin, lineDefault.borderJoinStyle);
+        var lineWidth = valueOrDefault$d(legendItem.lineWidth, lineDefault.borderWidth);
+        ctx.fillStyle = valueOrDefault$d(legendItem.fillStyle, defaultColor);
+        ctx.lineCap = valueOrDefault$d(legendItem.lineCap, lineDefault.borderCapStyle);
+        ctx.lineDashOffset = valueOrDefault$d(legendItem.lineDashOffset, lineDefault.borderDashOffset);
+        ctx.lineJoin = valueOrDefault$d(legendItem.lineJoin, lineDefault.borderJoinStyle);
         ctx.lineWidth = lineWidth;
-        ctx.strokeStyle = valueOrDefault$e(legendItem.strokeStyle, defaultColor);
+        ctx.strokeStyle = valueOrDefault$d(legendItem.strokeStyle, defaultColor);
 
         if (ctx.setLineDash) {
           // IE 9 and 10 do not support line dash
-          ctx.setLineDash(valueOrDefault$e(legendItem.lineDash, lineDefault.borderDash));
+          ctx.setLineDash(valueOrDefault$d(legendItem.lineDash, lineDefault.borderDash));
         }
 
         if (labelOpts && labelOpts.usePointStyle) {
