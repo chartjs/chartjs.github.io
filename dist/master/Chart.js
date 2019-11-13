@@ -3885,17 +3885,14 @@ helpers$1.extend(DatasetController.prototype, {
     var me = this;
     var type = me.datasetElementType;
     return type && new type({
-      _ctx: me.chart.ctx,
-      _datasetIndex: me.index
+      _ctx: me.chart.ctx
     });
   },
-  createMetaData: function createMetaData(index) {
+  createMetaData: function createMetaData() {
     var me = this;
     var type = me.dataElementType;
     return type && new type({
       _ctx: me.chart.ctx,
-      _datasetIndex: me.index,
-      _index: index,
       _parsed: {}
     });
   },
@@ -3970,13 +3967,13 @@ helpers$1.extend(DatasetController.prototype, {
     data = me._data;
 
     for (i = 0, ilen = data.length; i < ilen; ++i) {
-      metaData[i] = metaData[i] || me.createMetaData(i);
+      metaData[i] = metaData[i] || me.createMetaData();
     }
 
     meta.dataset = meta.dataset || me.createMetaDataset();
   },
   addElementAndReset: function addElementAndReset(index) {
-    var element = this.createMetaData(index);
+    var element = this.createMetaData();
 
     this._cachedMeta.data.splice(index, 0, element);
 
@@ -4834,7 +4831,7 @@ function (_Element) {
         points = points.slice(); // clone array
 
         for (index = 0; index < points.length; ++index) {
-          previous = helpers$1.previousItem(points, index); // If the line has an open path, shift the point array
+          previous = points[Math.max(0, index - 1)]; // If the line has an open path, shift the point array
 
           if (!points[index]._view.skip && previous._view.skip) {
             points = points.slice(index).concat(points.slice(0, index));
@@ -4862,7 +4859,7 @@ function (_Element) {
       ctx.lineWidth = valueOrDefault$1(vm.borderWidth, globalOptionLineElements.borderWidth);
       ctx.strokeStyle = vm.borderColor || globalDefaults.defaultColor; // Stroke Line
 
-      ctx.beginPath(); // First point moves to it's starting position no matter what
+      ctx.beginPath(); // First point moves to its starting position no matter what
 
       currentVM = points[0]._view;
 
@@ -4873,7 +4870,7 @@ function (_Element) {
 
       for (index = 1; index < points.length; ++index) {
         currentVM = points[index]._view;
-        previous = lastDrawnIndex === -1 ? helpers$1.previousItem(points, index) : points[lastDrawnIndex];
+        previous = lastDrawnIndex === -1 ? points[index - 1] : points[lastDrawnIndex];
 
         if (!currentVM.skip) {
           if (lastDrawnIndex !== index - 1 && !spanGaps || lastDrawnIndex === -1) {
@@ -6439,7 +6436,7 @@ var controller_line = core_datasetController.extend({
     } else {
       for (i = 0, ilen = points.length; i < ilen; ++i) {
         model = points[i]._model;
-        controlPoints = helpers$1.splineCurve(helpers$1.previousItem(points, i)._model, model, helpers$1.nextItem(points, i)._model, lineModel.tension);
+        controlPoints = helpers$1.splineCurve(points[Math.max(0, i - 1)]._model, model, points[Math.min(i + 1, ilen - 1)]._model, lineModel.tension);
         model.controlPointPreviousX = controlPoints.previous.x;
         model.controlPointPreviousY = controlPoints.previous.y;
         model.controlPointNextX = controlPoints.next.x;
@@ -6774,6 +6771,14 @@ core_defaults._set('radar', {
   }
 });
 
+function nextItem(collection, index) {
+  return index >= collection.length - 1 ? collection[0] : collection[index + 1];
+}
+
+function previousItem(collection, index) {
+  return index <= 0 ? collection[collection.length - 1] : collection[index - 1];
+}
+
 var controller_radar = core_datasetController.extend({
   datasetElementType: elements.Line,
   dataElementType: elements.Point,
@@ -6910,7 +6915,7 @@ var controller_radar = core_datasetController.extend({
 
     for (i = 0, ilen = points.length; i < ilen; ++i) {
       model = points[i]._model;
-      controlPoints = helpers$1.splineCurve(helpers$1.previousItem(points, i, true)._model, model, helpers$1.nextItem(points, i, true)._model, model.tension); // Prevent the bezier going outside of the bounds of the graph
+      controlPoints = helpers$1.splineCurve(previousItem(points, i)._model, model, nextItem(points, i)._model, model.tension); // Prevent the bezier going outside of the bounds of the graph
 
       model.controlPointPreviousX = capControlPoint(controlPoints.previous.x, area.left, area.right);
       model.controlPointPreviousY = capControlPoint(controlPoints.previous.y, area.top, area.bottom);
@@ -10801,22 +10806,6 @@ var core_helpers = function core_helpers() {
         pointCurrent.model.controlPointNextY = pointCurrent.model.y + deltaX * pointCurrent.mK;
       }
     }
-  };
-
-  helpers$1.nextItem = function (collection, index, loop) {
-    if (loop) {
-      return index >= collection.length - 1 ? collection[0] : collection[index + 1];
-    }
-
-    return index >= collection.length - 1 ? collection[collection.length - 1] : collection[index + 1];
-  };
-
-  helpers$1.previousItem = function (collection, index, loop) {
-    if (loop) {
-      return index <= 0 ? collection[collection.length - 1] : collection[index - 1];
-    }
-
-    return index <= 0 ? collection[0] : collection[index - 1];
   }; // Implementation of the nice number algorithm used in determining where axis labels will go
 
 
