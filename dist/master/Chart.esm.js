@@ -3731,7 +3731,7 @@ function applyStack(stack, value, dsIndex, allOther) {
 
     otherValue = stack.values[datasetIndex];
 
-    if (!isNaN(otherValue) && (value === 0 || Math.sign(value) === Math.sign(otherValue))) {
+    if (!isNaN(otherValue) && (value === 0 || helpers$1.sign(value) === helpers$1.sign(otherValue))) {
       value += otherValue;
     }
   }
@@ -3770,6 +3770,19 @@ function getFirstScaleId(chart, axis) {
   var scaleId = scale && scale.id;
   var prop = axis + 'Axes';
   return scalesOpts && scalesOpts[prop] && scalesOpts[prop].length && scalesOpts[prop][0].id || scaleId;
+}
+
+function getUserBounds(scale) {
+  var _scale$_getUserBounds = scale._getUserBounds(),
+      min = _scale$_getUserBounds.min,
+      max = _scale$_getUserBounds.max,
+      minDefined = _scale$_getUserBounds.minDefined,
+      maxDefined = _scale$_getUserBounds.maxDefined;
+
+  return {
+    min: minDefined ? min : Number.NEGATIVE_INFINITY,
+    max: maxDefined ? max : Number.POSITIVE_INFINITY
+  };
 } // Base class for all dataset controllers (line, bar, etc)
 
 
@@ -3862,6 +3875,13 @@ helpers$1.extend(DatasetController.prototype, {
    */
   _getIndexScale: function _getIndexScale() {
     return this.getScaleForId(this._getIndexScaleId());
+  },
+
+  /**
+   * @private
+   */
+  _getOtherScale: function _getOtherScale(scale) {
+    return scale.id === this._getIndexScaleId() ? this._getValueScale() : this._getIndexScale();
   },
   reset: function reset() {
     this._update(true);
@@ -4190,15 +4210,23 @@ helpers$1.extend(DatasetController.prototype, {
     var max = Number.NEGATIVE_INFINITY;
     var stacked = canStack && meta._stacked;
     var indices = getSortedDatasetIndices(chart, true);
-    var i, item, value, parsed, stack, min, minPositive;
+
+    var otherScale = this._getOtherScale(scale);
+
+    var _getUserBounds = getUserBounds(otherScale),
+        otherMin = _getUserBounds.min,
+        otherMax = _getUserBounds.max;
+
+    var i, item, value, parsed, stack, min, minPositive, otherValue;
     min = minPositive = Number.POSITIVE_INFINITY;
 
     for (i = 0; i < ilen; ++i) {
       item = metaData[i];
       parsed = item._parsed;
       value = parsed[scale.id];
+      otherValue = parsed[otherScale.id];
 
-      if (item.hidden || isNaN(value)) {
+      if (item.hidden || isNaN(value) || otherMin > otherValue || otherMax < otherValue) {
         continue;
       }
 
@@ -5590,7 +5618,7 @@ var controller_bar = core_datasetController.extend({
       value = custom.barStart;
       length = custom.barEnd - custom.barStart; // bars crossing origin are not stacked
 
-      if (value !== 0 && Math.sign(value) !== Math.sign(custom.barEnd)) {
+      if (value !== 0 && helpers$1.sign(value) !== helpers$1.sign(custom.barEnd)) {
         start = 0;
       }
 
@@ -9772,10 +9800,13 @@ helpers$1.extend(Chart.prototype,
           chart: me
         });
         scales[scale.id] = scale;
-      } // TODO(SB): I think we should be able to remove this custom case (options.scale)
+      } // parse min/max value, so we can properly determine min/max for other scales
+
+
+      scale._userMin = scale._parse(scale.options.ticks.min);
+      scale._userMax = scale._parse(scale.options.ticks.max); // TODO(SB): I think we should be able to remove this custom case (options.scale)
       // and consider it as a regular scale part of the "scales"" map only! This would
       // make the logic easier and remove some useless? custom code.
-
 
       if (item.isDefault) {
         me.scale = scale;
@@ -11292,6 +11323,7 @@ var core_ticks = {
 };
 
 var isArray = helpers$1.isArray;
+var isFinite$1 = helpers$1.isFinite;
 var isNullOrUndef = helpers$1.isNullOrUndef;
 var valueOrDefault$9 = helpers$1.valueOrDefault;
 var resolve$4 = helpers$1.options.resolve;
@@ -11665,22 +11697,71 @@ function (_Element) {
 
       return null;
     }
+    /**
+     * @private
+     * @since 3.0
+     */
+
+  }, {
+    key: "_getUserBounds",
+    value: function _getUserBounds() {
+      var min = this._userMin;
+      var max = this._userMax;
+
+      if (isNullOrUndef(min) || isNaN(min)) {
+        min = Number.POSITIVE_INFINITY;
+      }
+
+      if (isNullOrUndef(max) || isNaN(max)) {
+        max = Number.NEGATIVE_INFINITY;
+      }
+
+      return {
+        min: min,
+        max: max,
+        minDefined: isFinite$1(min),
+        maxDefined: isFinite$1(max)
+      };
+    }
+    /**
+     * @private
+     * @since 3.0
+     */
+
   }, {
     key: "_getMinMax",
     value: function _getMinMax(canStack) {
       var me = this;
 
-      var metas = me._getMatchingVisibleMetas();
+      var _me$_getUserBounds = me._getUserBounds(),
+          min = _me$_getUserBounds.min,
+          max = _me$_getUserBounds.max,
+          minDefined = _me$_getUserBounds.minDefined,
+          maxDefined = _me$_getUserBounds.maxDefined;
 
-      var min = Number.POSITIVE_INFINITY;
-      var max = Number.NEGATIVE_INFINITY;
       var minPositive = Number.POSITIVE_INFINITY;
-      var i, ilen, minmax;
+      var i, ilen, metas, minmax;
+
+      if (minDefined && maxDefined) {
+        return {
+          min: min,
+          max: max
+        };
+      }
+
+      metas = me._getMatchingVisibleMetas();
 
       for (i = 0, ilen = metas.length; i < ilen; ++i) {
         minmax = metas[i].controller._getMinMax(me, canStack);
-        min = Math.min(min, minmax.min);
-        max = Math.max(max, minmax.max);
+
+        if (!minDefined) {
+          min = Math.min(min, minmax.min);
+        }
+
+        if (!maxDefined) {
+          max = Math.max(max, minmax.max);
+        }
+
         minPositive = Math.min(minPositive, minmax.minPositive);
       }
 
@@ -12801,48 +12882,19 @@ var scale_category = core_scale.extend({
   },
   determineDataLimits: function determineDataLimits() {
     var me = this;
-
-    var labels = me._getLabels();
-
-    var ticksOpts = me.options.ticks;
-    var min = ticksOpts.min;
-    var max = ticksOpts.max;
-    var minIndex = 0;
-    var maxIndex = labels.length - 1;
-    var findIndex;
-
-    if (min !== undefined) {
-      // user specified min value
-      findIndex = labels.indexOf(min);
-
-      if (findIndex >= 0) {
-        minIndex = findIndex;
-      }
-    }
-
-    if (max !== undefined) {
-      // user specified max value
-      findIndex = labels.indexOf(max);
-
-      if (findIndex >= 0) {
-        maxIndex = findIndex;
-      }
-    }
-
-    me.minIndex = minIndex;
-    me.maxIndex = maxIndex;
-    me.min = labels[minIndex];
-    me.max = labels[maxIndex];
+    var max = me._getLabels().length - 1;
+    me.min = Math.max(me._userMin || 0, 0);
+    me.max = Math.min(me._userMax || max, max);
   },
   buildTicks: function buildTicks() {
     var me = this;
 
     var labels = me._getLabels();
 
-    var minIndex = me.minIndex;
-    var maxIndex = me.maxIndex; // If we are viewing some subset of labels, slice the original array
+    var min = me.min;
+    var max = me.max; // If we are viewing some subset of labels, slice the original array
 
-    labels = minIndex === 0 && maxIndex === labels.length - 1 ? labels : labels.slice(minIndex, maxIndex + 1);
+    labels = min === 0 && max === labels.length - 1 ? labels : labels.slice(min, max + 1);
     return labels.map(function (l) {
       return {
         value: l
@@ -12876,7 +12928,7 @@ var scale_category = core_scale.extend({
       return;
     }
 
-    me._startValue = me.minIndex - (offset ? 0.5 : 0);
+    me._startValue = me.min - (offset ? 0.5 : 0);
     me._valueRange = Math.max(ticks.length - (offset ? 0 : 1), 1);
   },
   // Used to get data value locations.  Value can either be an index or a numerical value
@@ -12891,7 +12943,7 @@ var scale_category = core_scale.extend({
   },
   getPixelForTick: function getPixelForTick(index) {
     var ticks = this.ticks;
-    return index < 0 || index > ticks.length - 1 ? null : this.getPixelForValue(index + this.minIndex);
+    return index < 0 || index > ticks.length - 1 ? null : this.getPixelForValue(index + this.min);
   },
   getValueForPixel: function getValueForPixel(pixel) {
     var me = this;
@@ -12997,7 +13049,8 @@ function generateTicks(generationOptions, dataRange) {
 }
 
 var scale_linearbase = core_scale.extend({
-  _parse: function _parse(raw) {
+  _parse: function _parse(raw, index) {
+    // eslint-disable-line no-unused-vars
     if (helpers$1.isNullOrUndef(raw)) {
       return NaN;
     }
@@ -13288,14 +13341,14 @@ var defaultConfig$2 = {
   ticks: {
     callback: core_ticks.formatters.logarithmic
   }
-}; // TODO(v3): change this to positiveOrDefault
-
-function nonNegativeOrDefault(value, defaultValue) {
-  return helpers$1.isFinite(value) && value >= 0 ? value : defaultValue;
-}
-
+};
 var scale_logarithmic = core_scale.extend({
-  _parse: scale_linearbase.prototype._parse,
+  _parse: function _parse(raw, index) {
+    // eslint-disable-line no-unused-vars
+    var value = scale_linearbase.prototype._parse.apply(this, arguments);
+
+    return helpers$1.isFinite(value) && value >= 0 ? value : undefined;
+  },
   determineDataLimits: function determineDataLimits() {
     var me = this;
 
@@ -13311,47 +13364,49 @@ var scale_logarithmic = core_scale.extend({
   },
   handleTickRangeOptions: function handleTickRangeOptions() {
     var me = this;
-    var tickOpts = me.options.ticks;
     var DEFAULT_MIN = 1;
     var DEFAULT_MAX = 10;
-    me.min = nonNegativeOrDefault(tickOpts.min, me.min);
-    me.max = nonNegativeOrDefault(tickOpts.max, me.max);
+    var min = me.min;
+    var max = me.max;
 
-    if (me.min === me.max) {
-      if (me.min !== 0 && me.min !== null) {
-        me.min = Math.pow(10, Math.floor(log10(me.min)) - 1);
-        me.max = Math.pow(10, Math.floor(log10(me.max)) + 1);
+    if (min === max) {
+      if (min !== 0 && min !== null) {
+        min = Math.pow(10, Math.floor(log10(min)) - 1);
+        max = Math.pow(10, Math.floor(log10(max)) + 1);
       } else {
-        me.min = DEFAULT_MIN;
-        me.max = DEFAULT_MAX;
+        min = DEFAULT_MIN;
+        max = DEFAULT_MAX;
       }
     }
 
-    if (me.min === null) {
-      me.min = Math.pow(10, Math.floor(log10(me.max)) - 1);
+    if (min === null) {
+      min = Math.pow(10, Math.floor(log10(max)) - 1);
     }
 
-    if (me.max === null) {
-      me.max = me.min !== 0 ? Math.pow(10, Math.floor(log10(me.min)) + 1) : DEFAULT_MAX;
+    if (max === null) {
+      max = min !== 0 ? Math.pow(10, Math.floor(log10(min)) + 1) : DEFAULT_MAX;
     }
 
     if (me.minNotZero === null) {
-      if (me.min > 0) {
-        me.minNotZero = me.min;
-      } else if (me.max < 1) {
-        me.minNotZero = Math.pow(10, Math.floor(log10(me.max)));
+      if (min > 0) {
+        me.minNotZero = min;
+      } else if (max < 1) {
+        me.minNotZero = Math.pow(10, Math.floor(log10(max)));
       } else {
         me.minNotZero = DEFAULT_MIN;
       }
     }
+
+    me.min = min;
+    me.max = max;
   },
   buildTicks: function buildTicks() {
     var me = this;
     var tickOpts = me.options.ticks;
     var reverse = !me.isHorizontal();
     var generationOptions = {
-      min: nonNegativeOrDefault(tickOpts.min),
-      max: nonNegativeOrDefault(tickOpts.max)
+      min: me._userMin,
+      max: me._userMax
     };
     var ticks = generateTicks$1(generationOptions, me); // At this point, we need to update our max and min given the tick values since we have expanded the
     // range of the scale
@@ -14111,7 +14166,11 @@ function interpolate$1(table, skey, sval, tkey) {
   return prev[tkey] + offset;
 }
 
-function toTimestamp(scale, input) {
+function parse(scale, input) {
+  if (helpers$1.isNullOrUndef(input)) {
+    return null;
+  }
+
   var adapter = scale._adapter;
   var options = scale.options.time;
   var parser = options.parser;
@@ -14126,26 +14185,15 @@ function toTimestamp(scale, input) {
     value = typeof parser === 'string' ? adapter.parse(value, parser) : adapter.parse(value);
   }
 
-  return value !== null ? +value : value;
-}
-
-function parse(scale, input) {
-  if (helpers$1.isNullOrUndef(input)) {
-    return null;
-  }
-
-  var options = scale.options.time;
-  var value = toTimestamp(scale, input);
-
   if (value === null) {
     return value;
   }
 
   if (options.round) {
-    value = +scale._adapter.startOf(value, options.round);
+    value = scale._adapter.startOf(value, options.round);
   }
 
-  return value;
+  return +value;
 }
 /**
  * Figures out what unit results in an appropriate number of auto-generated ticks
@@ -14312,44 +14360,59 @@ function getDataTimestamps(scale) {
   var timestamps = scale._cache.data || [];
   var i, ilen, metas;
 
-  if (!timestamps.length) {
-    metas = scale._getMatchingVisibleMetas();
-
-    for (i = 0, ilen = metas.length; i < ilen; ++i) {
-      timestamps = timestamps.concat(metas[i].controller._getAllParsedValues(scale));
-    }
-
-    timestamps = scale._cache.data = arrayUnique(timestamps).sort(sorter);
+  if (timestamps.length) {
+    return timestamps;
   }
 
-  return timestamps;
+  metas = scale._getMatchingVisibleMetas();
+
+  for (i = 0, ilen = metas.length; i < ilen; ++i) {
+    timestamps = timestamps.concat(metas[i].controller._getAllParsedValues(scale));
+  } // We can not assume data is in order or unique - not even for single dataset
+  // It seems to be somewhat faster to do sorting first
+
+
+  return scale._cache.data = arrayUnique(timestamps.sort(sorter));
 }
 
 function getLabelTimestamps(scale) {
   var timestamps = scale._cache.labels || [];
   var i, ilen, labels;
 
-  if (!timestamps.length) {
-    labels = scale._getLabels();
-
-    for (i = 0, ilen = labels.length; i < ilen; ++i) {
-      timestamps.push(parse(scale, labels[i]));
-    }
-
-    timestamps = scale._cache.labels = arrayUnique(timestamps).sort(sorter);
+  if (timestamps.length) {
+    return timestamps;
   }
 
-  return timestamps;
+  labels = scale._getLabels();
+
+  for (i = 0, ilen = labels.length; i < ilen; ++i) {
+    timestamps.push(parse(scale, labels[i]));
+  } // We could assume labels are in order and unique - but let's not
+
+
+  return scale._cache.labels = arrayUnique(timestamps.sort(sorter));
 }
 
 function getAllTimestamps(scale) {
   var timestamps = scale._cache.all || [];
+  var label, data;
 
-  if (!timestamps.length) {
-    timestamps = getDataTimestamps(scale).concat(getLabelTimestamps(scale));
-    timestamps = scale._cache.all = arrayUnique(timestamps).sort(sorter);
+  if (timestamps.length) {
+    return timestamps;
   }
 
+  data = getDataTimestamps(scale);
+  label = getLabelTimestamps(scale);
+
+  if (data.length && label.length) {
+    // If combining labels and data (data might not contain all labels),
+    // we need to recheck uniqueness and sort
+    timestamps = arrayUnique(data.concat(label).sort(sorter));
+  } else {
+    timestamps = data.length ? data : label;
+  }
+
+  timestamps = scale._cache.all = timestamps;
   return timestamps;
 }
 
@@ -14372,6 +14435,26 @@ function getTimestampsForTicks(scale) {
   }
 
   return timestamps;
+}
+
+function getTimestampsForTable(scale) {
+  return scale.options.distribution === 'series' ? getAllTimestamps(scale) : [scale.min, scale.max];
+}
+
+function getLabelBounds(scale) {
+  var min = Number.POSITIVE_INFINITY;
+  var max = Number.NEGATIVE_INFINITY;
+  var arr = getLabelTimestamps(scale);
+
+  if (arr.length) {
+    min = arr[0];
+    max = arr[arr.length - 1];
+  }
+
+  return {
+    min: min,
+    max: max
+  };
 }
 /**
  * Return subset of `timestamps` between `min` and `max`.
@@ -14456,7 +14539,7 @@ var scale_time = core_scale.extend({
       return NaN;
     }
 
-    return toTimestamp(this, raw);
+    return parse(this, raw);
   },
   _parseObject: function _parseObject(obj, axis, index) {
     if (obj && obj.t) {
@@ -14487,29 +14570,40 @@ var scale_time = core_scale.extend({
   },
   determineDataLimits: function determineDataLimits() {
     var me = this;
-    var adapter = me._adapter;
     var options = me.options;
-    var tickOpts = options.ticks;
+    var adapter = me._adapter;
     var unit = options.time.unit || 'day';
-    var min = Number.POSITIVE_INFINITY;
-    var max = Number.NEGATIVE_INFINITY;
 
-    var minmax = me._getMinMax(false);
+    var _me$_getUserBounds = me._getUserBounds(),
+        min = _me$_getUserBounds.min,
+        max = _me$_getUserBounds.max,
+        minDefined = _me$_getUserBounds.minDefined,
+        maxDefined = _me$_getUserBounds.maxDefined;
 
-    var i, ilen, labels;
-    min = Math.min(min, minmax.min);
-    max = Math.max(max, minmax.max);
-    labels = getLabelTimestamps(me);
+    function _applyBounds(bounds) {
+      if (!minDefined && !isNaN(bounds.min)) {
+        min = Math.min(min, bounds.min);
+      }
 
-    for (i = 0, ilen = labels.length; i < ilen; ++i) {
-      min = Math.min(min, labels[i]);
-      max = Math.max(max, labels[i]);
+      if (!maxDefined && !isNaN(bounds.max)) {
+        max = Math.max(max, bounds.max);
+      }
+    } // If we have user provided `min` and `max` labels / data bounds can be ignored
+
+
+    if (!minDefined || !maxDefined) {
+      // Labels are always considered, when user did not force bounds
+      _applyBounds(getLabelBounds(me)); // If `bounds` is `'ticks'` and `ticks.source` is `'labels'`,
+      // data bounds are ignored (and don't need to be determined)
+
+
+      if (options.bounds !== 'ticks' || options.ticks.source !== 'labels') {
+        _applyBounds(me._getMinMax(false));
+      }
     }
 
     min = helpers$1.isFinite(min) && !isNaN(min) ? min : +adapter.startOf(Date.now(), unit);
-    max = helpers$1.isFinite(max) && !isNaN(max) ? max : +adapter.endOf(Date.now(), unit) + 1;
-    min = parse(me, tickOpts.min) || min;
-    max = parse(me, tickOpts.max) || max; // Make sure that max is strictly higher than min (required by the lookup table)
+    max = helpers$1.isFinite(max) && !isNaN(max) ? max : +adapter.endOf(Date.now(), unit) + 1; // Make sure that max is strictly higher than min (required by the lookup table)
 
     me.min = Math.min(min, max);
     me.max = Math.max(min + 1, max);
@@ -14525,8 +14619,8 @@ var scale_time = core_scale.extend({
     timestamps = getTimestampsForTicks(me);
 
     if (options.bounds === 'ticks' && timestamps.length) {
-      me.min = parse(me, tickOpts.min) || timestamps[0];
-      me.max = parse(me, tickOpts.max) || timestamps[timestamps.length - 1];
+      me.min = me._userMin || timestamps[0];
+      me.max = me._userMax || timestamps[timestamps.length - 1];
     }
 
     min = me.min;
@@ -14537,7 +14631,7 @@ var scale_time = core_scale.extend({
 
     me._unit = timeOpts.unit || (tickOpts.autoSkip ? determineUnitForAutoTicks(timeOpts.minUnit, me.min, me.max, me._getLabelCapacity(min)) : determineUnitForFormatting(me, ticks.length, timeOpts.minUnit, me.min, me.max));
     me._majorUnit = !tickOpts.major.enabled || me._unit === 'year' ? undefined : determineMajorUnit(me._unit);
-    me._table = buildLookupTable(getAllTimestamps(me), min, max, distribution);
+    me._table = buildLookupTable(getTimestampsForTable(me), min, max, distribution);
     me._offsets = computeOffsets(me._table, ticks, min, max, options);
 
     if (tickOpts.reverse) {
