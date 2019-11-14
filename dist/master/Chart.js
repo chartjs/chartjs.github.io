@@ -12879,13 +12879,6 @@ var scale_category = core_scale.extend({
     var last = labels.lastIndexOf(raw);
     return first === -1 || first !== last ? index : first;
   },
-  _parseObject: function _parseObject(obj, axis, index) {
-    if (obj[axis] !== undefined) {
-      return this._parse(obj[axis], index);
-    }
-
-    return null;
-  },
   determineDataLimits: function determineDataLimits() {
     var me = this;
     var max = me._getLabels().length - 1;
