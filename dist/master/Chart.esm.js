@@ -2789,7 +2789,21 @@ var TWO_THIRDS_PI = PI * 2 / 3;
  * @namespace Chart.helpers.canvas
  */
 
-var exports = {
+var helpers_canvas = {
+  /**
+   * Returns the aligned pixel value to avoid anti-aliasing blur
+   * @param {Chart} chart - The chart instance.
+   * @param {number} pixel - A pixel value.
+   * @param {number} width - The width of the element.
+   * @returns {number} The aligned pixel value.
+   * @private
+   */
+  _alignPixel: function _alignPixel(chart, pixel, width) {
+    var devicePixelRatio = chart.currentDevicePixelRatio;
+    var halfWidth = width / 2;
+    return Math.round((pixel - halfWidth) * devicePixelRatio) / devicePixelRatio + halfWidth;
+  },
+
   /**
    * Clears the entire canvas associated to the given `chart`.
    * @param {Chart} chart - The chart for which to clear the canvas.
@@ -3013,7 +3027,6 @@ var exports = {
     ctx.bezierCurveTo(flip ? previous.controlPointPreviousX : previous.controlPointNextX, flip ? previous.controlPointPreviousY : previous.controlPointNextY, flip ? target.controlPointNextX : target.controlPointPreviousX, flip ? target.controlPointNextY : target.controlPointPreviousY, target.x, target.y);
   }
 };
-var helpers_canvas = exports;
 
 var defaults = {
   /**
@@ -3187,7 +3200,7 @@ var helpers_options = {
  * @namespace
  */
 
-var exports$1 = {
+var exports = {
   /**
    * Returns an array of factors sorted from 1 to sqrt(value)
    * @private
@@ -3224,7 +3237,7 @@ var exports$1 = {
     return isPowerOf10 ? powerOf10 : exponent;
   }
 };
-var helpers_math = exports$1;
+var helpers_math = exports;
 
 var getRtlAdapter = function getRtlAdapter(rectX, width) {
   return {
@@ -10687,21 +10700,6 @@ var core_helpers = function core_helpers() {
   helpers$1.distanceBetweenPoints = function (pt1, pt2) {
     return Math.sqrt(Math.pow(pt2.x - pt1.x, 2) + Math.pow(pt2.y - pt1.y, 2));
   };
-  /**
-   * Returns the aligned pixel value to avoid anti-aliasing blur
-   * @param {Chart} chart - The chart instance.
-   * @param {number} pixel - A pixel value.
-   * @param {number} width - The width of the element.
-   * @returns {number} The aligned pixel value.
-   * @private
-   */
-
-
-  helpers$1._alignPixel = function (chart, pixel, width) {
-    var devicePixelRatio = chart.currentDevicePixelRatio;
-    var halfWidth = width / 2;
-    return Math.round((pixel - halfWidth) * devicePixelRatio) / devicePixelRatio + halfWidth;
-  };
 
   helpers$1.splineCurve = function (firstPoint, middlePoint, afterPoint, t) {
     // Props to Rob Spencer at scaled innovation for his post on splining between points
@@ -11322,6 +11320,7 @@ var core_ticks = {
   }
 };
 
+var alignPixel = helpers$1.canvas._alignPixel;
 var isArray = helpers$1.isArray;
 var isFinite$1 = helpers$1.isFinite;
 var isNullOrUndef = helpers$1.isNullOrUndef;
@@ -12407,7 +12406,6 @@ function (_Element) {
       };
       var axisWidth = gridLines.drawBorder ? resolve$4([gridLines.lineWidth, 0], context, 0) : 0;
       var axisHalfWidth = axisWidth / 2;
-      var alignPixel = helpers$1._alignPixel;
 
       var alignBorderValue = function alignBorderValue(pixel) {
         return alignPixel(chart, pixel, axisWidth);
@@ -12566,7 +12564,6 @@ function (_Element) {
 
       var ctx = me.ctx;
       var chart = me.chart;
-      var alignPixel = helpers$1._alignPixel;
       var context = {
         scale: me,
         tick: me.ticks[0]
