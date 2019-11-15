@@ -970,6 +970,7 @@
 <h2 id="data-decimation">Data Decimation</h2>
 <p>Decimating your data will achieve the best results. When there is a lot of data to display on the graph, it doesn&apos;t make sense to show tens of thousands of data points on a graph that is only a few hundred pixels wide.</p>
 <p>There are many approaches to data decimation and selection of an algorithm will depend on your data and the results you want to achieve. For instance, <a href="https://digital.ni.com/public.nsf/allkb/F694FFEEA0ACF282862576020075F784" target="_blank">min/max</a> decimation will preserve peaks in your data but could require up to 4 points for each pixel. This type of decimation would work well for a very noisy signal where you need to see data peaks.</p>
+<p>Line charts are able to do <a href="#automatic-data-decimation-during-draw">automatic data decimation during draw</a>, when certain conditions are met. You should still consider decimating data yourself before passing it in for maximum performance since the automatic decimation occurs late in the chart life cycle.</p>
 <h2 id="line-charts">Line Charts</h2>
 <h3 id="disable-bezier-curves">Disable Bezier Curves</h3>
 <p>If you are drawing lines on your chart, disabling bezier curves will improve render times since drawing a straight line is more performant than a bezier curve.</p>
@@ -981,6 +982,24 @@
         elements: {
             line: {
                 tension: <span class="hljs-number">0</span> <span class="hljs-comment">// disables bezier curves</span>
+            }
+        }
+    }
+});
+</code></pre>
+<h3 id="automatic-data-decimation-during-draw">Automatic data decimation during draw</h3>
+<p>Line element will automatically decimate data, when the following conditions are met: <code>tension</code> is <code>0</code>, <code>steppedLine</code> is <code>false</code> (default), <code>fill</code> is <code>false</code> and <code>borderDash</code> is <code>[]</code> (default).`
+This improves rendering speed by skipping drawing of invisible line segments.</p>
+<pre><code class="lang-javascript"><span class="hljs-keyword">new</span> Chart(ctx, {
+    type: <span class="hljs-string">&apos;line&apos;</span>,
+    data: data,
+    options: {
+        elements: {
+            line: {
+                tension: <span class="hljs-number">0</span>, <span class="hljs-comment">// disables bezier curves</span>
+                fill: <span class="hljs-literal">false</span>,
+                steppedLine: <span class="hljs-literal">false</span>,
+                borderDash: []
             }
         }
     }
@@ -998,6 +1017,30 @@
     },
     options: {
         showLines: <span class="hljs-literal">false</span> <span class="hljs-comment">// disable for all datasets</span>
+    }
+});
+</code></pre>
+<h3 id="disable-point-drawing">Disable Point Drawing</h3>
+<p>If you have a lot of data points, it can be more performant to disable rendering of the points for a dataset and only draw line. Doing this means that there is less to draw on the canvas which will improve render performance.</p>
+<p>To disable point drawing:</p>
+<pre><code class="lang-javascript"><span class="hljs-keyword">new</span> Chart(ctx, {
+    type: <span class="hljs-string">&apos;line&apos;</span>,
+    data: {
+        datasets: [{
+            pointRadius: <span class="hljs-number">0</span> <span class="hljs-comment">// disable for a single dataset</span>
+        }]
+    },
+    options: {
+        datasets: {
+            line: {
+                pointRadius: <span class="hljs-number">0</span> <span class="hljs-comment">// disable for all `&apos;line&apos;` datasets</span>
+            }
+        },
+        elements: {
+            point: {
+                radius: <span class="hljs-number">0</span> <span class="hljs-comment">// default to disabled in all datasets</span>
+            }
+        }
     }
 });
 </code></pre>
@@ -1044,7 +1087,7 @@
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Performance","level":"1.4.8","depth":2,"next":{"title":"Configuration","level":"1.5","depth":1,"path":"configuration/README.md","ref":"configuration/README.md","articles":[{"title":"Animations","level":"1.5.1","depth":2,"path":"configuration/animations.md","ref":"configuration/animations.md","articles":[]},{"title":"Layout","level":"1.5.2","depth":2,"path":"configuration/layout.md","ref":"configuration/layout.md","articles":[]},{"title":"Legend","level":"1.5.3","depth":2,"path":"configuration/legend.md","ref":"configuration/legend.md","articles":[]},{"title":"Title","level":"1.5.4","depth":2,"path":"configuration/title.md","ref":"configuration/title.md","articles":[]},{"title":"Tooltip","level":"1.5.5","depth":2,"path":"configuration/tooltip.md","ref":"configuration/tooltip.md","articles":[]},{"title":"Elements","level":"1.5.6","depth":2,"path":"configuration/elements.md","ref":"configuration/elements.md","articles":[]}]},"previous":{"title":"Fonts","level":"1.4.7","depth":2,"path":"general/fonts.md","ref":"general/fonts.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga","redirect"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"chartjs":{"defaults":null},"fontsettings":{"theme":"white","family":"sans","size":2},"highlight":{},"ga":{"configuration":"auto","token":"UA-28909194-3"},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"redirect":{},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"anchorjs":{"icon":"#","placement":"left","visible":"always"},"search-plus":{}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"general/performance.md","mtime":"2019-11-15T18:15:18.512Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2019-11-15T18:19:35.701Z"},"basePath":"..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Performance","level":"1.4.8","depth":2,"next":{"title":"Configuration","level":"1.5","depth":1,"path":"configuration/README.md","ref":"configuration/README.md","articles":[{"title":"Animations","level":"1.5.1","depth":2,"path":"configuration/animations.md","ref":"configuration/animations.md","articles":[]},{"title":"Layout","level":"1.5.2","depth":2,"path":"configuration/layout.md","ref":"configuration/layout.md","articles":[]},{"title":"Legend","level":"1.5.3","depth":2,"path":"configuration/legend.md","ref":"configuration/legend.md","articles":[]},{"title":"Title","level":"1.5.4","depth":2,"path":"configuration/title.md","ref":"configuration/title.md","articles":[]},{"title":"Tooltip","level":"1.5.5","depth":2,"path":"configuration/tooltip.md","ref":"configuration/tooltip.md","articles":[]},{"title":"Elements","level":"1.5.6","depth":2,"path":"configuration/elements.md","ref":"configuration/elements.md","articles":[]}]},"previous":{"title":"Fonts","level":"1.4.7","depth":2,"path":"general/fonts.md","ref":"general/fonts.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga","redirect"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"chartjs":{"defaults":null},"fontsettings":{"theme":"white","family":"sans","size":2},"highlight":{},"ga":{"configuration":"auto","token":"UA-28909194-3"},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"redirect":{},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"anchorjs":{"icon":"#","placement":"left","visible":"always"},"search-plus":{}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"general/performance.md","mtime":"2019-11-15T18:52:54.900Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2019-11-15T18:56:44.637Z"},"basePath":"..","book":{"language":""}});
         });
     </script>
 </div>
