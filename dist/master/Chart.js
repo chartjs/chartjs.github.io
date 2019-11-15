@@ -5421,6 +5421,39 @@ var controller_bar = core_datasetController.extend({
   _parseArrayData: function _parseArrayData() {
     return parseArrayOrPrimitive.apply(this, arguments);
   },
+
+  /**
+   * Overriding object data parsing since we support mixed primitive/array
+   * value-scale data for float bars
+   * @private
+   */
+  _parseObjectData: function _parseObjectData(meta, data, start, count) {
+    var iScale = this._getIndexScale();
+
+    var vScale = this._getValueScale();
+
+    var vProp = vScale._getAxis();
+
+    var parsed = [];
+    var i, ilen, item, obj, value;
+
+    for (i = start, ilen = start + count; i < ilen; ++i) {
+      obj = data[i];
+      item = {};
+      item[iScale.id] = iScale._parseObject(obj, iScale._getAxis(), i);
+      value = obj[vProp];
+
+      if (helpers$1.isArray(value)) {
+        parseFloatBar(value, item, vScale, i);
+      } else {
+        item[vScale.id] = vScale._parseObject(obj, vProp, i);
+      }
+
+      parsed.push(item);
+    }
+
+    return parsed;
+  },
   initialize: function initialize() {
     var me = this;
     var meta;
@@ -12781,9 +12814,9 @@ function (_Element) {
      */
 
   }, {
-    key: "_getAxisID",
-    value: function _getAxisID() {
-      return this.isHorizontal() ? 'xAxisID' : 'yAxisID';
+    key: "_getAxis",
+    value: function _getAxis() {
+      return this.isHorizontal() ? 'x' : 'y';
     }
     /**
      * Returns visible dataset metas that are attached to this scale
@@ -12798,8 +12831,7 @@ function (_Element) {
 
       var metas = me.chart._getSortedVisibleDatasetMetas();
 
-      var axisID = me._getAxisID();
-
+      var axisID = me._getAxis() + 'AxisID';
       var result = [];
       var i, ilen, meta;
 
