@@ -3602,10 +3602,10 @@ function listenArrayEvents(array, listener) {
 }
 
 function scaleClip(scale, allowedOverflow) {
-  var tickOpts = scale && scale.options.ticks || {};
-  var reverse = tickOpts.reverse;
-  var min = tickOpts.min === undefined ? allowedOverflow : 0;
-  var max = tickOpts.max === undefined ? allowedOverflow : 0;
+  var opts = scale && scale.options || {};
+  var reverse = opts.reverse;
+  var min = opts.min === undefined ? allowedOverflow : 0;
+  var max = opts.max === undefined ? allowedOverflow : 0;
   return {
     start: reverse ? max : min,
     end: reverse ? min : max
@@ -6595,14 +6595,12 @@ core_defaults._set('polarArea', {
     angleLines: {
       display: false
     },
+    beginAtZero: true,
     gridLines: {
       circular: true
     },
     pointLabels: {
       display: false
-    },
-    ticks: {
-      beginAtZero: true
     }
   },
   // Boolean - Whether to animate the rotation of the chart
@@ -9880,8 +9878,8 @@ helpers$1.extend(Chart.prototype,
       } // parse min/max value, so we can properly determine min/max for other scales
 
 
-      scale._userMin = scale._parse(scale.options.ticks.min);
-      scale._userMax = scale._parse(scale.options.ticks.max); // TODO(SB): I think we should be able to remove this custom case (options.scale)
+      scale._userMin = scale._parse(scale.options.min);
+      scale._userMax = scale._parse(scale.options.max); // TODO(SB): I think we should be able to remove this custom case (options.scale)
       // and consider it as a regular scale part of the "scales"" map only! This would
       // make the logic easier and remove some useless? custom code.
 
@@ -11396,6 +11394,8 @@ core_defaults._set('scale', {
   display: true,
   position: 'left',
   offset: false,
+  reverse: false,
+  beginAtZero: false,
   // grid line settings
   gridLines: {
     display: true,
@@ -11423,12 +11423,10 @@ core_defaults._set('scale', {
   },
   // label settings
   ticks: {
-    beginAtZero: false,
     minRotation: 0,
     maxRotation: 50,
     mirror: false,
     padding: 0,
-    reverse: false,
     display: true,
     autoSkip: true,
     autoSkipPadding: 0,
@@ -11971,7 +11969,7 @@ function (_Element) {
     key: "_configure",
     value: function _configure() {
       var me = this;
-      var reversePixels = me.options.ticks.reverse;
+      var reversePixels = me.options.reverse;
       var startPixel, endPixel;
 
       if (me.isHorizontal()) {
@@ -12772,7 +12770,7 @@ function (_Element) {
       var scaleLabelAlign = scaleLabel.align;
       var position = options.position;
       var rotation = 0;
-      var isReverse = me.options.ticks.reverse;
+      var isReverse = me.options.reverse;
       var scaleLabelX, scaleLabelY, textAlign;
 
       if (me.isHorizontal()) {
@@ -13116,12 +13114,11 @@ var scale_linearbase = core_scale.extend({
   },
   handleTickRangeOptions: function handleTickRangeOptions() {
     var me = this;
-    var opts = me.options;
-    var tickOpts = opts.ticks; // If we are forcing it to begin at 0, but 0 will already be rendered on the chart,
+    var opts = me.options; // If we are forcing it to begin at 0, but 0 will already be rendered on the chart,
     // do nothing since that would make the chart weird. If the user really wants a weird chart
     // axis, they can manually override it
 
-    if (tickOpts.beginAtZero) {
+    if (opts.beginAtZero) {
       var minSign = helpers$1.sign(me.min);
       var maxSign = helpers$1.sign(me.max);
 
@@ -13134,26 +13131,26 @@ var scale_linearbase = core_scale.extend({
       }
     }
 
-    var setMin = tickOpts.min !== undefined || tickOpts.suggestedMin !== undefined;
-    var setMax = tickOpts.max !== undefined || tickOpts.suggestedMax !== undefined;
+    var setMin = opts.min !== undefined || opts.suggestedMin !== undefined;
+    var setMax = opts.max !== undefined || opts.suggestedMax !== undefined;
 
-    if (tickOpts.min !== undefined) {
-      me.min = tickOpts.min;
-    } else if (tickOpts.suggestedMin !== undefined) {
+    if (opts.min !== undefined) {
+      me.min = opts.min;
+    } else if (opts.suggestedMin !== undefined) {
       if (me.min === null) {
-        me.min = tickOpts.suggestedMin;
+        me.min = opts.suggestedMin;
       } else {
-        me.min = Math.min(me.min, tickOpts.suggestedMin);
+        me.min = Math.min(me.min, opts.suggestedMin);
       }
     }
 
-    if (tickOpts.max !== undefined) {
-      me.max = tickOpts.max;
-    } else if (tickOpts.suggestedMax !== undefined) {
+    if (opts.max !== undefined) {
+      me.max = opts.max;
+    } else if (opts.suggestedMax !== undefined) {
       if (me.max === null) {
-        me.max = tickOpts.suggestedMax;
+        me.max = opts.suggestedMax;
       } else {
-        me.max = Math.max(me.max, tickOpts.suggestedMax);
+        me.max = Math.max(me.max, opts.suggestedMax);
       }
     }
 
@@ -13161,7 +13158,7 @@ var scale_linearbase = core_scale.extend({
       // We set the min or the max but not both.
       // So ensure that our range is good
       // Inverted or 0 length range can happen when
-      // ticks.min is set, and no datasets are visible
+      // min is set, and no datasets are visible
       if (me.min >= me.max) {
         if (setMin) {
           me.max = me.min + 1;
@@ -13174,7 +13171,7 @@ var scale_linearbase = core_scale.extend({
     if (me.min === me.max) {
       me.max++;
 
-      if (!tickOpts.beginAtZero) {
+      if (!opts.beginAtZero) {
         me.min--;
       }
     }
@@ -13217,8 +13214,8 @@ var scale_linearbase = core_scale.extend({
     maxTicks = Math.max(2, maxTicks);
     var numericGeneratorOptions = {
       maxTicks: maxTicks,
-      min: tickOpts.min,
-      max: tickOpts.max,
+      min: opts.min,
+      max: opts.max,
       precision: tickOpts.precision,
       stepSize: helpers$1.valueOrDefault(tickOpts.fixedStepSize, tickOpts.stepSize)
     };
@@ -13228,7 +13225,7 @@ var scale_linearbase = core_scale.extend({
 
     helpers$1._setMinAndMaxByKey(ticks, me, 'value');
 
-    if (tickOpts.reverse) {
+    if (opts.reverse) {
       ticks.reverse();
       me.start = me.max;
       me.end = me.min;
@@ -13288,7 +13285,7 @@ var scale_linear = scale_linearbase.extend({
 
     if (me.options.stacked && min > 0) {
       me.min = 0;
-    } // Common base implementation to handle ticks.min, ticks.max, ticks.beginAtZero
+    } // Common base implementation to handle min, max, beginAtZero
 
 
     me.handleTickRangeOptions();
@@ -13455,7 +13452,7 @@ var scale_logarithmic = core_scale.extend({
   },
   buildTicks: function buildTicks() {
     var me = this;
-    var tickOpts = me.options.ticks;
+    var opts = me.options;
     var reverse = !me.isHorizontal();
     var generationOptions = {
       min: me._userMin,
@@ -13466,7 +13463,7 @@ var scale_logarithmic = core_scale.extend({
 
     helpers$1._setMinAndMaxByKey(ticks, me, 'value');
 
-    if (tickOpts.reverse) {
+    if (opts.reverse) {
       reverse = !reverse;
       me.start = me.max;
       me.end = me.min;
@@ -13836,7 +13833,7 @@ var scale_radialLinear = scale_linearbase.extend({
     var min = minmax.min;
     var max = minmax.max;
     me.min = helpers$1.isFinite(min) && !isNaN(min) ? min : 0;
-    me.max = helpers$1.isFinite(max) && !isNaN(max) ? max : 0; // Common base implementation to handle ticks.min, ticks.max, ticks.beginAtZero
+    me.max = helpers$1.isFinite(max) && !isNaN(max) ? max : 0; // Common base implementation to handle min, max, beginAtZero
 
     me.handleTickRangeOptions();
   },
@@ -13909,7 +13906,7 @@ var scale_radialLinear = scale_linearbase.extend({
 
     var scalingFactor = me.drawingArea / (me.max - me.min);
 
-    if (me.options.ticks.reverse) {
+    if (me.options.reverse) {
       return (me.max - value) * scalingFactor;
     }
 
@@ -14008,7 +14005,7 @@ var scale_radialLinear = scale_linearbase.extend({
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     helpers$1.each(me.ticks, function (tick, index) {
-      if (index === 0 && !tickOpts.reverse) {
+      if (index === 0 && !opts.reverse) {
         return;
       }
 
@@ -14687,7 +14684,7 @@ var scale_time = core_scale.extend({
     me._table = buildLookupTable(getTimestampsForTable(me), min, max, distribution);
     me._offsets = computeOffsets(me._table, ticks, min, max, options);
 
-    if (tickOpts.reverse) {
+    if (options.reverse) {
       ticks.reverse();
     }
 
@@ -15015,8 +15012,8 @@ function computeCircularBoundary(source) {
     return null;
   }
 
-  start = options.ticks.reverse ? scale.max : scale.min;
-  end = options.ticks.reverse ? scale.min : scale.max;
+  start = options.reverse ? scale.max : scale.min;
+  end = options.reverse ? scale.min : scale.max;
   center = scale.getPointPositionForValue(0, start);
 
   for (i = 0; i < length; ++i) {

@@ -953,6 +953,7 @@
 <tr>
 <th>Name</th>
 <th>Type</th>
+<th>Default</th>
 <th>Description</th>
 </tr>
 </thead>
@@ -960,21 +961,55 @@
 <tr>
 <td><code>angleLines</code></td>
 <td><code>object</code></td>
+<td></td>
 <td>Angle line configuration. <a href="#angle-line-options">more...</a></td>
+</tr>
+<tr>
+<td><code>beginAtZero</code></td>
+<td><code>boolean</code></td>
+<td><code>false</code></td>
+<td>if true, scale will include 0 if it is not already included.</td>
 </tr>
 <tr>
 <td><code>gridLines</code></td>
 <td><code>object</code></td>
+<td></td>
 <td>Grid line configuration. <a href="../styling.html#grid-line-configuration">more...</a></td>
+</tr>
+<tr>
+<td><code>min</code></td>
+<td><code>number</code></td>
+<td></td>
+<td>User defined minimum number for the scale, overrides minimum value from data. <a href="#axis-range-settings">more...</a></td>
+</tr>
+<tr>
+<td><code>max</code></td>
+<td><code>number</code></td>
+<td></td>
+<td>User defined maximum number for the scale, overrides maximum value from data. <a href="#axis-range-settings">more...</a></td>
 </tr>
 <tr>
 <td><code>pointLabels</code></td>
 <td><code>object</code></td>
+<td></td>
 <td>Point label configuration. <a href="#point-label-options">more...</a></td>
+</tr>
+<tr>
+<td><code>suggestedMax</code></td>
+<td><code>number</code></td>
+<td></td>
+<td>Adjustment used when calculating the maximum data value. <a href="#axis-range-settings">more...</a></td>
+</tr>
+<tr>
+<td><code>suggestedMin</code></td>
+<td><code>number</code></td>
+<td></td>
+<td>Adjustment used when calculating the minimum data value. <a href="#axis-range-settings">more...</a></td>
 </tr>
 <tr>
 <td><code>ticks</code></td>
 <td><code>object</code></td>
+<td></td>
 <td>Tick configuration. <a href="#tick-options">more...</a></td>
 </tr>
 </tbody>
@@ -1010,24 +1045,6 @@
 <td>Vertical padding of label backdrop.</td>
 </tr>
 <tr>
-<td><code>beginAtZero</code></td>
-<td><code>boolean</code></td>
-<td><code>false</code></td>
-<td>if true, scale will include 0 if it is not already included.</td>
-</tr>
-<tr>
-<td><code>min</code></td>
-<td><code>number</code></td>
-<td></td>
-<td>User defined minimum number for the scale, overrides minimum value from data. <a href="#axis-range-settings">more...</a></td>
-</tr>
-<tr>
-<td><code>max</code></td>
-<td><code>number</code></td>
-<td></td>
-<td>User defined maximum number for the scale, overrides maximum value from data. <a href="#axis-range-settings">more...</a></td>
-</tr>
-<tr>
 <td><code>maxTicksLimit</code></td>
 <td><code>number</code></td>
 <td><code>11</code></td>
@@ -1044,18 +1061,6 @@
 <td><code>number</code></td>
 <td></td>
 <td>User defined fixed step size for the scale. <a href="#step-size">more...</a></td>
-</tr>
-<tr>
-<td><code>suggestedMax</code></td>
-<td><code>number</code></td>
-<td></td>
-<td>Adjustment used when calculating the maximum data value. <a href="#axis-range-settings">more...</a></td>
-</tr>
-<tr>
-<td><code>suggestedMin</code></td>
-<td><code>number</code></td>
-<td></td>
-<td>Adjustment used when calculating the minimum data value. <a href="#axis-range-settings">more...</a></td>
 </tr>
 <tr>
 <td><code>showLabelBackdrop</code></td>
@@ -1083,10 +1088,8 @@
     },
     options: {
         scale: {
-            ticks: {
-                suggestedMin: <span class="hljs-number">50</span>,
-                suggestedMax: <span class="hljs-number">100</span>
-            }
+            suggestedMin: <span class="hljs-number">50</span>,
+            suggestedMax: <span class="hljs-number">100</span>
         }
     }
 });
@@ -1097,9 +1100,9 @@
 <p>This example sets up a chart with a y axis that creates ticks at <code>0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5</code>.</p>
 <pre><code class="lang-javascript"><span class="hljs-keyword">let</span> options = {
     scale: {
+        max: <span class="hljs-number">5</span>,
+        min: <span class="hljs-number">0</span>,
         ticks: {
-            max: <span class="hljs-number">5</span>,
-            min: <span class="hljs-number">0</span>,
             stepSize: <span class="hljs-number">0.5</span>
         }
     }
@@ -1248,7 +1251,7 @@
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Linear","level":"1.7.2.1","depth":3,"next":{"title":"Labelling","level":"1.7.3","depth":2,"path":"axes/labelling.md","ref":"axes/labelling.md","articles":[]},"previous":{"title":"Radial","level":"1.7.2","depth":2,"path":"axes/radial/README.md","ref":"axes/radial/README.md","articles":[{"title":"Linear","level":"1.7.2.1","depth":3,"path":"axes/radial/linear.md","ref":"axes/radial/linear.md","articles":[]}]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga","redirect"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"chartjs":{"defaults":null},"fontsettings":{"theme":"white","family":"sans","size":2},"highlight":{},"ga":{"configuration":"auto","token":"UA-28909194-3"},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"redirect":{},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"anchorjs":{"icon":"#","placement":"left","visible":"always"},"search-plus":{}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"axes/radial/linear.md","mtime":"2019-11-15T16:53:24.971Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2019-11-15T16:57:45.415Z"},"basePath":"../..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Linear","level":"1.7.2.1","depth":3,"next":{"title":"Labelling","level":"1.7.3","depth":2,"path":"axes/labelling.md","ref":"axes/labelling.md","articles":[]},"previous":{"title":"Radial","level":"1.7.2","depth":2,"path":"axes/radial/README.md","ref":"axes/radial/README.md","articles":[{"title":"Linear","level":"1.7.2.1","depth":3,"path":"axes/radial/linear.md","ref":"axes/radial/linear.md","articles":[]}]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga","redirect"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"chartjs":{"defaults":null},"fontsettings":{"theme":"white","family":"sans","size":2},"highlight":{},"ga":{"configuration":"auto","token":"UA-28909194-3"},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"redirect":{},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"anchorjs":{"icon":"#","placement":"left","visible":"always"},"search-plus":{}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"axes/radial/linear.md","mtime":"2019-11-15T18:15:18.508Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2019-11-15T18:19:35.701Z"},"basePath":"../..","book":{"language":""}});
         });
     </script>
 </div>
