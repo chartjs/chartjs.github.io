@@ -4287,6 +4287,28 @@ helpers$1.extend(DatasetController.prototype, {
   _getMaxOverflow: function _getMaxOverflow() {
     return false;
   },
+
+  /**
+   * @private
+   */
+  _getLabelAndValue: function _getLabelAndValue(index) {
+    var me = this;
+
+    var indexScale = me._getIndexScale();
+
+    var valueScale = me._getValueScale();
+
+    var parsed = me._getParsed(index);
+
+    return {
+      label: indexScale ? '' + indexScale.getLabelForValue(parsed[indexScale.id]) : '',
+      value: valueScale ? '' + valueScale.getLabelForValue(parsed[valueScale.id]) : ''
+    };
+  },
+
+  /**
+   * @private
+   */
   _update: function _update(reset) {
     var me = this;
 
@@ -5454,6 +5476,26 @@ var controller_bar = core_datasetController.extend({
 
     return parsed;
   },
+
+  /**
+   * @private
+   */
+  _getLabelAndValue: function _getLabelAndValue(index) {
+    var me = this;
+
+    var indexScale = me._getIndexScale();
+
+    var valueScale = me._getValueScale();
+
+    var parsed = me._getParsed(index);
+
+    var custom = parsed._custom;
+    var value = custom ? '[' + custom.start + ', ' + custom.end + ']' : '' + valueScale.getLabelForValue(parsed[valueScale.id]);
+    return {
+      label: '' + indexScale.getLabelForValue(parsed[indexScale.id]),
+      value: value
+    };
+  },
   initialize: function initialize() {
     var me = this;
     var meta;
@@ -5711,13 +5753,6 @@ core_defaults._set('bubble', {
       title: function title() {
         // Title doesn't make sense for scatter since we format the data as a point
         return '';
-      },
-      label: function label(item, data) {
-        var datasetLabel = data.datasets[item.datasetIndex].label || '';
-        var dataPoint = data.datasets[item.datasetIndex].data[item.index] || {
-          r: '?'
-        };
-        return datasetLabel + ': (' + item.label + ', ' + item.value + ', ' + dataPoint.r + ')';
       }
     }
   }
@@ -5771,6 +5806,26 @@ var controller_bubble = core_datasetController.extend({
     var firstPoint = data[0].size();
     var lastPoint = data[data.length - 1].size();
     return Math.max(firstPoint, lastPoint) / 2;
+  },
+
+  /**
+   * @private
+   */
+  _getLabelAndValue: function _getLabelAndValue(index) {
+    var me = this;
+    var meta = me._cachedMeta;
+    var xScale = me.getScaleForId(meta.xAxisID);
+    var yScale = me.getScaleForId(meta.yAxisID);
+
+    var parsed = me._getParsed(index);
+
+    var x = xScale.getLabelForValue(parsed[xScale.id]);
+    var y = yScale.getLabelForValue(parsed[yScale.id]);
+    var r = parsed._custom;
+    return {
+      label: meta.label,
+      value: '(' + x + ', ' + y + (r ? ', ' + r : '') + ')'
+    };
   },
 
   /**
@@ -6848,6 +6903,22 @@ var controller_radar = core_datasetController.extend({
    */
   _getValueScaleId: function _getValueScaleId() {
     return this.chart.scale.id;
+  },
+
+  /**
+   * @private
+   */
+  _getLabelAndValue: function _getLabelAndValue(index) {
+    var me = this;
+
+    var scale = me._getValueScale();
+
+    var parsed = me._getParsed(index);
+
+    return {
+      label: scale._getLabels()[index],
+      value: '' + scale.getLabelForValue(parsed[scale.id])
+    };
   },
   update: function update(reset) {
     var me = this;
@@ -8628,17 +8699,14 @@ function createTooltipItem(chart, item) {
   var datasetIndex = item.datasetIndex,
       element = item.element,
       index = item.index;
-  var controller = chart.getDatasetMeta(datasetIndex).controller;
 
-  var indexScale = controller._getIndexScale();
-
-  var valueScale = controller._getValueScale();
-
-  var parsed = controller._getParsed(index);
+  var _chart$getDatasetMeta = chart.getDatasetMeta(datasetIndex).controller._getLabelAndValue(index),
+      label = _chart$getDatasetMeta.label,
+      value = _chart$getDatasetMeta.value;
 
   return {
-    label: indexScale ? '' + indexScale.getLabelForValue(parsed[indexScale.id]) : '',
-    value: valueScale ? '' + valueScale.getLabelForValue(parsed[valueScale.id]) : '',
+    label: label,
+    value: value,
     index: index,
     datasetIndex: datasetIndex,
     x: element._model.x,
@@ -9849,6 +9917,7 @@ helpers$1.extend(Chart.prototype,
       meta.type = type;
       meta.order = dataset.order || 0;
       meta.index = i;
+      meta.label = '' + dataset.label;
 
       if (meta.controller) {
         meta.controller.updateIndex(i);
