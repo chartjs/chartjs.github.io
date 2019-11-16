@@ -12998,88 +12998,122 @@ var core_scale = Scale;
 var defaultConfig = {
   position: 'bottom'
 };
-var scale_category = core_scale.extend({
-  _parse: function _parse(raw, index) {
-    var labels = this._getLabels();
 
-    var first = labels.indexOf(raw);
-    var last = labels.lastIndexOf(raw);
-    return first === -1 || first !== last ? index : first;
-  },
-  determineDataLimits: function determineDataLimits() {
-    var me = this;
-    var max = me._getLabels().length - 1;
-    me.min = Math.max(me._userMin || 0, 0);
-    me.max = Math.min(me._userMax || max, max);
-  },
-  buildTicks: function buildTicks() {
-    var me = this;
+var CategroyScale =
+/*#__PURE__*/
+function (_Scale) {
+  _inherits(CategroyScale, _Scale);
 
-    var labels = me._getLabels();
+  function CategroyScale() {
+    _classCallCheck(this, CategroyScale);
 
-    var min = me.min;
-    var max = me.max; // If we are viewing some subset of labels, slice the original array
-
-    labels = min === 0 && max === labels.length - 1 ? labels : labels.slice(min, max + 1);
-    return labels.map(function (l) {
-      return {
-        value: l
-      };
-    });
-  },
-  getLabelForValue: function getLabelForValue(value) {
-    var me = this;
-
-    var labels = me._getLabels();
-
-    if (value >= 0 && value < labels.length) {
-      return labels[value];
-    }
-
-    return value;
-  },
-  _configure: function _configure() {
-    var me = this;
-    var offset = me.options.offset;
-    var ticks = me.ticks;
-
-    core_scale.prototype._configure.call(me);
-
-    if (!me.isHorizontal()) {
-      // For backward compatibility, vertical category scale reverse is inverted.
-      me._reversePixels = !me._reversePixels;
-    }
-
-    if (!ticks) {
-      return;
-    }
-
-    me._startValue = me.min - (offset ? 0.5 : 0);
-    me._valueRange = Math.max(ticks.length - (offset ? 0 : 1), 1);
-  },
-  // Used to get data value locations.  Value can either be an index or a numerical value
-  getPixelForValue: function getPixelForValue(value) {
-    var me = this;
-
-    if (typeof value !== 'number') {
-      value = me._parse(value);
-    }
-
-    return me.getPixelForDecimal((value - me._startValue) / me._valueRange);
-  },
-  getPixelForTick: function getPixelForTick(index) {
-    var ticks = this.ticks;
-    return index < 0 || index > ticks.length - 1 ? null : this.getPixelForValue(index + this.min);
-  },
-  getValueForPixel: function getValueForPixel(pixel) {
-    var me = this;
-    var value = Math.round(me._startValue + me.getDecimalForPixel(pixel) * me._valueRange);
-    return Math.min(Math.max(value, 0), me.ticks.length - 1);
-  },
-  getBasePixel: function getBasePixel() {
-    return this.bottom;
+    return _possibleConstructorReturn(this, _getPrototypeOf(CategroyScale).apply(this, arguments));
   }
-}); // INTERNAL: static default options, registered in src/index.js
+
+  _createClass(CategroyScale, [{
+    key: "_parse",
+    value: function _parse(raw, index) {
+      var labels = this._getLabels();
+
+      var first = labels.indexOf(raw);
+      var last = labels.lastIndexOf(raw);
+      return first === -1 || first !== last ? index : first;
+    }
+  }, {
+    key: "determineDataLimits",
+    value: function determineDataLimits() {
+      var me = this;
+      var max = me._getLabels().length - 1;
+      me.min = Math.max(me._userMin || 0, 0);
+      me.max = Math.min(me._userMax || max, max);
+    }
+  }, {
+    key: "buildTicks",
+    value: function buildTicks() {
+      var me = this;
+
+      var labels = me._getLabels();
+
+      var min = me.min;
+      var max = me.max; // If we are viewing some subset of labels, slice the original array
+
+      labels = min === 0 && max === labels.length - 1 ? labels : labels.slice(min, max + 1);
+      return labels.map(function (l) {
+        return {
+          value: l
+        };
+      });
+    }
+  }, {
+    key: "getLabelForValue",
+    value: function getLabelForValue(value) {
+      var me = this;
+
+      var labels = me._getLabels();
+
+      if (value >= 0 && value < labels.length) {
+        return labels[value];
+      }
+
+      return value;
+    }
+  }, {
+    key: "_configure",
+    value: function _configure() {
+      var me = this;
+      var offset = me.options.offset;
+      var ticks = me.ticks;
+
+      core_scale.prototype._configure.call(me);
+
+      if (!me.isHorizontal()) {
+        // For backward compatibility, vertical category scale reverse is inverted.
+        me._reversePixels = !me._reversePixels;
+      }
+
+      if (!ticks) {
+        return;
+      }
+
+      me._startValue = me.min - (offset ? 0.5 : 0);
+      me._valueRange = Math.max(ticks.length - (offset ? 0 : 1), 1);
+    } // Used to get data value locations.  Value can either be an index or a numerical value
+
+  }, {
+    key: "getPixelForValue",
+    value: function getPixelForValue(value) {
+      var me = this;
+
+      if (typeof value !== 'number') {
+        value = me._parse(value);
+      }
+
+      return me.getPixelForDecimal((value - me._startValue) / me._valueRange);
+    }
+  }, {
+    key: "getPixelForTick",
+    value: function getPixelForTick(index) {
+      var ticks = this.ticks;
+      return index < 0 || index > ticks.length - 1 ? null : this.getPixelForValue(index + this.min);
+    }
+  }, {
+    key: "getValueForPixel",
+    value: function getValueForPixel(pixel) {
+      var me = this;
+      var value = Math.round(me._startValue + me.getDecimalForPixel(pixel) * me._valueRange);
+      return Math.min(Math.max(value, 0), me.ticks.length - 1);
+    }
+  }, {
+    key: "getBasePixel",
+    value: function getBasePixel() {
+      return this.bottom;
+    }
+  }]);
+
+  return CategroyScale;
+}(core_scale);
+
+var scale_category = CategroyScale; // INTERNAL: static default options, registered in src/index.js
 
 var _defaults = defaultConfig;
 scale_category._defaults = _defaults;
@@ -13174,170 +13208,201 @@ function generateTicks(generationOptions, dataRange) {
   return ticks;
 }
 
-var scale_linearbase = core_scale.extend({
-  _parse: function _parse(raw, index) {
-    // eslint-disable-line no-unused-vars
-    if (helpers$1.isNullOrUndef(raw)) {
-      return NaN;
-    }
+var LinearScaleBase =
+/*#__PURE__*/
+function (_Scale) {
+  _inherits(LinearScaleBase, _Scale);
 
-    if ((typeof raw === 'number' || raw instanceof Number) && !isFinite(raw)) {
-      return NaN;
-    }
+  function LinearScaleBase() {
+    _classCallCheck(this, LinearScaleBase);
 
-    return +raw;
-  },
-  handleTickRangeOptions: function handleTickRangeOptions() {
-    var me = this;
-    var opts = me.options; // If we are forcing it to begin at 0, but 0 will already be rendered on the chart,
-    // do nothing since that would make the chart weird. If the user really wants a weird chart
-    // axis, they can manually override it
+    return _possibleConstructorReturn(this, _getPrototypeOf(LinearScaleBase).apply(this, arguments));
+  }
 
-    if (opts.beginAtZero) {
-      var minSign = helpers$1.sign(me.min);
-      var maxSign = helpers$1.sign(me.max);
-
-      if (minSign < 0 && maxSign < 0) {
-        // move the top up to 0
-        me.max = 0;
-      } else if (minSign > 0 && maxSign > 0) {
-        // move the bottom down to 0
-        me.min = 0;
+  _createClass(LinearScaleBase, [{
+    key: "_parse",
+    value: function _parse(raw, index) {
+      // eslint-disable-line no-unused-vars
+      if (helpers$1.isNullOrUndef(raw)) {
+        return NaN;
       }
-    }
 
-    var setMin = opts.min !== undefined || opts.suggestedMin !== undefined;
-    var setMax = opts.max !== undefined || opts.suggestedMax !== undefined;
-
-    if (opts.min !== undefined) {
-      me.min = opts.min;
-    } else if (opts.suggestedMin !== undefined) {
-      if (me.min === null) {
-        me.min = opts.suggestedMin;
-      } else {
-        me.min = Math.min(me.min, opts.suggestedMin);
+      if ((typeof raw === 'number' || raw instanceof Number) && !isFinite(raw)) {
+        return NaN;
       }
-    }
 
-    if (opts.max !== undefined) {
-      me.max = opts.max;
-    } else if (opts.suggestedMax !== undefined) {
-      if (me.max === null) {
-        me.max = opts.suggestedMax;
-      } else {
-        me.max = Math.max(me.max, opts.suggestedMax);
+      return +raw;
+    }
+  }, {
+    key: "handleTickRangeOptions",
+    value: function handleTickRangeOptions() {
+      var me = this;
+      var opts = me.options; // If we are forcing it to begin at 0, but 0 will already be rendered on the chart,
+      // do nothing since that would make the chart weird. If the user really wants a weird chart
+      // axis, they can manually override it
+
+      if (opts.beginAtZero) {
+        var minSign = helpers$1.sign(me.min);
+        var maxSign = helpers$1.sign(me.max);
+
+        if (minSign < 0 && maxSign < 0) {
+          // move the top up to 0
+          me.max = 0;
+        } else if (minSign > 0 && maxSign > 0) {
+          // move the bottom down to 0
+          me.min = 0;
+        }
       }
-    }
 
-    if (setMin !== setMax) {
-      // We set the min or the max but not both.
-      // So ensure that our range is good
-      // Inverted or 0 length range can happen when
-      // min is set, and no datasets are visible
-      if (me.min >= me.max) {
-        if (setMin) {
-          me.max = me.min + 1;
+      var setMin = opts.min !== undefined || opts.suggestedMin !== undefined;
+      var setMax = opts.max !== undefined || opts.suggestedMax !== undefined;
+
+      if (opts.min !== undefined) {
+        me.min = opts.min;
+      } else if (opts.suggestedMin !== undefined) {
+        if (me.min === null) {
+          me.min = opts.suggestedMin;
         } else {
-          me.min = me.max - 1;
+          me.min = Math.min(me.min, opts.suggestedMin);
+        }
+      }
+
+      if (opts.max !== undefined) {
+        me.max = opts.max;
+      } else if (opts.suggestedMax !== undefined) {
+        if (me.max === null) {
+          me.max = opts.suggestedMax;
+        } else {
+          me.max = Math.max(me.max, opts.suggestedMax);
+        }
+      }
+
+      if (setMin !== setMax) {
+        // We set the min or the max but not both.
+        // So ensure that our range is good
+        // Inverted or 0 length range can happen when
+        // min is set, and no datasets are visible
+        if (me.min >= me.max) {
+          if (setMin) {
+            me.max = me.min + 1;
+          } else {
+            me.min = me.max - 1;
+          }
+        }
+      }
+
+      if (me.min === me.max) {
+        me.max++;
+
+        if (!opts.beginAtZero) {
+          me.min--;
         }
       }
     }
+  }, {
+    key: "getTickLimit",
+    value: function getTickLimit() {
+      var me = this;
+      var tickOpts = me.options.ticks;
+      var stepSize = tickOpts.stepSize;
+      var maxTicksLimit = tickOpts.maxTicksLimit;
+      var maxTicks;
 
-    if (me.min === me.max) {
-      me.max++;
-
-      if (!opts.beginAtZero) {
-        me.min--;
+      if (stepSize) {
+        maxTicks = Math.ceil(me.max / stepSize) - Math.floor(me.min / stepSize) + 1;
+      } else {
+        maxTicks = me._computeTickLimit();
+        maxTicksLimit = maxTicksLimit || 11;
       }
+
+      if (maxTicksLimit) {
+        maxTicks = Math.min(maxTicksLimit, maxTicks);
+      }
+
+      return maxTicks;
     }
-  },
-  getTickLimit: function getTickLimit() {
-    var me = this;
-    var tickOpts = me.options.ticks;
-    var stepSize = tickOpts.stepSize;
-    var maxTicksLimit = tickOpts.maxTicksLimit;
-    var maxTicks;
-
-    if (stepSize) {
-      maxTicks = Math.ceil(me.max / stepSize) - Math.floor(me.min / stepSize) + 1;
-    } else {
-      maxTicks = me._computeTickLimit();
-      maxTicksLimit = maxTicksLimit || 11;
+  }, {
+    key: "_computeTickLimit",
+    value: function _computeTickLimit() {
+      return Number.POSITIVE_INFINITY;
     }
-
-    if (maxTicksLimit) {
-      maxTicks = Math.min(maxTicksLimit, maxTicks);
+  }, {
+    key: "_handleDirectionalChanges",
+    value: function _handleDirectionalChanges(ticks) {
+      return ticks;
     }
+  }, {
+    key: "buildTicks",
+    value: function buildTicks() {
+      var me = this;
+      var opts = me.options;
+      var tickOpts = opts.ticks; // Figure out what the max number of ticks we can support it is based on the size of
+      // the axis area. For now, we say that the minimum tick spacing in pixels must be 40
+      // We also limit the maximum number of ticks to 11 which gives a nice 10 squares on
+      // the graph. Make sure we always have at least 2 ticks
 
-    return maxTicks;
-  },
-  _computeTickLimit: function _computeTickLimit() {
-    return Number.POSITIVE_INFINITY;
-  },
-  _handleDirectionalChanges: function _handleDirectionalChanges(ticks) {
-    return ticks;
-  },
-  buildTicks: function buildTicks() {
-    var me = this;
-    var opts = me.options;
-    var tickOpts = opts.ticks; // Figure out what the max number of ticks we can support it is based on the size of
-    // the axis area. For now, we say that the minimum tick spacing in pixels must be 40
-    // We also limit the maximum number of ticks to 11 which gives a nice 10 squares on
-    // the graph. Make sure we always have at least 2 ticks
+      var maxTicks = me.getTickLimit();
+      maxTicks = Math.max(2, maxTicks);
+      var numericGeneratorOptions = {
+        maxTicks: maxTicks,
+        min: opts.min,
+        max: opts.max,
+        precision: tickOpts.precision,
+        stepSize: helpers$1.valueOrDefault(tickOpts.fixedStepSize, tickOpts.stepSize)
+      };
+      var ticks = generateTicks(numericGeneratorOptions, me);
+      ticks = me._handleDirectionalChanges(ticks); // At this point, we need to update our max and min given the tick values since we have expanded the
+      // range of the scale
 
-    var maxTicks = me.getTickLimit();
-    maxTicks = Math.max(2, maxTicks);
-    var numericGeneratorOptions = {
-      maxTicks: maxTicks,
-      min: opts.min,
-      max: opts.max,
-      precision: tickOpts.precision,
-      stepSize: helpers$1.valueOrDefault(tickOpts.fixedStepSize, tickOpts.stepSize)
-    };
-    var ticks = generateTicks(numericGeneratorOptions, me);
-    ticks = me._handleDirectionalChanges(ticks); // At this point, we need to update our max and min given the tick values since we have expanded the
-    // range of the scale
+      helpers$1._setMinAndMaxByKey(ticks, me, 'value');
 
-    helpers$1._setMinAndMaxByKey(ticks, me, 'value');
+      if (opts.reverse) {
+        ticks.reverse();
+        me.start = me.max;
+        me.end = me.min;
+      } else {
+        me.start = me.min;
+        me.end = me.max;
+      }
 
-    if (opts.reverse) {
-      ticks.reverse();
-      me.start = me.max;
-      me.end = me.min;
-    } else {
-      me.start = me.min;
-      me.end = me.max;
+      return ticks;
     }
-
-    return ticks;
-  },
-  generateTickLabels: function generateTickLabels(ticks) {
-    var me = this;
-    me._tickValues = ticks.map(function (t) {
-      return t.value;
-    });
-    core_scale.prototype.generateTickLabels.call(me, ticks);
-  },
-  _configure: function _configure() {
-    var me = this;
-    var ticks = me.getTicks();
-    var start = me.min;
-    var end = me.max;
-    var offset;
-
-    core_scale.prototype._configure.call(me);
-
-    if (me.options.offset && ticks.length) {
-      offset = (end - start) / Math.max(ticks.length - 1, 1) / 2;
-      start -= offset;
-      end += offset;
+  }, {
+    key: "generateTickLabels",
+    value: function generateTickLabels(ticks) {
+      var me = this;
+      me._tickValues = ticks.map(function (t) {
+        return t.value;
+      });
+      core_scale.prototype.generateTickLabels.call(me, ticks);
     }
+  }, {
+    key: "_configure",
+    value: function _configure() {
+      var me = this;
+      var ticks = me.getTicks();
+      var start = me.min;
+      var end = me.max;
+      var offset;
 
-    me._startValue = start;
-    me._endValue = end;
-    me._valueRange = end - start;
-  }
-});
+      core_scale.prototype._configure.call(me);
+
+      if (me.options.offset && ticks.length) {
+        offset = (end - start) / Math.max(ticks.length - 1, 1) / 2;
+        start -= offset;
+        end += offset;
+      }
+
+      me._startValue = start;
+      me._endValue = end;
+      me._valueRange = end - start;
+    }
+  }]);
+
+  return LinearScaleBase;
+}(core_scale);
+
+var scale_linearbase = LinearScaleBase;
 
 var defaultConfig$1 = {
   position: 'left',
@@ -13345,65 +13410,93 @@ var defaultConfig$1 = {
     callback: core_ticks.formatters.linear
   }
 };
-var scale_linear = scale_linearbase.extend({
-  determineDataLimits: function determineDataLimits() {
-    var me = this;
-    var DEFAULT_MIN = 0;
-    var DEFAULT_MAX = 1;
 
-    var minmax = me._getMinMax(true);
+var LinearScale =
+/*#__PURE__*/
+function (_LinearScaleBase) {
+  _inherits(LinearScale, _LinearScaleBase);
 
-    var min = minmax.min;
-    var max = minmax.max;
-    me.min = helpers$1.isFinite(min) && !isNaN(min) ? min : DEFAULT_MIN;
-    me.max = helpers$1.isFinite(max) && !isNaN(max) ? max : DEFAULT_MAX; // Backward compatible inconsistent min for stacked
+  function LinearScale() {
+    _classCallCheck(this, LinearScale);
 
-    if (me.options.stacked && min > 0) {
-      me.min = 0;
-    } // Common base implementation to handle min, max, beginAtZero
-
-
-    me.handleTickRangeOptions();
-  },
-  // Returns the maximum number of ticks based on the scale dimension
-  _computeTickLimit: function _computeTickLimit() {
-    var me = this;
-    var tickFont;
-
-    if (me.isHorizontal()) {
-      return Math.ceil(me.width / 40);
-    }
-
-    tickFont = helpers$1.options._parseFont(me.options.ticks);
-    return Math.ceil(me.height / tickFont.lineHeight);
-  },
-
-  /**
-   * Called after the ticks are built
-   * @private
-   */
-  _handleDirectionalChanges: function _handleDirectionalChanges(ticks) {
-    // If we are in a vertical orientation the top value is the highest so reverse the array
-    return this.isHorizontal() ? ticks : ticks.reverse();
-  },
-  // Utils
-  getPixelForValue: function getPixelForValue(value) {
-    var me = this;
-    return me.getPixelForDecimal((value - me._startValue) / me._valueRange);
-  },
-  getValueForPixel: function getValueForPixel(pixel) {
-    return this._startValue + this.getDecimalForPixel(pixel) * this._valueRange;
-  },
-  getPixelForTick: function getPixelForTick(index) {
-    var ticks = this._tickValues;
-
-    if (index < 0 || index > ticks.length - 1) {
-      return null;
-    }
-
-    return this.getPixelForValue(ticks[index]);
+    return _possibleConstructorReturn(this, _getPrototypeOf(LinearScale).apply(this, arguments));
   }
-}); // INTERNAL: static default options, registered in src/index.js
+
+  _createClass(LinearScale, [{
+    key: "determineDataLimits",
+    value: function determineDataLimits() {
+      var me = this;
+      var DEFAULT_MIN = 0;
+      var DEFAULT_MAX = 1;
+
+      var minmax = me._getMinMax(true);
+
+      var min = minmax.min;
+      var max = minmax.max;
+      me.min = helpers$1.isFinite(min) && !isNaN(min) ? min : DEFAULT_MIN;
+      me.max = helpers$1.isFinite(max) && !isNaN(max) ? max : DEFAULT_MAX; // Backward compatible inconsistent min for stacked
+
+      if (me.options.stacked && min > 0) {
+        me.min = 0;
+      } // Common base implementation to handle min, max, beginAtZero
+
+
+      me.handleTickRangeOptions();
+    } // Returns the maximum number of ticks based on the scale dimension
+
+  }, {
+    key: "_computeTickLimit",
+    value: function _computeTickLimit() {
+      var me = this;
+      var tickFont;
+
+      if (me.isHorizontal()) {
+        return Math.ceil(me.width / 40);
+      }
+
+      tickFont = helpers$1.options._parseFont(me.options.ticks);
+      return Math.ceil(me.height / tickFont.lineHeight);
+    }
+    /**
+     * Called after the ticks are built
+     * @private
+     */
+
+  }, {
+    key: "_handleDirectionalChanges",
+    value: function _handleDirectionalChanges(ticks) {
+      // If we are in a vertical orientation the top value is the highest so reverse the array
+      return this.isHorizontal() ? ticks : ticks.reverse();
+    } // Utils
+
+  }, {
+    key: "getPixelForValue",
+    value: function getPixelForValue(value) {
+      var me = this;
+      return me.getPixelForDecimal((value - me._startValue) / me._valueRange);
+    }
+  }, {
+    key: "getValueForPixel",
+    value: function getValueForPixel(pixel) {
+      return this._startValue + this.getDecimalForPixel(pixel) * this._valueRange;
+    }
+  }, {
+    key: "getPixelForTick",
+    value: function getPixelForTick(index) {
+      var ticks = this._tickValues;
+
+      if (index < 0 || index > ticks.length - 1) {
+        return null;
+      }
+
+      return this.getPixelForValue(ticks[index]);
+    }
+  }]);
+
+  return LinearScale;
+}(scale_linearbase);
+
+var scale_linear = LinearScale; // INTERNAL: static default options, registered in src/index.js
 
 var _defaults$1 = defaultConfig$1;
 scale_linear._defaults = _defaults$1;
@@ -13467,151 +13560,187 @@ var defaultConfig$2 = {
     callback: core_ticks.formatters.logarithmic
   }
 };
-var scale_logarithmic = core_scale.extend({
-  _parse: function _parse(raw, index) {
-    // eslint-disable-line no-unused-vars
-    var value = scale_linearbase.prototype._parse.apply(this, arguments);
 
-    return helpers$1.isFinite(value) && value >= 0 ? value : undefined;
-  },
-  determineDataLimits: function determineDataLimits() {
-    var me = this;
+var LogarithmicScale =
+/*#__PURE__*/
+function (_Scale) {
+  _inherits(LogarithmicScale, _Scale);
 
-    var minmax = me._getMinMax(true);
+  function LogarithmicScale() {
+    _classCallCheck(this, LogarithmicScale);
 
-    var min = minmax.min;
-    var max = minmax.max;
-    var minPositive = minmax.minPositive;
-    me.min = helpers$1.isFinite(min) ? Math.max(0, min) : null;
-    me.max = helpers$1.isFinite(max) ? Math.max(0, max) : null;
-    me.minNotZero = helpers$1.isFinite(minPositive) ? minPositive : null;
-    me.handleTickRangeOptions();
-  },
-  handleTickRangeOptions: function handleTickRangeOptions() {
-    var me = this;
-    var DEFAULT_MIN = 1;
-    var DEFAULT_MAX = 10;
-    var min = me.min;
-    var max = me.max;
-
-    if (min === max) {
-      if (min !== 0 && min !== null) {
-        min = Math.pow(10, Math.floor(log10(min)) - 1);
-        max = Math.pow(10, Math.floor(log10(max)) + 1);
-      } else {
-        min = DEFAULT_MIN;
-        max = DEFAULT_MAX;
-      }
-    }
-
-    if (min === null) {
-      min = Math.pow(10, Math.floor(log10(max)) - 1);
-    }
-
-    if (max === null) {
-      max = min !== 0 ? Math.pow(10, Math.floor(log10(min)) + 1) : DEFAULT_MAX;
-    }
-
-    if (me.minNotZero === null) {
-      if (min > 0) {
-        me.minNotZero = min;
-      } else if (max < 1) {
-        me.minNotZero = Math.pow(10, Math.floor(log10(max)));
-      } else {
-        me.minNotZero = DEFAULT_MIN;
-      }
-    }
-
-    me.min = min;
-    me.max = max;
-  },
-  buildTicks: function buildTicks() {
-    var me = this;
-    var opts = me.options;
-    var reverse = !me.isHorizontal();
-    var generationOptions = {
-      min: me._userMin,
-      max: me._userMax
-    };
-    var ticks = generateTicks$1(generationOptions, me); // At this point, we need to update our max and min given the tick values since we have expanded the
-    // range of the scale
-
-    helpers$1._setMinAndMaxByKey(ticks, me, 'value');
-
-    if (opts.reverse) {
-      reverse = !reverse;
-      me.start = me.max;
-      me.end = me.min;
-    } else {
-      me.start = me.min;
-      me.end = me.max;
-    }
-
-    if (reverse) {
-      ticks.reverse();
-    }
-
-    return ticks;
-  },
-  generateTickLabels: function generateTickLabels(ticks) {
-    this._tickValues = ticks.map(function (t) {
-      return t.value;
-    });
-    return core_scale.prototype.generateTickLabels.call(this, ticks);
-  },
-  getPixelForTick: function getPixelForTick(index) {
-    var ticks = this._tickValues;
-
-    if (index < 0 || index > ticks.length - 1) {
-      return null;
-    }
-
-    return this.getPixelForValue(ticks[index]);
-  },
-
-  /**
-   * Returns the value of the first tick.
-   * @param {number} value - The minimum not zero value.
-   * @return {number} The first tick value.
-   * @private
-   */
-  _getFirstTickValue: function _getFirstTickValue(value) {
-    var exp = Math.floor(log10(value));
-    var significand = Math.floor(value / Math.pow(10, exp));
-    return significand * Math.pow(10, exp);
-  },
-  _configure: function _configure() {
-    var me = this;
-    var start = me.min;
-    var offset = 0;
-
-    core_scale.prototype._configure.call(me);
-
-    if (start === 0) {
-      start = me._getFirstTickValue(me.minNotZero);
-      offset = valueOrDefault$9(me.options.ticks.fontSize, core_defaults.global.defaultFontSize) / me._length;
-    }
-
-    me._startValue = log10(start);
-    me._valueOffset = offset;
-    me._valueRange = (log10(me.max) - log10(start)) / (1 - offset);
-  },
-  getPixelForValue: function getPixelForValue(value) {
-    var me = this;
-    var decimal = 0;
-
-    if (value > me.min && value > 0) {
-      decimal = (log10(value) - me._startValue) / me._valueRange + me._valueOffset;
-    }
-
-    return me.getPixelForDecimal(decimal);
-  },
-  getValueForPixel: function getValueForPixel(pixel) {
-    var me = this;
-    var decimal = me.getDecimalForPixel(pixel);
-    return decimal === 0 && me.min === 0 ? 0 : Math.pow(10, me._startValue + (decimal - me._valueOffset) * me._valueRange);
+    return _possibleConstructorReturn(this, _getPrototypeOf(LogarithmicScale).apply(this, arguments));
   }
-}); // INTERNAL: static default options, registered in src/index.js
+
+  _createClass(LogarithmicScale, [{
+    key: "_parse",
+    value: function _parse(raw, index) {
+      // eslint-disable-line no-unused-vars
+      var value = scale_linearbase.prototype._parse.apply(this, arguments);
+
+      return helpers$1.isFinite(value) && value >= 0 ? value : undefined;
+    }
+  }, {
+    key: "determineDataLimits",
+    value: function determineDataLimits() {
+      var me = this;
+
+      var minmax = me._getMinMax(true);
+
+      var min = minmax.min;
+      var max = minmax.max;
+      var minPositive = minmax.minPositive;
+      me.min = helpers$1.isFinite(min) ? Math.max(0, min) : null;
+      me.max = helpers$1.isFinite(max) ? Math.max(0, max) : null;
+      me.minNotZero = helpers$1.isFinite(minPositive) ? minPositive : null;
+      me.handleTickRangeOptions();
+    }
+  }, {
+    key: "handleTickRangeOptions",
+    value: function handleTickRangeOptions() {
+      var me = this;
+      var DEFAULT_MIN = 1;
+      var DEFAULT_MAX = 10;
+      var min = me.min;
+      var max = me.max;
+
+      if (min === max) {
+        if (min !== 0 && min !== null) {
+          min = Math.pow(10, Math.floor(log10(min)) - 1);
+          max = Math.pow(10, Math.floor(log10(max)) + 1);
+        } else {
+          min = DEFAULT_MIN;
+          max = DEFAULT_MAX;
+        }
+      }
+
+      if (min === null) {
+        min = Math.pow(10, Math.floor(log10(max)) - 1);
+      }
+
+      if (max === null) {
+        max = min !== 0 ? Math.pow(10, Math.floor(log10(min)) + 1) : DEFAULT_MAX;
+      }
+
+      if (me.minNotZero === null) {
+        if (min > 0) {
+          me.minNotZero = min;
+        } else if (max < 1) {
+          me.minNotZero = Math.pow(10, Math.floor(log10(max)));
+        } else {
+          me.minNotZero = DEFAULT_MIN;
+        }
+      }
+
+      me.min = min;
+      me.max = max;
+    }
+  }, {
+    key: "buildTicks",
+    value: function buildTicks() {
+      var me = this;
+      var opts = me.options;
+      var reverse = !me.isHorizontal();
+      var generationOptions = {
+        min: me._userMin,
+        max: me._userMax
+      };
+      var ticks = generateTicks$1(generationOptions, me); // At this point, we need to update our max and min given the tick values since we have expanded the
+      // range of the scale
+
+      helpers$1._setMinAndMaxByKey(ticks, me, 'value');
+
+      if (opts.reverse) {
+        reverse = !reverse;
+        me.start = me.max;
+        me.end = me.min;
+      } else {
+        me.start = me.min;
+        me.end = me.max;
+      }
+
+      if (reverse) {
+        ticks.reverse();
+      }
+
+      return ticks;
+    }
+  }, {
+    key: "generateTickLabels",
+    value: function generateTickLabels(ticks) {
+      this._tickValues = ticks.map(function (t) {
+        return t.value;
+      });
+      return core_scale.prototype.generateTickLabels.call(this, ticks);
+    }
+  }, {
+    key: "getPixelForTick",
+    value: function getPixelForTick(index) {
+      var ticks = this._tickValues;
+
+      if (index < 0 || index > ticks.length - 1) {
+        return null;
+      }
+
+      return this.getPixelForValue(ticks[index]);
+    }
+    /**
+     * Returns the value of the first tick.
+     * @param {number} value - The minimum not zero value.
+     * @return {number} The first tick value.
+     * @private
+     */
+
+  }, {
+    key: "_getFirstTickValue",
+    value: function _getFirstTickValue(value) {
+      var exp = Math.floor(log10(value));
+      var significand = Math.floor(value / Math.pow(10, exp));
+      return significand * Math.pow(10, exp);
+    }
+  }, {
+    key: "_configure",
+    value: function _configure() {
+      var me = this;
+      var start = me.min;
+      var offset = 0;
+
+      core_scale.prototype._configure.call(me);
+
+      if (start === 0) {
+        start = me._getFirstTickValue(me.minNotZero);
+        offset = valueOrDefault$9(me.options.ticks.fontSize, core_defaults.global.defaultFontSize) / me._length;
+      }
+
+      me._startValue = log10(start);
+      me._valueOffset = offset;
+      me._valueRange = (log10(me.max) - log10(start)) / (1 - offset);
+    }
+  }, {
+    key: "getPixelForValue",
+    value: function getPixelForValue(value) {
+      var me = this;
+      var decimal = 0;
+
+      if (value > me.min && value > 0) {
+        decimal = (log10(value) - me._startValue) / me._valueRange + me._valueOffset;
+      }
+
+      return me.getPixelForDecimal(decimal);
+    }
+  }, {
+    key: "getValueForPixel",
+    value: function getValueForPixel(pixel) {
+      var me = this;
+      var decimal = me.getDecimalForPixel(pixel);
+      return decimal === 0 && me.min === 0 ? 0 : Math.pow(10, me._startValue + (decimal - me._valueOffset) * me._valueRange);
+    }
+  }]);
+
+  return LogarithmicScale;
+}(core_scale);
+
+var scale_logarithmic = LogarithmicScale; // INTERNAL: static default options, registered in src/index.js
 
 var _defaults$2 = defaultConfig$2;
 scale_logarithmic._defaults = _defaults$2;
@@ -13889,220 +14018,265 @@ function numberOrZero(param) {
   return helpers$1.isNumber(param) ? param : 0;
 }
 
-var scale_radialLinear = scale_linearbase.extend({
-  setDimensions: function setDimensions() {
-    var me = this; // Set the unconstrained dimension before label rotation
+var RadialLinearScale =
+/*#__PURE__*/
+function (_LinearScaleBase) {
+  _inherits(RadialLinearScale, _LinearScaleBase);
 
-    me.width = me.maxWidth;
-    me.height = me.maxHeight;
-    me.paddingTop = getTickBackdropHeight(me.options) / 2;
-    me.xCenter = Math.floor(me.width / 2);
-    me.yCenter = Math.floor((me.height - me.paddingTop) / 2);
-    me.drawingArea = Math.min(me.height - me.paddingTop, me.width) / 2;
-  },
-  determineDataLimits: function determineDataLimits() {
-    var me = this;
+  function RadialLinearScale() {
+    _classCallCheck(this, RadialLinearScale);
 
-    var minmax = me._getMinMax(false);
+    return _possibleConstructorReturn(this, _getPrototypeOf(RadialLinearScale).apply(this, arguments));
+  }
 
-    var min = minmax.min;
-    var max = minmax.max;
-    me.min = helpers$1.isFinite(min) && !isNaN(min) ? min : 0;
-    me.max = helpers$1.isFinite(max) && !isNaN(max) ? max : 0; // Common base implementation to handle min, max, beginAtZero
+  _createClass(RadialLinearScale, [{
+    key: "setDimensions",
+    value: function setDimensions() {
+      var me = this; // Set the unconstrained dimension before label rotation
 
-    me.handleTickRangeOptions();
-  },
-  // Returns the maximum number of ticks based on the scale dimension
-  _computeTickLimit: function _computeTickLimit() {
-    return Math.ceil(this.drawingArea / getTickBackdropHeight(this.options));
-  },
-  generateTickLabels: function generateTickLabels(ticks) {
-    var me = this;
-    scale_linearbase.prototype.generateTickLabels.call(me, ticks); // Point labels
-
-    me.pointLabels = me.chart.data.labels.map(function () {
-      var label = helpers$1.callback(me.options.pointLabels.callback, arguments, me);
-      return label || label === 0 ? label : '';
-    });
-  },
-  fit: function fit() {
-    var me = this;
-    var opts = me.options;
-
-    if (opts.display && opts.pointLabels.display) {
-      fitWithPointLabels(me);
-    } else {
-      me.setCenterPoint(0, 0, 0, 0);
+      me.width = me.maxWidth;
+      me.height = me.maxHeight;
+      me.paddingTop = getTickBackdropHeight(me.options) / 2;
+      me.xCenter = Math.floor(me.width / 2);
+      me.yCenter = Math.floor((me.height - me.paddingTop) / 2);
+      me.drawingArea = Math.min(me.height - me.paddingTop, me.width) / 2;
     }
-  },
+  }, {
+    key: "determineDataLimits",
+    value: function determineDataLimits() {
+      var me = this;
 
-  /**
-   * Set radius reductions and determine new radius and center point
-   * @private
-   */
-  setReductions: function setReductions(largestPossibleRadius, furthestLimits, furthestAngles) {
-    var me = this;
-    var radiusReductionLeft = furthestLimits.l / Math.sin(furthestAngles.l);
-    var radiusReductionRight = Math.max(furthestLimits.r - me.width, 0) / Math.sin(furthestAngles.r);
-    var radiusReductionTop = -furthestLimits.t / Math.cos(furthestAngles.t);
-    var radiusReductionBottom = -Math.max(furthestLimits.b - (me.height - me.paddingTop), 0) / Math.cos(furthestAngles.b);
-    radiusReductionLeft = numberOrZero(radiusReductionLeft);
-    radiusReductionRight = numberOrZero(radiusReductionRight);
-    radiusReductionTop = numberOrZero(radiusReductionTop);
-    radiusReductionBottom = numberOrZero(radiusReductionBottom);
-    me.drawingArea = Math.min(Math.floor(largestPossibleRadius - (radiusReductionLeft + radiusReductionRight) / 2), Math.floor(largestPossibleRadius - (radiusReductionTop + radiusReductionBottom) / 2));
-    me.setCenterPoint(radiusReductionLeft, radiusReductionRight, radiusReductionTop, radiusReductionBottom);
-  },
-  setCenterPoint: function setCenterPoint(leftMovement, rightMovement, topMovement, bottomMovement) {
-    var me = this;
-    var maxRight = me.width - rightMovement - me.drawingArea;
-    var maxLeft = leftMovement + me.drawingArea;
-    var maxTop = topMovement + me.drawingArea;
-    var maxBottom = me.height - me.paddingTop - bottomMovement - me.drawingArea;
-    me.xCenter = Math.floor((maxLeft + maxRight) / 2 + me.left);
-    me.yCenter = Math.floor((maxTop + maxBottom) / 2 + me.top + me.paddingTop);
-  },
-  getIndexAngle: function getIndexAngle(index) {
-    var chart = this.chart;
-    var angleMultiplier = 360 / chart.data.labels.length;
-    var options = chart.options || {};
-    var startAngle = options.startAngle || 0; // Start from the top instead of right, so remove a quarter of the circle
+      var minmax = me._getMinMax(false);
 
-    var angle = (index * angleMultiplier + startAngle) % 360;
-    return (angle < 0 ? angle + 360 : angle) * Math.PI * 2 / 360;
-  },
-  getDistanceFromCenterForValue: function getDistanceFromCenterForValue(value) {
-    var me = this;
+      var min = minmax.min;
+      var max = minmax.max;
+      me.min = helpers$1.isFinite(min) && !isNaN(min) ? min : 0;
+      me.max = helpers$1.isFinite(max) && !isNaN(max) ? max : 0; // Common base implementation to handle min, max, beginAtZero
 
-    if (helpers$1.isNullOrUndef(value)) {
-      return NaN;
-    } // Take into account half font size + the yPadding of the top value
+      me.handleTickRangeOptions();
+    } // Returns the maximum number of ticks based on the scale dimension
 
-
-    var scalingFactor = me.drawingArea / (me.max - me.min);
-
-    if (me.options.reverse) {
-      return (me.max - value) * scalingFactor;
+  }, {
+    key: "_computeTickLimit",
+    value: function _computeTickLimit() {
+      return Math.ceil(this.drawingArea / getTickBackdropHeight(this.options));
     }
+  }, {
+    key: "generateTickLabels",
+    value: function generateTickLabels(ticks) {
+      var me = this;
+      scale_linearbase.prototype.generateTickLabels.call(me, ticks); // Point labels
 
-    return (value - me.min) * scalingFactor;
-  },
-  getPointPosition: function getPointPosition(index, distanceFromCenter) {
-    var me = this;
-    var thisAngle = me.getIndexAngle(index) - Math.PI / 2;
-    return {
-      x: Math.cos(thisAngle) * distanceFromCenter + me.xCenter,
-      y: Math.sin(thisAngle) * distanceFromCenter + me.yCenter
-    };
-  },
-  getPointPositionForValue: function getPointPositionForValue(index, value) {
-    return this.getPointPosition(index, this.getDistanceFromCenterForValue(value));
-  },
-  getBasePosition: function getBasePosition(index) {
-    var me = this;
-    var min = me.min;
-    var max = me.max;
-    return me.getPointPositionForValue(index || 0, me.beginAtZero ? 0 : min < 0 && max < 0 ? max : min > 0 && max > 0 ? min : 0);
-  },
-
-  /**
-   * @private
-   */
-  _drawGrid: function _drawGrid() {
-    var me = this;
-    var ctx = me.ctx;
-    var opts = me.options;
-    var gridLineOpts = opts.gridLines;
-    var angleLineOpts = opts.angleLines;
-    var lineWidth = valueOrDefault$a(angleLineOpts.lineWidth, gridLineOpts.lineWidth);
-    var lineColor = valueOrDefault$a(angleLineOpts.color, gridLineOpts.color);
-    var i, offset, position;
-
-    if (opts.pointLabels.display) {
-      drawPointLabels(me);
-    }
-
-    if (gridLineOpts.display) {
-      helpers$1.each(me.ticks, function (tick, index) {
-        if (index !== 0) {
-          offset = me.getDistanceFromCenterForValue(me._tickValues[index]);
-          drawRadiusLine(me, gridLineOpts, offset, index);
-        }
+      me.pointLabels = me.chart.data.labels.map(function () {
+        var label = helpers$1.callback(me.options.pointLabels.callback, arguments, me);
+        return label || label === 0 ? label : '';
       });
     }
+  }, {
+    key: "fit",
+    value: function fit() {
+      var me = this;
+      var opts = me.options;
 
-    if (angleLineOpts.display && lineWidth && lineColor) {
-      ctx.save();
-      ctx.lineWidth = lineWidth;
-      ctx.strokeStyle = lineColor;
+      if (opts.display && opts.pointLabels.display) {
+        fitWithPointLabels(me);
+      } else {
+        me.setCenterPoint(0, 0, 0, 0);
+      }
+    }
+    /**
+     * Set radius reductions and determine new radius and center point
+     * @private
+     */
 
-      if (ctx.setLineDash) {
-        ctx.setLineDash(resolve$5([angleLineOpts.borderDash, gridLineOpts.borderDash, []]));
-        ctx.lineDashOffset = resolve$5([angleLineOpts.borderDashOffset, gridLineOpts.borderDashOffset, 0.0]);
+  }, {
+    key: "setReductions",
+    value: function setReductions(largestPossibleRadius, furthestLimits, furthestAngles) {
+      var me = this;
+      var radiusReductionLeft = furthestLimits.l / Math.sin(furthestAngles.l);
+      var radiusReductionRight = Math.max(furthestLimits.r - me.width, 0) / Math.sin(furthestAngles.r);
+      var radiusReductionTop = -furthestLimits.t / Math.cos(furthestAngles.t);
+      var radiusReductionBottom = -Math.max(furthestLimits.b - (me.height - me.paddingTop), 0) / Math.cos(furthestAngles.b);
+      radiusReductionLeft = numberOrZero(radiusReductionLeft);
+      radiusReductionRight = numberOrZero(radiusReductionRight);
+      radiusReductionTop = numberOrZero(radiusReductionTop);
+      radiusReductionBottom = numberOrZero(radiusReductionBottom);
+      me.drawingArea = Math.min(Math.floor(largestPossibleRadius - (radiusReductionLeft + radiusReductionRight) / 2), Math.floor(largestPossibleRadius - (radiusReductionTop + radiusReductionBottom) / 2));
+      me.setCenterPoint(radiusReductionLeft, radiusReductionRight, radiusReductionTop, radiusReductionBottom);
+    }
+  }, {
+    key: "setCenterPoint",
+    value: function setCenterPoint(leftMovement, rightMovement, topMovement, bottomMovement) {
+      var me = this;
+      var maxRight = me.width - rightMovement - me.drawingArea;
+      var maxLeft = leftMovement + me.drawingArea;
+      var maxTop = topMovement + me.drawingArea;
+      var maxBottom = me.height - me.paddingTop - bottomMovement - me.drawingArea;
+      me.xCenter = Math.floor((maxLeft + maxRight) / 2 + me.left);
+      me.yCenter = Math.floor((maxTop + maxBottom) / 2 + me.top + me.paddingTop);
+    }
+  }, {
+    key: "getIndexAngle",
+    value: function getIndexAngle(index) {
+      var chart = this.chart;
+      var angleMultiplier = 360 / chart.data.labels.length;
+      var options = chart.options || {};
+      var startAngle = options.startAngle || 0; // Start from the top instead of right, so remove a quarter of the circle
+
+      var angle = (index * angleMultiplier + startAngle) % 360;
+      return (angle < 0 ? angle + 360 : angle) * Math.PI * 2 / 360;
+    }
+  }, {
+    key: "getDistanceFromCenterForValue",
+    value: function getDistanceFromCenterForValue(value) {
+      var me = this;
+
+      if (helpers$1.isNullOrUndef(value)) {
+        return NaN;
+      } // Take into account half font size + the yPadding of the top value
+
+
+      var scalingFactor = me.drawingArea / (me.max - me.min);
+
+      if (me.options.reverse) {
+        return (me.max - value) * scalingFactor;
       }
 
-      for (i = me.chart.data.labels.length - 1; i >= 0; i--) {
-        offset = me.getDistanceFromCenterForValue(opts.ticks.reverse ? me.min : me.max);
-        position = me.getPointPosition(i, offset);
-        ctx.beginPath();
-        ctx.moveTo(me.xCenter, me.yCenter);
-        ctx.lineTo(position.x, position.y);
-        ctx.stroke();
+      return (value - me.min) * scalingFactor;
+    }
+  }, {
+    key: "getPointPosition",
+    value: function getPointPosition(index, distanceFromCenter) {
+      var me = this;
+      var thisAngle = me.getIndexAngle(index) - Math.PI / 2;
+      return {
+        x: Math.cos(thisAngle) * distanceFromCenter + me.xCenter,
+        y: Math.sin(thisAngle) * distanceFromCenter + me.yCenter
+      };
+    }
+  }, {
+    key: "getPointPositionForValue",
+    value: function getPointPositionForValue(index, value) {
+      return this.getPointPosition(index, this.getDistanceFromCenterForValue(value));
+    }
+  }, {
+    key: "getBasePosition",
+    value: function getBasePosition(index) {
+      var me = this;
+      var min = me.min;
+      var max = me.max;
+      return me.getPointPositionForValue(index || 0, me.beginAtZero ? 0 : min < 0 && max < 0 ? max : min > 0 && max > 0 ? min : 0);
+    }
+    /**
+     * @private
+     */
+
+  }, {
+    key: "_drawGrid",
+    value: function _drawGrid() {
+      var me = this;
+      var ctx = me.ctx;
+      var opts = me.options;
+      var gridLineOpts = opts.gridLines;
+      var angleLineOpts = opts.angleLines;
+      var lineWidth = valueOrDefault$a(angleLineOpts.lineWidth, gridLineOpts.lineWidth);
+      var lineColor = valueOrDefault$a(angleLineOpts.color, gridLineOpts.color);
+      var i, offset, position;
+
+      if (opts.pointLabels.display) {
+        drawPointLabels(me);
       }
 
-      ctx.restore();
+      if (gridLineOpts.display) {
+        helpers$1.each(me.ticks, function (tick, index) {
+          if (index !== 0) {
+            offset = me.getDistanceFromCenterForValue(me._tickValues[index]);
+            drawRadiusLine(me, gridLineOpts, offset, index);
+          }
+        });
+      }
+
+      if (angleLineOpts.display && lineWidth && lineColor) {
+        ctx.save();
+        ctx.lineWidth = lineWidth;
+        ctx.strokeStyle = lineColor;
+
+        if (ctx.setLineDash) {
+          ctx.setLineDash(resolve$5([angleLineOpts.borderDash, gridLineOpts.borderDash, []]));
+          ctx.lineDashOffset = resolve$5([angleLineOpts.borderDashOffset, gridLineOpts.borderDashOffset, 0.0]);
+        }
+
+        for (i = me.chart.data.labels.length - 1; i >= 0; i--) {
+          offset = me.getDistanceFromCenterForValue(opts.ticks.reverse ? me.min : me.max);
+          position = me.getPointPosition(i, offset);
+          ctx.beginPath();
+          ctx.moveTo(me.xCenter, me.yCenter);
+          ctx.lineTo(position.x, position.y);
+          ctx.stroke();
+        }
+
+        ctx.restore();
+      }
     }
-  },
+    /**
+     * @private
+     */
 
-  /**
-   * @private
-   */
-  _drawLabels: function _drawLabels() {
-    var me = this;
-    var ctx = me.ctx;
-    var opts = me.options;
-    var tickOpts = opts.ticks;
+  }, {
+    key: "_drawLabels",
+    value: function _drawLabels() {
+      var me = this;
+      var ctx = me.ctx;
+      var opts = me.options;
+      var tickOpts = opts.ticks;
 
-    if (!tickOpts.display) {
-      return;
-    }
-
-    var startAngle = me.getIndexAngle(0);
-
-    var tickFont = helpers$1.options._parseFont(tickOpts);
-
-    var tickFontColor = valueOrDefault$a(tickOpts.fontColor, core_defaults.global.defaultFontColor);
-    var offset, width;
-    ctx.save();
-    ctx.font = tickFont.string;
-    ctx.translate(me.xCenter, me.yCenter);
-    ctx.rotate(startAngle);
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    helpers$1.each(me.ticks, function (tick, index) {
-      if (index === 0 && !opts.reverse) {
+      if (!tickOpts.display) {
         return;
       }
 
-      offset = me.getDistanceFromCenterForValue(me._tickValues[index]);
+      var startAngle = me.getIndexAngle(0);
 
-      if (tickOpts.showLabelBackdrop) {
-        width = ctx.measureText(tick.label).width;
-        ctx.fillStyle = tickOpts.backdropColor;
-        ctx.fillRect(-width / 2 - tickOpts.backdropPaddingX, -offset - tickFont.size / 2 - tickOpts.backdropPaddingY, width + tickOpts.backdropPaddingX * 2, tickFont.size + tickOpts.backdropPaddingY * 2);
-      }
+      var tickFont = helpers$1.options._parseFont(tickOpts);
 
-      ctx.fillStyle = tickFontColor;
-      ctx.fillText(tick.label, 0, -offset);
-    });
-    ctx.restore();
-  },
+      var tickFontColor = valueOrDefault$a(tickOpts.fontColor, core_defaults.global.defaultFontColor);
+      var offset, width;
+      ctx.save();
+      ctx.font = tickFont.string;
+      ctx.translate(me.xCenter, me.yCenter);
+      ctx.rotate(startAngle);
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      helpers$1.each(me.ticks, function (tick, index) {
+        if (index === 0 && !opts.reverse) {
+          return;
+        }
 
-  /**
-   * @private
-   */
-  _drawTitle: helpers$1.noop
-}); // INTERNAL: static default options, registered in src/index.js
+        offset = me.getDistanceFromCenterForValue(me._tickValues[index]);
+
+        if (tickOpts.showLabelBackdrop) {
+          width = ctx.measureText(tick.label).width;
+          ctx.fillStyle = tickOpts.backdropColor;
+          ctx.fillRect(-width / 2 - tickOpts.backdropPaddingX, -offset - tickFont.size / 2 - tickOpts.backdropPaddingY, width + tickOpts.backdropPaddingX * 2, tickFont.size + tickOpts.backdropPaddingY * 2);
+        }
+
+        ctx.fillStyle = tickFontColor;
+        ctx.fillText(tick.label, 0, -offset);
+      });
+      ctx.restore();
+    }
+    /**
+     * @private
+     */
+
+  }, {
+    key: "_drawTitle",
+    value: function _drawTitle() {}
+  }]);
+
+  return RadialLinearScale;
+}(scale_linearbase);
+
+var scale_radialLinear = RadialLinearScale; // INTERNAL: static default options, registered in src/index.js
 
 var _defaults$3 = defaultConfig$3;
 scale_radialLinear._defaults = _defaults$3;
@@ -14657,31 +14831,51 @@ var defaultConfig$4 = {
     }
   }
 };
-var scale_time = core_scale.extend({
-  _parse: function _parse(raw, index) {
-    // eslint-disable-line no-unused-vars
-    if (raw === undefined) {
-      return NaN;
-    }
 
-    return parse(this, raw);
-  },
-  _parseObject: function _parseObject(obj, axis, index) {
-    if (obj && obj.t) {
-      return this._parse(obj.t, index);
-    }
+var TimeScale =
+/*#__PURE__*/
+function (_Scale) {
+  _inherits(TimeScale, _Scale);
 
-    if (obj[axis] !== undefined) {
-      return this._parse(obj[axis], index);
-    }
+  _createClass(TimeScale, [{
+    key: "_parse",
+    value: function _parse(raw, index) {
+      // eslint-disable-line no-unused-vars
+      if (raw === undefined) {
+        return NaN;
+      }
 
-    return null;
-  },
-  _invalidateCaches: function _invalidateCaches() {
-    this._cache = {};
-  },
-  initialize: function initialize() {
-    var me = this;
+      return parse(this, raw);
+    }
+  }, {
+    key: "_parseObject",
+    value: function _parseObject(obj, axis, index) {
+      if (obj && obj.t) {
+        return this._parse(obj.t, index);
+      }
+
+      if (obj[axis] !== undefined) {
+        return this._parse(obj[axis], index);
+      }
+
+      return null;
+    }
+  }, {
+    key: "_invalidateCaches",
+    value: function _invalidateCaches() {
+      this._cache = {};
+    }
+  }]);
+
+  function TimeScale(props) {
+    var _this;
+
+    _classCallCheck(this, TimeScale);
+
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(TimeScale).call(this, props));
+
+    var me = _assertThisInitialized(_this);
+
     var options = me.options;
     var time = options.time || (options.time = {});
     var adapter = me._adapter = new core_adapters._date(options.adapters.date);
@@ -14691,192 +14885,220 @@ var scale_time = core_scale.extend({
     // missing formats on update
 
     helpers$1.mergeIf(time.displayFormats, adapter.formats());
-    core_scale.prototype.initialize.call(me);
-  },
-  determineDataLimits: function determineDataLimits() {
-    var me = this;
-    var options = me.options;
-    var adapter = me._adapter;
-    var unit = options.time.unit || 'day';
-
-    var _me$_getUserBounds = me._getUserBounds(),
-        min = _me$_getUserBounds.min,
-        max = _me$_getUserBounds.max,
-        minDefined = _me$_getUserBounds.minDefined,
-        maxDefined = _me$_getUserBounds.maxDefined;
-
-    function _applyBounds(bounds) {
-      if (!minDefined && !isNaN(bounds.min)) {
-        min = Math.min(min, bounds.min);
-      }
-
-      if (!maxDefined && !isNaN(bounds.max)) {
-        max = Math.max(max, bounds.max);
-      }
-    } // If we have user provided `min` and `max` labels / data bounds can be ignored
-
-
-    if (!minDefined || !maxDefined) {
-      // Labels are always considered, when user did not force bounds
-      _applyBounds(getLabelBounds(me)); // If `bounds` is `'ticks'` and `ticks.source` is `'labels'`,
-      // data bounds are ignored (and don't need to be determined)
-
-
-      if (options.bounds !== 'ticks' || options.ticks.source !== 'labels') {
-        _applyBounds(me._getMinMax(false));
-      }
-    }
-
-    min = helpers$1.isFinite(min) && !isNaN(min) ? min : +adapter.startOf(Date.now(), unit);
-    max = helpers$1.isFinite(max) && !isNaN(max) ? max : +adapter.endOf(Date.now(), unit) + 1; // Make sure that max is strictly higher than min (required by the lookup table)
-
-    me.min = Math.min(min, max);
-    me.max = Math.max(min + 1, max);
-  },
-  buildTicks: function buildTicks() {
-    var me = this;
-    var options = me.options;
-    var timeOpts = options.time;
-    var tickOpts = options.ticks;
-    var distribution = options.distribution;
-    var ticks = [];
-    var min, max, timestamps;
-    timestamps = getTimestampsForTicks(me);
-
-    if (options.bounds === 'ticks' && timestamps.length) {
-      me.min = me._userMin || timestamps[0];
-      me.max = me._userMax || timestamps[timestamps.length - 1];
-    }
-
-    min = me.min;
-    max = me.max;
-    ticks = filterBetween(timestamps, min, max); // PRIVATE
-    // determineUnitForFormatting relies on the number of ticks so we don't use it when
-    // autoSkip is enabled because we don't yet know what the final number of ticks will be
-
-    me._unit = timeOpts.unit || (tickOpts.autoSkip ? determineUnitForAutoTicks(timeOpts.minUnit, me.min, me.max, me._getLabelCapacity(min)) : determineUnitForFormatting(me, ticks.length, timeOpts.minUnit, me.min, me.max));
-    me._majorUnit = !tickOpts.major.enabled || me._unit === 'year' ? undefined : determineMajorUnit(me._unit);
-    me._table = buildLookupTable(getTimestampsForTable(me), min, max, distribution);
-    me._offsets = computeOffsets(me._table, ticks, min, max, options);
-
-    if (options.reverse) {
-      ticks.reverse();
-    }
-
-    return ticksFromTimestamps(me, ticks, me._majorUnit);
-  },
-  getLabelForValue: function getLabelForValue(value) {
-    var me = this;
-    var adapter = me._adapter;
-    var timeOpts = me.options.time;
-
-    if (timeOpts.tooltipFormat) {
-      return adapter.format(value, timeOpts.tooltipFormat);
-    }
-
-    return adapter.format(value, timeOpts.displayFormats.datetime);
-  },
-
-  /**
-   * Function to format an individual tick mark
-   * @private
-   */
-  _tickFormatFunction: function _tickFormatFunction(time, index, ticks, format) {
-    var me = this;
-    var adapter = me._adapter;
-    var options = me.options;
-    var formats = options.time.displayFormats;
-    var minorFormat = formats[me._unit];
-    var majorUnit = me._majorUnit;
-    var majorFormat = formats[majorUnit];
-    var tick = ticks[index];
-    var tickOpts = options.ticks;
-    var major = majorUnit && majorFormat && tick && tick.major;
-    var label = adapter.format(time, format ? format : major ? majorFormat : minorFormat);
-    var nestedTickOpts = major ? tickOpts.major : tickOpts.minor;
-    var formatter = resolve$6([nestedTickOpts.callback, tickOpts.callback]);
-    return formatter ? formatter(label, index, ticks) : label;
-  },
-  generateTickLabels: function generateTickLabels(ticks) {
-    var i, ilen, tick;
-
-    for (i = 0, ilen = ticks.length; i < ilen; ++i) {
-      tick = ticks[i];
-      tick.label = this._tickFormatFunction(tick.value, i, ticks);
-    }
-  },
-
-  /**
-   * @private
-   */
-  _getPixelForOffset: function _getPixelForOffset(time) {
-    var me = this;
-    var offsets = me._offsets;
-    var pos = interpolate$1(me._table, 'time', time, 'pos');
-    return me.getPixelForDecimal((offsets.start + pos) * offsets.factor);
-  },
-  getPixelForValue: function getPixelForValue(value) {
-    var me = this;
-
-    if (typeof value !== 'number') {
-      value = parse(me, value);
-    }
-
-    if (value !== null) {
-      return me._getPixelForOffset(value);
-    }
-  },
-  getPixelForTick: function getPixelForTick(index) {
-    var ticks = this.getTicks();
-    return index >= 0 && index < ticks.length ? this._getPixelForOffset(ticks[index].value) : null;
-  },
-  getValueForPixel: function getValueForPixel(pixel) {
-    var me = this;
-    var offsets = me._offsets;
-    var pos = me.getDecimalForPixel(pixel) / offsets.factor - offsets.end;
-    return interpolate$1(me._table, 'pos', pos, 'time');
-  },
-
-  /**
-   * @private
-   */
-  _getLabelSize: function _getLabelSize(label) {
-    var me = this;
-    var ticksOpts = me.options.ticks;
-    var tickLabelWidth = me.ctx.measureText(label).width;
-    var angle = helpers$1.toRadians(me.isHorizontal() ? ticksOpts.maxRotation : ticksOpts.minRotation);
-    var cosRotation = Math.cos(angle);
-    var sinRotation = Math.sin(angle);
-    var tickFontSize = valueOrDefault$b(ticksOpts.fontSize, core_defaults.global.defaultFontSize);
-    return {
-      w: tickLabelWidth * cosRotation + tickFontSize * sinRotation,
-      h: tickLabelWidth * sinRotation + tickFontSize * cosRotation
-    };
-  },
-
-  /**
-   * @private
-   */
-  _getLabelCapacity: function _getLabelCapacity(exampleTime) {
-    var me = this;
-    var timeOpts = me.options.time;
-    var displayFormats = timeOpts.displayFormats; // pick the longest format (milliseconds) for guestimation
-
-    var format = displayFormats[timeOpts.unit] || displayFormats.millisecond;
-
-    var exampleLabel = me._tickFormatFunction(exampleTime, 0, ticksFromTimestamps(me, [exampleTime], me._majorUnit), format);
-
-    var size = me._getLabelSize(exampleLabel);
-
-    var capacity = Math.floor(me.isHorizontal() ? me.width / size.w : me.height / size.h);
-
-    if (me.options.offset) {
-      capacity--;
-    }
-
-    return capacity > 0 ? capacity : 1;
+    return _this;
   }
-}); // INTERNAL: static default options, registered in src/index.js
+
+  _createClass(TimeScale, [{
+    key: "determineDataLimits",
+    value: function determineDataLimits() {
+      var me = this;
+      var options = me.options;
+      var adapter = me._adapter;
+      var unit = options.time.unit || 'day';
+
+      var _me$_getUserBounds = me._getUserBounds(),
+          min = _me$_getUserBounds.min,
+          max = _me$_getUserBounds.max,
+          minDefined = _me$_getUserBounds.minDefined,
+          maxDefined = _me$_getUserBounds.maxDefined;
+
+      function _applyBounds(bounds) {
+        if (!minDefined && !isNaN(bounds.min)) {
+          min = Math.min(min, bounds.min);
+        }
+
+        if (!maxDefined && !isNaN(bounds.max)) {
+          max = Math.max(max, bounds.max);
+        }
+      } // If we have user provided `min` and `max` labels / data bounds can be ignored
+
+
+      if (!minDefined || !maxDefined) {
+        // Labels are always considered, when user did not force bounds
+        _applyBounds(getLabelBounds(me)); // If `bounds` is `'ticks'` and `ticks.source` is `'labels'`,
+        // data bounds are ignored (and don't need to be determined)
+
+
+        if (options.bounds !== 'ticks' || options.ticks.source !== 'labels') {
+          _applyBounds(me._getMinMax(false));
+        }
+      }
+
+      min = helpers$1.isFinite(min) && !isNaN(min) ? min : +adapter.startOf(Date.now(), unit);
+      max = helpers$1.isFinite(max) && !isNaN(max) ? max : +adapter.endOf(Date.now(), unit) + 1; // Make sure that max is strictly higher than min (required by the lookup table)
+
+      me.min = Math.min(min, max);
+      me.max = Math.max(min + 1, max);
+    }
+  }, {
+    key: "buildTicks",
+    value: function buildTicks() {
+      var me = this;
+      var options = me.options;
+      var timeOpts = options.time;
+      var tickOpts = options.ticks;
+      var distribution = options.distribution;
+      var ticks = [];
+      var min, max, timestamps;
+      timestamps = getTimestampsForTicks(me);
+
+      if (options.bounds === 'ticks' && timestamps.length) {
+        me.min = me._userMin || timestamps[0];
+        me.max = me._userMax || timestamps[timestamps.length - 1];
+      }
+
+      min = me.min;
+      max = me.max;
+      ticks = filterBetween(timestamps, min, max); // PRIVATE
+      // determineUnitForFormatting relies on the number of ticks so we don't use it when
+      // autoSkip is enabled because we don't yet know what the final number of ticks will be
+
+      me._unit = timeOpts.unit || (tickOpts.autoSkip ? determineUnitForAutoTicks(timeOpts.minUnit, me.min, me.max, me._getLabelCapacity(min)) : determineUnitForFormatting(me, ticks.length, timeOpts.minUnit, me.min, me.max));
+      me._majorUnit = !tickOpts.major.enabled || me._unit === 'year' ? undefined : determineMajorUnit(me._unit);
+      me._table = buildLookupTable(getTimestampsForTable(me), min, max, distribution);
+      me._offsets = computeOffsets(me._table, ticks, min, max, options);
+
+      if (options.reverse) {
+        ticks.reverse();
+      }
+
+      return ticksFromTimestamps(me, ticks, me._majorUnit);
+    }
+  }, {
+    key: "getLabelForValue",
+    value: function getLabelForValue(value) {
+      var me = this;
+      var adapter = me._adapter;
+      var timeOpts = me.options.time;
+
+      if (timeOpts.tooltipFormat) {
+        return adapter.format(value, timeOpts.tooltipFormat);
+      }
+
+      return adapter.format(value, timeOpts.displayFormats.datetime);
+    }
+    /**
+     * Function to format an individual tick mark
+     * @private
+     */
+
+  }, {
+    key: "_tickFormatFunction",
+    value: function _tickFormatFunction(time, index, ticks, format) {
+      var me = this;
+      var adapter = me._adapter;
+      var options = me.options;
+      var formats = options.time.displayFormats;
+      var minorFormat = formats[me._unit];
+      var majorUnit = me._majorUnit;
+      var majorFormat = formats[majorUnit];
+      var tick = ticks[index];
+      var tickOpts = options.ticks;
+      var major = majorUnit && majorFormat && tick && tick.major;
+      var label = adapter.format(time, format ? format : major ? majorFormat : minorFormat);
+      var nestedTickOpts = major ? tickOpts.major : tickOpts.minor;
+      var formatter = resolve$6([nestedTickOpts.callback, tickOpts.callback]);
+      return formatter ? formatter(label, index, ticks) : label;
+    }
+  }, {
+    key: "generateTickLabels",
+    value: function generateTickLabels(ticks) {
+      var i, ilen, tick;
+
+      for (i = 0, ilen = ticks.length; i < ilen; ++i) {
+        tick = ticks[i];
+        tick.label = this._tickFormatFunction(tick.value, i, ticks);
+      }
+    }
+    /**
+     * @private
+     */
+
+  }, {
+    key: "_getPixelForOffset",
+    value: function _getPixelForOffset(time) {
+      var me = this;
+      var offsets = me._offsets;
+      var pos = interpolate$1(me._table, 'time', time, 'pos');
+      return me.getPixelForDecimal((offsets.start + pos) * offsets.factor);
+    }
+  }, {
+    key: "getPixelForValue",
+    value: function getPixelForValue(value) {
+      var me = this;
+
+      if (typeof value !== 'number') {
+        value = parse(me, value);
+      }
+
+      if (value !== null) {
+        return me._getPixelForOffset(value);
+      }
+    }
+  }, {
+    key: "getPixelForTick",
+    value: function getPixelForTick(index) {
+      var ticks = this.getTicks();
+      return index >= 0 && index < ticks.length ? this._getPixelForOffset(ticks[index].value) : null;
+    }
+  }, {
+    key: "getValueForPixel",
+    value: function getValueForPixel(pixel) {
+      var me = this;
+      var offsets = me._offsets;
+      var pos = me.getDecimalForPixel(pixel) / offsets.factor - offsets.end;
+      return interpolate$1(me._table, 'pos', pos, 'time');
+    }
+    /**
+     * @private
+     */
+
+  }, {
+    key: "_getLabelSize",
+    value: function _getLabelSize(label) {
+      var me = this;
+      var ticksOpts = me.options.ticks;
+      var tickLabelWidth = me.ctx.measureText(label).width;
+      var angle = helpers$1.toRadians(me.isHorizontal() ? ticksOpts.maxRotation : ticksOpts.minRotation);
+      var cosRotation = Math.cos(angle);
+      var sinRotation = Math.sin(angle);
+      var tickFontSize = valueOrDefault$b(ticksOpts.fontSize, core_defaults.global.defaultFontSize);
+      return {
+        w: tickLabelWidth * cosRotation + tickFontSize * sinRotation,
+        h: tickLabelWidth * sinRotation + tickFontSize * cosRotation
+      };
+    }
+    /**
+     * @private
+     */
+
+  }, {
+    key: "_getLabelCapacity",
+    value: function _getLabelCapacity(exampleTime) {
+      var me = this;
+      var timeOpts = me.options.time;
+      var displayFormats = timeOpts.displayFormats; // pick the longest format (milliseconds) for guestimation
+
+      var format = displayFormats[timeOpts.unit] || displayFormats.millisecond;
+
+      var exampleLabel = me._tickFormatFunction(exampleTime, 0, ticksFromTimestamps(me, [exampleTime], me._majorUnit), format);
+
+      var size = me._getLabelSize(exampleLabel);
+
+      var capacity = Math.floor(me.isHorizontal() ? me.width / size.w : me.height / size.h);
+
+      if (me.options.offset) {
+        capacity--;
+      }
+
+      return capacity > 0 ? capacity : 1;
+    }
+  }]);
+
+  return TimeScale;
+}(core_scale);
+
+var scale_time = TimeScale; // INTERNAL: static default options, registered in src/index.js
 
 var _defaults$4 = defaultConfig$4;
 scale_time._defaults = _defaults$4;
