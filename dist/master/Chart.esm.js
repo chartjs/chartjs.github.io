@@ -3730,8 +3730,8 @@ function isStacked(scale, meta) {
   return stacked || stacked === undefined && meta.stack !== undefined;
 }
 
-function getStackKey(xScale, yScale, meta) {
-  return isStacked(yScale, meta) && xScale.id + '.' + yScale.id + '.' + meta.stack + '.' + meta.type;
+function getStackKey(indexScale, valueScale, meta) {
+  return indexScale.id + '.' + valueScale.id + '.' + meta.stack + '.' + meta.type;
 }
 
 function getFirstScaleId(chart, axis) {
@@ -4003,7 +4003,7 @@ helpers$1.extend(DatasetController.prototype, {
     var chart = me.chart;
     var meta = me._cachedMeta;
     var data = me._data;
-    var crossRef = chart._xref || (chart._xref = {});
+    var stacks = chart._stacks || (chart._stacks = {}); // map structure is {stackKey: {datasetIndex: value}}
 
     var xScale = me._getIndexScale();
 
@@ -4011,9 +4011,11 @@ helpers$1.extend(DatasetController.prototype, {
 
     var xId = xScale.id;
     var yId = yScale.id;
-    var xKey = getStackKey(xScale, yScale, meta);
-    var yKey = getStackKey(yScale, xScale, meta);
-    var stacks = xKey || yKey;
+    var xStacked = isStacked(xScale, meta);
+    var yStacked = isStacked(yScale, meta);
+    var xKey = yStacked && getStackKey(xScale, yScale, meta);
+    var yKey = xStacked && getStackKey(yScale, xScale, meta);
+    var stacked = xStacked || yStacked;
     var i, ilen, parsed, stack, item, x, y;
 
     if (helpers$1.isArray(data[start])) {
@@ -4025,24 +4027,28 @@ helpers$1.extend(DatasetController.prototype, {
     }
 
     function storeStack(stackKey, indexValue, scaleId, value) {
-      if (stackKey) {
-        stackKey += '.' + indexValue;
-        item._stackKeys[scaleId] = stackKey;
-        stack = crossRef[stackKey] || (crossRef[stackKey] = {});
-        stack[meta.index] = value;
-      }
+      stackKey += '.' + indexValue;
+      item._stackKeys[scaleId] = stackKey;
+      stack = stacks[stackKey] || (stacks[stackKey] = {});
+      stack[meta.index] = value;
     }
 
     for (i = 0, ilen = parsed.length; i < ilen; ++i) {
       item = parsed[i];
       meta.data[start + i]._parsed = item;
 
-      if (stacks) {
+      if (stacked) {
         item._stackKeys = {};
         x = item[xId];
         y = item[yId];
-        storeStack(xKey, x, yId, y);
-        storeStack(yKey, y, xId, x);
+
+        if (yStacked) {
+          storeStack(xKey, x, yId, y);
+        }
+
+        if (xStacked) {
+          storeStack(yKey, y, xId, x);
+        }
       }
     }
 
@@ -4163,7 +4169,7 @@ helpers$1.extend(DatasetController.prototype, {
     var value = parsed[scale.id];
     var stack = {
       keys: getSortedDatasetIndices(chart, true),
-      values: chart._xref[parsed._stackKeys[scale.id]]
+      values: chart._stacks[parsed._stackKeys[scale.id]]
     };
     return applyStack(stack, value, meta.index);
   },
@@ -4176,7 +4182,7 @@ helpers$1.extend(DatasetController.prototype, {
     var meta = this._cachedMeta;
     var metaData = meta.data;
     var ilen = metaData.length;
-    var crossRef = chart._xref || (chart._xref = {});
+    var stacks = chart._stacks || (chart._stacks = {});
     var max = Number.NEGATIVE_INFINITY;
     var stacked = canStack && meta._stacked;
     var indices = getSortedDatasetIndices(chart, true);
@@ -4203,7 +4209,7 @@ helpers$1.extend(DatasetController.prototype, {
       if (stacked) {
         stack = {
           keys: indices,
-          values: crossRef[parsed._stackKeys[scale.id]]
+          values: stacks[parsed._stackKeys[scale.id]]
         };
         value = applyStack(stack, value, meta.index, true);
       }
