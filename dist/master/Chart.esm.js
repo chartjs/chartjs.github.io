@@ -3865,19 +3865,9 @@ helpers$1.extend(DatasetController.prototype, {
       unlistenArrayEvents(this._data, this);
     }
   },
-  createMetaDataset: function createMetaDataset() {
-    var me = this;
-    var type = me.datasetElementType;
+  createElement: function createElement(type) {
     return type && new type({
-      _ctx: me.chart.ctx
-    });
-  },
-  createMetaData: function createMetaData() {
-    var me = this;
-    var type = me.dataElementType;
-    return type && new type({
-      _ctx: me.chart.ctx,
-      _parsed: {}
+      _ctx: this.chart.ctx
     });
   },
 
@@ -3951,17 +3941,10 @@ helpers$1.extend(DatasetController.prototype, {
     data = me._data;
 
     for (i = 0, ilen = data.length; i < ilen; ++i) {
-      metaData[i] = metaData[i] || me.createMetaData();
+      metaData[i] = metaData[i] || me.createElement(me.dataElementType);
     }
 
-    meta.dataset = meta.dataset || me.createMetaDataset();
-  },
-  addElementAndReset: function addElementAndReset(index) {
-    var element = this.createMetaData();
-
-    this._cachedMeta.data.splice(index, 0, element);
-
-    this.updateElement(element, index, true);
+    meta.dataset = meta.dataset || me.createElement(me.datasetElementType);
   },
   buildOrUpdateElements: function buildOrUpdateElements() {
     var me = this;
@@ -4533,11 +4516,23 @@ helpers$1.extend(DatasetController.prototype, {
    * @private
    */
   insertElements: function insertElements(start, count) {
-    for (var i = 0; i < count; ++i) {
-      this.addElementAndReset(start + i);
+    var _me$_cachedMeta$data;
+
+    var me = this;
+    var elements = [];
+    var i;
+
+    for (i = start; i < start + count; ++i) {
+      elements.push(me.createElement(me.dataElementType));
     }
 
-    this._parse(start, count);
+    (_me$_cachedMeta$data = me._cachedMeta.data).splice.apply(_me$_cachedMeta$data, [start, 0].concat(elements));
+
+    me._parse(start, count);
+
+    for (i = 0; i < count; ++i) {
+      me.updateElement(elements[i], start + i, true);
+    }
   },
 
   /**
@@ -6114,7 +6109,7 @@ var controller_doughnut = core_datasetController.extend({
     var i, ilen;
 
     for (i = start, ilen = start + count; i < ilen; ++i) {
-      metaData[i]._val = +data[i];
+      metaData[i]._parsed = +data[i];
     }
   },
   // Get index of the dataset in relation to the visible datasets. This allows determining the inner and outer radius correctly
@@ -6201,7 +6196,7 @@ var controller_doughnut = core_datasetController.extend({
 
     var endAngle = opts.rotation; // non reset case handled later
 
-    var circumference = reset && animationOpts.animateRotate ? 0 : arc.hidden ? 0 : me.calculateCircumference(arc._val * opts.circumference / DOUBLE_PI$1);
+    var circumference = reset && animationOpts.animateRotate ? 0 : arc.hidden ? 0 : me.calculateCircumference(arc._parsed * opts.circumference / DOUBLE_PI$1);
     var innerRadius = reset && animationOpts.animateScale ? 0 : me.innerRadius;
     var outerRadius = reset && animationOpts.animateScale ? 0 : me.outerRadius;
     var options = arc._options || {};
@@ -6240,7 +6235,7 @@ var controller_doughnut = core_datasetController.extend({
     var total = 0;
     var value;
     helpers$1.each(metaData, function (arc) {
-      value = arc ? arc._val : NaN;
+      value = arc ? arc._parsed : NaN;
 
       if (!isNaN(value) && !arc.hidden) {
         total += Math.abs(value);
