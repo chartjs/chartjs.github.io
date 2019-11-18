@@ -2964,29 +2964,28 @@ var helpers_canvas = {
   unclipArea: function unclipArea(ctx) {
     ctx.restore();
   },
-  lineTo: function lineTo(ctx, previous, target, flip) {
-    var stepped = target.steppedLine;
 
-    if (stepped) {
-      if (stepped === 'middle') {
-        var midpoint = (previous.x + target.x) / 2.0;
-        ctx.lineTo(midpoint, flip ? target.y : previous.y);
-        ctx.lineTo(midpoint, flip ? previous.y : target.y);
-      } else if (stepped === 'after' && !flip || stepped !== 'after' && flip) {
-        ctx.lineTo(previous.x, target.y);
-      } else {
-        ctx.lineTo(target.x, previous.y);
-      }
-
-      ctx.lineTo(target.x, target.y);
-      return;
+  /**
+   * @private
+   */
+  _steppedLineTo: function _steppedLineTo(ctx, previous, target, flip, mode) {
+    if (mode === 'middle') {
+      var midpoint = (previous.x + target.x) / 2.0;
+      ctx.lineTo(midpoint, flip ? target.y : previous.y);
+      ctx.lineTo(midpoint, flip ? previous.y : target.y);
+    } else if (mode === 'after' && !flip || mode !== 'after' && flip) {
+      ctx.lineTo(previous.x, target.y);
+    } else {
+      ctx.lineTo(target.x, previous.y);
     }
 
-    if (!target.tension) {
-      ctx.lineTo(target.x, target.y);
-      return;
-    }
+    ctx.lineTo(target.x, target.y);
+  },
 
+  /**
+   * @private
+   */
+  _bezierCurveTo: function _bezierCurveTo(ctx, previous, target, flip) {
     ctx.bezierCurveTo(flip ? previous.controlPointPreviousX : previous.controlPointNextX, flip ? previous.controlPointPreviousY : previous.controlPointNextY, flip ? target.controlPointNextX : target.controlPointPreviousX, flip ? target.controlPointNextY : target.controlPointPreviousY, target.x, target.y);
   }
 };
@@ -4849,7 +4848,9 @@ function setStyle(ctx, vm) {
   ctx.strokeStyle = vm.borderColor;
 }
 
-function normalPath(ctx, points, spanGaps) {
+function normalPath(ctx, points, spanGaps, vm) {
+  var steppedLine = vm.steppedLine;
+  var lineMethod = steppedLine ? helpers$1.canvas._steppedLineTo : helpers$1.canvas._bezierCurveTo;
   var move = true;
   var index, currentVM, previousVM;
 
@@ -4864,8 +4865,10 @@ function normalPath(ctx, points, spanGaps) {
     if (move) {
       ctx.moveTo(currentVM.x, currentVM.y);
       move = false;
+    } else if (vm.tension || steppedLine) {
+      lineMethod(ctx, previousVM, currentVM, false, steppedLine);
     } else {
-      helpers$1.canvas.lineTo(ctx, previousVM, currentVM);
+      ctx.lineTo(currentVM.x, currentVM.y);
     }
 
     previousVM = currentVM;
@@ -4972,7 +4975,7 @@ function (_Element) {
       if (useFastPath(vm)) {
         fastPath(ctx, points, spanGaps);
       } else {
-        normalPath(ctx, points, spanGaps);
+        normalPath(ctx, points, spanGaps, vm);
       }
 
       if (closePath) {
@@ -6501,7 +6504,6 @@ var controller_line = core_datasetController.extend({
     var meta = me.getMeta();
     var xScale = me._xScale;
     var yScale = me._yScale;
-    var lineModel = meta.dataset._model;
     var stacked = meta._stacked;
 
     var parsed = me._getParsed(index);
@@ -6524,8 +6526,6 @@ var controller_line = core_datasetController.extend({
       backgroundColor: options.backgroundColor,
       borderColor: options.borderColor,
       borderWidth: options.borderWidth,
-      tension: lineModel ? lineModel.tension : 0,
-      steppedLine: lineModel ? lineModel.steppedLine : false,
       // Tooltip
       hitRadius: options.hitRadius
     };
@@ -6993,14 +6993,8 @@ var controller_radar = core_datasetController.extend({
     var meta = me.getMeta();
     var line = meta.dataset;
     var points = meta.data || [];
-    var config = me._config;
     var animationsDisabled = me.chart._animationsDisabled;
-    var i, ilen; // Compatibility: If the properties are defined with only the old name, use those values
-
-    if (config.tension !== undefined && config.lineTension === undefined) {
-      config.lineTension = config.tension;
-    } // Data
-
+    var i, ilen; // Data
 
     line._children = points;
     line._loop = true; // Model
@@ -7027,8 +7021,6 @@ var controller_radar = core_datasetController.extend({
 
     var options = me._resolveDataElementOptions(index);
 
-    var lineModel = me.getMeta().dataset._model;
-
     var x = reset ? scale.xCenter : pointPosition.x;
     var y = reset ? scale.yCenter : pointPosition.y; // Utility
 
@@ -7046,7 +7038,6 @@ var controller_radar = core_datasetController.extend({
       backgroundColor: options.backgroundColor,
       borderColor: options.borderColor,
       borderWidth: options.borderWidth,
-      tension: lineModel ? lineModel.tension : 0,
       // Tooltip
       hitRadius: options.hitRadius
     };
@@ -7069,6 +7060,7 @@ var controller_radar = core_datasetController.extend({
   updateBezierControlPoints: function updateBezierControlPoints() {
     var me = this;
     var meta = me.getMeta();
+    var lineModel = meta.dataset._model;
     var area = me.chart.chartArea;
     var points = meta.data || [];
     var i, ilen, model, controlPoints; // Only consider points that are drawn in case the spanGaps option is used
@@ -7085,7 +7077,7 @@ var controller_radar = core_datasetController.extend({
 
     for (i = 0, ilen = points.length; i < ilen; ++i) {
       model = points[i]._model;
-      controlPoints = helpers$1.splineCurve(previousItem(points, i)._model, model, nextItem(points, i)._model, model.tension); // Prevent the bezier going outside of the bounds of the graph
+      controlPoints = helpers$1.splineCurve(previousItem(points, i)._model, model, nextItem(points, i)._model, lineModel.tension); // Prevent the bezier going outside of the bounds of the graph
 
       model.controlPointPreviousX = capControlPoint(controlPoints.previous.x, area.left, area.right);
       model.controlPointPreviousY = capControlPoint(controlPoints.previous.y, area.top, area.bottom);
@@ -15191,7 +15183,8 @@ var mappers = {
     return function (point) {
       return {
         x: x === null ? point.x : x,
-        y: y === null ? point.y : y
+        y: y === null ? point.y : y,
+        boundary: true
       };
     };
   }
@@ -15284,7 +15277,8 @@ function computeLinearBoundary(source) {
       horizontal = scale.isHorizontal();
       return {
         x: horizontal ? target : null,
-        y: horizontal ? null : target
+        y: horizontal ? null : target,
+        boundary: true
       };
     }
   }
@@ -15317,6 +15311,7 @@ function computeCircularBoundary(source) {
       point.angle = scale.getIndexAngle(i) - Math.PI / 2;
     }
 
+    point.boundary = true;
     target.push(point);
   }
 
@@ -15384,8 +15379,9 @@ function isDrawable(point) {
   return point && !point.skip;
 }
 
-function drawArea(ctx, curve0, curve1, len0, len1) {
-  var i, cx, cy, r;
+function drawArea(ctx, curve0, curve1, len0, len1, stepped, tension) {
+  var lineTo = stepped ? helpers$1.canvas._steppedLineTo : helpers$1.canvas._bezierCurveTo;
+  var i, cx, cy, r, target;
 
   if (!len0 || !len1) {
     return;
@@ -15395,7 +15391,13 @@ function drawArea(ctx, curve0, curve1, len0, len1) {
   ctx.moveTo(curve0[0].x, curve0[0].y);
 
   for (i = 1; i < len0; ++i) {
-    helpers$1.canvas.lineTo(ctx, curve0[i - 1], curve0[i]);
+    target = curve0[i];
+
+    if (!target.boundary && (tension || stepped)) {
+      lineTo(ctx, curve0[i - 1], target, false, stepped);
+    } else {
+      ctx.lineTo(target.x, target.y);
+    }
   }
 
   if (curve1[0].angle !== undefined) {
@@ -15414,13 +15416,23 @@ function drawArea(ctx, curve0, curve1, len0, len1) {
   ctx.lineTo(curve1[len1 - 1].x, curve1[len1 - 1].y); // building opposite area curve (reverse)
 
   for (i = len1 - 1; i > 0; --i) {
-    helpers$1.canvas.lineTo(ctx, curve1[i], curve1[i - 1], true);
+    target = curve1[i - 1];
+
+    if (!target.boundary && (tension || stepped)) {
+      lineTo(ctx, curve1[i], target, true, stepped);
+    } else {
+      ctx.lineTo(target.x, target.y);
+    }
   }
 }
 
-function doFill(ctx, points, mapper, view, color, loop) {
+function doFill(ctx, points, mapper, el) {
   var count = points.length;
+  var view = el._view;
+  var loop = el._loop;
   var span = view.spanGaps;
+  var stepped = view.steppedLine;
+  var tension = view.tension;
   var curve0 = [];
   var curve1 = [];
   var len0 = 0;
@@ -15445,7 +15457,7 @@ function doFill(ctx, points, mapper, view, color, loop) {
       len1 = curve1.push(p1);
     } else if (len0 && len1) {
       if (!span) {
-        drawArea(ctx, curve0, curve1, len0, len1);
+        drawArea(ctx, curve0, curve1, len0, len1, stepped, tension);
         len0 = len1 = 0;
         curve0 = [];
         curve1 = [];
@@ -15461,9 +15473,9 @@ function doFill(ctx, points, mapper, view, color, loop) {
     }
   }
 
-  drawArea(ctx, curve0, curve1, len0, len1);
+  drawArea(ctx, curve0, curve1, len0, len1, stepped, tension);
   ctx.closePath();
-  ctx.fillStyle = color;
+  ctx.fillStyle = view.backgroundColor;
   ctx.fill();
 }
 
@@ -15510,7 +15522,7 @@ var plugin_filler = {
     var metasets = chart._getSortedVisibleDatasetMetas();
 
     var ctx = chart.ctx;
-    var meta, i, el, view, points, mapper, color;
+    var meta, i, el, points, mapper;
 
     for (i = metasets.length - 1; i >= 0; --i) {
       meta = metasets[i].$filler;
@@ -15520,14 +15532,12 @@ var plugin_filler = {
       }
 
       el = meta.el;
-      view = el._view;
       points = el._children || [];
       mapper = meta.mapper;
-      color = view.backgroundColor || core_defaults.global.defaultColor;
 
-      if (mapper && color && points.length) {
+      if (mapper && points.length) {
         helpers$1.canvas.clipArea(ctx, chart.chartArea);
-        doFill(ctx, points, mapper, view, color, el._loop);
+        doFill(ctx, points, mapper, el);
         helpers$1.canvas.unclipArea(ctx);
       }
     }
