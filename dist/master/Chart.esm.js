@@ -3752,6 +3752,46 @@ function getUserBounds(scale) {
     min: minDefined ? min : Number.NEGATIVE_INFINITY,
     max: maxDefined ? max : Number.POSITIVE_INFINITY
   };
+}
+
+function getOrCreateStack(stacks, stackKey, indexValue) {
+  var subStack = stacks[stackKey] || (stacks[stackKey] = {});
+  return subStack[indexValue] || (subStack[indexValue] = {});
+}
+
+function updateStacks(controller, parsed) {
+  var chart = controller.chart;
+  var meta = controller._cachedMeta;
+  var stacks = chart._stacks || (chart._stacks = {}); // map structure is {stackKey: {datasetIndex: value}}
+
+  var xScale = meta.xScale;
+  var yScale = meta.yScale;
+  var xId = xScale.id;
+  var yId = yScale.id;
+  var xStacked = isStacked(xScale, meta);
+  var yStacked = isStacked(yScale, meta);
+  var xKey = yStacked && getStackKey(xScale, yScale, meta);
+  var yKey = xStacked && getStackKey(yScale, xScale, meta);
+  var ilen = parsed.length;
+  var datasetIndex = meta.index;
+  var stack;
+
+  for (var i = 0; i < ilen; ++i) {
+    var item = parsed[i];
+    var x = item[xId];
+    var y = item[yId];
+    var itemStacks = item._stacks || (item._stacks = {});
+
+    if (yStacked) {
+      stack = itemStacks[yId] = getOrCreateStack(stacks, xKey, x);
+      stack[datasetIndex] = y;
+    }
+
+    if (xStacked) {
+      stack = itemStacks[xId] = getOrCreateStack(stacks, yKey, y);
+      stack[datasetIndex] = x;
+    }
+  }
 } // Base class for all dataset controllers (line, bar, etc)
 
 
@@ -3795,18 +3835,23 @@ helpers$1.extend(DatasetController.prototype, {
     me._cachedMeta = meta = me.getMeta();
     me._type = meta.type;
     me.linkScales();
-    meta._stacked = isStacked(me._getValueScale(), meta);
+    meta._stacked = isStacked(meta.vScale, meta);
     me.addElements();
   },
   updateIndex: function updateIndex(datasetIndex) {
     this.index = datasetIndex;
   },
   linkScales: function linkScales() {
-    var chart = this.chart;
-    var meta = this._cachedMeta;
-    var dataset = this.getDataset();
-    meta.xAxisID = dataset.xAxisID || getFirstScaleId(chart, 'x');
-    meta.yAxisID = dataset.yAxisID || getFirstScaleId(chart, 'y');
+    var me = this;
+    var chart = me.chart;
+    var meta = me._cachedMeta;
+    var dataset = me.getDataset();
+    var xid = meta.xAxisID = dataset.xAxisID || getFirstScaleId(chart, 'x');
+    var yid = meta.yAxisID = dataset.yAxisID || getFirstScaleId(chart, 'y');
+    meta.xScale = me.getScaleForId(xid);
+    meta.yScale = me.getScaleForId(yid);
+    meta.iScale = me._getIndexScale();
+    meta.vScale = me._getValueScale();
   },
   getDataset: function getDataset() {
     return this.chart.data.datasets[this.index];
@@ -3850,7 +3895,8 @@ helpers$1.extend(DatasetController.prototype, {
    * @private
    */
   _getOtherScale: function _getOtherScale(scale) {
-    return scale.id === this._getIndexScaleId() ? this._getValueScale() : this._getIndexScale();
+    var meta = this._cachedMeta;
+    return scale === meta.iScale ? meta.vScale : meta.iScale;
   },
   reset: function reset() {
     this._update(true);
@@ -3917,10 +3963,8 @@ helpers$1.extend(DatasetController.prototype, {
    */
   _labelCheck: function _labelCheck() {
     var me = this;
-
-    var scale = me._getIndexScale();
-
-    var labels = scale ? scale._getLabels() : me.chart.data.labels;
+    var iScale = me._cachedMeta.iScale;
+    var labels = iScale ? iScale._getLabels() : me.chart.data.labels;
 
     if (me._labels === labels) {
       return false;
@@ -3956,7 +4000,7 @@ helpers$1.extend(DatasetController.prototype, {
 
     var meta = me._cachedMeta; // make sure cached _stacked status is current
 
-    meta._stacked = isStacked(me._getValueScale(), meta); // Re-sync meta data in case the user replaced the data array or if we missed
+    meta._stacked = isStacked(meta.vScale, meta); // Re-sync meta data in case the user replaced the data array or if we missed
     // any updates and so make sure that we handle number of datapoints changing.
 
     me.resyncElements(dataChanged | labelsChanged | scaleChanged);
@@ -3982,23 +4026,12 @@ helpers$1.extend(DatasetController.prototype, {
    */
   _parse: function _parse(start, count) {
     var me = this;
-    var chart = me.chart;
     var meta = me._cachedMeta;
     var data = me._data;
-    var stacks = chart._stacks || (chart._stacks = {}); // map structure is {stackKey: {datasetIndex: value}}
-
-    var xScale = me._getIndexScale();
-
-    var yScale = me._getValueScale();
-
-    var xId = xScale.id;
-    var yId = yScale.id;
-    var xStacked = isStacked(xScale, meta);
-    var yStacked = isStacked(yScale, meta);
-    var xKey = yStacked && getStackKey(xScale, yScale, meta);
-    var yKey = xStacked && getStackKey(yScale, xScale, meta);
-    var stacked = xStacked || yStacked;
-    var i, ilen, parsed, stack, item, x, y;
+    var iScale = meta.iScale;
+    var vScale = meta.vScale;
+    var stacked = isStacked(iScale, meta) || isStacked(vScale, meta);
+    var i, ilen, parsed;
 
     if (helpers$1.isArray(data[start])) {
       parsed = me._parseArrayData(meta, data, start, count);
@@ -4008,36 +4041,18 @@ helpers$1.extend(DatasetController.prototype, {
       parsed = me._parsePrimitiveData(meta, data, start, count);
     }
 
-    function storeStack(stackKey, indexValue, scaleId, value) {
-      stackKey += '.' + indexValue;
-      item._stackKeys[scaleId] = stackKey;
-      stack = stacks[stackKey] || (stacks[stackKey] = {});
-      stack[meta.index] = value;
-    }
-
     for (i = 0, ilen = parsed.length; i < ilen; ++i) {
-      item = parsed[i];
-      meta.data[start + i]._parsed = item;
-
-      if (stacked) {
-        item._stackKeys = {};
-        x = item[xId];
-        y = item[yId];
-
-        if (yStacked) {
-          storeStack(xKey, x, yId, y);
-        }
-
-        if (xStacked) {
-          storeStack(yKey, y, xId, x);
-        }
-      }
+      meta.data[start + i]._parsed = parsed[i];
     }
 
-    xScale._invalidateCaches();
+    if (stacked) {
+      updateStacks(me, parsed);
+    }
 
-    if (yScale !== xScale) {
-      yScale._invalidateCaches();
+    iScale._invalidateCaches();
+
+    if (vScale !== iScale) {
+      vScale._invalidateCaches();
     }
   },
 
@@ -4053,9 +4068,8 @@ helpers$1.extend(DatasetController.prototype, {
    * @private
    */
   _parsePrimitiveData: function _parsePrimitiveData(meta, data, start, count) {
-    var iScale = this._getIndexScale();
-
-    var vScale = this._getValueScale();
+    var iScale = meta.iScale;
+    var vScale = meta.vScale;
 
     var labels = iScale._getLabels();
 
@@ -4085,8 +4099,8 @@ helpers$1.extend(DatasetController.prototype, {
    * @private
    */
   _parseArrayData: function _parseArrayData(meta, data, start, count) {
-    var xScale = this.getScaleForId(meta.xAxisID);
-    var yScale = this.getScaleForId(meta.yAxisID);
+    var xScale = meta.xScale;
+    var yScale = meta.yScale;
     var parsed = [];
     var i, ilen, item, arr;
 
@@ -4113,8 +4127,8 @@ helpers$1.extend(DatasetController.prototype, {
    * @private
    */
   _parseObjectData: function _parseObjectData(meta, data, start, count) {
-    var xScale = this.getScaleForId(meta.xAxisID);
-    var yScale = this.getScaleForId(meta.yAxisID);
+    var xScale = meta.xScale;
+    var yScale = meta.yScale;
     var parsed = [];
     var i, ilen, item, obj;
 
@@ -4151,7 +4165,7 @@ helpers$1.extend(DatasetController.prototype, {
     var value = parsed[scale.id];
     var stack = {
       keys: getSortedDatasetIndices(chart, true),
-      values: chart._stacks[parsed._stackKeys[scale.id]]
+      values: parsed._stacks[scale.id]
     };
     return applyStack(stack, value, meta.index);
   },
@@ -4164,12 +4178,12 @@ helpers$1.extend(DatasetController.prototype, {
     var meta = this._cachedMeta;
     var metaData = meta.data;
     var ilen = metaData.length;
-    var stacks = chart._stacks || (chart._stacks = {});
-    var max = Number.NEGATIVE_INFINITY;
     var stacked = canStack && meta._stacked;
     var indices = getSortedDatasetIndices(chart, true);
 
     var otherScale = this._getOtherScale(scale);
+
+    var max = Number.NEGATIVE_INFINITY;
 
     var _getUserBounds = getUserBounds(otherScale),
         otherMin = _getUserBounds.min,
@@ -4191,7 +4205,7 @@ helpers$1.extend(DatasetController.prototype, {
       if (stacked) {
         stack = {
           keys: indices,
-          values: stacks[parsed._stackKeys[scale.id]]
+          values: parsed._stacks[scale.id]
         };
         value = applyStack(stack, value, meta.index, true);
       }
@@ -4236,16 +4250,14 @@ helpers$1.extend(DatasetController.prototype, {
    */
   _cacheScaleStackStatus: function _cacheScaleStackStatus() {
     var me = this;
-
-    var indexScale = me._getIndexScale();
-
-    var valueScale = me._getValueScale();
-
+    var meta = me._cachedMeta;
+    var iScale = meta.iScale;
+    var vScale = meta.vScale;
     var cache = me._scaleStacked = {};
 
-    if (indexScale && valueScale) {
-      cache[indexScale.id] = indexScale.options.stacked;
-      cache[valueScale.id] = valueScale.options.stacked;
+    if (iScale && vScale) {
+      cache[iScale.id] = iScale.options.stacked;
+      cache[vScale.id] = vScale.options.stacked;
     }
   },
 
@@ -4254,13 +4266,11 @@ helpers$1.extend(DatasetController.prototype, {
    */
   _scaleCheck: function _scaleCheck() {
     var me = this;
-
-    var indexScale = me._getIndexScale();
-
-    var valueScale = me._getValueScale();
-
+    var meta = me._cachedMeta;
+    var iScale = meta.iScale;
+    var vScale = meta.vScale;
     var cache = me._scaleStacked;
-    return !cache || !indexScale || !valueScale || cache[indexScale.id] !== indexScale.options.stacked || cache[valueScale.id] !== valueScale.options.stacked;
+    return !cache || !iScale || !vScale || cache[iScale.id] !== iScale.options.stacked || cache[vScale.id] !== vScale.options.stacked;
   },
 
   /**
@@ -4275,16 +4285,15 @@ helpers$1.extend(DatasetController.prototype, {
    */
   _getLabelAndValue: function _getLabelAndValue(index) {
     var me = this;
-
-    var indexScale = me._getIndexScale();
-
-    var valueScale = me._getValueScale();
+    var meta = me._cachedMeta;
+    var iScale = meta.iScale;
+    var vScale = meta.vScale;
 
     var parsed = me._getParsed(index);
 
     return {
-      label: indexScale ? '' + indexScale.getLabelForValue(parsed[indexScale.id]) : '',
-      value: valueScale ? '' + valueScale.getLabelForValue(parsed[valueScale.id]) : ''
+      label: iScale ? '' + iScale.getLabelForValue(parsed[iScale.id]) : '',
+      value: vScale ? '' + vScale.getLabelForValue(parsed[vScale.id]) : ''
     };
   },
 
@@ -4293,12 +4302,13 @@ helpers$1.extend(DatasetController.prototype, {
    */
   _update: function _update(reset) {
     var me = this;
+    var meta = me._cachedMeta;
 
     me._configure();
 
     me._cachedDataOpts = null;
     me.update(reset);
-    me._cachedMeta._clip = toClip(helpers$1.valueOrDefault(me._config.clip, defaultClip(me._xScale, me._yScale, me._getMaxOverflow())));
+    meta._clip = toClip(helpers$1.valueOrDefault(me._config.clip, defaultClip(meta.xScale, meta.yScale, me._getMaxOverflow())));
 
     me._cacheScaleStackStatus();
   },
@@ -4370,14 +4380,13 @@ helpers$1.extend(DatasetController.prototype, {
     var options = chart.options.elements[me.datasetElementType.prototype._type] || {};
     var elementOptions = me._datasetElementOptions;
     var values = {};
-    var i, ilen, key, readKey; // Scriptable options
-
     var context = {
       chart: chart,
       dataset: me.getDataset(),
       datasetIndex: me.index,
       active: active
     };
+    var i, ilen, key, readKey;
 
     for (i = 0, ilen = elementOptions.length; i < ilen; ++i) {
       key = elementOptions[i];
@@ -4403,15 +4412,13 @@ helpers$1.extend(DatasetController.prototype, {
     var datasetOpts = me._config;
     var options = chart.options.elements[me.dataElementType.prototype._type] || {};
     var elementOptions = me._dataElementOptions;
-    var values = {}; // Scriptable options
-
+    var values = {};
     var context = {
       chart: chart,
       dataIndex: index,
       dataset: me.getDataset(),
       datasetIndex: me.index
-    }; // `resolve` sets cacheable to `false` if any option is indexed or scripted
-
+    };
     var info = {
       cacheable: true
     };
@@ -4459,7 +4466,7 @@ helpers$1.extend(DatasetController.prototype, {
    * @private
    */
   _removeDatasetHoverStyle: function _removeDatasetHoverStyle() {
-    var element = this.getMeta().dataset;
+    var element = this._cachedMeta.dataset;
 
     if (element) {
       this.removeHoverStyle(element);
@@ -4470,7 +4477,7 @@ helpers$1.extend(DatasetController.prototype, {
    * @private
    */
   _setDatasetHoverStyle: function _setDatasetHoverStyle() {
-    var element = this.getMeta().dataset;
+    var element = this._cachedMeta.dataset;
     var prev = {};
     var i, ilen, key, keys, hoverOptions, model;
 
@@ -5458,9 +5465,8 @@ function parseFloatBar(arr, item, vScale, i) {
 }
 
 function parseArrayOrPrimitive(meta, data, start, count) {
-  var iScale = this._getIndexScale();
-
-  var vScale = this._getValueScale();
+  var iScale = meta.iScale;
+  var vScale = meta.vScale;
 
   var labels = iScale._getLabels();
 
@@ -5517,9 +5523,8 @@ var controller_bar = core_datasetController.extend({
    * @private
    */
   _parseObjectData: function _parseObjectData(meta, data, start, count) {
-    var iScale = this._getIndexScale();
-
-    var vScale = this._getValueScale();
+    var iScale = meta.iScale;
+    var vScale = meta.vScale;
 
     var vProp = vScale._getAxis();
 
@@ -5549,10 +5554,9 @@ var controller_bar = core_datasetController.extend({
    */
   _getLabelAndValue: function _getLabelAndValue(index) {
     var me = this;
-
-    var indexScale = me._getIndexScale();
-
-    var valueScale = me._getValueScale();
+    var meta = me._cachedMeta;
+    var indexScale = meta.iScale;
+    var valueScale = meta.vScale;
 
     var parsed = me._getParsed(index);
 
@@ -5567,13 +5571,13 @@ var controller_bar = core_datasetController.extend({
     var me = this;
     var meta;
     core_datasetController.prototype.initialize.apply(me, arguments);
-    meta = me.getMeta();
+    meta = me._cachedMeta;
     meta.stack = me.getDataset().stack;
     meta.bar = true;
   },
   update: function update(reset) {
     var me = this;
-    var rects = me.getMeta().data;
+    var rects = me._cachedMeta.data;
     var i, ilen;
     me._ruler = me.getRuler();
 
@@ -5607,12 +5611,11 @@ var controller_bar = core_datasetController.extend({
    */
   _updateElementGeometry: function _updateElementGeometry(rectangle, index, reset, options) {
     var me = this;
+    var meta = me._cachedMeta;
     var model = rectangle._model;
-
-    var vscale = me._getValueScale();
-
-    var base = vscale.getBasePixel();
-    var horizontal = vscale.isHorizontal();
+    var vScale = meta.vScale;
+    var base = vScale.getBasePixel();
+    var horizontal = vScale.isHorizontal();
     var ruler = me._ruler || me.getRuler();
     var vpixels = me.calculateBarValuePixels(index, options);
     var ipixels = me.calculateBarIndexPixels(index, ruler, options);
@@ -5632,28 +5635,28 @@ var controller_bar = core_datasetController.extend({
    */
   _getStacks: function _getStacks(last) {
     var me = this;
+    var meta = me._cachedMeta;
+    var iScale = meta.iScale;
 
-    var scale = me._getIndexScale();
+    var metasets = iScale._getMatchingVisibleMetas(me._type);
 
-    var metasets = scale._getMatchingVisibleMetas(me._type);
-
-    var stacked = scale.options.stacked;
+    var stacked = iScale.options.stacked;
     var ilen = metasets.length;
     var stacks = [];
-    var i, meta;
+    var i, item;
 
     for (i = 0; i < ilen; ++i) {
-      meta = metasets[i]; // stacked   | meta.stack
+      item = metasets[i]; // stacked   | meta.stack
       //           | found | not found | undefined
       // false     |   x   |     x     |     x
       // true      |       |     x     |
       // undefined |       |     x     |     x
 
-      if (stacked === false || stacks.indexOf(meta.stack) === -1 || stacked === undefined && meta.stack === undefined) {
-        stacks.push(meta.stack);
+      if (stacked === false || stacks.indexOf(item.stack) === -1 || stacked === undefined && item.stack === undefined) {
+        stacks.push(item.stack);
       }
 
-      if (meta.index === last) {
+      if (item.index === last) {
         break;
       }
     }
@@ -5689,22 +5692,21 @@ var controller_bar = core_datasetController.extend({
    */
   getRuler: function getRuler() {
     var me = this;
-
-    var scale = me._getIndexScale();
-
+    var meta = me._cachedMeta;
+    var iScale = meta.iScale;
     var pixels = [];
     var i, ilen;
 
-    for (i = 0, ilen = me.getMeta().data.length; i < ilen; ++i) {
-      pixels.push(scale.getPixelForValue(me._getParsed(i)[scale.id]));
+    for (i = 0, ilen = meta.data.length; i < ilen; ++i) {
+      pixels.push(iScale.getPixelForValue(me._getParsed(i)[iScale.id]));
     }
 
     return {
       pixels: pixels,
-      start: scale._startPixel,
-      end: scale._endPixel,
+      start: iScale._startPixel,
+      end: iScale._endPixel,
       stackCount: me.getStackCount(),
-      scale: scale
+      scale: iScale
     };
   },
 
@@ -5714,17 +5716,16 @@ var controller_bar = core_datasetController.extend({
    */
   calculateBarValuePixels: function calculateBarValuePixels(index, options) {
     var me = this;
-
-    var valueScale = me._getValueScale();
-
+    var meta = me._cachedMeta;
+    var vScale = meta.vScale;
     var minBarLength = options.minBarLength;
-    var start = 0;
 
     var parsed = me._getParsed(index);
 
-    var value = parsed[valueScale.id];
     var custom = parsed._custom;
-    var length = me._cachedMeta._stacked ? me._applyStack(valueScale, parsed) : parsed[valueScale.id];
+    var value = parsed[vScale.id];
+    var start = 0;
+    var length = meta._stacked ? me._applyStack(vScale, parsed) : parsed[vScale.id];
     var base, head, size;
 
     if (length !== value) {
@@ -5743,8 +5744,8 @@ var controller_bar = core_datasetController.extend({
       start += value;
     }
 
-    base = valueScale.getPixelForValue(start);
-    head = valueScale.getPixelForValue(start + length);
+    base = vScale.getPixelForValue(start);
+    head = vScale.getPixelForValue(start + length);
     size = head - base;
 
     if (minBarLength !== undefined && Math.abs(size) < minBarLength) {
@@ -5766,7 +5767,7 @@ var controller_bar = core_datasetController.extend({
   calculateBarIndexPixels: function calculateBarIndexPixels(index, ruler, options) {
     var me = this;
     var range = options.barThickness === 'flex' ? computeFlexCategoryTraits(index, ruler, options) : computeFitCategoryTraits(index, ruler, options);
-    var stackIndex = me.getStackIndex(me.index, me.getMeta().stack);
+    var stackIndex = me.getStackIndex(me.index, me._cachedMeta.stack);
     var center = range.start + range.chunk * stackIndex + range.chunk / 2;
     var size = Math.min(valueOrDefault$1(options.maxBarThickness, Infinity), range.chunk * range.ratio);
     return {
@@ -5779,16 +5780,15 @@ var controller_bar = core_datasetController.extend({
   draw: function draw() {
     var me = this;
     var chart = me.chart;
-
-    var scale = me._getValueScale();
-
-    var rects = me.getMeta().data;
+    var meta = me._cachedMeta;
+    var vScale = meta.vScale;
+    var rects = meta.data;
     var ilen = rects.length;
     var i = 0;
     helpers$1.canvas.clipArea(chart.ctx, chart.chartArea);
 
     for (; i < ilen; ++i) {
-      if (!isNaN(me._getParsed(i)[scale.id])) {
+      if (!isNaN(me._getParsed(i)[vScale.id])) {
         rects[i].draw();
       }
     }
@@ -5841,8 +5841,8 @@ var controller_bubble = core_datasetController.extend({
    * @private
    */
   _parseObjectData: function _parseObjectData(meta, data, start, count) {
-    var xScale = this.getScaleForId(meta.xAxisID);
-    var yScale = this.getScaleForId(meta.yAxisID);
+    var xScale = meta.xScale;
+    var yScale = meta.yScale;
     var parsed = [];
     var i, ilen, item, obj;
 
@@ -5881,8 +5881,8 @@ var controller_bubble = core_datasetController.extend({
   _getLabelAndValue: function _getLabelAndValue(index) {
     var me = this;
     var meta = me._cachedMeta;
-    var xScale = me.getScaleForId(meta.xAxisID);
-    var yScale = me.getScaleForId(meta.yAxisID);
+    var xScale = meta.xScale;
+    var yScale = meta.yScale;
 
     var parsed = me._getParsed(index);
 
@@ -5900,8 +5900,7 @@ var controller_bubble = core_datasetController.extend({
    */
   update: function update(reset) {
     var me = this;
-    var meta = me.getMeta();
-    var points = meta.data; // Update Points
+    var points = me._cachedMeta.data; // Update Points
 
     helpers$1.each(points, function (point, index) {
       me.updateElement(point, index, reset);
@@ -5913,9 +5912,9 @@ var controller_bubble = core_datasetController.extend({
    */
   updateElement: function updateElement(point, index, reset) {
     var me = this;
-    var meta = me.getMeta();
-    var xScale = me.getScaleForId(meta.xAxisID);
-    var yScale = me.getScaleForId(meta.yAxisID);
+    var meta = me._cachedMeta;
+    var xScale = meta.xScale;
+    var yScale = meta.yScale;
 
     var options = me._resolveDataElementOptions(index);
 
@@ -6108,7 +6107,7 @@ var controller_doughnut = core_datasetController.extend({
    */
   _parse: function _parse(start, count) {
     var data = this.getDataset().data;
-    var metaData = this.getMeta().data;
+    var metaData = this._cachedMeta.data;
     var i, ilen;
 
     for (i = start, ilen = start + count; i < ilen; ++i) {
@@ -6136,7 +6135,7 @@ var controller_doughnut = core_datasetController.extend({
     var ratioY = 1;
     var offsetX = 0;
     var offsetY = 0;
-    var meta = me.getMeta();
+    var meta = me._cachedMeta;
     var arcs = meta.data;
     var cutout = opts.cutoutPercentage / 100 || 0;
     var circumference = opts.circumference;
@@ -6225,7 +6224,7 @@ var controller_doughnut = core_datasetController.extend({
       if (index === 0) {
         model.startAngle = opts.rotation;
       } else {
-        model.startAngle = me.getMeta().data[index - 1]._model.endAngle;
+        model.startAngle = me._cachedMeta.data[index - 1]._model.endAngle;
       }
 
       model.endAngle = model.startAngle + model.circumference;
@@ -6234,7 +6233,7 @@ var controller_doughnut = core_datasetController.extend({
     arc.pivot(chart._animationsDisabled);
   },
   calculateTotal: function calculateTotal() {
-    var metaData = this.getMeta().data;
+    var metaData = this._cachedMeta.data;
     var total = 0;
     var value;
     helpers$1.each(metaData, function (arc) {
@@ -6251,7 +6250,7 @@ var controller_doughnut = core_datasetController.extend({
     return total;
   },
   calculateCircumference: function calculateCircumference(value) {
-    var total = this.getMeta().total;
+    var total = this._cachedMeta.total;
 
     if (total > 0 && !isNaN(value)) {
       return DOUBLE_PI$1 * (Math.abs(value) / total);
@@ -6401,14 +6400,14 @@ var controller_horizontalBar = controller_bar.extend({
    * @private
    */
   _getValueScaleId: function _getValueScaleId() {
-    return this.getMeta().xAxisID;
+    return this._cachedMeta.xAxisID;
   },
 
   /**
    * @private
    */
   _getIndexScaleId: function _getIndexScaleId() {
-    return this.getMeta().yAxisID;
+    return this._cachedMeta.yAxisID;
   }
 });
 
@@ -6461,15 +6460,13 @@ var controller_line = core_datasetController.extend({
   },
   update: function update(reset) {
     var me = this;
-    var meta = me.getMeta();
+    var meta = me._cachedMeta;
     var line = meta.dataset;
     var points = meta.data || [];
     var options = me.chart.options;
     var config = me._config;
     var showLine = me._showLine = valueOrDefault$4(config.showLine, options.showLines);
-    var i, ilen;
-    me._xScale = me.getScaleForId(meta.xAxisID);
-    me._yScale = me.getScaleForId(meta.yAxisID); // Update Line
+    var i, ilen; // Update Line
 
     if (showLine) {
       // Data
@@ -6495,9 +6492,9 @@ var controller_line = core_datasetController.extend({
   },
   updateElement: function updateElement(point, index, reset) {
     var me = this;
-    var meta = me.getMeta();
-    var xScale = me._xScale;
-    var yScale = me._yScale;
+    var meta = me._cachedMeta;
+    var xScale = meta.xScale;
+    var yScale = meta.yScale;
     var stacked = meta._stacked;
 
     var parsed = me._getParsed(index);
@@ -6565,7 +6562,7 @@ var controller_line = core_datasetController.extend({
   updateBezierControlPoints: function updateBezierControlPoints() {
     var me = this;
     var chart = me.chart;
-    var meta = me.getMeta();
+    var meta = me._cachedMeta;
     var lineModel = meta.dataset._model;
     var area = chart.chartArea;
     var points = meta.data || [];
@@ -6615,7 +6612,7 @@ var controller_line = core_datasetController.extend({
   draw: function draw() {
     var me = this;
     var chart = me.chart;
-    var meta = me.getMeta();
+    var meta = me._cachedMeta;
     var points = meta.data || [];
     var area = chart.chartArea;
     var i = 0;
@@ -6769,7 +6766,7 @@ var controller_polarArea = core_datasetController.extend({
   update: function update(reset) {
     var me = this;
     var dataset = me.getDataset();
-    var meta = me.getMeta();
+    var meta = me._cachedMeta;
     var start = me.chart.options.startAngle || 0;
     var starts = me._starts = [];
     var angles = me._angles = [];
@@ -6843,7 +6840,7 @@ var controller_polarArea = core_datasetController.extend({
   },
   countVisibleElements: function countVisibleElements() {
     var dataset = this.getDataset();
-    var meta = this.getMeta();
+    var meta = this._cachedMeta;
     var count = 0;
     helpers$1.each(meta.data, function (element, index) {
       if (!isNaN(dataset.data[index]) && !element.hidden) {
@@ -6876,9 +6873,9 @@ var controller_polarArea = core_datasetController.extend({
    */
   _computeAngle: function _computeAngle(index) {
     var me = this;
-    var count = this.getMeta().count;
+    var meta = me._cachedMeta;
+    var count = meta.count;
     var dataset = me.getDataset();
-    var meta = me.getMeta();
 
     if (isNaN(dataset.data[index]) || meta.data[index].hidden) {
       return 0;
@@ -6972,19 +6969,18 @@ var controller_radar = core_datasetController.extend({
    */
   _getLabelAndValue: function _getLabelAndValue(index) {
     var me = this;
-
-    var scale = me._getValueScale();
+    var vScale = me._cachedMeta.vScale;
 
     var parsed = me._getParsed(index);
 
     return {
-      label: scale._getLabels()[index],
-      value: '' + scale.getLabelForValue(parsed[scale.id])
+      label: vScale._getLabels()[index],
+      value: '' + vScale.getLabelForValue(parsed[vScale.id])
     };
   },
   update: function update(reset) {
     var me = this;
-    var meta = me.getMeta();
+    var meta = me._cachedMeta;
     var line = meta.dataset;
     var points = meta.data || [];
     var animationsDisabled = me.chart._animationsDisabled;
@@ -7053,7 +7049,7 @@ var controller_radar = core_datasetController.extend({
   },
   updateBezierControlPoints: function updateBezierControlPoints() {
     var me = this;
-    var meta = me.getMeta();
+    var meta = me._cachedMeta;
     var lineModel = meta.dataset._model;
     var area = me.chart.chartArea;
     var points = meta.data || [];
