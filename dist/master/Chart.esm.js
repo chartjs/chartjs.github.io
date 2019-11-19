@@ -4522,23 +4522,20 @@ helpers$1.extend(DatasetController.prototype, {
    * @private
    */
   insertElements: function insertElements(start, count) {
-    var _me$_cachedMeta$data;
-
     var me = this;
     var elements = [];
+    var data = me._cachedMeta.data;
     var i;
 
     for (i = start; i < start + count; ++i) {
       elements.push(me.createElement(me.dataElementType));
     }
 
-    (_me$_cachedMeta$data = me._cachedMeta.data).splice.apply(_me$_cachedMeta$data, [start, 0].concat(elements));
+    data.splice.apply(data, [start, 0].concat(elements));
 
     me._parse(start, count);
 
-    for (i = 0; i < count; ++i) {
-      me.updateElement(elements[i], start + i, true);
-    }
+    me.updateElements(data, start, count);
   },
 
   /**
@@ -5578,53 +5575,43 @@ var controller_bar = core_datasetController.extend({
   update: function update(reset) {
     var me = this;
     var rects = me._cachedMeta.data;
-    var i, ilen;
-    me._ruler = me.getRuler();
-
-    for (i = 0, ilen = rects.length; i < ilen; ++i) {
-      me.updateElement(rects[i], i, reset);
-    }
+    me.updateElements(rects, 0, rects.length, reset);
   },
-  updateElement: function updateElement(rectangle, index, reset) {
+  updateElements: function updateElements(rectangles, start, count, reset) {
     var me = this;
+    var vscale = me._cachedMeta.vScale;
+    var base = vscale.getBasePixel();
+    var horizontal = vscale.isHorizontal();
+    var ruler = me.getRuler();
+    var i;
 
-    var options = me._resolveDataElementOptions(index);
+    for (i = 0; i < start + count; i++) {
+      var rectangle = rectangles[i];
 
-    rectangle._model = {
-      backgroundColor: options.backgroundColor,
-      borderColor: options.borderColor,
-      borderSkipped: options.borderSkipped,
-      borderWidth: options.borderWidth
-    }; // all borders are drawn for floating bar
+      var options = me._resolveDataElementOptions(i);
 
-    if (me._getParsed(index)._custom) {
-      rectangle._model.borderSkipped = null;
+      var vpixels = me.calculateBarValuePixels(i, options);
+      var ipixels = me.calculateBarIndexPixels(i, ruler, options);
+      rectangle._model = {
+        backgroundColor: options.backgroundColor,
+        borderColor: options.borderColor,
+        borderSkipped: options.borderSkipped,
+        borderWidth: options.borderWidth
+      };
+      var model = rectangle._model; // all borders are drawn for floating bar
+
+      if (me._getParsed(i)._custom) {
+        model.borderSkipped = null;
+      }
+
+      model.horizontal = horizontal;
+      model.base = reset ? base : vpixels.base;
+      model.x = horizontal ? reset ? base : vpixels.head : ipixels.center;
+      model.y = horizontal ? ipixels.center : reset ? base : vpixels.head;
+      model.height = horizontal ? ipixels.size : undefined;
+      model.width = horizontal ? undefined : ipixels.size;
+      rectangle.pivot(me.chart._animationsDisabled);
     }
-
-    me._updateElementGeometry(rectangle, index, reset, options);
-
-    rectangle.pivot(me.chart._animationsDisabled);
-  },
-
-  /**
-   * @private
-   */
-  _updateElementGeometry: function _updateElementGeometry(rectangle, index, reset, options) {
-    var me = this;
-    var meta = me._cachedMeta;
-    var model = rectangle._model;
-    var vScale = meta.vScale;
-    var base = vScale.getBasePixel();
-    var horizontal = vScale.isHorizontal();
-    var ruler = me._ruler || me.getRuler();
-    var vpixels = me.calculateBarValuePixels(index, options);
-    var ipixels = me.calculateBarIndexPixels(index, ruler, options);
-    model.horizontal = horizontal;
-    model.base = reset ? base : vpixels.base;
-    model.x = horizontal ? reset ? base : vpixels.head : ipixels.center;
-    model.y = horizontal ? ipixels.center : reset ? base : vpixels.head;
-    model.height = horizontal ? ipixels.size : undefined;
-    model.width = horizontal ? undefined : ipixels.size;
   },
 
   /**
@@ -5902,40 +5889,43 @@ var controller_bubble = core_datasetController.extend({
     var me = this;
     var points = me._cachedMeta.data; // Update Points
 
-    helpers$1.each(points, function (point, index) {
-      me.updateElement(point, index, reset);
-    });
+    me.updateElements(points, 0, points.length, reset);
   },
 
   /**
    * @protected
    */
-  updateElement: function updateElement(point, index, reset) {
+  updateElements: function updateElements(points, start, count, reset) {
     var me = this;
     var meta = me._cachedMeta;
     var xScale = meta.xScale;
     var yScale = meta.yScale;
+    var i;
 
-    var options = me._resolveDataElementOptions(index);
+    for (i = start; i < start + count; i++) {
+      var point = points[i];
 
-    var parsed = !reset && me._getParsed(index);
+      var options = me._resolveDataElementOptions(i);
 
-    var x = reset ? xScale.getPixelForDecimal(0.5) : xScale.getPixelForValue(parsed[xScale.id]);
-    var y = reset ? yScale.getBasePixel() : yScale.getPixelForValue(parsed[yScale.id]);
-    point._options = options;
-    point._model = {
-      backgroundColor: options.backgroundColor,
-      borderColor: options.borderColor,
-      borderWidth: options.borderWidth,
-      hitRadius: options.hitRadius,
-      pointStyle: options.pointStyle,
-      rotation: options.rotation,
-      radius: reset ? 0 : options.radius,
-      skip: isNaN(x) || isNaN(y),
-      x: x,
-      y: y
-    };
-    point.pivot(me.chart._animationsDisabled);
+      var parsed = !reset && me._getParsed(i);
+
+      var x = reset ? xScale.getPixelForDecimal(0.5) : xScale.getPixelForValue(parsed[xScale.id]);
+      var y = reset ? yScale.getBasePixel() : yScale.getPixelForValue(parsed[yScale.id]);
+      point._options = options;
+      point._model = {
+        backgroundColor: options.backgroundColor,
+        borderColor: options.borderColor,
+        borderWidth: options.borderWidth,
+        hitRadius: options.hitRadius,
+        pointStyle: options.pointStyle,
+        rotation: options.rotation,
+        radius: reset ? 0 : options.radius,
+        skip: isNaN(x) || isNaN(y),
+        x: x,
+        y: y
+      };
+      point.pivot(me.chart._animationsDisabled);
+    }
   },
 
   /**
@@ -6181,12 +6171,9 @@ var controller_doughnut = core_datasetController.extend({
     meta.total = me.calculateTotal();
     me.outerRadius = chart.outerRadius - chart.radiusLength * me._getRingWeightOffset(me.index);
     me.innerRadius = Math.max(me.outerRadius - chart.radiusLength * chartWeight, 0);
-
-    for (i = 0, ilen = arcs.length; i < ilen; ++i) {
-      me.updateElement(arcs[i], i, reset);
-    }
+    me.updateElements(arcs, 0, arcs.length, reset);
   },
-  updateElement: function updateElement(arc, index, reset) {
+  updateElements: function updateElements(arcs, start, count, reset) {
     var me = this;
     var chart = me.chart;
     var chartArea = chart.chartArea;
@@ -6198,13 +6185,16 @@ var controller_doughnut = core_datasetController.extend({
 
     var endAngle = opts.rotation; // non reset case handled later
 
-    var circumference = reset && animationOpts.animateRotate ? 0 : arc.hidden ? 0 : me.calculateCircumference(arc._parsed * opts.circumference / DOUBLE_PI$1);
     var innerRadius = reset && animationOpts.animateScale ? 0 : me.innerRadius;
     var outerRadius = reset && animationOpts.animateScale ? 0 : me.outerRadius;
-    var options = arc._options || {};
-    helpers$1.extend(arc, {
-      // Desired view properties
-      _model: {
+    var i;
+
+    for (i = 0; i < start + count; ++i) {
+      var arc = arcs[i];
+      var circumference = reset && animationOpts.animateRotate ? 0 : arc.hidden ? 0 : me.calculateCircumference(arc._parsed * opts.circumference / DOUBLE_PI$1);
+      var options = arc._options || {};
+      var model = {
+        // Desired view properties
         backgroundColor: options.backgroundColor,
         borderColor: options.borderColor,
         borderWidth: options.borderWidth,
@@ -6216,21 +6206,21 @@ var controller_doughnut = core_datasetController.extend({
         circumference: circumference,
         outerRadius: outerRadius,
         innerRadius: innerRadius
-      }
-    });
-    var model = arc._model; // Set correct angles if not resetting
+      };
+      arc._model = model; // Set correct angles if not resetting
 
-    if (!reset || !animationOpts.animateRotate) {
-      if (index === 0) {
-        model.startAngle = opts.rotation;
-      } else {
-        model.startAngle = me._cachedMeta.data[index - 1]._model.endAngle;
+      if (!reset || !animationOpts.animateRotate) {
+        if (i === 0) {
+          model.startAngle = opts.rotation;
+        } else {
+          model.startAngle = me._cachedMeta.data[i - 1]._model.endAngle;
+        }
+
+        model.endAngle = model.startAngle + model.circumference;
       }
 
-      model.endAngle = model.startAngle + model.circumference;
+      arc.pivot(chart._animationsDisabled);
     }
-
-    arc.pivot(chart._animationsDisabled);
   },
   calculateTotal: function calculateTotal() {
     var metaData = this._cachedMeta.data;
@@ -6477,9 +6467,7 @@ var controller_line = core_datasetController.extend({
     } // Update Points
 
 
-    for (i = 0, ilen = points.length; i < ilen; ++i) {
-      me.updateElement(points[i], i, reset);
-    }
+    me.updateElements(points, 0, points.length, reset);
 
     if (showLine && line._model.tension !== 0) {
       me.updateBezierControlPoints();
@@ -6490,36 +6478,41 @@ var controller_line = core_datasetController.extend({
       points[i].pivot(me.chart._animationsDisabled);
     }
   },
-  updateElement: function updateElement(point, index, reset) {
+  updateElements: function updateElements(points, start, count, reset) {
     var me = this;
     var meta = me._cachedMeta;
     var xScale = meta.xScale;
     var yScale = meta.yScale;
     var stacked = meta._stacked;
+    var i;
 
-    var parsed = me._getParsed(index);
+    for (i = start; i < start + count; ++i) {
+      var point = points[i];
 
-    var options = me._resolveDataElementOptions(index);
+      var parsed = me._getParsed(i);
 
-    var x = xScale.getPixelForValue(parsed[xScale.id]);
-    var y = reset ? yScale.getBasePixel() : yScale.getPixelForValue(stacked ? me._applyStack(yScale, parsed) : parsed[yScale.id]); // Utility
+      var options = me._resolveDataElementOptions(i);
 
-    point._options = options; // Desired view properties
+      var x = xScale.getPixelForValue(parsed[xScale.id]);
+      var y = reset ? yScale.getBasePixel() : yScale.getPixelForValue(stacked ? me._applyStack(yScale, parsed) : parsed[yScale.id]); // Utility
 
-    point._model = {
-      x: x,
-      y: y,
-      skip: isNaN(x) || isNaN(y),
-      // Appearance
-      radius: options.radius,
-      pointStyle: options.pointStyle,
-      rotation: options.rotation,
-      backgroundColor: options.backgroundColor,
-      borderColor: options.borderColor,
-      borderWidth: options.borderWidth,
-      // Tooltip
-      hitRadius: options.hitRadius
-    };
+      point._options = options; // Desired view properties
+
+      point._model = {
+        x: x,
+        y: y,
+        skip: isNaN(x) || isNaN(y),
+        // Appearance
+        radius: options.radius,
+        pointStyle: options.pointStyle,
+        rotation: options.rotation,
+        backgroundColor: options.backgroundColor,
+        borderColor: options.borderColor,
+        borderWidth: options.borderWidth,
+        // Tooltip
+        hitRadius: options.hitRadius
+      };
+    }
   },
 
   /**
@@ -6784,10 +6777,7 @@ var controller_polarArea = core_datasetController.extend({
       start += angle;
     }
 
-    for (i = 0, ilen = arcs.length; i < ilen; ++i) {
-      arcs[i]._options = me._resolveDataElementOptions(i);
-      me.updateElement(arcs[i], i, reset);
-    }
+    me.updateElements(arcs, 0, arcs.length, reset);
   },
 
   /**
@@ -6805,7 +6795,7 @@ var controller_polarArea = core_datasetController.extend({
     me.outerRadius = chart.outerRadius - chart.radiusLength * me.index;
     me.innerRadius = me.outerRadius - chart.radiusLength;
   },
-  updateElement: function updateElement(arc, index, reset) {
+  updateElements: function updateElements(arcs, start, count, reset) {
     var me = this;
     var chart = me.chart;
     var dataset = me.getDataset();
@@ -6813,17 +6803,21 @@ var controller_polarArea = core_datasetController.extend({
     var animationOpts = opts.animation;
     var scale = chart.scale;
     var centerX = scale.xCenter;
-    var centerY = scale.yCenter; // var negHalfPI = -0.5 * Math.PI;
+    var centerY = scale.yCenter;
+    var i;
 
-    var datasetStartAngle = opts.startAngle;
-    var distance = arc.hidden ? 0 : scale.getDistanceFromCenterForValue(dataset.data[index]);
-    var startAngle = me._starts[index];
-    var endAngle = startAngle + (arc.hidden ? 0 : me._angles[index]);
-    var resetRadius = animationOpts.animateScale ? 0 : scale.getDistanceFromCenterForValue(dataset.data[index]);
-    var options = arc._options || {};
-    helpers$1.extend(arc, {
-      // Desired view properties
-      _model: {
+    for (i = 0; i < start + count; i++) {
+      var arc = arcs[i]; // var negHalfPI = -0.5 * Math.PI;
+
+      var datasetStartAngle = opts.startAngle;
+      var distance = arc.hidden ? 0 : scale.getDistanceFromCenterForValue(dataset.data[i]);
+      var startAngle = me._starts[i];
+      var endAngle = startAngle + (arc.hidden ? 0 : me._angles[i]);
+      var resetRadius = animationOpts.animateScale ? 0 : scale.getDistanceFromCenterForValue(dataset.data[i]);
+
+      var options = arc._options = me._resolveDataElementOptions(i);
+
+      arc._model = {
         backgroundColor: options.backgroundColor,
         borderColor: options.borderColor,
         borderWidth: options.borderWidth,
@@ -6834,9 +6828,9 @@ var controller_polarArea = core_datasetController.extend({
         outerRadius: reset ? resetRadius : distance,
         startAngle: reset && animationOpts.animateRotate ? datasetStartAngle : startAngle,
         endAngle: reset && animationOpts.animateRotate ? datasetStartAngle : endAngle
-      }
-    });
-    arc.pivot(chart._animationsDisabled);
+      };
+      arc.pivot(chart._animationsDisabled);
+    }
   },
   countVisibleElements: function countVisibleElements() {
     var dataset = this.getDataset();
@@ -6992,10 +6986,7 @@ var controller_radar = core_datasetController.extend({
     line._model = me._resolveDatasetElementOptions();
     line.pivot(animationsDisabled); // Update Points
 
-    for (i = 0, ilen = points.length; i < ilen; ++i) {
-      me.updateElement(points[i], i, reset);
-    } // Update bezier control points
-
+    me.updateElements(points, 0, points.length, reset); // Update bezier control points
 
     me.updateBezierControlPoints(); // Now pivot the point for animation
 
@@ -7003,34 +6994,39 @@ var controller_radar = core_datasetController.extend({
       points[i].pivot(animationsDisabled);
     }
   },
-  updateElement: function updateElement(point, index, reset) {
+  updateElements: function updateElements(points, start, count, reset) {
     var me = this;
     var dataset = me.getDataset();
     var scale = me.chart.scale;
-    var pointPosition = scale.getPointPositionForValue(index, dataset.data[index]);
+    var i;
 
-    var options = me._resolveDataElementOptions(index);
+    for (i = start; i < start + count; i++) {
+      var point = points[i];
+      var pointPosition = scale.getPointPositionForValue(i, dataset.data[i]);
 
-    var x = reset ? scale.xCenter : pointPosition.x;
-    var y = reset ? scale.yCenter : pointPosition.y; // Utility
+      var options = me._resolveDataElementOptions(i);
 
-    point._options = options; // Desired view properties
+      var x = reset ? scale.xCenter : pointPosition.x;
+      var y = reset ? scale.yCenter : pointPosition.y; // Utility
 
-    point._model = {
-      x: x,
-      // value not used in dataset scale, but we want a consistent API between scales
-      y: y,
-      skip: isNaN(x) || isNaN(y),
-      // Appearance
-      radius: options.radius,
-      pointStyle: options.pointStyle,
-      rotation: options.rotation,
-      backgroundColor: options.backgroundColor,
-      borderColor: options.borderColor,
-      borderWidth: options.borderWidth,
-      // Tooltip
-      hitRadius: options.hitRadius
-    };
+      point._options = options; // Desired view properties
+
+      point._model = {
+        x: x,
+        // value not used in dataset scale, but we want a consistent API between scales
+        y: y,
+        skip: isNaN(x) || isNaN(y),
+        // Appearance
+        radius: options.radius,
+        pointStyle: options.pointStyle,
+        rotation: options.rotation,
+        backgroundColor: options.backgroundColor,
+        borderColor: options.borderColor,
+        borderWidth: options.borderWidth,
+        // Tooltip
+        hitRadius: options.hitRadius
+      };
+    }
   },
 
   /**
