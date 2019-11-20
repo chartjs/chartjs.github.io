@@ -3831,6 +3831,7 @@ helpers$1.extend(DatasetController.prototype, {
     var me = this;
     var meta;
     me.chart = chart;
+    me._ctx = chart.ctx;
     me.index = datasetIndex;
     me._cachedMeta = meta = me.getMeta();
     me._type = meta.type;
@@ -3911,9 +3912,7 @@ helpers$1.extend(DatasetController.prototype, {
     }
   },
   createElement: function createElement(type) {
-    return type && new type({
-      _ctx: this.chart.ctx
-    });
+    return type && new type();
   },
 
   /**
@@ -4328,17 +4327,18 @@ helpers$1.extend(DatasetController.prototype, {
     }
   },
   draw: function draw() {
+    var ctx = this._ctx;
     var meta = this._cachedMeta;
     var elements = meta.data || [];
     var ilen = elements.length;
     var i = 0;
 
     if (meta.dataset) {
-      meta.dataset.draw();
+      meta.dataset.draw(ctx);
     }
 
     for (; i < ilen; ++i) {
-      elements[i].draw();
+      elements[i].draw(ctx);
     }
   },
 
@@ -4742,8 +4742,7 @@ function (_Element) {
     }
   }, {
     key: "draw",
-    value: function draw() {
-      var ctx = this._ctx;
+    value: function draw(ctx) {
       var vm = this._view;
       var pixelMargin = vm.borderAlign === 'inner' ? 0.33 : 0;
       var arc = {
@@ -4949,10 +4948,9 @@ function (_Element) {
 
   _createClass(Line, [{
     key: "draw",
-    value: function draw() {
+    value: function draw(ctx) {
       var me = this;
       var vm = me._view;
-      var ctx = me._ctx;
       var spanGaps = vm.spanGaps;
       var closePath = me._loop;
       var points = me._children;
@@ -5067,9 +5065,8 @@ function (_Element) {
     }
   }, {
     key: "draw",
-    value: function draw(chartArea) {
+    value: function draw(ctx, chartArea) {
       var vm = this._view;
-      var ctx = this._ctx;
       var pointStyle = vm.pointStyle;
       var rotation = vm.rotation;
       var radius = vm.radius;
@@ -5232,8 +5229,7 @@ function (_Element) {
 
   _createClass(Rectangle, [{
     key: "draw",
-    value: function draw() {
-      var ctx = this._ctx;
+    value: function draw(ctx) {
       var vm = this._view;
       var rects = boundingRects(vm);
       var outer = rects.outer;
@@ -5776,7 +5772,7 @@ var controller_bar = core_datasetController.extend({
 
     for (; i < ilen; ++i) {
       if (!isNaN(me._getParsed(i)[vScale.id])) {
-        rects[i].draw();
+        rects[i].draw(me._ctx);
       }
     }
 
@@ -6604,6 +6600,7 @@ var controller_line = core_datasetController.extend({
   },
   draw: function draw() {
     var me = this;
+    var ctx = me._ctx;
     var chart = me.chart;
     var meta = me._cachedMeta;
     var points = meta.data || [];
@@ -6612,12 +6609,12 @@ var controller_line = core_datasetController.extend({
     var ilen = points.length;
 
     if (me._showLine) {
-      meta.dataset.draw();
+      meta.dataset.draw(ctx);
     } // Draw the points
 
 
     for (; i < ilen; ++i) {
-      points[i].draw(area);
+      points[i].draw(ctx, area);
     }
   },
 
