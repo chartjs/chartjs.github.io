@@ -3342,14 +3342,9 @@ function () {
     _classCallCheck(this, Element);
 
     helpers$1.extend(this, configuration); // this.hidden = false; we assume Element has an attribute called hidden, but do not initialize to save memory
-
-    this.initialize.apply(this, arguments);
   }
 
   _createClass(Element, [{
-    key: "initialize",
-    value: function initialize() {}
-  }, {
     key: "pivot",
     value: function pivot(animationsDisabled) {
       var me = this;
@@ -9034,10 +9029,16 @@ var Tooltip =
 function (_Element) {
   _inherits(Tooltip, _Element);
 
-  function Tooltip() {
+  function Tooltip(config) {
+    var _this;
+
     _classCallCheck(this, Tooltip);
 
-    return _possibleConstructorReturn(this, _getPrototypeOf(Tooltip).apply(this, arguments));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(Tooltip).call(this, config));
+
+    _this.initialize();
+
+    return _this;
   }
 
   _createClass(Tooltip, [{
@@ -10468,7 +10469,7 @@ helpers$1.extend(Chart.prototype,
       _chart: me,
       _data: me.data,
       _options: me.options.tooltips
-    }, me);
+    });
   },
 
   /**
@@ -15622,31 +15623,32 @@ var Legend =
 function (_Element) {
   _inherits(Legend, _Element);
 
-  function Legend() {
+  function Legend(config) {
+    var _this;
+
     _classCallCheck(this, Legend);
 
-    return _possibleConstructorReturn(this, _getPrototypeOf(Legend).apply(this, arguments));
-  }
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(Legend).call(this));
+
+    var me = _assertThisInitialized(_this);
+
+    helpers$1.extend(me, config); // Contains hit boxes for each dataset (in dataset order)
+
+    me.legendHitBoxes = [];
+    /**
+    	 * @private
+    	 */
+
+    me._hoveredItem = null; // Are we in doughnut mode which has a different data type
+
+    me.doughnutMode = false;
+    return _this;
+  } // These methods are ordered by lifecycle. Utilities then follow.
+  // Any function defined here is inherited by all legend types.
+  // Any function can be extended by the legend type
+
 
   _createClass(Legend, [{
-    key: "initialize",
-    value: function initialize(config) {
-      var me = this;
-      helpers$1.extend(me, config); // Contains hit boxes for each dataset (in dataset order)
-
-      me.legendHitBoxes = [];
-      /**
-      	 * @private
-      	 */
-
-      me._hoveredItem = null; // Are we in doughnut mode which has a different data type
-
-      me.doughnutMode = false;
-    } // These methods are ordered by lifecycle. Utilities then follow.
-    // Any function defined here is inherited by all legend types.
-    // Any function can be extended by the legend type
-
-  }, {
     key: "beforeUpdate",
     value: function beforeUpdate() {}
   }, {
@@ -16174,22 +16176,23 @@ var Title =
 function (_Element) {
   _inherits(Title, _Element);
 
-  function Title() {
+  function Title(config) {
+    var _this;
+
     _classCallCheck(this, Title);
 
-    return _possibleConstructorReturn(this, _getPrototypeOf(Title).apply(this, arguments));
-  }
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(Title).call(this));
+
+    var me = _assertThisInitialized(_this);
+
+    helpers$1.extend(me, config); // Contains hit boxes for each dataset (in dataset order)
+
+    me.legendHitBoxes = [];
+    return _this;
+  } // These methods are ordered by lifecycle. Utilities then follow.
+
 
   _createClass(Title, [{
-    key: "initialize",
-    value: function initialize(config) {
-      var me = this;
-      helpers$1.extend(me, config); // Contains hit boxes for each dataset (in dataset order)
-
-      me.legendHitBoxes = [];
-    } // These methods are ordered by lifecycle. Utilities then follow.
-
-  }, {
     key: "beforeUpdate",
     value: function beforeUpdate() {}
   }, {
