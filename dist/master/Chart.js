@@ -4014,7 +4014,7 @@ helpers$1.extend(DatasetController.prototype, {
     var me = this;
     me._config = helpers$1.merge({}, [me.chart.options.datasets[me._type], me.getDataset()], {
       merger: function merger(key, target, source) {
-        if (key !== '_meta' && key !== 'data') {
+        if (key !== 'data') {
           helpers$1._merger(key, target, source);
         }
       }
@@ -10381,15 +10381,11 @@ helpers$1.extend(Chart.prototype,
   getDatasetMeta: function getDatasetMeta(datasetIndex) {
     var me = this;
     var dataset = me.data.datasets[datasetIndex];
-
-    if (!dataset._meta) {
-      dataset._meta = {};
-    }
-
-    var meta = dataset._meta[me.id];
+    var metasets = me._metasets = me._metasets || [];
+    var meta = metasets[datasetIndex];
 
     if (!meta) {
-      meta = dataset._meta[me.id] = {
+      meta = metasets[datasetIndex] = {
         type: null,
         data: [],
         dataset: null,
@@ -10430,13 +10426,12 @@ helpers$1.extend(Chart.prototype,
    * @private
    */
   destroyDatasetMeta: function destroyDatasetMeta(datasetIndex) {
-    var id = this.id;
-    var dataset = this.data.datasets[datasetIndex];
-    var meta = dataset._meta && dataset._meta[id];
+    var me = this;
+    var meta = me._metasets && me._metasets[datasetIndex];
 
     if (meta) {
       meta.controller.destroy();
-      delete dataset._meta[id];
+      delete me._metasets[datasetIndex];
     }
   },
   destroy: function destroy() {
