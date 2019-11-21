@@ -998,6 +998,48 @@
     }
 });
 </code></pre>
+<p>If you need to support multiple colors when filling from one dataset to another, you may specify an object with the following option :</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Param</th>
+<th style="text-align:left">Type</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>target</code></td>
+<td style="text-align:left"><code>number</code>, <code>string</code>, <code>boolean</code></td>
+<td style="text-align:left">The accepted values are the same as the filling mode values, so you may use absolute and relative dataset indexes and/or boundaries.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>above</code></td>
+<td style="text-align:left"><code>Color</code></td>
+<td style="text-align:left">If no color is set, the default color will be the background color of the chart.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>below</code></td>
+<td style="text-align:left"><code>Color</code></td>
+<td style="text-align:left">Same as the above.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example</strong></p>
+<pre><code class="lang-javascript"><span class="hljs-keyword">new</span> Chart(ctx, {
+    data: {
+        datasets: [
+            {
+              fill: {
+                target: <span class="hljs-string">&apos;origin&apos;</span>,
+                above: <span class="hljs-string">&apos;rgb(255, 0, 0)&apos;</span>,   <span class="hljs-comment">// Area will be red above the origin</span>
+                below: <span class="hljs-string">&apos;rgb(0, 0, 255)&apos;</span>    <span class="hljs-comment">// And blue below the origin</span>
+              }
+            }
+        ]
+    }
+});
+</code></pre>
 <h2 id="configuration">Configuration</h2>
 <table>
 <thead>
@@ -1092,7 +1134,7 @@
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Area","level":"1.6.8","depth":2,"next":{"title":"Mixed","level":"1.6.9","depth":2,"path":"charts/mixed.md","ref":"charts/mixed.md","articles":[]},"previous":{"title":"Scatter","level":"1.6.7","depth":2,"path":"charts/scatter.md","ref":"charts/scatter.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga","redirect"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"chartjs":{"defaults":null},"fontsettings":{"theme":"white","family":"sans","size":2},"highlight":{},"ga":{"configuration":"auto","token":"UA-28909194-3"},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"redirect":{},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"anchorjs":{"icon":"#","placement":"left","visible":"always"},"search-plus":{}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"charts/area.md","mtime":"2019-11-21T12:21:32.505Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2019-11-21T12:25:22.439Z"},"basePath":"..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Area","level":"1.6.8","depth":2,"next":{"title":"Mixed","level":"1.6.9","depth":2,"path":"charts/mixed.md","ref":"charts/mixed.md","articles":[]},"previous":{"title":"Scatter","level":"1.6.7","depth":2,"path":"charts/scatter.md","ref":"charts/scatter.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga","redirect"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"chartjs":{"defaults":null},"fontsettings":{"theme":"white","family":"sans","size":2},"highlight":{},"ga":{"configuration":"auto","token":"UA-28909194-3"},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"redirect":{},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"anchorjs":{"icon":"#","placement":"left","visible":"always"},"search-plus":{}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"charts/area.md","mtime":"2019-11-21T18:49:52.383Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2019-11-21T18:54:23.805Z"},"basePath":"..","book":{"language":""}});
         });
     </script>
 </div>
