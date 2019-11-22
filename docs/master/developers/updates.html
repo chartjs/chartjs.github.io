@@ -982,12 +982,12 @@
             text: <span class="hljs-string">&apos;Chart.js&apos;</span>
         },
         scales: {
-            xAxes: [{
+            x: {
                 display: <span class="hljs-literal">true</span>
-            }],
-            yAxes: [{
+            },
+            y: {
                 display: <span class="hljs-literal">true</span>
-            }]
+            }
         }
     };
     chart.update();
@@ -997,27 +997,26 @@
 To update the scales, pass in an object containing all the customization including those unchanged ones.</p>
 <p>Variables referencing any one from <code>chart.scales</code> would be lost after updating scales with a new <code>id</code> or the changed <code>type</code>.</p>
 <pre><code class="lang-javascript"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">updateScales</span>(<span class="hljs-params">chart</span>) </span>{
-    <span class="hljs-keyword">var</span> xScale = chart.scales[<span class="hljs-string">&apos;x-axis-0&apos;</span>];
-    <span class="hljs-keyword">var</span> yScale = chart.scales[<span class="hljs-string">&apos;y-axis-0&apos;</span>];
+    <span class="hljs-keyword">var</span> xScale = chart.scales.x;
+    <span class="hljs-keyword">var</span> yScale = chart.scales.y;
     chart.options.scales = {
-        xAxes: [{
-            id: <span class="hljs-string">&apos;newId&apos;</span>,
+        newId: {
             display: <span class="hljs-literal">true</span>
-        }],
-        yAxes: [{
+        },
+        y: {
             display: <span class="hljs-literal">true</span>,
             type: <span class="hljs-string">&apos;logarithmic&apos;</span>
-        }]
+        }
     };
     chart.update();
     <span class="hljs-comment">// need to update the reference</span>
-    xScale = chart.scales[<span class="hljs-string">&apos;newId&apos;</span>];
-    yScale = chart.scales[<span class="hljs-string">&apos;y-axis-0&apos;</span>];
+    xScale = chart.scales.newId;
+    yScale = chart.scales.y;
 }
 </code></pre>
-<p>You can also update a specific scale either by specifying its index or id.</p>
+<p>You can also update a specific scale either by its id.</p>
 <pre><code class="lang-javascript"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">updateScale</span>(<span class="hljs-params">chart</span>) </span>{
-    chart.options.scales.yAxes[<span class="hljs-number">0</span>] = {
+    chart.options.scales.y = {
         type: <span class="hljs-string">&apos;logarithmic&apos;</span>
     };
     chart.update();
@@ -1069,7 +1068,7 @@ To update the scales, pass in an object containing all the customization includi
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Updating Charts","level":"1.8.3","depth":2,"next":{"title":"Plugins","level":"1.8.4","depth":2,"path":"developers/plugins.md","ref":"developers/plugins.md","articles":[]},"previous":{"title":"JSDoc","level":"1.8.2","depth":2,"path":"jsdoc/index.html","ref":"jsdoc/index.html","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga","redirect"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"chartjs":{"defaults":null},"fontsettings":{"theme":"white","family":"sans","size":2},"highlight":{},"ga":{"configuration":"auto","token":"UA-28909194-3"},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"redirect":{},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"anchorjs":{"icon":"#","placement":"left","visible":"always"},"search-plus":{}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"developers/updates.md","mtime":"2019-11-21T18:49:52.383Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2019-11-21T18:54:23.805Z"},"basePath":"..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Updating Charts","level":"1.8.3","depth":2,"next":{"title":"Plugins","level":"1.8.4","depth":2,"path":"developers/plugins.md","ref":"developers/plugins.md","articles":[]},"previous":{"title":"JSDoc","level":"1.8.2","depth":2,"path":"jsdoc/index.html","ref":"jsdoc/index.html","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga","redirect"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"chartjs":{"defaults":null},"fontsettings":{"theme":"white","family":"sans","size":2},"highlight":{},"ga":{"configuration":"auto","token":"UA-28909194-3"},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"redirect":{},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"anchorjs":{"icon":"#","placement":"left","visible":"always"},"search-plus":{}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"developers/updates.md","mtime":"2019-11-22T12:30:00.249Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2019-11-22T12:34:19.351Z"},"basePath":"..","book":{"language":""}});
         });
     </script>
 </div>

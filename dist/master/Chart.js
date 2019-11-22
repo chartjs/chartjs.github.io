@@ -95,6 +95,48 @@ function _possibleConstructorReturn(self, call) {
   return _assertThisInitialized(self);
 }
 
+function _slicedToArray(arr, i) {
+  return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest();
+}
+
+function _arrayWithHoles(arr) {
+  if (Array.isArray(arr)) return arr;
+}
+
+function _iterableToArrayLimit(arr, i) {
+  if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) {
+    return;
+  }
+
+  var _arr = [];
+  var _n = true;
+  var _d = false;
+  var _e = undefined;
+
+  try {
+    for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+      _arr.push(_s.value);
+
+      if (i && _arr.length === i) break;
+    }
+  } catch (err) {
+    _d = true;
+    _e = err;
+  } finally {
+    try {
+      if (!_n && _i["return"] != null) _i["return"]();
+    } finally {
+      if (_d) throw _e;
+    }
+  }
+
+  return _arr;
+}
+
+function _nonIterableRest() {
+  throw new TypeError("Invalid attempt to destructure non-iterable instance");
+}
+
 function createCommonjsModule(fn, module) {
 	return module = { exports: {} }, fn(module, module.exports), module.exports;
 }
@@ -3734,14 +3776,6 @@ function getStackKey(indexScale, valueScale, meta) {
   return indexScale.id + '.' + valueScale.id + '.' + meta.stack + '.' + meta.type;
 }
 
-function getFirstScaleId(chart, axis) {
-  var scalesOpts = chart.options.scales;
-  var scale = chart.options.scale;
-  var scaleId = scale && scale.id;
-  var prop = axis + 'Axes';
-  return scalesOpts && scalesOpts[prop] && scalesOpts[prop].length && scalesOpts[prop][0].id || scaleId;
-}
-
 function getUserBounds(scale) {
   var _scale$_getUserBounds = scale._getUserBounds(),
       min = _scale$_getUserBounds.min,
@@ -3793,6 +3827,13 @@ function updateStacks(controller, parsed) {
       stack[datasetIndex] = x;
     }
   }
+}
+
+function getFirstScaleId(chart, axis) {
+  var scales = chart.scales;
+  return Object.keys(scales).filter(function (key) {
+    return scales[key].axis === axis;
+  }).shift();
 } // Base class for all dataset controllers (line, bar, etc)
 
 
@@ -3850,8 +3891,10 @@ helpers$1.extend(DatasetController.prototype, {
     var dataset = me.getDataset();
     var xid = meta.xAxisID = dataset.xAxisID || getFirstScaleId(chart, 'x');
     var yid = meta.yAxisID = dataset.yAxisID || getFirstScaleId(chart, 'y');
+    var rid = meta.rAxisID = dataset.rAxisID || getFirstScaleId(chart, 'r');
     meta.xScale = me.getScaleForId(xid);
     meta.yScale = me.getScaleForId(yid);
+    meta.rScale = me.getScaleForId(rid);
     meta.iScale = me._getIndexScale();
     meta.vScale = me._getValueScale();
   },
@@ -5319,16 +5362,16 @@ core_defaults._set('bar', {
     mode: 'index'
   },
   scales: {
-    xAxes: [{
+    x: {
       type: 'category',
       offset: true,
       gridLines: {
         offsetGridLines: true
       }
-    }],
-    yAxes: [{
+    },
+    y: {
       type: 'linear'
-    }]
+    }
   }
 });
 
@@ -5519,16 +5562,14 @@ var controller_bar = core_datasetController.extend({
   _parseObjectData: function _parseObjectData(meta, data, start, count) {
     var iScale = meta.iScale;
     var vScale = meta.vScale;
-
-    var vProp = vScale._getAxis();
-
+    var vProp = vScale.axis;
     var parsed = [];
     var i, ilen, item, obj, value;
 
     for (i = start, ilen = start + count; i < ilen; ++i) {
       obj = data[i];
       item = {};
-      item[iScale.id] = iScale._parseObject(obj, iScale._getAxis(), i);
+      item[iScale.id] = iScale._parseObject(obj, iScale.axis, i);
       value = obj[vProp];
 
       if (helpers$1.isArray(value)) {
@@ -5786,18 +5827,14 @@ var resolve$1 = helpers$1.options.resolve;
 
 core_defaults._set('bubble', {
   scales: {
-    xAxes: [{
+    x: {
       type: 'linear',
-      // bubble should probably use a linear scale by default
-      position: 'bottom',
-      id: 'x-axis-0' // need an ID so datasets can reference the scale
-
-    }],
-    yAxes: [{
+      position: 'bottom'
+    },
+    y: {
       type: 'linear',
-      position: 'left',
-      id: 'y-axis-0'
-    }]
+      position: 'left'
+    }
   },
   tooltips: {
     callbacks: {
@@ -6349,18 +6386,18 @@ core_defaults._set('horizontalBar', {
     axis: 'y'
   },
   scales: {
-    xAxes: [{
+    x: {
       type: 'linear',
       position: 'bottom'
-    }],
-    yAxes: [{
+    },
+    y: {
       type: 'category',
       position: 'left',
       offset: true,
       gridLines: {
         offsetGridLines: true
       }
-    }]
+    }
   },
   elements: {
     rectangle: {
@@ -6409,14 +6446,12 @@ core_defaults._set('line', {
     mode: 'index'
   },
   scales: {
-    xAxes: [{
-      type: 'category',
-      id: 'x-axis-0'
-    }],
-    yAxes: [{
-      type: 'linear',
-      id: 'y-axis-0'
-    }]
+    x: {
+      type: 'category'
+    },
+    y: {
+      type: 'linear'
+    }
   }
 });
 
@@ -6642,17 +6677,19 @@ var controller_line = core_datasetController.extend({
 var resolve$3 = helpers$1.options.resolve;
 
 core_defaults._set('polarArea', {
-  scale: {
-    type: 'radialLinear',
-    angleLines: {
-      display: false
-    },
-    beginAtZero: true,
-    gridLines: {
-      circular: true
-    },
-    pointLabels: {
-      display: false
+  scales: {
+    r: {
+      type: 'radialLinear',
+      angleLines: {
+        display: false
+      },
+      beginAtZero: true,
+      gridLines: {
+        circular: true
+      },
+      pointLabels: {
+        display: false
+      }
     }
   },
   // Boolean - Whether to animate the rotation of the chart
@@ -6745,14 +6782,14 @@ var controller_polarArea = core_datasetController.extend({
    * @private
    */
   _getIndexScaleId: function _getIndexScaleId() {
-    return this.chart.scale.id;
+    return this._cachedMeta.rAxisID;
   },
 
   /**
    * @private
    */
   _getValueScaleId: function _getValueScaleId() {
-    return this.chart.scale.id;
+    return this._cachedMeta.rAxisID;
   },
   update: function update(reset) {
     var me = this;
@@ -6799,7 +6836,7 @@ var controller_polarArea = core_datasetController.extend({
     var dataset = me.getDataset();
     var opts = chart.options;
     var animationOpts = opts.animation;
-    var scale = chart.scale;
+    var scale = chart.scales.r;
     var centerX = scale.xCenter;
     var centerY = scale.yCenter;
     var i;
@@ -6897,8 +6934,10 @@ var valueOrDefault$5 = helpers$1.valueOrDefault;
 
 core_defaults._set('radar', {
   spanGaps: false,
-  scale: {
-    type: 'radialLinear'
+  scales: {
+    r: {
+      type: 'radialLinear'
+    }
   },
   elements: {
     line: {
@@ -6946,14 +6985,14 @@ var controller_radar = core_datasetController.extend({
    * @private
    */
   _getIndexScaleId: function _getIndexScaleId() {
-    return this.chart.scale.id;
+    return this._cachedMeta.rAxisID;
   },
 
   /**
    * @private
    */
   _getValueScaleId: function _getValueScaleId() {
-    return this.chart.scale.id;
+    return this._cachedMeta.rAxisID;
   },
 
   /**
@@ -6995,7 +7034,7 @@ var controller_radar = core_datasetController.extend({
   updateElements: function updateElements(points, start, count, reset) {
     var me = this;
     var dataset = me.getDataset();
-    var scale = me.chart.scale;
+    var scale = me.chart.scales.r;
     var i;
 
     for (i = start; i < start + count; i++) {
@@ -7088,18 +7127,14 @@ var controller_radar = core_datasetController.extend({
 
 core_defaults._set('scatter', {
   scales: {
-    xAxes: [{
-      id: 'x-axis-1',
-      // need an ID so datasets can reference the scale
+    x: {
       type: 'linear',
-      // scatter should not use a category axis
       position: 'bottom'
-    }],
-    yAxes: [{
-      id: 'y-axis-1',
+    },
+    y: {
       type: 'linear',
       position: 'left'
-    }]
+    }
   },
   tooltips: {
     callbacks: {
@@ -9591,48 +9626,52 @@ core_defaults._set('global', {
   responsive: true,
   responsiveAnimationDuration: 0
 });
-/**
- * Recursively merge the given config objects representing the `scales` option
- * by incorporating scale defaults in `xAxes` and `yAxes` array items, then
- * returns a deep copy of the result, thus doesn't alter inputs.
- */
+
+function mergeScaleConfig(config, options) {
+  options = options || {};
+  var chartDefaults = core_defaults[config.type] || {
+    scales: {}
+  };
+  var configScales = options.scales || {};
+  var firstIDs = {};
+  var scales = {}; // First figure out first scale id's per axis.
+  // Note: for now, axis is determined from first letter of scale id!
+
+  Object.entries(configScales).forEach(function (_ref) {
+    var _ref2 = _slicedToArray(_ref, 2),
+        id = _ref2[0],
+        scale = _ref2[1];
+
+    var axis = id[0];
+    firstIDs[axis] = firstIDs[axis] || id;
+    scales[id] = helpers$1.mergeIf({}, [scale, chartDefaults.scales[axis]]);
+  }); // Backward compatibility
+
+  if (options.scale) {
+    scales[options.scale.id || 'r'] = helpers$1.mergeIf({}, [options.scale, chartDefaults.scales.r]);
+    firstIDs.r = firstIDs.r || options.scale.id || 'r';
+  } // Then merge dataset defaults to scale configs
 
 
-function mergeScaleConfig()
-/* config objects ... */
-{
-  return helpers$1.merge({}, [].slice.call(arguments), {
-    merger: function merger(key, target, source, options) {
-      if (key === 'xAxes' || key === 'yAxes') {
-        var slen = source[key].length;
-        var i, type, scale;
+  config.data.datasets.forEach(function (dataset) {
+    var datasetDefaults = core_defaults[dataset.type || config.type] || {
+      scales: {}
+    };
+    Object.entries(datasetDefaults.scales || {}).forEach(function (_ref3) {
+      var _ref4 = _slicedToArray(_ref3, 2),
+          defaultID = _ref4[0],
+          defaultScaleOptions = _ref4[1];
 
-        if (!target[key]) {
-          target[key] = [];
-        }
+      var id = dataset[defaultID + 'AxisID'] || firstIDs[defaultID] || defaultID;
+      scales[id] = scales[id] || {};
+      helpers$1.mergeIf(scales[id], [configScales[id], defaultScaleOptions]);
+    });
+  }); // apply scale defaults, if not overridden by dataset defaults
 
-        for (i = 0; i < slen; ++i) {
-          scale = source[key][i];
-          type = valueOrDefault$7(scale.type, key === 'xAxes' ? 'category' : 'linear');
-
-          if (i >= target[key].length) {
-            target[key].push({});
-          }
-
-          if (!target[key][i].type || scale.type && scale.type !== target[key][i].type) {
-            // new/untyped scale or type changed: let's apply the new defaults
-            // then merge source scale to correctly overwrite the defaults.
-            helpers$1.merge(target[key][i], [core_scaleService.getScaleDefaults(type), scale]);
-          } else {
-            // scales type are the same
-            helpers$1.merge(target[key][i], scale);
-          }
-        }
-      } else {
-        helpers$1._merger(key, target, source, options);
-      }
-    }
+  Object.values(scales).forEach(function (scale) {
+    helpers$1.mergeIf(scale, core_scaleService.getScaleDefaults(scale.type));
   });
+  return scales;
 }
 /**
  * Recursively merge the given config objects as the root options by handling
@@ -9646,16 +9685,7 @@ function mergeConfig()
 {
   return helpers$1.merge({}, [].slice.call(arguments), {
     merger: function merger(key, target, source, options) {
-      var tval = target[key] || {};
-      var sval = source[key];
-
-      if (key === 'scales') {
-        // scale config merging is complex. Add our own function here for that
-        target[key] = mergeScaleConfig(tval, sval);
-      } else if (key === 'scale') {
-        // used in polar area & radar charts since there is only one scale
-        target[key] = helpers$1.merge(tval, [core_scaleService.getScaleDefaults(sval.type), sval]);
-      } else {
+      if (key !== 'scales' && key !== 'scale') {
         helpers$1._merger(key, target, source, options);
       }
     }
@@ -9669,7 +9699,9 @@ function initConfig(config) {
   var data = config.data = config.data || {};
   data.datasets = data.datasets || [];
   data.labels = data.labels || [];
+  var scaleConfig = mergeScaleConfig(config, config.options);
   config.options = mergeConfig(core_defaults.global, core_defaults[config.type], config.options || {});
+  config.options.scales = scaleConfig;
   return config;
 }
 
@@ -9682,28 +9714,16 @@ function updateConfig(chart) {
   helpers$1.each(chart.scales, function (scale) {
     core_layouts.removeBox(chart, scale);
   });
+  var scaleConfig = mergeScaleConfig(chart.config, newOptions);
   newOptions = mergeConfig(core_defaults.global, core_defaults[chart.config.type], newOptions);
   chart.options = chart.config.options = newOptions;
+  chart.options.scales = scaleConfig;
   chart._animationsDisabled = isAnimationDisabled(newOptions);
   chart.ensureScalesHaveIDs();
   chart.buildOrUpdateScales(); // Tooltip
 
   chart.tooltip._options = newOptions.tooltips;
   chart.tooltip.initialize();
-}
-
-function nextAvailableScaleId(axesOpts, prefix, index) {
-  var id;
-
-  var hasId = function hasId(obj) {
-    return obj.id === id;
-  };
-
-  do {
-    id = prefix + index++;
-  } while (helpers$1.findIndex(axesOpts, hasId) >= 0);
-
-  return id;
 }
 
 function positionIsHorizontal(position) {
@@ -9841,15 +9861,8 @@ helpers$1.extend(Chart.prototype,
     var options = this.options;
     var scalesOptions = options.scales || {};
     var scaleOptions = options.scale;
-    helpers$1.each(scalesOptions.xAxes, function (xAxisOptions, index) {
-      if (!xAxisOptions.id) {
-        xAxisOptions.id = nextAvailableScaleId(scalesOptions.xAxes, 'x-axis-', index);
-      }
-    });
-    helpers$1.each(scalesOptions.yAxes, function (yAxisOptions, index) {
-      if (!yAxisOptions.id) {
-        yAxisOptions.id = nextAvailableScaleId(scalesOptions.yAxes, 'y-axis-', index);
-      }
+    helpers$1.each(scalesOptions, function (axisOptions, axisID) {
+      axisOptions.id = axisID;
     });
 
     if (scaleOptions) {
@@ -9871,28 +9884,17 @@ helpers$1.extend(Chart.prototype,
     }, {});
 
     if (options.scales) {
-      items = items.concat((options.scales.xAxes || []).map(function (xAxisOptions) {
+      items = items.concat(Object.entries(options.scales).map(function (entry) {
+        var axisID = entry[0];
+        var axisOptions = entry[1];
+        var isRadial = axisID.charAt(0).toLowerCase === 'r';
+        var isHorizontal = axisID.charAt(0).toLowerCase() === 'x';
         return {
-          options: xAxisOptions,
-          dtype: 'category',
-          dposition: 'bottom'
-        };
-      }), (options.scales.yAxes || []).map(function (yAxisOptions) {
-        return {
-          options: yAxisOptions,
-          dtype: 'linear',
-          dposition: 'left'
+          options: axisOptions,
+          dposition: isRadial ? 'chartArea' : isHorizontal ? 'bottom' : 'left',
+          dtype: isRadial ? 'radialLinear' : isHorizontal ? 'category' : 'linear'
         };
       }));
-    }
-
-    if (options.scale) {
-      items.push({
-        options: options.scale,
-        dtype: 'radialLinear',
-        isDefault: true,
-        dposition: 'chartArea'
-      });
     }
 
     helpers$1.each(items, function (item) {
@@ -9927,8 +9929,9 @@ helpers$1.extend(Chart.prototype,
           chart: me
         });
         scales[scale.id] = scale;
-      } // parse min/max value, so we can properly determine min/max for other scales
+      }
 
+      scale.axis = scale.options.position === 'chartArea' ? 'r' : scale.isHorizontal() ? 'x' : 'y'; // parse min/max value, so we can properly determine min/max for other scales
 
       scale._userMin = scale._parse(scale.options.min);
       scale._userMax = scale._parse(scale.options.max); // TODO(SB): I think we should be able to remove this custom case (options.scale)
@@ -12924,15 +12927,6 @@ function (_Element) {
       }];
     }
     /**
-     * @private
-     */
-
-  }, {
-    key: "_getAxis",
-    value: function _getAxis() {
-      return this.isHorizontal() ? 'x' : 'y';
-    }
-    /**
      * Returns visible dataset metas that are attached to this scale
      * @param {string} [type] - if specified, also filter by dataset type
      * @private
@@ -12945,7 +12939,7 @@ function (_Element) {
 
       var metas = me.chart._getSortedVisibleDatasetMetas();
 
-      var axisID = me._getAxis() + 'AxisID';
+      var axisID = me.axis + 'AxisID';
       var result = [];
       var i, ilen, meta;
 
@@ -15581,7 +15575,7 @@ var plugin_filler = {
           visible: chart.isDatasetVisible(i),
           fill: decodeFill(el, i, count),
           chart: chart,
-          scale: meta.controller.getScaleForId(meta.yAxisID) || chart.scale,
+          scale: meta.yScale || meta.rScale,
           el: el
         };
       }
