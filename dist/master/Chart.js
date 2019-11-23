@@ -4836,7 +4836,6 @@ function (_Element) {
 }(core_element);
 
 Arc.prototype._type = 'arc';
-var element_arc = Arc;
 
 var defaultColor = core_defaults.global.defaultColor;
 
@@ -5031,7 +5030,6 @@ function (_Element) {
 }(core_element);
 
 Line.prototype._type = 'line';
-var element_line = Line;
 
 var defaultColor$1 = core_defaults.global.defaultColor;
 
@@ -5135,7 +5133,6 @@ function (_Element) {
 }(core_element);
 
 Point.prototype._type = 'point';
-var element_point = Point;
 
 var defaultColor$2 = core_defaults.global.defaultColor;
 
@@ -5343,17 +5340,20 @@ function (_Element) {
 }(core_element);
 
 Rectangle.prototype._type = 'rectangle';
-var element_rectangle = Rectangle;
 
-var elements = {};
-var Arc$1 = element_arc;
-var Line$1 = element_line;
-var Point$1 = element_point;
-var Rectangle$1 = element_rectangle;
-elements.Arc = Arc$1;
-elements.Line = Line$1;
-elements.Point = Point$1;
-elements.Rectangle = Rectangle$1;
+var index = {
+  Arc: Arc,
+  Line: Line,
+  Point: Point,
+  Rectangle: Rectangle
+};
+
+var elements = /*#__PURE__*/Object.freeze({
+__proto__: null,
+'default': index
+});
+
+var require$$9 = getCjsExportFromNamespace(elements);
 
 var valueOrDefault$1 = helpers$1.valueOrDefault;
 
@@ -5529,7 +5529,7 @@ function parseArrayOrPrimitive(meta, data, start, count) {
 }
 
 var controller_bar = core_datasetController.extend({
-  dataElementType: elements.Rectangle,
+  dataElementType: require$$9.Rectangle,
 
   /**
    * @private
@@ -5850,7 +5850,7 @@ var controller_bubble = core_datasetController.extend({
   /**
    * @protected
    */
-  dataElementType: elements.Point,
+  dataElementType: require$$9.Point,
 
   /**
    * @private
@@ -6117,7 +6117,7 @@ core_defaults._set('doughnut', {
 });
 
 var controller_doughnut = core_datasetController.extend({
-  dataElementType: elements.Arc,
+  dataElementType: require$$9.Arc,
   linkScales: helpers$1.noop,
 
   /**
@@ -6456,8 +6456,8 @@ core_defaults._set('line', {
 });
 
 var controller_line = core_datasetController.extend({
-  datasetElementType: elements.Line,
-  dataElementType: elements.Point,
+  datasetElementType: require$$9.Line,
+  dataElementType: require$$9.Point,
 
   /**
    * @private
@@ -6771,7 +6771,7 @@ core_defaults._set('polarArea', {
 });
 
 var controller_polarArea = core_datasetController.extend({
-  dataElementType: elements.Arc,
+  dataElementType: require$$9.Arc,
 
   /**
    * @private
@@ -6956,8 +6956,8 @@ function previousItem(collection, index) {
 }
 
 var controller_radar = core_datasetController.extend({
-  datasetElementType: elements.Line,
-  dataElementType: elements.Point,
+  datasetElementType: require$$9.Line,
+  dataElementType: require$$9.Point,
 
   /**
    * @private
@@ -15570,7 +15570,7 @@ var plugin_filler = {
       el = meta.dataset;
       source = null;
 
-      if (el && el._model && el instanceof elements.Line) {
+      if (el && el._model && el instanceof require$$9.Line) {
         source = {
           visible: chart.isDatasetVisible(i),
           fill: decodeFill(el, i, count),
@@ -16549,7 +16549,7 @@ core_controller.controllers = controllers;
 core_controller.DatasetController = core_datasetController;
 core_controller.defaults = core_defaults;
 core_controller.Element = core_element;
-core_controller.elements = elements;
+core_controller.elements = require$$9;
 core_controller.Interaction = core_interaction;
 core_controller.layouts = core_layouts;
 core_controller.platform = platform;
