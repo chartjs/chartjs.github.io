@@ -7190,16 +7190,18 @@ function getRelativePosition(e, chart) {
 function parseVisibleItems(chart, handler) {
   var metasets = chart._getSortedVisibleDatasetMetas();
 
-  var metadata, i, j, ilen, jlen, element;
+  var index, data, element;
 
-  for (i = 0, ilen = metasets.length; i < ilen; ++i) {
-    metadata = metasets[i].data;
+  for (var i = 0, ilen = metasets.length; i < ilen; ++i) {
+    var _metasets$i = metasets[i];
+    index = _metasets$i.index;
+    data = _metasets$i.data;
 
-    for (j = 0, jlen = metadata.length; j < jlen; ++j) {
-      element = metadata[j];
+    for (var j = 0, jlen = data.length; j < jlen; ++j) {
+      element = data[j];
 
       if (!element._view.skip) {
-        handler(element, i, j);
+        handler(element, index, j);
       }
     }
   }
