@@ -14609,6 +14609,7 @@ function ticksFromTimestamps(scale, values, majorUnit) {
 }
 
 function getDataTimestamps(scale) {
+  var isSeries = scale.options.distribution === 'series';
   var timestamps = scale._cache.data || [];
   var i, ilen, metas;
 
@@ -14617,6 +14618,10 @@ function getDataTimestamps(scale) {
   }
 
   metas = scale._getMatchingVisibleMetas();
+
+  if (isSeries && metas.length) {
+    return metas[0].controller._getAllParsedValues(scale);
+  }
 
   for (i = 0, ilen = metas.length; i < ilen; ++i) {
     timestamps = timestamps.concat(metas[i].controller._getAllParsedValues(scale));
@@ -14628,6 +14633,7 @@ function getDataTimestamps(scale) {
 }
 
 function getLabelTimestamps(scale) {
+  var isSeries = scale.options.distribution === 'series';
   var timestamps = scale._cache.labels || [];
   var i, ilen, labels;
 
@@ -14642,7 +14648,7 @@ function getLabelTimestamps(scale) {
   } // We could assume labels are in order and unique - but let's not
 
 
-  return scale._cache.labels = arrayUnique(timestamps.sort(sorter));
+  return scale._cache.labels = isSeries ? timestamps : arrayUnique(timestamps.sort(sorter));
 }
 
 function getAllTimestamps(scale) {
