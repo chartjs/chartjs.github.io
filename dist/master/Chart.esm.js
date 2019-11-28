@@ -3762,15 +3762,15 @@ function applyStack(stack, value, dsIndex, allOther) {
 
 function convertObjectDataToArray(data) {
   var keys = Object.keys(data);
-  var adata = [];
+  var adata = new Array(keys.length);
   var i, ilen, key;
 
   for (i = 0, ilen = keys.length; i < ilen; ++i) {
     key = keys[i];
-    adata.push({
+    adata[i] = {
       x: key,
       y: data[key]
-    });
+    };
   }
 
   return adata;
@@ -3953,9 +3953,6 @@ helpers$1.extend(DatasetController.prototype, {
       unlistenArrayEvents(this._data, this);
     }
   },
-  createElement: function createElement(type) {
-    return type && new type();
-  },
 
   /**
    * @private
@@ -4017,18 +4014,20 @@ helpers$1.extend(DatasetController.prototype, {
   addElements: function addElements() {
     var me = this;
     var meta = me._cachedMeta;
-    var metaData = meta.data;
     var i, ilen, data;
 
     me._dataCheck();
 
     data = me._data;
+    var metaData = meta.data = new Array(data.length);
 
     for (i = 0, ilen = data.length; i < ilen; ++i) {
-      metaData[i] = metaData[i] || me.createElement(me.dataElementType);
+      metaData[i] = new me.dataElementType();
     }
 
-    meta.dataset = meta.dataset || me.createElement(me.datasetElementType);
+    if (me.datasetElementType) {
+      meta.dataset = new me.datasetElementType();
+    }
   },
   buildOrUpdateElements: function buildOrUpdateElements() {
     var me = this;
@@ -4117,14 +4116,14 @@ helpers$1.extend(DatasetController.prototype, {
     var labels = iScale._getLabels();
 
     var singleScale = iScale === vScale;
-    var parsed = [];
-    var i, ilen, item;
+    var parsed = new Array(count);
+    var i, ilen, index;
 
-    for (i = start, ilen = start + count; i < ilen; ++i) {
-      item = {};
-      item[iId] = singleScale || iScale._parse(labels[i], i);
-      item[vId] = vScale._parse(data[i], i);
-      parsed.push(item);
+    for (i = 0, ilen = count; i < ilen; ++i) {
+      var _parsed$i;
+
+      index = i + start;
+      parsed[i] = (_parsed$i = {}, _defineProperty(_parsed$i, iId, singleScale || iScale._parse(labels[index], index)), _defineProperty(_parsed$i, vId, vScale._parse(data[index], index)), _parsed$i);
     }
 
     return parsed;
@@ -4146,14 +4145,15 @@ helpers$1.extend(DatasetController.prototype, {
         yScale = meta.yScale;
     var xId = xScale.id;
     var yId = yScale.id;
-    var parsed = [];
-    var i, ilen, item;
+    var parsed = new Array(count);
+    var i, ilen, index, item;
 
-    for (i = start, ilen = start + count; i < ilen; ++i) {
-      var _parsed$push;
+    for (i = 0, ilen = count; i < ilen; ++i) {
+      var _parsed$i2;
 
-      item = data[i];
-      parsed.push((_parsed$push = {}, _defineProperty(_parsed$push, xId, xScale._parse(item[0], i)), _defineProperty(_parsed$push, yId, yScale._parse(item[1], i)), _parsed$push));
+      index = i + start;
+      item = data[index];
+      parsed[i] = (_parsed$i2 = {}, _defineProperty(_parsed$i2, xId, xScale._parse(item[0], index)), _defineProperty(_parsed$i2, yId, yScale._parse(item[1], index)), _parsed$i2);
     }
 
     return parsed;
@@ -4175,14 +4175,15 @@ helpers$1.extend(DatasetController.prototype, {
         yScale = meta.yScale;
     var xId = xScale.id;
     var yId = yScale.id;
-    var parsed = [];
-    var i, ilen, item;
+    var parsed = new Array(count);
+    var i, ilen, index, item;
 
-    for (i = start, ilen = start + count; i < ilen; ++i) {
-      var _parsed$push2;
+    for (i = 0, ilen = count; i < ilen; ++i) {
+      var _parsed$i3;
 
-      item = data[i];
-      parsed.push((_parsed$push2 = {}, _defineProperty(_parsed$push2, xId, xScale._parseObject(item, 'x', i)), _defineProperty(_parsed$push2, yId, yScale._parseObject(item, 'y', i)), _parsed$push2));
+      index = i + start;
+      item = data[index];
+      parsed[i] = (_parsed$i3 = {}, _defineProperty(_parsed$i3, xId, xScale._parseObject(item, 'x', index)), _defineProperty(_parsed$i3, yId, yScale._parseObject(item, 'y', index)), _parsed$i3);
     }
 
     return parsed;
@@ -4569,12 +4570,12 @@ helpers$1.extend(DatasetController.prototype, {
    */
   insertElements: function insertElements(start, count) {
     var me = this;
-    var elements = [];
+    var elements = new Array(count);
     var data = me._cachedMeta.data;
     var i;
 
-    for (i = start; i < start + count; ++i) {
-      elements.push(me.createElement(me.dataElementType));
+    for (i = 0; i < count; ++i) {
+      elements[i] = new me.dataElementType();
     }
 
     data.splice.apply(data, [start, 0].concat(elements));
