@@ -14588,8 +14588,8 @@ function generate(scale, min, max, capacity) {
   var minor = timeOpts.unit || determineUnitForAutoTicks(timeOpts.minUnit, min, max, capacity);
   var stepSize = resolve$7([timeOpts.stepSize, timeOpts.unitStepSize, 1]);
   var weekday = minor === 'week' ? timeOpts.isoWeekday : false;
-  var first = min;
   var ticks = [];
+  var first = min;
   var time; // For 'week' unit, handle the first day of week option
 
   if (weekday) {
@@ -14780,9 +14780,9 @@ function getTimestampsForTable(scale) {
 }
 
 function getLabelBounds(scale) {
+  var arr = getLabelTimestamps(scale);
   var min = Number.POSITIVE_INFINITY;
   var max = Number.NEGATIVE_INFINITY;
-  var arr = getLabelTimestamps(scale);
 
   if (arr.length) {
     min = arr[0];
@@ -14977,18 +14977,16 @@ function (_Scale) {
       var timeOpts = options.time;
       var tickOpts = options.ticks;
       var distribution = options.distribution;
-      var ticks = [];
-      var min, max, timestamps;
-      timestamps = getTimestampsForTicks(me);
+      var timestamps = getTimestampsForTicks(me);
 
       if (options.bounds === 'ticks' && timestamps.length) {
         me.min = me._userMin || timestamps[0];
         me.max = me._userMax || timestamps[timestamps.length - 1];
       }
 
-      min = me.min;
-      max = me.max;
-      ticks = filterBetween(timestamps, min, max); // PRIVATE
+      var min = me.min;
+      var max = me.max;
+      var ticks = filterBetween(timestamps, min, max); // PRIVATE
       // determineUnitForFormatting relies on the number of ticks so we don't use it when
       // autoSkip is enabled because we don't yet know what the final number of ticks will be
 
