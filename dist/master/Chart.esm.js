@@ -13010,18 +13010,18 @@ var defaultConfig = {
   position: 'bottom'
 };
 
-var CategroyScale =
+var CategoryScale =
 /*#__PURE__*/
 function (_Scale) {
-  _inherits(CategroyScale, _Scale);
+  _inherits(CategoryScale, _Scale);
 
-  function CategroyScale() {
-    _classCallCheck(this, CategroyScale);
+  function CategoryScale() {
+    _classCallCheck(this, CategoryScale);
 
-    return _possibleConstructorReturn(this, _getPrototypeOf(CategroyScale).apply(this, arguments));
+    return _possibleConstructorReturn(this, _getPrototypeOf(CategoryScale).apply(this, arguments));
   }
 
-  _createClass(CategroyScale, [{
+  _createClass(CategoryScale, [{
     key: "_parse",
     value: function _parse(raw, index) {
       var labels = this._getLabels();
@@ -13121,10 +13121,10 @@ function (_Scale) {
     }
   }]);
 
-  return CategroyScale;
+  return CategoryScale;
 }(core_scale);
 
-var scale_category = CategroyScale; // INTERNAL: static default options, registered in src/index.js
+var scale_category = CategoryScale; // INTERNAL: static default options, registered in src/index.js
 
 var _defaults = defaultConfig;
 scale_category._defaults = _defaults;
