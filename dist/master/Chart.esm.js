@@ -13122,12 +13122,10 @@ function (_Scale) {
   }]);
 
   return CategoryScale;
-}(core_scale);
+}(core_scale); // INTERNAL: static default options, registered in src/index.js
 
-var scale_category = CategoryScale; // INTERNAL: static default options, registered in src/index.js
 
-var _defaults = defaultConfig;
-scale_category._defaults = _defaults;
+CategoryScale._defaults = defaultConfig;
 
 var isNullOrUndef$2 = require$$0.isNullOrUndef;
 /**
@@ -13413,8 +13411,6 @@ function (_Scale) {
   return LinearScaleBase;
 }(core_scale);
 
-var scale_linearbase = LinearScaleBase;
-
 var defaultConfig$1 = {
   position: 'left',
   ticks: {
@@ -13505,12 +13501,10 @@ function (_LinearScaleBase) {
   }]);
 
   return LinearScale;
-}(scale_linearbase);
+}(LinearScaleBase); // INTERNAL: static default options, registered in src/index.js
 
-var scale_linear = LinearScale; // INTERNAL: static default options, registered in src/index.js
 
-var _defaults$1 = defaultConfig$1;
-scale_linear._defaults = _defaults$1;
+LinearScale._defaults = defaultConfig$1;
 
 var valueOrDefault$9 = require$$0.valueOrDefault;
 var log10$1 = require$$0.math.log10;
@@ -13587,7 +13581,7 @@ function (_Scale) {
     key: "_parse",
     value: function _parse(raw, index) {
       // eslint-disable-line no-unused-vars
-      var value = scale_linearbase.prototype._parse.apply(this, arguments);
+      var value = LinearScaleBase.prototype._parse.apply(this, arguments);
 
       return require$$0.isFinite(value) && value >= 0 ? value : undefined;
     }
@@ -13749,12 +13743,10 @@ function (_Scale) {
   }]);
 
   return LogarithmicScale;
-}(core_scale);
+}(core_scale); // INTERNAL: static default options, registered in src/index.js
 
-var scale_logarithmic = LogarithmicScale; // INTERNAL: static default options, registered in src/index.js
 
-var _defaults$2 = defaultConfig$2;
-scale_logarithmic._defaults = _defaults$2;
+LogarithmicScale._defaults = defaultConfig$2;
 
 var valueOrDefault$a = require$$0.valueOrDefault;
 var valueAtIndexOrDefault$1 = require$$0.valueAtIndexOrDefault;
@@ -14076,7 +14068,7 @@ function (_LinearScaleBase) {
     key: "generateTickLabels",
     value: function generateTickLabels(ticks) {
       var me = this;
-      scale_linearbase.prototype.generateTickLabels.call(me, ticks); // Point labels
+      LinearScaleBase.prototype.generateTickLabels.call(me, ticks); // Point labels
 
       me.pointLabels = me.chart.data.labels.map(function () {
         var label = require$$0.callback(me.options.pointLabels.callback, arguments, me);
@@ -14285,12 +14277,10 @@ function (_LinearScaleBase) {
   }]);
 
   return RadialLinearScale;
-}(scale_linearbase);
+}(LinearScaleBase); // INTERNAL: static default options, registered in src/index.js
 
-var scale_radialLinear = RadialLinearScale; // INTERNAL: static default options, registered in src/index.js
 
-var _defaults$3 = defaultConfig$3;
-scale_radialLinear._defaults = _defaults$3;
+RadialLinearScale._defaults = defaultConfig$3;
 
 var resolve$7 = require$$0.options.resolve;
 var valueOrDefault$b = require$$0.valueOrDefault; // Integer constants are from the ES6 spec.
@@ -15098,19 +15088,17 @@ function (_Scale) {
   }]);
 
   return TimeScale;
-}(core_scale);
+}(core_scale); // INTERNAL: static default options, registered in src/index.js
 
-var scale_time = TimeScale; // INTERNAL: static default options, registered in src/index.js
 
-var _defaults$4 = defaultConfig$4;
-scale_time._defaults = _defaults$4;
+TimeScale._defaults = defaultConfig$4;
 
 var scales = {
-  category: scale_category,
-  linear: scale_linear,
-  logarithmic: scale_logarithmic,
-  radialLinear: scale_radialLinear,
-  time: scale_time
+  category: CategoryScale,
+  linear: LinearScale,
+  logarithmic: LogarithmicScale,
+  radialLinear: RadialLinearScale,
+  time: TimeScale
 };
 
 var FORMATS = {

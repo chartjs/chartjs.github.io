@@ -13144,14 +13144,12 @@ function (_Scale) {
   }]);
 
   return CategoryScale;
-}(core_scale);
+}(core_scale); // INTERNAL: static default options, registered in src/index.js
 
-var scale_category = CategoryScale; // INTERNAL: static default options, registered in src/index.js
 
-var _defaults = defaultConfig;
-scale_category._defaults = _defaults;
+CategoryScale._defaults = defaultConfig;
 
-var isNullOrUndef$2 = require$$0.isNullOrUndef;
+var isNullOrUndef$2 = helpers$1.isNullOrUndef;
 /**
  * Generate a set of linear ticks
  * @param generationOptions the options used to generate the ticks
@@ -13173,7 +13171,7 @@ function generateTicks(generationOptions, dataRange) {
   var precision = generationOptions.precision;
   var rmin = dataRange.min;
   var rmax = dataRange.max;
-  var spacing = require$$0.niceNum((rmax - rmin) / maxNumSpaces / unit) * unit;
+  var spacing = helpers$1.niceNum((rmax - rmin) / maxNumSpaces / unit) * unit;
   var factor, niceMin, niceMax, numSpaces; // Beyond MIN_SPACING floating point numbers being to lose precision
   // such that we can't do the math necessary to generate ticks
 
@@ -13189,12 +13187,12 @@ function generateTicks(generationOptions, dataRange) {
 
   if (numSpaces > maxNumSpaces) {
     // If the calculated num of spaces exceeds maxNumSpaces, recalculate it
-    spacing = require$$0.niceNum(numSpaces * spacing / maxNumSpaces / unit) * unit;
+    spacing = helpers$1.niceNum(numSpaces * spacing / maxNumSpaces / unit) * unit;
   }
 
   if (stepSize || isNullOrUndef$2(precision)) {
     // If a precision is not specified, calculate factor based on spacing
-    factor = Math.pow(10, require$$0._decimalPlaces(spacing));
+    factor = Math.pow(10, helpers$1._decimalPlaces(spacing));
   } else {
     // If the user specified a precision, round to that number of decimal places
     factor = Math.pow(10, precision);
@@ -13206,18 +13204,18 @@ function generateTicks(generationOptions, dataRange) {
 
   if (stepSize) {
     // If very close to our whole number, use it.
-    if (!isNullOrUndef$2(min) && require$$0.almostWhole(min / spacing, spacing / 1000)) {
+    if (!isNullOrUndef$2(min) && helpers$1.almostWhole(min / spacing, spacing / 1000)) {
       niceMin = min;
     }
 
-    if (!isNullOrUndef$2(max) && require$$0.almostWhole(max / spacing, spacing / 1000)) {
+    if (!isNullOrUndef$2(max) && helpers$1.almostWhole(max / spacing, spacing / 1000)) {
       niceMax = max;
     }
   }
 
   numSpaces = (niceMax - niceMin) / spacing; // If very close to our rounded value, use it.
 
-  if (require$$0.almostEquals(numSpaces, Math.round(numSpaces), spacing / 1000)) {
+  if (helpers$1.almostEquals(numSpaces, Math.round(numSpaces), spacing / 1000)) {
     numSpaces = Math.round(numSpaces);
   } else {
     numSpaces = Math.ceil(numSpaces);
@@ -13256,7 +13254,7 @@ function (_Scale) {
     key: "_parse",
     value: function _parse(raw, index) {
       // eslint-disable-line no-unused-vars
-      if (require$$0.isNullOrUndef(raw)) {
+      if (helpers$1.isNullOrUndef(raw)) {
         return NaN;
       }
 
@@ -13275,8 +13273,8 @@ function (_Scale) {
       // axis, they can manually override it
 
       if (opts.beginAtZero) {
-        var minSign = require$$0.sign(me.min);
-        var maxSign = require$$0.sign(me.max);
+        var minSign = helpers$1.sign(me.min);
+        var maxSign = helpers$1.sign(me.max);
 
         if (minSign < 0 && maxSign < 0) {
           // move the top up to 0
@@ -13381,13 +13379,13 @@ function (_Scale) {
         min: opts.min,
         max: opts.max,
         precision: tickOpts.precision,
-        stepSize: require$$0.valueOrDefault(tickOpts.fixedStepSize, tickOpts.stepSize)
+        stepSize: helpers$1.valueOrDefault(tickOpts.fixedStepSize, tickOpts.stepSize)
       };
       var ticks = generateTicks(numericGeneratorOptions, me);
       ticks = me._handleDirectionalChanges(ticks); // At this point, we need to update our max and min given the tick values since we have expanded the
       // range of the scale
 
-      require$$0._setMinAndMaxByKey(ticks, me, 'value');
+      helpers$1._setMinAndMaxByKey(ticks, me, 'value');
 
       if (opts.reverse) {
         ticks.reverse();
@@ -13435,8 +13433,6 @@ function (_Scale) {
   return LinearScaleBase;
 }(core_scale);
 
-var scale_linearbase = LinearScaleBase;
-
 var defaultConfig$1 = {
   position: 'left',
   ticks: {
@@ -13466,8 +13462,8 @@ function (_LinearScaleBase) {
 
       var min = minmax.min;
       var max = minmax.max;
-      me.min = require$$0.isFinite(min) && !isNaN(min) ? min : DEFAULT_MIN;
-      me.max = require$$0.isFinite(max) && !isNaN(max) ? max : DEFAULT_MAX; // Backward compatible inconsistent min for stacked
+      me.min = helpers$1.isFinite(min) && !isNaN(min) ? min : DEFAULT_MIN;
+      me.max = helpers$1.isFinite(max) && !isNaN(max) ? max : DEFAULT_MAX; // Backward compatible inconsistent min for stacked
 
       if (me.options.stacked && min > 0) {
         me.min = 0;
@@ -13487,7 +13483,7 @@ function (_LinearScaleBase) {
         return Math.ceil(me.width / 40);
       }
 
-      tickFont = require$$0.options._parseFont(me.options.ticks);
+      tickFont = helpers$1.options._parseFont(me.options.ticks);
       return Math.ceil(me.height / tickFont.lineHeight);
     }
     /**
@@ -13527,15 +13523,13 @@ function (_LinearScaleBase) {
   }]);
 
   return LinearScale;
-}(scale_linearbase);
+}(LinearScaleBase); // INTERNAL: static default options, registered in src/index.js
 
-var scale_linear = LinearScale; // INTERNAL: static default options, registered in src/index.js
 
-var _defaults$1 = defaultConfig$1;
-scale_linear._defaults = _defaults$1;
+LinearScale._defaults = defaultConfig$1;
 
-var valueOrDefault$9 = require$$0.valueOrDefault;
-var log10$1 = require$$0.math.log10;
+var valueOrDefault$9 = helpers$1.valueOrDefault;
+var log10$1 = helpers$1.math.log10;
 /**
  * Generate a set of logarithmic ticks
  * @param generationOptions the options used to generate the ticks
@@ -13609,9 +13603,9 @@ function (_Scale) {
     key: "_parse",
     value: function _parse(raw, index) {
       // eslint-disable-line no-unused-vars
-      var value = scale_linearbase.prototype._parse.apply(this, arguments);
+      var value = LinearScaleBase.prototype._parse.apply(this, arguments);
 
-      return require$$0.isFinite(value) && value >= 0 ? value : undefined;
+      return helpers$1.isFinite(value) && value >= 0 ? value : undefined;
     }
   }, {
     key: "determineDataLimits",
@@ -13623,9 +13617,9 @@ function (_Scale) {
       var min = minmax.min;
       var max = minmax.max;
       var minPositive = minmax.minPositive;
-      me.min = require$$0.isFinite(min) ? Math.max(0, min) : null;
-      me.max = require$$0.isFinite(max) ? Math.max(0, max) : null;
-      me.minNotZero = require$$0.isFinite(minPositive) ? minPositive : null;
+      me.min = helpers$1.isFinite(min) ? Math.max(0, min) : null;
+      me.max = helpers$1.isFinite(max) ? Math.max(0, max) : null;
+      me.minNotZero = helpers$1.isFinite(minPositive) ? minPositive : null;
       me.handleTickRangeOptions();
     }
   }, {
@@ -13681,7 +13675,7 @@ function (_Scale) {
       var ticks = generateTicks$1(generationOptions, me); // At this point, we need to update our max and min given the tick values since we have expanded the
       // range of the scale
 
-      require$$0._setMinAndMaxByKey(ticks, me, 'value');
+      helpers$1._setMinAndMaxByKey(ticks, me, 'value');
 
       if (opts.reverse) {
         reverse = !reverse;
@@ -13771,16 +13765,14 @@ function (_Scale) {
   }]);
 
   return LogarithmicScale;
-}(core_scale);
+}(core_scale); // INTERNAL: static default options, registered in src/index.js
 
-var scale_logarithmic = LogarithmicScale; // INTERNAL: static default options, registered in src/index.js
 
-var _defaults$2 = defaultConfig$2;
-scale_logarithmic._defaults = _defaults$2;
+LogarithmicScale._defaults = defaultConfig$2;
 
-var valueOrDefault$a = require$$0.valueOrDefault;
-var valueAtIndexOrDefault$1 = require$$0.valueAtIndexOrDefault;
-var resolve$6 = require$$0.options.resolve;
+var valueOrDefault$a = helpers$1.valueOrDefault;
+var valueAtIndexOrDefault$1 = helpers$1.valueAtIndexOrDefault;
+var resolve$6 = helpers$1.options.resolve;
 var defaultConfig$3 = {
   display: true,
   // Boolean - Whether to animate scaling the chart from the centre
@@ -13831,9 +13823,9 @@ function getTickBackdropHeight(opts) {
 }
 
 function measureLabelSize(ctx, lineHeight, label) {
-  if (require$$0.isArray(label)) {
+  if (helpers$1.isArray(label)) {
     return {
-      w: require$$0.longestText(ctx, ctx.font, label),
+      w: helpers$1.longestText(ctx, ctx.font, label),
       h: label.length * lineHeight
     };
   }
@@ -13893,7 +13885,7 @@ function fitWithPointLabels(scale) {
   // and position it in the most space efficient manner
   //
   // https://dl.dropboxusercontent.com/u/34601363/yeahscience.gif
-  var plFont = require$$0.options._parseFont(scale.options.pointLabels); // Get maximum radius of the polygon. Either half the height (minus the text width) or half the width.
+  var plFont = helpers$1.options._parseFont(scale.options.pointLabels); // Get maximum radius of the polygon. Either half the height (minus the text width) or half the width.
   // Use this to calculate the offset + change. - Make sure L/R protrusion is at least 0 to stop issues with centre points
 
 
@@ -13915,7 +13907,7 @@ function fitWithPointLabels(scale) {
     scale._pointLabelSizes[i] = textSize; // Add quarter circle to make degree 0 mean top of circle
 
     var angleRadians = scale.getIndexAngle(i);
-    var angle = require$$0.toDegrees(angleRadians) % 360;
+    var angle = helpers$1.toDegrees(angleRadians) % 360;
     var hLimits = determineLimits(angle, pointPosition.x, textSize.w, 0, 180);
     var vLimits = determineLimits(angle, pointPosition.y, textSize.h, 90, 270);
 
@@ -13957,7 +13949,7 @@ function fillText(ctx, text, position, lineHeight) {
   var y = position.y + lineHeight / 2;
   var i, ilen;
 
-  if (require$$0.isArray(text)) {
+  if (helpers$1.isArray(text)) {
     for (i = 0, ilen = text.length; i < ilen; ++i) {
       ctx.fillText(text[i], position.x, y);
       y += lineHeight;
@@ -13982,7 +13974,7 @@ function drawPointLabels(scale) {
   var tickBackdropHeight = getTickBackdropHeight(opts);
   var outerDistance = scale.getDistanceFromCenterForValue(opts.ticks.reverse ? scale.min : scale.max);
 
-  var plFont = require$$0.options._parseFont(pointLabelOpts);
+  var plFont = helpers$1.options._parseFont(pointLabelOpts);
 
   ctx.save();
   ctx.font = plFont.string;
@@ -13996,7 +13988,7 @@ function drawPointLabels(scale) {
     var pointLabelFontColor = valueAtIndexOrDefault$1(pointLabelOpts.fontColor, i, core_defaults.global.defaultFontColor);
     ctx.fillStyle = pointLabelFontColor;
     var angleRadians = scale.getIndexAngle(i);
-    var angle = require$$0.toDegrees(angleRadians);
+    var angle = helpers$1.toDegrees(angleRadians);
     ctx.textAlign = getTextAlignForAngle(angle);
     adjustPointPositionForLabelHeight(angle, scale._pointLabelSizes[i], pointLabelPosition);
     fillText(ctx, scale.pointLabels[i], pointLabelPosition, plFont.lineHeight);
@@ -14048,7 +14040,7 @@ function drawRadiusLine(scale, gridLineOpts, radius, index) {
 }
 
 function numberOrZero(param) {
-  return require$$0.isNumber(param) ? param : 0;
+  return helpers$1.isNumber(param) ? param : 0;
 }
 
 var RadialLinearScale =
@@ -14083,8 +14075,8 @@ function (_LinearScaleBase) {
 
       var min = minmax.min;
       var max = minmax.max;
-      me.min = require$$0.isFinite(min) && !isNaN(min) ? min : 0;
-      me.max = require$$0.isFinite(max) && !isNaN(max) ? max : 0; // Common base implementation to handle min, max, beginAtZero
+      me.min = helpers$1.isFinite(min) && !isNaN(min) ? min : 0;
+      me.max = helpers$1.isFinite(max) && !isNaN(max) ? max : 0; // Common base implementation to handle min, max, beginAtZero
 
       me.handleTickRangeOptions();
     } // Returns the maximum number of ticks based on the scale dimension
@@ -14098,10 +14090,10 @@ function (_LinearScaleBase) {
     key: "generateTickLabels",
     value: function generateTickLabels(ticks) {
       var me = this;
-      scale_linearbase.prototype.generateTickLabels.call(me, ticks); // Point labels
+      LinearScaleBase.prototype.generateTickLabels.call(me, ticks); // Point labels
 
       me.pointLabels = me.chart.data.labels.map(function () {
-        var label = require$$0.callback(me.options.pointLabels.callback, arguments, me);
+        var label = helpers$1.callback(me.options.pointLabels.callback, arguments, me);
         return label || label === 0 ? label : '';
       });
     }
@@ -14164,7 +14156,7 @@ function (_LinearScaleBase) {
     value: function getDistanceFromCenterForValue(value) {
       var me = this;
 
-      if (require$$0.isNullOrUndef(value)) {
+      if (helpers$1.isNullOrUndef(value)) {
         return NaN;
       } // Take into account half font size + the yPadding of the top value
 
@@ -14221,7 +14213,7 @@ function (_LinearScaleBase) {
       }
 
       if (gridLineOpts.display) {
-        require$$0.each(me.ticks, function (tick, index) {
+        helpers$1.each(me.ticks, function (tick, index) {
           if (index !== 0) {
             offset = me.getDistanceFromCenterForValue(me._tickValues[index]);
             drawRadiusLine(me, gridLineOpts, offset, index);
@@ -14269,7 +14261,7 @@ function (_LinearScaleBase) {
 
       var startAngle = me.getIndexAngle(0);
 
-      var tickFont = require$$0.options._parseFont(tickOpts);
+      var tickFont = helpers$1.options._parseFont(tickOpts);
 
       var tickFontColor = valueOrDefault$a(tickOpts.fontColor, core_defaults.global.defaultFontColor);
       var offset, width;
@@ -14279,7 +14271,7 @@ function (_LinearScaleBase) {
       ctx.rotate(startAngle);
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      require$$0.each(me.ticks, function (tick, index) {
+      helpers$1.each(me.ticks, function (tick, index) {
         if (index === 0 && !opts.reverse) {
           return;
         }
@@ -14307,15 +14299,13 @@ function (_LinearScaleBase) {
   }]);
 
   return RadialLinearScale;
-}(scale_linearbase);
+}(LinearScaleBase); // INTERNAL: static default options, registered in src/index.js
 
-var scale_radialLinear = RadialLinearScale; // INTERNAL: static default options, registered in src/index.js
 
-var _defaults$3 = defaultConfig$3;
-scale_radialLinear._defaults = _defaults$3;
+RadialLinearScale._defaults = defaultConfig$3;
 
-var resolve$7 = require$$0.options.resolve;
-var valueOrDefault$b = require$$0.valueOrDefault; // Integer constants are from the ES6 spec.
+var resolve$7 = helpers$1.options.resolve;
+var valueOrDefault$b = helpers$1.valueOrDefault; // Integer constants are from the ES6 spec.
 
 var MAX_INTEGER = Number.MAX_SAFE_INTEGER || 9007199254740991;
 var INTERVALS = {
@@ -14499,7 +14489,7 @@ function interpolate$1(table, skey, sval, tkey) {
 }
 
 function parse(scale, input) {
-  if (require$$0.isNullOrUndef(input)) {
+  if (helpers$1.isNullOrUndef(input)) {
     return null;
   }
 
@@ -14513,7 +14503,7 @@ function parse(scale, input) {
   } // Only parse if its not a timestamp already
 
 
-  if (!require$$0.isFinite(value)) {
+  if (!helpers$1.isFinite(value)) {
     value = typeof parser === 'string' ? adapter.parse(value, parser) : adapter.parse(value);
   }
 
@@ -14923,7 +14913,7 @@ function (_Scale) {
     // when loading the scale (adapters are loaded afterward), so let's populate
     // missing formats on update
 
-    require$$0.mergeIf(time.displayFormats, adapter.formats());
+    helpers$1.mergeIf(time.displayFormats, adapter.formats());
     return _this;
   }
 
@@ -14963,8 +14953,8 @@ function (_Scale) {
         }
       }
 
-      min = require$$0.isFinite(min) && !isNaN(min) ? min : +adapter.startOf(Date.now(), unit);
-      max = require$$0.isFinite(max) && !isNaN(max) ? max : +adapter.endOf(Date.now(), unit) + 1; // Make sure that max is strictly higher than min (required by the lookup table)
+      min = helpers$1.isFinite(min) && !isNaN(min) ? min : +adapter.startOf(Date.now(), unit);
+      max = helpers$1.isFinite(max) && !isNaN(max) ? max : +adapter.endOf(Date.now(), unit) + 1; // Make sure that max is strictly higher than min (required by the lookup table)
 
       me.min = Math.min(min, max);
       me.max = Math.max(min + 1, max);
@@ -15083,7 +15073,7 @@ function (_Scale) {
       var me = this;
       var ticksOpts = me.options.ticks;
       var tickLabelWidth = me.ctx.measureText(label).width;
-      var angle = require$$0.toRadians(me.isHorizontal() ? ticksOpts.maxRotation : ticksOpts.minRotation);
+      var angle = helpers$1.toRadians(me.isHorizontal() ? ticksOpts.maxRotation : ticksOpts.minRotation);
       var cosRotation = Math.cos(angle);
       var sinRotation = Math.sin(angle);
       var tickFontSize = valueOrDefault$b(ticksOpts.fontSize, core_defaults.global.defaultFontSize);
@@ -15120,20 +15110,23 @@ function (_Scale) {
   }]);
 
   return TimeScale;
-}(core_scale);
+}(core_scale); // INTERNAL: static default options, registered in src/index.js
 
-var scale_time = TimeScale; // INTERNAL: static default options, registered in src/index.js
 
-var _defaults$4 = defaultConfig$4;
-scale_time._defaults = _defaults$4;
+TimeScale._defaults = defaultConfig$4;
 
-var scales = {
-  category: scale_category,
-  linear: scale_linear,
-  logarithmic: scale_logarithmic,
-  radialLinear: scale_radialLinear,
-  time: scale_time
+var index$1 = {
+  category: CategoryScale,
+  linear: LinearScale,
+  logarithmic: LogarithmicScale,
+  radialLinear: RadialLinearScale,
+  time: TimeScale
 };
+
+var scales = /*#__PURE__*/Object.freeze({
+__proto__: null,
+'default': index$1
+});
 
 var FORMATS = {
   datetime: 'MMM D, YYYY, h:mm:ss a',
@@ -16606,6 +16599,8 @@ plugins.filler = filler;
 plugins.legend = legend;
 plugins.title = title;
 
+var scales$1 = getCjsExportFromNamespace(scales);
+
 /**
  * @namespace Chart
  */
@@ -16630,7 +16625,7 @@ core_controller.scaleService = core_scaleService;
 core_controller.Ticks = core_ticks;
 core_controller.Tooltip = core_tooltip; // Register built-in scales
 
-core_controller.helpers.each(scales, function (scale, type) {
+core_controller.helpers.each(scales$1, function (scale, type) {
   core_controller.scaleService.registerScaleType(type, scale, scale._defaults);
 }); // Load to register built-in adapters (as side effects)
 // Loading built-in plugins
