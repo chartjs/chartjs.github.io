@@ -4,7 +4,7 @@
     <head>
         <meta charset="UTF-8">
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
-        <title>Options · Chart.js documentation</title>
+        <title>Data structures · Chart.js documentation</title>
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="description" content="">
         <meta name="generator" content="GitBook 3.2.2">
@@ -60,10 +60,10 @@
     <link rel="shortcut icon" href="../gitbook/images/favicon.ico" type="image/x-icon">
 
     
-    <link rel="next" href="colors.html" />
+    <link rel="next" href="accessibility.html" />
     
     
-    <link rel="prev" href="interactions/modes.html" />
+    <link rel="prev" href="./" />
     
 
     <link rel="stylesheet" href="../gitbook/gitbook-plugin-chartjs/style.css">
@@ -208,7 +208,7 @@
             <ul class="articles">
                 
     
-        <li class="chapter " data-level="1.4.1" data-path="data-structures.html">
+        <li class="chapter active" data-level="1.4.1" data-path="data-structures.html">
             
                 <a href="data-structures.html">
             
@@ -305,7 +305,7 @@
             
         </li>
     
-        <li class="chapter active" data-level="1.4.6" data-path="options.html">
+        <li class="chapter " data-level="1.4.6" data-path="options.html">
             
                 <a href="options.html">
             
@@ -941,7 +941,7 @@
     <!-- Title -->
     <h1>
         <i class="fa fa-circle-o-notch fa-spin"></i>
-        <a href=".." >Options</a>
+        <a href=".." >Data structures</a>
     </h1>
 </div>
 
@@ -956,40 +956,28 @@
     
                                 <section class="normal markdown-section">
                                 
-                                <h1 id="options">Options</h1>
-<h2 id="scriptable-options">Scriptable Options</h2>
-<p>Scriptable options also accept a function which is called for each of the underlying data values and that takes the unique argument <code>context</code> representing contextual information (see <a href="options.html#option-context">option context</a>).</p>
-<p>Example:</p>
-<pre><code class="lang-javascript">color: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">context</span>) </span>{
-    <span class="hljs-keyword">var</span> index = context.dataIndex;
-    <span class="hljs-keyword">var</span> value = context.dataset.data[index];
-    <span class="hljs-keyword">return</span> value &lt; <span class="hljs-number">0</span> ? <span class="hljs-string">&apos;red&apos;</span> :  <span class="hljs-comment">// draw negative values in red</span>
-        index % <span class="hljs-number">2</span> ? <span class="hljs-string">&apos;blue&apos;</span> :    <span class="hljs-comment">// else, alternate values in blue and green</span>
-        <span class="hljs-string">&apos;green&apos;</span>;
+                                <h1 id="data-structures">Data structures</h1>
+<p>The <code>data</code> property of a dataset can be passed in various formats. By default, that <code>data</code> is parsed using the associated chart type and scales.</p>
+<h2 id="primitive">Primitive[]</h2>
+<pre><code class="lang-javascript">data: [<span class="hljs-number">20</span>, <span class="hljs-number">10</span>],
+labels: [<span class="hljs-string">&apos;a&apos;</span>, <span class="hljs-string">&apos;b&apos;</span>]
+</code></pre>
+<p>When the <code>data</code> is an array of numbers, values from <code>labels</code> array at the same index are used for the index axis (<code>x</code> for vertical, <code>y</code> for horizontal charts).</p>
+<h2 id="object">Object[]</h2>
+<pre><code class="lang-javascript">data: [{x: <span class="hljs-number">10</span>, y: <span class="hljs-number">20</span>}, {x: <span class="hljs-number">15</span>, y: <span class="hljs-number">10</span>}]
+</code></pre>
+<pre><code class="lang-javascript">data: [{x:<span class="hljs-string">&apos;2016-12-25&apos;</span>, y:<span class="hljs-number">20</span>}, {x:<span class="hljs-string">&apos;2016-12-26&apos;</span>, y:<span class="hljs-number">10</span>}]
+</code></pre>
+<pre><code class="lang-javascript">data: [{x:<span class="hljs-string">&apos;Sales&apos;</span>, y:<span class="hljs-number">20</span>}, {x:<span class="hljs-string">&apos;Revenue&apos;</span>, y:<span class="hljs-number">10</span>}]
+</code></pre>
+<p>This is also the internal format used for parsed data. Property names are matched to scale-id. In this mode, parsing can be disabled by specifying <code>parsing: false</code> at chart options or dataset. If parsing is disabled, data must be in the formats the associated chart type and scales use internally.</p>
+<h2 id="object">Object</h2>
+<pre><code class="lang-javascript">data: {
+    January: <span class="hljs-number">10</span>,
+    February: <span class="hljs-number">20</span>
 }
 </code></pre>
-<h2 id="indexable-options">Indexable Options</h2>
-<p>Indexable options also accept an array in which each item corresponds to the element at the same index. Note that this method requires to provide as many items as data, so, in most cases, using a <a href="#scriptable-options">function</a> is more appropriated if supported.</p>
-<p>Example:</p>
-<pre><code class="lang-javascript">color: [
-    <span class="hljs-string">&apos;red&apos;</span>,    <span class="hljs-comment">// color for data at index 0</span>
-    <span class="hljs-string">&apos;blue&apos;</span>,   <span class="hljs-comment">// color for data at index 1</span>
-    <span class="hljs-string">&apos;green&apos;</span>,  <span class="hljs-comment">// color for data at index 2</span>
-    <span class="hljs-string">&apos;black&apos;</span>,  <span class="hljs-comment">// color for data at index 3</span>
-    <span class="hljs-comment">//...</span>
-]
-</code></pre>
-<h2 id="option-context">Option Context</h2>
-<p>The option context is used to give contextual information when resolving options and currently only applies to <a href="#scriptable-options">scriptable options</a>.</p>
-<p>The context object contains the following properties:</p>
-<ul>
-<li><code>chart</code>: the associated chart</li>
-<li><code>dataIndex</code>: index of the current data</li>
-<li><code>dataset</code>: dataset at index <code>datasetIndex</code></li>
-<li><code>datasetIndex</code>: index of the current dataset</li>
-<li><code>hover</code>: true if hovered</li>
-</ul>
-<p><strong>Important</strong>: since the context can represent different types of entities (dataset, data, etc.), some properties may be <code>undefined</code> so be sure to test any context property before using it.</p>
+<p>In this mode, property name is used for <code>index</code> scale and value for <code>value</code> scale. For vertical charts, index scale is <code>x</code> and value scale is <code>y</code>.</p>
 
                                 
                                 </section>
@@ -1017,12 +1005,12 @@
 
             
                 
-                <a href="interactions/modes.html" class="navigation navigation-prev " aria-label="Previous page: Modes">
+                <a href="./" class="navigation navigation-prev " aria-label="Previous page: General">
                     <i class="fa fa-angle-left"></i>
                 </a>
                 
                 
-                <a href="colors.html" class="navigation navigation-next " aria-label="Next page: Colors">
+                <a href="accessibility.html" class="navigation navigation-next " aria-label="Next page: Accessibility">
                     <i class="fa fa-angle-right"></i>
                 </a>
                 
@@ -1033,7 +1021,7 @@
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Options","level":"1.4.6","depth":2,"next":{"title":"Colors","level":"1.4.7","depth":2,"path":"general/colors.md","ref":"general/colors.md","articles":[]},"previous":{"title":"Modes","level":"1.4.5.2","depth":3,"path":"general/interactions/modes.md","ref":"general/interactions/modes.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga","redirect"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"chartjs":{"defaults":null},"fontsettings":{"theme":"white","family":"sans","size":2},"highlight":{},"ga":{"configuration":"auto","token":"UA-28909194-3"},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"redirect":{},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"anchorjs":{"icon":"#","placement":"left","visible":"always"},"search-plus":{}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"general/options.md","mtime":"2019-12-07T00:48:08.695Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2019-12-07T00:51:58.713Z"},"basePath":"..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Data structures","level":"1.4.1","depth":2,"next":{"title":"Accessibility","level":"1.4.2","depth":2,"path":"general/accessibility.md","ref":"general/accessibility.md","articles":[]},"previous":{"title":"General","level":"1.4","depth":1,"path":"general/README.md","ref":"general/README.md","articles":[{"title":"Data structures","level":"1.4.1","depth":2,"path":"general/data-structures.md","ref":"general/data-structures.md","articles":[]},{"title":"Accessibility","level":"1.4.2","depth":2,"path":"general/accessibility.md","ref":"general/accessibility.md","articles":[]},{"title":"Responsive","level":"1.4.3","depth":2,"path":"general/responsive.md","ref":"general/responsive.md","articles":[]},{"title":"Pixel Ratio","level":"1.4.4","depth":2,"path":"general/device-pixel-ratio.md","ref":"general/device-pixel-ratio.md","articles":[]},{"title":"Interactions","level":"1.4.5","depth":2,"path":"general/interactions/README.md","ref":"general/interactions/README.md","articles":[{"title":"Events","level":"1.4.5.1","depth":3,"path":"general/interactions/events.md","ref":"general/interactions/events.md","articles":[]},{"title":"Modes","level":"1.4.5.2","depth":3,"path":"general/interactions/modes.md","ref":"general/interactions/modes.md","articles":[]}]},{"title":"Options","level":"1.4.6","depth":2,"path":"general/options.md","ref":"general/options.md","articles":[]},{"title":"Colors","level":"1.4.7","depth":2,"path":"general/colors.md","ref":"general/colors.md","articles":[]},{"title":"Fonts","level":"1.4.8","depth":2,"path":"general/fonts.md","ref":"general/fonts.md","articles":[]},{"title":"Performance","level":"1.4.9","depth":2,"path":"general/performance.md","ref":"general/performance.md","articles":[]}]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga","redirect"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"chartjs":{"defaults":null},"fontsettings":{"theme":"white","family":"sans","size":2},"highlight":{},"ga":{"configuration":"auto","token":"UA-28909194-3"},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"redirect":{},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"anchorjs":{"icon":"#","placement":"left","visible":"always"},"search-plus":{}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"general/data-structures.md","mtime":"2019-12-07T00:48:08.695Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2019-12-07T00:51:58.713Z"},"basePath":"..","book":{"language":""}});
         });
     </script>
 </div>

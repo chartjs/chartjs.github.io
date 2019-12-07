@@ -4139,9 +4139,14 @@ require$$0.extend(DatasetController.prototype, {
     var iScale = meta.iScale,
         vScale = meta.vScale,
         _stacked = meta._stacked;
-    var i, ilen, parsed;
+    var parsing = resolve$1([me.getDataset().parsing, me.chart.options.parsing, true]);
+    var offset = 0;
+    var i, parsed;
 
-    if (require$$0.isArray(data[start])) {
+    if (parsing === false) {
+      parsed = data;
+      offset = start;
+    } else if (require$$0.isArray(data[start])) {
       parsed = me._parseArrayData(meta, data, start, count);
     } else if (require$$0.isObject(data[start])) {
       parsed = me._parseObjectData(meta, data, start, count);
@@ -4149,8 +4154,8 @@ require$$0.extend(DatasetController.prototype, {
       parsed = me._parsePrimitiveData(meta, data, start, count);
     }
 
-    for (i = 0, ilen = parsed.length; i < ilen; ++i) {
-      meta.data[start + i]._parsed = parsed[i];
+    for (i = 0; i < count; ++i) {
+      meta.data[i + start]._parsed = parsed[i + offset];
     }
 
     if (_stacked) {

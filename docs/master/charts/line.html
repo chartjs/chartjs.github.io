@@ -208,7 +208,20 @@
             <ul class="articles">
                 
     
-        <li class="chapter " data-level="1.4.1" data-path="../general/accessibility.html">
+        <li class="chapter " data-level="1.4.1" data-path="../general/data-structures.html">
+            
+                <a href="../general/data-structures.html">
+            
+                    
+                    Data structures
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.2" data-path="../general/accessibility.html">
             
                 <a href="../general/accessibility.html">
             
@@ -221,7 +234,7 @@
             
         </li>
     
-        <li class="chapter " data-level="1.4.2" data-path="../general/responsive.html">
+        <li class="chapter " data-level="1.4.3" data-path="../general/responsive.html">
             
                 <a href="../general/responsive.html">
             
@@ -234,7 +247,7 @@
             
         </li>
     
-        <li class="chapter " data-level="1.4.3" data-path="../general/device-pixel-ratio.html">
+        <li class="chapter " data-level="1.4.4" data-path="../general/device-pixel-ratio.html">
             
                 <a href="../general/device-pixel-ratio.html">
             
@@ -247,7 +260,7 @@
             
         </li>
     
-        <li class="chapter " data-level="1.4.4" data-path="../general/interactions/">
+        <li class="chapter " data-level="1.4.5" data-path="../general/interactions/">
             
                 <a href="../general/interactions/">
             
@@ -261,7 +274,7 @@
             <ul class="articles">
                 
     
-        <li class="chapter " data-level="1.4.4.1" data-path="../general/interactions/events.html">
+        <li class="chapter " data-level="1.4.5.1" data-path="../general/interactions/events.html">
             
                 <a href="../general/interactions/events.html">
             
@@ -274,7 +287,7 @@
             
         </li>
     
-        <li class="chapter " data-level="1.4.4.2" data-path="../general/interactions/modes.html">
+        <li class="chapter " data-level="1.4.5.2" data-path="../general/interactions/modes.html">
             
                 <a href="../general/interactions/modes.html">
             
@@ -292,7 +305,7 @@
             
         </li>
     
-        <li class="chapter " data-level="1.4.5" data-path="../general/options.html">
+        <li class="chapter " data-level="1.4.6" data-path="../general/options.html">
             
                 <a href="../general/options.html">
             
@@ -305,7 +318,7 @@
             
         </li>
     
-        <li class="chapter " data-level="1.4.6" data-path="../general/colors.html">
+        <li class="chapter " data-level="1.4.7" data-path="../general/colors.html">
             
                 <a href="../general/colors.html">
             
@@ -318,7 +331,7 @@
             
         </li>
     
-        <li class="chapter " data-level="1.4.7" data-path="../general/fonts.html">
+        <li class="chapter " data-level="1.4.8" data-path="../general/fonts.html">
             
                 <a href="../general/fonts.html">
             
@@ -331,7 +344,7 @@
             
         </li>
     
-        <li class="chapter " data-level="1.4.8" data-path="../general/performance.html">
+        <li class="chapter " data-level="1.4.9" data-path="../general/performance.html">
             
                 <a href="../general/performance.html">
             
@@ -1428,21 +1441,7 @@
 <pre><code class="lang-javascript">Chart.defaults.line.spanGaps = <span class="hljs-literal">true</span>;
 </code></pre>
 <h2 id="data-structure">Data Structure</h2>
-<p>The <code>data</code> property of a dataset for a line chart can be passed in two formats.</p>
-<h3 id="number">number[]</h3>
-<pre><code class="lang-javascript">data: [<span class="hljs-number">20</span>, <span class="hljs-number">10</span>]
-</code></pre>
-<p>When the <code>data</code> array is an array of numbers, the x axis is generally a <a href="../axes/cartesian/category.html#category-cartesian-axis">category</a>. The points are placed onto the axis using their position in the array. When a line chart is created with a category axis, the <code>labels</code> property of the data object must be specified.</p>
-<h3 id="point">Point[]</h3>
-<pre><code class="lang-javascript">data: [{
-    x: <span class="hljs-number">10</span>,
-    y: <span class="hljs-number">20</span>
-}, {
-    x: <span class="hljs-number">15</span>,
-    y: <span class="hljs-number">10</span>
-}]
-</code></pre>
-<p>This alternate is used for sparse datasets, such as those in <a href="scatter.html#scatter-chart">scatter charts</a>. Each data point is specified using an object containing <code>x</code> and <code>y</code> properties.</p>
+<p>See <a href="../general/data-structures.html"><code>Data structures</code></a></p>
 <h2 id="stacked-area-chart">Stacked Area Chart</h2>
 <p>Line charts can be configured into stacked area charts by changing the settings on the y axis to enable stacking. Stacked area charts can be used to show how one data trend is made up of a number of smaller pieces.</p>
 <pre><code class="lang-javascript"><span class="hljs-keyword">var</span> stackedLine = <span class="hljs-keyword">new</span> Chart(ctx, {
@@ -1457,6 +1456,8 @@
     }
 });
 </code></pre>
+<h2 id="internal-data-format">Internal data format</h2>
+<p><code>{x, y}</code></p>
 
                                 
                                 </section>
@@ -1500,7 +1501,7 @@
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Line","level":"1.6.1","depth":2,"next":{"title":"Bar","level":"1.6.2","depth":2,"path":"charts/bar.md","ref":"charts/bar.md","articles":[]},"previous":{"title":"Charts","level":"1.6","depth":1,"path":"charts/README.md","ref":"charts/README.md","articles":[{"title":"Line","level":"1.6.1","depth":2,"path":"charts/line.md","ref":"charts/line.md","articles":[]},{"title":"Bar","level":"1.6.2","depth":2,"path":"charts/bar.md","ref":"charts/bar.md","articles":[]},{"title":"Radar","level":"1.6.3","depth":2,"path":"charts/radar.md","ref":"charts/radar.md","articles":[]},{"title":"Doughnut & Pie","level":"1.6.4","depth":2,"path":"charts/doughnut.md","ref":"charts/doughnut.md","articles":[]},{"title":"Polar Area","level":"1.6.5","depth":2,"path":"charts/polar.md","ref":"charts/polar.md","articles":[]},{"title":"Bubble","level":"1.6.6","depth":2,"path":"charts/bubble.md","ref":"charts/bubble.md","articles":[]},{"title":"Scatter","level":"1.6.7","depth":2,"path":"charts/scatter.md","ref":"charts/scatter.md","articles":[]},{"title":"Area","level":"1.6.8","depth":2,"path":"charts/area.md","ref":"charts/area.md","articles":[]},{"title":"Mixed","level":"1.6.9","depth":2,"path":"charts/mixed.md","ref":"charts/mixed.md","articles":[]}]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga","redirect"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"chartjs":{"defaults":null},"fontsettings":{"theme":"white","family":"sans","size":2},"highlight":{},"ga":{"configuration":"auto","token":"UA-28909194-3"},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"redirect":{},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"anchorjs":{"icon":"#","placement":"left","visible":"always"},"search-plus":{}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"charts/line.md","mtime":"2019-12-07T00:46:17.917Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2019-12-07T00:50:10.602Z"},"basePath":"..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Line","level":"1.6.1","depth":2,"next":{"title":"Bar","level":"1.6.2","depth":2,"path":"charts/bar.md","ref":"charts/bar.md","articles":[]},"previous":{"title":"Charts","level":"1.6","depth":1,"path":"charts/README.md","ref":"charts/README.md","articles":[{"title":"Line","level":"1.6.1","depth":2,"path":"charts/line.md","ref":"charts/line.md","articles":[]},{"title":"Bar","level":"1.6.2","depth":2,"path":"charts/bar.md","ref":"charts/bar.md","articles":[]},{"title":"Radar","level":"1.6.3","depth":2,"path":"charts/radar.md","ref":"charts/radar.md","articles":[]},{"title":"Doughnut & Pie","level":"1.6.4","depth":2,"path":"charts/doughnut.md","ref":"charts/doughnut.md","articles":[]},{"title":"Polar Area","level":"1.6.5","depth":2,"path":"charts/polar.md","ref":"charts/polar.md","articles":[]},{"title":"Bubble","level":"1.6.6","depth":2,"path":"charts/bubble.md","ref":"charts/bubble.md","articles":[]},{"title":"Scatter","level":"1.6.7","depth":2,"path":"charts/scatter.md","ref":"charts/scatter.md","articles":[]},{"title":"Area","level":"1.6.8","depth":2,"path":"charts/area.md","ref":"charts/area.md","articles":[]},{"title":"Mixed","level":"1.6.9","depth":2,"path":"charts/mixed.md","ref":"charts/mixed.md","articles":[]}]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga","redirect"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"chartjs":{"defaults":null},"fontsettings":{"theme":"white","family":"sans","size":2},"highlight":{},"ga":{"configuration":"auto","token":"UA-28909194-3"},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"redirect":{},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"anchorjs":{"icon":"#","placement":"left","visible":"always"},"search-plus":{}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"charts/line.md","mtime":"2019-12-07T00:48:08.695Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2019-12-07T00:51:58.713Z"},"basePath":"..","book":{"language":""}});
         });
     </script>
 </div>
