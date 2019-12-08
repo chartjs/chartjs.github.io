@@ -4159,18 +4159,19 @@ require$$0.extend(DatasetController.prototype, {
     var i, parsed;
 
     if (parsing === false) {
-      parsed = data;
-      offset = start;
-    } else if (require$$0.isArray(data[start])) {
-      parsed = me._parseArrayData(meta, data, start, count);
-    } else if (require$$0.isObject(data[start])) {
-      parsed = me._parseObjectData(meta, data, start, count);
+      meta._parsed = data;
     } else {
-      parsed = me._parsePrimitiveData(meta, data, start, count);
-    }
+      if (require$$0.isArray(data[start])) {
+        parsed = me._parseArrayData(meta, data, start, count);
+      } else if (require$$0.isObject(data[start])) {
+        parsed = me._parseObjectData(meta, data, start, count);
+      } else {
+        parsed = me._parsePrimitiveData(meta, data, start, count);
+      }
 
-    for (i = 0; i < count; ++i) {
-      meta.data[i + start]._parsed = parsed[i + offset];
+      for (i = 0; i < count; ++i) {
+        meta._parsed[i + start] = parsed[i + offset];
+      }
     }
 
     if (_stacked) {
@@ -4281,13 +4282,13 @@ require$$0.extend(DatasetController.prototype, {
    * @private
    */
   _getParsed: function _getParsed(index) {
-    var data = this._cachedMeta.data;
+    var data = this._cachedMeta._parsed;
 
     if (index < 0 || index >= data.length) {
       return;
     }
 
-    return data[index]._parsed;
+    return data[index];
   },
 
   /**
@@ -4328,7 +4329,7 @@ require$$0.extend(DatasetController.prototype, {
 
     for (i = 0; i < ilen; ++i) {
       item = metaData[i];
-      parsed = item._parsed;
+      parsed = meta._parsed[i];
       value = parsed[scale.id];
       otherValue = parsed[otherScale.id];
 
@@ -4363,13 +4364,12 @@ require$$0.extend(DatasetController.prototype, {
    * @private
    */
   _getAllParsedValues: function _getAllParsedValues(scale) {
-    var meta = this._cachedMeta;
-    var metaData = meta.data;
+    var parsed = this._cachedMeta._parsed;
     var values = [];
     var i, ilen, value;
 
-    for (i = 0, ilen = metaData.length; i < ilen; ++i) {
-      value = metaData[i]._parsed[scale.id];
+    for (i = 0, ilen = parsed.length; i < ilen; ++i) {
+      value = parsed[i][scale.id];
 
       if (!isNaN(value)) {
         values.push(value);
@@ -6222,11 +6222,11 @@ var controller_doughnut = core_datasetController.extend({
    */
   _parse: function _parse(start, count) {
     var data = this.getDataset().data;
-    var metaData = this._cachedMeta.data;
+    var meta = this._cachedMeta;
     var i, ilen;
 
     for (i = start, ilen = start + count; i < ilen; ++i) {
-      metaData[i]._parsed = +data[i];
+      meta._parsed[i] = +data[i];
     }
   },
   // Get index of the dataset in relation to the visible datasets. This allows determining the inner and outer radius correctly
@@ -6310,13 +6310,14 @@ var controller_doughnut = core_datasetController.extend({
 
     var endAngle = opts.rotation; // non reset case handled later
 
+    var meta = me.getMeta();
     var innerRadius = reset && animationOpts.animateScale ? 0 : me.innerRadius;
     var outerRadius = reset && animationOpts.animateScale ? 0 : me.outerRadius;
     var i;
 
     for (i = 0; i < start + count; ++i) {
       var arc = arcs[i];
-      var circumference = reset && animationOpts.animateRotate ? 0 : arc.hidden ? 0 : me.calculateCircumference(arc._parsed * opts.circumference / DOUBLE_PI$1);
+      var circumference = reset && animationOpts.animateRotate ? 0 : arc.hidden ? 0 : me.calculateCircumference(meta._parsed[i] * opts.circumference / DOUBLE_PI$1);
       var options = arc._options || {};
       var model = {
         // Desired view properties
@@ -6348,19 +6349,22 @@ var controller_doughnut = core_datasetController.extend({
     }
   },
   calculateTotal: function calculateTotal() {
-    var metaData = this._cachedMeta.data;
+    var meta = this._cachedMeta;
+    var metaData = meta.data;
     var total = 0;
-    var value;
-    require$$0.each(metaData, function (arc) {
-      value = arc ? arc._parsed : NaN;
+    var i;
 
-      if (!isNaN(value) && !arc.hidden) {
+    for (i = 0; i < metaData.length; i++) {
+      var value = meta._parsed[i];
+
+      if (!isNaN(value) && !metaData[i].hidden) {
         total += Math.abs(value);
       }
-    });
+    }
     /* if (total === 0) {
     	total = NaN;
     }*/
+
 
     return total;
   },
@@ -10491,7 +10495,8 @@ require$$0.extend(Chart.prototype,
         xAxisID: null,
         yAxisID: null,
         order: dataset.order || 0,
-        index: datasetIndex
+        index: datasetIndex,
+        _parsed: []
       };
     }
 
