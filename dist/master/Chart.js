@@ -4647,6 +4647,8 @@ require$$0.extend(DatasetController.prototype, {
     } else if (numData < numMeta) {
       meta.data.splice(numData, numMeta - numData);
 
+      meta._parsed.splice(numData, numMeta - numData);
+
       me._parse(0, numData);
     } else if (changed) {
       me._parse(0, numData);
@@ -6686,7 +6688,7 @@ var controller_line = core_datasetController.extend({
     var lineModel = meta.dataset._model;
     var area = chart.chartArea;
     var points = meta.data || [];
-    var i, ilen, model, controlPoints; // Only consider points that are drawn in case the spanGaps option is used
+    var i, ilen; // Only consider points that are drawn in case the spanGaps option is used
 
     if (lineModel.spanGaps) {
       points = points.filter(function (pt) {
@@ -6702,8 +6704,8 @@ var controller_line = core_datasetController.extend({
       require$$0.splineCurveMonotone(points);
     } else {
       for (i = 0, ilen = points.length; i < ilen; ++i) {
-        model = points[i]._model;
-        controlPoints = require$$0.splineCurve(points[Math.max(0, i - 1)]._model, model, points[Math.min(i + 1, ilen - 1)]._model, lineModel.tension);
+        var model = points[i]._model;
+        var controlPoints = require$$0.splineCurve(points[Math.max(0, i - 1)]._model, model, points[Math.min(i + 1, ilen - 1)]._model, lineModel.tension);
         model.controlPointPreviousX = controlPoints.previous.x;
         model.controlPointPreviousY = controlPoints.previous.y;
         model.controlPointNextX = controlPoints.next.x;
@@ -6713,17 +6715,17 @@ var controller_line = core_datasetController.extend({
 
     if (chart.options.elements.line.capBezierPoints) {
       for (i = 0, ilen = points.length; i < ilen; ++i) {
-        model = points[i]._model;
+        var _model = points[i]._model;
 
-        if (isPointInArea(model, area)) {
+        if (isPointInArea(_model, area)) {
           if (i > 0 && isPointInArea(points[i - 1]._model, area)) {
-            model.controlPointPreviousX = capControlPoint(model.controlPointPreviousX, area.left, area.right);
-            model.controlPointPreviousY = capControlPoint(model.controlPointPreviousY, area.top, area.bottom);
+            _model.controlPointPreviousX = capControlPoint(_model.controlPointPreviousX, area.left, area.right);
+            _model.controlPointPreviousY = capControlPoint(_model.controlPointPreviousY, area.top, area.bottom);
           }
 
           if (i < points.length - 1 && isPointInArea(points[i + 1]._model, area)) {
-            model.controlPointNextX = capControlPoint(model.controlPointNextX, area.left, area.right);
-            model.controlPointNextY = capControlPoint(model.controlPointNextY, area.top, area.bottom);
+            _model.controlPointNextX = capControlPoint(_model.controlPointNextX, area.left, area.right);
+            _model.controlPointNextY = capControlPoint(_model.controlPointNextY, area.top, area.bottom);
           }
         }
       }
@@ -6736,8 +6738,8 @@ var controller_line = core_datasetController.extend({
     var meta = me._cachedMeta;
     var points = meta.data || [];
     var area = chart.chartArea;
-    var i = 0;
     var ilen = points.length;
+    var i = 0;
 
     if (me._showLine) {
       meta.dataset.draw(ctx);
