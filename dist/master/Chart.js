@@ -12095,18 +12095,20 @@ function (_Element) {
 
       me._convertTicksToLabels(samplingEnabled ? sample(me.ticks, sampleSize) : me.ticks); // _configure is called twice, once here, once from core.controller.updateLayout.
       // Here we haven't been positioned yet, but dimensions are correct.
-      // Variables set in _configure are needed for calculateTickRotation, and
+      // Variables set in _configure are needed for calculateLabelRotation, and
       // it's ok that coordinates are not correct there, only dimensions matter.
 
 
       me._configure(); // Tick Rotation
 
 
-      me.beforeCalculateTickRotation();
-      me.calculateTickRotation();
-      me.afterCalculateTickRotation();
+      me.beforeCalculateLabelRotation();
+      me.calculateLabelRotation(); // Preconditions: number of ticks and sizes of largest labels must be calculated beforehand
+
+      me.afterCalculateLabelRotation();
       me.beforeFit();
-      me.fit();
+      me.fit(); // Preconditions: label rotation and label sizes must be calculated beforehand
+
       me.afterFit(); // Auto-skip
 
       me.ticks = tickOpts.display && (tickOpts.autoSkip || tickOpts.source === 'auto') ? me._autoSkip(me.ticks) : me.ticks;
@@ -12243,13 +12245,13 @@ function (_Element) {
     } //
 
   }, {
-    key: "beforeCalculateTickRotation",
-    value: function beforeCalculateTickRotation() {
-      require$$0.callback(this.options.beforeCalculateTickRotation, [this]);
+    key: "beforeCalculateLabelRotation",
+    value: function beforeCalculateLabelRotation() {
+      require$$0.callback(this.options.beforeCalculateLabelRotation, [this]);
     }
   }, {
-    key: "calculateTickRotation",
-    value: function calculateTickRotation() {
+    key: "calculateLabelRotation",
+    value: function calculateLabelRotation() {
       var me = this;
       var options = me.options;
       var tickOpts = options.ticks;
@@ -12283,9 +12285,9 @@ function (_Element) {
       me.labelRotation = labelRotation;
     }
   }, {
-    key: "afterCalculateTickRotation",
-    value: function afterCalculateTickRotation() {
-      require$$0.callback(this.options.afterCalculateTickRotation, [this]);
+    key: "afterCalculateLabelRotation",
+    value: function afterCalculateLabelRotation() {
+      require$$0.callback(this.options.afterCalculateLabelRotation, [this]);
     } //
 
   }, {
