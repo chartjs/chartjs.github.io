@@ -142,8 +142,24 @@ function _slicedToArray(arr, i) {
   return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest();
 }
 
+function _toConsumableArray(arr) {
+  return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread();
+}
+
+function _arrayWithoutHoles(arr) {
+  if (Array.isArray(arr)) {
+    for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) arr2[i] = arr[i];
+
+    return arr2;
+  }
+}
+
 function _arrayWithHoles(arr) {
   if (Array.isArray(arr)) return arr;
+}
+
+function _iterableToArray(iter) {
+  if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter);
 }
 
 function _iterableToArrayLimit(arr, i) {
@@ -174,6 +190,10 @@ function _iterableToArrayLimit(arr, i) {
   }
 
   return _arr;
+}
+
+function _nonIterableSpread() {
+  throw new TypeError("Invalid attempt to spread non-iterable instance");
 }
 
 function _nonIterableRest() {
@@ -3943,6 +3963,9 @@ require$$0.extend(DatasetController.prototype, {
     me.index = datasetIndex;
     me._cachedMeta = meta = me.getMeta();
     me._type = meta.type;
+
+    me._configure();
+
     me.linkScales();
     meta._stacked = isStacked(meta.vScale, meta);
     me.addElements();
@@ -4127,6 +4150,7 @@ require$$0.extend(DatasetController.prototype, {
         }
       }
     });
+    me._parsing = resolve$1([me._config.parsing, me.chart.options.parsing, true]);
   },
 
   /**
@@ -4139,11 +4163,10 @@ require$$0.extend(DatasetController.prototype, {
     var iScale = meta.iScale,
         vScale = meta.vScale,
         _stacked = meta._stacked;
-    var parsing = resolve$1([me.getDataset().parsing, me.chart.options.parsing, true]);
     var offset = 0;
     var i, parsed;
 
-    if (parsing === false) {
+    if (me._parsing === false) {
       meta._parsed = data;
     } else {
       if (require$$0.isArray(data[start])) {
@@ -4297,7 +4320,7 @@ require$$0.extend(DatasetController.prototype, {
     var chart = this.chart;
     var meta = this._cachedMeta;
     var metaData = meta.data;
-    var ilen = metaData.length;
+    var ilen = meta._parsed.length;
     var stacked = canStack && meta._stacked;
     var indices = getSortedDatasetIndices(chart, true);
 
@@ -4318,7 +4341,7 @@ require$$0.extend(DatasetController.prototype, {
       value = parsed[scale.id];
       otherValue = parsed[otherScale.id];
 
-      if (item.hidden || isNaN(value) || otherMin > otherValue || otherMax < otherValue) {
+      if (item && item.hidden || isNaN(value) || otherMin > otherValue || otherMax < otherValue) {
         continue;
       }
 
@@ -4473,8 +4496,6 @@ require$$0.extend(DatasetController.prototype, {
     var meta = me._cachedMeta;
     var dataset = meta.dataset;
     var style;
-
-    me._configure();
 
     if (dataset && index === undefined) {
       style = me._resolveDatasetElementOptions();
@@ -4646,7 +4667,8 @@ require$$0.extend(DatasetController.prototype, {
   insertElements: function insertElements(start, count) {
     var me = this;
     var elements = new Array(count);
-    var data = me._cachedMeta.data;
+    var meta = me._cachedMeta;
+    var data = meta.data;
     var i;
 
     for (i = 0; i < count; ++i) {
@@ -4655,9 +4677,28 @@ require$$0.extend(DatasetController.prototype, {
 
     data.splice.apply(data, [start, 0].concat(elements));
 
+    if (me._parsing) {
+      var _meta$_parsed;
+
+      (_meta$_parsed = meta._parsed).splice.apply(_meta$_parsed, [start, 0].concat(_toConsumableArray(new Array(count))));
+    }
+
     me._parse(start, count);
 
     me.updateElements(data, start, count);
+  },
+
+  /**
+   * @private
+   */
+  removeElements: function removeElements(start, count) {
+    var me = this;
+
+    if (me._parsing) {
+      me._cachedMeta._parsed.splice(start, count);
+    }
+
+    me._cachedMeta.data.splice(start, count);
   },
 
   /**
@@ -4672,22 +4713,21 @@ require$$0.extend(DatasetController.prototype, {
    * @private
    */
   onDataPop: function onDataPop() {
-    this._cachedMeta.data.pop();
+    this.removeElements(this._cachedMeta.data.length - 1, 1);
   },
 
   /**
    * @private
    */
   onDataShift: function onDataShift() {
-    this._cachedMeta.data.shift();
+    this.removeElements(0, 1);
   },
 
   /**
    * @private
    */
   onDataSplice: function onDataSplice(start, count) {
-    this._cachedMeta.data.splice(start, count);
-
+    this.removeElements(start, count);
     this.insertElements(start, arguments.length - 2);
   },
 
