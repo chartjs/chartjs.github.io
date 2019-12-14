@@ -10072,6 +10072,7 @@ require$$0.extend(Chart.prototype,
     var me = this;
     var newControllers = [];
     var datasets = me.data.datasets;
+    var sorted = me._sortedMetasets = [];
     var i, ilen;
 
     for (i = 0, ilen = datasets.length; i < ilen; i++) {
@@ -10088,6 +10089,7 @@ require$$0.extend(Chart.prototype,
       meta.order = dataset.order || 0;
       meta.index = i;
       meta.label = '' + dataset.label;
+      meta.visible = me.isDatasetVisible(i);
 
       if (meta.controller) {
         meta.controller.updateIndex(i);
@@ -10102,8 +10104,11 @@ require$$0.extend(Chart.prototype,
         meta.controller = new ControllerClass(me, i);
         newControllers.push(meta.controller);
       }
+
+      sorted.push(meta);
     }
 
+    sorted.sort(compare2Level('order', 'index'));
     return newControllers;
   },
 
@@ -10349,9 +10354,13 @@ require$$0.extend(Chart.prototype,
     var i, ilen;
 
     if (!me._animationsDisabled) {
-      for (i = 0, ilen = (me.data.datasets || []).length; i < ilen; ++i) {
-        if (me.isDatasetVisible(i)) {
-          me.getDatasetMeta(i).controller.transition(easingValue);
+      var metas = me._getSortedDatasetMetas();
+
+      for (i = 0, ilen = metas.length; i < ilen; ++i) {
+        var meta = metas[i];
+
+        if (meta.visible) {
+          meta.controller.transition(easingValue);
         }
       }
     }
@@ -10369,17 +10378,18 @@ require$$0.extend(Chart.prototype,
    */
   _getSortedDatasetMetas: function _getSortedDatasetMetas(filterVisible) {
     var me = this;
-    var datasets = me.data.datasets || [];
+    var metasets = me._sortedMetasets;
     var result = [];
     var i, ilen;
 
-    for (i = 0, ilen = datasets.length; i < ilen; ++i) {
-      if (!filterVisible || me.isDatasetVisible(i)) {
-        result.push(me.getDatasetMeta(i));
+    for (i = 0, ilen = metasets.length; i < ilen; ++i) {
+      var meta = metasets[i];
+
+      if (!filterVisible || meta.visible) {
+        result.push(meta);
       }
     }
 
-    result.sort(compare2Level('order', 'index'));
     return result;
   },
 
@@ -10523,15 +10533,7 @@ require$$0.extend(Chart.prototype,
     return meta;
   },
   getVisibleDatasetCount: function getVisibleDatasetCount() {
-    var count = 0;
-
-    for (var i = 0, ilen = this.data.datasets.length; i < ilen; ++i) {
-      if (this.isDatasetVisible(i)) {
-        count++;
-      }
-    }
-
-    return count;
+    return this._getSortedVisibleDatasetMetas().length;
   },
   isDatasetVisible: function isDatasetVisible(datasetIndex) {
     var meta = this.getDatasetMeta(datasetIndex); // meta.hidden is a per chart dataset hidden flag override with 3 states: if true or false,
