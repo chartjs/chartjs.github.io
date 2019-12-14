@@ -7356,7 +7356,7 @@ function getIntersectItems(chart, position) {
   return elements;
 }
 /**
- * Helper function to get the items nearest to the event position considering all visible items in teh chart
+ * Helper function to get the items nearest to the event position considering all visible items in the chart
  * @param {Chart} chart - the chart to look at elements from
  * @param {object} position - the point to be nearest to
  * @param {boolean} intersect - if true, only consider items that intersect the position
@@ -7410,34 +7410,6 @@ function getDistanceMetricForAxis(axis) {
     return Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
   };
 }
-
-function indexMode(chart, e, options) {
-  var position = getRelativePosition(e, chart); // Default axis for index mode is 'x' to match old behaviour
-
-  options.axis = options.axis || 'x';
-  var distanceMetric = getDistanceMetricForAxis(options.axis);
-  var items = options.intersect ? getIntersectItems(chart, position) : getNearestItems(chart, position, false, distanceMetric);
-  var elements = [];
-
-  if (!items.length) {
-    return [];
-  }
-
-  chart._getSortedVisibleDatasetMetas().forEach(function (meta) {
-    var index = items[0].index;
-    var element = meta.data[index]; // don't count items that are skipped (null data)
-
-    if (element && !element._view.skip) {
-      elements.push({
-        element: element,
-        datasetIndex: meta.index,
-        index: index
-      });
-    }
-  });
-
-  return elements;
-}
 /**
  * @interface IInteractionOptions
  */
@@ -7467,7 +7439,32 @@ var core_interaction = {
      * @param {IInteractionOptions} options - options to use during interaction
      * @return {Object[]} Array of elements that are under the point. If none are found, an empty array is returned
      */
-    index: indexMode,
+    index: function index(chart, e, options) {
+      var position = getRelativePosition(e, chart); // Default axis for index mode is 'x' to match old behaviour
+
+      var distanceMetric = getDistanceMetricForAxis(options.axis || 'x');
+      var items = options.intersect ? getIntersectItems(chart, position) : getNearestItems(chart, position, false, distanceMetric);
+      var elements = [];
+
+      if (!items.length) {
+        return [];
+      }
+
+      chart._getSortedVisibleDatasetMetas().forEach(function (meta) {
+        var index = items[0].index;
+        var element = meta.data[index]; // don't count items that are skipped (null data)
+
+        if (element && !element._view.skip) {
+          elements.push({
+            element: element,
+            datasetIndex: meta.index,
+            index: index
+          });
+        }
+      });
+
+      return elements;
+    },
 
     /**
      * Returns items in the same dataset. If the options.intersect parameter is true, we only return items if we intersect something
@@ -7480,8 +7477,7 @@ var core_interaction = {
      */
     dataset: function dataset(chart, e, options) {
       var position = getRelativePosition(e, chart);
-      options.axis = options.axis || 'xy';
-      var distanceMetric = getDistanceMetricForAxis(options.axis);
+      var distanceMetric = getDistanceMetricForAxis(options.axis || 'xy');
       var items = options.intersect ? getIntersectItems(chart, position) : getNearestItems(chart, position, false, distanceMetric);
 
       if (items.length > 0) {
@@ -7516,8 +7512,7 @@ var core_interaction = {
      */
     nearest: function nearest(chart, e, options) {
       var position = getRelativePosition(e, chart);
-      options.axis = options.axis || 'xy';
-      var distanceMetric = getDistanceMetricForAxis(options.axis);
+      var distanceMetric = getDistanceMetricForAxis(options.axis || 'xy');
       return getNearestItems(chart, position, options.intersect, distanceMetric);
     },
 
@@ -7549,7 +7544,7 @@ var core_interaction = {
       // that intersect the position, return nothing
 
       if (options.intersect && !intersectsItem) {
-        items = [];
+        return [];
       }
 
       return items;
@@ -7583,7 +7578,7 @@ var core_interaction = {
       // that intersect the position, return nothing
 
       if (options.intersect && !intersectsItem) {
-        items = [];
+        return [];
       }
 
       return items;
@@ -8893,7 +8888,6 @@ function splitNewlines(str) {
 
 function createTooltipItem(chart, item) {
   var datasetIndex = item.datasetIndex,
-      element = item.element,
       index = item.index;
 
   var _chart$getDatasetMeta = chart.getDatasetMeta(datasetIndex).controller._getLabelAndValue(index),
@@ -8904,9 +8898,7 @@ function createTooltipItem(chart, item) {
     label: label,
     value: value,
     index: index,
-    datasetIndex: datasetIndex,
-    x: element._model.x,
-    y: element._model.y
+    datasetIndex: datasetIndex
   };
 }
 /**
