@@ -7337,7 +7337,7 @@ function getRelativePosition(e, chart) {
  */
 
 
-function parseVisibleItems(chart, handler) {
+function evaluateAllVisibleItems(chart, handler) {
   var metasets = chart._getSortedVisibleDatasetMetas();
 
   var index, data, element;
@@ -7357,64 +7357,47 @@ function parseVisibleItems(chart, handler) {
   }
 }
 /**
- * Helper function to get the items that intersect the event position
- * @param {ChartElement[]} items - elements to filter
- * @param {object} position - the point to be nearest to
- * @return {ChartElement[]} the nearest items
+ * Helper function to check the items at the hovered index on the index scale
+ * @param {Chart} chart - the chart
+ * @param {function} handler - the callback to execute for each visible item
+ * @return whether all scales were of a suitable type
  */
 
 
-function getIntersectItems(chart, position) {
-  var elements = [];
-  parseVisibleItems(chart, function (element, datasetIndex, index) {
-    if (element.inRange(position.x, position.y)) {
-      elements.push({
-        element: element,
-        datasetIndex: datasetIndex,
-        index: index
-      });
-    }
-  });
-  return elements;
-}
-/**
- * Helper function to get the items nearest to the event position considering all visible items in the chart
- * @param {Chart} chart - the chart to look at elements from
- * @param {object} position - the point to be nearest to
- * @param {boolean} intersect - if true, only consider items that intersect the position
- * @param {function} distanceMetric - function to provide the distance between points
- * @return {ChartElement[]} the nearest items
- */
+function evaluateItemsAtIndex(chart, axis, position, handler) {
+  var metasets = chart._getSortedVisibleDatasetMetas();
 
+  var indices = [];
 
-function getNearestItems(chart, position, intersect, distanceMetric) {
-  var minDistance = Number.POSITIVE_INFINITY;
-  var nearestItems = [];
-  parseVisibleItems(chart, function (element, datasetIndex, index) {
-    if (intersect && !element.inRange(position.x, position.y)) {
-      return;
+  for (var i = 0, ilen = metasets.length; i < ilen; ++i) {
+    var metaset = metasets[i];
+    var iScale = metaset.controller._cachedMeta.iScale;
+
+    if (!iScale || axis !== iScale.axis || !iScale.getIndexForPixel) {
+      return false;
     }
 
-    var center = element.getCenterPoint();
-    var distance = distanceMetric(position, center);
+    var index = iScale.getIndexForPixel(position[axis]);
 
-    if (distance < minDistance) {
-      nearestItems = [{
-        element: element,
-        datasetIndex: datasetIndex,
-        index: index
-      }];
-      minDistance = distance;
-    } else if (distance === minDistance) {
-      // Can have multiple items at the same distance in which case we sort by size
-      nearestItems.push({
-        element: element,
-        datasetIndex: datasetIndex,
-        index: index
-      });
+    if (!require$$0.isNumber(index)) {
+      return false;
     }
-  });
-  return nearestItems;
+
+    indices.push(index);
+  } // do this only after checking whether all scales are of a suitable type
+
+
+  for (var _i = 0, _ilen = metasets.length; _i < _ilen; ++_i) {
+    var _metaset = metasets[_i];
+    var _index = indices[_i];
+    var element = _metaset.data[_index];
+
+    if (!element._view.skip) {
+      handler(element, _metaset.index, _index);
+    }
+  }
+
+  return true;
 }
 /**
  * Get a distance metric function for two points based on the
@@ -7431,6 +7414,85 @@ function getDistanceMetricForAxis(axis) {
     var deltaY = useY ? Math.abs(pt1.y - pt2.y) : 0;
     return Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
   };
+}
+/**
+ * Helper function to get the items that intersect the event position
+ * @param {ChartElement[]} items - elements to filter
+ * @param {object} position - the point to be nearest to
+ * @return {ChartElement[]} the nearest items
+ */
+
+
+function getIntersectItems(chart, position, axis) {
+  var items = [];
+
+  var evaluationFunc = function evaluationFunc(element, datasetIndex, index) {
+    if (element.inRange(position.x, position.y)) {
+      items.push({
+        element: element,
+        datasetIndex: datasetIndex,
+        index: index
+      });
+    }
+  };
+
+  var optimized = evaluateItemsAtIndex(chart, axis, position, evaluationFunc);
+
+  if (optimized) {
+    return items;
+  }
+
+  evaluateAllVisibleItems(chart, evaluationFunc);
+  return items;
+}
+/**
+ * Helper function to get the items nearest to the event position considering all visible items in the chart
+ * @param {Chart} chart - the chart to look at elements from
+ * @param {object} position - the point to be nearest to
+ * @param {function} axis - the axes along which to measure distance
+ * @param {boolean} intersect - if true, only consider items that intersect the position
+ * @return {ChartElement[]} the nearest items
+ */
+
+
+function getNearestItems(chart, position, axis, intersect) {
+  var distanceMetric = getDistanceMetricForAxis(axis);
+  var minDistance = Number.POSITIVE_INFINITY;
+  var items = [];
+
+  var evaluationFunc = function evaluationFunc(element, datasetIndex, index) {
+    if (intersect && !element.inRange(position.x, position.y)) {
+      return;
+    }
+
+    var center = element.getCenterPoint();
+    var distance = distanceMetric(position, center);
+
+    if (distance < minDistance) {
+      items = [{
+        element: element,
+        datasetIndex: datasetIndex,
+        index: index
+      }];
+      minDistance = distance;
+    } else if (distance === minDistance) {
+      // Can have multiple items at the same distance in which case we sort by size
+      items.push({
+        element: element,
+        datasetIndex: datasetIndex,
+        index: index
+      });
+    }
+  };
+
+  var optimized = evaluateItemsAtIndex(chart, axis, position, evaluationFunc);
+
+  if (optimized) {
+    return items;
+  }
+
+  evaluateAllVisibleItems(chart, evaluationFunc);
+  return items;
 }
 /**
  * @interface IInteractionOptions
@@ -7464,8 +7526,8 @@ var core_interaction = {
     index: function index(chart, e, options) {
       var position = getRelativePosition(e, chart); // Default axis for index mode is 'x' to match old behaviour
 
-      var distanceMetric = getDistanceMetricForAxis(options.axis || 'x');
-      var items = options.intersect ? getIntersectItems(chart, position) : getNearestItems(chart, position, false, distanceMetric);
+      var axis = options.axis || 'x';
+      var items = options.intersect ? getIntersectItems(chart, position, axis) : getNearestItems(chart, position, axis);
       var elements = [];
 
       if (!items.length) {
@@ -7499,8 +7561,8 @@ var core_interaction = {
      */
     dataset: function dataset(chart, e, options) {
       var position = getRelativePosition(e, chart);
-      var distanceMetric = getDistanceMetricForAxis(options.axis || 'xy');
-      var items = options.intersect ? getIntersectItems(chart, position) : getNearestItems(chart, position, false, distanceMetric);
+      var axis = options.axis || 'xy';
+      var items = options.intersect ? getIntersectItems(chart, position, axis) : getNearestItems(chart, position, axis);
 
       if (items.length > 0) {
         items = [{
@@ -7517,11 +7579,13 @@ var core_interaction = {
      * @function Chart.Interaction.modes.intersect
      * @param {Chart} chart - the chart we are returning items from
      * @param {Event} e - the event we are find things at
+     * @param {IInteractionOptions} options - options to use
      * @return {Object[]} Array of elements that are under the point. If none are found, an empty array is returned
      */
-    point: function point(chart, e) {
+    point: function point(chart, e, options) {
       var position = getRelativePosition(e, chart);
-      return getIntersectItems(chart, position);
+      var axis = options.axis || 'xy';
+      return getIntersectItems(chart, position, axis);
     },
 
     /**
@@ -7534,8 +7598,8 @@ var core_interaction = {
      */
     nearest: function nearest(chart, e, options) {
       var position = getRelativePosition(e, chart);
-      var distanceMetric = getDistanceMetricForAxis(options.axis || 'xy');
-      return getNearestItems(chart, position, options.intersect, distanceMetric);
+      var axis = options.axis || 'xy';
+      return getNearestItems(chart, position, axis, options.intersect);
     },
 
     /**
@@ -7550,7 +7614,7 @@ var core_interaction = {
       var position = getRelativePosition(e, chart);
       var items = [];
       var intersectsItem = false;
-      parseVisibleItems(chart, function (element, datasetIndex, index) {
+      evaluateAllVisibleItems(chart, function (element, datasetIndex, index) {
         if (element.inXRange(position.x)) {
           items.push({
             element: element,
@@ -7584,7 +7648,7 @@ var core_interaction = {
       var position = getRelativePosition(e, chart);
       var items = [];
       var intersectsItem = false;
-      parseVisibleItems(chart, function (element, datasetIndex, index) {
+      evaluateAllVisibleItems(chart, function (element, datasetIndex, index) {
         if (element.inYRange(position.y)) {
           items.push({
             element: element,
@@ -15030,6 +15094,7 @@ function (_Scale) {
 
       me._unit = timeOpts.unit || (tickOpts.autoSkip ? determineUnitForAutoTicks(timeOpts.minUnit, me.min, me.max, me._getLabelCapacity(min)) : determineUnitForFormatting(me, ticks.length, timeOpts.minUnit, me.min, me.max));
       me._majorUnit = !tickOpts.major.enabled || me._unit === 'year' ? undefined : determineMajorUnit(me._unit);
+      me._numIndices = ticks.length;
       me._table = buildLookupTable(getTimestampsForTable(me), min, max, distribution);
       me._offsets = computeOffsets(me._table, ticks, min, max, options);
 
@@ -15110,6 +15175,18 @@ function (_Scale) {
       var offsets = me._offsets;
       var pos = me.getDecimalForPixel(pixel) / offsets.factor - offsets.end;
       return interpolate$1(me._table, 'pos', pos, 'time');
+    }
+  }, {
+    key: "getIndexForPixel",
+    value: function getIndexForPixel(pixel) {
+      var me = this;
+
+      if (me.options.distribution !== 'series') {
+        return null; // not implemented
+      }
+
+      var index = Math.round(me._numIndices * me.getDecimalForPixel(pixel));
+      return index < 0 || index >= me.numIndices ? null : index;
     }
     /**
      * @private
