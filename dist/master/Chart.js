@@ -7673,10 +7673,17 @@ var core_interaction = {
 };
 
 var extend$1 = require$$0.extend;
+var STATIC_POSITIONS = ['left', 'top', 'right', 'bottom'];
 
 function filterByPosition(array, position) {
   return require$$0.where(array, function (v) {
     return v.pos === position;
+  });
+}
+
+function filterDynamicPositionByAxis(array, axis) {
+  return require$$0.where(array, function (v) {
+    return STATIC_POSITIONS.indexOf(v.pos) === -1 && v.box.axis === axis;
   });
 }
 
@@ -7724,12 +7731,14 @@ function buildLayoutBoxes(boxes) {
   var right = sortByWeight(filterByPosition(layoutBoxes, 'right'));
   var top = sortByWeight(filterByPosition(layoutBoxes, 'top'), true);
   var bottom = sortByWeight(filterByPosition(layoutBoxes, 'bottom'));
+  var centerHorizontal = filterDynamicPositionByAxis(layoutBoxes, 'x');
+  var centerVertical = filterDynamicPositionByAxis(layoutBoxes, 'y');
   return {
     leftAndTop: left.concat(top),
-    rightAndBottom: right.concat(bottom),
+    rightAndBottom: right.concat(centerVertical).concat(bottom).concat(centerHorizontal),
     chartArea: filterByPosition(layoutBoxes, 'chartArea'),
-    vertical: left.concat(right),
-    horizontal: top.concat(bottom)
+    vertical: left.concat(right).concat(centerVertical),
+    horizontal: top.concat(bottom).concat(centerHorizontal)
   };
 }
 
@@ -8038,7 +8047,9 @@ var core_layouts = {
       left: chartArea.left,
       top: chartArea.top,
       right: chartArea.left + chartArea.w,
-      bottom: chartArea.top + chartArea.h
+      bottom: chartArea.top + chartArea.h,
+      height: chartArea.h,
+      width: chartArea.w
     }; // Finally update boxes in chartArea (radial scale for example)
 
     require$$0.each(boxes.chartArea, function (layout) {
@@ -9921,8 +9932,10 @@ function updateConfig(chart) {
   chart.tooltip.initialize();
 }
 
-function positionIsHorizontal(position) {
-  return position === 'top' || position === 'bottom';
+var KNOWN_POSITIONS = ['top', 'bottom', 'left', 'right', 'chartArea'];
+
+function positionIsHorizontal(position, axis) {
+  return position === 'top' || position === 'bottom' || !KNOWN_POSITIONS.includes(position) && axis === 'x';
 }
 
 function compare2Level(l1, l2) {
@@ -10097,7 +10110,7 @@ require$$0.extend(Chart.prototype,
       var id = scaleOptions.id;
       var scaleType = valueOrDefault$7(scaleOptions.type, item.dtype);
 
-      if (positionIsHorizontal(scaleOptions.position) !== positionIsHorizontal(item.dposition)) {
+      if (scaleOptions.position === undefined || positionIsHorizontal(scaleOptions.position, scaleOptions.axis || id[0]) !== positionIsHorizontal(item.dposition)) {
         scaleOptions.position = item.dposition;
       }
 
@@ -11640,7 +11653,6 @@ var resolve$5 = require$$0.options.resolve;
 
 core_defaults._set('scale', {
   display: true,
-  position: 'left',
   offset: false,
   reverse: false,
   beginAtZero: false,
@@ -12376,7 +12388,7 @@ function (_Element) {
 
       var display = me._isVisible();
 
-      var isBottom = opts.position === 'bottom';
+      var labelsBelowTicks = opts.position !== 'top' && me.axis === 'x';
       var isHorizontal = me.isHorizontal(); // Width
 
       if (isHorizontal) {
@@ -12420,8 +12432,8 @@ function (_Element) {
           // which means that the right padding is dominated by the font height
 
           if (isRotated) {
-            paddingLeft = isBottom ? cosRotation * firstLabelSize.width + sinRotation * firstLabelSize.offset : sinRotation * (firstLabelSize.height - firstLabelSize.offset);
-            paddingRight = isBottom ? sinRotation * (lastLabelSize.height - lastLabelSize.offset) : cosRotation * lastLabelSize.width + sinRotation * lastLabelSize.offset;
+            paddingLeft = labelsBelowTicks ? cosRotation * firstLabelSize.width + sinRotation * firstLabelSize.offset : sinRotation * (firstLabelSize.height - firstLabelSize.offset);
+            paddingRight = labelsBelowTicks ? sinRotation * (lastLabelSize.height - lastLabelSize.offset) : cosRotation * lastLabelSize.width + sinRotation * lastLabelSize.offset;
           } else {
             paddingLeft = firstLabelSize.width / 2;
             paddingRight = lastLabelSize.width / 2;
@@ -12479,8 +12491,10 @@ function (_Element) {
   }, {
     key: "isHorizontal",
     value: function isHorizontal() {
-      var pos = this.options.position;
-      return pos === 'top' || pos === 'bottom';
+      var _this$options = this.options,
+          axis = _this$options.axis,
+          position = _this$options.position;
+      return position === 'top' || position === 'bottom' || axis === 'x';
     }
   }, {
     key: "isFullWidth",
@@ -12682,10 +12696,11 @@ function (_Element) {
     key: "_computeGridLineItems",
     value: function _computeGridLineItems(chartArea) {
       var me = this;
+      var axis = me.axis;
       var chart = me.chart;
       var options = me.options;
-      var gridLines = options.gridLines;
-      var position = options.position;
+      var gridLines = options.gridLines,
+          position = options.position;
       var offsetGridLines = gridLines.offsetGridLines;
       var isHorizontal = me.isHorizontal();
       var ticks = me.ticks;
@@ -12724,12 +12739,38 @@ function (_Element) {
         tx2 = borderValue - axisHalfWidth;
         x1 = alignBorderValue(chartArea.left) + axisHalfWidth;
         x2 = chartArea.right;
-      } else {
+      } else if (position === 'right') {
         borderValue = alignBorderValue(me.left);
         x1 = chartArea.left;
         x2 = alignBorderValue(chartArea.right) - axisHalfWidth;
         tx1 = borderValue + axisHalfWidth;
         tx2 = me.left + tl;
+      } else if (axis === 'x') {
+        if (position === 'center') {
+          borderValue = alignBorderValue((chartArea.top + chartArea.bottom) / 2);
+        } else if (require$$0.isObject(position)) {
+          var positionAxisID = Object.keys(position)[0];
+          var value = position[positionAxisID];
+          borderValue = alignBorderValue(me.chart.scales[positionAxisID].getPixelForValue(value));
+        }
+
+        y1 = chartArea.top;
+        y2 = chartArea.bottom;
+        ty1 = borderValue + axisHalfWidth;
+        ty2 = ty1 + tl;
+      } else if (axis === 'y') {
+        if (position === 'center') {
+          borderValue = alignBorderValue((chartArea.left + chartArea.right) / 2);
+        } else if (require$$0.isObject(position)) {
+          var _positionAxisID = Object.keys(position)[0];
+          var _value = position[_positionAxisID];
+          borderValue = alignBorderValue(me.chart.scales[_positionAxisID].getPixelForValue(_value));
+        }
+
+        tx1 = borderValue - axisHalfWidth;
+        tx2 = tx1 - tl;
+        x1 = chartArea.left;
+        x2 = chartArea.right;
       }
 
       for (i = 0; i < ticksLength; ++i) {
@@ -12782,11 +12823,12 @@ function (_Element) {
 
   }, {
     key: "_computeLabelItems",
-    value: function _computeLabelItems() {
+    value: function _computeLabelItems(chartArea) {
       var me = this;
+      var axis = me.axis;
       var options = me.options;
-      var optionTicks = options.ticks;
-      var position = options.position;
+      var position = options.position,
+          optionTicks = options.ticks;
       var isMirrored = optionTicks.mirror;
       var isHorizontal = me.isHorizontal();
       var ticks = me.ticks;
@@ -12806,9 +12848,29 @@ function (_Element) {
       } else if (position === 'left') {
         x = me.right - (isMirrored ? 0 : tl) - tickPadding;
         textAlign = isMirrored ? 'left' : 'right';
-      } else {
+      } else if (position === 'right') {
         x = me.left + (isMirrored ? 0 : tl) + tickPadding;
         textAlign = isMirrored ? 'right' : 'left';
+      } else if (axis === 'x') {
+        if (position === 'center') {
+          y = (chartArea.top + chartArea.bottom) / 2 + tl + tickPadding;
+        } else if (require$$0.isObject(position)) {
+          var positionAxisID = Object.keys(position)[0];
+          var value = position[positionAxisID];
+          y = me.chart.scales[positionAxisID].getPixelForValue(value) + tl + tickPadding;
+        }
+
+        textAlign = !rotation ? 'center' : 'right';
+      } else if (axis === 'y') {
+        if (position === 'center') {
+          x = (chartArea.left + chartArea.right) / 2 - tl - tickPadding;
+        } else if (require$$0.isObject(position)) {
+          var _positionAxisID2 = Object.keys(position)[0];
+          var _value2 = position[_positionAxisID2];
+          x = me.chart.scales[_positionAxisID2].getPixelForValue(_value2);
+        }
+
+        textAlign = 'right';
       }
 
       for (i = 0, ilen = ticks.length; i < ilen; ++i) {
@@ -12933,7 +12995,7 @@ function (_Element) {
 
   }, {
     key: "_drawLabels",
-    value: function _drawLabels() {
+    value: function _drawLabels(chartArea) {
       var me = this;
       var optionTicks = me.options.ticks;
 
@@ -12943,7 +13005,7 @@ function (_Element) {
 
       var ctx = me.ctx;
 
-      var items = me._labelItems || (me._labelItems = me._computeLabelItems());
+      var items = me._labelItems || (me._labelItems = me._computeLabelItems(chartArea));
 
       var i, j, ilen, jlen, item, tickFont, label, y;
 
@@ -13067,7 +13129,7 @@ function (_Element) {
 
       me._drawTitle();
 
-      me._drawLabels();
+      me._drawLabels(chartArea);
     }
     /**
      * @private
@@ -13140,9 +13202,7 @@ function (_Element) {
 Scale.prototype._draw = Scale.prototype.draw;
 var core_scale = Scale;
 
-var defaultConfig = {
-  position: 'bottom'
-};
+var defaultConfig = {};
 
 var CategoryScale =
 /*#__PURE__*/
@@ -13546,7 +13606,6 @@ function (_Scale) {
 }(core_scale);
 
 var defaultConfig$1 = {
-  position: 'left',
   ticks: {
     callback: core_ticks.formatters.linear
   }
@@ -13693,7 +13752,6 @@ function generateTicks$1(generationOptions, dataRange) {
 }
 
 var defaultConfig$2 = {
-  position: 'left',
   // label settings
   ticks: {
     callback: core_ticks.formatters.logarithmic
@@ -14923,8 +14981,6 @@ function filterBetween(timestamps, min, max) {
 }
 
 var defaultConfig$4 = {
-  position: 'bottom',
-
   /**
    * Data distribution along the scale:
    * - 'linear': data are spread according to their time (distances can vary),
