@@ -2883,6 +2883,478 @@ _bezierCurveTo: _bezierCurveTo
 });
 
 /**
+ * @alias Chart.helpers.math
+ * @namespace
+ */
+
+/**
+ * Returns an array of factors sorted from 1 to sqrt(value)
+ * @private
+ */
+
+function _factorize(value) {
+  var result = [];
+  var sqrt = Math.sqrt(value);
+  var i;
+
+  for (i = 1; i < sqrt; i++) {
+    if (value % i === 0) {
+      result.push(i);
+      result.push(value / i);
+    }
+  }
+
+  if (sqrt === (sqrt | 0)) {
+    // if value is a square number
+    result.push(sqrt);
+  }
+
+  result.sort(function (a, b) {
+    return a - b;
+  }).pop();
+  return result;
+}
+var log10 = Math.log10 || function (x) {
+  var exponent = Math.log(x) * Math.LOG10E; // Math.LOG10E = 1 / Math.LN10.
+  // Check for whole powers of 10,
+  // which due to floating point rounding error should be corrected.
+
+  var powerOf10 = Math.round(exponent);
+  var isPowerOf10 = x === Math.pow(10, powerOf10);
+  return isPowerOf10 ? powerOf10 : exponent;
+};
+function isNumber(n) {
+  return !isNaN(parseFloat(n)) && isFinite(n);
+}
+function almostEquals(x, y, epsilon) {
+  return Math.abs(x - y) < epsilon;
+}
+function almostWhole(x, epsilon) {
+  var rounded = Math.round(x);
+  return rounded - epsilon <= x && rounded + epsilon >= x;
+}
+function _setMinAndMax(array, target) {
+  var i, ilen, value;
+
+  for (i = 0, ilen = array.length; i < ilen; i++) {
+    value = array[i];
+
+    if (!isNaN(value)) {
+      target.min = Math.min(target.min, value);
+      target.max = Math.max(target.max, value);
+    }
+  }
+}
+function _setMinAndMaxByKey(array, target, property) {
+  var i, ilen, value;
+
+  for (i = 0, ilen = array.length; i < ilen; i++) {
+    value = array[i][property];
+
+    if (!isNaN(value)) {
+      target.min = Math.min(target.min, value);
+      target.max = Math.max(target.max, value);
+    }
+  }
+}
+var sign = Math.sign ? function (x) {
+  return Math.sign(x);
+} : function (x) {
+  x = +x; // convert to a number
+
+  if (x === 0 || isNaN(x)) {
+    return x;
+  }
+
+  return x > 0 ? 1 : -1;
+};
+function toRadians(degrees) {
+  return degrees * (Math.PI / 180);
+}
+function toDegrees(radians) {
+  return radians * (180 / Math.PI);
+}
+/**
+ * Returns the number of decimal places
+ * i.e. the number of digits after the decimal point, of the value of this Number.
+ * @param {number} x - A number.
+ * @returns {number} The number of decimal places.
+ * @private
+ */
+
+function _decimalPlaces(x) {
+  if (!isNumberFinite(x)) {
+    return;
+  }
+
+  var e = 1;
+  var p = 0;
+
+  while (Math.round(x * e) / e !== x) {
+    e *= 10;
+    p++;
+  }
+
+  return p;
+} // Gets the angle from vertical upright to the point about a centre.
+
+function getAngleFromPoint(centrePoint, anglePoint) {
+  var distanceFromXCenter = anglePoint.x - centrePoint.x;
+  var distanceFromYCenter = anglePoint.y - centrePoint.y;
+  var radialDistanceFromCenter = Math.sqrt(distanceFromXCenter * distanceFromXCenter + distanceFromYCenter * distanceFromYCenter);
+  var angle = Math.atan2(distanceFromYCenter, distanceFromXCenter);
+
+  if (angle < -0.5 * Math.PI) {
+    angle += 2.0 * Math.PI; // make sure the returned angle is in the range of (-PI/2, 3PI/2]
+  }
+
+  return {
+    angle: angle,
+    distance: radialDistanceFromCenter
+  };
+}
+function distanceBetweenPoints(pt1, pt2) {
+  return Math.sqrt(Math.pow(pt2.x - pt1.x, 2) + Math.pow(pt2.y - pt1.y, 2));
+}
+
+var math = /*#__PURE__*/Object.freeze({
+__proto__: null,
+_factorize: _factorize,
+log10: log10,
+isNumber: isNumber,
+almostEquals: almostEquals,
+almostWhole: almostWhole,
+_setMinAndMax: _setMinAndMax,
+_setMinAndMaxByKey: _setMinAndMaxByKey,
+sign: sign,
+toRadians: toRadians,
+toDegrees: toDegrees,
+_decimalPlaces: _decimalPlaces,
+getAngleFromPoint: getAngleFromPoint,
+distanceBetweenPoints: distanceBetweenPoints
+});
+
+var EPSILON = Number.EPSILON || 1e-14;
+function splineCurve(firstPoint, middlePoint, afterPoint, t) {
+  // Props to Rob Spencer at scaled innovation for his post on splining between points
+  // http://scaledinnovation.com/analytics/splines/aboutSplines.html
+  // This function must also respect "skipped" points
+  var previous = firstPoint.skip ? middlePoint : firstPoint;
+  var current = middlePoint;
+  var next = afterPoint.skip ? middlePoint : afterPoint;
+  var d01 = Math.sqrt(Math.pow(current.x - previous.x, 2) + Math.pow(current.y - previous.y, 2));
+  var d12 = Math.sqrt(Math.pow(next.x - current.x, 2) + Math.pow(next.y - current.y, 2));
+  var s01 = d01 / (d01 + d12);
+  var s12 = d12 / (d01 + d12); // If all points are the same, s01 & s02 will be inf
+
+  s01 = isNaN(s01) ? 0 : s01;
+  s12 = isNaN(s12) ? 0 : s12;
+  var fa = t * s01; // scaling factor for triangle Ta
+
+  var fb = t * s12;
+  return {
+    previous: {
+      x: current.x - fa * (next.x - previous.x),
+      y: current.y - fa * (next.y - previous.y)
+    },
+    next: {
+      x: current.x + fb * (next.x - previous.x),
+      y: current.y + fb * (next.y - previous.y)
+    }
+  };
+}
+function splineCurveMonotone(points) {
+  // This function calculates Bézier control points in a similar way than |splineCurve|,
+  // but preserves monotonicity of the provided data and ensures no local extremums are added
+  // between the dataset discrete points due to the interpolation.
+  // See : https://en.wikipedia.org/wiki/Monotone_cubic_interpolation
+  var pointsWithTangents = (points || []).map(function (point) {
+    return {
+      model: point._model,
+      deltaK: 0,
+      mK: 0
+    };
+  }); // Calculate slopes (deltaK) and initialize tangents (mK)
+
+  var pointsLen = pointsWithTangents.length;
+  var i, pointBefore, pointCurrent, pointAfter;
+
+  for (i = 0; i < pointsLen; ++i) {
+    pointCurrent = pointsWithTangents[i];
+
+    if (pointCurrent.model.skip) {
+      continue;
+    }
+
+    pointBefore = i > 0 ? pointsWithTangents[i - 1] : null;
+    pointAfter = i < pointsLen - 1 ? pointsWithTangents[i + 1] : null;
+
+    if (pointAfter && !pointAfter.model.skip) {
+      var slopeDeltaX = pointAfter.model.x - pointCurrent.model.x; // In the case of two points that appear at the same x pixel, slopeDeltaX is 0
+
+      pointCurrent.deltaK = slopeDeltaX !== 0 ? (pointAfter.model.y - pointCurrent.model.y) / slopeDeltaX : 0;
+    }
+
+    if (!pointBefore || pointBefore.model.skip) {
+      pointCurrent.mK = pointCurrent.deltaK;
+    } else if (!pointAfter || pointAfter.model.skip) {
+      pointCurrent.mK = pointBefore.deltaK;
+    } else if (sign(pointBefore.deltaK) !== sign(pointCurrent.deltaK)) {
+      pointCurrent.mK = 0;
+    } else {
+      pointCurrent.mK = (pointBefore.deltaK + pointCurrent.deltaK) / 2;
+    }
+  } // Adjust tangents to ensure monotonic properties
+
+
+  var alphaK, betaK, tauK, squaredMagnitude;
+
+  for (i = 0; i < pointsLen - 1; ++i) {
+    pointCurrent = pointsWithTangents[i];
+    pointAfter = pointsWithTangents[i + 1];
+
+    if (pointCurrent.model.skip || pointAfter.model.skip) {
+      continue;
+    }
+
+    if (almostEquals(pointCurrent.deltaK, 0, EPSILON)) {
+      pointCurrent.mK = pointAfter.mK = 0;
+      continue;
+    }
+
+    alphaK = pointCurrent.mK / pointCurrent.deltaK;
+    betaK = pointAfter.mK / pointCurrent.deltaK;
+    squaredMagnitude = Math.pow(alphaK, 2) + Math.pow(betaK, 2);
+
+    if (squaredMagnitude <= 9) {
+      continue;
+    }
+
+    tauK = 3 / Math.sqrt(squaredMagnitude);
+    pointCurrent.mK = alphaK * tauK * pointCurrent.deltaK;
+    pointAfter.mK = betaK * tauK * pointCurrent.deltaK;
+  } // Compute control points
+
+
+  var deltaX;
+
+  for (i = 0; i < pointsLen; ++i) {
+    pointCurrent = pointsWithTangents[i];
+
+    if (pointCurrent.model.skip) {
+      continue;
+    }
+
+    pointBefore = i > 0 ? pointsWithTangents[i - 1] : null;
+    pointAfter = i < pointsLen - 1 ? pointsWithTangents[i + 1] : null;
+
+    if (pointBefore && !pointBefore.model.skip) {
+      deltaX = (pointCurrent.model.x - pointBefore.model.x) / 3;
+      pointCurrent.model.controlPointPreviousX = pointCurrent.model.x - deltaX;
+      pointCurrent.model.controlPointPreviousY = pointCurrent.model.y - deltaX * pointCurrent.mK;
+    }
+
+    if (pointAfter && !pointAfter.model.skip) {
+      deltaX = (pointAfter.model.x - pointCurrent.model.x) / 3;
+      pointCurrent.model.controlPointNextX = pointCurrent.model.x + deltaX;
+      pointCurrent.model.controlPointNextY = pointCurrent.model.y + deltaX * pointCurrent.mK;
+    }
+  }
+}
+
+var curve = /*#__PURE__*/Object.freeze({
+__proto__: null,
+splineCurve: splineCurve,
+splineCurveMonotone: splineCurveMonotone
+});
+
+/**
+ * Returns if the given value contains an effective constraint.
+ * @private
+ */
+function isConstrainedValue(value) {
+  return value !== undefined && value !== null && value !== 'none';
+}
+/**
+ * @private
+ */
+
+
+function _getParentNode(domNode) {
+  var parent = domNode.parentNode;
+
+  if (parent && parent.toString() === '[object ShadowRoot]') {
+    parent = parent.host;
+  }
+
+  return parent;
+} // Private helper function to convert max-width/max-height values that may be percentages into a number
+
+
+function parseMaxStyle(styleValue, node, parentProperty) {
+  var valueInPixels;
+
+  if (typeof styleValue === 'string') {
+    valueInPixels = parseInt(styleValue, 10);
+
+    if (styleValue.indexOf('%') !== -1) {
+      // percentage * size in dimension
+      valueInPixels = valueInPixels / 100 * node.parentNode[parentProperty];
+    }
+  } else {
+    valueInPixels = styleValue;
+  }
+
+  return valueInPixels;
+}
+/**
+ * Returns the max width or height of the given DOM node in a cross-browser compatible fashion
+ * @param {HTMLElement} domNode - the node to check the constraint on
+ * @param {string} maxStyle - the style that defines the maximum for the direction we are using ('max-width' / 'max-height')
+ * @param {string} percentageProperty - property of parent to use when calculating width as a percentage
+ * @see {@link https://www.nathanaeljones.com/blog/2013/reading-max-width-cross-browser}
+ */
+
+
+function getConstraintDimension(domNode, maxStyle, percentageProperty) {
+  var view = document.defaultView;
+
+  var parentNode = _getParentNode(domNode);
+
+  var constrainedNode = view.getComputedStyle(domNode)[maxStyle];
+  var constrainedContainer = view.getComputedStyle(parentNode)[maxStyle];
+  var hasCNode = isConstrainedValue(constrainedNode);
+  var hasCContainer = isConstrainedValue(constrainedContainer);
+  var infinity = Number.POSITIVE_INFINITY;
+
+  if (hasCNode || hasCContainer) {
+    return Math.min(hasCNode ? parseMaxStyle(constrainedNode, domNode, percentageProperty) : infinity, hasCContainer ? parseMaxStyle(constrainedContainer, parentNode, percentageProperty) : infinity);
+  }
+
+  return 'none';
+}
+
+function getStyle(el, property) {
+  return el.currentStyle ? el.currentStyle[property] : document.defaultView.getComputedStyle(el, null).getPropertyValue(property);
+} // returns Number or undefined if no constraint
+
+function getConstraintWidth(domNode) {
+  return getConstraintDimension(domNode, 'max-width', 'clientWidth');
+} // returns Number or undefined if no constraint
+
+
+function getConstraintHeight(domNode) {
+  return getConstraintDimension(domNode, 'max-height', 'clientHeight');
+}
+/**
+ * @private
+ */
+
+
+function _calculatePadding(container, padding, parentDimension) {
+  padding = getStyle(container, padding);
+  return padding.indexOf('%') > -1 ? parentDimension * parseInt(padding, 10) / 100 : parseInt(padding, 10);
+}
+
+function getRelativePosition(evt, chart) {
+  var mouseX, mouseY;
+  var e = evt.originalEvent || evt;
+  var canvasElement = evt.target || evt.srcElement;
+  var boundingRect = canvasElement.getBoundingClientRect();
+  var touches = e.touches;
+
+  if (touches && touches.length > 0) {
+    mouseX = touches[0].clientX;
+    mouseY = touches[0].clientY;
+  } else {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+  } // Scale mouse coordinates into canvas coordinates
+  // by following the pattern laid out by 'jerryj' in the comments of
+  // https://www.html5canvastutorials.com/advanced/html5-canvas-mouse-coordinates/
+
+
+  var paddingLeft = parseFloat(getStyle(canvasElement, 'padding-left'));
+  var paddingTop = parseFloat(getStyle(canvasElement, 'padding-top'));
+  var paddingRight = parseFloat(getStyle(canvasElement, 'padding-right'));
+  var paddingBottom = parseFloat(getStyle(canvasElement, 'padding-bottom'));
+  var width = boundingRect.right - boundingRect.left - paddingLeft - paddingRight;
+  var height = boundingRect.bottom - boundingRect.top - paddingTop - paddingBottom; // We divide by the current device pixel ratio, because the canvas is scaled up by that amount in each direction. However
+  // the backend model is in unscaled coordinates. Since we are going to deal with our model coordinates, we go back here
+
+  mouseX = Math.round((mouseX - boundingRect.left - paddingLeft) / width * canvasElement.width / chart.currentDevicePixelRatio);
+  mouseY = Math.round((mouseY - boundingRect.top - paddingTop) / height * canvasElement.height / chart.currentDevicePixelRatio);
+  return {
+    x: mouseX,
+    y: mouseY
+  };
+}
+function getMaximumWidth(domNode) {
+  var container = _getParentNode(domNode);
+
+  if (!container) {
+    return domNode.clientWidth;
+  }
+
+  var clientWidth = container.clientWidth;
+
+  var paddingLeft = _calculatePadding(container, 'padding-left', clientWidth);
+
+  var paddingRight = _calculatePadding(container, 'padding-right', clientWidth);
+
+  var w = clientWidth - paddingLeft - paddingRight;
+  var cw = getConstraintWidth(domNode);
+  return isNaN(cw) ? w : Math.min(w, cw);
+}
+function getMaximumHeight(domNode) {
+  var container = _getParentNode(domNode);
+
+  if (!container) {
+    return domNode.clientHeight;
+  }
+
+  var clientHeight = container.clientHeight;
+
+  var paddingTop = _calculatePadding(container, 'padding-top', clientHeight);
+
+  var paddingBottom = _calculatePadding(container, 'padding-bottom', clientHeight);
+
+  var h = clientHeight - paddingTop - paddingBottom;
+  var ch = getConstraintHeight(domNode);
+  return isNaN(ch) ? h : Math.min(h, ch);
+}
+function retinaScale(chart, forceRatio) {
+  var pixelRatio = chart.currentDevicePixelRatio = forceRatio || typeof window !== 'undefined' && window.devicePixelRatio || 1;
+
+  if (pixelRatio === 1) {
+    return;
+  }
+
+  var canvasElement = chart.canvas;
+  var height = chart.height;
+  var width = chart.width;
+  canvasElement.height = height * pixelRatio;
+  canvasElement.width = width * pixelRatio;
+  chart.ctx.scale(pixelRatio, pixelRatio); // If no style has been set on the canvas, the render size is used as display size,
+  // making the chart visually bigger, so let's enforce it to the "correct" values.
+  // See https://github.com/chartjs/Chart.js/issues/3575
+
+  if (!canvasElement.style.height && !canvasElement.style.width) {
+    canvasElement.style.height = height + 'px';
+    canvasElement.style.width = width + 'px';
+  }
+}
+
+var dom = /*#__PURE__*/Object.freeze({
+__proto__: null,
+getStyle: getStyle,
+getRelativePosition: getRelativePosition,
+getMaximumWidth: getMaximumWidth,
+getMaximumHeight: getMaximumHeight,
+retinaScale: retinaScale
+});
+
+/**
  * Easing functions adapted from Robert Penner's easing equations.
  * @namespace Chart.helpers.easing.effects
  * @see http://www.robertpenner.com/easing/
@@ -3295,54 +3767,6 @@ _parseFont: _parseFont,
 resolve: resolve
 });
 
-/**
- * @alias Chart.helpers.math
- * @namespace
- */
-
-/**
- * Returns an array of factors sorted from 1 to sqrt(value)
- * @private
- */
-
-function _factorize(value) {
-  var result = [];
-  var sqrt = Math.sqrt(value);
-  var i;
-
-  for (i = 1; i < sqrt; i++) {
-    if (value % i === 0) {
-      result.push(i);
-      result.push(value / i);
-    }
-  }
-
-  if (sqrt === (sqrt | 0)) {
-    // if value is a square number
-    result.push(sqrt);
-  }
-
-  result.sort(function (a, b) {
-    return a - b;
-  }).pop();
-  return result;
-}
-var log10 = Math.log10 || function (x) {
-  var exponent = Math.log(x) * Math.LOG10E; // Math.LOG10E = 1 / Math.LN10.
-  // Check for whole powers of 10,
-  // which due to floating point rounding error should be corrected.
-
-  var powerOf10 = Math.round(exponent);
-  var isPowerOf10 = x === Math.pow(10, powerOf10);
-  return isPowerOf10 ? powerOf10 : exponent;
-};
-
-var math = /*#__PURE__*/Object.freeze({
-__proto__: null,
-_factorize: _factorize,
-log10: log10
-});
-
 var getRtlAdapter = function getRtlAdapter(rectX, width) {
   return {
     x: function x(_x) {
@@ -3418,12 +3842,191 @@ overrideTextDirection: overrideTextDirection,
 restoreTextDirection: restoreTextDirection
 });
 
+var colorHelper = !chartjsColor ? function (value) {
+  console.error('Color.js not found!');
+  return value;
+} : function (value) {
+  if (value instanceof CanvasGradient || value instanceof CanvasPattern) {
+    // TODO: figure out what this should be. Previously returned
+    // the default color
+    return value;
+  }
+
+  return chartjsColor(value);
+};
+
+function measureText(ctx, data, gc, longest, string) {
+  var textWidth = data[string];
+
+  if (!textWidth) {
+    textWidth = data[string] = ctx.measureText(string).width;
+    gc.push(string);
+  }
+
+  if (textWidth > longest) {
+    longest = textWidth;
+  }
+
+  return longest;
+}
+
 var require$$0 = _objectSpread2({}, coreHelpers, {
   canvas: canvas,
+  curve: curve,
+  dom: dom,
   easing: easing,
   options: options,
   math: math,
-  rtl: rtl
+  rtl: rtl,
+  where: function where(collection, filterCallback) {
+    if (isArray(collection) && Array.prototype.filter) {
+      return collection.filter(filterCallback);
+    }
+
+    var filtered = [];
+    each(collection, function (item) {
+      if (filterCallback(item)) {
+        filtered.push(item);
+      }
+    });
+    return filtered;
+  },
+  findIndex: Array.prototype.findIndex ? function (array, callback, scope) {
+    return array.findIndex(callback, scope);
+  } : function (array, callback, scope) {
+    scope = scope === undefined ? array : scope;
+
+    for (var i = 0, ilen = array.length; i < ilen; ++i) {
+      if (callback.call(scope, array[i], i, array)) {
+        return i;
+      }
+    }
+
+    return -1;
+  },
+  findNextWhere: function findNextWhere(arrayToSearch, filterCallback, startIndex) {
+    // Default to start of the array
+    if (isNullOrUndef(startIndex)) {
+      startIndex = -1;
+    }
+
+    for (var i = startIndex + 1; i < arrayToSearch.length; i++) {
+      var currentItem = arrayToSearch[i];
+
+      if (filterCallback(currentItem)) {
+        return currentItem;
+      }
+    }
+  },
+  findPreviousWhere: function findPreviousWhere(arrayToSearch, filterCallback, startIndex) {
+    // Default to end of the array
+    if (isNullOrUndef(startIndex)) {
+      startIndex = arrayToSearch.length;
+    }
+
+    for (var i = startIndex - 1; i >= 0; i--) {
+      var currentItem = arrayToSearch[i];
+
+      if (filterCallback(currentItem)) {
+        return currentItem;
+      }
+    }
+  },
+  // Implementation of the nice number algorithm used in determining where axis labels will go
+  niceNum: function niceNum(range, round) {
+    var exponent = Math.floor(log10(range));
+    var fraction = range / Math.pow(10, exponent);
+    var niceFraction;
+
+    if (round) {
+      if (fraction < 1.5) {
+        niceFraction = 1;
+      } else if (fraction < 3) {
+        niceFraction = 2;
+      } else if (fraction < 7) {
+        niceFraction = 5;
+      } else {
+        niceFraction = 10;
+      }
+    } else if (fraction <= 1.0) {
+      niceFraction = 1;
+    } else if (fraction <= 2) {
+      niceFraction = 2;
+    } else if (fraction <= 5) {
+      niceFraction = 5;
+    } else {
+      niceFraction = 10;
+    }
+
+    return niceFraction * Math.pow(10, exponent);
+  },
+  // Request animation polyfill - https://www.paulirish.com/2011/requestanimationframe-for-smart-animating/
+  requestAnimFrame: function () {
+    if (typeof window === 'undefined') {
+      return function (callback) {
+        callback();
+      };
+    }
+
+    return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function (callback) {
+      return window.setTimeout(callback, 1000 / 60);
+    };
+  }(),
+  // -- Canvas methods
+  fontString: function fontString(pixelSize, fontStyle, fontFamily) {
+    return fontStyle + ' ' + pixelSize + 'px ' + fontFamily;
+  },
+  longestText: function longestText(ctx, font, arrayOfThings, cache) {
+    cache = cache || {};
+    var data = cache.data = cache.data || {};
+    var gc = cache.garbageCollect = cache.garbageCollect || [];
+
+    if (cache.font !== font) {
+      data = cache.data = {};
+      gc = cache.garbageCollect = [];
+      cache.font = font;
+    }
+
+    ctx.font = font;
+    var longest = 0;
+    var ilen = arrayOfThings.length;
+    var i, j, jlen, thing, nestedThing;
+
+    for (i = 0; i < ilen; i++) {
+      thing = arrayOfThings[i]; // Undefined strings and arrays should not be measured
+
+      if (thing !== undefined && thing !== null && isArray(thing) !== true) {
+        longest = measureText(ctx, data, gc, longest, thing);
+      } else if (isArray(thing)) {
+        // if it is an array lets measure each element
+        // to do maybe simplify this function a bit so we can do this more recursively?
+        for (j = 0, jlen = thing.length; j < jlen; j++) {
+          nestedThing = thing[j]; // Undefined strings and arrays should not be measured
+
+          if (nestedThing !== undefined && nestedThing !== null && !isArray(nestedThing)) {
+            longest = measureText(ctx, data, gc, longest, nestedThing);
+          }
+        }
+      }
+    }
+
+    var gcLen = gc.length / 2;
+
+    if (gcLen > arrayOfThings.length) {
+      for (i = 0; i < gcLen; i++) {
+        delete data[gc[i]];
+      }
+
+      gc.splice(0, gcLen);
+    }
+
+    return longest;
+  },
+  measureText: measureText,
+  color: colorHelper,
+  getHoverColor: function getHoverColor(colorValue) {
+    return colorValue instanceof CanvasPattern || colorValue instanceof CanvasGradient ? colorValue : colorHelper(colorValue).saturate(0.5).darken(0.1).rgbString();
+  }
 });
 
 function interpolate(start, view, model, ease) {
@@ -3538,7 +4141,7 @@ function () {
   }, {
     key: "hasValue",
     value: function hasValue() {
-      return require$$0.isNumber(this._model.x) && require$$0.isNumber(this._model.y);
+      return isNumber(this._model.x) && isNumber(this._model.y);
     }
   }]);
 
@@ -3546,7 +4149,6 @@ function () {
 }();
 
 Element.extend = require$$0.inherits;
-var core_element = Element;
 
 var Animation =
 /*#__PURE__*/
@@ -3579,7 +4181,7 @@ function (_Element) {
   }
 
   return Animation;
-}(core_element);
+}(Element);
 
 var core_animation = Animation;
 
@@ -3840,7 +4442,7 @@ function applyStack(stack, value, dsIndex, allOther) {
 
     otherValue = stack.values[datasetIndex];
 
-    if (!isNaN(otherValue) && (value === 0 || require$$0.sign(value) === require$$0.sign(otherValue))) {
+    if (!isNaN(otherValue) && (value === 0 || require$$0.math.sign(value) === require$$0.math.sign(otherValue))) {
       value += otherValue;
     }
   }
@@ -4850,7 +5452,7 @@ function (_Element) {
       var vm = this._view;
 
       if (vm) {
-        var pointRelativePosition = require$$0.getAngleFromPoint(vm, {
+        var pointRelativePosition = getAngleFromPoint(vm, {
           x: chartX,
           y: chartY
         });
@@ -4951,7 +5553,7 @@ function (_Element) {
   }]);
 
   return Arc;
-}(core_element);
+}(Element);
 
 Arc.prototype._type = 'arc';
 
@@ -5145,7 +5747,7 @@ function (_Element) {
   }]);
 
   return Line;
-}(core_element);
+}(Element);
 
 Line.prototype._type = 'line';
 
@@ -5248,7 +5850,7 @@ function (_Element) {
   }]);
 
   return Point;
-}(core_element);
+}(Element);
 
 Point.prototype._type = 'point';
 
@@ -5455,11 +6057,11 @@ function (_Element) {
   }]);
 
   return Rectangle;
-}(core_element);
+}(Element);
 
 Rectangle.prototype._type = 'rectangle';
 
-var require$$9 = {
+var require$$8 = {
   Arc: Arc,
   Line: Line,
   Point: Point,
@@ -5640,7 +6242,7 @@ function parseArrayOrPrimitive(meta, data, start, count) {
 }
 
 var controller_bar = core_datasetController.extend({
-  dataElementType: require$$9.Rectangle,
+  dataElementType: require$$8.Rectangle,
 
   /**
    * @private
@@ -5873,7 +6475,7 @@ var controller_bar = core_datasetController.extend({
       value = custom.barStart;
       length = custom.barEnd - custom.barStart; // bars crossing origin are not stacked
 
-      if (value !== 0 && require$$0.sign(value) !== require$$0.sign(custom.barEnd)) {
+      if (value !== 0 && require$$0.math.sign(value) !== require$$0.math.sign(custom.barEnd)) {
         start = 0;
       }
 
@@ -5961,7 +6563,7 @@ var controller_bubble = core_datasetController.extend({
   /**
    * @protected
    */
-  dataElementType: require$$9.Point,
+  dataElementType: require$$8.Point,
 
   /**
    * @private
@@ -6228,7 +6830,7 @@ core_defaults._set('doughnut', {
 });
 
 var controller_doughnut = core_datasetController.extend({
-  dataElementType: require$$9.Arc,
+  dataElementType: require$$8.Arc,
   linkScales: require$$0.noop,
 
   /**
@@ -6571,8 +7173,8 @@ core_defaults._set('line', {
 });
 
 var controller_line = core_datasetController.extend({
-  datasetElementType: require$$9.Line,
-  dataElementType: require$$9.Point,
+  datasetElementType: require$$8.Line,
+  dataElementType: require$$8.Point,
 
   /**
    * @private
@@ -6719,11 +7321,11 @@ var controller_line = core_datasetController.extend({
     }
 
     if (lineModel.cubicInterpolationMode === 'monotone') {
-      require$$0.splineCurveMonotone(points);
+      require$$0.curve.splineCurveMonotone(points);
     } else {
       for (i = 0, ilen = points.length; i < ilen; ++i) {
         var model = points[i]._model;
-        var controlPoints = require$$0.splineCurve(points[Math.max(0, i - 1)]._model, model, points[Math.min(i + 1, ilen - 1)]._model, lineModel.tension);
+        var controlPoints = require$$0.curve.splineCurve(points[Math.max(0, i - 1)]._model, model, points[Math.min(i + 1, ilen - 1)]._model, lineModel.tension);
         model.controlPointPreviousX = controlPoints.previous.x;
         model.controlPointPreviousY = controlPoints.previous.y;
         model.controlPointNextX = controlPoints.next.x;
@@ -6886,7 +7488,7 @@ core_defaults._set('polarArea', {
 });
 
 var controller_polarArea = core_datasetController.extend({
-  dataElementType: require$$9.Arc,
+  dataElementType: require$$8.Arc,
 
   /**
    * @private
@@ -7071,8 +7673,8 @@ function previousItem(collection, index) {
 }
 
 var controller_radar = core_datasetController.extend({
-  datasetElementType: require$$9.Line,
-  dataElementType: require$$9.Point,
+  datasetElementType: require$$8.Line,
+  dataElementType: require$$8.Point,
 
   /**
    * @private
@@ -7215,7 +7817,7 @@ var controller_radar = core_datasetController.extend({
 
     for (i = 0, ilen = points.length; i < ilen; ++i) {
       model = points[i]._model;
-      controlPoints = require$$0.splineCurve(previousItem(points, i)._model, model, nextItem(points, i)._model, lineModel.tension); // Prevent the bezier going outside of the bounds of the graph
+      controlPoints = require$$0.curve.splineCurve(previousItem(points, i)._model, model, nextItem(points, i)._model, lineModel.tension); // Prevent the bezier going outside of the bounds of the graph
 
       model.controlPointPreviousX = capControlPoint(controlPoints.previous.x, area.left, area.right);
       model.controlPointPreviousY = capControlPoint(controlPoints.previous.y, area.top, area.bottom);
@@ -7297,8 +7899,7 @@ var controllers = {
  * @returns {object} the event position
  */
 
-
-function getRelativePosition(e, chart) {
+function getRelativePosition$1(e, chart) {
   if (e["native"]) {
     return {
       x: e.x,
@@ -7306,7 +7907,7 @@ function getRelativePosition(e, chart) {
     };
   }
 
-  return require$$0.getRelativePosition(e, chart);
+  return require$$0.dom.getRelativePosition(e, chart);
 }
 /**
  * Helper function to traverse all of the visible elements in the chart
@@ -7357,7 +7958,7 @@ function evaluateItemsAtIndex(chart, axis, position, handler) {
 
     var index = iScale.getIndexForPixel(position[axis]);
 
-    if (!require$$0.isNumber(index)) {
+    if (!isNumber(index)) {
       return false;
     }
 
@@ -7488,7 +8089,7 @@ function getNearestItems(chart, position, axis, intersect) {
  */
 
 
-var core_interaction = {
+var require$$9 = {
   // Helper function for different modes
   modes: {
     /**
@@ -7502,7 +8103,7 @@ var core_interaction = {
      * @return {Object[]} Array of elements that are under the point. If none are found, an empty array is returned
      */
     index: function index(chart, e, options) {
-      var position = getRelativePosition(e, chart); // Default axis for index mode is 'x' to match old behaviour
+      var position = getRelativePosition$1(e, chart); // Default axis for index mode is 'x' to match old behaviour
 
       var axis = options.axis || 'x';
       var items = options.intersect ? getIntersectItems(chart, position, axis) : getNearestItems(chart, position, axis);
@@ -7538,7 +8139,7 @@ var core_interaction = {
      * @return {Object[]} Array of elements that are under the point. If none are found, an empty array is returned
      */
     dataset: function dataset(chart, e, options) {
-      var position = getRelativePosition(e, chart);
+      var position = getRelativePosition$1(e, chart);
       var axis = options.axis || 'xy';
       var items = options.intersect ? getIntersectItems(chart, position, axis) : getNearestItems(chart, position, axis);
 
@@ -7561,7 +8162,7 @@ var core_interaction = {
      * @return {Object[]} Array of elements that are under the point. If none are found, an empty array is returned
      */
     point: function point(chart, e, options) {
-      var position = getRelativePosition(e, chart);
+      var position = getRelativePosition$1(e, chart);
       var axis = options.axis || 'xy';
       return getIntersectItems(chart, position, axis);
     },
@@ -7575,7 +8176,7 @@ var core_interaction = {
      * @return {Object[]} Array of elements that are under the point. If none are found, an empty array is returned
      */
     nearest: function nearest(chart, e, options) {
-      var position = getRelativePosition(e, chart);
+      var position = getRelativePosition$1(e, chart);
       var axis = options.axis || 'xy';
       return getNearestItems(chart, position, axis, options.intersect);
     },
@@ -7589,7 +8190,7 @@ var core_interaction = {
      * @return {Object[]} Array of elements that are under the point. If none are found, an empty array is returned
      */
     x: function x(chart, e, options) {
-      var position = getRelativePosition(e, chart);
+      var position = getRelativePosition$1(e, chart);
       var items = [];
       var intersectsItem = false;
       evaluateAllVisibleItems(chart, function (element, datasetIndex, index) {
@@ -7623,7 +8224,7 @@ var core_interaction = {
      * @return {Object[]} Array of elements that are under the point. If none are found, an empty array is returned
      */
     y: function y(chart, e, options) {
-      var position = getRelativePosition(e, chart);
+      var position = getRelativePosition$1(e, chart);
       var items = [];
       var intersectsItem = false;
       evaluateAllVisibleItems(chart, function (element, datasetIndex, index) {
@@ -8096,7 +8697,7 @@ var EVENT_TYPES = {
  */
 
 function readUsedSize(element, property) {
-  var value = require$$0.getStyle(element, property);
+  var value = require$$0.dom.getStyle(element, property);
   var matches = value && value.match(/^(\d+)(\.\d+)?px$/);
   return matches ? Number(matches[1]) : undefined;
 }
@@ -8205,7 +8806,7 @@ function createEvent(type, chart, x, y, nativeEvent) {
 
 function fromNativeEvent(event, chart) {
   var type = EVENT_TYPES[event.type] || event.type;
-  var pos = require$$0.getRelativePosition(event, chart);
+  var pos = require$$0.dom.getRelativePosition(event, chart);
   return createEvent(type, chart, pos.x, pos.y, event);
 }
 
@@ -9282,7 +9883,7 @@ function (_Element) {
         me._lastActive = me.active;
       }
 
-      core_element.prototype.transition.call(me, easingValue);
+      Element.prototype.transition.call(me, easingValue);
     } // Get the title
     // Args are: (tooltipItem, data)
 
@@ -9785,7 +10386,7 @@ function (_Element) {
   }]);
 
   return Tooltip;
-}(core_element);
+}(Element);
 /**
  * @namespace Chart.Tooltip.positioners
  */
@@ -9982,7 +10583,7 @@ require$$0.extend(Chart.prototype,
     var me = this; // Before init plugin notification
 
     core_plugins.notify(me, 'beforeInit');
-    require$$0.retinaScale(me, me.options.devicePixelRatio);
+    require$$0.dom.retinaScale(me, me.options.devicePixelRatio);
     me.bindEvents();
 
     if (me.options.responsive) {
@@ -10012,8 +10613,8 @@ require$$0.extend(Chart.prototype,
     // the canvas display style uses the same integer values to avoid blurring effect.
     // Set to 0 instead of canvas.size because the size defaults to 300x150 if the element is collapsed
 
-    var newWidth = Math.max(0, Math.floor(require$$0.getMaximumWidth(canvas)));
-    var newHeight = Math.max(0, Math.floor(aspectRatio ? newWidth / aspectRatio : require$$0.getMaximumHeight(canvas)));
+    var newWidth = Math.max(0, Math.floor(require$$0.dom.getMaximumWidth(canvas)));
+    var newHeight = Math.max(0, Math.floor(aspectRatio ? newWidth / aspectRatio : require$$0.dom.getMaximumHeight(canvas)));
 
     if (me.width === newWidth && me.height === newHeight) {
       return;
@@ -10023,7 +10624,7 @@ require$$0.extend(Chart.prototype,
     canvas.height = me.height = newHeight;
     canvas.style.width = newWidth + 'px';
     canvas.style.height = newHeight + 'px';
-    require$$0.retinaScale(me, options.devicePixelRatio);
+    require$$0.dom.retinaScale(me, options.devicePixelRatio);
 
     if (!silent) {
       // Notify any plugins about the resize
@@ -10549,22 +11150,22 @@ require$$0.extend(Chart.prototype,
    * @return An object containing the dataset index and element index of the matching element. Also contains the rectangle that was draw
    */
   getElementAtEvent: function getElementAtEvent(e) {
-    return core_interaction.modes.nearest(this, e, {
+    return require$$9.modes.nearest(this, e, {
       intersect: true
     });
   },
   getElementsAtEvent: function getElementsAtEvent(e) {
-    return core_interaction.modes.index(this, e, {
+    return require$$9.modes.index(this, e, {
       intersect: true
     });
   },
   getElementsAtXAxis: function getElementsAtXAxis(e) {
-    return core_interaction.modes.index(this, e, {
+    return require$$9.modes.index(this, e, {
       intersect: false
     });
   },
   getElementsAtEventForMode: function getElementsAtEventForMode(e, mode, options) {
-    var method = core_interaction.modes[mode];
+    var method = require$$9.modes[mode];
 
     if (typeof method === 'function') {
       return method(this, e, options);
@@ -10573,7 +11174,7 @@ require$$0.extend(Chart.prototype,
     return [];
   },
   getDatasetAtEvent: function getDatasetAtEvent(e) {
-    return core_interaction.modes.dataset(this, e, {
+    return require$$9.modes.dataset(this, e, {
       intersect: true
     });
   },
@@ -10837,609 +11438,6 @@ require$$0.extend(Chart.prototype,
 
 Chart.instances = {};
 var core_controller = Chart;
-
-var core_helpers = function core_helpers() {
-  // -- Basic js utility methods
-  require$$0.where = function (collection, filterCallback) {
-    if (require$$0.isArray(collection) && Array.prototype.filter) {
-      return collection.filter(filterCallback);
-    }
-
-    var filtered = [];
-    require$$0.each(collection, function (item) {
-      if (filterCallback(item)) {
-        filtered.push(item);
-      }
-    });
-    return filtered;
-  };
-
-  require$$0.findIndex = Array.prototype.findIndex ? function (array, callback, scope) {
-    return array.findIndex(callback, scope);
-  } : function (array, callback, scope) {
-    scope = scope === undefined ? array : scope;
-
-    for (var i = 0, ilen = array.length; i < ilen; ++i) {
-      if (callback.call(scope, array[i], i, array)) {
-        return i;
-      }
-    }
-
-    return -1;
-  };
-
-  require$$0.findNextWhere = function (arrayToSearch, filterCallback, startIndex) {
-    // Default to start of the array
-    if (require$$0.isNullOrUndef(startIndex)) {
-      startIndex = -1;
-    }
-
-    for (var i = startIndex + 1; i < arrayToSearch.length; i++) {
-      var currentItem = arrayToSearch[i];
-
-      if (filterCallback(currentItem)) {
-        return currentItem;
-      }
-    }
-  };
-
-  require$$0.findPreviousWhere = function (arrayToSearch, filterCallback, startIndex) {
-    // Default to end of the array
-    if (require$$0.isNullOrUndef(startIndex)) {
-      startIndex = arrayToSearch.length;
-    }
-
-    for (var i = startIndex - 1; i >= 0; i--) {
-      var currentItem = arrayToSearch[i];
-
-      if (filterCallback(currentItem)) {
-        return currentItem;
-      }
-    }
-  }; // -- Math methods
-
-
-  require$$0.isNumber = function (n) {
-    return !isNaN(parseFloat(n)) && isFinite(n);
-  };
-
-  require$$0.almostEquals = function (x, y, epsilon) {
-    return Math.abs(x - y) < epsilon;
-  };
-
-  require$$0.almostWhole = function (x, epsilon) {
-    var rounded = Math.round(x);
-    return rounded - epsilon <= x && rounded + epsilon >= x;
-  };
-
-  require$$0._setMinAndMax = function (array, target) {
-    var i, ilen, value;
-
-    for (i = 0, ilen = array.length; i < ilen; i++) {
-      value = array[i];
-
-      if (!isNaN(value)) {
-        target.min = Math.min(target.min, value);
-        target.max = Math.max(target.max, value);
-      }
-    }
-  };
-
-  require$$0._setMinAndMaxByKey = function (array, target, property) {
-    var i, ilen, value;
-
-    for (i = 0, ilen = array.length; i < ilen; i++) {
-      value = array[i][property];
-
-      if (!isNaN(value)) {
-        target.min = Math.min(target.min, value);
-        target.max = Math.max(target.max, value);
-      }
-    }
-  };
-
-  require$$0.sign = Math.sign ? function (x) {
-    return Math.sign(x);
-  } : function (x) {
-    x = +x; // convert to a number
-
-    if (x === 0 || isNaN(x)) {
-      return x;
-    }
-
-    return x > 0 ? 1 : -1;
-  };
-
-  require$$0.toRadians = function (degrees) {
-    return degrees * (Math.PI / 180);
-  };
-
-  require$$0.toDegrees = function (radians) {
-    return radians * (180 / Math.PI);
-  };
-  /**
-   * Returns the number of decimal places
-   * i.e. the number of digits after the decimal point, of the value of this Number.
-   * @param {number} x - A number.
-   * @returns {number} The number of decimal places.
-   * @private
-   */
-
-
-  require$$0._decimalPlaces = function (x) {
-    if (!require$$0.isFinite(x)) {
-      return;
-    }
-
-    var e = 1;
-    var p = 0;
-
-    while (Math.round(x * e) / e !== x) {
-      e *= 10;
-      p++;
-    }
-
-    return p;
-  }; // Gets the angle from vertical upright to the point about a centre.
-
-
-  require$$0.getAngleFromPoint = function (centrePoint, anglePoint) {
-    var distanceFromXCenter = anglePoint.x - centrePoint.x;
-    var distanceFromYCenter = anglePoint.y - centrePoint.y;
-    var radialDistanceFromCenter = Math.sqrt(distanceFromXCenter * distanceFromXCenter + distanceFromYCenter * distanceFromYCenter);
-    var angle = Math.atan2(distanceFromYCenter, distanceFromXCenter);
-
-    if (angle < -0.5 * Math.PI) {
-      angle += 2.0 * Math.PI; // make sure the returned angle is in the range of (-PI/2, 3PI/2]
-    }
-
-    return {
-      angle: angle,
-      distance: radialDistanceFromCenter
-    };
-  };
-
-  require$$0.distanceBetweenPoints = function (pt1, pt2) {
-    return Math.sqrt(Math.pow(pt2.x - pt1.x, 2) + Math.pow(pt2.y - pt1.y, 2));
-  };
-
-  require$$0.splineCurve = function (firstPoint, middlePoint, afterPoint, t) {
-    // Props to Rob Spencer at scaled innovation for his post on splining between points
-    // http://scaledinnovation.com/analytics/splines/aboutSplines.html
-    // This function must also respect "skipped" points
-    var previous = firstPoint.skip ? middlePoint : firstPoint;
-    var current = middlePoint;
-    var next = afterPoint.skip ? middlePoint : afterPoint;
-    var d01 = Math.sqrt(Math.pow(current.x - previous.x, 2) + Math.pow(current.y - previous.y, 2));
-    var d12 = Math.sqrt(Math.pow(next.x - current.x, 2) + Math.pow(next.y - current.y, 2));
-    var s01 = d01 / (d01 + d12);
-    var s12 = d12 / (d01 + d12); // If all points are the same, s01 & s02 will be inf
-
-    s01 = isNaN(s01) ? 0 : s01;
-    s12 = isNaN(s12) ? 0 : s12;
-    var fa = t * s01; // scaling factor for triangle Ta
-
-    var fb = t * s12;
-    return {
-      previous: {
-        x: current.x - fa * (next.x - previous.x),
-        y: current.y - fa * (next.y - previous.y)
-      },
-      next: {
-        x: current.x + fb * (next.x - previous.x),
-        y: current.y + fb * (next.y - previous.y)
-      }
-    };
-  };
-
-  require$$0.EPSILON = Number.EPSILON || 1e-14;
-
-  require$$0.splineCurveMonotone = function (points) {
-    // This function calculates Bézier control points in a similar way than |splineCurve|,
-    // but preserves monotonicity of the provided data and ensures no local extremums are added
-    // between the dataset discrete points due to the interpolation.
-    // See : https://en.wikipedia.org/wiki/Monotone_cubic_interpolation
-    var pointsWithTangents = (points || []).map(function (point) {
-      return {
-        model: point._model,
-        deltaK: 0,
-        mK: 0
-      };
-    }); // Calculate slopes (deltaK) and initialize tangents (mK)
-
-    var pointsLen = pointsWithTangents.length;
-    var i, pointBefore, pointCurrent, pointAfter;
-
-    for (i = 0; i < pointsLen; ++i) {
-      pointCurrent = pointsWithTangents[i];
-
-      if (pointCurrent.model.skip) {
-        continue;
-      }
-
-      pointBefore = i > 0 ? pointsWithTangents[i - 1] : null;
-      pointAfter = i < pointsLen - 1 ? pointsWithTangents[i + 1] : null;
-
-      if (pointAfter && !pointAfter.model.skip) {
-        var slopeDeltaX = pointAfter.model.x - pointCurrent.model.x; // In the case of two points that appear at the same x pixel, slopeDeltaX is 0
-
-        pointCurrent.deltaK = slopeDeltaX !== 0 ? (pointAfter.model.y - pointCurrent.model.y) / slopeDeltaX : 0;
-      }
-
-      if (!pointBefore || pointBefore.model.skip) {
-        pointCurrent.mK = pointCurrent.deltaK;
-      } else if (!pointAfter || pointAfter.model.skip) {
-        pointCurrent.mK = pointBefore.deltaK;
-      } else if (this.sign(pointBefore.deltaK) !== this.sign(pointCurrent.deltaK)) {
-        pointCurrent.mK = 0;
-      } else {
-        pointCurrent.mK = (pointBefore.deltaK + pointCurrent.deltaK) / 2;
-      }
-    } // Adjust tangents to ensure monotonic properties
-
-
-    var alphaK, betaK, tauK, squaredMagnitude;
-
-    for (i = 0; i < pointsLen - 1; ++i) {
-      pointCurrent = pointsWithTangents[i];
-      pointAfter = pointsWithTangents[i + 1];
-
-      if (pointCurrent.model.skip || pointAfter.model.skip) {
-        continue;
-      }
-
-      if (require$$0.almostEquals(pointCurrent.deltaK, 0, this.EPSILON)) {
-        pointCurrent.mK = pointAfter.mK = 0;
-        continue;
-      }
-
-      alphaK = pointCurrent.mK / pointCurrent.deltaK;
-      betaK = pointAfter.mK / pointCurrent.deltaK;
-      squaredMagnitude = Math.pow(alphaK, 2) + Math.pow(betaK, 2);
-
-      if (squaredMagnitude <= 9) {
-        continue;
-      }
-
-      tauK = 3 / Math.sqrt(squaredMagnitude);
-      pointCurrent.mK = alphaK * tauK * pointCurrent.deltaK;
-      pointAfter.mK = betaK * tauK * pointCurrent.deltaK;
-    } // Compute control points
-
-
-    var deltaX;
-
-    for (i = 0; i < pointsLen; ++i) {
-      pointCurrent = pointsWithTangents[i];
-
-      if (pointCurrent.model.skip) {
-        continue;
-      }
-
-      pointBefore = i > 0 ? pointsWithTangents[i - 1] : null;
-      pointAfter = i < pointsLen - 1 ? pointsWithTangents[i + 1] : null;
-
-      if (pointBefore && !pointBefore.model.skip) {
-        deltaX = (pointCurrent.model.x - pointBefore.model.x) / 3;
-        pointCurrent.model.controlPointPreviousX = pointCurrent.model.x - deltaX;
-        pointCurrent.model.controlPointPreviousY = pointCurrent.model.y - deltaX * pointCurrent.mK;
-      }
-
-      if (pointAfter && !pointAfter.model.skip) {
-        deltaX = (pointAfter.model.x - pointCurrent.model.x) / 3;
-        pointCurrent.model.controlPointNextX = pointCurrent.model.x + deltaX;
-        pointCurrent.model.controlPointNextY = pointCurrent.model.y + deltaX * pointCurrent.mK;
-      }
-    }
-  }; // Implementation of the nice number algorithm used in determining where axis labels will go
-
-
-  require$$0.niceNum = function (range, round) {
-    var exponent = Math.floor(require$$0.math.log10(range));
-    var fraction = range / Math.pow(10, exponent);
-    var niceFraction;
-
-    if (round) {
-      if (fraction < 1.5) {
-        niceFraction = 1;
-      } else if (fraction < 3) {
-        niceFraction = 2;
-      } else if (fraction < 7) {
-        niceFraction = 5;
-      } else {
-        niceFraction = 10;
-      }
-    } else if (fraction <= 1.0) {
-      niceFraction = 1;
-    } else if (fraction <= 2) {
-      niceFraction = 2;
-    } else if (fraction <= 5) {
-      niceFraction = 5;
-    } else {
-      niceFraction = 10;
-    }
-
-    return niceFraction * Math.pow(10, exponent);
-  }; // Request animation polyfill - https://www.paulirish.com/2011/requestanimationframe-for-smart-animating/
-
-
-  require$$0.requestAnimFrame = function () {
-    if (typeof window === 'undefined') {
-      return function (callback) {
-        callback();
-      };
-    }
-
-    return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function (callback) {
-      return window.setTimeout(callback, 1000 / 60);
-    };
-  }(); // -- DOM methods
-
-
-  require$$0.getRelativePosition = function (evt, chart) {
-    var mouseX, mouseY;
-    var e = evt.originalEvent || evt;
-    var canvas = evt.target || evt.srcElement;
-    var boundingRect = canvas.getBoundingClientRect();
-    var touches = e.touches;
-
-    if (touches && touches.length > 0) {
-      mouseX = touches[0].clientX;
-      mouseY = touches[0].clientY;
-    } else {
-      mouseX = e.clientX;
-      mouseY = e.clientY;
-    } // Scale mouse coordinates into canvas coordinates
-    // by following the pattern laid out by 'jerryj' in the comments of
-    // https://www.html5canvastutorials.com/advanced/html5-canvas-mouse-coordinates/
-
-
-    var paddingLeft = parseFloat(require$$0.getStyle(canvas, 'padding-left'));
-    var paddingTop = parseFloat(require$$0.getStyle(canvas, 'padding-top'));
-    var paddingRight = parseFloat(require$$0.getStyle(canvas, 'padding-right'));
-    var paddingBottom = parseFloat(require$$0.getStyle(canvas, 'padding-bottom'));
-    var width = boundingRect.right - boundingRect.left - paddingLeft - paddingRight;
-    var height = boundingRect.bottom - boundingRect.top - paddingTop - paddingBottom; // We divide by the current device pixel ratio, because the canvas is scaled up by that amount in each direction. However
-    // the backend model is in unscaled coordinates. Since we are going to deal with our model coordinates, we go back here
-
-    mouseX = Math.round((mouseX - boundingRect.left - paddingLeft) / width * canvas.width / chart.currentDevicePixelRatio);
-    mouseY = Math.round((mouseY - boundingRect.top - paddingTop) / height * canvas.height / chart.currentDevicePixelRatio);
-    return {
-      x: mouseX,
-      y: mouseY
-    };
-  }; // Private helper function to convert max-width/max-height values that may be percentages into a number
-
-
-  function parseMaxStyle(styleValue, node, parentProperty) {
-    var valueInPixels;
-
-    if (typeof styleValue === 'string') {
-      valueInPixels = parseInt(styleValue, 10);
-
-      if (styleValue.indexOf('%') !== -1) {
-        // percentage * size in dimension
-        valueInPixels = valueInPixels / 100 * node.parentNode[parentProperty];
-      }
-    } else {
-      valueInPixels = styleValue;
-    }
-
-    return valueInPixels;
-  }
-  /**
-   * Returns if the given value contains an effective constraint.
-   * @private
-   */
-
-
-  function isConstrainedValue(value) {
-    return value !== undefined && value !== null && value !== 'none';
-  }
-  /**
-   * Returns the max width or height of the given DOM node in a cross-browser compatible fashion
-   * @param {HTMLElement} domNode - the node to check the constraint on
-   * @param {string} maxStyle - the style that defines the maximum for the direction we are using ('max-width' / 'max-height')
-   * @param {string} percentageProperty - property of parent to use when calculating width as a percentage
-   * @see {@link https://www.nathanaeljones.com/blog/2013/reading-max-width-cross-browser}
-   */
-
-
-  function getConstraintDimension(domNode, maxStyle, percentageProperty) {
-    var view = document.defaultView;
-
-    var parentNode = require$$0._getParentNode(domNode);
-
-    var constrainedNode = view.getComputedStyle(domNode)[maxStyle];
-    var constrainedContainer = view.getComputedStyle(parentNode)[maxStyle];
-    var hasCNode = isConstrainedValue(constrainedNode);
-    var hasCContainer = isConstrainedValue(constrainedContainer);
-    var infinity = Number.POSITIVE_INFINITY;
-
-    if (hasCNode || hasCContainer) {
-      return Math.min(hasCNode ? parseMaxStyle(constrainedNode, domNode, percentageProperty) : infinity, hasCContainer ? parseMaxStyle(constrainedContainer, parentNode, percentageProperty) : infinity);
-    }
-
-    return 'none';
-  } // returns Number or undefined if no constraint
-
-
-  require$$0.getConstraintWidth = function (domNode) {
-    return getConstraintDimension(domNode, 'max-width', 'clientWidth');
-  }; // returns Number or undefined if no constraint
-
-
-  require$$0.getConstraintHeight = function (domNode) {
-    return getConstraintDimension(domNode, 'max-height', 'clientHeight');
-  };
-  /**
-   * @private
-  	 */
-
-
-  require$$0._calculatePadding = function (container, padding, parentDimension) {
-    padding = require$$0.getStyle(container, padding);
-    return padding.indexOf('%') > -1 ? parentDimension * parseInt(padding, 10) / 100 : parseInt(padding, 10);
-  };
-  /**
-   * @private
-   */
-
-
-  require$$0._getParentNode = function (domNode) {
-    var parent = domNode.parentNode;
-
-    if (parent && parent.toString() === '[object ShadowRoot]') {
-      parent = parent.host;
-    }
-
-    return parent;
-  };
-
-  require$$0.getMaximumWidth = function (domNode) {
-    var container = require$$0._getParentNode(domNode);
-
-    if (!container) {
-      return domNode.clientWidth;
-    }
-
-    var clientWidth = container.clientWidth;
-
-    var paddingLeft = require$$0._calculatePadding(container, 'padding-left', clientWidth);
-
-    var paddingRight = require$$0._calculatePadding(container, 'padding-right', clientWidth);
-
-    var w = clientWidth - paddingLeft - paddingRight;
-    var cw = require$$0.getConstraintWidth(domNode);
-    return isNaN(cw) ? w : Math.min(w, cw);
-  };
-
-  require$$0.getMaximumHeight = function (domNode) {
-    var container = require$$0._getParentNode(domNode);
-
-    if (!container) {
-      return domNode.clientHeight;
-    }
-
-    var clientHeight = container.clientHeight;
-
-    var paddingTop = require$$0._calculatePadding(container, 'padding-top', clientHeight);
-
-    var paddingBottom = require$$0._calculatePadding(container, 'padding-bottom', clientHeight);
-
-    var h = clientHeight - paddingTop - paddingBottom;
-    var ch = require$$0.getConstraintHeight(domNode);
-    return isNaN(ch) ? h : Math.min(h, ch);
-  };
-
-  require$$0.getStyle = function (el, property) {
-    return el.currentStyle ? el.currentStyle[property] : document.defaultView.getComputedStyle(el, null).getPropertyValue(property);
-  };
-
-  require$$0.retinaScale = function (chart, forceRatio) {
-    var pixelRatio = chart.currentDevicePixelRatio = forceRatio || typeof window !== 'undefined' && window.devicePixelRatio || 1;
-
-    if (pixelRatio === 1) {
-      return;
-    }
-
-    var canvas = chart.canvas;
-    var height = chart.height;
-    var width = chart.width;
-    canvas.height = height * pixelRatio;
-    canvas.width = width * pixelRatio;
-    chart.ctx.scale(pixelRatio, pixelRatio); // If no style has been set on the canvas, the render size is used as display size,
-    // making the chart visually bigger, so let's enforce it to the "correct" values.
-    // See https://github.com/chartjs/Chart.js/issues/3575
-
-    if (!canvas.style.height && !canvas.style.width) {
-      canvas.style.height = height + 'px';
-      canvas.style.width = width + 'px';
-    }
-  }; // -- Canvas methods
-
-
-  require$$0.fontString = function (pixelSize, fontStyle, fontFamily) {
-    return fontStyle + ' ' + pixelSize + 'px ' + fontFamily;
-  };
-
-  require$$0.longestText = function (ctx, font, arrayOfThings, cache) {
-    cache = cache || {};
-    var data = cache.data = cache.data || {};
-    var gc = cache.garbageCollect = cache.garbageCollect || [];
-
-    if (cache.font !== font) {
-      data = cache.data = {};
-      gc = cache.garbageCollect = [];
-      cache.font = font;
-    }
-
-    ctx.font = font;
-    var longest = 0;
-    var ilen = arrayOfThings.length;
-    var i, j, jlen, thing, nestedThing;
-
-    for (i = 0; i < ilen; i++) {
-      thing = arrayOfThings[i]; // Undefined strings and arrays should not be measured
-
-      if (thing !== undefined && thing !== null && require$$0.isArray(thing) !== true) {
-        longest = require$$0.measureText(ctx, data, gc, longest, thing);
-      } else if (require$$0.isArray(thing)) {
-        // if it is an array lets measure each element
-        // to do maybe simplify this function a bit so we can do this more recursively?
-        for (j = 0, jlen = thing.length; j < jlen; j++) {
-          nestedThing = thing[j]; // Undefined strings and arrays should not be measured
-
-          if (nestedThing !== undefined && nestedThing !== null && !require$$0.isArray(nestedThing)) {
-            longest = require$$0.measureText(ctx, data, gc, longest, nestedThing);
-          }
-        }
-      }
-    }
-
-    var gcLen = gc.length / 2;
-
-    if (gcLen > arrayOfThings.length) {
-      for (i = 0; i < gcLen; i++) {
-        delete data[gc[i]];
-      }
-
-      gc.splice(0, gcLen);
-    }
-
-    return longest;
-  };
-
-  require$$0.measureText = function (ctx, data, gc, longest, string) {
-    var textWidth = data[string];
-
-    if (!textWidth) {
-      textWidth = data[string] = ctx.measureText(string).width;
-      gc.push(string);
-    }
-
-    if (textWidth > longest) {
-      longest = textWidth;
-    }
-
-    return longest;
-  };
-
-  require$$0.color = !chartjsColor ? function (value) {
-    console.error('Color.js not found!');
-    return value;
-  } : function (value) {
-    if (value instanceof CanvasGradient) {
-      value = core_defaults.global.defaultColor;
-    }
-
-    return chartjsColor(value);
-  };
-
-  require$$0.getHoverColor = function (colorValue) {
-    return colorValue instanceof CanvasPattern || colorValue instanceof CanvasGradient ? colorValue : require$$0.color(colorValue).saturate(0.5).darken(0.1).rgbString();
-  };
-};
 
 function _abstract() {
   throw new Error('This method is not implemented: either no adapter can ' + 'be found or an incomplete integration was provided.');
@@ -12332,7 +12330,7 @@ function (_Element) {
         tickWidth = maxWidth / (numTicks - (options.offset ? 0.5 : 1));
         maxHeight = me.maxHeight - getTickMarkLength(options.gridLines) - tickOpts.padding - getScaleLabelHeight(options.scaleLabel);
         maxLabelDiagonal = Math.sqrt(maxLabelWidth * maxLabelWidth + maxLabelHeight * maxLabelHeight);
-        labelRotation = require$$0.toDegrees(Math.min(Math.asin(Math.min((labelSizes.highest.height + 6) / tickWidth, 1)), Math.asin(Math.min(maxHeight / maxLabelDiagonal, 1)) - Math.asin(maxLabelHeight / maxLabelDiagonal)));
+        labelRotation = require$$0.math.toDegrees(Math.min(Math.asin(Math.min((labelSizes.highest.height + 6) / tickWidth, 1)), Math.asin(Math.min(maxHeight / maxLabelDiagonal, 1)) - Math.asin(maxLabelHeight / maxLabelDiagonal)));
         labelRotation = Math.max(minRotation, Math.min(maxRotation, labelRotation));
       }
 
@@ -12398,7 +12396,7 @@ function (_Element) {
         if (isHorizontal) {
           // A horizontal axis is more constrained by the height.
           var isRotated = me.labelRotation !== 0;
-          var angleRadians = require$$0.toRadians(me.labelRotation);
+          var angleRadians = require$$0.math.toRadians(me.labelRotation);
           var cosRotation = Math.cos(angleRadians);
           var sinRotation = Math.sin(angleRadians);
           var labelHeight = sinRotation * widestLabelSize.width + cosRotation * (highestLabelSize.height - (isRotated ? highestLabelSize.offset : 0)) + (isRotated ? 0 : lineSpace); // padding
@@ -12639,7 +12637,7 @@ function (_Element) {
       var me = this;
       var optionTicks = me.options.ticks; // Calculate space needed by label in axis direction.
 
-      var rot = require$$0.toRadians(me.labelRotation);
+      var rot = require$$0.math.toRadians(me.labelRotation);
       var cos = Math.abs(Math.cos(rot));
       var sin = Math.abs(Math.sin(rot));
 
@@ -12813,7 +12811,7 @@ function (_Element) {
       var fonts = parseTickFontOptions(optionTicks);
       var tickPadding = optionTicks.padding;
       var tl = getTickMarkLength(options.gridLines);
-      var rotation = -require$$0.toRadians(me.labelRotation);
+      var rotation = -require$$0.math.toRadians(me.labelRotation);
       var items = [];
       var i, ilen, tick, label, x, y, textAlign, pixel, font, lineHeight, lineCount, textOffset;
 
@@ -13175,7 +13173,7 @@ function (_Element) {
   }]);
 
   return Scale;
-}(core_element);
+}(Element);
 
 Scale.prototype._draw = Scale.prototype.draw;
 var core_scale = Scale;
@@ -13342,7 +13340,7 @@ function generateTicks(generationOptions, dataRange) {
 
   if (stepSize || isNullOrUndef$2(precision)) {
     // If a precision is not specified, calculate factor based on spacing
-    factor = Math.pow(10, require$$0._decimalPlaces(spacing));
+    factor = Math.pow(10, _decimalPlaces(spacing));
   } else {
     // If the user specified a precision, round to that number of decimal places
     factor = Math.pow(10, precision);
@@ -13354,18 +13352,18 @@ function generateTicks(generationOptions, dataRange) {
 
   if (stepSize) {
     // If very close to our whole number, use it.
-    if (!isNullOrUndef$2(min) && require$$0.almostWhole(min / spacing, spacing / 1000)) {
+    if (!isNullOrUndef$2(min) && almostWhole(min / spacing, spacing / 1000)) {
       niceMin = min;
     }
 
-    if (!isNullOrUndef$2(max) && require$$0.almostWhole(max / spacing, spacing / 1000)) {
+    if (!isNullOrUndef$2(max) && almostWhole(max / spacing, spacing / 1000)) {
       niceMax = max;
     }
   }
 
   numSpaces = (niceMax - niceMin) / spacing; // If very close to our rounded value, use it.
 
-  if (require$$0.almostEquals(numSpaces, Math.round(numSpaces), spacing / 1000)) {
+  if (almostEquals(numSpaces, Math.round(numSpaces), spacing / 1000)) {
     numSpaces = Math.round(numSpaces);
   } else {
     numSpaces = Math.ceil(numSpaces);
@@ -13423,8 +13421,8 @@ function (_Scale) {
       // axis, they can manually override it
 
       if (opts.beginAtZero) {
-        var minSign = require$$0.sign(me.min);
-        var maxSign = require$$0.sign(me.max);
+        var minSign = sign(me.min);
+        var maxSign = sign(me.max);
 
         if (minSign < 0 && maxSign < 0) {
           // move the top up to 0
@@ -13535,7 +13533,7 @@ function (_Scale) {
       ticks = me._handleDirectionalChanges(ticks); // At this point, we need to update our max and min given the tick values since we have expanded the
       // range of the scale
 
-      require$$0._setMinAndMaxByKey(ticks, me, 'value');
+      _setMinAndMaxByKey(ticks, me, 'value');
 
       if (opts.reverse) {
         ticks.reverse();
@@ -13823,7 +13821,7 @@ function (_Scale) {
       var ticks = generateTicks$1(generationOptions, me); // At this point, we need to update our max and min given the tick values since we have expanded the
       // range of the scale
 
-      require$$0._setMinAndMaxByKey(ticks, me, 'value');
+      _setMinAndMaxByKey(ticks, me, 'value');
 
       if (opts.reverse) {
         reverse = !reverse;
@@ -14055,7 +14053,7 @@ function fitWithPointLabels(scale) {
     scale._pointLabelSizes[i] = textSize; // Add quarter circle to make degree 0 mean top of circle
 
     var angleRadians = scale.getIndexAngle(i);
-    var angle = require$$0.toDegrees(angleRadians) % 360;
+    var angle = toDegrees(angleRadians) % 360;
     var hLimits = determineLimits(angle, pointPosition.x, textSize.w, 0, 180);
     var vLimits = determineLimits(angle, pointPosition.y, textSize.h, 90, 270);
 
@@ -14136,7 +14134,7 @@ function drawPointLabels(scale) {
     var pointLabelFontColor = valueAtIndexOrDefault$1(pointLabelOpts.fontColor, i, core_defaults.global.defaultFontColor);
     ctx.fillStyle = pointLabelFontColor;
     var angleRadians = scale.getIndexAngle(i);
-    var angle = require$$0.toDegrees(angleRadians);
+    var angle = toDegrees(angleRadians);
     ctx.textAlign = getTextAlignForAngle(angle);
     adjustPointPositionForLabelHeight(angle, scale._pointLabelSizes[i], pointLabelPosition);
     fillText(ctx, scale.pointLabels[i], pointLabelPosition, plFont.lineHeight);
@@ -14188,7 +14186,7 @@ function drawRadiusLine(scale, gridLineOpts, radius, index) {
 }
 
 function numberOrZero(param) {
-  return require$$0.isNumber(param) ? param : 0;
+  return isNumber(param) ? param : 0;
 }
 
 var RadialLinearScale =
@@ -15232,7 +15230,7 @@ function (_Scale) {
       var me = this;
       var ticksOpts = me.options.ticks;
       var tickLabelWidth = me.ctx.measureText(label).width;
-      var angle = require$$0.toRadians(me.isHorizontal() ? ticksOpts.maxRotation : ticksOpts.minRotation);
+      var angle = toRadians(me.isHorizontal() ? ticksOpts.maxRotation : ticksOpts.minRotation);
       var cosRotation = Math.cos(angle);
       var sinRotation = Math.sin(angle);
       var tickFontSize = valueOrDefault$b(ticksOpts.fontSize, core_defaults.global.defaultFontSize);
@@ -15788,7 +15786,7 @@ var plugin_filler = {
       el = meta.dataset;
       source = null;
 
-      if (el && el._model && el instanceof require$$9.Line) {
+      if (el && el._model && el instanceof require$$8.Line) {
         source = {
           visible: chart.isDatasetVisible(i),
           fill: decodeFill(el, i, count),
@@ -16427,7 +16425,7 @@ function (_Element) {
   }]);
 
   return Legend;
-}(core_element);
+}(Element);
 
 function createNewLegendAndAttach(chart, legendOpts) {
   var legend = new Legend({
@@ -16694,7 +16692,7 @@ function (_Element) {
   }]);
 
   return Title;
-}(core_element);
+}(Element);
 
 function createNewTitleBlockAndAttach(chart, titleOpts) {
   var title = new Title({
@@ -16757,18 +16755,16 @@ plugins.title = title;
  * @namespace Chart
  */
 
-core_controller.helpers = require$$0; // @todo dispatch these helpers into appropriated helpers/helpers.* file and write unit tests!
-
-core_helpers();
+core_controller.helpers = require$$0;
 core_controller._adapters = core_adapters;
 core_controller.Animation = core_animation;
 core_controller.animationService = core_animations;
 core_controller.controllers = controllers;
 core_controller.DatasetController = core_datasetController;
 core_controller.defaults = core_defaults;
-core_controller.Element = core_element;
-core_controller.elements = require$$9;
-core_controller.Interaction = core_interaction;
+core_controller.Element = Element;
+core_controller.elements = require$$8;
+core_controller.Interaction = require$$9;
 core_controller.layouts = core_layouts;
 core_controller.platform = platform;
 core_controller.plugins = core_plugins;
