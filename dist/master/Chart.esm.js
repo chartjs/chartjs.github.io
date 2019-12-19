@@ -2933,18 +2933,6 @@ function almostWhole(x, epsilon) {
   var rounded = Math.round(x);
   return rounded - epsilon <= x && rounded + epsilon >= x;
 }
-function _setMinAndMax(array, target) {
-  var i, ilen, value;
-
-  for (i = 0, ilen = array.length; i < ilen; i++) {
-    value = array[i];
-
-    if (!isNaN(value)) {
-      target.min = Math.min(target.min, value);
-      target.max = Math.max(target.max, value);
-    }
-  }
-}
 function _setMinAndMaxByKey(array, target, property) {
   var i, ilen, value;
 
@@ -3024,7 +3012,6 @@ log10: log10,
 isNumber: isNumber,
 almostEquals: almostEquals,
 almostWhole: almostWhole,
-_setMinAndMax: _setMinAndMax,
 _setMinAndMaxByKey: _setMinAndMaxByKey,
 sign: sign,
 toRadians: toRadians,
@@ -4951,7 +4938,11 @@ require$$0.extend(DatasetController.prototype, {
         stack = {
           keys: indices,
           values: parsed._stacks[scale.id]
-        };
+        }; // Need to consider individual stack values for data range,
+        // in addition to the stacked value
+
+        min = Math.min(min, value);
+        max = Math.max(max, value);
         value = applyStack(stack, value, meta.index, true);
       }
 
@@ -13212,13 +13203,17 @@ function (_Scale) {
     key: "buildTicks",
     value: function buildTicks() {
       var me = this;
-
-      var labels = me._getLabels();
-
       var min = me.min;
-      var max = me.max; // If we are viewing some subset of labels, slice the original array
+      var max = me.max;
+      var offset = me.options.offset;
+
+      var labels = me._getLabels(); // If we are viewing some subset of labels, slice the original array
+
 
       labels = min === 0 && max === labels.length - 1 ? labels : labels.slice(min, max + 1);
+      me._numLabels = labels.length;
+      me._valueRange = Math.max(labels.length - (offset ? 0 : 1), 1);
+      me._startValue = me.min - (offset ? 0.5 : 0);
       return labels.map(function (l) {
         return {
           value: l
@@ -13242,8 +13237,6 @@ function (_Scale) {
     key: "_configure",
     value: function _configure() {
       var me = this;
-      var offset = me.options.offset;
-      var ticks = me.ticks;
 
       core_scale.prototype._configure.call(me);
 
@@ -13251,14 +13244,7 @@ function (_Scale) {
         // For backward compatibility, vertical category scale reverse is inverted.
         me._reversePixels = !me._reversePixels;
       }
-
-      if (!ticks) {
-        return;
-      }
-
-      me._startValue = me.min - (offset ? 0.5 : 0);
-      me._valueRange = Math.max(ticks.length - (offset ? 0 : 1), 1);
-    } // Used to get data value locations.  Value can either be an index or a numerical value
+    } // Used to get data value locations. Value can either be an index or a numerical value
 
   }, {
     key: "getPixelForValue",
@@ -13274,8 +13260,14 @@ function (_Scale) {
   }, {
     key: "getPixelForTick",
     value: function getPixelForTick(index) {
-      var ticks = this.ticks;
-      return index < 0 || index > ticks.length - 1 ? null : this.getPixelForValue(index + this.min);
+      var me = this;
+      var ticks = me.ticks;
+
+      if (index < 0 || index > ticks.length - 1) {
+        return null;
+      }
+
+      return this.getPixelForValue(index * me._numLabels / ticks.length + this.min);
     }
   }, {
     key: "getValueForPixel",
