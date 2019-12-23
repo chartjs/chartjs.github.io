@@ -10732,7 +10732,7 @@ var core_helpers = function() {
 	 * @private
  	 */
 	helpers$1._calculatePadding = function(container, padding, parentDimension) {
-		padding = helpers$1.getStyle(container, padding);
+		padding = helpers$1.getStyle(container, padding) || '0';
 
 		return padding.indexOf('%') > -1 ? parentDimension * parseInt(padding, 10) / 100 : parseInt(padding, 10);
 	};
