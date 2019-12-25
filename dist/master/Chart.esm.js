@@ -3655,7 +3655,7 @@ function toLineHeight(value, size) {
 /**
  * Converts the given value into a padding object with pre-computed width/height.
  * @param {number|object} value - If a number, set the value to all TRBL component,
- *  else, if and object, use defined properties and sets undefined ones to 0.
+ *  else, if an object, use defined properties and sets undefined ones to 0.
  * @returns {object} The padding values (top, right, bottom, left, width, height)
  * @since 2.7.0
  */
@@ -3865,19 +3865,6 @@ var require$$0 = _objectSpread2({}, coreHelpers, {
   options: options,
   math: math,
   rtl: rtl,
-  where: function where(collection, filterCallback) {
-    if (isArray(collection) && Array.prototype.filter) {
-      return collection.filter(filterCallback);
-    }
-
-    var filtered = [];
-    each(collection, function (item) {
-      if (filterCallback(item)) {
-        filtered.push(item);
-      }
-    });
-    return filtered;
-  },
   findIndex: Array.prototype.findIndex ? function (array, callback, scope) {
     return array.findIndex(callback, scope);
   } : function (array, callback, scope) {
@@ -4312,11 +4299,13 @@ function listenArrayEvents(array, listener) {
       value: function value() {
         var args = Array.prototype.slice.call(arguments);
         var res = base.apply(this, args);
-        require$$0.each(array._chartjs.listeners, function (object) {
+
+        array._chartjs.listeners.forEach(function (object) {
           if (typeof object[method] === 'function') {
             object[method].apply(object, args);
           }
         });
+
         return res;
       }
     });
@@ -7579,7 +7568,7 @@ var controller_polarArea = core_datasetController.extend({
     var dataset = this.getDataset();
     var meta = this._cachedMeta;
     var count = 0;
-    require$$0.each(meta.data, function (element, index) {
+    meta.data.forEach(function (element, index) {
       if (!isNaN(dataset.data[index]) && !element.hidden) {
         count++;
       }
@@ -8246,13 +8235,13 @@ var extend$1 = require$$0.extend;
 var STATIC_POSITIONS = ['left', 'top', 'right', 'bottom'];
 
 function filterByPosition(array, position) {
-  return require$$0.where(array, function (v) {
+  return array.filter(function (v) {
     return v.pos === position;
   });
 }
 
 function filterDynamicPositionByAxis(array, axis) {
-  return require$$0.where(array, function (v) {
+  return array.filter(function (v) {
     return STATIC_POSITIONS.indexOf(v.pos) === -1 && v.box.axis === axis;
   });
 }
@@ -8865,7 +8854,7 @@ function watchForRender(node, handler) {
     }
   };
 
-  require$$0.each(ANIMATION_START_EVENTS, function (type) {
+  ANIMATION_START_EVENTS.forEach(function (type) {
     addListener(node, type, proxy);
   }); // #4737: Chrome might skip the CSS animation when the CSS_RENDER_MONITOR class
   // is removed then added back immediately (same animation frame?). Accessing the
@@ -8882,7 +8871,7 @@ function unwatchForRender(node) {
   var proxy = expando.renderProxy;
 
   if (proxy) {
-    require$$0.each(ANIMATION_START_EVENTS, function (type) {
+    ANIMATION_START_EVENTS.forEach(function (type) {
       removeListener(node, type, proxy);
     });
     delete expando.renderProxy;
@@ -9043,8 +9032,9 @@ var platform_dom$2 = {
         canvas.setAttribute(prop, value);
       }
     });
-    require$$0.each(initial.style || {}, function (value, key) {
-      canvas.style[key] = value;
+    var style = initial.style || {};
+    Object.keys(style).forEach(function (key) {
+      canvas.style[key] = style[key];
     }); // The canvas render size might have been changed (and thus the state stack discarded),
     // we can't use save() and restore() to restore the initial state. So make sure that at
     // least the canvas context is reset to the default state by setting the canvas width.
@@ -11597,16 +11587,8 @@ var core_ticks = {
 
       return tickString;
     },
-    logarithmic: function logarithmic(tickValue, index, ticks) {
-      var remain = tickValue / Math.pow(10, Math.floor(math$1.log10(tickValue)));
-
-      if (tickValue === 0) {
-        return '0';
-      } else if (remain === 1 || remain === 2 || remain === 5 || index === 0 || index === ticks.length - 1) {
-        return tickValue.toExponential();
-      }
-
-      return '';
+    logarithmic: function logarithmic(tickValue) {
+      return tickValue === 0 ? '0' : tickValue.toExponential();
     }
   }
 };
@@ -12604,7 +12586,7 @@ function (_Element) {
 
       if (numMajorIndices > 0) {
         var i, ilen;
-        var avgMajorSpacing = numMajorIndices > 1 ? (last - first) / (numMajorIndices - 1) : null;
+        var avgMajorSpacing = numMajorIndices > 1 ? Math.round((last - first) / (numMajorIndices - 1)) : null;
         skip(ticks, newTicks, spacing, require$$0.isNullOrUndef(avgMajorSpacing) ? 0 : first - avgMajorSpacing, first);
 
         for (i = 0, ilen = numMajorIndices - 1; i < ilen; i++) {
@@ -13669,6 +13651,11 @@ LinearScale._defaults = defaultConfig$1;
 
 var valueOrDefault$9 = require$$0.valueOrDefault;
 var log10$1 = require$$0.math.log10;
+
+function isMajor(tickVal) {
+  var remain = tickVal / Math.pow(10, Math.floor(log10$1(tickVal)));
+  return remain === 1;
+}
 /**
  * Generate a set of logarithmic ticks
  * @param generationOptions the options used to generate the ticks
@@ -13676,20 +13663,17 @@ var log10$1 = require$$0.math.log10;
  * @returns {number[]} array of tick values
  */
 
+
 function generateTicks$1(generationOptions, dataRange) {
-  var ticks = [];
-  var tickVal = valueOrDefault$9(generationOptions.min, Math.pow(10, Math.floor(log10$1(dataRange.min))));
   var endExp = Math.floor(log10$1(dataRange.max));
   var endSignificand = Math.ceil(dataRange.max / Math.pow(10, endExp));
+  var ticks = [];
+  var tickVal = valueOrDefault$9(generationOptions.min, Math.pow(10, Math.floor(log10$1(dataRange.min))));
   var exp, significand;
 
   if (tickVal === 0) {
-    exp = Math.floor(log10$1(dataRange.minNotZero));
-    significand = Math.floor(dataRange.minNotZero / Math.pow(10, exp));
-    ticks.push({
-      value: tickVal
-    });
-    tickVal = significand * Math.pow(10, exp);
+    exp = 0;
+    significand = 0;
   } else {
     exp = Math.floor(log10$1(tickVal));
     significand = Math.floor(tickVal / Math.pow(10, exp));
@@ -13699,7 +13683,8 @@ function generateTicks$1(generationOptions, dataRange) {
 
   do {
     ticks.push({
-      value: tickVal
+      value: tickVal,
+      major: isMajor(tickVal)
     });
     ++significand;
 
@@ -13714,7 +13699,8 @@ function generateTicks$1(generationOptions, dataRange) {
 
   var lastTick = valueOrDefault$9(generationOptions.max, tickVal);
   ticks.push({
-    value: lastTick
+    value: lastTick,
+    major: isMajor(tickVal)
   });
   return ticks;
 }
@@ -13722,7 +13708,10 @@ function generateTicks$1(generationOptions, dataRange) {
 var defaultConfig$2 = {
   // label settings
   ticks: {
-    callback: core_ticks.formatters.logarithmic
+    callback: core_ticks.formatters.logarithmic,
+    major: {
+      enabled: true
+    }
   }
 };
 
@@ -13805,12 +13794,12 @@ function (_Scale) {
     value: function buildTicks() {
       var me = this;
       var opts = me.options;
-      var reverse = !me.isHorizontal();
       var generationOptions = {
         min: me._userMin,
         max: me._userMax
       };
-      var ticks = generateTicks$1(generationOptions, me); // At this point, we need to update our max and min given the tick values since we have expanded the
+      var ticks = generateTicks$1(generationOptions, me);
+      var reverse = !me.isHorizontal(); // At this point, we need to update our max and min given the tick values since we have expanded the
       // range of the scale
 
       _setMinAndMaxByKey(ticks, me, 'value');
@@ -13831,23 +13820,15 @@ function (_Scale) {
       return ticks;
     }
   }, {
-    key: "generateTickLabels",
-    value: function generateTickLabels(ticks) {
-      this._tickValues = ticks.map(function (t) {
-        return t.value;
-      });
-      return core_scale.prototype.generateTickLabels.call(this, ticks);
-    }
-  }, {
     key: "getPixelForTick",
     value: function getPixelForTick(index) {
-      var ticks = this._tickValues;
+      var ticks = this.ticks;
 
       if (index < 0 || index > ticks.length - 1) {
         return null;
       }
 
-      return this.getPixelForValue(ticks[index]);
+      return this.getPixelForValue(ticks[index].value);
     }
     /**
      * Returns the value of the first tick.
@@ -14351,7 +14332,7 @@ function (_LinearScaleBase) {
       }
 
       if (gridLineOpts.display) {
-        require$$0.each(me.ticks, function (tick, index) {
+        me.ticks.forEach(function (tick, index) {
           if (index !== 0) {
             offset = me.getDistanceFromCenterForValue(me._tickValues[index]);
             drawRadiusLine(me, gridLineOpts, offset, index);
@@ -14409,7 +14390,7 @@ function (_LinearScaleBase) {
       ctx.rotate(startAngle);
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      require$$0.each(me.ticks, function (tick, index) {
+      me.ticks.forEach(function (tick, index) {
         if (index === 0 && !opts.reverse) {
           return;
         }
@@ -16107,7 +16088,7 @@ function (_Element) {
         var totalHeight = 0;
         ctx.textAlign = 'left';
         ctx.textBaseline = 'middle';
-        require$$0.each(me.legendItems, function (legendItem, i) {
+        me.legendItems.forEach(function (legendItem, i) {
           var boxWidth = getBoxWidth(labelOpts, fontSize);
           var width = boxWidth + fontSize / 2 + ctx.measureText(legendItem.text).width;
 
@@ -16133,7 +16114,7 @@ function (_Element) {
         var totalWidth = labelOpts.padding;
         var currentColWidth = 0;
         var currentColHeight = 0;
-        require$$0.each(me.legendItems, function (legendItem, i) {
+        me.legendItems.forEach(function (legendItem, i) {
           var boxWidth = getBoxWidth(labelOpts, fontSize);
           var itemWidth = boxWidth + fontSize / 2 + ctx.measureText(legendItem.text).width; // If too tall, go to new column
 
@@ -16303,7 +16284,7 @@ function (_Element) {
 
       require$$0.rtl.overrideTextDirection(me.ctx, opts.textDirection);
       var itemHeight = fontSize + labelOpts.padding;
-      require$$0.each(me.legendItems, function (legendItem, i) {
+      me.legendItems.forEach(function (legendItem, i) {
         var textWidth = ctx.measureText(legendItem.text).width;
         var width = boxWidth + fontSize / 2 + textWidth;
         var x = cursor.x;
@@ -16488,7 +16469,7 @@ core_defaults._set('global', {
   }
 });
 /**
- * IMPORTANT: this class is exposed publicly as Chart.Legend, backward compatibility required!
+ * IMPORTANT: this class is exposed publicly as Chart.Title, backward compatibility required!
  */
 
 
@@ -16564,13 +16545,8 @@ function (_Element) {
 
         me.top = 0;
         me.bottom = me.height;
-      } // Reset padding
+      } // Reset minSize
 
-
-      me.paddingLeft = 0;
-      me.paddingTop = 0;
-      me.paddingRight = 0;
-      me.paddingBottom = 0; // Reset minSize
 
       me.minSize = {
         width: 0,
@@ -16609,7 +16585,8 @@ function (_Element) {
       }
 
       lineCount = require$$0.isArray(opts.text) ? opts.text.length : 1;
-      textSize = lineCount * require$$0.options._parseFont(opts).lineHeight + opts.padding * 2;
+      me._padding = require$$0.options.toPadding(opts.padding);
+      textSize = lineCount * require$$0.options._parseFont(opts).lineHeight + me._padding.height;
       me.width = minSize.width = isHorizontal ? me.maxWidth : textSize;
       me.height = minSize.height = isHorizontal ? textSize : me.maxHeight;
     }
@@ -16638,7 +16615,7 @@ function (_Element) {
       var fontOpts = require$$0.options._parseFont(opts);
 
       var lineHeight = fontOpts.lineHeight;
-      var offset = lineHeight / 2 + opts.padding;
+      var offset = lineHeight / 2 + me._padding.top;
       var rotation = 0;
       var top = me.top;
       var left = me.left;
@@ -16765,7 +16742,8 @@ core_controller.scaleService = core_scaleService;
 core_controller.Ticks = core_ticks;
 core_controller.Tooltip = core_tooltip; // Register built-in scales
 
-core_controller.helpers.each(scales, function (scale, type) {
+Object.keys(scales).forEach(function (type) {
+  var scale = scales[type];
   core_controller.scaleService.registerScaleType(type, scale, scale._defaults);
 }); // Load to register built-in adapters (as side effects)
 // Loading built-in plugins
