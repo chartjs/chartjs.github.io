@@ -144,10 +144,6 @@ function _possibleConstructorReturn(self, call) {
   return _assertThisInitialized(self);
 }
 
-function _slicedToArray(arr, i) {
-  return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest();
-}
-
 function _toConsumableArray(arr) {
   return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread();
 }
@@ -160,50 +156,12 @@ function _arrayWithoutHoles(arr) {
   }
 }
 
-function _arrayWithHoles(arr) {
-  if (Array.isArray(arr)) return arr;
-}
-
 function _iterableToArray(iter) {
   if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter);
 }
 
-function _iterableToArrayLimit(arr, i) {
-  if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) {
-    return;
-  }
-
-  var _arr = [];
-  var _n = true;
-  var _d = false;
-  var _e = undefined;
-
-  try {
-    for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
-      _arr.push(_s.value);
-
-      if (i && _arr.length === i) break;
-    }
-  } catch (err) {
-    _d = true;
-    _e = err;
-  } finally {
-    try {
-      if (!_n && _i["return"] != null) _i["return"]();
-    } finally {
-      if (_d) throw _e;
-    }
-  }
-
-  return _arr;
-}
-
 function _nonIterableSpread() {
   throw new TypeError("Invalid attempt to spread non-iterable instance");
-}
-
-function _nonIterableRest() {
-  throw new TypeError("Invalid attempt to destructure non-iterable instance");
 }
 
 function createCommonjsModule(fn, module) {
@@ -10439,14 +10397,10 @@ function mergeScaleConfig(config, options) {
   var scales = {}; // First figure out first scale id's per axis.
   // Note: for now, axis is determined from first letter of scale id!
 
-  Object.entries(configScales).forEach(function (_ref) {
-    var _ref2 = _slicedToArray(_ref, 2),
-        id = _ref2[0],
-        scale = _ref2[1];
-
+  Object.keys(configScales).forEach(function (id) {
     var axis = id[0];
     firstIDs[axis] = firstIDs[axis] || id;
-    scales[id] = require$$0.mergeIf({}, [scale, chartDefaults.scales[axis]]);
+    scales[id] = require$$0.mergeIf({}, [configScales[id], chartDefaults.scales[axis]]);
   }); // Backward compatibility
 
   if (options.scale) {
@@ -10459,14 +10413,11 @@ function mergeScaleConfig(config, options) {
     var datasetDefaults = core_defaults[dataset.type || config.type] || {
       scales: {}
     };
-    Object.entries(datasetDefaults.scales || {}).forEach(function (_ref3) {
-      var _ref4 = _slicedToArray(_ref3, 2),
-          defaultID = _ref4[0],
-          defaultScaleOptions = _ref4[1];
-
+    var defaultScaleOptions = datasetDefaults.scales || {};
+    Object.keys(defaultScaleOptions).forEach(function (defaultID) {
       var id = dataset[defaultID + 'AxisID'] || firstIDs[defaultID] || defaultID;
       scales[id] = scales[id] || {};
-      require$$0.mergeIf(scales[id], [configScales[id], defaultScaleOptions]);
+      require$$0.mergeIf(scales[id], [configScales[id], defaultScaleOptions[defaultID]]);
     });
   }); // apply scale defaults, if not overridden by dataset defaults
 
@@ -10680,17 +10631,17 @@ require$$0.extend(Chart.prototype,
   buildOrUpdateScales: function buildOrUpdateScales() {
     var me = this;
     var options = me.options;
+    var scaleOpts = options.scales;
     var scales = me.scales || {};
-    var items = [];
     var updated = Object.keys(scales).reduce(function (obj, id) {
       obj[id] = false;
       return obj;
     }, {});
+    var items = [];
 
-    if (options.scales) {
-      items = items.concat(Object.entries(options.scales).map(function (entry) {
-        var axisID = entry[0];
-        var axisOptions = entry[1];
+    if (scaleOpts) {
+      items = items.concat(Object.keys(scaleOpts).map(function (axisID) {
+        var axisOptions = scaleOpts[axisID];
         var isRadial = axisID.charAt(0).toLowerCase === 'r';
         var isHorizontal = axisID.charAt(0).toLowerCase() === 'x';
         return {
