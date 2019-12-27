@@ -1004,6 +1004,12 @@
 <li><code>scales.[x/y]Axes.time.max</code> was renamed to <code>scales[id].max</code></li>
 <li><code>scales.[x/y]Axes.time.min</code> was renamed to <code>scales[id].min</code></li>
 </ul>
+<h3 id="animations">Animations</h3>
+<p>Animation system was completely rewritten in Chart.js v3. Each property can now be animated separately. Please see <a href="../configuration/animations.html">animations</a> docs for details.</p>
+<ul>
+<li><code>hover.animationDuration</code> is now configured in <code>animation.active.duration</code></li>
+<li><code>responsiveAnimationDuration</code> is now configured in <code>animation.resize.duration</code></li>
+</ul>
 <h2 id="developer-migration">Developer migration</h2>
 <h3 id="removed">Removed</h3>
 <ul>
@@ -1044,10 +1050,8 @@
 <ul>
 <li><code>Chart.data.datasets[datasetIndex]._meta</code></li>
 <li><code>Element._ctx</code></li>
-<li><code>Element._model.datasetLabel</code></li>
-<li><code>Element._model.label</code></li>
-<li><code>Point._model.tension</code></li>
-<li><code>Point._model.steppedLine</code></li>
+<li><code>Element._model</code></li>
+<li><code>Element._view</code></li>
 <li><code>TimeScale._getPixelForOffset</code></li>
 <li><code>TimeScale.getLabelWidth</code></li>
 </ul>
@@ -1062,7 +1066,6 @@
 <li><code>helpers.log10</code> was renamed to <code>helpers.math.log10</code></li>
 <li><code>helpers.almostEquals</code> was renamed to <code>helpers.math.almostEquals</code></li>
 <li><code>helpers.almostWhole</code> was renamed to <code>helpers.math.almostWhole</code></li>
-<li><code>helpers._decimalPlaces</code> was renamed to <code>helpers.math._decimalPlaces</code></li>
 <li><code>helpers.distanceBetweenPoints</code> was renamed to <code>helpers.math.distanceBetweenPoints</code></li>
 <li><code>helpers.isNumber</code> was renamed to <code>helpers.math.isNumber</code></li>
 <li><code>helpers.sign</code> was renamed to <code>helpers.math.sign</code></li>
@@ -1083,10 +1086,12 @@
 <li><code>TimeScale.getLabelCapacity</code> was renamed to <code>TimeScale._getLabelCapacity</code></li>
 <li><code>TimeScale.tickFormatFunction</code> was renamed to <code>TimeScale._tickFormatFunction</code></li>
 <li><code>TimeScale.getPixelForOffset</code> was renamed to <code>TimeScale._getPixelForOffset</code></li>
+<li><code>Tooltip.options.legendColorBackgroupd</code> was renamed to <code>Tooltip.options.multiKeyBackground</code></li>
 </ul>
 <h4 id="renamed-private-apis">Renamed private APIs</h4>
 <ul>
 <li><code>helpers._alignPixel</code> was renamed to <code>helpers.canvas._alignPixel</code></li>
+<li><code>helpers._decimalPlaces</code> was renamed to <code>helpers.math._decimalPlaces</code></li>
 </ul>
 <h3 id="changed">Changed</h3>
 <h4 id="scales">Scales</h4>
@@ -1162,7 +1167,7 @@
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Migration Guide","level":"1.3.4","depth":2,"next":{"title":"General","level":"1.4","depth":1,"path":"general/README.md","ref":"general/README.md","articles":[{"title":"Data structures","level":"1.4.1","depth":2,"path":"general/data-structures.md","ref":"general/data-structures.md","articles":[]},{"title":"Accessibility","level":"1.4.2","depth":2,"path":"general/accessibility.md","ref":"general/accessibility.md","articles":[]},{"title":"Responsive","level":"1.4.3","depth":2,"path":"general/responsive.md","ref":"general/responsive.md","articles":[]},{"title":"Pixel Ratio","level":"1.4.4","depth":2,"path":"general/device-pixel-ratio.md","ref":"general/device-pixel-ratio.md","articles":[]},{"title":"Interactions","level":"1.4.5","depth":2,"path":"general/interactions/README.md","ref":"general/interactions/README.md","articles":[{"title":"Events","level":"1.4.5.1","depth":3,"path":"general/interactions/events.md","ref":"general/interactions/events.md","articles":[]},{"title":"Modes","level":"1.4.5.2","depth":3,"path":"general/interactions/modes.md","ref":"general/interactions/modes.md","articles":[]}]},{"title":"Options","level":"1.4.6","depth":2,"path":"general/options.md","ref":"general/options.md","articles":[]},{"title":"Colors","level":"1.4.7","depth":2,"path":"general/colors.md","ref":"general/colors.md","articles":[]},{"title":"Fonts","level":"1.4.8","depth":2,"path":"general/fonts.md","ref":"general/fonts.md","articles":[]},{"title":"Performance","level":"1.4.9","depth":2,"path":"general/performance.md","ref":"general/performance.md","articles":[]}]},"previous":{"title":"Usage","level":"1.3.3","depth":2,"path":"getting-started/usage.md","ref":"getting-started/usage.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga","redirect"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"chartjs":{"defaults":null},"fontsettings":{"theme":"white","family":"sans","size":2},"highlight":{},"ga":{"configuration":"auto","token":"UA-28909194-3"},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"redirect":{},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"anchorjs":{"icon":"#","placement":"left","visible":"always"},"search-plus":{}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"getting-started/v3-migration.md","mtime":"2019-12-26T13:50:48.410Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2019-12-26T13:54:05.869Z"},"basePath":"..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Migration Guide","level":"1.3.4","depth":2,"next":{"title":"General","level":"1.4","depth":1,"path":"general/README.md","ref":"general/README.md","articles":[{"title":"Data structures","level":"1.4.1","depth":2,"path":"general/data-structures.md","ref":"general/data-structures.md","articles":[]},{"title":"Accessibility","level":"1.4.2","depth":2,"path":"general/accessibility.md","ref":"general/accessibility.md","articles":[]},{"title":"Responsive","level":"1.4.3","depth":2,"path":"general/responsive.md","ref":"general/responsive.md","articles":[]},{"title":"Pixel Ratio","level":"1.4.4","depth":2,"path":"general/device-pixel-ratio.md","ref":"general/device-pixel-ratio.md","articles":[]},{"title":"Interactions","level":"1.4.5","depth":2,"path":"general/interactions/README.md","ref":"general/interactions/README.md","articles":[{"title":"Events","level":"1.4.5.1","depth":3,"path":"general/interactions/events.md","ref":"general/interactions/events.md","articles":[]},{"title":"Modes","level":"1.4.5.2","depth":3,"path":"general/interactions/modes.md","ref":"general/interactions/modes.md","articles":[]}]},{"title":"Options","level":"1.4.6","depth":2,"path":"general/options.md","ref":"general/options.md","articles":[]},{"title":"Colors","level":"1.4.7","depth":2,"path":"general/colors.md","ref":"general/colors.md","articles":[]},{"title":"Fonts","level":"1.4.8","depth":2,"path":"general/fonts.md","ref":"general/fonts.md","articles":[]},{"title":"Performance","level":"1.4.9","depth":2,"path":"general/performance.md","ref":"general/performance.md","articles":[]}]},"previous":{"title":"Usage","level":"1.3.3","depth":2,"path":"getting-started/usage.md","ref":"getting-started/usage.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga","redirect"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"chartjs":{"defaults":null},"fontsettings":{"theme":"white","family":"sans","size":2},"highlight":{},"ga":{"configuration":"auto","token":"UA-28909194-3"},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"redirect":{},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"anchorjs":{"icon":"#","placement":"left","visible":"always"},"search-plus":{}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"getting-started/v3-migration.md","mtime":"2019-12-27T22:24:07.620Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2019-12-27T22:27:26.682Z"},"basePath":"..","book":{"language":""}});
         });
     </script>
 </div>

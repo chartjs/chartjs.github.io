@@ -144,6 +144,10 @@ function _possibleConstructorReturn(self, call) {
   return _assertThisInitialized(self);
 }
 
+function _slicedToArray(arr, i) {
+  return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest();
+}
+
 function _toConsumableArray(arr) {
   return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread();
 }
@@ -156,12 +160,50 @@ function _arrayWithoutHoles(arr) {
   }
 }
 
+function _arrayWithHoles(arr) {
+  if (Array.isArray(arr)) return arr;
+}
+
 function _iterableToArray(iter) {
   if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter);
 }
 
+function _iterableToArrayLimit(arr, i) {
+  if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) {
+    return;
+  }
+
+  var _arr = [];
+  var _n = true;
+  var _d = false;
+  var _e = undefined;
+
+  try {
+    for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+      _arr.push(_s.value);
+
+      if (i && _arr.length === i) break;
+    }
+  } catch (err) {
+    _d = true;
+    _e = err;
+  } finally {
+    try {
+      if (!_n && _i["return"] != null) _i["return"]();
+    } finally {
+      if (_d) throw _e;
+    }
+  }
+
+  return _arr;
+}
+
 function _nonIterableSpread() {
   throw new TypeError("Invalid attempt to spread non-iterable instance");
+}
+
+function _nonIterableRest() {
+  throw new TypeError("Invalid attempt to destructure non-iterable instance");
 }
 
 function createCommonjsModule(fn, module) {
@@ -3021,7 +3063,7 @@ function splineCurveMonotone(points) {
   // See : https://en.wikipedia.org/wiki/Monotone_cubic_interpolation
   var pointsWithTangents = (points || []).map(function (point) {
     return {
-      model: point._model,
+      model: point,
       deltaK: 0,
       mK: 0
     };
@@ -3974,168 +4016,382 @@ __proto__: null,
 'default': helpers$1
 });
 
-function interpolate(start, view, model, ease) {
-  var keys = Object.keys(model);
-  var i, ilen, key, actual, origin, target, type, c0, c1;
+var require$$0 = getCjsExportFromNamespace(helpers$2);
 
-  for (i = 0, ilen = keys.length; i < ilen; ++i) {
-    key = keys[i];
-    target = model[key]; // if a value is added to the model after pivot() has been called, the view
-    // doesn't contain it, so let's initialize the view to the target value.
+function drawFPS(chart, count, date, lastDate) {
+  var fps = 1000 / (date - lastDate) | 0;
+  var ctx = chart.ctx;
+  ctx.save();
+  ctx.clearRect(0, 0, 50, 24);
+  ctx.fillStyle = 'black';
+  ctx.textAlign = 'right';
 
-    if (!Object.prototype.hasOwnProperty.call(view, key)) {
-      view[key] = target;
-    }
-
-    actual = view[key];
-
-    if (actual === target || key[0] === '_') {
-      continue;
-    }
-
-    if (!Object.prototype.hasOwnProperty.call(start, key)) {
-      start[key] = actual;
-    }
-
-    origin = start[key];
-    type = _typeof(target);
-
-    if (type === _typeof(origin)) {
-      if (type === 'string') {
-        c0 = chartjsColor(origin);
-
-        if (c0.valid) {
-          c1 = chartjsColor(target);
-
-          if (c1.valid) {
-            view[key] = c1.mix(c0, ease).rgbString();
-            continue;
-          }
-        }
-      } else if (helpers$1.isFinite(origin) && helpers$1.isFinite(target)) {
-        view[key] = origin + (target - origin) * ease;
-        continue;
-      }
-    }
-
-    view[key] = target;
+  if (count) {
+    ctx.fillText(count, 50, 8);
+    ctx.fillText(fps + ' fps', 50, 18);
   }
+
+  ctx.restore();
 }
 
-var Element =
+var Animator =
 /*#__PURE__*/
 function () {
-  function Element(configuration) {
-    _classCallCheck(this, Element);
+  function Animator() {
+    _classCallCheck(this, Animator);
 
-    helpers$1.extend(this, configuration); // this.hidden = false; we assume Element has an attribute called hidden, but do not initialize to save memory
+    this._request = null;
+    this._charts = new Map();
+    this._running = false;
   }
+  /**
+   * @private
+   */
 
-  _createClass(Element, [{
-    key: "pivot",
-    value: function pivot(animationsDisabled) {
+
+  _createClass(Animator, [{
+    key: "_notify",
+    value: function _notify(chart, anims, date, type) {
+      var callbacks = anims.listeners[type] || [];
+      var numSteps = anims.duration;
+      callbacks.forEach(function (fn) {
+        return fn({
+          chart: chart,
+          numSteps: numSteps,
+          currentStep: date - anims.start
+        });
+      });
+    }
+    /**
+     * @private
+     */
+
+  }, {
+    key: "_refresh",
+    value: function _refresh() {
       var me = this;
 
-      if (animationsDisabled) {
-        me._view = me._model;
-        return me;
+      if (me._request) {
+        return;
       }
 
-      if (!me._view) {
-        me._view = helpers$1.extend({}, me._model);
-      }
+      me._running = true;
+      me._request = require$$0.requestAnimFrame.call(window, function () {
+        me._update();
 
-      me._start = {};
-      return me;
+        me._request = null;
+
+        if (me._running) {
+          me._refresh();
+        }
+      });
     }
+    /**
+     * @private
+     */
+
   }, {
-    key: "transition",
-    value: function transition(ease) {
+    key: "_update",
+    value: function _update() {
       var me = this;
-      var model = me._model;
-      var start = me._start;
-      var view = me._view; // No animation -> No Transition
+      var date = Date.now();
+      var charts = me._charts;
+      var remaining = 0;
+      var _iteratorNormalCompletion = true;
+      var _didIteratorError = false;
+      var _iteratorError = undefined;
 
-      if (!model || ease === 1) {
-        // _model has to be cloned to _view
-        // Otherwise, when _model properties are set on hover, _view.* is also set to the same value, and hover animation doesn't occur
-        me._view = helpers$1.extend({}, model);
-        me._start = null;
-        return me;
+      try {
+        for (var _iterator = charts[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+          var _step$value = _slicedToArray(_step.value, 2),
+              chart = _step$value[0],
+              anims = _step$value[1];
+
+          if (!anims.running || !anims.items.length) {
+            continue;
+          }
+
+          var items = anims.items;
+          var i = items.length - 1;
+          var draw = false;
+          var item = void 0;
+
+          for (; i >= 0; --i) {
+            item = items[i];
+
+            if (item._active) {
+              item.tick(date);
+              draw = true;
+            } else {
+              // Remove the item by replacing it with last item and removing the last
+              // A lot faster than splice.
+              items[i] = items[items.length - 1];
+              items.pop();
+            }
+          }
+
+          if (draw) {
+            chart.draw();
+
+            if (chart.options.animation.debug) {
+              drawFPS(chart, items.length, date, me._lastDate);
+            }
+          }
+
+          me._notify(chart, anims, date, 'progress');
+
+          if (!items.length) {
+            anims.running = false;
+
+            me._notify(chart, anims, date, 'complete');
+          }
+
+          remaining += items.length;
+        }
+      } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion && _iterator["return"] != null) {
+            _iterator["return"]();
+          }
+        } finally {
+          if (_didIteratorError) {
+            throw _iteratorError;
+          }
+        }
       }
 
-      if (!view) {
-        view = me._view = {};
-      }
+      this._lastDate = date;
 
-      if (!start) {
-        start = me._start = {};
+      if (remaining === 0) {
+        this._running = false;
       }
-
-      interpolate(start, view, model, ease);
-      return me;
     }
   }, {
-    key: "tooltipPosition",
-    value: function tooltipPosition() {
-      return {
-        x: this._model.x,
-        y: this._model.y
-      };
+    key: "_getAnims",
+    value: function _getAnims(chart) {
+      var charts = this._charts;
+      var anims = charts.get(chart);
+
+      if (!anims) {
+        anims = {
+          running: false,
+          items: [],
+          listeners: {
+            complete: [],
+            progress: []
+          }
+        };
+        charts.set(chart, anims);
+      }
+
+      return anims;
+    }
+    /**
+     * @param {Chart} chart
+     * @param {string} event - event name
+     * @param {Function} cb - callback
+     */
+
+  }, {
+    key: "listen",
+    value: function listen(chart, event, cb) {
+      this._getAnims(chart).listeners[event].push(cb);
+    }
+    /**
+     * Add animations
+     * @param {Chart} chart
+     * @param {Animation[]} items - animations
+     */
+
+  }, {
+    key: "add",
+    value: function add(chart, items) {
+      var _this$_getAnims$items;
+
+      if (!items || !items.length) {
+        return;
+      }
+
+      (_this$_getAnims$items = this._getAnims(chart).items).push.apply(_this$_getAnims$items, _toConsumableArray(items));
+    }
+    /**
+     * Counts number of active animations for the chart
+     * @param {Chart} chart
+     */
+
+  }, {
+    key: "has",
+    value: function has(chart) {
+      return this._getAnims(chart).items.length > 0;
+    }
+    /**
+     * Start animating (all charts)
+     * @param {Chart} chart
+     */
+
+  }, {
+    key: "start",
+    value: function start(chart) {
+      var anims = this._charts.get(chart);
+
+      if (!anims) {
+        return;
+      }
+
+      anims.running = true;
+      anims.start = Date.now();
+      anims.duration = anims.items.reduce(function (acc, cur) {
+        return Math.max(acc, cur._duration);
+      }, 0);
+
+      this._refresh();
     }
   }, {
-    key: "hasValue",
-    value: function hasValue() {
-      return isNumber(this._model.x) && isNumber(this._model.y);
+    key: "running",
+    value: function running(chart) {
+      if (!this._running) {
+        return false;
+      }
+
+      var anims = this._charts.get(chart);
+
+      if (!anims || !anims.running || !anims.items.length) {
+        return false;
+      }
+
+      return true;
+    }
+    /**
+     * Stop all animations for the chart
+     * @param {Chart} chart
+     */
+
+  }, {
+    key: "stop",
+    value: function stop(chart) {
+      var anims = this._charts.get(chart);
+
+      if (!anims || !anims.items.length) {
+        return;
+      }
+
+      var items = anims.items;
+      var i = items.length - 1;
+
+      for (; i >= 0; --i) {
+        items[i].cancel();
+      }
+
+      anims.items = [];
+
+      this._notify(chart, anims, Date.now(), 'complete');
     }
   }]);
 
-  return Element;
+  return Animator;
 }();
 
-Element.extend = helpers$1.inherits;
+var instance = new Animator();
+var core_animator = instance;
 
-var core_element = /*#__PURE__*/Object.freeze({
-__proto__: null,
-'default': Element
-});
-
-var require$$7 = getCjsExportFromNamespace(core_element);
-
-var require$$0 = getCjsExportFromNamespace(helpers$2);
+var transparent = 'transparent';
+var interpolators = {
+  number: function number(from, to, factor) {
+    return from + (to - from) * factor;
+  },
+  color: function color(from, to, factor) {
+    var c0 = require$$0.color(from || transparent);
+    var c1 = c0.valid && require$$0.color(to || transparent);
+    return c1 && c1.valid ? c1.mix(c0, factor).rgbaString() : to;
+  }
+};
 
 var Animation =
 /*#__PURE__*/
-function (_Element) {
-  _inherits(Animation, _Element);
-
-  function Animation(props) {
-    var _this;
-
+function () {
+  function Animation(cfg, target, prop, to) {
     _classCallCheck(this, Animation);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Animation).call(this, {
-      chart: null,
-      // the animation associated chart instance
-      currentStep: 0,
-      // the current animation step
-      numSteps: 60,
-      // default number of steps
-      easing: '',
-      // the easing to use for this animation
-      render: null,
-      // render function used by the animation service
-      onAnimationProgress: null,
-      // user specified callback to fire on each step of the animation
-      onAnimationComplete: null // user specified callback to fire when the animation finishes
+    var me = this;
+    var from = cfg.from;
 
-    }));
-    require$$0.extend(_assertThisInitialized(_this), props);
-    return _this;
+    if (from === undefined) {
+      from = target[prop];
+    }
+
+    if (to === undefined) {
+      to = target[prop];
+    }
+
+    if (from === undefined) {
+      from = to;
+    } else if (to === undefined) {
+      to = from;
+    }
+
+    me._active = true;
+    me._fn = cfg.fn || interpolators[cfg.type || _typeof(from)];
+    me._easing = require$$0.easing.effects[cfg.easing || 'linear'];
+    me._start = Math.floor(Date.now() + (cfg.delay || 0));
+    me._duration = Math.floor(cfg.duration);
+    me._loop = !!cfg.loop;
+    me._target = target;
+    me._prop = prop;
+    me._from = from;
+    me._to = to;
   }
 
+  _createClass(Animation, [{
+    key: "active",
+    value: function active() {
+      return this._active;
+    }
+  }, {
+    key: "cancel",
+    value: function cancel() {
+      var me = this;
+
+      if (me._active) {
+        // update current evaluated value, for smoother animations
+        me.tick(Date.now());
+        me._active = false;
+      }
+    }
+  }, {
+    key: "tick",
+    value: function tick(date) {
+      var me = this;
+      var elapsed = date - me._start;
+      var duration = me._duration;
+      var prop = me._prop;
+      var from = me._from;
+      var loop = me._loop;
+      var to = me._to;
+      var factor;
+      me._active = from !== to && (loop || elapsed < duration);
+
+      if (!me._active) {
+        me._target[prop] = to;
+        return;
+      }
+
+      if (elapsed < 0) {
+        me._target[prop] = from;
+        return;
+      }
+
+      factor = elapsed / duration % 2;
+      factor = loop && factor > 1 ? 2 - factor : factor;
+      factor = me._easing(Math.min(1, Math.max(0, factor)));
+      me._target[prop] = me._fn(from, to, factor);
+    }
+  }]);
+
   return Animation;
-}(require$$7);
+}();
 
 var core_animation = Animation;
 
@@ -4143,110 +4399,221 @@ core_defaults._set('global', {
   animation: {
     duration: 1000,
     easing: 'easeOutQuart',
+    active: {
+      duration: 400
+    },
+    resize: {
+      duration: 0
+    },
+    numbers: {
+      type: 'number',
+      properties: ['x', 'y', 'borderWidth', 'radius', 'tension']
+    },
+    colors: {
+      type: 'color',
+      properties: ['borderColor', 'backgroundColor']
+    },
     onProgress: require$$0.noop,
     onComplete: require$$0.noop
   }
 });
 
-var core_animations = {
-  animations: [],
-  request: null,
+function copyOptions(target, values) {
+  var oldOpts = target.options;
+  var newOpts = values.options;
 
-  /**
-   * @param {Chart} chart - The chart to animate.
-   * @param {Chart.Animation} animation - The animation that we will animate.
-   * @param {number} duration - The animation duration in ms.
-   * @param {boolean} lazy - if true, the chart is not marked as animating to enable more responsive interactions
-   */
-  addAnimation: function addAnimation(chart, animation, duration, lazy) {
-    var animations = this.animations;
-    var i, ilen;
-    animation.chart = chart;
-    animation.startTime = Date.now();
-    animation.duration = duration;
+  if (!oldOpts || !newOpts || newOpts.$shared) {
+    return;
+  }
 
-    if (!lazy) {
-      chart.animating = true;
+  if (oldOpts.$shared) {
+    target.options = require$$0.extend({}, oldOpts, newOpts, {
+      $shared: false
+    });
+  } else {
+    require$$0.extend(oldOpts, newOpts);
+  }
+
+  delete values.options;
+}
+
+var Animations =
+/*#__PURE__*/
+function () {
+  function Animations(chart, animations) {
+    _classCallCheck(this, Animations);
+
+    this._chart = chart;
+    this._properties = new Map();
+    this.configure(animations);
+  }
+
+  _createClass(Animations, [{
+    key: "configure",
+    value: function configure(animations) {
+      var animatedProps = this._properties;
+      var animDefaults = Object.fromEntries(Object.entries(animations).filter(function (_ref) {
+        var value = _ref[1];
+        return !require$$0.isObject(value);
+      }));
+
+      for (var _i = 0, _Object$entries = Object.entries(animations); _i < _Object$entries.length; _i++) {
+        var _Object$entries$_i = _slicedToArray(_Object$entries[_i], 2),
+            key = _Object$entries$_i[0],
+            cfg = _Object$entries$_i[1];
+
+        if (!require$$0.isObject(cfg)) {
+          continue;
+        }
+
+        var _iteratorNormalCompletion = true;
+        var _didIteratorError = false;
+        var _iteratorError = undefined;
+
+        try {
+          for (var _iterator = (cfg.properties || [key])[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var prop = _step.value;
+
+            // Can have only one config per animation.
+            if (!animatedProps.has(prop)) {
+              animatedProps.set(prop, require$$0.extend({}, animDefaults, cfg));
+            } else if (prop === key) {
+              // Single property targetting config wins over multi-targetting.
+              animatedProps.set(prop, require$$0.extend({}, animatedProps.get(prop), cfg));
+            }
+          }
+        } catch (err) {
+          _didIteratorError = true;
+          _iteratorError = err;
+        } finally {
+          try {
+            if (!_iteratorNormalCompletion && _iterator["return"] != null) {
+              _iterator["return"]();
+            }
+          } finally {
+            if (_didIteratorError) {
+              throw _iteratorError;
+            }
+          }
+        }
+      }
     }
+    /**
+     * Utility to handle animation of `options`.
+     * This should not be called, when animating $shared options to $shared new options.
+     * @private
+     * @todo if new options are $shared, target.options should be replaced with those new shared
+     *  options after all animations have completed
+     */
 
-    for (i = 0, ilen = animations.length; i < ilen; ++i) {
-      if (animations[i].chart === chart) {
-        animations[i] = animation;
+  }, {
+    key: "_animateOptions",
+    value: function _animateOptions(target, values) {
+      var newOptions = values.options;
+      var animations = [];
+
+      if (!newOptions) {
+        return animations;
+      }
+
+      var options = target.options;
+
+      if (options) {
+        if (options.$shared) {
+          // If the current / old options are $shared, meaning other elements are
+          // using the same options, we need to clone to become unique.
+          target.options = options = require$$0.extend({}, options, {
+            $shared: false,
+            $animations: {}
+          });
+        }
+
+        animations = this._createAnimations(options, newOptions);
+      } else {
+        target.options = newOptions;
+      }
+
+      return animations;
+    }
+    /**
+     * @private
+     */
+
+  }, {
+    key: "_createAnimations",
+    value: function _createAnimations(target, values) {
+      var animatedProps = this._properties;
+      var animations = [];
+      var running = target.$animations || (target.$animations = {});
+      var props = Object.keys(values);
+      var i;
+
+      for (i = props.length - 1; i >= 0; --i) {
+        var prop = props[i];
+
+        if (prop.charAt(0) === '$') {
+          continue;
+        }
+
+        if (prop === 'options') {
+          animations.push.apply(animations, this._animateOptions(target, values));
+          continue;
+        }
+
+        var value = values[prop];
+        var cfg = animatedProps.get(prop);
+
+        if (!cfg || !cfg.duration) {
+          // not animated, set directly to new value
+          target[prop] = value;
+          continue;
+        }
+
+        var animation = running[prop];
+
+        if (animation) {
+          animation.cancel();
+        }
+
+        running[prop] = animation = new core_animation(cfg, target, prop, value);
+        animations.push(animation);
+      }
+
+      return animations;
+    }
+    /**
+     * Update `target` properties to new values, using configured animations
+     * @param {object} target - object to update
+     * @param {object} values - new target properties
+     * @returns {boolean|undefined} - `true` if animations were started
+     **/
+
+  }, {
+    key: "update",
+    value: function update(target, values) {
+      if (this._properties.size === 0) {
+        // Nothing is animated, just apply the new values.
+        // Options can be shared, need to account for that.
+        copyOptions(target, values); // copyOptions removes the `options` from `values`,
+        // unless it can be directly assigned.
+
+        require$$0.extend(target, values);
         return;
       }
-    }
 
-    animations.push(animation); // If there are no animations queued, manually kickstart a digest, for lack of a better word
+      var animations = this._createAnimations(target, values);
 
-    if (animations.length === 1) {
-      this.requestAnimationFrame();
-    }
-  },
-  cancelAnimation: function cancelAnimation(chart) {
-    var index = require$$0.findIndex(this.animations, function (animation) {
-      return animation.chart === chart;
-    });
-
-    if (index !== -1) {
-      this.animations.splice(index, 1);
-      chart.animating = false;
-    }
-  },
-  requestAnimationFrame: function requestAnimationFrame() {
-    var me = this;
-
-    if (me.request === null) {
-      // Skip animation frame requests until the active one is executed.
-      // This can happen when processing mouse events, e.g. 'mousemove'
-      // and 'mouseout' events will trigger multiple renders.
-      me.request = require$$0.requestAnimFrame.call(window, function () {
-        me.request = null;
-        me.startDigest();
-      });
-    }
-  },
-
-  /**
-   * @private
-   */
-  startDigest: function startDigest() {
-    var me = this;
-    me.advance(); // Do we have more stuff to animate?
-
-    if (me.animations.length > 0) {
-      me.requestAnimationFrame();
-    }
-  },
-
-  /**
-   * @private
-   */
-  advance: function advance() {
-    var animations = this.animations;
-    var animation, chart, numSteps, nextStep;
-    var i = 0; // 1 animation per chart, so we are looping charts here
-
-    while (i < animations.length) {
-      animation = animations[i];
-      chart = animation.chart;
-      numSteps = animation.numSteps; // Make sure that currentStep starts at 1
-      // https://github.com/chartjs/Chart.js/issues/6104
-
-      nextStep = Math.floor((Date.now() - animation.startTime) / animation.duration * numSteps) + 1;
-      animation.currentStep = Math.min(nextStep, numSteps);
-      require$$0.callback(animation.render, [chart, animation], chart);
-      require$$0.callback(animation.onAnimationProgress, [animation], chart);
-
-      if (animation.currentStep >= numSteps) {
-        require$$0.callback(animation.onAnimationComplete, [animation], chart);
-        chart.animating = false;
-        animations.splice(i, 1);
-      } else {
-        ++i;
+      if (animations.length) {
+        core_animator.add(this._chart, animations);
+        return true;
       }
     }
-  }
-};
+  }]);
+
+  return Animations;
+}();
+
+var core_animations = Animations;
 
 var resolve$1 = require$$0.options.resolve;
 var arrayEvents = ['push', 'pop', 'shift', 'splice', 'unshift'];
@@ -4519,6 +4886,8 @@ require$$0.extend(DatasetController.prototype, {
     me.chart = chart;
     me._ctx = chart.ctx;
     me.index = datasetIndex;
+    me._cachedAnimations = {};
+    me._cachedDataOpts = {};
     me._cachedMeta = meta = me.getMeta();
     me._type = meta.type;
 
@@ -4591,7 +4960,7 @@ require$$0.extend(DatasetController.prototype, {
     return scale === meta.iScale ? meta.vScale : meta.iScale;
   },
   reset: function reset() {
-    this._update(true);
+    this._update('reset');
   },
 
   /**
@@ -4696,7 +5065,7 @@ require$$0.extend(DatasetController.prototype, {
   },
 
   /**
-   * Returns the merged user-supplied and default dataset-level options
+   * Merges user-supplied and default dataset-level options
    * @private
    */
   _configure: function _configure() {
@@ -5004,33 +5373,20 @@ require$$0.extend(DatasetController.prototype, {
   /**
    * @private
    */
-  _update: function _update(reset) {
+  _update: function _update(mode) {
     var me = this;
     var meta = me._cachedMeta;
 
     me._configure();
 
-    me._cachedDataOpts = null;
-    me.update(reset);
+    me._cachedAnimations = {};
+    me._cachedDataOpts = {};
+    me.update(mode);
     meta._clip = toClip(require$$0.valueOrDefault(me._config.clip, defaultClip(meta.xScale, meta.yScale, me._getMaxOverflow())));
 
     me._cacheScaleStackStatus();
   },
   update: require$$0.noop,
-  transition: function transition(easingValue) {
-    var meta = this._cachedMeta;
-    var elements = meta.data || [];
-    var ilen = elements.length;
-    var i = 0;
-
-    for (; i < ilen; ++i) {
-      elements[i].transition(easingValue);
-    }
-
-    if (meta.dataset) {
-      meta.dataset.transition(easingValue);
-    }
-  },
   draw: function draw() {
     var ctx = this._ctx;
     var meta = this._cachedMeta;
@@ -5046,6 +5402,21 @@ require$$0.extend(DatasetController.prototype, {
       elements[i].draw(ctx);
     }
   },
+  _addAutomaticHoverColors: function _addAutomaticHoverColors(index, options) {
+    var me = this;
+    var getHoverColor = require$$0.getHoverColor;
+    var normalOptions = me.getStyle(index);
+    var missingColors = Object.keys(normalOptions).filter(function (key) {
+      return key.indexOf('Color') !== -1 && !(key in options);
+    });
+    var i = missingColors.length - 1;
+    var color;
+
+    for (; i >= 0; i--) {
+      color = missingColors[i];
+      options[color] = getHoverColor(normalOptions[color]);
+    }
+  },
 
   /**
    * Returns a set of predefined style properties that should be used to represent the dataset
@@ -5053,24 +5424,31 @@ require$$0.extend(DatasetController.prototype, {
    * @param {number} index - data index
    * @return {IStyleInterface} style object
    */
-  getStyle: function getStyle(index) {
+  getStyle: function getStyle(index, active) {
     var me = this;
     var meta = me._cachedMeta;
     var dataset = meta.dataset;
-    var style;
 
-    if (dataset && index === undefined) {
-      style = me._resolveDatasetElementOptions();
-    } else {
-      index = index || 0;
-      style = me._resolveDataElementOptions(index);
+    if (!me._config) {
+      me._configure();
     }
 
-    if (style.fill === false || style.fill === null) {
-      style.backgroundColor = style.borderColor;
+    var options = dataset && index === undefined ? me._resolveDatasetElementOptions(active) : me._resolveDataElementOptions(index || 0, active && 'active');
+
+    if (active) {
+      me._addAutomaticHoverColors(index, options);
     }
 
-    return style;
+    return options;
+  },
+  _getContext: function _getContext(index, active) {
+    return {
+      chart: this.chart,
+      dataIndex: index,
+      dataset: this.getDataset(),
+      datasetIndex: this.index,
+      active: active
+    };
   },
 
   /**
@@ -5083,18 +5461,19 @@ require$$0.extend(DatasetController.prototype, {
     var options = chart.options.elements[me.datasetElementType.prototype._type] || {};
     var elementOptions = me._datasetElementOptions;
     var values = {};
-    var context = {
-      chart: chart,
-      dataset: me.getDataset(),
-      datasetIndex: me.index,
-      active: active
-    };
-    var i, ilen, key, readKey;
+
+    var context = me._getContext(undefined, active);
+
+    var i, ilen, key, readKey, value;
 
     for (i = 0, ilen = elementOptions.length; i < ilen; ++i) {
       key = elementOptions[i];
       readKey = active ? 'hover' + key.charAt(0).toUpperCase() + key.slice(1) : key;
-      values[key] = resolve$1([datasetOpts[readKey], options[readKey]], context);
+      value = resolve$1([datasetOpts[readKey], options[readKey]], context);
+
+      if (value !== undefined) {
+        values[key] = value;
+      }
     }
 
     return values;
@@ -5103,12 +5482,13 @@ require$$0.extend(DatasetController.prototype, {
   /**
    * @private
    */
-  _resolveDataElementOptions: function _resolveDataElementOptions(index) {
+  _resolveDataElementOptions: function _resolveDataElementOptions(index, mode) {
     var me = this;
+    var active = mode === 'active';
     var cached = me._cachedDataOpts;
 
-    if (cached) {
-      return cached;
+    if (cached[mode]) {
+      return cached[mode];
     }
 
     var chart = me.chart;
@@ -5116,53 +5496,147 @@ require$$0.extend(DatasetController.prototype, {
     var options = chart.options.elements[me.dataElementType.prototype._type] || {};
     var elementOptions = me._dataElementOptions;
     var values = {};
-    var context = {
-      chart: chart,
-      dataIndex: index,
-      dataset: me.getDataset(),
-      datasetIndex: me.index
-    };
+
+    var context = me._getContext(index, active);
+
     var info = {
-      cacheable: true
+      cacheable: !active
     };
-    var keys, i, ilen, key;
+    var keys, i, ilen, key, value, readKey;
 
     if (require$$0.isArray(elementOptions)) {
       for (i = 0, ilen = elementOptions.length; i < ilen; ++i) {
         key = elementOptions[i];
-        values[key] = resolve$1([datasetOpts[key], options[key]], context, index, info);
+        readKey = active ? 'hover' + key.charAt(0).toUpperCase() + key.slice(1) : key;
+        value = resolve$1([datasetOpts[readKey], options[readKey]], context, index, info);
+
+        if (value !== undefined) {
+          values[key] = value;
+        }
       }
     } else {
       keys = Object.keys(elementOptions);
 
       for (i = 0, ilen = keys.length; i < ilen; ++i) {
         key = keys[i];
-        values[key] = resolve$1([datasetOpts[elementOptions[key]], datasetOpts[key], options[key]], context, index, info);
+        readKey = active ? 'hover' + key.charAt(0).toUpperCase() + key.slice(1) : key;
+        value = resolve$1([datasetOpts[elementOptions[readKey]], datasetOpts[readKey], options[readKey]], context, index, info);
+
+        if (value !== undefined) {
+          values[key] = value;
+        }
       }
     }
 
     if (info.cacheable) {
-      me._cachedDataOpts = Object.freeze(values);
+      // `$shared` indicades this set of options can be shared between multiple elements.
+      // Sharing is used to reduce number of properties to change during animation.
+      values.$shared = true; // We cache options by `mode`, which can be 'active' for example. This enables us
+      // to have the 'active' element options and 'default' options to switch between
+      // when interacting.
+
+      cached[mode] = values;
     }
 
     return values;
   },
-  removeHoverStyle: function removeHoverStyle(element) {
-    require$$0.merge(element._model, element.$previousStyle || {});
-    delete element.$previousStyle;
+
+  /**
+   * @private
+   */
+  _resolveAnimations: function _resolveAnimations(index, mode, active) {
+    var me = this;
+    var chart = me.chart;
+    var cached = me._cachedAnimations;
+    mode = mode || 'default';
+
+    if (cached[mode]) {
+      return cached[mode];
+    }
+
+    var info = {
+      cacheable: true
+    };
+
+    var context = me._getContext(index, active);
+
+    var datasetAnim = resolve$1([me._config.animation], context, index, info);
+    var chartAnim = resolve$1([chart.options.animation], context, index, info);
+    var config = require$$0.mergeIf({}, [datasetAnim, chartAnim]);
+
+    if (active && config.active) {
+      config = require$$0.extend({}, config, config.active);
+    }
+
+    if (mode === 'resize' && config.resize) {
+      config = require$$0.extend({}, config, config.resize);
+    }
+
+    var animations = new core_animations(chart, config);
+
+    if (info.cacheable) {
+      cached[mode] = animations && Object.freeze(animations);
+    }
+
+    return animations;
+  },
+
+  /**
+   * Utility for checking if the options are shared and should be animated separately.
+   * @private
+   */
+  _getSharedOptions: function _getSharedOptions(mode, el, options) {
+    if (mode !== 'reset' && options && options.$shared && el && el.options && el.options.$shared) {
+      return {
+        target: el.options,
+        options: options
+      };
+    }
+  },
+
+  /**
+   * Utility for determining if `options` should be included in the updated properties
+   * @private
+   */
+  _includeOptions: function _includeOptions(mode, sharedOptions) {
+    return mode !== 'resize' && !sharedOptions;
+  },
+
+  /**
+   * Utility for updating a element with new properties, using animations when appropriate.
+   * @private
+   */
+  _updateElement: function _updateElement(element, index, properties, mode) {
+    if (mode === 'reset' || mode === 'none') {
+      require$$0.extend(element, properties);
+    } else {
+      this._resolveAnimations(index, mode).update(element, properties);
+    }
+  },
+
+  /**
+   * Utility to animate the shared options, that are potentially affecting multiple elements.
+   * @private
+   */
+  _updateSharedOptions: function _updateSharedOptions(sharedOptions, mode) {
+    if (sharedOptions) {
+      this._resolveAnimations(undefined, mode).update(sharedOptions.target, sharedOptions.options);
+    }
+  },
+
+  /**
+   * @private
+   */
+  _setStyle: function _setStyle(element, index, mode, active) {
+    this._resolveAnimations(index, mode, active).update(element, {
+      options: this.getStyle(index, active)
+    });
+  },
+  removeHoverStyle: function removeHoverStyle(element, datasetIndex, index) {
+    this._setStyle(element, index, 'active', false);
   },
   setHoverStyle: function setHoverStyle(element, datasetIndex, index) {
-    var dataset = this.chart.data.datasets[datasetIndex];
-    var model = element._model;
-    var getHoverColor = require$$0.getHoverColor;
-    element.$previousStyle = {
-      backgroundColor: model.backgroundColor,
-      borderColor: model.borderColor,
-      borderWidth: model.borderWidth
-    };
-    model.backgroundColor = resolve$1([dataset.hoverBackgroundColor, getHoverColor(model.backgroundColor)], undefined, index);
-    model.borderColor = resolve$1([dataset.hoverBorderColor, getHoverColor(model.borderColor)], undefined, index);
-    model.borderWidth = resolve$1([dataset.hoverBorderWidth, model.borderWidth], undefined, index);
+    this._setStyle(element, index, 'active', true);
   },
 
   /**
@@ -5172,7 +5646,7 @@ require$$0.extend(DatasetController.prototype, {
     var element = this._cachedMeta.dataset;
 
     if (element) {
-      this.removeHoverStyle(element);
+      this._setStyle(element, undefined, 'active', false);
     }
   },
 
@@ -5181,24 +5655,10 @@ require$$0.extend(DatasetController.prototype, {
    */
   _setDatasetHoverStyle: function _setDatasetHoverStyle() {
     var element = this._cachedMeta.dataset;
-    var prev = {};
-    var i, ilen, key, keys, hoverOptions, model;
 
-    if (!element) {
-      return;
+    if (element) {
+      this._setStyle(element, undefined, 'active', true);
     }
-
-    model = element._model;
-    hoverOptions = this._resolveDatasetElementOptions(true);
-    keys = Object.keys(hoverOptions);
-
-    for (i = 0, ilen = keys.length; i < ilen; ++i) {
-      key = keys[i];
-      prev[key] = model[key];
-      model[key] = hoverOptions[key];
-    }
-
-    element.$previousStyle = prev;
   },
 
   /**
@@ -5247,7 +5707,7 @@ require$$0.extend(DatasetController.prototype, {
 
     me._parse(start, count);
 
-    me.updateElements(data, start, count);
+    me.updateElements(data, start, count, 'reset');
   },
 
   /**
@@ -5302,6 +5762,40 @@ require$$0.extend(DatasetController.prototype, {
 });
 DatasetController.extend = require$$0.inherits;
 var core_datasetController = DatasetController;
+
+var Element =
+/*#__PURE__*/
+function () {
+  function Element(configuration) {
+    _classCallCheck(this, Element);
+
+    extend(this, configuration); // this.hidden = false; we assume Element has an attribute called hidden, but do not initialize to save memory
+  }
+
+  _createClass(Element, [{
+    key: "tooltipPosition",
+    value: function tooltipPosition() {
+      return {
+        x: this.x,
+        y: this.y
+      };
+    }
+  }, {
+    key: "hasValue",
+    value: function hasValue() {
+      return isNumber(this.x) && isNumber(this.y);
+    }
+  }]);
+
+  return Element;
+}();
+
+Element.extend = inherits;
+
+var core_element = /*#__PURE__*/Object.freeze({
+__proto__: null,
+'default': Element
+});
 
 var TAU = Math.PI * 2;
 
@@ -5370,13 +5864,14 @@ function drawFullCircleBorders(ctx, vm, arc, inner) {
 }
 
 function drawBorder(ctx, vm, arc) {
-  var inner = vm.borderAlign === 'inner';
+  var options = vm.options;
+  var inner = options.borderAlign === 'inner';
 
   if (inner) {
-    ctx.lineWidth = vm.borderWidth * 2;
+    ctx.lineWidth = options.borderWidth * 2;
     ctx.lineJoin = 'round';
   } else {
-    ctx.lineWidth = vm.borderWidth;
+    ctx.lineWidth = options.borderWidth;
     ctx.lineJoin = 'bevel';
   }
 
@@ -5409,80 +5904,76 @@ function (_Element) {
   _createClass(Arc, [{
     key: "inRange",
     value: function inRange(chartX, chartY) {
-      var vm = this._view;
+      var me = this;
+      var pointRelativePosition = getAngleFromPoint(me, {
+        x: chartX,
+        y: chartY
+      });
+      var angle = pointRelativePosition.angle;
+      var distance = pointRelativePosition.distance; // Sanitise angle range
 
-      if (vm) {
-        var pointRelativePosition = getAngleFromPoint(vm, {
-          x: chartX,
-          y: chartY
-        });
-        var angle = pointRelativePosition.angle;
-        var distance = pointRelativePosition.distance; // Sanitise angle range
+      var startAngle = me.startAngle;
+      var endAngle = me.endAngle;
 
-        var startAngle = vm.startAngle;
-        var endAngle = vm.endAngle;
-
-        while (endAngle < startAngle) {
-          endAngle += TAU;
-        }
-
-        while (angle > endAngle) {
-          angle -= TAU;
-        }
-
-        while (angle < startAngle) {
-          angle += TAU;
-        } // Check if within the range of the open/close angle
-
-
-        var betweenAngles = angle >= startAngle && angle <= endAngle;
-        var withinRadius = distance >= vm.innerRadius && distance <= vm.outerRadius;
-        return betweenAngles && withinRadius;
+      while (endAngle < startAngle) {
+        endAngle += TAU;
       }
 
-      return false;
+      while (angle > endAngle) {
+        angle -= TAU;
+      }
+
+      while (angle < startAngle) {
+        angle += TAU;
+      } // Check if within the range of the open/close angle
+
+
+      var betweenAngles = angle >= startAngle && angle <= endAngle;
+      var withinRadius = distance >= me.innerRadius && distance <= me.outerRadius;
+      return betweenAngles && withinRadius;
     }
   }, {
     key: "getCenterPoint",
     value: function getCenterPoint() {
-      var vm = this._view;
-      var halfAngle = (vm.startAngle + vm.endAngle) / 2;
-      var halfRadius = (vm.innerRadius + vm.outerRadius) / 2;
+      var me = this;
+      var halfAngle = (me.startAngle + me.endAngle) / 2;
+      var halfRadius = (me.innerRadius + me.outerRadius) / 2;
       return {
-        x: vm.x + Math.cos(halfAngle) * halfRadius,
-        y: vm.y + Math.sin(halfAngle) * halfRadius
+        x: me.x + Math.cos(halfAngle) * halfRadius,
+        y: me.y + Math.sin(halfAngle) * halfRadius
       };
     }
   }, {
     key: "tooltipPosition",
     value: function tooltipPosition() {
-      var vm = this._view;
-      var centreAngle = vm.startAngle + (vm.endAngle - vm.startAngle) / 2;
-      var rangeFromCentre = (vm.outerRadius - vm.innerRadius) / 2 + vm.innerRadius;
+      var me = this;
+      var centreAngle = me.startAngle + (me.endAngle - me.startAngle) / 2;
+      var rangeFromCentre = (me.outerRadius - me.innerRadius) / 2 + me.innerRadius;
       return {
-        x: vm.x + Math.cos(centreAngle) * rangeFromCentre,
-        y: vm.y + Math.sin(centreAngle) * rangeFromCentre
+        x: me.x + Math.cos(centreAngle) * rangeFromCentre,
+        y: me.y + Math.sin(centreAngle) * rangeFromCentre
       };
     }
   }, {
     key: "draw",
     value: function draw(ctx) {
-      var vm = this._view;
-      var pixelMargin = vm.borderAlign === 'inner' ? 0.33 : 0;
+      var me = this;
+      var options = me.options;
+      var pixelMargin = options.borderAlign === 'inner' ? 0.33 : 0;
       var arc = {
-        x: vm.x,
-        y: vm.y,
-        innerRadius: vm.innerRadius,
-        outerRadius: Math.max(vm.outerRadius - pixelMargin, 0),
+        x: me.x,
+        y: me.y,
+        innerRadius: me.innerRadius,
+        outerRadius: Math.max(me.outerRadius - pixelMargin, 0),
         pixelMargin: pixelMargin,
-        startAngle: vm.startAngle,
-        endAngle: vm.endAngle,
-        fullCircles: Math.floor(vm.circumference / TAU)
+        startAngle: me.startAngle,
+        endAngle: me.endAngle,
+        fullCircles: Math.floor(me.circumference / TAU)
       };
       var i;
       ctx.save();
-      ctx.fillStyle = vm.backgroundColor;
-      ctx.strokeStyle = vm.borderColor;
+      ctx.fillStyle = options.backgroundColor;
+      ctx.strokeStyle = options.borderColor;
 
       if (arc.fullCircles) {
         arc.endAngle = arc.startAngle + TAU;
@@ -5495,7 +5986,7 @@ function (_Element) {
           ctx.fill();
         }
 
-        arc.endAngle = arc.startAngle + vm.circumference % TAU;
+        arc.endAngle = arc.startAngle + me.circumference % TAU;
       }
 
       ctx.beginPath();
@@ -5504,8 +5995,8 @@ function (_Element) {
       ctx.closePath();
       ctx.fill();
 
-      if (vm.borderWidth) {
-        drawBorder(ctx, vm, arc);
+      if (options.borderWidth) {
+        drawBorder(ctx, me, arc);
       }
 
       ctx.restore();
@@ -5518,6 +6009,7 @@ function (_Element) {
 Arc.prototype._type = 'arc';
 
 var defaultColor = core_defaults.global.defaultColor;
+var isPointInArea = helpers$1.canvas._isPointInArea;
 
 core_defaults._set('global', {
   elements: {
@@ -5531,51 +6023,68 @@ core_defaults._set('global', {
       borderDashOffset: 0.0,
       borderJoinStyle: 'miter',
       capBezierPoints: true,
-      fill: true // do we fill in the area between the line and its base axis
-
+      fill: true
     }
   }
 });
 
 function startAtGap(points, spanGaps) {
   var closePath = true;
-  var previous = points.length && points[0]._view;
-  var index, view;
+  var previous = points.length && points[0];
+  var index, point;
 
   for (index = 1; index < points.length; ++index) {
     // If there is a gap in the (looping) line, start drawing from that gap
-    view = points[index]._view;
+    point = points[index];
 
-    if (!view.skip && previous.skip) {
+    if (!point.skip && previous.skip) {
       points = points.slice(index).concat(points.slice(0, index));
       closePath = spanGaps;
       break;
     }
 
-    previous = view;
+    previous = point;
   }
 
   points.closePath = closePath;
   return points;
 }
 
-function setStyle(ctx, vm) {
-  ctx.lineCap = vm.borderCapStyle;
-  ctx.setLineDash(vm.borderDash);
-  ctx.lineDashOffset = vm.borderDashOffset;
-  ctx.lineJoin = vm.borderJoinStyle;
-  ctx.lineWidth = vm.borderWidth;
-  ctx.strokeStyle = vm.borderColor;
+function setStyle(ctx, options) {
+  ctx.lineCap = options.borderCapStyle;
+  ctx.setLineDash(options.borderDash);
+  ctx.lineDashOffset = options.borderDashOffset;
+  ctx.lineJoin = options.borderJoinStyle;
+  ctx.lineWidth = options.borderWidth;
+  ctx.strokeStyle = options.borderColor;
 }
 
-function normalPath(ctx, points, spanGaps, vm) {
-  var steppedLine = vm.steppedLine;
-  var lineMethod = steppedLine ? helpers$1.canvas._steppedLineTo : helpers$1.canvas._bezierCurveTo;
+function bezierCurveTo(ctx, previous, target, flip) {
+  ctx.bezierCurveTo(flip ? previous.controlPointPreviousX : previous.controlPointNextX, flip ? previous.controlPointPreviousY : previous.controlPointNextY, flip ? target.controlPointNextX : target.controlPointPreviousX, flip ? target.controlPointNextY : target.controlPointPreviousY, target.x, target.y);
+}
+
+function steppedLineTo(ctx, previous, target, flip, mode) {
+  if (mode === 'middle') {
+    var midpoint = (previous.x + target.x) / 2.0;
+    ctx.lineTo(midpoint, flip ? target.y : previous.y);
+    ctx.lineTo(midpoint, flip ? previous.y : target.y);
+  } else if (mode === 'after' && !flip || mode !== 'after' && flip) {
+    ctx.lineTo(previous.x, target.y);
+  } else {
+    ctx.lineTo(target.x, previous.y);
+  }
+
+  ctx.lineTo(target.x, target.y);
+}
+
+function normalPath(ctx, points, spanGaps, options) {
+  var steppedLine = options.steppedLine;
+  var lineMethod = steppedLine ? steppedLineTo : bezierCurveTo;
   var move = true;
   var index, currentVM, previousVM;
 
   for (index = 0; index < points.length; ++index) {
-    currentVM = points[index]._view;
+    currentVM = points[index];
 
     if (currentVM.skip) {
       move = move || !spanGaps;
@@ -5585,7 +6094,7 @@ function normalPath(ctx, points, spanGaps, vm) {
     if (move) {
       ctx.moveTo(currentVM.x, currentVM.y);
       move = false;
-    } else if (vm.tension || steppedLine) {
+    } else if (options.tension || steppedLine) {
       lineMethod(ctx, previousVM, currentVM, false, steppedLine);
     } else {
       ctx.lineTo(currentVM.x, currentVM.y);
@@ -5610,7 +6119,7 @@ function fastPath(ctx, points, spanGaps) {
   var index, vm, truncX, x, y, prevX, minY, maxY, lastY;
 
   for (index = 0; index < points.length; ++index) {
-    vm = points[index]._view; // If point is skipped, we either move to next (not skipped) point
+    vm = points[index]; // If point is skipped, we either move to next (not skipped) point
     // or line to it if spanGaps is true. `move` can already be true.
 
     if (vm.skip) {
@@ -5654,8 +6163,62 @@ function fastPath(ctx, points, spanGaps) {
   }
 }
 
-function useFastPath(vm) {
-  return vm.tension === 0 && !vm.steppedLine && !vm.fill && !vm.borderDash.length;
+function useFastPath(options) {
+  return options.tension === 0 && !options.steppedLine && !options.fill && !options.borderDash.length;
+}
+
+function capControlPoint(pt, min, max) {
+  return Math.max(Math.min(pt, max), min);
+}
+
+function capBezierPoints(points, area) {
+  var i, ilen, model;
+
+  for (i = 0, ilen = points.length; i < ilen; ++i) {
+    model = points[i];
+
+    if (isPointInArea(model, area)) {
+      if (i > 0 && isPointInArea(points[i - 1], area)) {
+        model.controlPointPreviousX = capControlPoint(model.controlPointPreviousX, area.left, area.right);
+        model.controlPointPreviousY = capControlPoint(model.controlPointPreviousY, area.top, area.bottom);
+      }
+
+      if (i < points.length - 1 && isPointInArea(points[i + 1], area)) {
+        model.controlPointNextX = capControlPoint(model.controlPointNextX, area.left, area.right);
+        model.controlPointNextY = capControlPoint(model.controlPointNextY, area.top, area.bottom);
+      }
+    }
+  }
+}
+
+function updateBezierControlPoints(points, options, area, loop) {
+  var i, ilen, point, controlPoints; // Only consider points that are drawn in case the spanGaps option is used
+
+  if (options.spanGaps) {
+    points = points.filter(function (pt) {
+      return !pt.skip;
+    });
+  }
+
+  if (options.cubicInterpolationMode === 'monotone') {
+    helpers$1.curve.splineCurveMonotone(points);
+  } else {
+    var prev = loop ? points[points.length - 1] : points[0];
+
+    for (i = 0, ilen = points.length; i < ilen; ++i) {
+      point = points[i];
+      controlPoints = helpers$1.curve.splineCurve(prev, point, points[Math.min(i + 1, ilen - (loop ? 0 : 1)) % ilen], options.tension);
+      point.controlPointPreviousX = controlPoints.previous.x;
+      point.controlPointPreviousY = controlPoints.previous.y;
+      point.controlPointNextX = controlPoints.next.x;
+      point.controlPointNextY = controlPoints.next.y;
+      prev = point;
+    }
+  }
+
+  if (options.capBezierPoints) {
+    capBezierPoints(points, area);
+  }
 }
 
 var Line =
@@ -5670,11 +6233,26 @@ function (_Element) {
   }
 
   _createClass(Line, [{
-    key: "draw",
-    value: function draw(ctx) {
+    key: "updateControlPoints",
+    value: function updateControlPoints(chartArea) {
       var me = this;
-      var vm = me._view;
-      var spanGaps = vm.spanGaps;
+
+      if (me._controlPointsUpdated) {
+        return;
+      }
+
+      var options = me.options;
+
+      if (options.tension && !options.steppedLine) {
+        updateBezierControlPoints(me._children, options, chartArea, me._loop);
+      }
+    }
+  }, {
+    key: "drawPath",
+    value: function drawPath(ctx, area) {
+      var me = this;
+      var options = me.options;
+      var spanGaps = options.spanGaps;
       var closePath = me._loop;
       var points = me._children;
 
@@ -5687,17 +6265,29 @@ function (_Element) {
         closePath = points.closePath;
       }
 
-      ctx.save();
-      setStyle(ctx, vm);
-      ctx.beginPath();
-
-      if (useFastPath(vm)) {
+      if (useFastPath(options)) {
         fastPath(ctx, points, spanGaps);
       } else {
-        normalPath(ctx, points, spanGaps, vm);
+        me.updateControlPoints(area);
+        normalPath(ctx, points, spanGaps, options);
       }
 
-      if (closePath) {
+      return closePath;
+    }
+  }, {
+    key: "draw",
+    value: function draw(ctx, area) {
+      var me = this;
+
+      if (!me._children.length) {
+        return;
+      }
+
+      ctx.save();
+      setStyle(ctx, me.options);
+      ctx.beginPath();
+
+      if (me.drawPath(ctx, area)) {
         ctx.closePath();
       }
 
@@ -5743,68 +6333,64 @@ function (_Element) {
   _createClass(Point, [{
     key: "inRange",
     value: function inRange(mouseX, mouseY) {
-      var vm = this._view;
-      return vm ? Math.pow(mouseX - vm.x, 2) + Math.pow(mouseY - vm.y, 2) < Math.pow(vm.hitRadius + vm.radius, 2) : false;
+      var options = this.options;
+      return Math.pow(mouseX - this.x, 2) + Math.pow(mouseY - this.y, 2) < Math.pow(options.hitRadius + options.radius, 2);
     }
   }, {
     key: "inXRange",
     value: function inXRange(mouseX) {
-      var vm = this._view;
-      return vm ? Math.abs(mouseX - vm.x) < vm.radius + vm.hitRadius : false;
+      var options = this.options;
+      return Math.abs(mouseX - this.x) < options.radius + options.hitRadius;
     }
   }, {
     key: "inYRange",
     value: function inYRange(mouseY) {
-      var vm = this._view;
-      return vm ? Math.abs(mouseY - vm.y) < vm.radius + vm.hitRadius : false;
+      var options = this.options;
+      return Math.abs(mouseY - this.y) < options.radius + options.hitRadius;
     }
   }, {
     key: "getCenterPoint",
     value: function getCenterPoint() {
-      var vm = this._view;
       return {
-        x: vm.x,
-        y: vm.y
+        x: this.x,
+        y: this.y
       };
     }
   }, {
     key: "size",
     value: function size() {
-      var vm = this._view;
-      var radius = vm.radius || 0;
-      var borderWidth = vm.borderWidth || 0;
+      var options = this.options || {};
+      var radius = options.radius || 0;
+      var borderWidth = radius && options.borderWidth || 0;
       return (radius + borderWidth) * 2;
     }
   }, {
     key: "tooltipPosition",
     value: function tooltipPosition() {
-      var vm = this._view;
+      var options = this.options;
       return {
-        x: vm.x,
-        y: vm.y,
-        padding: vm.radius + vm.borderWidth
+        x: this.x,
+        y: this.y,
+        padding: options.radius + options.borderWidth
       };
     }
   }, {
     key: "draw",
     value: function draw(ctx, chartArea) {
-      var vm = this._view;
-      var pointStyle = vm.pointStyle;
-      var rotation = vm.rotation;
-      var radius = vm.radius;
-      var x = vm.x;
-      var y = vm.y;
+      var me = this;
+      var options = me.options;
+      var radius = options.radius;
 
-      if (vm.skip || radius <= 0) {
+      if (me.skip || radius <= 0) {
         return;
       } // Clipping for Points.
 
 
-      if (chartArea === undefined || helpers$1.canvas._isPointInArea(vm, chartArea)) {
-        ctx.strokeStyle = vm.borderColor;
-        ctx.lineWidth = vm.borderWidth;
-        ctx.fillStyle = vm.backgroundColor;
-        helpers$1.canvas.drawPoint(ctx, pointStyle, radius, x, y, rotation);
+      if (chartArea === undefined || helpers$1.canvas._isPointInArea(me, chartArea)) {
+        ctx.strokeStyle = options.borderColor;
+        ctx.lineWidth = options.borderWidth;
+        ctx.fillStyle = options.backgroundColor;
+        helpers$1.canvas.drawPoint(ctx, options.pointStyle, radius, me.x, me.y, options.rotation);
       }
     }
   }]);
@@ -5826,10 +6412,6 @@ core_defaults._set('global', {
     }
   }
 });
-
-function isVertical(vm) {
-  return vm && vm.width !== undefined;
-}
 /**
  * Helper function to get the bounds of the bar regardless of the orientation
  * @param bar {Chart.Element.Rectangle} the bar
@@ -5838,21 +6420,21 @@ function isVertical(vm) {
  */
 
 
-function getBarBounds(vm) {
+function getBarBounds(bar) {
   var x1, x2, y1, y2, half;
 
-  if (isVertical(vm)) {
-    half = vm.width / 2;
-    x1 = vm.x - half;
-    x2 = vm.x + half;
-    y1 = Math.min(vm.y, vm.base);
-    y2 = Math.max(vm.y, vm.base);
+  if (bar.horizontal) {
+    half = bar.height / 2;
+    x1 = Math.min(bar.x, bar.base);
+    x2 = Math.max(bar.x, bar.base);
+    y1 = bar.y - half;
+    y2 = bar.y + half;
   } else {
-    half = vm.height / 2;
-    x1 = Math.min(vm.x, vm.base);
-    x2 = Math.max(vm.x, vm.base);
-    y1 = vm.y - half;
-    y2 = vm.y + half;
+    half = bar.width / 2;
+    x1 = bar.x - half;
+    x2 = bar.x + half;
+    y1 = Math.min(bar.y, bar.base);
+    y2 = Math.max(bar.y, bar.base);
   }
 
   return {
@@ -5867,19 +6449,19 @@ function swap(orig, v1, v2) {
   return orig === v1 ? v2 : orig === v2 ? v1 : orig;
 }
 
-function parseBorderSkipped(vm) {
-  var edge = vm.borderSkipped;
+function parseBorderSkipped(bar) {
+  var edge = bar.options.borderSkipped;
   var res = {};
 
   if (!edge) {
     return res;
   }
 
-  if (vm.horizontal) {
-    if (vm.base > vm.x) {
+  if (bar.horizontal) {
+    if (bar.base > bar.x) {
       edge = swap(edge, 'left', 'right');
     }
-  } else if (vm.base < vm.y) {
+  } else if (bar.base < bar.y) {
     edge = swap(edge, 'bottom', 'top');
   }
 
@@ -5887,9 +6469,9 @@ function parseBorderSkipped(vm) {
   return res;
 }
 
-function parseBorderWidth(vm, maxW, maxH) {
-  var value = vm.borderWidth;
-  var skip = parseBorderSkipped(vm);
+function parseBorderWidth(bar, maxW, maxH) {
+  var value = bar.options.borderWidth;
+  var skip = parseBorderSkipped(bar);
   var t, r, b, l;
 
   if (helpers$1.isObject(value)) {
@@ -5909,11 +6491,11 @@ function parseBorderWidth(vm, maxW, maxH) {
   };
 }
 
-function boundingRects(vm) {
-  var bounds = getBarBounds(vm);
+function boundingRects(bar) {
+  var bounds = getBarBounds(bar);
   var width = bounds.right - bounds.left;
   var height = bounds.bottom - bounds.top;
-  var border = parseBorderWidth(vm, width / 2, height / 2);
+  var border = parseBorderWidth(bar, width / 2, height / 2);
   return {
     outer: {
       x: bounds.left,
@@ -5930,10 +6512,10 @@ function boundingRects(vm) {
   };
 }
 
-function _inRange(vm, x, y) {
+function _inRange(bar, x, y) {
   var skipX = x === null;
   var skipY = y === null;
-  var bounds = !vm || skipX && skipY ? false : getBarBounds(vm);
+  var bounds = !bar || skipX && skipY ? false : getBarBounds(bar);
   return bounds && (skipX || x >= bounds.left && x <= bounds.right) && (skipY || y >= bounds.top && y <= bounds.bottom);
 }
 
@@ -5951,11 +6533,11 @@ function (_Element) {
   _createClass(Rectangle, [{
     key: "draw",
     value: function draw(ctx) {
-      var vm = this._view;
-      var rects = boundingRects(vm);
+      var options = this.options;
+      var rects = boundingRects(this);
       var outer = rects.outer;
       var inner = rects.inner;
-      ctx.fillStyle = vm.backgroundColor;
+      ctx.fillStyle = options.backgroundColor;
       ctx.fillRect(outer.x, outer.y, outer.w, outer.h);
 
       if (outer.w === inner.w && outer.h === inner.h) {
@@ -5966,7 +6548,7 @@ function (_Element) {
       ctx.beginPath();
       ctx.rect(outer.x, outer.y, outer.w, outer.h);
       ctx.clip();
-      ctx.fillStyle = vm.borderColor;
+      ctx.fillStyle = options.borderColor;
       ctx.rect(inner.x, inner.y, inner.w, inner.h);
       ctx.fill('evenodd');
       ctx.restore();
@@ -5974,44 +6556,36 @@ function (_Element) {
   }, {
     key: "inRange",
     value: function inRange(mouseX, mouseY) {
-      return _inRange(this._view, mouseX, mouseY);
+      return _inRange(this, mouseX, mouseY);
     }
   }, {
     key: "inXRange",
     value: function inXRange(mouseX) {
-      return _inRange(this._view, mouseX, null);
+      return _inRange(this, mouseX, null);
     }
   }, {
     key: "inYRange",
     value: function inYRange(mouseY) {
-      return _inRange(this._view, null, mouseY);
+      return _inRange(this, null, mouseY);
     }
   }, {
     key: "getCenterPoint",
     value: function getCenterPoint() {
-      var vm = this._view;
-      var x, y;
-
-      if (isVertical(vm)) {
-        x = vm.x;
-        y = (vm.y + vm.base) / 2;
-      } else {
-        x = (vm.x + vm.base) / 2;
-        y = vm.y;
-      }
-
+      var x = this.x,
+          y = this.y,
+          base = this.base,
+          horizontal = this.horizontal;
       return {
-        x: x,
-        y: y
+        x: horizontal ? (x + base) / 2 : x,
+        y: horizontal ? y : (y + base) / 2
       };
     }
   }, {
     key: "tooltipPosition",
     value: function tooltipPosition() {
-      var vm = this._view;
       return {
-        x: vm.x,
-        y: vm.y
+        x: this.x,
+        y: this.y
       };
     }
   }]);
@@ -6033,7 +6607,7 @@ __proto__: null,
 'default': index
 });
 
-var require$$8 = getCjsExportFromNamespace(elements);
+var require$$9 = getCjsExportFromNamespace(elements);
 
 var valueOrDefault$1 = require$$0.valueOrDefault;
 
@@ -6059,7 +6633,13 @@ core_defaults._set('global', {
   datasets: {
     bar: {
       categoryPercentage: 0.8,
-      barPercentage: 0.9
+      barPercentage: 0.9,
+      animation: {
+        numbers: {
+          type: 'number',
+          properties: ['x', 'y', 'base', 'width', 'height']
+        }
+      }
     }
   }
 });
@@ -6209,7 +6789,7 @@ function parseArrayOrPrimitive(meta, data, start, count) {
 }
 
 var controller_bar = core_datasetController.extend({
-  dataElementType: require$$8.Rectangle,
+  dataElementType: require$$9.Rectangle,
 
   /**
    * @private
@@ -6290,46 +6870,55 @@ var controller_bar = core_datasetController.extend({
     meta.stack = me.getDataset().stack;
     meta.bar = true;
   },
-  update: function update(reset) {
+  update: function update(mode) {
     var me = this;
     var rects = me._cachedMeta.data;
-    me.updateElements(rects, 0, rects.length, reset);
+    me.updateElements(rects, 0, rects.length, mode);
   },
-  updateElements: function updateElements(rectangles, start, count, reset) {
+  updateElements: function updateElements(rectangles, start, count, mode) {
     var me = this;
+    var reset = mode === 'reset';
     var vscale = me._cachedMeta.vScale;
     var base = vscale.getBasePixel();
     var horizontal = vscale.isHorizontal();
     var ruler = me.getRuler();
+
+    var firstOpts = me._resolveDataElementOptions(start, mode);
+
+    var sharedOptions = me._getSharedOptions(mode, rectangles[start], firstOpts);
+
+    var includeOptions = me._includeOptions(mode, sharedOptions);
+
     var i;
 
     for (i = 0; i < start + count; i++) {
-      var rectangle = rectangles[i];
-
-      var options = me._resolveDataElementOptions(i);
+      var options = me._resolveDataElementOptions(i, mode);
 
       var vpixels = me.calculateBarValuePixels(i, options);
       var ipixels = me.calculateBarIndexPixels(i, ruler, options);
-      rectangle._model = {
-        backgroundColor: options.backgroundColor,
-        borderColor: options.borderColor,
-        borderSkipped: options.borderSkipped,
-        borderWidth: options.borderWidth
-      };
-      var model = rectangle._model; // all borders are drawn for floating bar
+      var properties = {
+        horizontal: horizontal,
+        base: reset ? base : vpixels.base,
+        x: horizontal ? reset ? base : vpixels.head : ipixels.center,
+        y: horizontal ? ipixels.center : reset ? base : vpixels.head,
+        height: horizontal ? ipixels.size : undefined,
+        width: horizontal ? undefined : ipixels.size
+      }; // all borders are drawn for floating bar
 
+      /* TODO: float bars border skipping magic
       if (me._getParsed(i)._custom) {
-        model.borderSkipped = null;
+      	model.borderSkipped = null;
+      }
+      */
+
+      if (includeOptions) {
+        properties.options = options;
       }
 
-      model.horizontal = horizontal;
-      model.base = reset ? base : vpixels.base;
-      model.x = horizontal ? reset ? base : vpixels.head : ipixels.center;
-      model.y = horizontal ? ipixels.center : reset ? base : vpixels.head;
-      model.height = horizontal ? ipixels.size : undefined;
-      model.width = horizontal ? undefined : ipixels.size;
-      rectangle.pivot(me.chart._animationsDisabled);
+      me._updateElement(rectangles[i], i, properties, mode);
     }
+
+    me._updateSharedOptions(sharedOptions, mode);
   },
 
   /**
@@ -6502,10 +7091,14 @@ var controller_bar = core_datasetController.extend({
   }
 });
 
-var valueOrDefault$2 = require$$0.valueOrDefault;
 var resolve$2 = require$$0.options.resolve;
 
 core_defaults._set('bubble', {
+  animation: {
+    numbers: {
+      properties: ['x', 'y', 'borderWidth', 'radius']
+    }
+  },
   scales: {
     x: {
       type: 'linear',
@@ -6530,12 +7123,12 @@ var controller_bubble = core_datasetController.extend({
   /**
    * @protected
    */
-  dataElementType: require$$8.Point,
+  dataElementType: require$$9.Point,
 
   /**
    * @private
    */
-  _dataElementOptions: ['backgroundColor', 'borderColor', 'borderWidth', 'hoverBackgroundColor', 'hoverBorderColor', 'hoverBorderWidth', 'hoverRadius', 'hitRadius', 'pointStyle', 'rotation'],
+  _dataElementOptions: ['backgroundColor', 'borderColor', 'borderWidth', 'hitRadius', 'radius', 'pointStyle', 'rotation'],
 
   /**
    * Parse array of objects
@@ -6565,15 +7158,14 @@ var controller_bubble = core_datasetController.extend({
   _getMaxOverflow: function _getMaxOverflow() {
     var me = this;
     var meta = me._cachedMeta;
-    var data = meta.data || [];
+    var i = (meta.data || []).length - 1;
+    var max = 0;
 
-    if (!data.length) {
-      return false;
+    for (; i >= 0; --i) {
+      max = Math.max(max, me.getStyle(i, true).radius);
     }
 
-    var firstPoint = data[0].size();
-    var lastPoint = data[data.length - 1].size();
-    return Math.max(firstPoint, lastPoint) / 2;
+    return max > 0 && max;
   },
 
   /**
@@ -6599,72 +7191,62 @@ var controller_bubble = core_datasetController.extend({
   /**
    * @protected
    */
-  update: function update(reset) {
+  update: function update(mode) {
     var me = this;
     var points = me._cachedMeta.data; // Update Points
 
-    me.updateElements(points, 0, points.length, reset);
+    me.updateElements(points, 0, points.length, mode);
   },
 
   /**
    * @protected
    */
-  updateElements: function updateElements(points, start, count, reset) {
+  updateElements: function updateElements(points, start, count, mode) {
     var me = this;
+    var reset = mode === 'reset';
     var _me$_cachedMeta = me._cachedMeta,
         xScale = _me$_cachedMeta.xScale,
         yScale = _me$_cachedMeta.yScale;
+
+    var firstOpts = me._resolveDataElementOptions(start, mode);
+
+    var sharedOptions = me._getSharedOptions(mode, points[start], firstOpts);
+
+    var includeOptions = me._includeOptions(mode, sharedOptions);
+
     var i;
 
     for (i = start; i < start + count; i++) {
       var point = points[i];
 
-      var options = me._resolveDataElementOptions(i);
-
       var parsed = !reset && me._getParsed(i);
 
       var x = reset ? xScale.getPixelForDecimal(0.5) : xScale.getPixelForValue(parsed[xScale.id]);
       var y = reset ? yScale.getBasePixel() : yScale.getPixelForValue(parsed[yScale.id]);
-      point._options = options;
-      point._model = {
-        backgroundColor: options.backgroundColor,
-        borderColor: options.borderColor,
-        borderWidth: options.borderWidth,
-        hitRadius: options.hitRadius,
-        pointStyle: options.pointStyle,
-        rotation: options.rotation,
-        radius: reset ? 0 : options.radius,
-        skip: isNaN(x) || isNaN(y),
+      var properties = {
         x: x,
-        y: y
+        y: y,
+        skip: isNaN(x) || isNaN(y)
       };
-      point.pivot(me.chart._animationsDisabled);
-    }
-  },
 
-  /**
-   * @protected
-   */
-  setHoverStyle: function setHoverStyle(point) {
-    var model = point._model;
-    var options = point._options;
-    var getHoverColor = require$$0.getHoverColor;
-    point.$previousStyle = {
-      backgroundColor: model.backgroundColor,
-      borderColor: model.borderColor,
-      borderWidth: model.borderWidth,
-      radius: model.radius
-    };
-    model.backgroundColor = valueOrDefault$2(options.hoverBackgroundColor, getHoverColor(options.backgroundColor));
-    model.borderColor = valueOrDefault$2(options.hoverBorderColor, getHoverColor(options.borderColor));
-    model.borderWidth = valueOrDefault$2(options.hoverBorderWidth, options.borderWidth);
-    model.radius = options.radius + options.hoverRadius;
+      if (includeOptions) {
+        properties.options = i === start ? firstOpts : me._resolveDataElementOptions(i, mode);
+
+        if (reset) {
+          properties.options.radius = 0;
+        }
+      }
+
+      me._updateElement(point, i, properties, mode);
+    }
+
+    me._updateSharedOptions(sharedOptions, mode);
   },
 
   /**
    * @private
    */
-  _resolveDataElementOptions: function _resolveDataElementOptions(index) {
+  _resolveDataElementOptions: function _resolveDataElementOptions(index, mode) {
     var me = this;
     var chart = me.chart;
     var dataset = me.getDataset();
@@ -6681,23 +7263,33 @@ var controller_bubble = core_datasetController.extend({
       datasetIndex: me.index
     }; // In case values were cached (and thus frozen), we need to clone the values
 
-    if (me._cachedDataOpts === values) {
-      values = require$$0.extend({}, values);
+    if (values.$shared) {
+      values = require$$0.extend({}, values, {
+        $shared: false
+      });
     } // Custom radius resolution
 
 
-    values.radius = resolve$2([parsed && parsed._custom, me._config.radius, chart.options.elements.point.radius], context, index);
+    if (mode !== 'active') {
+      values.radius = 0;
+    }
+
+    values.radius += resolve$2([parsed && parsed._custom, me._config.radius, chart.options.elements.point.radius], context, index);
     return values;
   }
 });
 
-var valueOrDefault$3 = require$$0.valueOrDefault;
+var valueOrDefault$2 = require$$0.valueOrDefault;
 var PI$1 = Math.PI;
 var DOUBLE_PI$1 = PI$1 * 2;
 var HALF_PI$1 = PI$1 / 2;
 
 core_defaults._set('doughnut', {
   animation: {
+    numbers: {
+      type: 'number',
+      properties: ['x', 'y', 'startAngle', 'endAngle', 'innerRadius', 'outerRadius']
+    },
     // Boolean - Whether we animate the rotation of the Doughnut
     animateRotate: true,
     // Boolean - Whether we animate scaling the Doughnut from the centre
@@ -6797,7 +7389,7 @@ core_defaults._set('doughnut', {
 });
 
 var controller_doughnut = core_datasetController.extend({
-  dataElementType: require$$8.Arc,
+  dataElementType: require$$9.Arc,
   linkScales: require$$0.noop,
 
   /**
@@ -6830,7 +7422,7 @@ var controller_doughnut = core_datasetController.extend({
 
     return ringIndex;
   },
-  update: function update(reset) {
+  update: function update(mode) {
     var me = this;
     var chart = me.chart;
     var chartArea = chart.chartArea;
@@ -6871,7 +7463,7 @@ var controller_doughnut = core_datasetController.extend({
     }
 
     for (i = 0, ilen = arcs.length; i < ilen; ++i) {
-      arcs[i]._options = me._resolveDataElementOptions(i);
+      arcs[i]._options = me._resolveDataElementOptions(i, mode);
     }
 
     chart.borderWidth = me.getMaxBorderWidth();
@@ -6885,56 +7477,46 @@ var controller_doughnut = core_datasetController.extend({
     meta.total = me.calculateTotal();
     me.outerRadius = chart.outerRadius - chart.radiusLength * me._getRingWeightOffset(me.index);
     me.innerRadius = Math.max(me.outerRadius - chart.radiusLength * chartWeight, 0);
-    me.updateElements(arcs, 0, arcs.length, reset);
+    me.updateElements(arcs, 0, arcs.length, mode);
   },
-  updateElements: function updateElements(arcs, start, count, reset) {
+  updateElements: function updateElements(arcs, start, count, mode) {
     var me = this;
+    var reset = mode === 'reset';
     var chart = me.chart;
     var chartArea = chart.chartArea;
     var opts = chart.options;
     var animationOpts = opts.animation;
     var centerX = (chartArea.left + chartArea.right) / 2;
     var centerY = (chartArea.top + chartArea.bottom) / 2;
-    var startAngle = opts.rotation; // non reset case handled later
-
-    var endAngle = opts.rotation; // non reset case handled later
-
     var meta = me.getMeta();
     var innerRadius = reset && animationOpts.animateScale ? 0 : me.innerRadius;
     var outerRadius = reset && animationOpts.animateScale ? 0 : me.outerRadius;
+    var startAngle = opts.rotation;
     var i;
 
     for (i = 0; i < start + count; ++i) {
       var arc = arcs[i];
       var circumference = reset && animationOpts.animateRotate ? 0 : arc.hidden ? 0 : me.calculateCircumference(meta._parsed[i] * opts.circumference / DOUBLE_PI$1);
       var options = arc._options || {};
-      var model = {
-        // Desired view properties
-        backgroundColor: options.backgroundColor,
-        borderColor: options.borderColor,
-        borderWidth: options.borderWidth,
-        borderAlign: options.borderAlign,
+
+      if (i < start) {
+        startAngle += circumference;
+        continue;
+      }
+
+      var properties = {
         x: centerX + chart.offsetX,
         y: centerY + chart.offsetY,
         startAngle: startAngle,
-        endAngle: endAngle,
+        endAngle: startAngle + circumference,
         circumference: circumference,
         outerRadius: outerRadius,
-        innerRadius: innerRadius
+        innerRadius: innerRadius,
+        options: options
       };
-      arc._model = model; // Set correct angles if not resetting
+      startAngle += circumference;
 
-      if (!reset || !animationOpts.animateRotate) {
-        if (i === 0) {
-          model.startAngle = opts.rotation;
-        } else {
-          model.startAngle = me._cachedMeta.data[i - 1]._model.endAngle;
-        }
-
-        model.endAngle = model.startAngle + model.circumference;
-      }
-
-      arc.pivot(chart._animationsDisabled);
+      me._updateElement(arc, i, properties, mode);
     }
   },
   calculateTotal: function calculateTotal() {
@@ -6971,7 +7553,7 @@ var controller_doughnut = core_datasetController.extend({
     var me = this;
     var max = 0;
     var chart = me.chart;
-    var i, ilen, meta, arc, controller, options, borderWidth, hoverWidth;
+    var i, ilen, meta, controller, options;
 
     if (!arcs) {
       // Find the outmost visible dataset
@@ -6979,9 +7561,10 @@ var controller_doughnut = core_datasetController.extend({
         if (chart.isDatasetVisible(i)) {
           meta = chart.getDatasetMeta(i);
           arcs = meta.data;
+          controller = meta.controller;
 
-          if (i !== me.index) {
-            controller = meta.controller;
+          if (controller !== me) {
+            controller._configure();
           }
 
           break;
@@ -6994,42 +7577,14 @@ var controller_doughnut = core_datasetController.extend({
     }
 
     for (i = 0, ilen = arcs.length; i < ilen; ++i) {
-      arc = arcs[i];
-
-      if (controller) {
-        controller._configure();
-
-        options = controller._resolveDataElementOptions(i);
-      } else {
-        options = arc._options;
-      }
+      options = controller._resolveDataElementOptions(i);
 
       if (options.borderAlign !== 'inner') {
-        borderWidth = options.borderWidth;
-        hoverWidth = options.hoverBorderWidth;
-        max = borderWidth > max ? borderWidth : max;
-        max = hoverWidth > max ? hoverWidth : max;
+        max = Math.max(max, options.borderWidth || 0, options.hoverBorderWidth || 0);
       }
     }
 
     return max;
-  },
-
-  /**
-   * @protected
-   */
-  setHoverStyle: function setHoverStyle(arc) {
-    var model = arc._model;
-    var options = arc._options;
-    var getHoverColor = require$$0.getHoverColor;
-    arc.$previousStyle = {
-      backgroundColor: model.backgroundColor,
-      borderColor: model.borderColor,
-      borderWidth: model.borderWidth
-    };
-    model.backgroundColor = valueOrDefault$3(options.hoverBackgroundColor, getHoverColor(options.backgroundColor));
-    model.borderColor = valueOrDefault$3(options.hoverBorderColor, getHoverColor(options.borderColor));
-    model.borderWidth = valueOrDefault$3(options.hoverBorderWidth, options.borderWidth);
   },
 
   /**
@@ -7052,7 +7607,7 @@ var controller_doughnut = core_datasetController.extend({
    * @private
    */
   _getRingWeight: function _getRingWeight(dataSetIndex) {
-    return Math.max(valueOrDefault$3(this.chart.data.datasets[dataSetIndex].weight, 1), 0);
+    return Math.max(valueOrDefault$2(this.chart.data.datasets[dataSetIndex].weight, 1), 0);
   },
 
   /**
@@ -7119,9 +7674,8 @@ var controller_horizontalBar = controller_bar.extend({
   }
 });
 
-var valueOrDefault$4 = require$$0.valueOrDefault;
+var valueOrDefault$3 = require$$0.valueOrDefault;
 var resolve$3 = require$$0.options.resolve;
-var isPointInArea = require$$0.canvas._isPointInArea;
 
 core_defaults._set('line', {
   showLines: true,
@@ -7140,13 +7694,13 @@ core_defaults._set('line', {
 });
 
 var controller_line = core_datasetController.extend({
-  datasetElementType: require$$8.Line,
-  dataElementType: require$$8.Point,
+  datasetElementType: require$$9.Line,
+  dataElementType: require$$9.Point,
 
   /**
    * @private
    */
-  _datasetElementOptions: ['backgroundColor', 'borderCapStyle', 'borderColor', 'borderDash', 'borderDashOffset', 'borderJoinStyle', 'borderWidth', 'cubicInterpolationMode', 'fill'],
+  _datasetElementOptions: ['backgroundColor', 'borderCapStyle', 'borderColor', 'borderDash', 'borderDashOffset', 'borderJoinStyle', 'borderWidth', 'capBezierPoints', 'cubicInterpolationMode', 'fill'],
 
   /**
    * @private
@@ -7156,6 +7710,7 @@ var controller_line = core_datasetController.extend({
     borderColor: 'pointBorderColor',
     borderWidth: 'pointBorderWidth',
     hitRadius: 'pointHitRadius',
+    hoverHitRadius: 'pointHitRadius',
     hoverBackgroundColor: 'pointHoverBackgroundColor',
     hoverBorderColor: 'pointHoverBorderColor',
     hoverBorderWidth: 'pointHoverBorderWidth',
@@ -7164,42 +7719,43 @@ var controller_line = core_datasetController.extend({
     radius: 'pointRadius',
     rotation: 'pointRotation'
   },
-  update: function update(reset) {
+  update: function update(mode) {
     var me = this;
     var meta = me._cachedMeta;
     var line = meta.dataset;
     var points = meta.data || [];
     var options = me.chart.options;
     var config = me._config;
-    var showLine = me._showLine = valueOrDefault$4(config.showLine, options.showLines);
-    var i, ilen; // Update Line
+    var showLine = me._showLine = valueOrDefault$3(config.showLine, options.showLines); // Update Line
 
-    if (showLine) {
-      // Data
-      line._children = points; // Model
+    if (showLine && mode !== 'resize') {
+      var properties = {
+        _children: points,
+        options: me._resolveDatasetElementOptions()
+      };
 
-      line._model = me._resolveDatasetElementOptions();
-      line.pivot();
+      me._updateElement(line, undefined, properties, mode);
     } // Update Points
 
 
-    me.updateElements(points, 0, points.length, reset);
-
-    if (showLine && line._model.tension !== 0) {
-      me.updateBezierControlPoints();
-    } // Now pivot the point for animation
-
-
-    for (i = 0, ilen = points.length; i < ilen; ++i) {
-      points[i].pivot(me.chart._animationsDisabled);
+    if (meta.visible) {
+      me.updateElements(points, 0, points.length, mode);
     }
   },
-  updateElements: function updateElements(points, start, count, reset) {
+  updateElements: function updateElements(points, start, count, mode) {
     var me = this;
+    var reset = mode === 'reset';
     var _me$_cachedMeta = me._cachedMeta,
         xScale = _me$_cachedMeta.xScale,
         yScale = _me$_cachedMeta.yScale,
         _stacked = _me$_cachedMeta._stacked;
+
+    var firstOpts = me._resolveDataElementOptions(start, mode);
+
+    var sharedOptions = me._getSharedOptions(mode, points[start], firstOpts);
+
+    var includeOptions = me._includeOptions(mode, sharedOptions);
+
     var i;
 
     for (i = start; i < start + count; ++i) {
@@ -7207,28 +7763,22 @@ var controller_line = core_datasetController.extend({
 
       var parsed = me._getParsed(i);
 
-      var options = me._resolveDataElementOptions(i);
-
       var x = xScale.getPixelForValue(parsed[xScale.id]);
-      var y = reset ? yScale.getBasePixel() : yScale.getPixelForValue(_stacked ? me._applyStack(yScale, parsed) : parsed[yScale.id]); // Utility
-
-      point._options = options; // Desired view properties
-
-      point._model = {
+      var y = reset ? yScale.getBasePixel() : yScale.getPixelForValue(_stacked ? me._applyStack(yScale, parsed) : parsed[yScale.id]);
+      var properties = {
         x: x,
         y: y,
-        skip: isNaN(x) || isNaN(y),
-        // Appearance
-        radius: options.radius,
-        pointStyle: options.pointStyle,
-        rotation: options.rotation,
-        backgroundColor: options.backgroundColor,
-        borderColor: options.borderColor,
-        borderWidth: options.borderWidth,
-        // Tooltip
-        hitRadius: options.hitRadius
+        skip: isNaN(x) || isNaN(y)
       };
+
+      if (includeOptions) {
+        properties.options = i === start ? firstOpts : me._resolveDataElementOptions(i, mode);
+      }
+
+      me._updateElement(point, i, properties, mode);
     }
+
+    me._updateSharedOptions(sharedOptions, mode);
   },
 
   /**
@@ -7245,8 +7795,8 @@ var controller_line = core_datasetController.extend({
     // This option gives lines the ability to span gaps
 
 
-    values.spanGaps = valueOrDefault$4(config.spanGaps, options.spanGaps);
-    values.tension = valueOrDefault$4(config.lineTension, lineOptions.tension);
+    values.spanGaps = valueOrDefault$3(config.spanGaps, options.spanGaps);
+    values.tension = valueOrDefault$3(config.lineTension, lineOptions.tension);
     values.steppedLine = resolve$3([config.steppedLine, lineOptions.stepped]);
     return values;
   },
@@ -7263,60 +7813,10 @@ var controller_line = core_datasetController.extend({
       return false;
     }
 
-    var border = me._showLine ? meta.dataset._model.borderWidth : 0;
+    var border = me._showLine && meta.dataset.options.borderWidth || 0;
     var firstPoint = data[0].size();
     var lastPoint = data[data.length - 1].size();
     return Math.max(border, firstPoint, lastPoint) / 2;
-  },
-  updateBezierControlPoints: function updateBezierControlPoints() {
-    var me = this;
-    var chart = me.chart;
-    var meta = me._cachedMeta;
-    var lineModel = meta.dataset._model;
-    var area = chart.chartArea;
-    var points = meta.data || [];
-    var i, ilen; // Only consider points that are drawn in case the spanGaps option is used
-
-    if (lineModel.spanGaps) {
-      points = points.filter(function (pt) {
-        return !pt._model.skip;
-      });
-    }
-
-    function capControlPoint(pt, min, max) {
-      return Math.max(Math.min(pt, max), min);
-    }
-
-    if (lineModel.cubicInterpolationMode === 'monotone') {
-      require$$0.curve.splineCurveMonotone(points);
-    } else {
-      for (i = 0, ilen = points.length; i < ilen; ++i) {
-        var model = points[i]._model;
-        var controlPoints = require$$0.curve.splineCurve(points[Math.max(0, i - 1)]._model, model, points[Math.min(i + 1, ilen - 1)]._model, lineModel.tension);
-        model.controlPointPreviousX = controlPoints.previous.x;
-        model.controlPointPreviousY = controlPoints.previous.y;
-        model.controlPointNextX = controlPoints.next.x;
-        model.controlPointNextY = controlPoints.next.y;
-      }
-    }
-
-    if (chart.options.elements.line.capBezierPoints) {
-      for (i = 0, ilen = points.length; i < ilen; ++i) {
-        var _model = points[i]._model;
-
-        if (isPointInArea(_model, area)) {
-          if (i > 0 && isPointInArea(points[i - 1]._model, area)) {
-            _model.controlPointPreviousX = capControlPoint(_model.controlPointPreviousX, area.left, area.right);
-            _model.controlPointPreviousY = capControlPoint(_model.controlPointPreviousY, area.top, area.bottom);
-          }
-
-          if (i < points.length - 1 && isPointInArea(points[i + 1]._model, area)) {
-            _model.controlPointNextX = capControlPoint(_model.controlPointNextX, area.left, area.right);
-            _model.controlPointNextY = capControlPoint(_model.controlPointNextY, area.top, area.bottom);
-          }
-        }
-      }
-    }
   },
   draw: function draw() {
     var me = this;
@@ -7329,38 +7829,27 @@ var controller_line = core_datasetController.extend({
     var i = 0;
 
     if (me._showLine) {
-      meta.dataset.draw(ctx);
+      meta.dataset.draw(ctx, area);
     } // Draw the points
 
 
     for (; i < ilen; ++i) {
       points[i].draw(ctx, area);
     }
-  },
-
-  /**
-   * @protected
-   */
-  setHoverStyle: function setHoverStyle(point) {
-    var model = point._model;
-    var options = point._options;
-    var getHoverColor = require$$0.getHoverColor;
-    point.$previousStyle = {
-      backgroundColor: model.backgroundColor,
-      borderColor: model.borderColor,
-      borderWidth: model.borderWidth,
-      radius: model.radius
-    };
-    model.backgroundColor = valueOrDefault$4(options.hoverBackgroundColor, getHoverColor(options.backgroundColor));
-    model.borderColor = valueOrDefault$4(options.hoverBorderColor, getHoverColor(options.borderColor));
-    model.borderWidth = valueOrDefault$4(options.hoverBorderWidth, options.borderWidth);
-    model.radius = valueOrDefault$4(options.hoverRadius, options.radius);
   }
 });
 
 var resolve$4 = require$$0.options.resolve;
 
 core_defaults._set('polarArea', {
+  animation: {
+    numbers: {
+      type: 'number',
+      properties: ['x', 'y', 'startAngle', 'endAngle', 'innerRadius', 'outerRadius']
+    },
+    animateRotate: true,
+    animateScale: true
+  },
   scales: {
     r: {
       type: 'radialLinear',
@@ -7375,11 +7864,6 @@ core_defaults._set('polarArea', {
         display: false
       }
     }
-  },
-  // Boolean - Whether to animate the rotation of the chart
-  animation: {
-    animateRotate: true,
-    animateScale: true
   },
   startAngle: -0.5 * Math.PI,
   legendCallback: function legendCallback(chart) {
@@ -7455,7 +7939,7 @@ core_defaults._set('polarArea', {
 });
 
 var controller_polarArea = core_datasetController.extend({
-  dataElementType: require$$8.Arc,
+  dataElementType: require$$9.Arc,
 
   /**
    * @private
@@ -7475,28 +7959,14 @@ var controller_polarArea = core_datasetController.extend({
   _getValueScaleId: function _getValueScaleId() {
     return this._cachedMeta.rAxisID;
   },
-  update: function update(reset) {
+  update: function update(mode) {
     var me = this;
-    var dataset = me.getDataset();
     var meta = me._cachedMeta;
-    var start = me.chart.options.startAngle || 0;
-    var starts = me._starts = [];
-    var angles = me._angles = [];
     var arcs = meta.data;
-    var i, ilen, angle;
 
     me._updateRadius();
 
-    meta.count = me.countVisibleElements();
-
-    for (i = 0, ilen = dataset.data.length; i < ilen; i++) {
-      starts[i] = start;
-      angle = me._computeAngle(i);
-      angles[i] = angle;
-      start += angle;
-    }
-
-    me.updateElements(arcs, 0, arcs.length, reset);
+    me.updateElements(arcs, 0, arcs.length, mode);
   },
 
   /**
@@ -7514,8 +7984,9 @@ var controller_polarArea = core_datasetController.extend({
     me.outerRadius = chart.outerRadius - chart.radiusLength * me.index;
     me.innerRadius = me.outerRadius - chart.radiusLength;
   },
-  updateElements: function updateElements(arcs, start, count, reset) {
+  updateElements: function updateElements(arcs, start, count, mode) {
     var me = this;
+    var reset = mode === 'reset';
     var chart = me.chart;
     var dataset = me.getDataset();
     var opts = chart.options;
@@ -7523,32 +7994,46 @@ var controller_polarArea = core_datasetController.extend({
     var scale = chart.scales.r;
     var centerX = scale.xCenter;
     var centerY = scale.yCenter;
+    var datasetStartAngle = opts.startAngle || 0;
+    var angle = datasetStartAngle;
     var i;
+    me._cachedMeta.count = me.countVisibleElements();
 
-    for (i = 0; i < start + count; i++) {
-      var arc = arcs[i]; // var negHalfPI = -0.5 * Math.PI;
+    for (i = 0; i < start; ++i) {
+      angle += me._computeAngle(i);
+    }
 
-      var datasetStartAngle = opts.startAngle;
-      var distance = arc.hidden ? 0 : scale.getDistanceFromCenterForValue(dataset.data[i]);
-      var startAngle = me._starts[i];
-      var endAngle = startAngle + (arc.hidden ? 0 : me._angles[i]);
-      var resetRadius = animationOpts.animateScale ? 0 : scale.getDistanceFromCenterForValue(dataset.data[i]);
+    for (; i < start + count; i++) {
+      var arc = arcs[i];
+      var startAngle = angle;
 
-      var options = arc._options = me._resolveDataElementOptions(i);
+      var endAngle = angle + me._computeAngle(i);
 
-      arc._model = {
-        backgroundColor: options.backgroundColor,
-        borderColor: options.borderColor,
-        borderWidth: options.borderWidth,
-        borderAlign: options.borderAlign,
+      var outerRadius = arc.hidden ? 0 : scale.getDistanceFromCenterForValue(dataset.data[i]);
+      angle = endAngle;
+
+      if (reset) {
+        if (animationOpts.animateScale) {
+          outerRadius = 0;
+        }
+
+        if (animationOpts.animateRotate) {
+          startAngle = datasetStartAngle;
+          endAngle = datasetStartAngle;
+        }
+      }
+
+      var properties = {
         x: centerX,
         y: centerY,
         innerRadius: 0,
-        outerRadius: reset ? resetRadius : distance,
-        startAngle: reset && animationOpts.animateRotate ? datasetStartAngle : startAngle,
-        endAngle: reset && animationOpts.animateRotate ? datasetStartAngle : endAngle
+        outerRadius: outerRadius,
+        startAngle: startAngle,
+        endAngle: endAngle,
+        options: me._resolveDataElementOptions(i)
       };
-      arc.pivot(chart._animationsDisabled);
+
+      me._updateElement(arc, i, properties, mode);
     }
   },
   countVisibleElements: function countVisibleElements() {
@@ -7561,24 +8046,6 @@ var controller_polarArea = core_datasetController.extend({
       }
     });
     return count;
-  },
-
-  /**
-   * @protected
-   */
-  setHoverStyle: function setHoverStyle(arc) {
-    var model = arc._model;
-    var options = arc._options;
-    var getHoverColor = require$$0.getHoverColor;
-    var valueOrDefault = require$$0.valueOrDefault;
-    arc.$previousStyle = {
-      backgroundColor: model.backgroundColor,
-      borderColor: model.borderColor,
-      borderWidth: model.borderWidth
-    };
-    model.backgroundColor = valueOrDefault(options.hoverBackgroundColor, getHoverColor(options.backgroundColor));
-    model.borderColor = valueOrDefault(options.hoverBorderColor, getHoverColor(options.borderColor));
-    model.borderWidth = valueOrDefault(options.hoverBorderWidth, options.borderWidth);
   },
 
   /**
@@ -7614,7 +8081,7 @@ core_defaults._set('pie', {
 
 var controller_pie = controller_doughnut;
 
-var valueOrDefault$5 = require$$0.valueOrDefault;
+var valueOrDefault$4 = require$$0.valueOrDefault;
 
 core_defaults._set('radar', {
   spanGaps: false,
@@ -7631,17 +8098,9 @@ core_defaults._set('radar', {
   }
 });
 
-function nextItem(collection, index) {
-  return index >= collection.length - 1 ? collection[0] : collection[index + 1];
-}
-
-function previousItem(collection, index) {
-  return index <= 0 ? collection[collection.length - 1] : collection[index - 1];
-}
-
 var controller_radar = core_datasetController.extend({
-  datasetElementType: require$$8.Line,
-  dataElementType: require$$8.Point,
+  datasetElementType: require$$9.Line,
+  dataElementType: require$$9.Point,
 
   /**
    * @private
@@ -7693,60 +8152,46 @@ var controller_radar = core_datasetController.extend({
       value: '' + vScale.getLabelForValue(parsed[vScale.id])
     };
   },
-  update: function update(reset) {
+  update: function update(mode) {
     var me = this;
     var meta = me._cachedMeta;
     var line = meta.dataset;
     var points = meta.data || [];
-    var animationsDisabled = me.chart._animationsDisabled;
-    var i, ilen; // Data
+    var properties = {
+      _children: points,
+      _loop: true,
+      options: me._resolveDatasetElementOptions()
+    };
 
-    line._children = points;
-    line._loop = true; // Model
+    me._updateElement(line, undefined, properties, mode); // Update Points
 
-    line._model = me._resolveDatasetElementOptions();
-    line.pivot(animationsDisabled); // Update Points
 
-    me.updateElements(points, 0, points.length, reset); // Update bezier control points
-
-    me.updateBezierControlPoints(); // Now pivot the point for animation
-
-    for (i = 0, ilen = points.length; i < ilen; ++i) {
-      points[i].pivot(animationsDisabled);
-    }
+    me.updateElements(points, 0, points.length, mode);
+    line.updateControlPoints(me.chart.chartArea);
   },
-  updateElements: function updateElements(points, start, count, reset) {
+  updateElements: function updateElements(points, start, count, mode) {
     var me = this;
     var dataset = me.getDataset();
     var scale = me.chart.scales.r;
+    var reset = mode === 'reset';
     var i;
 
     for (i = start; i < start + count; i++) {
       var point = points[i];
-      var pointPosition = scale.getPointPositionForValue(i, dataset.data[i]);
 
       var options = me._resolveDataElementOptions(i);
 
+      var pointPosition = scale.getPointPositionForValue(i, dataset.data[i]);
       var x = reset ? scale.xCenter : pointPosition.x;
-      var y = reset ? scale.yCenter : pointPosition.y; // Utility
-
-      point._options = options; // Desired view properties
-
-      point._model = {
+      var y = reset ? scale.yCenter : pointPosition.y;
+      var properties = {
         x: x,
-        // value not used in dataset scale, but we want a consistent API between scales
         y: y,
         skip: isNaN(x) || isNaN(y),
-        // Appearance
-        radius: options.radius,
-        pointStyle: options.pointStyle,
-        rotation: options.rotation,
-        backgroundColor: options.backgroundColor,
-        borderColor: options.borderColor,
-        borderWidth: options.borderWidth,
-        // Tooltip
-        hitRadius: options.hitRadius
+        options: options
       };
+
+      me._updateElement(point, i, properties, mode);
     }
   },
 
@@ -7760,52 +8205,9 @@ var controller_radar = core_datasetController.extend({
 
     var values = core_datasetController.prototype._resolveDatasetElementOptions.apply(me, arguments);
 
-    values.spanGaps = valueOrDefault$5(config.spanGaps, options.spanGaps);
-    values.tension = valueOrDefault$5(config.lineTension, options.elements.line.tension);
+    values.spanGaps = valueOrDefault$4(config.spanGaps, options.spanGaps);
+    values.tension = valueOrDefault$4(config.lineTension, options.elements.line.tension);
     return values;
-  },
-  updateBezierControlPoints: function updateBezierControlPoints() {
-    var me = this;
-    var meta = me._cachedMeta;
-    var lineModel = meta.dataset._model;
-    var area = me.chart.chartArea;
-    var points = meta.data || [];
-    var i, ilen, model, controlPoints; // Only consider points that are drawn in case the spanGaps option is used
-
-    if (meta.dataset._model.spanGaps) {
-      points = points.filter(function (pt) {
-        return !pt._model.skip;
-      });
-    }
-
-    function capControlPoint(pt, min, max) {
-      return Math.max(Math.min(pt, max), min);
-    }
-
-    for (i = 0, ilen = points.length; i < ilen; ++i) {
-      model = points[i]._model;
-      controlPoints = require$$0.curve.splineCurve(previousItem(points, i)._model, model, nextItem(points, i)._model, lineModel.tension); // Prevent the bezier going outside of the bounds of the graph
-
-      model.controlPointPreviousX = capControlPoint(controlPoints.previous.x, area.left, area.right);
-      model.controlPointPreviousY = capControlPoint(controlPoints.previous.y, area.top, area.bottom);
-      model.controlPointNextX = capControlPoint(controlPoints.next.x, area.left, area.right);
-      model.controlPointNextY = capControlPoint(controlPoints.next.y, area.top, area.bottom);
-    }
-  },
-  setHoverStyle: function setHoverStyle(point) {
-    var model = point._model;
-    var options = point._options;
-    var getHoverColor = require$$0.getHoverColor;
-    point.$previousStyle = {
-      backgroundColor: model.backgroundColor,
-      borderColor: model.borderColor,
-      borderWidth: model.borderWidth,
-      radius: model.radius
-    };
-    model.backgroundColor = valueOrDefault$5(options.hoverBackgroundColor, getHoverColor(options.backgroundColor));
-    model.borderColor = valueOrDefault$5(options.hoverBorderColor, getHoverColor(options.borderColor));
-    model.borderWidth = valueOrDefault$5(options.hoverBorderWidth, options.borderWidth);
-    model.radius = valueOrDefault$5(options.hoverRadius, options.radius);
   }
 });
 
@@ -7896,7 +8298,7 @@ function evaluateAllVisibleItems(chart, handler) {
     for (var j = 0, jlen = data.length; j < jlen; ++j) {
       element = data[j];
 
-      if (!element._view.skip) {
+      if (!element.skip) {
         handler(element, index, j);
       }
     }
@@ -7938,7 +8340,7 @@ function evaluateItemsAtIndex(chart, axis, position, handler) {
     var _index = indices[_i];
     var element = _metaset.data[_index];
 
-    if (!element._view.skip) {
+    if (!element.skip) {
       handler(element, _metaset.index, _index);
     }
   }
@@ -8084,7 +8486,7 @@ var core_interaction = {
         var index = items[0].index;
         var element = meta.data[index]; // don't count items that are skipped (null data)
 
-        if (element && !element._view.skip) {
+        if (element && !element.skip) {
           elements.push({
             element: element,
             datasetIndex: meta.index,
@@ -9333,7 +9735,9 @@ var core_scaleService = {
   }
 };
 
-var valueOrDefault$6 = require$$0.valueOrDefault;
+var require$$8 = getCjsExportFromNamespace(core_element);
+
+var valueOrDefault$5 = require$$0.valueOrDefault;
 var getRtlHelper = require$$0.rtl.getRtlAdapter;
 
 core_defaults._set('global', {
@@ -9366,6 +9770,18 @@ core_defaults._set('global', {
     displayColors: true,
     borderColor: 'rgba(0,0,0,0)',
     borderWidth: 0,
+    animation: {
+      duration: 400,
+      easing: 'easeOutQuart',
+      numbers: {
+        type: 'number',
+        properties: ['x', 'y', 'width', 'height']
+      },
+      opacity: {
+        easing: 'linear',
+        duration: 200
+      }
+    },
     callbacks: {
       // Args are: (tooltipItems, data)
       beforeTitle: require$$0.noop,
@@ -9406,15 +9822,14 @@ core_defaults._set('global', {
       },
       labelColor: function labelColor(tooltipItem, chart) {
         var meta = chart.getDatasetMeta(tooltipItem.datasetIndex);
-        var activeElement = meta.data[tooltipItem.index];
-        var view = activeElement.$previousStyle || activeElement._view;
+        var options = meta.controller.getStyle(tooltipItem.index);
         return {
-          borderColor: view.borderColor,
-          backgroundColor: view.backgroundColor
+          borderColor: options.borderColor,
+          backgroundColor: options.backgroundColor
         };
       },
       labelTextColor: function labelTextColor() {
-        return this._options.bodyFontColor;
+        return this.options.bodyFontColor;
       },
       afterLabel: require$$0.noop,
       // Args are: (tooltipItems, data)
@@ -9552,92 +9967,61 @@ function createTooltipItem(chart, item) {
 }
 /**
  * Helper to get the reset model for the tooltip
- * @param tooltipOpts {object} the tooltip options
+ * @param options {object} the tooltip options
  */
 
 
-function getBaseModel(tooltipOpts) {
+function resolveOptions(options) {
   var globalDefaults = core_defaults.global;
-  return {
-    // Positioning
-    xPadding: tooltipOpts.xPadding,
-    yPadding: tooltipOpts.yPadding,
-    xAlign: tooltipOpts.xAlign,
-    yAlign: tooltipOpts.yAlign,
-    // Drawing direction and text direction
-    rtl: tooltipOpts.rtl,
-    textDirection: tooltipOpts.textDirection,
-    // Body
-    bodyFontColor: tooltipOpts.bodyFontColor,
-    _bodyFontFamily: valueOrDefault$6(tooltipOpts.bodyFontFamily, globalDefaults.defaultFontFamily),
-    _bodyFontStyle: valueOrDefault$6(tooltipOpts.bodyFontStyle, globalDefaults.defaultFontStyle),
-    _bodyAlign: tooltipOpts.bodyAlign,
-    bodyFontSize: valueOrDefault$6(tooltipOpts.bodyFontSize, globalDefaults.defaultFontSize),
-    bodySpacing: tooltipOpts.bodySpacing,
-    // Title
-    titleFontColor: tooltipOpts.titleFontColor,
-    _titleFontFamily: valueOrDefault$6(tooltipOpts.titleFontFamily, globalDefaults.defaultFontFamily),
-    _titleFontStyle: valueOrDefault$6(tooltipOpts.titleFontStyle, globalDefaults.defaultFontStyle),
-    titleFontSize: valueOrDefault$6(tooltipOpts.titleFontSize, globalDefaults.defaultFontSize),
-    _titleAlign: tooltipOpts.titleAlign,
-    titleSpacing: tooltipOpts.titleSpacing,
-    titleMarginBottom: tooltipOpts.titleMarginBottom,
-    // Footer
-    footerFontColor: tooltipOpts.footerFontColor,
-    _footerFontFamily: valueOrDefault$6(tooltipOpts.footerFontFamily, globalDefaults.defaultFontFamily),
-    _footerFontStyle: valueOrDefault$6(tooltipOpts.footerFontStyle, globalDefaults.defaultFontStyle),
-    footerFontSize: valueOrDefault$6(tooltipOpts.footerFontSize, globalDefaults.defaultFontSize),
-    _footerAlign: tooltipOpts.footerAlign,
-    footerSpacing: tooltipOpts.footerSpacing,
-    footerMarginTop: tooltipOpts.footerMarginTop,
-    // Appearance
-    caretSize: tooltipOpts.caretSize,
-    cornerRadius: tooltipOpts.cornerRadius,
-    backgroundColor: tooltipOpts.backgroundColor,
-    opacity: 0,
-    legendColorBackground: tooltipOpts.multiKeyBackground,
-    displayColors: tooltipOpts.displayColors,
-    borderColor: tooltipOpts.borderColor,
-    borderWidth: tooltipOpts.borderWidth
-  };
+  options = require$$0.extend({}, globalDefaults.tooltips, options);
+  options.bodyFontFamily = valueOrDefault$5(options.bodyFontFamily, globalDefaults.defaultFontFamily);
+  options.bodyFontStyle = valueOrDefault$5(options.bodyFontStyle, globalDefaults.defaultFontStyle);
+  options.bodyFontSize = valueOrDefault$5(options.bodyFontSize, globalDefaults.defaultFontSize);
+  options.titleFontFamily = valueOrDefault$5(options.titleFontFamily, globalDefaults.defaultFontFamily);
+  options.titleFontStyle = valueOrDefault$5(options.titleFontStyle, globalDefaults.defaultFontStyle);
+  options.titleFontSize = valueOrDefault$5(options.titleFontSize, globalDefaults.defaultFontSize);
+  options.footerFontFamily = valueOrDefault$5(options.footerFontFamily, globalDefaults.defaultFontFamily);
+  options.footerFontStyle = valueOrDefault$5(options.footerFontStyle, globalDefaults.defaultFontStyle);
+  options.footerFontSize = valueOrDefault$5(options.footerFontSize, globalDefaults.defaultFontSize);
+  return options;
 }
 /**
  * Get the size of the tooltip
  */
 
 
-function getTooltipSize(tooltip, model) {
+function getTooltipSize(tooltip) {
   var ctx = tooltip._chart.ctx;
-  var height = model.yPadding * 2; // Tooltip Padding
+  var body = tooltip.body,
+      footer = tooltip.footer,
+      options = tooltip.options,
+      title = tooltip.title;
+  var bodyFontSize = options.bodyFontSize,
+      footerFontSize = options.footerFontSize,
+      titleFontSize = options.titleFontSize;
+  var titleLineCount = title.length;
+  var footerLineCount = footer.length;
+  var height = options.yPadding * 2; // Tooltip Padding
 
   var width = 0; // Count of all lines in the body
 
-  var body = model.body;
   var combinedBodyLength = body.reduce(function (count, bodyItem) {
     return count + bodyItem.before.length + bodyItem.lines.length + bodyItem.after.length;
   }, 0);
-  combinedBodyLength += model.beforeBody.length + model.afterBody.length;
-  var titleLineCount = model.title.length;
-  var footerLineCount = model.footer.length;
-  var titleFontSize = model.titleFontSize;
-  var bodyFontSize = model.bodyFontSize;
-  var footerFontSize = model.footerFontSize;
-  height += titleLineCount * titleFontSize; // Title Lines
+  combinedBodyLength += tooltip.beforeBody.length + tooltip.afterBody.length;
 
-  height += titleLineCount ? (titleLineCount - 1) * model.titleSpacing : 0; // Title Line Spacing
+  if (titleLineCount) {
+    height += titleLineCount * titleFontSize + (titleLineCount - 1) * options.titleSpacing + options.titleMarginBottom;
+  }
 
-  height += titleLineCount ? model.titleMarginBottom : 0; // Title's bottom Margin
+  if (combinedBodyLength) {
+    height += combinedBodyLength * bodyFontSize + (combinedBodyLength - 1) * options.bodySpacing;
+  }
 
-  height += combinedBodyLength * bodyFontSize; // Body Lines
+  if (footerLineCount) {
+    height += options.footerMarginTop + footerLineCount * footerFontSize + (footerLineCount - 1) * options.footerSpacing;
+  } // Title width
 
-  height += combinedBodyLength ? (combinedBodyLength - 1) * model.bodySpacing : 0; // Body Line Spacing
-
-  height += footerLineCount ? model.footerMarginTop : 0; // Footer Margin
-
-  height += footerLineCount * footerFontSize; // Footer Lines
-
-  height += footerLineCount ? (footerLineCount - 1) * model.footerSpacing : 0; // Footer Line Spacing
-  // Title width
 
   var widthPadding = 0;
 
@@ -9645,13 +10029,13 @@ function getTooltipSize(tooltip, model) {
     width = Math.max(width, ctx.measureText(line).width + widthPadding);
   };
 
-  ctx.font = require$$0.fontString(titleFontSize, model._titleFontStyle, model._titleFontFamily);
-  require$$0.each(model.title, maxLineWidth); // Body width
+  ctx.font = require$$0.fontString(titleFontSize, options.titleFontStyle, options.titleFontFamily);
+  require$$0.each(tooltip.title, maxLineWidth); // Body width
 
-  ctx.font = require$$0.fontString(bodyFontSize, model._bodyFontStyle, model._bodyFontFamily);
-  require$$0.each(model.beforeBody.concat(model.afterBody), maxLineWidth); // Body lines may include some extra width due to the color box
+  ctx.font = require$$0.fontString(bodyFontSize, options.bodyFontStyle, options.bodyFontFamily);
+  require$$0.each(tooltip.beforeBody.concat(tooltip.afterBody), maxLineWidth); // Body lines may include some extra width due to the color box
 
-  widthPadding = model.displayColors ? bodyFontSize + 2 : 0;
+  widthPadding = options.displayColors ? bodyFontSize + 2 : 0;
   require$$0.each(body, function (bodyItem) {
     require$$0.each(bodyItem.before, maxLineWidth);
     require$$0.each(bodyItem.lines, maxLineWidth);
@@ -9660,10 +10044,10 @@ function getTooltipSize(tooltip, model) {
 
   widthPadding = 0; // Footer width
 
-  ctx.font = require$$0.fontString(footerFontSize, model._footerFontStyle, model._footerFontFamily);
-  require$$0.each(model.footer, maxLineWidth); // Add padding
+  ctx.font = require$$0.fontString(footerFontSize, options.footerFontStyle, options.footerFontFamily);
+  require$$0.each(tooltip.footer, maxLineWidth); // Add padding
 
-  width += 2 * model.xPadding;
+  width += 2 * options.xPadding;
   return {
     width: width,
     height: height
@@ -9674,16 +10058,18 @@ function getTooltipSize(tooltip, model) {
  */
 
 
-function determineAlignment(tooltip, size) {
-  var model = tooltip._model;
-  var chart = tooltip._chart;
+function determineAlignment(chart, options, size) {
+  var x = size.x,
+      y = size.y,
+      width = size.width,
+      height = size.height;
   var chartArea = chart.chartArea;
   var xAlign = 'center';
   var yAlign = 'center';
 
-  if (model.y < size.height) {
+  if (y < height) {
     yAlign = 'top';
-  } else if (model.y > chart.height - size.height) {
+  } else if (y > chart.height - height) {
     yAlign = 'bottom';
   }
 
@@ -9697,81 +10083,68 @@ function determineAlignment(tooltip, size) {
   var midY = (chartArea.top + chartArea.bottom) / 2;
 
   if (yAlign === 'center') {
-    lf = function lf(x) {
-      return x <= midX;
+    lf = function lf(value) {
+      return value <= midX;
     };
 
-    rf = function rf(x) {
-      return x > midX;
+    rf = function rf(value) {
+      return value > midX;
     };
   } else {
-    lf = function lf(x) {
-      return x <= size.width / 2;
+    lf = function lf(value) {
+      return value <= width / 2;
     };
 
-    rf = function rf(x) {
-      return x >= chart.width - size.width / 2;
+    rf = function rf(value) {
+      return value >= chart.width - width / 2;
     };
   }
 
-  olf = function olf(x) {
-    return x + size.width + model.caretSize + model.caretPadding > chart.width;
+  olf = function olf(value) {
+    return value + width + options.caretSize + options.caretPadding > chart.width;
   };
 
-  orf = function orf(x) {
-    return x - size.width - model.caretSize - model.caretPadding < 0;
+  orf = function orf(value) {
+    return value - width - options.caretSize - options.caretPadding < 0;
   };
 
-  yf = function yf(y) {
-    return y <= midY ? 'top' : 'bottom';
+  yf = function yf(value) {
+    return value <= midY ? 'top' : 'bottom';
   };
 
-  if (lf(model.x)) {
+  if (lf(x)) {
     xAlign = 'left'; // Is tooltip too wide and goes over the right side of the chart.?
 
-    if (olf(model.x)) {
+    if (olf(x)) {
       xAlign = 'center';
-      yAlign = yf(model.y);
+      yAlign = yf(y);
     }
-  } else if (rf(model.x)) {
+  } else if (rf(x)) {
     xAlign = 'right'; // Is tooltip too wide and goes outside left edge of canvas?
 
-    if (orf(model.x)) {
+    if (orf(x)) {
       xAlign = 'center';
-      yAlign = yf(model.y);
+      yAlign = yf(y);
     }
   }
 
-  var opts = tooltip._options;
   return {
-    xAlign: opts.xAlign ? opts.xAlign : xAlign,
-    yAlign: opts.yAlign ? opts.yAlign : yAlign
+    xAlign: options.xAlign ? options.xAlign : xAlign,
+    yAlign: options.yAlign ? options.yAlign : yAlign
   };
 }
-/**
- * Helper to get the location a tooltip needs to be placed at given the initial position (via the vm) and the size and alignment
- */
 
-
-function getBackgroundPoint(vm, size, alignment, chart) {
-  // Background Position
-  var x = vm.x;
-  var y = vm.y;
-  var caretSize = vm.caretSize;
-  var caretPadding = vm.caretPadding;
-  var cornerRadius = vm.cornerRadius;
-  var xAlign = alignment.xAlign;
-  var yAlign = alignment.yAlign;
-  var paddingAndSize = caretSize + caretPadding;
-  var radiusAndPadding = cornerRadius + caretPadding;
+function alignX(size, xAlign, chartWidth) {
+  var x = size.x,
+      width = size.width;
 
   if (xAlign === 'right') {
-    x -= size.width;
+    x -= width;
   } else if (xAlign === 'center') {
-    x -= size.width / 2;
+    x -= width / 2;
 
-    if (x + size.width > chart.width) {
-      x = chart.width - size.width;
+    if (x + width > chartWidth) {
+      x = chartWidth - width;
     }
 
     if (x < 0) {
@@ -9779,13 +10152,38 @@ function getBackgroundPoint(vm, size, alignment, chart) {
     }
   }
 
+  return x;
+}
+
+function alignY(size, yAlign, paddingAndSize) {
+  var y = size.y,
+      height = size.height;
+
   if (yAlign === 'top') {
     y += paddingAndSize;
   } else if (yAlign === 'bottom') {
-    y -= size.height + paddingAndSize;
+    y -= height + paddingAndSize;
   } else {
-    y -= size.height / 2;
+    y -= height / 2;
   }
+
+  return y;
+}
+/**
+ * Helper to get the location a tooltip needs to be placed at given the initial position (via the vm) and the size and alignment
+ */
+
+
+function getBackgroundPoint(options, size, alignment, chart) {
+  var caretSize = options.caretSize,
+      caretPadding = options.caretPadding,
+      cornerRadius = options.cornerRadius;
+  var xAlign = alignment.xAlign,
+      yAlign = alignment.yAlign;
+  var paddingAndSize = caretSize + caretPadding;
+  var radiusAndPadding = cornerRadius + caretPadding;
+  var x = alignX(size, xAlign, chart.width);
+  var y = alignY(size, yAlign, paddingAndSize);
 
   if (yAlign === 'center') {
     if (xAlign === 'left') {
@@ -9805,8 +10203,9 @@ function getBackgroundPoint(vm, size, alignment, chart) {
   };
 }
 
-function getAlignedX(vm, align) {
-  return align === 'center' ? vm.x + vm.width / 2 : align === 'right' ? vm.x + vm.width - vm.xPadding : vm.x + vm.xPadding;
+function getAlignedX(tooltip, align) {
+  var options = tooltip.options;
+  return align === 'center' ? tooltip.x + tooltip.width / 2 : align === 'right' ? tooltip.x + tooltip.width - options.xPadding : tooltip.x + options.xPadding;
 }
 /**
  * Helper to build before and after body lines
@@ -9829,8 +10228,12 @@ function (_Element) {
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(Tooltip).call(this, config));
 
-    _this.initialize();
+    var me = _assertThisInitialized(_this);
 
+    me.opacity = 0;
+    me._active = [];
+    me._lastActive = [];
+    me.initialize();
     return _this;
   }
 
@@ -9838,25 +10241,27 @@ function (_Element) {
     key: "initialize",
     value: function initialize() {
       var me = this;
-      me._model = getBaseModel(me._options);
-      me._view = {};
-      me._lastActive = [];
+      me.options = resolveOptions(me._chart.options.tooltips);
     }
-  }, {
-    key: "transition",
-    value: function transition(easingValue) {
-      var me = this;
-      var options = me._options;
+    /**
+     * @private
+     */
 
-      if (me._lastEvent && me._chart.animating) {
-        // Let's react to changes during animation
-        me._active = me._chart.getElementsAtEventForMode(me._lastEvent, options.mode, options);
-        me.update(true);
-        me.pivot();
-        me._lastActive = me.active;
+  }, {
+    key: "_resolveAnimations",
+    value: function _resolveAnimations() {
+      var me = this;
+      var cached = me._cachedAnimations;
+
+      if (cached) {
+        return cached;
       }
 
-      require$$7.prototype.transition.call(me, easingValue);
+      var chart = me._chart;
+      var opts = chart.options.animation && me.options.animation;
+      var animations = new core_animations(me._chart, opts);
+      me._cachedAnimations = Object.freeze(animations);
+      return animations;
     } // Get the title
     // Args are: (tooltipItem, data)
 
@@ -9864,7 +10269,7 @@ function (_Element) {
     key: "getTitle",
     value: function getTitle() {
       var me = this;
-      var opts = me._options;
+      var opts = me.options;
       var callbacks = opts.callbacks;
       var beforeTitle = callbacks.beforeTitle.apply(me, arguments);
       var title = callbacks.title.apply(me, arguments);
@@ -9879,14 +10284,14 @@ function (_Element) {
   }, {
     key: "getBeforeBody",
     value: function getBeforeBody() {
-      return getBeforeAfterBodyLines(this._options.callbacks.beforeBody.apply(this, arguments));
+      return getBeforeAfterBodyLines(this.options.callbacks.beforeBody.apply(this, arguments));
     } // Args are: (tooltipItem, data)
 
   }, {
     key: "getBody",
     value: function getBody(tooltipItems, data) {
       var me = this;
-      var callbacks = me._options.callbacks;
+      var callbacks = me.options.callbacks;
       var bodyItems = [];
       require$$0.each(tooltipItems, function (tooltipItem) {
         var bodyItem = {
@@ -9905,7 +10310,7 @@ function (_Element) {
   }, {
     key: "getAfterBody",
     value: function getAfterBody() {
-      return getBeforeAfterBodyLines(this._options.callbacks.afterBody.apply(this, arguments));
+      return getBeforeAfterBodyLines(this.options.callbacks.afterBody.apply(this, arguments));
     } // Get the footer and beforeFooter and afterFooter lines
     // Args are: (tooltipItem, data)
 
@@ -9913,7 +10318,7 @@ function (_Element) {
     key: "getFooter",
     value: function getFooter() {
       var me = this;
-      var callbacks = me._options.callbacks;
+      var callbacks = me.options.callbacks;
       var beforeFooter = callbacks.beforeFooter.apply(me, arguments);
       var footer = callbacks.footer.apply(me, arguments);
       var afterFooter = callbacks.afterFooter.apply(me, arguments);
@@ -9923,129 +10328,121 @@ function (_Element) {
       lines = pushOrConcat(lines, splitNewlines(afterFooter));
       return lines;
     }
+    /**
+     * @private
+     */
+
+  }, {
+    key: "_createItems",
+    value: function _createItems() {
+      var me = this;
+      var active = me._active;
+      var options = me.options;
+      var data = me._chart.data;
+      var labelColors = [];
+      var labelTextColors = [];
+      var tooltipItems = [];
+      var i, len;
+
+      for (i = 0, len = active.length; i < len; ++i) {
+        tooltipItems.push(createTooltipItem(me._chart, active[i]));
+      } // If the user provided a filter function, use it to modify the tooltip items
+
+
+      if (options.filter) {
+        tooltipItems = tooltipItems.filter(function (a) {
+          return options.filter(a, data);
+        });
+      } // If the user provided a sorting function, use it to modify the tooltip items
+
+
+      if (options.itemSort) {
+        tooltipItems = tooltipItems.sort(function (a, b) {
+          return options.itemSort(a, b, data);
+        });
+      } // Determine colors for boxes
+
+
+      require$$0.each(tooltipItems, function (tooltipItem) {
+        labelColors.push(options.callbacks.labelColor.call(me, tooltipItem, me._chart));
+        labelTextColors.push(options.callbacks.labelTextColor.call(me, tooltipItem, me._chart));
+      });
+      me.labelColors = labelColors;
+      me.labelTextColors = labelTextColors;
+      me.dataPoints = tooltipItems;
+      return tooltipItems;
+    }
   }, {
     key: "update",
     value: function update(changed) {
       var me = this;
-      var opts = me._options; // Need to regenerate the model because its faster than using extend and it is necessary due to the optimization in Chart.Element.transition
-      // that does _view = _model if ease === 1. This causes the 2nd tooltip update to set properties in both the view and model at the same time
-      // which breaks any animations.
-
-      var existingModel = me._model;
-      var model = me._model = getBaseModel(opts);
+      var options = me.options;
       var active = me._active;
-      var data = me._data; // In the case where active.length === 0 we need to keep these at existing values for good animations
+      var properties;
 
-      var alignment = {
-        xAlign: existingModel.xAlign,
-        yAlign: existingModel.yAlign
-      };
-      var backgroundPoint = {
-        x: existingModel.x,
-        y: existingModel.y
-      };
-      var tooltipSize = {
-        width: existingModel.width,
-        height: existingModel.height
-      };
-      var tooltipPosition = {
-        x: existingModel.caretX,
-        y: existingModel.caretY
-      };
-      var i, len;
-
-      if (active.length) {
-        model.opacity = 1;
-        var labelColors = [];
-        var labelTextColors = [];
-        tooltipPosition = positioners[opts.position].call(me, active, me._eventPosition);
-        var tooltipItems = [];
-
-        for (i = 0, len = active.length; i < len; ++i) {
-          tooltipItems.push(createTooltipItem(me._chart, active[i]));
-        } // If the user provided a filter function, use it to modify the tooltip items
-
-
-        if (opts.filter) {
-          tooltipItems = tooltipItems.filter(function (a) {
-            return opts.filter(a, data);
-          });
-        } // If the user provided a sorting function, use it to modify the tooltip items
-
-
-        if (opts.itemSort) {
-          tooltipItems = tooltipItems.sort(function (a, b) {
-            return opts.itemSort(a, b, data);
-          });
-        } // Determine colors for boxes
-
-
-        require$$0.each(tooltipItems, function (tooltipItem) {
-          labelColors.push(opts.callbacks.labelColor.call(me, tooltipItem, me._chart));
-          labelTextColors.push(opts.callbacks.labelTextColor.call(me, tooltipItem, me._chart));
-        }); // Build the Text Lines
-
-        model.title = me.getTitle(tooltipItems, data);
-        model.beforeBody = me.getBeforeBody(tooltipItems, data);
-        model.body = me.getBody(tooltipItems, data);
-        model.afterBody = me.getAfterBody(tooltipItems, data);
-        model.footer = me.getFooter(tooltipItems, data); // Initial positioning and colors
-
-        model.x = tooltipPosition.x;
-        model.y = tooltipPosition.y;
-        model.caretPadding = opts.caretPadding;
-        model.labelColors = labelColors;
-        model.labelTextColors = labelTextColors; // data points
-
-        model.dataPoints = tooltipItems; // We need to determine alignment of the tooltip
-
-        tooltipSize = getTooltipSize(this, model);
-        alignment = determineAlignment(this, tooltipSize); // Final Size and Position
-
-        backgroundPoint = getBackgroundPoint(model, tooltipSize, alignment, me._chart);
+      if (!active.length) {
+        if (me.opacity !== 0) {
+          properties = {
+            opacity: 0
+          };
+        }
       } else {
-        model.opacity = 0;
+        var data = me._chart.data;
+        var position = positioners[options.position].call(me, active, me._eventPosition);
+
+        var tooltipItems = me._createItems();
+
+        me.title = me.getTitle(tooltipItems, data);
+        me.beforeBody = me.getBeforeBody(tooltipItems, data);
+        me.body = me.getBody(tooltipItems, data);
+        me.afterBody = me.getAfterBody(tooltipItems, data);
+        me.footer = me.getFooter(tooltipItems, data);
+        var size = me._size = getTooltipSize(me);
+        var positionAndSize = require$$0.extend({}, position, size);
+        var alignment = determineAlignment(me._chart, options, positionAndSize);
+        var backgroundPoint = getBackgroundPoint(options, positionAndSize, alignment, me._chart);
+        me.xAlign = alignment.xAlign;
+        me.yAlign = alignment.yAlign;
+        properties = {
+          opacity: 1,
+          x: backgroundPoint.x,
+          y: backgroundPoint.y,
+          width: size.width,
+          height: size.height,
+          caretX: position.x,
+          caretY: position.y
+        };
       }
 
-      model.xAlign = alignment.xAlign;
-      model.yAlign = alignment.yAlign;
-      model.x = backgroundPoint.x;
-      model.y = backgroundPoint.y;
-      model.width = tooltipSize.width;
-      model.height = tooltipSize.height; // Point where the caret on the tooltip points to
-
-      model.caretX = tooltipPosition.x;
-      model.caretY = tooltipPosition.y;
-      me._model = model;
-
-      if (changed && opts.custom) {
-        opts.custom.call(me, model);
+      if (properties) {
+        me._resolveAnimations().update(me, properties);
       }
 
-      return me;
+      if (changed && options.custom) {
+        options.custom.call(me);
+      }
     }
   }, {
     key: "drawCaret",
-    value: function drawCaret(tooltipPoint, size) {
-      var ctx = this._chart.ctx;
-      var vm = this._view;
-      var caretPosition = this.getCaretPosition(tooltipPoint, size, vm);
+    value: function drawCaret(tooltipPoint, ctx, size) {
+      var caretPosition = this.getCaretPosition(tooltipPoint, size);
       ctx.lineTo(caretPosition.x1, caretPosition.y1);
       ctx.lineTo(caretPosition.x2, caretPosition.y2);
       ctx.lineTo(caretPosition.x3, caretPosition.y3);
     }
   }, {
     key: "getCaretPosition",
-    value: function getCaretPosition(tooltipPoint, size, vm) {
+    value: function getCaretPosition(tooltipPoint, size) {
+      var xAlign = this.xAlign,
+          yAlign = this.yAlign,
+          options = this.options;
+      var cornerRadius = options.cornerRadius,
+          caretSize = options.caretSize;
+      var ptX = tooltipPoint.x,
+          ptY = tooltipPoint.y;
+      var width = size.width,
+          height = size.height;
       var x1, x2, x3, y1, y2, y3;
-      var caretSize = vm.caretSize;
-      var cornerRadius = vm.cornerRadius;
-      var xAlign = vm.xAlign;
-      var yAlign = vm.yAlign;
-      var ptX = tooltipPoint.x;
-      var ptY = tooltipPoint.y;
-      var width = size.width;
-      var height = size.height;
 
       if (yAlign === 'center') {
         y2 = ptY + height / 2;
@@ -10053,44 +10450,35 @@ function (_Element) {
         if (xAlign === 'left') {
           x1 = ptX;
           x2 = x1 - caretSize;
-          x3 = x1;
-          y1 = y2 + caretSize;
-          y3 = y2 - caretSize;
         } else {
           x1 = ptX + width;
           x2 = x1 + caretSize;
-          x3 = x1;
-          y1 = y2 - caretSize;
-          y3 = y2 + caretSize;
         }
+
+        x3 = x1;
+        y1 = y2 + caretSize;
+        y3 = y2 - caretSize;
       } else {
         if (xAlign === 'left') {
           x2 = ptX + cornerRadius + caretSize;
-          x1 = x2 - caretSize;
-          x3 = x2 + caretSize;
         } else if (xAlign === 'right') {
           x2 = ptX + width - cornerRadius - caretSize;
-          x1 = x2 - caretSize;
-          x3 = x2 + caretSize;
         } else {
-          x2 = vm.caretX;
-          x1 = x2 - caretSize;
-          x3 = x2 + caretSize;
+          x2 = this.caretX;
         }
+
+        x1 = x2 - caretSize;
+        x3 = x2 + caretSize;
 
         if (yAlign === 'top') {
           y1 = ptY;
           y2 = y1 - caretSize;
-          y3 = y1;
         } else {
           y1 = ptY + height;
           y2 = y1 + caretSize;
-          y3 = y1; // invert drawing order
-
-          var tmp = x3;
-          x3 = x1;
-          x1 = tmp;
         }
+
+        y3 = y1;
       }
 
       return {
@@ -10104,82 +10492,95 @@ function (_Element) {
     }
   }, {
     key: "drawTitle",
-    value: function drawTitle(pt, vm, ctx) {
-      var title = vm.title;
+    value: function drawTitle(pt, ctx) {
+      var me = this;
+      var options = me.options;
+      var title = me.title;
       var length = title.length;
       var titleFontSize, titleSpacing, i;
 
       if (length) {
-        var rtlHelper = getRtlHelper(vm.rtl, vm.x, vm.width);
-        pt.x = getAlignedX(vm, vm._titleAlign);
-        ctx.textAlign = rtlHelper.textAlign(vm._titleAlign);
+        var rtlHelper = getRtlHelper(options.rtl, me.x, me.width);
+        pt.x = getAlignedX(me, options.titleAlign);
+        ctx.textAlign = rtlHelper.textAlign(options.titleAlign);
         ctx.textBaseline = 'middle';
-        titleFontSize = vm.titleFontSize;
-        titleSpacing = vm.titleSpacing;
-        ctx.fillStyle = vm.titleFontColor;
-        ctx.font = require$$0.fontString(titleFontSize, vm._titleFontStyle, vm._titleFontFamily);
+        titleFontSize = options.titleFontSize;
+        titleSpacing = options.titleSpacing;
+        ctx.fillStyle = options.titleFontColor;
+        ctx.font = require$$0.fontString(titleFontSize, options.titleFontStyle, options.titleFontFamily);
 
         for (i = 0; i < length; ++i) {
           ctx.fillText(title[i], rtlHelper.x(pt.x), pt.y + titleFontSize / 2);
           pt.y += titleFontSize + titleSpacing; // Line Height and spacing
 
           if (i + 1 === length) {
-            pt.y += vm.titleMarginBottom - titleSpacing; // If Last, add margin, remove spacing
+            pt.y += options.titleMarginBottom - titleSpacing; // If Last, add margin, remove spacing
           }
         }
       }
     }
   }, {
+    key: "_drawColorBox",
+    value: function _drawColorBox(ctx, pt, i, rtlHelper) {
+      var me = this;
+      var options = me.options;
+      var labelColors = me.labelColors[i];
+      var bodyFontSize = options.bodyFontSize;
+      var colorX = getAlignedX(me, 'left');
+      var rtlColorX = rtlHelper.x(colorX); // Fill a white rect so that colours merge nicely if the opacity is < 1
+
+      ctx.fillStyle = options.multiKeyBackground;
+      ctx.fillRect(rtlHelper.leftForLtr(rtlColorX, bodyFontSize), pt.y, bodyFontSize, bodyFontSize); // Border
+
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = labelColors.borderColor;
+      ctx.strokeRect(rtlHelper.leftForLtr(rtlColorX, bodyFontSize), pt.y, bodyFontSize, bodyFontSize); // Inner square
+
+      ctx.fillStyle = labelColors.backgroundColor;
+      ctx.fillRect(rtlHelper.leftForLtr(rtlHelper.xPlus(rtlColorX, 1), bodyFontSize - 2), pt.y + 1, bodyFontSize - 2, bodyFontSize - 2); // restore fillStyle
+
+      ctx.fillStyle = me.labelTextColors[i];
+    }
+  }, {
     key: "drawBody",
-    value: function drawBody(pt, vm, ctx) {
-      var bodyFontSize = vm.bodyFontSize;
-      var bodySpacing = vm.bodySpacing;
-      var bodyAlign = vm._bodyAlign;
-      var body = vm.body;
-      var drawColorBoxes = vm.displayColors;
+    value: function drawBody(pt, ctx) {
+      var me = this;
+      var body = me.body,
+          options = me.options;
+      var bodyFontSize = options.bodyFontSize,
+          bodySpacing = options.bodySpacing,
+          bodyAlign = options.bodyAlign,
+          displayColors = options.displayColors;
       var xLinePadding = 0;
-      var colorX = drawColorBoxes ? getAlignedX(vm, 'left') : 0;
-      var rtlHelper = getRtlHelper(vm.rtl, vm.x, vm.width);
+      var rtlHelper = getRtlHelper(options.rtl, me.x, me.width);
 
       var fillLineOfText = function fillLineOfText(line) {
         ctx.fillText(line, rtlHelper.x(pt.x + xLinePadding), pt.y + bodyFontSize / 2);
         pt.y += bodyFontSize + bodySpacing;
       };
 
-      var bodyItem, textColor, labelColors, lines, i, j, ilen, jlen;
       var bodyAlignForCalculation = rtlHelper.textAlign(bodyAlign);
+      var bodyItem, textColor, lines, i, j, ilen, jlen;
       ctx.textAlign = bodyAlign;
       ctx.textBaseline = 'middle';
-      ctx.font = require$$0.fontString(bodyFontSize, vm._bodyFontStyle, vm._bodyFontFamily);
-      pt.x = getAlignedX(vm, bodyAlignForCalculation); // Before body lines
+      ctx.font = require$$0.fontString(bodyFontSize, options.bodyFontStyle, options.bodyFontFamily);
+      pt.x = getAlignedX(me, bodyAlignForCalculation); // Before body lines
 
-      ctx.fillStyle = vm.bodyFontColor;
-      require$$0.each(vm.beforeBody, fillLineOfText);
-      xLinePadding = drawColorBoxes && bodyAlignForCalculation !== 'right' ? bodyAlign === 'center' ? bodyFontSize / 2 + 1 : bodyFontSize + 2 : 0; // Draw body lines now
+      ctx.fillStyle = options.bodyFontColor;
+      require$$0.each(me.beforeBody, fillLineOfText);
+      xLinePadding = displayColors && bodyAlignForCalculation !== 'right' ? bodyAlign === 'center' ? bodyFontSize / 2 + 1 : bodyFontSize + 2 : 0; // Draw body lines now
 
       for (i = 0, ilen = body.length; i < ilen; ++i) {
         bodyItem = body[i];
-        textColor = vm.labelTextColors[i];
-        labelColors = vm.labelColors[i];
+        textColor = me.labelTextColors[i];
         ctx.fillStyle = textColor;
         require$$0.each(bodyItem.before, fillLineOfText);
         lines = bodyItem.lines;
 
         for (j = 0, jlen = lines.length; j < jlen; ++j) {
           // Draw Legend-like boxes if needed
-          if (drawColorBoxes) {
-            var rtlColorX = rtlHelper.x(colorX); // Fill a white rect so that colours merge nicely if the opacity is < 1
-
-            ctx.fillStyle = vm.legendColorBackground;
-            ctx.fillRect(rtlHelper.leftForLtr(rtlColorX, bodyFontSize), pt.y, bodyFontSize, bodyFontSize); // Border
-
-            ctx.lineWidth = 1;
-            ctx.strokeStyle = labelColors.borderColor;
-            ctx.strokeRect(rtlHelper.leftForLtr(rtlColorX, bodyFontSize), pt.y, bodyFontSize, bodyFontSize); // Inner square
-
-            ctx.fillStyle = labelColors.backgroundColor;
-            ctx.fillRect(rtlHelper.leftForLtr(rtlHelper.xPlus(rtlColorX, 1), bodyFontSize - 2), pt.y + 1, bodyFontSize - 2, bodyFontSize - 2);
-            ctx.fillStyle = textColor;
+          if (displayColors) {
+            me._drawColorBox(ctx, pt, i, rtlHelper);
           }
 
           fillLineOfText(lines[j]);
@@ -10191,71 +10592,74 @@ function (_Element) {
 
       xLinePadding = 0; // After body lines
 
-      require$$0.each(vm.afterBody, fillLineOfText);
+      require$$0.each(me.afterBody, fillLineOfText);
       pt.y -= bodySpacing; // Remove last body spacing
     }
   }, {
     key: "drawFooter",
-    value: function drawFooter(pt, vm, ctx) {
-      var footer = vm.footer;
+    value: function drawFooter(pt, ctx) {
+      var me = this;
+      var options = me.options;
+      var footer = me.footer;
       var length = footer.length;
       var footerFontSize, i;
 
       if (length) {
-        var rtlHelper = getRtlHelper(vm.rtl, vm.x, vm.width);
-        pt.x = getAlignedX(vm, vm._footerAlign);
-        pt.y += vm.footerMarginTop;
-        ctx.textAlign = rtlHelper.textAlign(vm._footerAlign);
+        var rtlHelper = getRtlHelper(options.rtl, me.x, me.width);
+        pt.x = getAlignedX(me, options.footerAlign);
+        pt.y += options.footerMarginTop;
+        ctx.textAlign = rtlHelper.textAlign(options.footerAlign);
         ctx.textBaseline = 'middle';
-        footerFontSize = vm.footerFontSize;
-        ctx.fillStyle = vm.footerFontColor;
-        ctx.font = require$$0.fontString(footerFontSize, vm._footerFontStyle, vm._footerFontFamily);
+        footerFontSize = options.footerFontSize;
+        ctx.fillStyle = options.footerFontColor;
+        ctx.font = require$$0.fontString(footerFontSize, options.footerFontStyle, options.footerFontFamily);
 
         for (i = 0; i < length; ++i) {
           ctx.fillText(footer[i], rtlHelper.x(pt.x), pt.y + footerFontSize / 2);
-          pt.y += footerFontSize + vm.footerSpacing;
+          pt.y += footerFontSize + options.footerSpacing;
         }
       }
     }
   }, {
     key: "drawBackground",
-    value: function drawBackground(pt, vm, ctx, tooltipSize) {
-      ctx.fillStyle = vm.backgroundColor;
-      ctx.strokeStyle = vm.borderColor;
-      ctx.lineWidth = vm.borderWidth;
-      var xAlign = vm.xAlign;
-      var yAlign = vm.yAlign;
-      var x = pt.x;
-      var y = pt.y;
-      var width = tooltipSize.width;
-      var height = tooltipSize.height;
-      var radius = vm.cornerRadius;
+    value: function drawBackground(pt, ctx, tooltipSize) {
+      var xAlign = this.xAlign,
+          yAlign = this.yAlign,
+          options = this.options;
+      var x = pt.x,
+          y = pt.y;
+      var width = tooltipSize.width,
+          height = tooltipSize.height;
+      var radius = options.cornerRadius;
+      ctx.fillStyle = options.backgroundColor;
+      ctx.strokeStyle = options.borderColor;
+      ctx.lineWidth = options.borderWidth;
       ctx.beginPath();
       ctx.moveTo(x + radius, y);
 
       if (yAlign === 'top') {
-        this.drawCaret(pt, tooltipSize);
+        this.drawCaret(pt, ctx, tooltipSize);
       }
 
       ctx.lineTo(x + width - radius, y);
       ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
 
       if (yAlign === 'center' && xAlign === 'right') {
-        this.drawCaret(pt, tooltipSize);
+        this.drawCaret(pt, ctx, tooltipSize);
       }
 
       ctx.lineTo(x + width, y + height - radius);
       ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
 
       if (yAlign === 'bottom') {
-        this.drawCaret(pt, tooltipSize);
+        this.drawCaret(pt, ctx, tooltipSize);
       }
 
       ctx.lineTo(x + radius, y + height);
       ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
 
       if (yAlign === 'center' && xAlign === 'left') {
-        this.drawCaret(pt, tooltipSize);
+        this.drawCaret(pt, ctx, tooltipSize);
       }
 
       ctx.lineTo(x, y + radius);
@@ -10263,48 +10667,81 @@ function (_Element) {
       ctx.closePath();
       ctx.fill();
 
-      if (vm.borderWidth > 0) {
+      if (options.borderWidth > 0) {
         ctx.stroke();
+      }
+    }
+    /**
+     * Update x/y animation targets when _active elements are animating too
+     * @private
+     */
+
+  }, {
+    key: "_updateAnimationTarget",
+    value: function _updateAnimationTarget() {
+      var me = this;
+      var chart = me._chart;
+      var options = me.options;
+      var anims = me.$animations;
+      var animX = anims && anims.x;
+      var animY = anims && anims.y;
+
+      if (animX && animX.active() || animY && animY.active()) {
+        var position = positioners[options.position].call(me, me._active, me._eventPosition);
+
+        if (!position) {
+          return;
+        }
+
+        var positionAndSize = require$$0.extend({}, position, me._size);
+        var alignment = determineAlignment(chart, options, positionAndSize);
+        var point = getBackgroundPoint(options, positionAndSize, alignment, chart);
+
+        if (animX._to !== point.x || animY._to !== point.y) {
+          me._resolveAnimations().update(me, point);
+        }
       }
     }
   }, {
     key: "draw",
-    value: function draw() {
-      var ctx = this._chart.ctx;
-      var vm = this._view;
+    value: function draw(ctx) {
+      var me = this;
+      var options = me.options;
+      var opacity = me.opacity;
 
-      if (vm.opacity === 0) {
+      if (!opacity) {
         return;
       }
 
+      me._updateAnimationTarget();
+
       var tooltipSize = {
-        width: vm.width,
-        height: vm.height
+        width: me.width,
+        height: me.height
       };
       var pt = {
-        x: vm.x,
-        y: vm.y
+        x: me.x,
+        y: me.y
       }; // IE11/Edge does not like very small opacities, so snap to 0
 
-      var opacity = Math.abs(vm.opacity < 1e-3) ? 0 : vm.opacity; // Truthy/falsey value for empty tooltip
+      opacity = Math.abs(opacity < 1e-3) ? 0 : opacity; // Truthy/falsey value for empty tooltip
 
-      var hasTooltipContent = vm.title.length || vm.beforeBody.length || vm.body.length || vm.afterBody.length || vm.footer.length;
+      var hasTooltipContent = me.title.length || me.beforeBody.length || me.body.length || me.afterBody.length || me.footer.length;
 
-      if (this._options.enabled && hasTooltipContent) {
+      if (options.enabled && hasTooltipContent) {
         ctx.save();
         ctx.globalAlpha = opacity; // Draw Background
 
-        this.drawBackground(pt, vm, ctx, tooltipSize); // Draw Title, Body, and Footer
+        me.drawBackground(pt, ctx, tooltipSize);
+        require$$0.rtl.overrideTextDirection(ctx, options.textDirection);
+        pt.y += options.yPadding; // Titles
 
-        pt.y += vm.yPadding;
-        require$$0.rtl.overrideTextDirection(ctx, vm.textDirection); // Titles
+        me.drawTitle(pt, ctx); // Body
 
-        this.drawTitle(pt, vm, ctx); // Body
+        me.drawBody(pt, ctx); // Footer
 
-        this.drawBody(pt, vm, ctx); // Footer
-
-        this.drawFooter(pt, vm, ctx);
-        require$$0.rtl.restoreTextDirection(ctx, vm.textDirection);
+        me.drawFooter(pt, ctx);
+        require$$0.rtl.restoreTextDirection(ctx, options.textDirection);
         ctx.restore();
       }
     }
@@ -10319,19 +10756,14 @@ function (_Element) {
     key: "handleEvent",
     value: function handleEvent(e) {
       var me = this;
-      var options = me._options;
+      var options = me.options;
       var changed = false;
       me._lastActive = me._lastActive || []; // Find Active Elements for tooltips
 
       if (e.type === 'mouseout') {
         me._active = [];
-        me._lastEvent = null;
       } else {
         me._active = me._chart.getElementsAtEventForMode(e, options.mode, options);
-
-        if (e.type !== 'click') {
-          me._lastEvent = e.type === 'click' ? null : e;
-        }
 
         if (options.reverse) {
           me._active.reverse();
@@ -10349,8 +10781,7 @@ function (_Element) {
             x: e.x,
             y: e.y
           };
-          me.update(true);
-          me.pivot();
+          me.update(true); // me.pivot();
         }
       }
 
@@ -10359,7 +10790,7 @@ function (_Element) {
   }]);
 
   return Tooltip;
-}(require$$7);
+}(require$$8);
 /**
  * @namespace Chart.Tooltip.positioners
  */
@@ -10368,9 +10799,9 @@ function (_Element) {
 Tooltip.positioners = positioners;
 var core_tooltip = Tooltip;
 
-var require$$9 = getCjsExportFromNamespace(core_interaction$1);
+var require$$10 = getCjsExportFromNamespace(core_interaction$1);
 
-var valueOrDefault$7 = require$$0.valueOrDefault;
+var valueOrDefault$6 = require$$0.valueOrDefault;
 
 core_defaults._set('global', {
   elements: {},
@@ -10378,13 +10809,11 @@ core_defaults._set('global', {
   hover: {
     onHover: null,
     mode: 'nearest',
-    intersect: true,
-    animationDuration: 400
+    intersect: true
   },
   onClick: null,
   maintainAspectRatio: true,
-  responsive: true,
-  responsiveAnimationDuration: 0
+  responsive: true
 });
 
 function mergeScaleConfig(config, options) {
@@ -10459,7 +10888,7 @@ function initConfig(config) {
 }
 
 function isAnimationDisabled(config) {
-  return !config.animation || !(config.animation.duration || config.hover && config.hover.animationDuration || config.responsiveAnimationDuration);
+  return !config.animation;
 }
 
 function updateConfig(chart) {
@@ -10473,9 +10902,7 @@ function updateConfig(chart) {
   chart.options.scales = scaleConfig;
   chart._animationsDisabled = isAnimationDisabled(newOptions);
   chart.ensureScalesHaveIDs();
-  chart.buildOrUpdateScales(); // Tooltip
-
-  chart.tooltip._options = newOptions.tooltips;
+  chart.buildOrUpdateScales();
   chart.tooltip.initialize();
 }
 
@@ -10489,6 +10916,19 @@ function compare2Level(l1, l2) {
   return function (a, b) {
     return a[l1] === b[l1] ? a[l2] - b[l2] : a[l1] - b[l1];
   };
+}
+
+function onAnimationsComplete(ctx) {
+  var chart = ctx.chart;
+  var animationOptions = chart.options.animation;
+  core_plugins.notify(chart, 'afterRender');
+  require$$0.callback(animationOptions && animationOptions.onComplete, arguments, chart);
+}
+
+function onAnimationProgress(ctx) {
+  var chart = ctx.chart;
+  var animationOptions = chart.options.animation;
+  require$$0.callback(animationOptions && animationOptions.onProgress, arguments, chart);
 }
 
 var Chart = function Chart(item, config) {
@@ -10540,6 +10980,8 @@ require$$0.extend(Chart.prototype,
       return;
     }
 
+    core_animator.listen(me, 'complete', onAnimationsComplete);
+    core_animator.listen(me, 'progress', onAnimationProgress);
     me.initialize();
     me.update();
   },
@@ -10569,8 +11011,7 @@ require$$0.extend(Chart.prototype,
     return this;
   },
   stop: function stop() {
-    // Stops any current animation loop occurring
-    core_animations.cancelAnimation(this);
+    core_animator.stop(this);
     return this;
   },
   resize: function resize(silent) {
@@ -10607,9 +11048,7 @@ require$$0.extend(Chart.prototype,
       }
 
       me.stop();
-      me.update({
-        duration: options.responsiveAnimationDuration
-      });
+      me.update('resize');
     }
   },
   ensureScalesHaveIDs: function ensureScalesHaveIDs() {
@@ -10655,7 +11094,7 @@ require$$0.extend(Chart.prototype,
     require$$0.each(items, function (item) {
       var scaleOptions = item.options;
       var id = scaleOptions.id;
-      var scaleType = valueOrDefault$7(scaleOptions.type, item.dtype);
+      var scaleType = valueOrDefault$6(scaleOptions.type, item.dtype);
 
       if (scaleOptions.position === undefined || positionIsHorizontal(scaleOptions.position, scaleOptions.axis || id[0]) !== positionIsHorizontal(item.dposition)) {
         scaleOptions.position = item.dposition;
@@ -10768,10 +11207,10 @@ require$$0.extend(Chart.prototype,
     this.resetElements();
     this.tooltip.initialize();
   },
-  update: function update(config) {
+  update: function update(mode) {
     var me = this;
     var i, ilen;
-    config = config || {};
+    me._updating = true;
     updateConfig(me); // plugins options references might have change, let's invalidate the cache
     // https://github.com/chartjs/Chart.js/issues/5111#issuecomment-355934167
 
@@ -10779,10 +11218,8 @@ require$$0.extend(Chart.prototype,
 
     if (core_plugins.notify(me, 'beforeUpdate') === false) {
       return;
-    } // In case the entire data object changed
+    } // Make sure dataset controllers are updated and new controllers are reset
 
-
-    me.tooltip._data = me.data; // Make sure dataset controllers are updated and new controllers are reset
 
     var newControllers = me.buildOrUpdateControllers(); // Make sure all dataset controllers have correct meta data counts
 
@@ -10792,37 +11229,25 @@ require$$0.extend(Chart.prototype,
 
     me.updateLayout(); // Can only reset the new controllers after the scales have been updated
 
-    if (me.options.animation && me.options.animation.duration) {
+    if (me.options.animation) {
       require$$0.each(newControllers, function (controller) {
         controller.reset();
       });
     }
 
-    me.updateDatasets(); // Need to reset tooltip in case it is displayed with elements that are removed
-    // after update.
-
-    me.tooltip.initialize(); // Last active contains items that were previously hovered.
-
-    me.lastActive = []; // Do this before render so that any plugins that need final scale updates can use it
+    me.updateDatasets(mode); // Do this before render so that any plugins that need final scale updates can use it
 
     core_plugins.notify(me, 'afterUpdate');
 
-    me._layers.sort(compare2Level('z', '_idx'));
-
-    if (me._bufferedRender) {
-      me._bufferedRequest = {
-        duration: config.duration,
-        easing: config.easing,
-        lazy: config.lazy
-      };
-    } else {
-      me.render(config);
-    } // Replay last event from before update
+    me._layers.sort(compare2Level('z', '_idx')); // Replay last event from before update
 
 
     if (me._lastEvent) {
       me.eventHandler(me._lastEvent);
     }
+
+    me.render();
+    me._updating = false;
   },
 
   /**
@@ -10861,7 +11286,7 @@ require$$0.extend(Chart.prototype,
    * hook, in which case, plugins will not be called on `afterDatasetsUpdate`.
    * @private
    */
-  updateDatasets: function updateDatasets() {
+  updateDatasets: function updateDatasets(mode) {
     var me = this;
 
     if (core_plugins.notify(me, 'beforeDatasetsUpdate') === false) {
@@ -10869,7 +11294,7 @@ require$$0.extend(Chart.prototype,
     }
 
     for (var i = 0, ilen = me.data.datasets.length; i < ilen; ++i) {
-      me.updateDataset(i);
+      me.updateDataset(i, mode);
     }
 
     core_plugins.notify(me, 'afterDatasetsUpdate');
@@ -10880,87 +11305,55 @@ require$$0.extend(Chart.prototype,
    * hook, in which case, plugins will not be called on `afterDatasetUpdate`.
    * @private
    */
-  updateDataset: function updateDataset(index) {
+  updateDataset: function updateDataset(index, mode) {
     var me = this;
     var meta = me.getDatasetMeta(index);
     var args = {
       meta: meta,
-      index: index
+      index: index,
+      mode: mode
     };
 
     if (core_plugins.notify(me, 'beforeDatasetUpdate', [args]) === false) {
       return;
     }
 
-    meta.controller._update();
+    meta.controller._update(mode);
 
     core_plugins.notify(me, 'afterDatasetUpdate', [args]);
   },
-  render: function render(config) {
+  render: function render() {
     var me = this;
-
-    if (!config || _typeof(config) !== 'object') {
-      // backwards compatibility
-      config = {
-        duration: config,
-        lazy: arguments[1]
-      };
-    }
-
     var animationOptions = me.options.animation;
-    var duration = valueOrDefault$7(config.duration, animationOptions && animationOptions.duration);
-    var lazy = config.lazy;
 
     if (core_plugins.notify(me, 'beforeRender') === false) {
       return;
     }
 
-    var onComplete = function onComplete(animation) {
+    var onComplete = function onComplete() {
       core_plugins.notify(me, 'afterRender');
-      require$$0.callback(animationOptions && animationOptions.onComplete, [animation], me);
+      require$$0.callback(animationOptions && animationOptions.onComplete, [], me);
     };
 
-    if (animationOptions && duration) {
-      var animation = new core_animation({
-        numSteps: duration / 16.66,
-        // 60 fps
-        easing: config.easing || animationOptions.easing,
-        render: function render(chart, animationObject) {
-          var easingFunction = require$$0.easing.effects[animationObject.easing];
-          var stepDecimal = animationObject.currentStep / animationObject.numSteps;
-          chart.draw(easingFunction(stepDecimal));
-        },
-        onAnimationProgress: animationOptions.onProgress,
-        onAnimationComplete: onComplete
-      });
-      core_animations.addAnimation(me, animation, duration, lazy);
+    if (core_animator.has(me)) {
+      if (!core_animator.running(me)) {
+        core_animator.start(me);
+      }
     } else {
-      me.draw(); // See https://github.com/chartjs/Chart.js/issues/3781
-
-      onComplete(new core_animation({
-        numSteps: 0,
-        chart: me
-      }));
+      me.draw();
+      onComplete();
     }
-
-    return me;
   },
-  draw: function draw(easingValue) {
+  draw: function draw() {
     var me = this;
     var i, layers;
     me.clear();
-
-    if (require$$0.isNullOrUndef(easingValue)) {
-      easingValue = 1;
-    }
-
-    me.transition(easingValue);
 
     if (me.width <= 0 || me.height <= 0) {
       return;
     }
 
-    if (core_plugins.notify(me, 'beforeDraw', [easingValue]) === false) {
+    if (core_plugins.notify(me, 'beforeDraw') === false) {
       return;
     } // Because of plugin hooks (before/afterDatasetsDraw), datasets can't
     // currently be part of layers. Instead, we draw
@@ -10973,42 +11366,15 @@ require$$0.extend(Chart.prototype,
       layers[i].draw(me.chartArea);
     }
 
-    me.drawDatasets(easingValue); // Rest of layers
+    me.drawDatasets(); // Rest of layers
 
     for (; i < layers.length; ++i) {
       layers[i].draw(me.chartArea);
     }
 
-    me._drawTooltip(easingValue);
+    me._drawTooltip();
 
-    core_plugins.notify(me, 'afterDraw', [easingValue]);
-  },
-
-  /**
-   * @private
-   */
-  transition: function transition(easingValue) {
-    var me = this;
-    var i, ilen;
-
-    if (!me._animationsDisabled) {
-      var metas = me._getSortedDatasetMetas();
-
-      for (i = 0, ilen = metas.length; i < ilen; ++i) {
-        var meta = metas[i];
-
-        if (meta.visible) {
-          meta.controller.transition(easingValue);
-        }
-      }
-    }
-
-    me.tooltip.transition(easingValue);
-
-    if (me._lastEvent && me.animating) {
-      // If, during animation, element under mouse changes, let's react to that.
-      me.handleEvent(me._lastEvent);
-    }
+    core_plugins.notify(me, 'afterDraw');
   },
 
   /**
@@ -11043,21 +11409,21 @@ require$$0.extend(Chart.prototype,
    * hook, in which case, plugins will not be called on `afterDatasetsDraw`.
    * @private
    */
-  drawDatasets: function drawDatasets(easingValue) {
+  drawDatasets: function drawDatasets() {
     var me = this;
     var metasets, i;
 
-    if (core_plugins.notify(me, 'beforeDatasetsDraw', [easingValue]) === false) {
+    if (core_plugins.notify(me, 'beforeDatasetsDraw') === false) {
       return;
     }
 
     metasets = me._getSortedVisibleDatasetMetas();
 
     for (i = metasets.length - 1; i >= 0; --i) {
-      me.drawDataset(metasets[i], easingValue);
+      me.drawDataset(metasets[i]);
     }
 
-    core_plugins.notify(me, 'afterDatasetsDraw', [easingValue]);
+    core_plugins.notify(me, 'afterDatasetsDraw');
   },
 
   /**
@@ -11065,7 +11431,7 @@ require$$0.extend(Chart.prototype,
    * hook, in which case, plugins will not be called on `afterDatasetDraw`.
    * @private
    */
-  drawDataset: function drawDataset(meta, easingValue) {
+  drawDataset: function drawDataset(meta) {
     var me = this;
     var ctx = me.ctx;
     var clip = meta._clip;
@@ -11073,8 +11439,7 @@ require$$0.extend(Chart.prototype,
     var area = me.chartArea;
     var args = {
       meta: meta,
-      index: meta.index,
-      easingValue: easingValue
+      index: meta.index
     };
 
     if (core_plugins.notify(me, 'beforeDatasetDraw', [args]) === false) {
@@ -11087,7 +11452,7 @@ require$$0.extend(Chart.prototype,
       top: clip.top === false ? 0 : area.top - clip.top,
       bottom: clip.bottom === false ? canvas.height : area.bottom + clip.bottom
     });
-    meta.controller.draw(easingValue);
+    meta.controller.draw();
     require$$0.canvas.unclipArea(ctx);
     core_plugins.notify(me, 'afterDatasetDraw', [args]);
   },
@@ -11097,19 +11462,18 @@ require$$0.extend(Chart.prototype,
    * hook, in which case, plugins will not be called on `afterTooltipDraw`.
    * @private
    */
-  _drawTooltip: function _drawTooltip(easingValue) {
+  _drawTooltip: function _drawTooltip() {
     var me = this;
     var tooltip = me.tooltip;
     var args = {
-      tooltip: tooltip,
-      easingValue: easingValue
+      tooltip: tooltip
     };
 
     if (core_plugins.notify(me, 'beforeTooltipDraw', [args]) === false) {
       return;
     }
 
-    tooltip.draw();
+    tooltip.draw(me.ctx);
     core_plugins.notify(me, 'afterTooltipDraw', [args]);
   },
 
@@ -11118,22 +11482,22 @@ require$$0.extend(Chart.prototype,
    * @return An object containing the dataset index and element index of the matching element. Also contains the rectangle that was draw
    */
   getElementAtEvent: function getElementAtEvent(e) {
-    return require$$9.modes.nearest(this, e, {
+    return require$$10.modes.nearest(this, e, {
       intersect: true
     });
   },
   getElementsAtEvent: function getElementsAtEvent(e) {
-    return require$$9.modes.index(this, e, {
+    return require$$10.modes.index(this, e, {
       intersect: true
     });
   },
   getElementsAtXAxis: function getElementsAtXAxis(e) {
-    return require$$9.modes.index(this, e, {
+    return require$$10.modes.index(this, e, {
       intersect: false
     });
   },
   getElementsAtEventForMode: function getElementsAtEventForMode(e, mode, options) {
-    var method = require$$9.modes[mode];
+    var method = require$$10.modes[mode];
 
     if (typeof method === 'function') {
       return method(this, e, options);
@@ -11142,7 +11506,7 @@ require$$0.extend(Chart.prototype,
     return [];
   },
   getDatasetAtEvent: function getDatasetAtEvent(e) {
-    return require$$9.modes.dataset(this, e, {
+    return require$$10.modes.dataset(this, e, {
       intersect: true
     });
   },
@@ -11220,11 +11584,8 @@ require$$0.extend(Chart.prototype,
     return this.canvas.toDataURL.apply(this.canvas, arguments);
   },
   initToolTip: function initToolTip() {
-    var me = this;
-    me.tooltip = new core_tooltip({
-      _chart: me,
-      _data: me.data,
-      _options: me.options.tooltips
+    this.tooltip = new core_tooltip({
+      _chart: this
     });
   },
 
@@ -11322,39 +11683,16 @@ require$$0.extend(Chart.prototype,
 
     if (core_plugins.notify(me, 'beforeEvent', [e]) === false) {
       return;
-    } // Buffer any update calls so that renders do not occur
+    }
 
-
-    me._bufferedRender = true;
-    me._bufferedRequest = null;
-    var changed = me.handleEvent(e); // for smooth tooltip animations issue #4989
-    // the tooltip should be the source of change
-    // Animation check workaround:
-    // tooltip._start will be null when tooltip isn't animating
+    me.handleEvent(e);
 
     if (tooltip) {
-      changed = tooltip._start ? tooltip.handleEvent(e) : changed | tooltip.handleEvent(e);
+      tooltip.handleEvent(e);
     }
 
     core_plugins.notify(me, 'afterEvent', [e]);
-    var bufferedRequest = me._bufferedRequest;
-
-    if (bufferedRequest) {
-      // If we have an update that was triggered, we need to do a normal render
-      me.render(bufferedRequest);
-    } else if (changed && !me.animating) {
-      // If entering, leaving, or changing elements, animate the change via pivot
-      me.stop(); // We only need to render at this point. Updating will cause scales to be
-      // recomputed generating flicker & using more memory than necessary.
-
-      me.render({
-        duration: me.options.hover.animationDuration,
-        lazy: true
-      });
-    }
-
-    me._bufferedRender = false;
-    me._bufferedRequest = null;
+    me.render();
     return me;
   },
 
@@ -11376,7 +11714,7 @@ require$$0.extend(Chart.prototype,
       me._lastEvent = null;
     } else {
       me.active = me.getElementsAtEventForMode(e, hoverOptions.mode, hoverOptions);
-      me._lastEvent = e.type === 'click' ? null : e;
+      me._lastEvent = e.type === 'click' ? me._lastEvent : e;
     } // Invoke onHover hook
     // Need to call with native event here to not break backwards compatibility
 
@@ -11390,9 +11728,12 @@ require$$0.extend(Chart.prototype,
       }
     }
 
-    me._updateHoverStyles();
+    changed = !require$$0._elementsEqual(me.active, me.lastActive);
 
-    changed = !require$$0._elementsEqual(me.active, me.lastActive); // Remember Last Actives
+    if (changed) {
+      me._updateHoverStyles();
+    } // Remember Last Actives
+
 
     me.lastActive = me.active;
     return changed;
@@ -11584,7 +11925,7 @@ var alignPixel = require$$0.canvas._alignPixel;
 var isArray$1 = require$$0.isArray;
 var isFinite$1 = require$$0.isFinite;
 var isNullOrUndef$1 = require$$0.isNullOrUndef;
-var valueOrDefault$8 = require$$0.valueOrDefault;
+var valueOrDefault$7 = require$$0.valueOrDefault;
 var resolve$5 = require$$0.options.resolve;
 
 core_defaults._set('scale', {
@@ -11775,10 +12116,10 @@ function getScaleLabelHeight(options) {
 
 function parseFontOptions(options, nestedOpts) {
   return require$$0.extend(require$$0.options._parseFont({
-    fontFamily: valueOrDefault$8(nestedOpts.fontFamily, options.fontFamily),
-    fontSize: valueOrDefault$8(nestedOpts.fontSize, options.fontSize),
-    fontStyle: valueOrDefault$8(nestedOpts.fontStyle, options.fontStyle),
-    lineHeight: valueOrDefault$8(nestedOpts.lineHeight, options.lineHeight)
+    fontFamily: valueOrDefault$7(nestedOpts.fontFamily, options.fontFamily),
+    fontSize: valueOrDefault$7(nestedOpts.fontSize, options.fontSize),
+    fontStyle: valueOrDefault$7(nestedOpts.fontStyle, options.fontStyle),
+    lineHeight: valueOrDefault$7(nestedOpts.lineHeight, options.lineHeight)
   }), {
     color: resolve$5([nestedOpts.fontColor, options.fontColor, core_defaults.global.defaultFontColor])
   });
@@ -11862,8 +12203,8 @@ function skipMajors(ticks, newTicks, majorIndices, spacing) {
 }
 
 function skip(ticks, newTicks, spacing, majorStart, majorEnd) {
-  var start = valueOrDefault$8(majorStart, 0);
-  var end = Math.min(valueOrDefault$8(majorEnd, ticks.length), ticks.length);
+  var start = valueOrDefault$7(majorStart, 0);
+  var end = Math.min(valueOrDefault$7(majorEnd, ticks.length), ticks.length);
   var count = 0;
   var length, i, next;
   spacing = Math.ceil(spacing);
@@ -12988,7 +13329,7 @@ function (_Element) {
         return;
       }
 
-      var scaleLabelFontColor = valueOrDefault$8(scaleLabel.fontColor, core_defaults.global.defaultFontColor);
+      var scaleLabelFontColor = valueOrDefault$7(scaleLabel.fontColor, core_defaults.global.defaultFontColor);
 
       var scaleLabelFont = require$$0.options._parseFont(scaleLabel);
 
@@ -13133,7 +13474,7 @@ function (_Element) {
   }]);
 
   return Scale;
-}(require$$7);
+}(require$$8);
 
 Scale.prototype._draw = Scale.prototype.draw;
 var core_scale = Scale;
@@ -13636,7 +13977,7 @@ function (_LinearScaleBase) {
 
 LinearScale._defaults = defaultConfig$1;
 
-var valueOrDefault$9 = helpers$1.valueOrDefault;
+var valueOrDefault$8 = helpers$1.valueOrDefault;
 var log10$1 = helpers$1.math.log10;
 
 function isMajor(tickVal) {
@@ -13655,7 +13996,7 @@ function generateTicks$1(generationOptions, dataRange) {
   var endExp = Math.floor(log10$1(dataRange.max));
   var endSignificand = Math.ceil(dataRange.max / Math.pow(10, endExp));
   var ticks = [];
-  var tickVal = valueOrDefault$9(generationOptions.min, Math.pow(10, Math.floor(log10$1(dataRange.min))));
+  var tickVal = valueOrDefault$8(generationOptions.min, Math.pow(10, Math.floor(log10$1(dataRange.min))));
   var exp, significand;
 
   if (tickVal === 0) {
@@ -13684,7 +14025,7 @@ function generateTicks$1(generationOptions, dataRange) {
     tickVal = Math.round(significand * Math.pow(10, exp) * precision) / precision;
   } while (exp < endExp || exp === endExp && significand < endSignificand);
 
-  var lastTick = valueOrDefault$9(generationOptions.max, tickVal);
+  var lastTick = valueOrDefault$8(generationOptions.max, tickVal);
   ticks.push({
     value: lastTick,
     major: isMajor(tickVal)
@@ -13842,7 +14183,7 @@ function (_Scale) {
 
       if (start === 0) {
         start = me._getFirstTickValue(me.minNotZero);
-        offset = valueOrDefault$9(me.options.ticks.fontSize, core_defaults.global.defaultFontSize) / me._length;
+        offset = valueOrDefault$8(me.options.ticks.fontSize, core_defaults.global.defaultFontSize) / me._length;
       }
 
       me._startValue = log10$1(start);
@@ -13876,7 +14217,7 @@ function (_Scale) {
 
 LogarithmicScale._defaults = defaultConfig$2;
 
-var valueOrDefault$a = helpers$1.valueOrDefault;
+var valueOrDefault$9 = helpers$1.valueOrDefault;
 var valueAtIndexOrDefault$1 = helpers$1.valueAtIndexOrDefault;
 var resolve$6 = helpers$1.options.resolve;
 var defaultConfig$3 = {
@@ -13922,7 +14263,7 @@ function getTickBackdropHeight(opts) {
   var tickOpts = opts.ticks;
 
   if (tickOpts.display && opts.display) {
-    return valueOrDefault$a(tickOpts.fontSize, core_defaults.global.defaultFontSize) + tickOpts.backdropPaddingY * 2;
+    return valueOrDefault$9(tickOpts.fontSize, core_defaults.global.defaultFontSize) + tickOpts.backdropPaddingY * 2;
   }
 
   return 0;
@@ -14310,8 +14651,8 @@ function (_LinearScaleBase) {
       var opts = me.options;
       var gridLineOpts = opts.gridLines;
       var angleLineOpts = opts.angleLines;
-      var lineWidth = valueOrDefault$a(angleLineOpts.lineWidth, gridLineOpts.lineWidth);
-      var lineColor = valueOrDefault$a(angleLineOpts.color, gridLineOpts.color);
+      var lineWidth = valueOrDefault$9(angleLineOpts.lineWidth, gridLineOpts.lineWidth);
+      var lineColor = valueOrDefault$9(angleLineOpts.color, gridLineOpts.color);
       var i, offset, position;
 
       if (opts.pointLabels.display) {
@@ -14369,7 +14710,7 @@ function (_LinearScaleBase) {
 
       var tickFont = helpers$1.options._parseFont(tickOpts);
 
-      var tickFontColor = valueOrDefault$a(tickOpts.fontColor, core_defaults.global.defaultFontColor);
+      var tickFontColor = valueOrDefault$9(tickOpts.fontColor, core_defaults.global.defaultFontColor);
       var offset, width;
       ctx.save();
       ctx.font = tickFont.string;
@@ -14411,7 +14752,7 @@ function (_LinearScaleBase) {
 RadialLinearScale._defaults = defaultConfig$3;
 
 var resolve$7 = helpers$1.options.resolve;
-var valueOrDefault$b = helpers$1.valueOrDefault; // Integer constants are from the ES6 spec.
+var valueOrDefault$a = helpers$1.valueOrDefault; // Integer constants are from the ES6 spec.
 
 var MAX_INTEGER = Number.MAX_SAFE_INTEGER || 9007199254740991;
 var INTERVALS = {
@@ -14583,7 +14924,7 @@ function lookup(table, key, value) {
  */
 
 
-function interpolate$1(table, skey, sval, tkey) {
+function interpolate(table, skey, sval, tkey) {
   var range = lookup(table, skey, sval); // Note: the lookup table ALWAYS contains at least 2 items (min and max)
 
   var prev = !range.lo ? table[0] : !range.hi ? table[table.length - 2] : range.lo;
@@ -14723,20 +15064,20 @@ function computeOffsets(table, ticks, min, max, options) {
   var first, last;
 
   if (options.offset && ticks.length) {
-    first = interpolate$1(table, 'time', ticks[0], 'pos');
+    first = interpolate(table, 'time', ticks[0], 'pos');
 
     if (ticks.length === 1) {
       start = 1 - first;
     } else {
-      start = (interpolate$1(table, 'time', ticks[1], 'pos') - first) / 2;
+      start = (interpolate(table, 'time', ticks[1], 'pos') - first) / 2;
     }
 
-    last = interpolate$1(table, 'time', ticks[ticks.length - 1], 'pos');
+    last = interpolate(table, 'time', ticks[ticks.length - 1], 'pos');
 
     if (ticks.length === 1) {
       end = last;
     } else {
-      end = (last - interpolate$1(table, 'time', ticks[ticks.length - 2], 'pos')) / 2;
+      end = (last - interpolate(table, 'time', ticks[ticks.length - 2], 'pos')) / 2;
     }
   }
 
@@ -15151,7 +15492,7 @@ function (_Scale) {
     value: function getPixelForValue(value) {
       var me = this;
       var offsets = me._offsets;
-      var pos = interpolate$1(me._table, 'time', value, 'pos');
+      var pos = interpolate(me._table, 'time', value, 'pos');
       return me.getPixelForDecimal((offsets.start + pos) * offsets.factor);
     }
   }, {
@@ -15166,7 +15507,7 @@ function (_Scale) {
       var me = this;
       var offsets = me._offsets;
       var pos = me.getDecimalForPixel(pixel) / offsets.factor - offsets.end;
-      return interpolate$1(me._table, 'pos', pos, 'time');
+      return interpolate(me._table, 'pos', pos, 'time');
     }
   }, {
     key: "getIndexForPixel",
@@ -15193,7 +15534,7 @@ function (_Scale) {
       var angle = toRadians(me.isHorizontal() ? ticksOpts.maxRotation : ticksOpts.minRotation);
       var cosRotation = Math.cos(angle);
       var sinRotation = Math.sin(angle);
-      var tickFontSize = valueOrDefault$b(ticksOpts.fontSize, core_defaults.global.defaultFontSize);
+      var tickFontSize = valueOrDefault$a(ticksOpts.fontSize, core_defaults.global.defaultFontSize);
       return {
         w: tickLabelWidth * cosRotation + tickFontSize * sinRotation,
         h: tickLabelWidth * sinRotation + tickFontSize * cosRotation
@@ -15313,7 +15654,7 @@ var mappers = {
     var points = visible && meta.dataset._children || [];
     var length = points.length || 0;
     return !length ? null : function (point, i) {
-      return i < length && points[i]._view || null;
+      return i < length && points[i] || null;
     };
   },
   boundary: function boundary(source) {
@@ -15338,7 +15679,7 @@ var mappers = {
 }; // @todo if (fill[0] === '#')
 
 function decodeFill(el, index, count) {
-  var model = el._model || {};
+  var model = el.options || {};
   var fillOption = model.fill;
   var fill = fillOption && typeof fillOption.target !== 'undefined' ? fillOption.target : fillOption;
   var target;
@@ -15393,7 +15734,7 @@ function decodeFill(el, index, count) {
 }
 
 function computeLinearBoundary(source) {
-  var model = source.el._model || {};
+  var model = source.el || {};
   var scale = source.scale || {};
   var fill = source.fill;
   var target = null;
@@ -15677,11 +16018,11 @@ function clipAndFill(ctx, clippingPointsSets, fillingPointsSets, color, stepped,
 
 function doFill(ctx, points, mapper, colors, el, area) {
   var count = points.length;
-  var view = el._view;
+  var options = el.options;
   var loop = el._loop;
-  var span = view.spanGaps;
-  var stepped = view.steppedLine;
-  var tension = view.tension;
+  var span = options.spanGaps;
+  var stepped = options.steppedLine;
+  var tension = options.tension;
   var curve0 = [];
   var curve1 = [];
   var len0 = 0;
@@ -15697,8 +16038,8 @@ function doFill(ctx, points, mapper, colors, el, area) {
 
   for (i = 0, ilen = count; i < ilen; ++i) {
     index = i % count;
-    p0 = points[index]._view;
-    p1 = mapper(p0, index, view);
+    p0 = points[index];
+    p1 = mapper(p0, index);
     d0 = isDrawable(p0);
     d1 = isDrawable(p1);
 
@@ -15751,7 +16092,7 @@ var plugin_filler = {
       el = meta.dataset;
       source = null;
 
-      if (el && el._model && el instanceof require$$8.Line) {
+      if (el && el.options && el instanceof require$$9.Line) {
         source = {
           visible: chart.isDatasetVisible(i),
           fill: decodeFill(el, i, count),
@@ -15780,8 +16121,19 @@ var plugin_filler = {
   beforeDatasetsDraw: function beforeDatasetsDraw(chart) {
     var metasets = chart._getSortedVisibleDatasetMetas();
 
+    var area = chart.chartArea;
     var ctx = chart.ctx;
-    var meta, i, el, view, points, mapper, color, colors, fillOption;
+    var meta, i, el, options, points, mapper, color, colors, fillOption;
+
+    for (i = metasets.length - 1; i >= 0; --i) {
+      meta = metasets[i].$filler;
+
+      if (!meta || !meta.visible) {
+        continue;
+      }
+
+      meta.el.updateControlPoints(area);
+    }
 
     for (i = metasets.length - 1; i >= 0; --i) {
       meta = metasets[i].$filler;
@@ -15791,11 +16143,11 @@ var plugin_filler = {
       }
 
       el = meta.el;
-      view = el._view;
+      options = el.options;
       points = el._children || [];
       mapper = meta.mapper;
-      fillOption = meta.el._model.fill;
-      color = view.backgroundColor || core_defaults.global.defaultColor;
+      fillOption = options.fill;
+      color = options.backgroundColor || core_defaults.global.defaultColor;
       colors = {
         above: color,
         below: color
@@ -15807,8 +16159,8 @@ var plugin_filler = {
       }
 
       if (mapper && points.length) {
-        require$$0.canvas.clipArea(ctx, chart.chartArea);
-        doFill(ctx, points, mapper, colors, el, chart.chartArea);
+        require$$0.canvas.clipArea(ctx, area);
+        doFill(ctx, points, mapper, colors, el, area);
         require$$0.canvas.unclipArea(ctx);
       }
     }
@@ -15816,7 +16168,7 @@ var plugin_filler = {
 };
 
 var getRtlHelper$1 = require$$0.rtl.getRtlAdapter;
-var valueOrDefault$c = require$$0.valueOrDefault;
+var valueOrDefault$b = require$$0.valueOrDefault;
 
 core_defaults._set('global', {
   legend: {
@@ -15861,7 +16213,7 @@ core_defaults._set('global', {
           return {
             text: datasets[meta.index].label,
             fillStyle: style.backgroundColor,
-            hidden: !chart.isDatasetVisible(meta.index),
+            hidden: !meta.visible,
             lineCap: style.borderCapStyle,
             lineDash: style.borderDash,
             lineDashOffset: style.borderDashOffset,
@@ -16169,7 +16521,7 @@ function (_Element) {
 
       var rtlHelper = getRtlHelper$1(opts.rtl, me.left, me.minSize.width);
       var ctx = me.ctx;
-      var fontColor = valueOrDefault$c(labelOpts.fontColor, globalDefaults.defaultFontColor);
+      var fontColor = valueOrDefault$b(labelOpts.fontColor, globalDefaults.defaultFontColor);
 
       var labelFont = require$$0.options._parseFont(labelOpts);
 
@@ -16194,17 +16546,17 @@ function (_Element) {
 
 
         ctx.save();
-        var lineWidth = valueOrDefault$c(legendItem.lineWidth, lineDefault.borderWidth);
-        ctx.fillStyle = valueOrDefault$c(legendItem.fillStyle, defaultColor);
-        ctx.lineCap = valueOrDefault$c(legendItem.lineCap, lineDefault.borderCapStyle);
-        ctx.lineDashOffset = valueOrDefault$c(legendItem.lineDashOffset, lineDefault.borderDashOffset);
-        ctx.lineJoin = valueOrDefault$c(legendItem.lineJoin, lineDefault.borderJoinStyle);
+        var lineWidth = valueOrDefault$b(legendItem.lineWidth, lineDefault.borderWidth);
+        ctx.fillStyle = valueOrDefault$b(legendItem.fillStyle, defaultColor);
+        ctx.lineCap = valueOrDefault$b(legendItem.lineCap, lineDefault.borderCapStyle);
+        ctx.lineDashOffset = valueOrDefault$b(legendItem.lineDashOffset, lineDefault.borderDashOffset);
+        ctx.lineJoin = valueOrDefault$b(legendItem.lineJoin, lineDefault.borderJoinStyle);
         ctx.lineWidth = lineWidth;
-        ctx.strokeStyle = valueOrDefault$c(legendItem.strokeStyle, defaultColor);
+        ctx.strokeStyle = valueOrDefault$b(legendItem.strokeStyle, defaultColor);
 
         if (ctx.setLineDash) {
           // IE 9 and 10 do not support line dash
-          ctx.setLineDash(valueOrDefault$c(legendItem.lineDash, lineDefault.borderDash));
+          ctx.setLineDash(valueOrDefault$b(legendItem.lineDash, lineDefault.borderDash));
         }
 
         if (labelOpts && labelOpts.usePointStyle) {
@@ -16390,7 +16742,7 @@ function (_Element) {
   }]);
 
   return Legend;
-}(require$$7);
+}(require$$8);
 
 function createNewLegendAndAttach(chart, legendOpts) {
   var legend = new Legend({
@@ -16653,7 +17005,7 @@ function (_Element) {
   }]);
 
   return Title;
-}(require$$7);
+}(require$$8);
 
 function createNewTitleBlockAndAttach(chart, titleOpts) {
   var title = new Title({
@@ -16721,13 +17073,14 @@ var scales$1 = getCjsExportFromNamespace(scales);
 core_controller.helpers = require$$0;
 core_controller._adapters = core_adapters;
 core_controller.Animation = core_animation;
+core_controller.Animator = core_animator;
 core_controller.animationService = core_animations;
 core_controller.controllers = controllers;
 core_controller.DatasetController = core_datasetController;
 core_controller.defaults = core_defaults;
-core_controller.Element = require$$7;
-core_controller.elements = require$$8;
-core_controller.Interaction = require$$9;
+core_controller.Element = require$$8;
+core_controller.elements = require$$9;
+core_controller.Interaction = require$$10;
 core_controller.layouts = core_layouts;
 core_controller.platform = platform;
 core_controller.plugins = core_plugins;
