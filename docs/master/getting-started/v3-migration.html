@@ -974,26 +974,25 @@
 </ul>
 <h3 id="interactions">Interactions</h3>
 <ul>
-<li><code>options.onClick</code> is now limited to the chart area</li>
-<li><code>{mode: &apos;single&apos;}</code> was replaced with <code>{mode: &apos;nearest&apos;, intersect: true}</code></li>
 <li><code>{mode: &apos;label&apos;}</code> was replaced with <code>{mode: &apos;index&apos;}</code></li>
+<li><code>{mode: &apos;single&apos;}</code> was replaced with <code>{mode: &apos;nearest&apos;, intersect: true}</code></li>
 <li><code>modes[&apos;X-axis&apos;]</code> was replaced with <code>{mode: &apos;index&apos;, intersect: false}</code></li>
+<li><code>options.onClick</code> is now limited to the chart area</li>
 </ul>
 <h3 id="customizability">Customizability</h3>
 <ul>
 <li><code>custom</code> attribute of elements was removed. Please use scriptable options</li>
-<li>The <code>zeroLine*</code> options of axes were removed. Use scriptable scale options instead.</li>
 <li>The <code>hover</code> property of scriptable options <code>context</code> object was renamed to <code>active</code> to align it with the datalabels plugin.</li>
+<li>The <code>zeroLine*</code> options of axes were removed. Use scriptable scale options instead.</li>
 </ul>
 <h3 id="options">Options</h3>
 <ul>
-<li>The dataset option <code>tension</code> was renamed to <code>lineTension</code></li>
 <li><code>scales.[x/y]Axes</code> arrays were removed. Scales are now configured directly to <code>options.scales</code> object with the object key being the scale Id.</li>
 <li><code>scales.[x/y]Axes.barPercentage</code> was moved to dataset option <code>barPercentage</code></li>
 <li><code>scales.[x/y]Axes.barThickness</code> was moved to dataset option <code>barThickness</code></li>
 <li><code>scales.[x/y]Axes.categoryPercentage</code> was moved to dataset option <code>categoryPercentage</code></li>
-<li><code>scales.[x/y]Axes.minBarLength</code> was moved to dataset option <code>minBarLength</code></li>
 <li><code>scales.[x/y]Axes.maxBarThickness</code> was moved to dataset option <code>maxBarThickness</code></li>
+<li><code>scales.[x/y]Axes.minBarLength</code> was moved to dataset option <code>minBarLength</code></li>
 <li><code>scales.[x/y]Axes.ticks.beginAtZero</code> was renamed to <code>scales[id].beginAtZero</code></li>
 <li><code>scales.[x/y]Axes.ticks.max</code> was renamed to <code>scales[id].max</code></li>
 <li><code>scales.[x/y]Axes.ticks.min</code> was renamed to <code>scales[id].min</code></li>
@@ -1003,6 +1002,7 @@
 <li><code>scales.[x/y]Axes.time.format</code> was renamed to <code>scales[id].time.parser</code></li>
 <li><code>scales.[x/y]Axes.time.max</code> was renamed to <code>scales[id].max</code></li>
 <li><code>scales.[x/y]Axes.time.min</code> was renamed to <code>scales[id].min</code></li>
+<li>The dataset option <code>tension</code> was renamed to <code>lineTension</code></li>
 </ul>
 <h3 id="animations">Animations</h3>
 <p>Animation system was completely rewritten in Chart.js v3. Each property can now be animated separately. Please see <a href="../configuration/animations.html">animations</a> docs for details.</p>
@@ -1013,22 +1013,8 @@
 <h2 id="developer-migration">Developer migration</h2>
 <h3 id="removed">Removed</h3>
 <ul>
-<li><code>helpers.addEvent</code></li>
-<li><code>helpers.aliasPixel</code></li>
-<li><code>helpers.configMerge</code></li>
-<li><code>helpers.indexOf</code></li>
-<li><code>helpers.lineTo</code></li>
-<li><code>helpers.min</code></li>
-<li><code>helpers.max</code></li>
-<li><code>helpers.nextItem</code></li>
-<li><code>helpers.numberOfLabelLines</code></li>
-<li><code>helpers.previousItem</code></li>
-<li><code>helpers.removeEvent</code></li>
-<li><code>helpers.roundedRect</code></li>
-<li><code>helpers.scaleMerge</code></li>
-<li><code>helpers.where</code></li>
-<li><code>Chart.Controller</code></li>
 <li><code>Chart.chart.chart</code></li>
+<li><code>Chart.Controller</code></li>
 <li><code>Chart.types</code></li>
 <li><code>DatasetController.addElementAndReset</code></li>
 <li><code>DatasetController.createMetaData</code></li>
@@ -1037,12 +1023,26 @@
 <li><code>Element.height</code></li>
 <li><code>Element.initialize</code></li>
 <li><code>Element.inLabelRange</code></li>
+<li><code>helpers.addEvent</code></li>
+<li><code>helpers.aliasPixel</code></li>
+<li><code>helpers.configMerge</code></li>
+<li><code>helpers.indexOf</code></li>
+<li><code>helpers.lineTo</code></li>
+<li><code>helpers.max</code></li>
+<li><code>helpers.min</code></li>
+<li><code>helpers.nextItem</code></li>
+<li><code>helpers.numberOfLabelLines</code></li>
+<li><code>helpers.previousItem</code></li>
+<li><code>helpers.removeEvent</code></li>
+<li><code>helpers.roundedRect</code></li>
+<li><code>helpers.scaleMerge</code></li>
+<li><code>helpers.where</code></li>
 <li><code>IPlugin.afterScaleUpdate</code>. Use <code>afterLayout</code> instead</li>
 <li><code>Line.calculatePointY</code></li>
 <li><code>Scale.getRightValue</code></li>
+<li><code>Scale.handleDirectionalChanges</code> is now private</li>
 <li><code>Scale.mergeTicksOptions</code></li>
 <li><code>Scale.ticksAsNumbers</code></li>
-<li><code>Scale.handleDirectionalChanges</code> is now private</li>
 <li><code>Scale.tickValues</code> is now private</li>
 <li>The tooltip item&apos;s <code>x</code> and <code>y</code> attributes were removed. Use <code>datasetIndex</code> and <code>index</code> to get the element and any corresponding data from it</li>
 </ul>
@@ -1057,35 +1057,36 @@
 </ul>
 <h3 id="renamed">Renamed</h3>
 <ul>
-<li><code>helpers.clear</code> was renamed to <code>helpers.canvas.clear</code></li>
-<li><code>helpers.drawRoundedRectangle</code> was renamed to <code>helpers.canvas.roundedRect</code></li>
-<li><code>helpers.callCallback</code> was renamed to <code>helpers.callback</code></li>
-<li><code>helpers.getValueOrDefault</code> was renamed to <code>helpers.valueOrDefault</code></li>
-<li><code>helpers.getValueAtIndexOrDefault</code> was renamed to <code>helpers.valueAtIndexOrDefault</code></li>
-<li><code>helpers.easingEffects</code> was renamed to <code>helpers.easing.effects</code></li>
-<li><code>helpers.log10</code> was renamed to <code>helpers.math.log10</code></li>
-<li><code>helpers.almostEquals</code> was renamed to <code>helpers.math.almostEquals</code></li>
-<li><code>helpers.almostWhole</code> was renamed to <code>helpers.math.almostWhole</code></li>
-<li><code>helpers.distanceBetweenPoints</code> was renamed to <code>helpers.math.distanceBetweenPoints</code></li>
-<li><code>helpers.isNumber</code> was renamed to <code>helpers.math.isNumber</code></li>
-<li><code>helpers.sign</code> was renamed to <code>helpers.math.sign</code></li>
-<li><code>helpers.toDegrees</code> was renamed to <code>helpers.math.toDegrees</code></li>
-<li><code>helpers.toRadians</code> was renamed to <code>helpers.math.toRadians</code></li>
-<li><code>helpers.getAngleFromPoint</code> was renamed to <code>helpers.math.getAngleFromPoint</code></li>
-<li><code>helpers.splineCurveMonotone</code> was renamed to <code>helpers.curve.splineCurveMonotone</code></li>
-<li><code>helpers.splineCurve</code> was renamed to <code>helpers.curve.splineCurve</code></li>
-<li><code>helpers.retinaScale</code> was renamed to <code>helpers.dom.retinaScale</code></li>
-<li><code>helpers.getMaximumWidth</code> was renamed to <code>helpers.dom.getMaximumWidth</code></li>
-<li><code>helpers.getMaximumHeight</code> was renamed to <code>helpers.dom.getMaximumHeight</code></li>
-<li><code>helpers.getRelativePosition</code> was renamed to <code>helpers.dom.getRelativePosition</code></li>
-<li><code>helpers.getStyle</code> was renamed to <code>helpers.dom.getStyle</code></li>
 <li><code>Chart.Animation.animationObject</code> was renamed to <code>Chart.Animation</code></li>
 <li><code>Chart.Animation.chartInstance</code> was renamed to <code>Chart.Animation.chart</code></li>
 <li><code>DatasetController.updateElement</code> was renamed to <code>DatasetController.updateElements</code></li>
+<li><code>helpers._decimalPlaces</code> was renamed to <code>helpers.math._decimalPlaces</code></li>
+<li><code>helpers.almostEquals</code> was renamed to <code>helpers.math.almostEquals</code></li>
+<li><code>helpers.almostWhole</code> was renamed to <code>helpers.math.almostWhole</code></li>
+<li><code>helpers.callCallback</code> was renamed to <code>helpers.callback</code></li>
+<li><code>helpers.clear</code> was renamed to <code>helpers.canvas.clear</code></li>
+<li><code>helpers.distanceBetweenPoints</code> was renamed to <code>helpers.math.distanceBetweenPoints</code></li>
+<li><code>helpers.drawRoundedRectangle</code> was renamed to <code>helpers.canvas.roundedRect</code></li>
+<li><code>helpers.getAngleFromPoint</code> was renamed to <code>helpers.math.getAngleFromPoint</code></li>
+<li><code>helpers.getMaximumHeight</code> was renamed to <code>helpers.dom.getMaximumHeight</code></li>
+<li><code>helpers.getMaximumWidth</code> was renamed to <code>helpers.dom.getMaximumWidth</code></li>
+<li><code>helpers.getRelativePosition</code> was renamed to <code>helpers.dom.getRelativePosition</code></li>
+<li><code>helpers.getStyle</code> was renamed to <code>helpers.dom.getStyle</code></li>
+<li><code>helpers.getValueAtIndexOrDefault</code> was renamed to <code>helpers.valueAtIndexOrDefault</code></li>
+<li><code>helpers.getValueOrDefault</code> was renamed to <code>helpers.valueOrDefault</code></li>
+<li><code>helpers.easingEffects</code> was renamed to <code>helpers.easing.effects</code></li>
+<li><code>helpers.log10</code> was renamed to <code>helpers.math.log10</code></li>
+<li><code>helpers.isNumber</code> was renamed to <code>helpers.math.isNumber</code></li>
+<li><code>helpers.sign</code> was renamed to <code>helpers.math.sign</code></li>
+<li><code>helpers.retinaScale</code> was renamed to <code>helpers.dom.retinaScale</code></li>
+<li><code>helpers.splineCurve</code> was renamed to <code>helpers.curve.splineCurve</code></li>
+<li><code>helpers.splineCurveMonotone</code> was renamed to <code>helpers.curve.splineCurveMonotone</code></li>
+<li><code>helpers.toDegrees</code> was renamed to <code>helpers.math.toDegrees</code></li>
+<li><code>helpers.toRadians</code> was renamed to <code>helpers.math.toRadians</code></li>
 <li><code>Scale.calculateTickRotation</code> was renamed to <code>Scale.calculateLabelRotation</code></li>
 <li><code>TimeScale.getLabelCapacity</code> was renamed to <code>TimeScale._getLabelCapacity</code></li>
-<li><code>TimeScale.tickFormatFunction</code> was renamed to <code>TimeScale._tickFormatFunction</code></li>
 <li><code>TimeScale.getPixelForOffset</code> was renamed to <code>TimeScale._getPixelForOffset</code></li>
+<li><code>TimeScale.tickFormatFunction</code> was renamed to <code>TimeScale._tickFormatFunction</code></li>
 <li><code>Tooltip.options.legendColorBackgroupd</code> was renamed to <code>Tooltip.options.multiKeyBackground</code></li>
 </ul>
 <h4 id="renamed-private-apis">Renamed private APIs</h4>
@@ -1101,11 +1102,11 @@
 </ul>
 <h5 id="ticks">Ticks</h5>
 <ul>
-<li>When the <code>autoSkip</code> option is enabled, <code>Scale.ticks</code> now contains only the non-skipped ticks instead of all ticks.</li>
-<li><code>Scale.ticks</code> now contains objects instead of strings</li>
-<li><code>Scale.buildTicks</code> is now expected to return tick objects</li>
 <li><code>Scale.afterBuildTicks</code> now has no parameters like the other callbacks</li>
+<li><code>Scale.buildTicks</code> is now expected to return tick objects</li>
 <li><code>Scale.convertTicksToLabels</code> was renamed to <code>generateTickLabels</code>. It is now expected to set the label property on the ticks given as input</li>
+<li><code>Scale.ticks</code> now contains objects instead of strings</li>
+<li>When the <code>autoSkip</code> option is enabled, <code>Scale.ticks</code> now contains only the non-skipped ticks instead of all ticks.</li>
 </ul>
 <h5 id="time-scale">Time Scale</h5>
 <ul>
@@ -1167,7 +1168,7 @@
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Migration Guide","level":"1.3.4","depth":2,"next":{"title":"General","level":"1.4","depth":1,"path":"general/README.md","ref":"general/README.md","articles":[{"title":"Data structures","level":"1.4.1","depth":2,"path":"general/data-structures.md","ref":"general/data-structures.md","articles":[]},{"title":"Accessibility","level":"1.4.2","depth":2,"path":"general/accessibility.md","ref":"general/accessibility.md","articles":[]},{"title":"Responsive","level":"1.4.3","depth":2,"path":"general/responsive.md","ref":"general/responsive.md","articles":[]},{"title":"Pixel Ratio","level":"1.4.4","depth":2,"path":"general/device-pixel-ratio.md","ref":"general/device-pixel-ratio.md","articles":[]},{"title":"Interactions","level":"1.4.5","depth":2,"path":"general/interactions/README.md","ref":"general/interactions/README.md","articles":[{"title":"Events","level":"1.4.5.1","depth":3,"path":"general/interactions/events.md","ref":"general/interactions/events.md","articles":[]},{"title":"Modes","level":"1.4.5.2","depth":3,"path":"general/interactions/modes.md","ref":"general/interactions/modes.md","articles":[]}]},{"title":"Options","level":"1.4.6","depth":2,"path":"general/options.md","ref":"general/options.md","articles":[]},{"title":"Colors","level":"1.4.7","depth":2,"path":"general/colors.md","ref":"general/colors.md","articles":[]},{"title":"Fonts","level":"1.4.8","depth":2,"path":"general/fonts.md","ref":"general/fonts.md","articles":[]},{"title":"Performance","level":"1.4.9","depth":2,"path":"general/performance.md","ref":"general/performance.md","articles":[]}]},"previous":{"title":"Usage","level":"1.3.3","depth":2,"path":"getting-started/usage.md","ref":"getting-started/usage.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga","redirect"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"chartjs":{"defaults":null},"fontsettings":{"theme":"white","family":"sans","size":2},"highlight":{},"ga":{"configuration":"auto","token":"UA-28909194-3"},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"redirect":{},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"anchorjs":{"icon":"#","placement":"left","visible":"always"},"search-plus":{}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"getting-started/v3-migration.md","mtime":"2019-12-27T22:24:07.620Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2019-12-27T22:27:26.682Z"},"basePath":"..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Migration Guide","level":"1.3.4","depth":2,"next":{"title":"General","level":"1.4","depth":1,"path":"general/README.md","ref":"general/README.md","articles":[{"title":"Data structures","level":"1.4.1","depth":2,"path":"general/data-structures.md","ref":"general/data-structures.md","articles":[]},{"title":"Accessibility","level":"1.4.2","depth":2,"path":"general/accessibility.md","ref":"general/accessibility.md","articles":[]},{"title":"Responsive","level":"1.4.3","depth":2,"path":"general/responsive.md","ref":"general/responsive.md","articles":[]},{"title":"Pixel Ratio","level":"1.4.4","depth":2,"path":"general/device-pixel-ratio.md","ref":"general/device-pixel-ratio.md","articles":[]},{"title":"Interactions","level":"1.4.5","depth":2,"path":"general/interactions/README.md","ref":"general/interactions/README.md","articles":[{"title":"Events","level":"1.4.5.1","depth":3,"path":"general/interactions/events.md","ref":"general/interactions/events.md","articles":[]},{"title":"Modes","level":"1.4.5.2","depth":3,"path":"general/interactions/modes.md","ref":"general/interactions/modes.md","articles":[]}]},{"title":"Options","level":"1.4.6","depth":2,"path":"general/options.md","ref":"general/options.md","articles":[]},{"title":"Colors","level":"1.4.7","depth":2,"path":"general/colors.md","ref":"general/colors.md","articles":[]},{"title":"Fonts","level":"1.4.8","depth":2,"path":"general/fonts.md","ref":"general/fonts.md","articles":[]},{"title":"Performance","level":"1.4.9","depth":2,"path":"general/performance.md","ref":"general/performance.md","articles":[]}]},"previous":{"title":"Usage","level":"1.3.3","depth":2,"path":"getting-started/usage.md","ref":"getting-started/usage.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga","redirect"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"chartjs":{"defaults":null},"fontsettings":{"theme":"white","family":"sans","size":2},"highlight":{},"ga":{"configuration":"auto","token":"UA-28909194-3"},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"redirect":{},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"anchorjs":{"icon":"#","placement":"left","visible":"always"},"search-plus":{}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"getting-started/v3-migration.md","mtime":"2019-12-28T14:50:46.806Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2019-12-28T14:54:05.849Z"},"basePath":"..","book":{"language":""}});
         });
     </script>
 </div>

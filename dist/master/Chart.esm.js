@@ -10922,7 +10922,8 @@ require$$0.extend(Chart.prototype,
     me.aspectRatio = height ? width / height : null;
     me.options = config.options;
     me._bufferedRender = false;
-    me._layers = []; // Add the chart instance to the global namespace
+    me._layers = [];
+    me._metasets = []; // Add the chart instance to the global namespace
 
     Chart.instances[me.id] = me; // Define alias to the config data: `chart.data === chart.config.data`
 
@@ -11109,11 +11110,48 @@ require$$0.extend(Chart.prototype,
     me.scales = scales;
     core_scaleService.addScalesToLayout(this);
   },
+
+  /**
+   * Updates the given metaset with the given dataset index. Ensures it's stored at that index
+   * in the _metasets array by swapping with the metaset at that index if necessary.
+   * @param {Object} meta - the dataset metadata
+   * @param {number} index - the dataset index
+   * @private
+   */
+  _updateMetasetIndex: function _updateMetasetIndex(meta, index) {
+    var metasets = this._metasets;
+    var oldIndex = meta.index;
+
+    if (oldIndex !== index) {
+      metasets[oldIndex] = metasets[index];
+      metasets[index] = meta;
+      meta.index = index;
+    }
+  },
+
+  /**
+   * @private
+   */
+  _updateMetasets: function _updateMetasets() {
+    var me = this;
+    var metasets = me._metasets;
+    var numData = me.data.datasets.length;
+    var numMeta = metasets.length;
+
+    if (numMeta > numData) {
+      for (var i = numData; i < numMeta; ++i) {
+        me.destroyDatasetMeta(i);
+      }
+
+      metasets.splice(numData, numMeta - numData);
+    }
+
+    me._sortedMetasets = metasets.slice(0).sort(compare2Level('order', 'index'));
+  },
   buildOrUpdateControllers: function buildOrUpdateControllers() {
     var me = this;
     var newControllers = [];
     var datasets = me.data.datasets;
-    var sorted = me._sortedMetasets = [];
     var i, ilen;
 
     for (i = 0, ilen = datasets.length; i < ilen; i++) {
@@ -11128,7 +11166,9 @@ require$$0.extend(Chart.prototype,
 
       meta.type = type;
       meta.order = dataset.order || 0;
-      meta.index = i;
+
+      me._updateMetasetIndex(meta, i);
+
       meta.label = '' + dataset.label;
       meta.visible = me.isDatasetVisible(i);
 
@@ -11145,11 +11185,10 @@ require$$0.extend(Chart.prototype,
         meta.controller = new ControllerClass(me, i);
         newControllers.push(meta.controller);
       }
-
-      sorted.push(meta);
     }
 
-    sorted.sort(compare2Level('order', 'index'));
+    me._updateMetasets();
+
     return newControllers;
   },
 
@@ -11477,8 +11516,10 @@ require$$0.extend(Chart.prototype,
   getDatasetMeta: function getDatasetMeta(datasetIndex) {
     var me = this;
     var dataset = me.data.datasets[datasetIndex];
-    var metasets = me._metasets = me._metasets || [];
-    var meta = metasets[datasetIndex];
+    var metasets = me._metasets;
+    var meta = metasets.filter(function (x) {
+      return x._dataset === dataset;
+    }).pop();
 
     if (!meta) {
       meta = metasets[datasetIndex] = {
@@ -11492,6 +11533,7 @@ require$$0.extend(Chart.prototype,
         yAxisID: null,
         order: dataset.order || 0,
         index: datasetIndex,
+        _dataset: dataset,
         _parsed: []
       };
     }
