@@ -4413,8 +4413,8 @@ core_defaults._set('global', {
       type: 'color',
       properties: ['borderColor', 'backgroundColor']
     },
-    onProgress: require$$0.noop,
-    onComplete: require$$0.noop
+    onProgress: noop,
+    onComplete: noop
   }
 });
 
@@ -4427,11 +4427,11 @@ function copyOptions(target, values) {
   }
 
   if (oldOpts.$shared) {
-    target.options = require$$0.extend({}, oldOpts, newOpts, {
+    target.options = extend({}, oldOpts, newOpts, {
       $shared: false
     });
   } else {
-    require$$0.extend(oldOpts, newOpts);
+    extend(oldOpts, newOpts);
   }
 
   delete values.options;
@@ -4454,7 +4454,7 @@ function () {
       var animatedProps = this._properties;
       var animDefaults = Object.fromEntries(Object.entries(animations).filter(function (_ref) {
         var value = _ref[1];
-        return !require$$0.isObject(value);
+        return !isObject(value);
       }));
 
       for (var _i = 0, _Object$entries = Object.entries(animations); _i < _Object$entries.length; _i++) {
@@ -4462,7 +4462,7 @@ function () {
             key = _Object$entries$_i[0],
             cfg = _Object$entries$_i[1];
 
-        if (!require$$0.isObject(cfg)) {
+        if (!isObject(cfg)) {
           continue;
         }
 
@@ -4476,10 +4476,10 @@ function () {
 
             // Can have only one config per animation.
             if (!animatedProps.has(prop)) {
-              animatedProps.set(prop, require$$0.extend({}, animDefaults, cfg));
+              animatedProps.set(prop, extend({}, animDefaults, cfg));
             } else if (prop === key) {
               // Single property targetting config wins over multi-targetting.
-              animatedProps.set(prop, require$$0.extend({}, animatedProps.get(prop), cfg));
+              animatedProps.set(prop, extend({}, animatedProps.get(prop), cfg));
             }
           }
         } catch (err) {
@@ -4522,7 +4522,7 @@ function () {
         if (options.$shared) {
           // If the current / old options are $shared, meaning other elements are
           // using the same options, we need to clone to become unique.
-          target.options = options = require$$0.extend({}, options, {
+          target.options = options = extend({}, options, {
             $shared: false,
             $animations: {}
           });
@@ -4597,7 +4597,7 @@ function () {
         copyOptions(target, values); // copyOptions removes the `options` from `values`,
         // unless it can be directly assigned.
 
-        require$$0.extend(target, values);
+        extend(target, values);
         return;
       }
 
@@ -4613,7 +4613,12 @@ function () {
   return Animations;
 }();
 
-var core_animations = Animations;
+var core_animations = /*#__PURE__*/Object.freeze({
+__proto__: null,
+'default': Animations
+});
+
+var require$$4 = getCjsExportFromNamespace(core_animations);
 
 var resolve$1 = require$$0.options.resolve;
 var arrayEvents = ['push', 'pop', 'shift', 'splice', 'unshift'];
@@ -5572,7 +5577,7 @@ require$$0.extend(DatasetController.prototype, {
       config = require$$0.extend({}, config, config.resize);
     }
 
-    var animations = new core_animations(chart, config);
+    var animations = new require$$4(chart, config);
 
     if (info.cacheable) {
       cached[mode] = animations && Object.freeze(animations);
@@ -10259,7 +10264,7 @@ function (_Element) {
 
       var chart = me._chart;
       var opts = chart.options.animation && me.options.animation;
-      var animations = new core_animations(me._chart, opts);
+      var animations = new require$$4(me._chart, opts);
       me._cachedAnimations = Object.freeze(animations);
       return animations;
     } // Get the title
@@ -17116,7 +17121,7 @@ core_controller.helpers = require$$0;
 core_controller._adapters = core_adapters;
 core_controller.Animation = core_animation;
 core_controller.Animator = core_animator;
-core_controller.animationService = core_animations;
+core_controller.animationService = require$$4;
 core_controller.controllers = controllers;
 core_controller.DatasetController = core_datasetController;
 core_controller.defaults = core_defaults;
