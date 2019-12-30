@@ -6662,7 +6662,7 @@ function computeMinSampleSize(scale, pixels) {
     min = Math.min(min, Math.abs(pixels[i] - pixels[i - 1]));
   }
 
-  for (i = 0, ilen = scale.getTicks().length; i < ilen; ++i) {
+  for (i = 0, ilen = scale.ticks.length; i < ilen; ++i) {
     curr = scale.getPixelForTick(i);
     min = i > 0 ? Math.min(min, Math.abs(curr - prev)) : min;
     prev = curr;
@@ -13624,7 +13624,7 @@ function (_Scale) {
         return null;
       }
 
-      return this.getPixelForValue(index * me._numLabels / ticks.length + this.min);
+      return me.getPixelForValue(index * me._numLabels / ticks.length + me.min);
     }
   }, {
     key: "getValueForPixel",
@@ -13896,19 +13896,10 @@ function (_Scale) {
       return ticks;
     }
   }, {
-    key: "generateTickLabels",
-    value: function generateTickLabels(ticks) {
-      var me = this;
-      me._tickValues = ticks.map(function (t) {
-        return t.value;
-      });
-      core_scale.prototype.generateTickLabels.call(me, ticks);
-    }
-  }, {
     key: "_configure",
     value: function _configure() {
       var me = this;
-      var ticks = me.getTicks();
+      var ticks = me.ticks;
       var start = me.min;
       var end = me.max;
       var offset;
@@ -14008,13 +13999,13 @@ function (_LinearScaleBase) {
   }, {
     key: "getPixelForTick",
     value: function getPixelForTick(index) {
-      var ticks = this._tickValues;
+      var ticks = this.ticks;
 
       if (index < 0 || index > ticks.length - 1) {
         return null;
       }
 
-      return this.getPixelForValue(ticks[index]);
+      return this.getPixelForValue(ticks[index].value);
     }
   }]);
 
@@ -14709,7 +14700,7 @@ function (_LinearScaleBase) {
       if (gridLineOpts.display) {
         me.ticks.forEach(function (tick, index) {
           if (index !== 0) {
-            offset = me.getDistanceFromCenterForValue(me._tickValues[index]);
+            offset = me.getDistanceFromCenterForValue(me.ticks[index].value);
             drawRadiusLine(me, gridLineOpts, offset, index);
           }
         });
@@ -14770,7 +14761,7 @@ function (_LinearScaleBase) {
           return;
         }
 
-        offset = me.getDistanceFromCenterForValue(me._tickValues[index]);
+        offset = me.getDistanceFromCenterForValue(me.ticks[index].value);
 
         if (tickOpts.showLabelBackdrop) {
           width = ctx.measureText(tick.label).width;
@@ -15545,8 +15536,13 @@ function (_Scale) {
   }, {
     key: "getPixelForTick",
     value: function getPixelForTick(index) {
-      var ticks = this.getTicks();
-      return index >= 0 && index < ticks.length ? this.getPixelForValue(ticks[index].value) : null;
+      var ticks = this.ticks;
+
+      if (index < 0 || index > ticks.length - 1) {
+        return null;
+      }
+
+      return this.getPixelForValue(ticks[index].value);
     }
   }, {
     key: "getValueForPixel",
