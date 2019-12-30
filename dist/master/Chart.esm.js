@@ -7778,13 +7778,13 @@ var controller_line = core_datasetController.extend({
   _getMaxOverflow: function _getMaxOverflow() {
     var me = this;
     var meta = me._cachedMeta;
+    var border = me._showLine && meta.dataset.options.borderWidth || 0;
     var data = meta.data || [];
 
     if (!data.length) {
-      return false;
+      return border;
     }
 
-    var border = me._showLine && meta.dataset.options.borderWidth || 0;
     var firstPoint = data[0].size();
     var lastPoint = data[data.length - 1].size();
     return Math.max(border, firstPoint, lastPoint) / 2;
