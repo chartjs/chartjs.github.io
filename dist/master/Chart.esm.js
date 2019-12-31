@@ -2850,11 +2850,15 @@ function unclipArea(ctx) {
  */
 
 function _steppedLineTo(ctx, previous, target, flip, mode) {
+  if (!previous) {
+    return ctx.lineTo(target.x, target.y);
+  }
+
   if (mode === 'middle') {
     var midpoint = (previous.x + target.x) / 2.0;
-    ctx.lineTo(midpoint, flip ? target.y : previous.y);
-    ctx.lineTo(midpoint, flip ? previous.y : target.y);
-  } else if (mode === 'after' && !flip || mode !== 'after' && flip) {
+    ctx.lineTo(midpoint, previous.y);
+    ctx.lineTo(midpoint, target.y);
+  } else if (mode === 'after' ^ flip) {
     ctx.lineTo(previous.x, target.y);
   } else {
     ctx.lineTo(target.x, previous.y);
@@ -2867,6 +2871,10 @@ function _steppedLineTo(ctx, previous, target, flip, mode) {
  */
 
 function _bezierCurveTo(ctx, previous, target, flip) {
+  if (!previous) {
+    return ctx.lineTo(target.x, target.y);
+  }
+
   ctx.bezierCurveTo(flip ? previous.controlPointPreviousX : previous.controlPointNextX, flip ? previous.controlPointPreviousY : previous.controlPointNextY, flip ? target.controlPointNextX : target.controlPointPreviousX, flip ? target.controlPointNextY : target.controlPointPreviousY, target.x, target.y);
 }
 
@@ -2882,6 +2890,9 @@ _steppedLineTo: _steppedLineTo,
 _bezierCurveTo: _bezierCurveTo
 });
 
+var PI$1 = Math.PI;
+var TAU = 2 * PI$1;
+var PITAU = TAU + PI$1;
 /**
  * @alias Chart.helpers.math
  * @namespace
@@ -3004,6 +3015,43 @@ function getAngleFromPoint(centrePoint, anglePoint) {
 function distanceBetweenPoints(pt1, pt2) {
   return Math.sqrt(Math.pow(pt2.x - pt1.x, 2) + Math.pow(pt2.y - pt1.y, 2));
 }
+/**
+ * Shortest distance between angles, in either direction.
+ * @private
+ */
+
+function _angleDiff(a, b) {
+  return (a - b + PITAU) % TAU - PI$1;
+}
+/**
+ * Normalize angle to be between 0 and 2*PI
+ * @private
+ */
+
+function _normalizeAngle(a) {
+  return (a % TAU + TAU) % TAU;
+}
+/**
+ * @private
+ */
+
+function _angleBetween(angle, start, end) {
+  var a = _normalizeAngle(angle);
+
+  var s = _normalizeAngle(start);
+
+  var e = _normalizeAngle(end);
+
+  var angleToStart = _normalizeAngle(s - a);
+
+  var angleToEnd = _normalizeAngle(e - a);
+
+  var startToAngle = _normalizeAngle(a - s);
+
+  var endToAngle = _normalizeAngle(a - e);
+
+  return a === s || a === e || angleToStart > angleToEnd && startToAngle < endToAngle;
+}
 
 var math = /*#__PURE__*/Object.freeze({
 __proto__: null,
@@ -3018,7 +3066,10 @@ toRadians: toRadians,
 toDegrees: toDegrees,
 _decimalPlaces: _decimalPlaces,
 getAngleFromPoint: getAngleFromPoint,
-distanceBetweenPoints: distanceBetweenPoints
+distanceBetweenPoints: distanceBetweenPoints,
+_angleDiff: _angleDiff,
+_normalizeAngle: _normalizeAngle,
+_angleBetween: _angleBetween
 });
 
 var EPSILON = Number.EPSILON || 1e-14;
@@ -3149,10 +3200,67 @@ function splineCurveMonotone(points) {
   }
 }
 
+function capControlPoint(pt, min, max) {
+  return Math.max(Math.min(pt, max), min);
+}
+
+function capBezierPoints(points, area) {
+  var i, ilen, point;
+
+  for (i = 0, ilen = points.length; i < ilen; ++i) {
+    point = points[i];
+
+    if (!_isPointInArea(point, area)) {
+      continue;
+    }
+
+    if (i > 0 && _isPointInArea(points[i - 1], area)) {
+      point.controlPointPreviousX = capControlPoint(point.controlPointPreviousX, area.left, area.right);
+      point.controlPointPreviousY = capControlPoint(point.controlPointPreviousY, area.top, area.bottom);
+    }
+
+    if (i < points.length - 1 && _isPointInArea(points[i + 1], area)) {
+      point.controlPointNextX = capControlPoint(point.controlPointNextX, area.left, area.right);
+      point.controlPointNextY = capControlPoint(point.controlPointNextY, area.top, area.bottom);
+    }
+  }
+}
+
+function _updateBezierControlPoints(points, options, area, loop) {
+  var i, ilen, point, controlPoints; // Only consider points that are drawn in case the spanGaps option is used
+
+  if (options.spanGaps) {
+    points = points.filter(function (pt) {
+      return !pt.skip;
+    });
+  }
+
+  if (options.cubicInterpolationMode === 'monotone') {
+    splineCurveMonotone(points);
+  } else {
+    var prev = loop ? points[points.length - 1] : points[0];
+
+    for (i = 0, ilen = points.length; i < ilen; ++i) {
+      point = points[i];
+      controlPoints = splineCurve(prev, point, points[Math.min(i + 1, ilen - (loop ? 0 : 1)) % ilen], options.tension);
+      point.controlPointPreviousX = controlPoints.previous.x;
+      point.controlPointPreviousY = controlPoints.previous.y;
+      point.controlPointNextX = controlPoints.next.x;
+      point.controlPointNextY = controlPoints.next.y;
+      prev = point;
+    }
+  }
+
+  if (options.capBezierPoints) {
+    capBezierPoints(points, area);
+  }
+}
+
 var curve = /*#__PURE__*/Object.freeze({
 __proto__: null,
 splineCurve: splineCurve,
-splineCurveMonotone: splineCurveMonotone
+splineCurveMonotone: splineCurveMonotone,
+_updateBezierControlPoints: _updateBezierControlPoints
 });
 
 /**
@@ -5785,7 +5893,7 @@ function () {
 
 Element.extend = inherits;
 
-var TAU = Math.PI * 2;
+var TAU$1 = Math.PI * 2;
 
 core_defaults._set('global', {
   elements: {
@@ -5826,25 +5934,25 @@ function drawFullCircleBorders(ctx, vm, arc, inner) {
   var i;
 
   if (inner) {
-    arc.endAngle = arc.startAngle + TAU;
+    arc.endAngle = arc.startAngle + TAU$1;
     clipArc(ctx, arc);
     arc.endAngle = endAngle;
 
     if (arc.endAngle === arc.startAngle && arc.fullCircles) {
-      arc.endAngle += TAU;
+      arc.endAngle += TAU$1;
       arc.fullCircles--;
     }
   }
 
   ctx.beginPath();
-  ctx.arc(arc.x, arc.y, arc.innerRadius, arc.startAngle + TAU, arc.startAngle, true);
+  ctx.arc(arc.x, arc.y, arc.innerRadius, arc.startAngle + TAU$1, arc.startAngle, true);
 
   for (i = 0; i < arc.fullCircles; ++i) {
     ctx.stroke();
   }
 
   ctx.beginPath();
-  ctx.arc(arc.x, arc.y, vm.outerRadius, arc.startAngle, arc.startAngle + TAU);
+  ctx.arc(arc.x, arc.y, vm.outerRadius, arc.startAngle, arc.startAngle + TAU$1);
 
   for (i = 0; i < arc.fullCircles; ++i) {
     ctx.stroke();
@@ -5904,15 +6012,15 @@ function (_Element) {
       var endAngle = me.endAngle;
 
       while (endAngle < startAngle) {
-        endAngle += TAU;
+        endAngle += TAU$1;
       }
 
       while (angle > endAngle) {
-        angle -= TAU;
+        angle -= TAU$1;
       }
 
       while (angle < startAngle) {
-        angle += TAU;
+        angle += TAU$1;
       } // Check if within the range of the open/close angle
 
 
@@ -5956,7 +6064,7 @@ function (_Element) {
         pixelMargin: pixelMargin,
         startAngle: me.startAngle,
         endAngle: me.endAngle,
-        fullCircles: Math.floor(me.circumference / TAU)
+        fullCircles: Math.floor(me.circumference / TAU$1)
       };
       var i;
       ctx.save();
@@ -5964,7 +6072,7 @@ function (_Element) {
       ctx.strokeStyle = options.borderColor;
 
       if (arc.fullCircles) {
-        arc.endAngle = arc.startAngle + TAU;
+        arc.endAngle = arc.startAngle + TAU$1;
         ctx.beginPath();
         ctx.arc(arc.x, arc.y, arc.outerRadius, arc.startAngle, arc.endAngle);
         ctx.arc(arc.x, arc.y, arc.innerRadius, arc.endAngle, arc.startAngle, true);
@@ -5974,7 +6082,7 @@ function (_Element) {
           ctx.fill();
         }
 
-        arc.endAngle = arc.startAngle + me.circumference % TAU;
+        arc.endAngle = arc.startAngle + me.circumference % TAU$1;
       }
 
       ctx.beginPath();
@@ -5996,8 +6104,359 @@ function (_Element) {
 
 Arc.prototype._type = 'arc';
 
+/**
+ * @private
+ */
+
+function _pointInLine(p1, p2, t) {
+  return {
+    x: p1.x + t * (p2.x - p1.x),
+    y: p1.y + t * (p2.y - p1.y)
+  };
+}
+/**
+ * @private
+ */
+
+function _steppedInterpolation(p1, p2, t, mode) {
+  return {
+    x: p1.x + t * (p2.x - p1.x),
+    y: mode === 'middle' ? t < 0.5 ? p1.y : p2.y : mode === 'after' ? t < 1 ? p1.y : p2.y : t > 0 ? p2.y : p1.y
+  };
+}
+/**
+ * @private
+ */
+
+function _bezierInterpolation(p1, p2, t) {
+  var cp1 = {
+    x: p1.controlPointNextX,
+    y: p1.controlPointNextY
+  };
+  var cp2 = {
+    x: p2.controlPointPreviousX,
+    y: p2.controlPointPreviousY
+  };
+
+  var a = _pointInLine(p1, cp1, t);
+
+  var b = _pointInLine(cp1, cp2, t);
+
+  var c = _pointInLine(cp2, p2, t);
+
+  var d = _pointInLine(a, b, t);
+
+  var e = _pointInLine(b, c, t);
+
+  return _pointInLine(d, e, t);
+}
+
+function propertyFn(property) {
+  if (property === 'angle') {
+    return {
+      between: _angleBetween,
+      compare: _angleDiff,
+      normalize: _normalizeAngle
+    };
+  }
+
+  return {
+    between: function between(n, s, e) {
+      return n >= s && n <= e;
+    },
+    compare: function compare(a, b) {
+      return a - b;
+    },
+    normalize: function normalize(x) {
+      return x;
+    }
+  };
+}
+
+function makeSubSegment(start, end, loop, count) {
+  return {
+    start: start % count,
+    end: end % count,
+    loop: loop && (end - start + 1) % count === 0
+  };
+}
+
+function getSegment(segment, points, bounds) {
+  var property = bounds.property,
+      startBound = bounds.start,
+      endBound = bounds.end;
+
+  var _propertyFn = propertyFn(property),
+      between = _propertyFn.between,
+      normalize = _propertyFn.normalize;
+
+  var count = points.length;
+  var start = segment.start,
+      end = segment.end,
+      loop = segment.loop;
+  var i, ilen;
+
+  if (loop) {
+    start += count;
+    end += count;
+
+    for (i = 0, ilen = count; i < ilen; ++i) {
+      if (!between(normalize(points[start % count][property]), startBound, endBound)) {
+        break;
+      }
+
+      start--;
+      end--;
+    }
+
+    start %= count;
+    end %= count;
+  }
+
+  if (end < start) {
+    end += count;
+  }
+
+  return {
+    start: start,
+    end: end,
+    loop: loop
+  };
+}
+/**
+ * Returns the sub-segment(s) of a line segment that fall in the given bounds
+ * @param {object} segment
+ * @param {number} segment.start - start index of the segment, referring the points array
+ * @param {number} segment.end - end index of the segment, referring the points array
+ * @param {boolean} segment.loop - indicates that the segment is a loop
+ * @param {Point[]} points - the points that this segment refers to
+ * @param {object} bounds
+ * @param {string} bounds.property - the property of a `Point` we are bounding. `x`, `y` or `angle`.
+ * @param {number} bounds.start - start value of the property
+ * @param {number} bounds.end - end value of the property
+ **/
+
+
+function _boundSegment(segment, points, bounds) {
+  if (!bounds) {
+    return [segment];
+  }
+
+  var property = bounds.property,
+      startBound = bounds.start,
+      endBound = bounds.end;
+  var count = points.length;
+
+  var _propertyFn2 = propertyFn(property),
+      compare = _propertyFn2.compare,
+      between = _propertyFn2.between,
+      normalize = _propertyFn2.normalize;
+
+  var _getSegment = getSegment(segment, points, bounds),
+      start = _getSegment.start,
+      end = _getSegment.end,
+      loop = _getSegment.loop;
+
+  var result = [];
+  var inside = false;
+  var subStart = null;
+  var i, value, point, prev;
+
+  for (i = start; i <= end; ++i) {
+    point = points[i % count];
+
+    if (point.skip) {
+      continue;
+    }
+
+    value = normalize(point[property]);
+    inside = between(value, startBound, endBound);
+
+    if (subStart === null && inside) {
+      subStart = i > start && compare(value, startBound) > 0 ? prev : i;
+    }
+
+    if (subStart !== null && (!inside || compare(value, endBound) === 0)) {
+      result.push(makeSubSegment(subStart, i, loop, count));
+      subStart = null;
+    }
+
+    prev = i;
+  }
+
+  if (subStart !== null) {
+    result.push(makeSubSegment(subStart, end, loop, count));
+  }
+
+  return result;
+}
+/**
+ * Returns the segments of the line that are inside given bounds
+ * @param {Line} line
+ * @param {object} bounds
+ * @param {string} bounds.property - the property we are bounding with. `x`, `y` or `angle`.
+ * @param {number} bounds.start - start value of the `property`
+ * @param {number} bounds.end - end value of the `property`
+ */
+
+function _boundSegments(line, bounds) {
+  var result = [];
+  var _iteratorNormalCompletion = true;
+  var _didIteratorError = false;
+  var _iteratorError = undefined;
+
+  try {
+    for (var _iterator = line.segments[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+      var segment = _step.value;
+
+      var sub = _boundSegment(segment, line.points, bounds);
+
+      if (sub.length) {
+        result.push.apply(result, _toConsumableArray(sub));
+      }
+    }
+  } catch (err) {
+    _didIteratorError = true;
+    _iteratorError = err;
+  } finally {
+    try {
+      if (!_iteratorNormalCompletion && _iterator["return"] != null) {
+        _iterator["return"]();
+      }
+    } finally {
+      if (_didIteratorError) {
+        throw _iteratorError;
+      }
+    }
+  }
+
+  return result;
+}
+/**
+ * Find start and end index of a line.
+ */
+
+function findStartAndEnd(points, count, loop, spanGaps) {
+  var start = 0;
+  var end = count - 1;
+
+  if (loop && !spanGaps) {
+    // loop and not spaning gaps, first find a gap to start from
+    while (start < count && !points[start].skip) {
+      start++;
+    }
+  } // find first non skipped point (after the first gap possibly)
+
+
+  while (start < count && points[start].skip) {
+    start++;
+  } // if we looped to count, start needs to be 0
+
+
+  start %= count;
+
+  if (loop) {
+    // loop will go past count, if start > 0
+    end += start;
+  }
+
+  while (end > start && points[end % count].skip) {
+    end--;
+  } // end could be more than count, normalize
+
+
+  end %= count;
+  return {
+    start: start,
+    end: end
+  };
+}
+/**
+ * Compute solid segments from Points, when spanGaps === false
+ * @param {Point[]} points - the points
+ * @param {number} start - start index
+ * @param {number} max - max index (can go past count on a loop)
+ * @param {boolean} loop - boolean indicating that this would be a loop if no gaps are found
+ */
+
+
+function solidSegments(points, start, max, loop) {
+  var count = points.length;
+  var result = [];
+  var last = start;
+  var prev = points[start];
+  var end;
+
+  for (end = start + 1; end <= max; ++end) {
+    var cur = points[end % count];
+
+    if (cur.skip) {
+      if (!prev.skip) {
+        loop = false;
+        result.push({
+          start: start % count,
+          end: (end - 1) % count,
+          loop: loop
+        });
+        start = last = null;
+      }
+    } else {
+      last = end;
+
+      if (prev.skip) {
+        start = end;
+      }
+    }
+
+    prev = cur;
+  }
+
+  if (last !== null) {
+    result.push({
+      start: start % count,
+      end: last % count,
+      loop: loop
+    });
+  }
+
+  return result;
+}
+/**
+ * Compute the continuous segments that define the whole line
+ * There can be skipped points within a segment, if spanGaps is true.
+ * @param {Line} line
+ */
+
+
+function _computeSegments(line) {
+  var points = line.points;
+  var spanGaps = line.options.spanGaps;
+  var count = points.length;
+
+  if (!count) {
+    return [];
+  }
+
+  var loop = !!line._loop;
+
+  var _findStartAndEnd = findStartAndEnd(points, count, loop, spanGaps),
+      start = _findStartAndEnd.start,
+      end = _findStartAndEnd.end;
+
+  if (spanGaps) {
+    return [{
+      start: start,
+      end: end,
+      loop: loop
+    }];
+  }
+
+  var max = end < start ? end + count : end;
+  var completeLoop = !!line._fullLoop && start === 0 && end === count - 1;
+  return solidSegments(points, start, max, completeLoop);
+}
+
 var defaultColor = core_defaults.global.defaultColor;
-var isPointInArea = require$$0.canvas._isPointInArea;
 
 core_defaults._set('global', {
   elements: {
@@ -6016,133 +6475,158 @@ core_defaults._set('global', {
   }
 });
 
-function startAtGap(points, spanGaps) {
-  var closePath = true;
-  var previous = points.length && points[0];
-  var index, point;
-
-  for (index = 1; index < points.length; ++index) {
-    // If there is a gap in the (looping) line, start drawing from that gap
-    point = points[index];
-
-    if (!point.skip && previous.skip) {
-      points = points.slice(index).concat(points.slice(0, index));
-      closePath = spanGaps;
-      break;
-    }
-
-    previous = point;
-  }
-
-  points.closePath = closePath;
-  return points;
+function setStyle(ctx, vm) {
+  ctx.lineCap = vm.borderCapStyle;
+  ctx.setLineDash(vm.borderDash);
+  ctx.lineDashOffset = vm.borderDashOffset;
+  ctx.lineJoin = vm.borderJoinStyle;
+  ctx.lineWidth = vm.borderWidth;
+  ctx.strokeStyle = vm.borderColor;
 }
 
-function setStyle(ctx, options) {
-  ctx.lineCap = options.borderCapStyle;
-  ctx.setLineDash(options.borderDash);
-  ctx.lineDashOffset = options.borderDashOffset;
-  ctx.lineJoin = options.borderJoinStyle;
-  ctx.lineWidth = options.borderWidth;
-  ctx.strokeStyle = options.borderColor;
-}
-
-function bezierCurveTo(ctx, previous, target, flip) {
-  ctx.bezierCurveTo(flip ? previous.controlPointPreviousX : previous.controlPointNextX, flip ? previous.controlPointPreviousY : previous.controlPointNextY, flip ? target.controlPointNextX : target.controlPointPreviousX, flip ? target.controlPointNextY : target.controlPointPreviousY, target.x, target.y);
-}
-
-function steppedLineTo(ctx, previous, target, flip, mode) {
-  if (mode === 'middle') {
-    var midpoint = (previous.x + target.x) / 2.0;
-    ctx.lineTo(midpoint, flip ? target.y : previous.y);
-    ctx.lineTo(midpoint, flip ? previous.y : target.y);
-  } else if (mode === 'after' && !flip || mode !== 'after' && flip) {
-    ctx.lineTo(previous.x, target.y);
-  } else {
-    ctx.lineTo(target.x, previous.y);
-  }
-
+function lineTo(ctx, previous, target) {
   ctx.lineTo(target.x, target.y);
 }
 
-function normalPath(ctx, points, spanGaps, options) {
-  var steppedLine = options.steppedLine;
-  var lineMethod = steppedLine ? steppedLineTo : bezierCurveTo;
-  var move = true;
-  var index, currentVM, previousVM;
-
-  for (index = 0; index < points.length; ++index) {
-    currentVM = points[index];
-
-    if (currentVM.skip) {
-      move = move || !spanGaps;
-      continue;
-    }
-
-    if (move) {
-      ctx.moveTo(currentVM.x, currentVM.y);
-      move = false;
-    } else if (options.tension || steppedLine) {
-      lineMethod(ctx, previousVM, currentVM, false, steppedLine);
-    } else {
-      ctx.lineTo(currentVM.x, currentVM.y);
-    }
-
-    previousVM = currentVM;
+function getLineMethod(options) {
+  if (options.steppedLine) {
+    return _steppedLineTo;
   }
+
+  if (options.tension) {
+    return _bezierCurveTo;
+  }
+
+  return lineTo;
 }
 /**
  * Create path from points, grouping by truncated x-coordinate
  * Points need to be in order by x-coordinate for this to work efficiently
  * @param {CanvasRenderingContext2D} ctx - Context
- * @param {Point[]} points - Points defining the line
- * @param {boolean} spanGaps - Are gaps spanned over
+ * @param {Line} line
+ * @param {object} segment
+ * @param {number} segment.start - start index of the segment, referring the points array
+ * @param {number} segment.end - end index of the segment, referring the points array
+ * @param {boolean} segment.loop - indicates that the segment is a loop
+ * @param {object} params
+ * @param {object} params.move - move to starting point (vs line to it)
+ * @param {object} params.reverse - path the segment from end to start
  */
 
 
-function fastPath(ctx, points, spanGaps) {
-  var move = true;
-  var count = 0;
+function pathSegment(ctx, line, segment, params) {
+  var start = segment.start,
+      end = segment.end,
+      loop = segment.loop;
+  var points = line.points,
+      options = line.options;
+  var lineMethod = getLineMethod(options);
+  var count = points.length;
+
+  var _ref = params || {},
+      _ref$move = _ref.move,
+      move = _ref$move === void 0 ? true : _ref$move,
+      reverse = _ref.reverse;
+
+  var ilen = end < start ? count + end - start : end - start;
+  var i, point, prev;
+
+  for (i = 0; i <= ilen; ++i) {
+    point = points[(start + (reverse ? ilen - i : i)) % count];
+
+    if (point.skip) {
+      // If there is a skipped point inside a segment, spanGaps must be true
+      continue;
+    } else if (move) {
+      ctx.moveTo(point.x, point.y);
+      move = false;
+    } else {
+      lineMethod(ctx, prev, point, reverse, options.steppedLine);
+    }
+
+    prev = point;
+  }
+
+  if (loop) {
+    point = points[(start + (reverse ? ilen : 0)) % count];
+    lineMethod(ctx, prev, point, reverse, options.steppedLine);
+  }
+
+  return !!loop;
+}
+/**
+ * Create path from points, grouping by truncated x-coordinate
+ * Points need to be in order by x-coordinate for this to work efficiently
+ * @param {CanvasRenderingContext2D} ctx - Context
+ * @param {Line} line
+ * @param {object} segment
+ * @param {number} segment.start - start index of the segment, referring the points array
+ * @param {number} segment.end - end index of the segment, referring the points array
+ * @param {boolean} segment.loop - indicates that the segment is a loop
+ * @param {object} params
+ * @param {object} params.move - move to starting point (vs line to it)
+ * @param {object} params.reverse - path the segment from end to start
+ */
+
+
+function fastPathSegment(ctx, line, segment, params) {
+  var points = line.points;
+  var count = points.length;
+  var start = segment.start,
+      end = segment.end;
+
+  var _ref2 = params || {},
+      _ref2$move = _ref2.move,
+      move = _ref2$move === void 0 ? true : _ref2$move,
+      reverse = _ref2.reverse;
+
+  var ilen = end < start ? count + end - start : end - start;
   var avgX = 0;
-  var index, vm, truncX, x, y, prevX, minY, maxY, lastY;
+  var countX = 0;
+  var i, point, prevX, minY, maxY, lastY;
 
-  for (index = 0; index < points.length; ++index) {
-    vm = points[index]; // If point is skipped, we either move to next (not skipped) point
-    // or line to it if spanGaps is true. `move` can already be true.
+  if (move) {
+    point = points[(start + (reverse ? ilen : 0)) % count];
+    ctx.moveTo(point.x, point.y);
+  }
 
-    if (vm.skip) {
-      move = move || !spanGaps;
+  for (i = 0; i <= ilen; ++i) {
+    point = points[(start + (reverse ? ilen - i : i)) % count];
+
+    if (point.skip) {
+      // If there is a skipped point inside a segment, spanGaps must be true
       continue;
     }
 
-    x = vm.x;
-    y = vm.y;
-    truncX = x | 0; // truncated x-coordinate
+    var x = point.x;
+    var y = point.y;
+    var truncX = x | 0; // truncated x-coordinate
 
-    if (move) {
-      ctx.moveTo(x, y);
-      move = false;
-    } else if (truncX === prevX) {
+    if (truncX === prevX) {
       // Determine `minY` / `maxY` and `avgX` while we stay within same x-position
-      minY = Math.min(y, minY);
-      maxY = Math.max(y, maxY); // For first point in group, count is `0`, so average will be `x` / 1.
+      if (y < minY) {
+        minY = y;
+      } else if (y > maxY) {
+        maxY = y;
+      } // For first point in group, countX is `0`, so average will be `x` / 1.
 
-      avgX = (count * avgX + x) / ++count;
+
+      avgX = (countX * avgX + x) / ++countX;
     } else {
       if (minY !== maxY) {
         // Draw line to maxY and minY, using the average x-coordinate
         ctx.lineTo(avgX, maxY);
-        ctx.lineTo(avgX, minY); // Move to y-value of last point in group. So the line continues
-        // from correct position.
+        ctx.lineTo(avgX, minY); // Line to y-value of last point in group. So the line continues
+        // from correct position. Not using move, to have solid path.
 
-        ctx.moveTo(avgX, lastY);
+        ctx.lineTo(avgX, lastY);
       } // Draw line to next x-position, using the first (or only)
       // y-value in that group
 
 
       ctx.lineTo(x, y);
       prevX = truncX;
-      count = 0;
+      countX = 0;
       minY = maxY = y;
     } // Keep track of the last y-value in group
 
@@ -6151,62 +6635,23 @@ function fastPath(ctx, points, spanGaps) {
   }
 }
 
-function useFastPath(options) {
-  return options.tension === 0 && !options.steppedLine && !options.fill && !options.borderDash.length;
+function _getSegmentMethod(line) {
+  var opts = line.options;
+  var borderDash = opts.borderDash && opts.borderDash.length;
+  var useFastPath = !line._loop && !opts.tension && !opts.steppedLine && !borderDash;
+  return useFastPath ? fastPathSegment : pathSegment;
 }
 
-function capControlPoint(pt, min, max) {
-  return Math.max(Math.min(pt, max), min);
-}
-
-function capBezierPoints(points, area) {
-  var i, ilen, model;
-
-  for (i = 0, ilen = points.length; i < ilen; ++i) {
-    model = points[i];
-
-    if (isPointInArea(model, area)) {
-      if (i > 0 && isPointInArea(points[i - 1], area)) {
-        model.controlPointPreviousX = capControlPoint(model.controlPointPreviousX, area.left, area.right);
-        model.controlPointPreviousY = capControlPoint(model.controlPointPreviousY, area.top, area.bottom);
-      }
-
-      if (i < points.length - 1 && isPointInArea(points[i + 1], area)) {
-        model.controlPointNextX = capControlPoint(model.controlPointNextX, area.left, area.right);
-        model.controlPointNextY = capControlPoint(model.controlPointNextY, area.top, area.bottom);
-      }
-    }
-  }
-}
-
-function updateBezierControlPoints(points, options, area, loop) {
-  var i, ilen, point, controlPoints; // Only consider points that are drawn in case the spanGaps option is used
-
-  if (options.spanGaps) {
-    points = points.filter(function (pt) {
-      return !pt.skip;
-    });
+function _getInterpolationMethod(options) {
+  if (options.steppedLine) {
+    return _steppedInterpolation;
   }
 
-  if (options.cubicInterpolationMode === 'monotone') {
-    require$$0.curve.splineCurveMonotone(points);
-  } else {
-    var prev = loop ? points[points.length - 1] : points[0];
-
-    for (i = 0, ilen = points.length; i < ilen; ++i) {
-      point = points[i];
-      controlPoints = require$$0.curve.splineCurve(prev, point, points[Math.min(i + 1, ilen - (loop ? 0 : 1)) % ilen], options.tension);
-      point.controlPointPreviousX = controlPoints.previous.x;
-      point.controlPointPreviousY = controlPoints.previous.y;
-      point.controlPointNextX = controlPoints.next.x;
-      point.controlPointNextY = controlPoints.next.y;
-      prev = point;
-    }
+  if (options.tension) {
+    return _bezierInterpolation;
   }
 
-  if (options.capBezierPoints) {
-    capBezierPoints(points, area);
-  }
+  return _pointInLine;
 }
 
 var Line =
@@ -6232,42 +6677,147 @@ function (_Element) {
       var options = me.options;
 
       if (options.tension && !options.steppedLine) {
-        updateBezierControlPoints(me._children, options, chartArea, me._loop);
+        var loop = options.spanGaps ? me._loop : me._fullLoop;
+
+        _updateBezierControlPoints(me._points, options, chartArea, loop);
       }
     }
   }, {
-    key: "drawPath",
-    value: function drawPath(ctx, area) {
+    key: "first",
+
+    /**
+     * First non-skipped point on this line
+     * @returns {Point|undefined}
+     */
+    value: function first() {
+      var segments = this.segments;
+      var points = this.points;
+      return segments.length && points[segments[0].start];
+    }
+    /**
+     * Last non-skipped point on this line
+     * @returns {Point|undefined}
+     */
+
+  }, {
+    key: "last",
+    value: function last() {
+      var segments = this.segments;
+      var points = this.points;
+      var count = segments.length;
+      return count && points[segments[count - 1].end];
+    }
+    /**
+     * Interpolate a point in this line at the same value on `property` as
+     * the reference `point` provided
+     * @param {Point} point - the reference point
+     * @param {string} property - the property to match on
+     * @returns {Point|undefined}
+     */
+
+  }, {
+    key: "interpolate",
+    value: function interpolate(point, property) {
       var me = this;
       var options = me.options;
-      var spanGaps = options.spanGaps;
-      var closePath = me._loop;
-      var points = me._children;
+      var value = point[property];
+      var points = me.points;
 
-      if (!points.length) {
+      var segments = _boundSegments(me, {
+        property: property,
+        start: value,
+        end: value
+      });
+
+      if (!segments.length) {
         return;
       }
 
-      if (closePath) {
-        points = startAtGap(points, spanGaps);
-        closePath = points.closePath;
+      var result = [];
+
+      var _interpolate = _getInterpolationMethod(options);
+
+      var i, ilen;
+
+      for (i = 0, ilen = segments.length; i < ilen; ++i) {
+        var _segments$i = segments[i],
+            start = _segments$i.start,
+            end = _segments$i.end;
+        var p1 = points[start];
+        var p2 = points[end];
+
+        if (p1 === p2) {
+          result.push(p1);
+          continue;
+        }
+
+        var t = Math.abs((value - p1[property]) / (p2[property] - p1[property]));
+
+        var interpolated = _interpolate(p1, p2, t, options.steppedLine);
+
+        interpolated[property] = point[property];
+        result.push(interpolated);
       }
 
-      if (useFastPath(options)) {
-        fastPath(ctx, points, spanGaps);
-      } else {
-        me.updateControlPoints(area);
-        normalPath(ctx, points, spanGaps, options);
-      }
-
-      return closePath;
+      return result.lenght === 1 ? result[0] : result;
     }
+    /**
+     * Append a segment of this line to current path.
+     * @param {CanvasRenderingContext2D} ctx
+     * @param {object} segment
+     * @param {number} segment.start - start index of the segment, referring the points array
+    	 * @param {number} segment.end - end index of the segment, referring the points array
+    	 * @param {boolean} segment.loop - indicates that the segment is a loop
+     * @param {object} params
+     * @param {object} params.move - move to starting point (vs line to it)
+     * @param {object} params.reverse - path the segment from end to start
+     * @returns {undefined|boolean} - true if the segment is a full loop (path should be closed)
+     */
+
+  }, {
+    key: "pathSegment",
+    value: function pathSegment(ctx, segment, params) {
+      var segmentMethod = _getSegmentMethod(this);
+
+      return segmentMethod(ctx, this, segment, params);
+    }
+    /**
+     * Append all segments of this line to current path.
+     * @param {CanvasRenderingContext2D} ctx
+     * @param {object} params
+     * @param {object} params.move - move to starting point (vs line to it)
+     * @param {object} params.reverse - path the segment from end to start
+     * @returns {undefined|boolean} - true if line is a full loop (path should be closed)
+     */
+
+  }, {
+    key: "path",
+    value: function path(ctx, params) {
+      var me = this;
+      var segments = me.segments;
+      var ilen = segments.length;
+
+      var segmentMethod = _getSegmentMethod(me);
+
+      var loop = me._loop;
+
+      for (var i = 0; i < ilen; ++i) {
+        loop &= segmentMethod(ctx, me, segments[i], params);
+      }
+
+      return !!loop;
+    }
+    /**
+     * Draw
+     * @param {CanvasRenderingContext2D} ctx
+     */
+
   }, {
     key: "draw",
-    value: function draw(ctx, area) {
+    value: function draw(ctx) {
       var me = this;
 
-      if (!me._children.length) {
+      if (!me.points.length) {
         return;
       }
 
@@ -6275,12 +6825,26 @@ function (_Element) {
       setStyle(ctx, me.options);
       ctx.beginPath();
 
-      if (me.drawPath(ctx, area)) {
+      if (me.path(ctx)) {
         ctx.closePath();
       }
 
       ctx.stroke();
       ctx.restore();
+    }
+  }, {
+    key: "points",
+    set: function set(points) {
+      this._points = points;
+      delete this._segments;
+    },
+    get: function get() {
+      return this._points;
+    }
+  }, {
+    key: "segments",
+    get: function get() {
+      return this._segments || (this._segments = _computeSegments(this));
     }
   }]);
 
@@ -7264,9 +7828,9 @@ var controller_bubble = core_datasetController.extend({
 });
 
 var valueOrDefault$2 = require$$0.valueOrDefault;
-var PI$1 = Math.PI;
-var DOUBLE_PI$1 = PI$1 * 2;
-var HALF_PI$1 = PI$1 / 2;
+var PI$2 = Math.PI;
+var DOUBLE_PI$1 = PI$2 * 2;
+var HALF_PI$1 = PI$2 / 2;
 
 core_defaults._set('doughnut', {
   animation: {
@@ -7426,7 +7990,7 @@ var controller_doughnut = core_datasetController.extend({
 
     if (circumference < DOUBLE_PI$1) {
       var startAngle = opts.rotation % DOUBLE_PI$1;
-      startAngle += startAngle >= PI$1 ? -DOUBLE_PI$1 : startAngle < -PI$1 ? DOUBLE_PI$1 : 0;
+      startAngle += startAngle >= PI$2 ? -DOUBLE_PI$1 : startAngle < -PI$2 ? DOUBLE_PI$1 : 0;
       var endAngle = startAngle + circumference;
       var startX = Math.cos(startAngle);
       var startY = Math.sin(startAngle);
@@ -7434,8 +7998,8 @@ var controller_doughnut = core_datasetController.extend({
       var endY = Math.sin(endAngle);
       var contains0 = startAngle <= 0 && endAngle >= 0 || endAngle >= DOUBLE_PI$1;
       var contains90 = startAngle <= HALF_PI$1 && endAngle >= HALF_PI$1 || endAngle >= DOUBLE_PI$1 + HALF_PI$1;
-      var contains180 = startAngle === -PI$1 || endAngle >= PI$1;
-      var contains270 = startAngle <= -HALF_PI$1 && endAngle >= -HALF_PI$1 || endAngle >= PI$1 + HALF_PI$1;
+      var contains180 = startAngle === -PI$2 || endAngle >= PI$2;
+      var contains270 = startAngle <= -HALF_PI$1 && endAngle >= -HALF_PI$1 || endAngle >= PI$2 + HALF_PI$1;
       var minX = contains180 ? -1 : Math.min(startX, startX * cutout, endX, endX * cutout);
       var minY = contains270 ? -1 : Math.min(startY, startY * cutout, endY, endY * cutout);
       var maxX = contains0 ? 1 : Math.max(startX, startX * cutout, endX, endX * cutout);
@@ -7724,7 +8288,7 @@ var controller_line = core_datasetController.extend({
 
     if (showLine && mode !== 'resize') {
       var properties = {
-        _children: points,
+        points: points,
         options: me._resolveDatasetElementOptions()
       };
 
@@ -8153,9 +8717,13 @@ var controller_radar = core_datasetController.extend({
     var meta = me._cachedMeta;
     var line = meta.dataset;
     var points = meta.data || [];
+
+    var labels = meta.iScale._getLabels();
+
     var properties = {
-      _children: points,
+      points: points,
       _loop: true,
+      _fullLoop: labels.length === points.length,
       options: me._resolveDatasetElementOptions()
     };
 
@@ -8184,6 +8752,7 @@ var controller_radar = core_datasetController.extend({
       var properties = {
         x: x,
         y: y,
+        angle: pointPosition.angle,
         skip: isNaN(x) || isNaN(y),
         options: options
       };
@@ -12913,10 +13482,9 @@ function (_Element) {
   }, {
     key: "getBaseValue",
     value: function getBaseValue() {
-      var me = this;
-      var min = me.min;
-      var max = me.max;
-      return me.beginAtZero ? 0 : min < 0 && max < 0 ? max : min > 0 && max > 0 ? min : 0;
+      var min = this.min,
+          max = this.max;
+      return min < 0 && max < 0 ? max : min > 0 && max > 0 ? min : 0;
     }
     /**
      * Returns a subset of ticks to be plotted to avoid overlapping labels.
@@ -14642,10 +15210,11 @@ function (_LinearScaleBase) {
     key: "getPointPosition",
     value: function getPointPosition(index, distanceFromCenter) {
       var me = this;
-      var thisAngle = me.getIndexAngle(index) - Math.PI / 2;
+      var angle = me.getIndexAngle(index) - Math.PI / 2;
       return {
-        x: Math.cos(thisAngle) * distanceFromCenter + me.xCenter,
-        y: Math.sin(thisAngle) * distanceFromCenter + me.yCenter
+        x: Math.cos(angle) * distanceFromCenter + me.xCenter,
+        y: Math.sin(angle) * distanceFromCenter + me.yCenter,
+        angle: angle
       };
     }
   }, {
@@ -14656,10 +15225,7 @@ function (_LinearScaleBase) {
   }, {
     key: "getBasePosition",
     value: function getBasePosition(index) {
-      var me = this;
-      var min = me.min;
-      var max = me.max;
-      return me.getPointPositionForValue(index || 0, me.beginAtZero ? 0 : min < 0 && max < 0 ? max : min > 0 && max > 0 ? min : 0);
+      return this.getPointPositionForValue(index || 0, this.getBaseValue());
     }
     /**
      * @private
@@ -14830,20 +15396,18 @@ function sorter(a, b) {
 }
 
 function arrayUnique(items) {
-  var hash = {};
-  var out = [];
-  var i, ilen, item;
+  var set = new Set();
+  var i, ilen;
 
   for (i = 0, ilen = items.length; i < ilen; ++i) {
-    item = items[i];
-
-    if (!hash[item]) {
-      hash[item] = true;
-      out.push(item);
-    }
+    set.add(items[i]);
   }
 
-  return out;
+  if (set.size === ilen) {
+    return items;
+  }
+
+  return _toConsumableArray(set);
 }
 /**
  * Returns an array of {time, pos} objects used to interpolate a specific `time` or position
@@ -15659,6 +16223,12 @@ core_adapters._date.override(typeof moment === 'function' ? {
   }
 } : {});
 
+/**
+ * Plugin based on discussion from the following Chart.js issues:
+ * @see https://github.com/chartjs/Chart.js/issues/2380#issuecomment-279961569
+ * @see https://github.com/chartjs/Chart.js/issues/2440#issuecomment-256461897
+ */
+
 core_defaults._set('global', {
   plugins: {
     filler: {
@@ -15667,47 +16237,19 @@ core_defaults._set('global', {
   }
 });
 
-var mappers = {
-  dataset: function dataset(source) {
-    var index = source.fill;
-    var chart = source.chart;
-    var meta = chart.getDatasetMeta(index);
-    var visible = meta && chart.isDatasetVisible(index);
-    var points = visible && meta.dataset._children || [];
-    var length = points.length || 0;
-    return !length ? null : function (point, i) {
-      return i < length && points[i] || null;
-    };
-  },
-  boundary: function boundary(source) {
-    var boundary = source.boundary;
-    var x = boundary ? boundary.x : null;
-    var y = boundary ? boundary.y : null;
+function getLineByIndex(chart, index) {
+  var meta = chart.getDatasetMeta(index);
+  var visible = meta && chart.isDatasetVisible(index);
+  return visible ? meta.dataset : null;
+}
 
-    if (require$$0.isArray(boundary)) {
-      return function (point, i) {
-        return boundary[i];
-      };
-    }
-
-    return function (point) {
-      return {
-        x: x === null ? point.x : x,
-        y: y === null ? point.y : y,
-        boundary: true
-      };
-    };
-  }
-}; // @todo if (fill[0] === '#')
-
-function decodeFill(el, index, count) {
-  var model = el.options || {};
-  var fillOption = model.fill;
-  var fill = fillOption && typeof fillOption.target !== 'undefined' ? fillOption.target : fillOption;
-  var target;
+function parseFillOption(line) {
+  var options = line.options;
+  var fillOption = options.fill;
+  var fill = valueOrDefault(fillOption && fillOption.target, fillOption);
 
   if (fill === undefined) {
-    fill = !!model.backgroundColor;
+    fill = !!options.backgroundColor;
   }
 
   if (fill === false || fill === null) {
@@ -15718,9 +16260,15 @@ function decodeFill(el, index, count) {
     return 'origin';
   }
 
-  target = parseFloat(fill, 10);
+  return fill;
+} // @todo if (fill[0] === '#')
 
-  if (isFinite(target) && Math.floor(target) === target) {
+
+function decodeFill(line, index, count) {
+  var fill = parseFillOption(line);
+  var target = parseFloat(fill, 10);
+
+  if (isNumberFinite(target) && Math.floor(target) === target) {
     if (fill[0] === '-' || fill[0] === '+') {
       target = index + target;
     }
@@ -15732,98 +16280,109 @@ function decodeFill(el, index, count) {
     return target;
   }
 
-  switch (fill) {
-    // compatibility
-    case 'bottom':
-      return 'start';
-
-    case 'top':
-      return 'end';
-
-    case 'zero':
-      return 'origin';
-    // supported boundaries
-
-    case 'origin':
-    case 'start':
-    case 'end':
-      return fill;
-    // invalid fill values
-
-    default:
-      return false;
-  }
+  return ['origin', 'start', 'end'].indexOf(fill) >= 0 ? fill : false;
 }
 
 function computeLinearBoundary(source) {
-  var model = source.el || {};
-  var scale = source.scale || {};
-  var fill = source.fill;
+  var _source$scale = source.scale,
+      scale = _source$scale === void 0 ? {} : _source$scale,
+      fill = source.fill;
   var target = null;
   var horizontal;
 
-  if (isFinite(fill)) {
-    return null;
-  } // Backward compatibility: until v3, we still need to support boundary values set on
-  // the model (scaleTop, scaleBottom and scaleZero) because some external plugins and
-  // controllers might still use it (e.g. the Smith chart).
-
-
   if (fill === 'start') {
-    target = model.scaleBottom === undefined ? scale.bottom : model.scaleBottom;
+    target = scale.bottom;
   } else if (fill === 'end') {
-    target = model.scaleTop === undefined ? scale.top : model.scaleTop;
-  } else if (model.scaleZero !== undefined) {
-    target = model.scaleZero;
+    target = scale.top;
   } else if (scale.getBasePixel) {
     target = scale.getBasePixel();
   }
 
-  if (target !== undefined && target !== null) {
-    if (target.x !== undefined && target.y !== undefined) {
-      return target;
-    }
-
-    if (require$$0.isFinite(target)) {
-      horizontal = scale.isHorizontal();
-      return {
-        x: horizontal ? target : null,
-        y: horizontal ? null : target,
-        boundary: true
-      };
-    }
+  if (isNumberFinite(target)) {
+    horizontal = scale.isHorizontal();
+    return {
+      x: horizontal ? target : null,
+      y: horizontal ? null : target
+    };
   }
 
   return null;
-}
+} // TODO: use elements.Arc instead
 
-function computeCircularBoundary(source) {
-  var scale = source.scale;
-  var options = scale.options;
-  var length = scale.chart.data.labels.length;
-  var fill = source.fill;
-  var target = [];
-  var start, end, center, i, point;
 
-  if (!length) {
-    return null;
+var simpleArc =
+/*#__PURE__*/
+function () {
+  function simpleArc(opts) {
+    _classCallCheck(this, simpleArc);
+
+    extend(this, opts);
   }
 
+  _createClass(simpleArc, [{
+    key: "pathSegment",
+    value: function pathSegment(ctx, bounds, opts) {
+      var x = this.x,
+          y = this.y,
+          radius = this.radius;
+      bounds = bounds || {
+        start: 0,
+        end: Math.PI * 2
+      };
+
+      if (opts.reverse) {
+        ctx.arc(x, y, radius, bounds.end, bounds.start, true);
+      } else {
+        ctx.arc(x, y, radius, bounds.start, bounds.end);
+      }
+
+      return !opts.bounds;
+    }
+  }, {
+    key: "interpolate",
+    value: function interpolate(point, property) {
+      var x = this.x,
+          y = this.y,
+          radius = this.radius;
+      var angle = point.angle;
+
+      if (property === 'angle') {
+        return {
+          x: x + Math.cos(angle) * radius,
+          y: y + Math.sin(angle) * radius,
+          angle: angle
+        };
+      }
+    }
+  }]);
+
+  return simpleArc;
+}();
+
+function computeCircularBoundary(source) {
+  var scale = source.scale,
+      fill = source.fill;
+  var options = scale.options;
+
+  var length = scale._getLabels().length;
+
+  var target = [];
+  var start, end, value, i, center;
   start = options.reverse ? scale.max : scale.min;
   end = options.reverse ? scale.min : scale.max;
-  center = scale.getPointPositionForValue(0, start);
+  value = fill === 'start' ? start : fill === 'end' ? end : scale.getBaseValue();
+
+  if (options.gridLines.circular) {
+    center = scale.getPointPositionForValue(0, start);
+    return new simpleArc({
+      x: center.x,
+      y: center.y,
+      radius: scale.getDistanceFromCenterForValue(value)
+    });
+  }
 
   for (i = 0; i < length; ++i) {
-    point = fill === 'start' || fill === 'end' ? scale.getPointPositionForValue(i, fill === 'start' ? start : end) : scale.getBasePosition(i);
-
-    if (options.gridLines.circular) {
-      point.cx = center.x;
-      point.cy = center.y;
-      point.angle = scale.getIndexAngle(i) - Math.PI / 2;
-    }
-
-    point.boundary = true;
-    target.push(point);
+    target.push(scale.getPointPositionForValue(i, value));
   }
 
   return target;
@@ -15839,6 +16398,76 @@ function computeBoundary(source) {
   return computeLinearBoundary(source);
 }
 
+function pointsFromSegments(boundary, line) {
+  var _ref = boundary || {},
+      _ref$x = _ref.x,
+      x = _ref$x === void 0 ? null : _ref$x,
+      _ref$y = _ref.y,
+      y = _ref$y === void 0 ? null : _ref$y;
+
+  var linePoints = line.points;
+  var points = [];
+  line.segments.forEach(function (segment) {
+    var first = linePoints[segment.start];
+    var last = linePoints[segment.end];
+
+    if (y !== null) {
+      points.push({
+        x: first.x,
+        y: y
+      });
+      points.push({
+        x: last.x,
+        y: y
+      });
+    } else if (x !== null) {
+      points.push({
+        x: x,
+        y: first.y
+      });
+      points.push({
+        x: x,
+        y: last.y
+      });
+    }
+  });
+  return points;
+}
+
+function getTarget(source) {
+  var chart = source.chart,
+      fill = source.fill,
+      line = source.line;
+
+  if (isNumberFinite(fill)) {
+    return getLineByIndex(chart, fill);
+  }
+
+  var boundary = computeBoundary(source);
+  var points = [];
+  var _loop = false;
+
+  if (boundary instanceof simpleArc) {
+    return boundary;
+  }
+
+  if (isArray(boundary)) {
+    _loop = true;
+    points = boundary;
+  } else {
+    points = pointsFromSegments(boundary, line);
+  }
+
+  return points.length ? new Line({
+    points: points,
+    options: {
+      tension: 0
+    },
+    _loop: _loop,
+    _fullLoop: _loop
+  }) : null;
+}
+
 function resolveTarget(sources, index, propagate) {
   var source = sources[index];
   var fill = source.fill;
@@ -15850,7 +16479,7 @@ function resolveTarget(sources, index, propagate) {
   }
 
   while (fill !== false && visited.indexOf(fill) === -1) {
-    if (!isFinite(fill)) {
+    if (!isNumberFinite(fill)) {
       return fill;
     }
 
@@ -15871,256 +16500,270 @@ function resolveTarget(sources, index, propagate) {
   return false;
 }
 
-function createMapper(source) {
-  var fill = source.fill;
-  var type = 'dataset';
-
-  if (fill === false) {
-    return null;
-  }
-
-  if (!isFinite(fill)) {
-    type = 'boundary';
-  }
-
-  return mappers[type](source);
+function _clip(ctx, target, clipY) {
+  ctx.beginPath();
+  target.path(ctx);
+  ctx.lineTo(target.last().x, clipY);
+  ctx.lineTo(target.first().x, clipY);
+  ctx.closePath();
+  ctx.clip();
 }
 
-function isDrawable(point) {
-  return point && !point.skip;
-}
-
-function fillPointsSets(ctx, curve0, curve1, len0, len1, area, pointSets) {
-  var fillAreaPointsSet = [];
-  var clipAboveAreaPointsSet = [];
-  var clipBelowAreaPointsSet = [];
-  var radialSet = [];
-  var jointPoint = {};
-  var i, cx, cy, r;
-
-  if (!len0 || !len1) {
+function getBounds(property, first, last, loop) {
+  if (loop) {
     return;
   }
 
-  clipAboveAreaPointsSet.push({
-    x: curve1[len1 - 1].x,
-    y: area.top
-  });
-  clipBelowAreaPointsSet.push({
-    x: curve0[0].x,
-    y: area.top
-  });
-  clipBelowAreaPointsSet.push(curve0[0]); // building first area curve (normal)
+  var start = first[property];
+  var end = last[property];
 
-  fillAreaPointsSet.push(curve0[0]);
-
-  for (i = 1; i < len0; ++i) {
-    curve0[i].flip = false;
-    fillAreaPointsSet.push(curve0[i]);
-    clipBelowAreaPointsSet.push(curve0[i]);
+  if (property === 'angle') {
+    start = _normalizeAngle(start);
+    end = _normalizeAngle(end);
   }
 
-  if (curve1[0].angle !== undefined) {
-    pointSets.fill.push(fillAreaPointsSet);
-    cx = curve1[0].cx;
-    cy = curve1[0].cy;
-    r = Math.sqrt(Math.pow(curve1[0].x - cx, 2) + Math.pow(curve1[0].y - cy, 2));
-
-    for (i = len1 - 1; i > 0; --i) {
-      radialSet.push({
-        cx: cx,
-        cy: cy,
-        radius: r,
-        startAngle: curve1[i].angle,
-        endAngle: curve1[i - 1].angle
-      });
-    }
-
-    if (radialSet.length) {
-      pointSets.fill.push(radialSet);
-    }
-
-    return;
-  } // joining the two area curves
-
-
-  for (var key in curve1[len1 - 1]) {
-    if (Object.prototype.hasOwnProperty.call(curve1[len1 - 1], key)) {
-      jointPoint[key] = curve1[len1 - 1][key];
-    }
-  }
-
-  jointPoint.joint = true;
-  fillAreaPointsSet.push(jointPoint); // building opposite area curve (reverse)
-
-  for (i = len1 - 1; i > 0; --i) {
-    curve1[i].flip = true;
-    clipAboveAreaPointsSet.push(curve1[i]);
-    curve1[i - 1].flip = true;
-    fillAreaPointsSet.push(curve1[i - 1]);
-  }
-
-  clipAboveAreaPointsSet.push(curve1[0]);
-  clipAboveAreaPointsSet.push({
-    x: curve1[0].x,
-    y: area.top
-  });
-  clipBelowAreaPointsSet.push({
-    x: curve0[len0 - 1].x,
-    y: area.top
-  });
-  pointSets.clipAbove.push(clipAboveAreaPointsSet);
-  pointSets.clipBelow.push(clipBelowAreaPointsSet);
-  pointSets.fill.push(fillAreaPointsSet);
+  return {
+    property: property,
+    start: start,
+    end: end
+  };
 }
 
-function clipAndFill(ctx, clippingPointsSets, fillingPointsSets, color, stepped, tension) {
-  var lineTo = stepped ? require$$0.canvas._steppedLineTo : require$$0.canvas._bezierCurveTo;
-  var i, ilen, j, jlen, set, target;
+function _getEdge(a, b, prop, fn) {
+  if (a && b) {
+    return fn(a[prop], b[prop]);
+  }
 
-  if (clippingPointsSets) {
-    ctx.save();
-    ctx.beginPath();
+  return a ? a[prop] : b ? b[prop] : 0;
+}
 
-    for (i = 0, ilen = clippingPointsSets.length; i < ilen; i++) {
-      set = clippingPointsSets[i]; // Have edge lines straight
+function _segments(line, target, property) {
+  var points = line.points;
+  var tpoints = target.points;
+  var parts = [];
+  var _iteratorNormalCompletion = true;
+  var _didIteratorError = false;
+  var _iteratorError = undefined;
 
-      ctx.moveTo(set[0].x, set[0].y);
-      ctx.lineTo(set[1].x, set[1].y);
+  try {
+    for (var _iterator = line.segments[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+      var segment = _step.value;
+      var bounds = getBounds(property, points[segment.start], points[segment.end], segment.loop);
 
-      for (j = 2, jlen = set.length; j < jlen - 1; j++) {
-        target = set[j];
+      if (!target.segments) {
+        // Special case for boundary not supporting `segments` (simpleArc)
+        // Bounds are provided as `target` for partial circle, or undefined for full circle
+        parts.push({
+          source: segment,
+          target: bounds,
+          start: points[segment.start],
+          end: points[segment.end]
+        });
+        continue;
+      } // Get all segments from `target` that intersect the bounds of current segment of `line`
 
-        if (!target.boundary && (tension || stepped)) {
-          lineTo(ctx, set[j - 1], target, target.flip, stepped);
-        } else {
-          ctx.lineTo(target.x, target.y);
+
+      var subs = _boundSegments(target, bounds);
+
+      var _iteratorNormalCompletion2 = true;
+      var _didIteratorError2 = false;
+      var _iteratorError2 = undefined;
+
+      try {
+        for (var _iterator2 = subs[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+          var sub = _step2.value;
+          var subBounds = getBounds(property, tpoints[sub.start], tpoints[sub.end], sub.loop);
+
+          var fillSources = _boundSegment(segment, points, subBounds);
+
+          var _iteratorNormalCompletion3 = true;
+          var _didIteratorError3 = false;
+          var _iteratorError3 = undefined;
+
+          try {
+            for (var _iterator3 = fillSources[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+              var source = _step3.value;
+              parts.push({
+                source: source,
+                target: sub,
+                start: _defineProperty({}, property, _getEdge(bounds, subBounds, 'start', Math.max)),
+                end: _defineProperty({}, property, _getEdge(bounds, subBounds, 'end', Math.min))
+              });
+            }
+          } catch (err) {
+            _didIteratorError3 = true;
+            _iteratorError3 = err;
+          } finally {
+            try {
+              if (!_iteratorNormalCompletion3 && _iterator3["return"] != null) {
+                _iterator3["return"]();
+              }
+            } finally {
+              if (_didIteratorError3) {
+                throw _iteratorError3;
+              }
+            }
+          }
         }
-      }
-
-      ctx.lineTo(set[j].x, set[j].y);
-    }
-
-    ctx.closePath();
-    ctx.clip();
-    ctx.beginPath();
-  }
-
-  for (i = 0, ilen = fillingPointsSets.length; i < ilen; i++) {
-    set = fillingPointsSets[i];
-
-    if (set[0].startAngle !== undefined) {
-      for (j = 0, jlen = set.length; j < jlen; j++) {
-        ctx.arc(set[j].cx, set[j].cy, set[j].radius, set[j].startAngle, set[j].endAngle, true);
-      }
-    } else {
-      ctx.moveTo(set[0].x, set[0].y);
-
-      for (j = 1, jlen = set.length; j < jlen; j++) {
-        if (set[j].joint) {
-          ctx.lineTo(set[j].x, set[j].y);
-        } else {
-          target = set[j];
-
-          if (!target.boundary && (tension || stepped)) {
-            lineTo(ctx, set[j - 1], target, target.flip, stepped);
-          } else {
-            ctx.lineTo(target.x, target.y);
+      } catch (err) {
+        _didIteratorError2 = true;
+        _iteratorError2 = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion2 && _iterator2["return"] != null) {
+            _iterator2["return"]();
+          }
+        } finally {
+          if (_didIteratorError2) {
+            throw _iteratorError2;
           }
         }
       }
     }
-  }
-
-  ctx.closePath();
-  ctx.fillStyle = color;
-  ctx.fill();
-  ctx.restore();
-}
-
-function doFill(ctx, points, mapper, colors, el, area) {
-  var count = points.length;
-  var options = el.options;
-  var loop = el._loop;
-  var span = options.spanGaps;
-  var stepped = options.steppedLine;
-  var tension = options.tension;
-  var curve0 = [];
-  var curve1 = [];
-  var len0 = 0;
-  var len1 = 0;
-  var pointSets = {
-    clipBelow: [],
-    clipAbove: [],
-    fill: []
-  };
-  var i, ilen, index, p0, p1, d0, d1, loopOffset;
-  ctx.save();
-  ctx.beginPath();
-
-  for (i = 0, ilen = count; i < ilen; ++i) {
-    index = i % count;
-    p0 = points[index];
-    p1 = mapper(p0, index);
-    d0 = isDrawable(p0);
-    d1 = isDrawable(p1);
-
-    if (loop && loopOffset === undefined && d0) {
-      loopOffset = i + 1;
-      ilen = count + loopOffset;
-    }
-
-    if (d0 && d1) {
-      len0 = curve0.push(p0);
-      len1 = curve1.push(p1);
-    } else if (len0 && len1) {
-      if (!span) {
-        fillPointsSets(ctx, curve0, curve1, len0, len1, area, pointSets);
-        len0 = len1 = 0;
-        curve0 = [];
-        curve1 = [];
-      } else {
-        if (d0) {
-          curve0.push(p0);
-        }
-
-        if (d1) {
-          curve1.push(p1);
-        }
+  } catch (err) {
+    _didIteratorError = true;
+    _iteratorError = err;
+  } finally {
+    try {
+      if (!_iteratorNormalCompletion && _iterator["return"] != null) {
+        _iterator["return"]();
+      }
+    } finally {
+      if (_didIteratorError) {
+        throw _iteratorError;
       }
     }
   }
 
-  fillPointsSets(ctx, curve0, curve1, len0, len1, area, pointSets);
+  return parts;
+}
 
-  if (colors.below !== colors.above) {
-    clipAndFill(ctx, pointSets.clipAbove, pointSets.fill, colors.above, stepped, tension);
-    clipAndFill(ctx, pointSets.clipBelow, pointSets.fill, colors.below, stepped, tension);
-  } else {
-    clipAndFill(ctx, false, pointSets.fill, colors.above, stepped, tension);
+function clipBounds(ctx, scale, bounds) {
+  var _scale$chart$chartAre = scale.chart.chartArea,
+      top = _scale$chart$chartAre.top,
+      bottom = _scale$chart$chartAre.bottom;
+
+  var _ref2 = bounds || {},
+      property = _ref2.property,
+      start = _ref2.start,
+      end = _ref2.end;
+
+  if (property === 'x') {
+    ctx.beginPath();
+    ctx.rect(start, top, end - start, bottom - top);
+    ctx.clip();
   }
 }
 
-var plugin_filler = {
+function interpolatedLineTo(ctx, target, point, property) {
+  var interpolatedPoint = target.interpolate(point, property);
+
+  if (interpolatedPoint) {
+    ctx.lineTo(interpolatedPoint.x, interpolatedPoint.y);
+  }
+}
+
+function _fill(ctx, cfg) {
+  var line = cfg.line,
+      target = cfg.target,
+      property = cfg.property,
+      color = cfg.color,
+      scale = cfg.scale;
+
+  var segments = _segments(cfg.line, cfg.target, property);
+
+  ctx.fillStyle = color;
+
+  for (var i = 0, ilen = segments.length; i < ilen; ++i) {
+    var _segments$i = segments[i],
+        src = _segments$i.source,
+        tgt = _segments$i.target,
+        start = _segments$i.start,
+        end = _segments$i.end;
+    ctx.save();
+    clipBounds(ctx, scale, getBounds(property, start, end));
+    ctx.beginPath();
+    var loop = !!line.pathSegment(ctx, src);
+
+    if (loop) {
+      ctx.closePath();
+    } else {
+      interpolatedLineTo(ctx, target, end, property);
+    }
+
+    loop &= target.pathSegment(ctx, tgt, {
+      move: loop,
+      reverse: true
+    });
+
+    if (!loop) {
+      interpolatedLineTo(ctx, target, start, property);
+    }
+
+    ctx.closePath();
+    ctx.fill(loop ? 'evenodd' : 'nonzero');
+    ctx.restore();
+  }
+}
+
+function doFill(ctx, cfg) {
+  var line = cfg.line,
+      target = cfg.target,
+      above = cfg.above,
+      below = cfg.below,
+      area = cfg.area,
+      scale = cfg.scale;
+  var property = line._loop ? 'angle' : 'x';
+  ctx.save();
+
+  if (property === 'x' && below !== above) {
+    _clip(ctx, target, area.top);
+
+    _fill(ctx, {
+      line: line,
+      target: target,
+      color: above,
+      scale: scale,
+      property: property
+    });
+
+    ctx.restore();
+    ctx.save();
+
+    _clip(ctx, target, area.bottom);
+  }
+
+  _fill(ctx, {
+    line: line,
+    target: target,
+    color: below,
+    scale: scale,
+    property: property
+  });
+
+  ctx.restore();
+}
+
+var require$$0$1 = {
   id: 'filler',
   afterDatasetsUpdate: function afterDatasetsUpdate(chart, options) {
     var count = (chart.data.datasets || []).length;
     var propagate = options.propagate;
     var sources = [];
-    var meta, i, el, source;
+    var meta, i, line, source;
 
     for (i = 0; i < count; ++i) {
       meta = chart.getDatasetMeta(i);
-      el = meta.dataset;
+      line = meta.dataset;
       source = null;
 
-      if (el && el.options && el instanceof require$$9.Line) {
+      if (line && line.options && line instanceof Line) {
         source = {
           visible: chart.isDatasetVisible(i),
-          fill: decodeFill(el, i, count),
+          fill: decodeFill(line, i, count),
           chart: chart,
-          scale: meta.yScale || meta.rScale,
-          el: el
+          scale: meta.vScale,
+          line: line
         };
       }
 
@@ -16131,13 +16774,12 @@ var plugin_filler = {
     for (i = 0; i < count; ++i) {
       source = sources[i];
 
-      if (!source) {
+      if (!source || source.fill === false) {
         continue;
       }
 
       source.fill = resolveTarget(sources, i, propagate);
-      source.boundary = computeBoundary(source);
-      source.mapper = createMapper(source);
+      source.target = source.fill !== false && getTarget(source);
     }
   },
   beforeDatasetsDraw: function beforeDatasetsDraw(chart) {
@@ -16145,45 +16787,48 @@ var plugin_filler = {
 
     var area = chart.chartArea;
     var ctx = chart.ctx;
-    var meta, i, el, options, points, mapper, color, colors, fillOption;
+    var i, meta;
 
     for (i = metasets.length - 1; i >= 0; --i) {
       meta = metasets[i].$filler;
 
-      if (!meta || !meta.visible) {
-        continue;
+      if (meta) {
+        meta.line.updateControlPoints(area);
       }
-
-      meta.el.updateControlPoints(area);
     }
 
     for (i = metasets.length - 1; i >= 0; --i) {
       meta = metasets[i].$filler;
 
-      if (!meta || !meta.visible) {
+      if (!meta || meta.fill === false) {
         continue;
       }
 
-      el = meta.el;
-      options = el.options;
-      points = el._children || [];
-      mapper = meta.mapper;
-      fillOption = options.fill;
-      color = options.backgroundColor || core_defaults.global.defaultColor;
-      colors = {
-        above: color,
-        below: color
-      };
+      var _meta = meta,
+          line = _meta.line,
+          target = _meta.target,
+          scale = _meta.scale;
+      var lineOpts = line.options;
+      var fillOption = lineOpts.fill;
+      var color = lineOpts.backgroundColor || core_defaults.global.defaultColor;
 
-      if (fillOption && _typeof(fillOption) === 'object') {
-        colors.above = fillOption.above || color;
-        colors.below = fillOption.below || color;
-      }
+      var _ref3 = fillOption || {},
+          _ref3$above = _ref3.above,
+          above = _ref3$above === void 0 ? color : _ref3$above,
+          _ref3$below = _ref3.below,
+          below = _ref3$below === void 0 ? color : _ref3$below;
 
-      if (mapper && points.length) {
-        require$$0.canvas.clipArea(ctx, area);
-        doFill(ctx, points, mapper, colors, el, area);
-        require$$0.canvas.unclipArea(ctx);
+      if (target && line.points.length) {
+        clipArea(ctx, area);
+        doFill(ctx, {
+          line: line,
+          target: target,
+          above: above,
+          below: below,
+          area: area,
+          scale: scale
+        });
+        unclipArea(ctx);
       }
     }
   }
@@ -17079,7 +17724,7 @@ var plugin_title = {
 };
 
 var plugins = {};
-var filler = plugin_filler;
+var filler = require$$0$1;
 var legend = plugin_legend;
 var title = plugin_title;
 plugins.filler = filler;
