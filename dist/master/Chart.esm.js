@@ -4422,6 +4422,18 @@ function copyOptions(target, values) {
   delete values.options;
 }
 
+function extensibleConfig(animations) {
+  var result = {};
+  Object.keys(animations).forEach(function (key) {
+    var value = animations[key];
+
+    if (!isObject(value)) {
+      result[key] = value;
+    }
+  });
+  return result;
+}
+
 var Animations =
 /*#__PURE__*/
 function () {
@@ -4436,19 +4448,17 @@ function () {
   _createClass(Animations, [{
     key: "configure",
     value: function configure(animations) {
-      var animatedProps = this._properties;
-      var animDefaults = Object.fromEntries(Object.entries(animations).filter(function (_ref) {
-        var value = _ref[1];
-        return !isObject(value);
-      }));
+      if (!isObject(animations)) {
+        return;
+      }
 
-      for (var _i = 0, _Object$entries = Object.entries(animations); _i < _Object$entries.length; _i++) {
-        var _Object$entries$_i = _slicedToArray(_Object$entries[_i], 2),
-            key = _Object$entries$_i[0],
-            cfg = _Object$entries$_i[1];
+      var animatedProps = this._properties;
+      var animDefaults = extensibleConfig(animations);
+      Object.keys(animations).forEach(function (key) {
+        var cfg = animations[key];
 
         if (!isObject(cfg)) {
-          continue;
+          return;
         }
 
         var _iteratorNormalCompletion = true;
@@ -4481,7 +4491,7 @@ function () {
             }
           }
         }
-      }
+      });
     }
     /**
      * Utility to handle animation of `options`.
@@ -5690,7 +5700,7 @@ require$$0.extend(DatasetController.prototype, {
 
     me._parse(start, count);
 
-    me.updateElements(data, start, count, 'reset');
+    me.updateElements(elements, start, 'reset');
   },
 
   /**
@@ -6844,9 +6854,9 @@ var controller_bar = core_datasetController.extend({
   update: function update(mode) {
     var me = this;
     var rects = me._cachedMeta.data;
-    me.updateElements(rects, 0, rects.length, mode);
+    me.updateElements(rects, 0, mode);
   },
-  updateElements: function updateElements(rectangles, start, count, mode) {
+  updateElements: function updateElements(rectangles, start, mode) {
     var me = this;
     var reset = mode === 'reset';
     var vscale = me._cachedMeta.vScale;
@@ -6862,11 +6872,13 @@ var controller_bar = core_datasetController.extend({
 
     var i;
 
-    for (i = 0; i < start + count; i++) {
-      var options = me._resolveDataElementOptions(i, mode);
+    for (i = 0; i < rectangles.length; i++) {
+      var index = start + i;
 
-      var vpixels = me.calculateBarValuePixels(i, options);
-      var ipixels = me.calculateBarIndexPixels(i, ruler, options);
+      var options = me._resolveDataElementOptions(index, mode);
+
+      var vpixels = me.calculateBarValuePixels(index, options);
+      var ipixels = me.calculateBarIndexPixels(index, ruler, options);
       var properties = {
         horizontal: horizontal,
         base: reset ? base : vpixels.base,
@@ -6886,7 +6898,7 @@ var controller_bar = core_datasetController.extend({
         properties.options = options;
       }
 
-      me._updateElement(rectangles[i], i, properties, mode);
+      me._updateElement(rectangles[i], index, properties, mode);
     }
 
     me._updateSharedOptions(sharedOptions, mode);
@@ -7166,13 +7178,13 @@ var controller_bubble = core_datasetController.extend({
     var me = this;
     var points = me._cachedMeta.data; // Update Points
 
-    me.updateElements(points, 0, points.length, mode);
+    me.updateElements(points, 0, mode);
   },
 
   /**
    * @protected
    */
-  updateElements: function updateElements(points, start, count, mode) {
+  updateElements: function updateElements(points, start, mode) {
     var me = this;
     var reset = mode === 'reset';
     var _me$_cachedMeta = me._cachedMeta,
@@ -7187,10 +7199,11 @@ var controller_bubble = core_datasetController.extend({
 
     var i;
 
-    for (i = start; i < start + count; i++) {
+    for (i = 0; i < points.length; i++) {
       var point = points[i];
+      var index = start + i;
 
-      var parsed = !reset && me._getParsed(i);
+      var parsed = !reset && me._getParsed(index);
 
       var x = reset ? xScale.getPixelForDecimal(0.5) : xScale.getPixelForValue(parsed[xScale.id]);
       var y = reset ? yScale.getBasePixel() : yScale.getPixelForValue(parsed[yScale.id]);
@@ -7201,14 +7214,14 @@ var controller_bubble = core_datasetController.extend({
       };
 
       if (includeOptions) {
-        properties.options = i === start ? firstOpts : me._resolveDataElementOptions(i, mode);
+        properties.options = i === 0 ? firstOpts : me._resolveDataElementOptions(i, mode);
 
         if (reset) {
           properties.options.radius = 0;
         }
       }
 
-      me._updateElement(point, i, properties, mode);
+      me._updateElement(point, index, properties, mode);
     }
 
     me._updateSharedOptions(sharedOptions, mode);
@@ -7448,9 +7461,19 @@ var controller_doughnut = core_datasetController.extend({
     meta.total = me.calculateTotal();
     me.outerRadius = chart.outerRadius - chart.radiusLength * me._getRingWeightOffset(me.index);
     me.innerRadius = Math.max(me.outerRadius - chart.radiusLength * chartWeight, 0);
-    me.updateElements(arcs, 0, arcs.length, mode);
+    me.updateElements(arcs, 0, mode);
   },
-  updateElements: function updateElements(arcs, start, count, mode) {
+
+  /**
+   * @private
+   */
+  _circumference: function _circumference(i, reset) {
+    var me = this;
+    var opts = me.chart.options;
+    var meta = me._cachedMeta;
+    return reset && opts.animation.animateRotate ? 0 : meta.data[i].hidden ? 0 : me.calculateCircumference(meta._parsed[i] * opts.circumference / DOUBLE_PI$1);
+  },
+  updateElements: function updateElements(arcs, start, mode) {
     var me = this;
     var reset = mode === 'reset';
     var chart = me.chart;
@@ -7459,22 +7482,22 @@ var controller_doughnut = core_datasetController.extend({
     var animationOpts = opts.animation;
     var centerX = (chartArea.left + chartArea.right) / 2;
     var centerY = (chartArea.top + chartArea.bottom) / 2;
-    var meta = me.getMeta();
     var innerRadius = reset && animationOpts.animateScale ? 0 : me.innerRadius;
     var outerRadius = reset && animationOpts.animateScale ? 0 : me.outerRadius;
     var startAngle = opts.rotation;
     var i;
 
-    for (i = 0; i < start + count; ++i) {
+    for (i = 0; i < start; ++i) {
+      startAngle += me._circumference(i, reset);
+    }
+
+    for (i = 0; i < arcs.length; ++i) {
+      var index = start + i;
+
+      var circumference = me._circumference(index, reset);
+
       var arc = arcs[i];
-      var circumference = reset && animationOpts.animateRotate ? 0 : arc.hidden ? 0 : me.calculateCircumference(meta._parsed[i] * opts.circumference / DOUBLE_PI$1);
       var options = arc._options || {};
-
-      if (i < start) {
-        startAngle += circumference;
-        continue;
-      }
-
       var properties = {
         x: centerX + chart.offsetX,
         y: centerY + chart.offsetY,
@@ -7487,7 +7510,7 @@ var controller_doughnut = core_datasetController.extend({
       };
       startAngle += circumference;
 
-      me._updateElement(arc, i, properties, mode);
+      me._updateElement(arc, index, properties, mode);
     }
   },
   calculateTotal: function calculateTotal() {
@@ -7710,10 +7733,10 @@ var controller_line = core_datasetController.extend({
 
 
     if (meta.visible) {
-      me.updateElements(points, 0, points.length, mode);
+      me.updateElements(points, 0, mode);
     }
   },
-  updateElements: function updateElements(points, start, count, mode) {
+  updateElements: function updateElements(points, start, mode) {
     var me = this;
     var reset = mode === 'reset';
     var _me$_cachedMeta = me._cachedMeta,
@@ -7729,10 +7752,11 @@ var controller_line = core_datasetController.extend({
 
     var i;
 
-    for (i = start; i < start + count; ++i) {
+    for (i = 0; i < points.length; ++i) {
+      var index = start + i;
       var point = points[i];
 
-      var parsed = me._getParsed(i);
+      var parsed = me._getParsed(index);
 
       var x = xScale.getPixelForValue(parsed[xScale.id]);
       var y = reset ? yScale.getBasePixel() : yScale.getPixelForValue(_stacked ? me._applyStack(yScale, parsed) : parsed[yScale.id]);
@@ -7743,10 +7767,10 @@ var controller_line = core_datasetController.extend({
       };
 
       if (includeOptions) {
-        properties.options = i === start ? firstOpts : me._resolveDataElementOptions(i, mode);
+        properties.options = i === 0 ? firstOpts : me._resolveDataElementOptions(index, mode);
       }
 
-      me._updateElement(point, i, properties, mode);
+      me._updateElement(point, index, properties, mode);
     }
 
     me._updateSharedOptions(sharedOptions, mode);
@@ -7937,7 +7961,7 @@ var controller_polarArea = core_datasetController.extend({
 
     me._updateRadius();
 
-    me.updateElements(arcs, 0, arcs.length, mode);
+    me.updateElements(arcs, 0, mode);
   },
 
   /**
@@ -7955,7 +7979,7 @@ var controller_polarArea = core_datasetController.extend({
     me.outerRadius = chart.outerRadius - chart.radiusLength * me.index;
     me.innerRadius = me.outerRadius - chart.radiusLength;
   },
-  updateElements: function updateElements(arcs, start, count, mode) {
+  updateElements: function updateElements(arcs, start, mode) {
     var me = this;
     var reset = mode === 'reset';
     var chart = me.chart;
@@ -7974,13 +7998,14 @@ var controller_polarArea = core_datasetController.extend({
       angle += me._computeAngle(i);
     }
 
-    for (; i < start + count; i++) {
+    for (i = 0; i < arcs.length; i++) {
       var arc = arcs[i];
+      var index = start + i;
       var startAngle = angle;
 
-      var endAngle = angle + me._computeAngle(i);
+      var endAngle = angle + me._computeAngle(index);
 
-      var outerRadius = arc.hidden ? 0 : scale.getDistanceFromCenterForValue(dataset.data[i]);
+      var outerRadius = arc.hidden ? 0 : scale.getDistanceFromCenterForValue(dataset.data[index]);
       angle = endAngle;
 
       if (reset) {
@@ -8001,10 +8026,10 @@ var controller_polarArea = core_datasetController.extend({
         outerRadius: outerRadius,
         startAngle: startAngle,
         endAngle: endAngle,
-        options: me._resolveDataElementOptions(i)
+        options: me._resolveDataElementOptions(index)
       };
 
-      me._updateElement(arc, i, properties, mode);
+      me._updateElement(arc, index, properties, mode);
     }
   },
   countVisibleElements: function countVisibleElements() {
@@ -8137,22 +8162,23 @@ var controller_radar = core_datasetController.extend({
     me._updateElement(line, undefined, properties, mode); // Update Points
 
 
-    me.updateElements(points, 0, points.length, mode);
+    me.updateElements(points, 0, mode);
     line.updateControlPoints(me.chart.chartArea);
   },
-  updateElements: function updateElements(points, start, count, mode) {
+  updateElements: function updateElements(points, start, mode) {
     var me = this;
     var dataset = me.getDataset();
     var scale = me.chart.scales.r;
     var reset = mode === 'reset';
     var i;
 
-    for (i = start; i < start + count; i++) {
+    for (i = 0; i < points.length; i++) {
       var point = points[i];
+      var index = start + i;
 
-      var options = me._resolveDataElementOptions(i);
+      var options = me._resolveDataElementOptions(index);
 
-      var pointPosition = scale.getPointPositionForValue(i, dataset.data[i]);
+      var pointPosition = scale.getPointPositionForValue(index, dataset.data[index]);
       var x = reset ? scale.xCenter : pointPosition.x;
       var y = reset ? scale.yCenter : pointPosition.y;
       var properties = {
@@ -8162,7 +8188,7 @@ var controller_radar = core_datasetController.extend({
         options: options
       };
 
-      me._updateElement(point, i, properties, mode);
+      me._updateElement(point, index, properties, mode);
     }
   },
 
@@ -10812,7 +10838,8 @@ function mergeScaleConfig(config, options) {
     });
   }); // apply scale defaults, if not overridden by dataset defaults
 
-  Object.values(scales).forEach(function (scale) {
+  Object.keys(scales).forEach(function (key) {
+    var scale = scales[key];
     require$$0.mergeIf(scale, core_scaleService.getScaleDefaults(scale.type));
   });
   return scales;
@@ -10868,10 +10895,10 @@ function updateConfig(chart) {
   chart.tooltip.initialize();
 }
 
-var KNOWN_POSITIONS = ['top', 'bottom', 'left', 'right', 'chartArea'];
+var KNOWN_POSITIONS = new Set(['top', 'bottom', 'left', 'right', 'chartArea']);
 
 function positionIsHorizontal(position, axis) {
-  return position === 'top' || position === 'bottom' || !KNOWN_POSITIONS.includes(position) && axis === 'x';
+  return position === 'top' || position === 'bottom' || !KNOWN_POSITIONS.has(position) && axis === 'x';
 }
 
 function compare2Level(l1, l2) {
