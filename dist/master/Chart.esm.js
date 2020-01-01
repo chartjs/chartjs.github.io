@@ -1,7 +1,7 @@
 /*!
  * Chart.js v2.9.1
  * https://www.chartjs.org
- * (c) 2019 Chart.js Contributors
+ * (c) 2020 Chart.js Contributors
  * Released under the MIT License
  */
 import moment from 'moment';
