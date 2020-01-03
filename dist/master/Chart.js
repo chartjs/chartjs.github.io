@@ -5213,11 +5213,18 @@ require$$0.extend(DatasetController.prototype, {
     var iScale = meta.iScale,
         vScale = meta.vScale,
         _stacked = meta._stacked;
-    var offset = 0;
-    var i, parsed;
+    var iScaleId = iScale.id;
+    var sorted = true;
+    var i, parsed, cur, prev;
+
+    if (start > 0) {
+      sorted = meta._sorted;
+      prev = meta._parsed[start - 1];
+    }
 
     if (me._parsing === false) {
       meta._parsed = data;
+      meta._sorted = true;
     } else {
       if (require$$0.isArray(data[start])) {
         parsed = me._parseArrayData(meta, data, start, count);
@@ -5228,8 +5235,18 @@ require$$0.extend(DatasetController.prototype, {
       }
 
       for (i = 0; i < count; ++i) {
-        meta._parsed[i + start] = parsed[i + offset];
+        meta._parsed[i + start] = cur = parsed[i];
+
+        if (sorted) {
+          if (prev && cur[iScaleId] < prev[iScaleId]) {
+            sorted = false;
+          }
+
+          prev = cur;
+        }
       }
+
+      meta._sorted = sorted;
     }
 
     if (_stacked) {
@@ -5238,9 +5255,7 @@ require$$0.extend(DatasetController.prototype, {
 
     iScale._invalidateCaches();
 
-    if (vScale !== iScale) {
-      vScale._invalidateCaches();
-    }
+    vScale._invalidateCaches();
   },
 
   /**
@@ -5367,39 +5382,30 @@ require$$0.extend(DatasetController.prototype, {
    * @private
    */
   _getMinMax: function _getMinMax(scale, canStack) {
-    var chart = this.chart;
     var meta = this._cachedMeta;
-    var metaData = meta.data;
-    var ilen = meta._parsed.length;
-    var stacked = canStack && meta._stacked;
-    var indices = getSortedDatasetIndices(chart, true);
+    var data = meta.data,
+        _parsed = meta._parsed;
+    var sorted = meta._sorted && scale === meta.iScale;
+    var ilen = _parsed.length;
 
     var otherScale = this._getOtherScale(scale);
 
+    var stack = canStack && meta._stacked && {
+      keys: getSortedDatasetIndices(this.chart, true),
+      values: null
+    };
     var max = Number.NEGATIVE_INFINITY;
 
     var _getUserBounds = getUserBounds(otherScale),
         otherMin = _getUserBounds.min,
         otherMax = _getUserBounds.max;
 
-    var i, item, value, parsed, stack, min, minPositive, otherValue;
+    var i, item, value, parsed, min, minPositive, otherValue;
     min = minPositive = Number.POSITIVE_INFINITY;
 
-    for (i = 0; i < ilen; ++i) {
-      item = metaData[i];
-      parsed = meta._parsed[i];
-      value = parsed[scale.id];
-      otherValue = parsed[otherScale.id];
-
-      if (item && item.hidden || isNaN(value) || otherMin > otherValue || otherMax < otherValue) {
-        continue;
-      }
-
-      if (stacked) {
-        stack = {
-          keys: indices,
-          values: parsed._stacks[scale.id]
-        }; // Need to consider individual stack values for data range,
+    function _compute() {
+      if (stack) {
+        stack.values = parsed._stacks[scale.id]; // Need to consider individual stack values for data range,
         // in addition to the stacked value
 
         min = Math.min(min, value);
@@ -5412,6 +5418,38 @@ require$$0.extend(DatasetController.prototype, {
 
       if (value > 0) {
         minPositive = Math.min(minPositive, value);
+      }
+    }
+
+    function _skip() {
+      item = data[i];
+      parsed = _parsed[i];
+      value = parsed[scale.id];
+      otherValue = parsed[otherScale.id];
+      return item && item.hidden || isNaN(value) || otherMin > otherValue || otherMax < otherValue;
+    }
+
+    for (i = 0; i < ilen; ++i) {
+      if (_skip()) {
+        continue;
+      }
+
+      _compute();
+
+      if (sorted) {
+        break;
+      }
+    }
+
+    if (sorted) {
+      for (i = ilen - 1; i >= 0; --i) {
+        if (_skip()) {
+          continue;
+        }
+
+        _compute();
+
+        break;
       }
     }
 
@@ -12176,7 +12214,8 @@ function () {
           order: dataset.order || 0,
           index: datasetIndex,
           _dataset: dataset,
-          _parsed: []
+          _parsed: [],
+          _sorted: false
         };
       }
 
