@@ -14620,17 +14620,16 @@ function (_LinearScaleBase) {
     key: "determineDataLimits",
     value: function determineDataLimits() {
       var me = this;
-      var DEFAULT_MIN = 0;
-      var DEFAULT_MAX = 1;
+      var options = me.options;
 
       var minmax = me._getMinMax(true);
 
       var min = minmax.min;
       var max = minmax.max;
-      me.min = helpers$1.isFinite(min) && !isNaN(min) ? min : DEFAULT_MIN;
-      me.max = helpers$1.isFinite(max) && !isNaN(max) ? max : DEFAULT_MAX; // Backward compatible inconsistent min for stacked
+      me.min = isNumberFinite(min) ? min : valueOrDefault(options.suggestedMin, 0);
+      me.max = isNumberFinite(max) ? max : valueOrDefault(options.suggestedMax, 1); // Backward compatible inconsistent min for stacked
 
-      if (me.options.stacked && min > 0) {
+      if (options.stacked && min > 0) {
         me.min = 0;
       } // Common base implementation to handle min, max, beginAtZero
 
@@ -14648,7 +14647,7 @@ function (_LinearScaleBase) {
         return Math.ceil(me.width / 40);
       }
 
-      tickFont = helpers$1.options._parseFont(me.options.ticks);
+      tickFont = _parseFont(me.options.ticks);
       return Math.ceil(me.height / tickFont.lineHeight);
     }
     /**
