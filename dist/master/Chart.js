@@ -5930,7 +5930,10 @@ function () {
   function Element(configuration) {
     _classCallCheck(this, Element);
 
-    extend(this, configuration); // this.hidden = false; we assume Element has an attribute called hidden, but do not initialize to save memory
+    if (configuration) {
+      extend(this, configuration);
+    } // this.hidden = false; we assume Element has an attribute called hidden, but do not initialize to save memory
+
   }
 
   _createClass(Element, [{
@@ -15590,7 +15593,7 @@ function lookup(table, key, value) {
 
   while (lo >= 0 && lo <= hi) {
     mid = lo + hi >> 1;
-    i0 = table[mid - 1] || null;
+    i0 = mid > 0 && table[mid - 1] || null;
     i1 = table[mid];
 
     if (!i0) {
