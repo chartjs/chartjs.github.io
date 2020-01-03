@@ -7877,28 +7877,6 @@ core_defaults._set('doughnut', {
     // Boolean - Whether we animate scaling the Doughnut from the centre
     animateScale: false
   },
-  legendCallback: function legendCallback(chart) {
-    var list = document.createElement('ul');
-    var data = chart.data;
-    var datasets = data.datasets;
-    var labels = data.labels;
-    var i, ilen, listItem, listItemSpan;
-    list.setAttribute('class', chart.id + '-legend');
-
-    if (datasets.length) {
-      for (i = 0, ilen = datasets[0].data.length; i < ilen; ++i) {
-        listItem = list.appendChild(document.createElement('li'));
-        listItemSpan = listItem.appendChild(document.createElement('span'));
-        listItemSpan.style.backgroundColor = datasets[0].backgroundColor[i];
-
-        if (labels[i]) {
-          listItem.appendChild(document.createTextNode(labels[i]));
-        }
-      }
-    }
-
-    return list.outerHTML;
-  },
   legend: {
     labels: {
       generateLabels: function generateLabels(chart) {
@@ -8459,28 +8437,6 @@ core_defaults._set('polarArea', {
     }
   },
   startAngle: -0.5 * Math.PI,
-  legendCallback: function legendCallback(chart) {
-    var list = document.createElement('ul');
-    var data = chart.data;
-    var datasets = data.datasets;
-    var labels = data.labels;
-    var i, ilen, listItem, listItemSpan;
-    list.setAttribute('class', chart.id + '-legend');
-
-    if (datasets.length) {
-      for (i = 0, ilen = datasets[0].data.length; i < ilen; ++i) {
-        listItem = list.appendChild(document.createElement('li'));
-        listItemSpan = listItem.appendChild(document.createElement('span'));
-        listItemSpan.style.backgroundColor = datasets[0].backgroundColor[i];
-
-        if (labels[i]) {
-          listItem.appendChild(document.createTextNode(labels[i]));
-        }
-      }
-    }
-
-    return list.outerHTML;
-  },
   legend: {
     labels: {
       generateLabels: function generateLabels(chart) {
@@ -12239,11 +12195,6 @@ function () {
 
       return typeof meta.hidden === 'boolean' ? !meta.hidden : !this.data.datasets[datasetIndex].hidden;
     }
-  }, {
-    key: "generateLegend",
-    value: function generateLegend() {
-      return this.options.legendCallback(this);
-    }
     /**
      * @private
      */
@@ -13713,7 +13664,7 @@ function (_Element) {
         scale: me,
         tick: ticks[0]
       };
-      var axisWidth = gridLines.drawBorder ? resolve$5([gridLines.lineWidth, 0], context, 0) : 0;
+      var axisWidth = gridLines.drawBorder ? resolve$5([gridLines.borderWidth, gridLines.lineWidth, 0], context, 0) : 0;
       var axisHalfWidth = axisWidth / 2;
 
       var alignBorderValue = function alignBorderValue(pixel) {
@@ -13924,7 +13875,7 @@ function (_Element) {
         scale: me,
         tick: me.ticks[0]
       };
-      var axisWidth = gridLines.drawBorder ? resolve$5([gridLines.lineWidth, 0], context, 0) : 0;
+      var axisWidth = gridLines.drawBorder ? resolve$5([gridLines.borderWidth, gridLines.lineWidth, 0], context, 0) : 0;
 
       var items = me._gridLineItems || (me._gridLineItems = me._computeGridLineItems(chartArea));
 
@@ -13984,7 +13935,7 @@ function (_Element) {
         }
 
         ctx.lineWidth = axisWidth;
-        ctx.strokeStyle = resolve$5([gridLines.color], context, 0);
+        ctx.strokeStyle = resolve$5([gridLines.borderColor, gridLines.color], context, 0);
         ctx.beginPath();
         ctx.moveTo(x1, y1);
         ctx.lineTo(x2, y2);
@@ -17030,24 +16981,6 @@ core_defaults._set('global', {
         }, this);
       }
     }
-  },
-  legendCallback: function legendCallback(chart) {
-    var list = document.createElement('ul');
-    var datasets = chart.data.datasets;
-    var i, ilen, listItem, listItemSpan;
-    list.setAttribute('class', chart.id + '-legend');
-
-    for (i = 0, ilen = datasets.length; i < ilen; i++) {
-      listItem = list.appendChild(document.createElement('li'));
-      listItemSpan = listItem.appendChild(document.createElement('span'));
-      listItemSpan.style.backgroundColor = datasets[i].backgroundColor;
-
-      if (datasets[i].label) {
-        listItem.appendChild(document.createTextNode(datasets[i].label));
-      }
-    }
-
-    return list.outerHTML;
   }
 });
 /**
