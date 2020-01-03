@@ -959,12 +959,12 @@
                                 <h1 id="elements">Elements</h1>
 <p>While chart types provide settings to configure the styling of each dataset, you sometimes want to style <strong>all datasets the same way</strong>. A common example would be to stroke all of the bars in a bar chart with the same colour but change the fill per dataset. Options can be configured for four different types of elements: <strong><a href="#arc-configuration">arc</a></strong>, <strong><a href="#line-configuration">lines</a></strong>, <strong><a href="#point-configuration">points</a></strong>, and <strong><a href="#rectangle-configuration">rectangles</a></strong>. When set, these options apply to all objects of that type unless specifically overridden by the configuration attached to a dataset.</p>
 <h2 id="global-configuration">Global Configuration</h2>
-<p>The element options can be specified per chart or globally. The global options for elements are defined in <code>Chart.defaults.global.elements</code>. For example, to set the border width of all bar charts globally you would do:</p>
-<pre><code class="lang-javascript">Chart.defaults.global.elements.rectangle.borderWidth = <span class="hljs-number">2</span>;
+<p>The element options can be specified per chart or globally. The global options for elements are defined in <code>Chart.defaults.elements</code>. For example, to set the border width of all bar charts globally you would do:</p>
+<pre><code class="lang-javascript">Chart.defaults.elements.rectangle.borderWidth = <span class="hljs-number">2</span>;
 </code></pre>
 <h2 id="point-configuration">Point Configuration</h2>
 <p>Point elements are used to represent the points in a line, radar or bubble chart.</p>
-<p>Global point options: <code>Chart.defaults.global.elements.point</code>.</p>
+<p>Global point options: <code>Chart.defaults.elements.point</code>.</p>
 <table>
 <thead>
 <tr>
@@ -1048,7 +1048,7 @@
 <p>If the value is an image, that image is drawn on the canvas using <a href="https://developer.mozilla.org/en/docs/Web/API/CanvasRenderingContext2D/drawImage" target="_blank">drawImage</a>.</p>
 <h2 id="line-configuration">Line Configuration</h2>
 <p>Line elements are used to represent the line in a line chart.</p>
-<p>Global line options: <code>Chart.defaults.global.elements.line</code>.</p>
+<p>Global line options: <code>Chart.defaults.elements.line</code>.</p>
 <table>
 <thead>
 <tr>
@@ -1117,7 +1117,7 @@
 <td><code>cubicInterpolationMode</code></td>
 <td><code>string</code></td>
 <td><code>&apos;default&apos;</code></td>
-<td>Interpolation mode to apply. <a href="../charts/line.html#cubicinterpolationmode">See more...</a> </td>
+<td>Interpolation mode to apply. <a href="../charts/line.html#cubicinterpolationmode">See more...</a></td>
 </tr>
 <tr>
 <td><code>fill</code></td>
@@ -1135,7 +1135,7 @@
 </table>
 <h2 id="rectangle-configuration">Rectangle Configuration</h2>
 <p>Rectangle elements are used to represent the bars in a bar chart.</p>
-<p>Global rectangle options: <code>Chart.defaults.global.elements.rectangle</code>.</p>
+<p>Global rectangle options: <code>Chart.defaults.elements.rectangle</code>.</p>
 <table>
 <thead>
 <tr>
@@ -1174,7 +1174,7 @@
 </table>
 <h2 id="arc-configuration">Arc Configuration</h2>
 <p>Arcs are used in the polar area, doughnut and pie charts.</p>
-<p>Global arc options: <code>Chart.defaults.global.elements.arc</code>.</p>
+<p>Global arc options: <code>Chart.defaults.elements.arc</code>.</p>
 <table>
 <thead>
 <tr>
@@ -1260,7 +1260,7 @@
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Elements","level":"1.5.6","depth":2,"next":{"title":"Charts","level":"1.6","depth":1,"path":"charts/README.md","ref":"charts/README.md","articles":[{"title":"Line","level":"1.6.1","depth":2,"path":"charts/line.md","ref":"charts/line.md","articles":[]},{"title":"Bar","level":"1.6.2","depth":2,"path":"charts/bar.md","ref":"charts/bar.md","articles":[]},{"title":"Radar","level":"1.6.3","depth":2,"path":"charts/radar.md","ref":"charts/radar.md","articles":[]},{"title":"Doughnut & Pie","level":"1.6.4","depth":2,"path":"charts/doughnut.md","ref":"charts/doughnut.md","articles":[]},{"title":"Polar Area","level":"1.6.5","depth":2,"path":"charts/polar.md","ref":"charts/polar.md","articles":[]},{"title":"Bubble","level":"1.6.6","depth":2,"path":"charts/bubble.md","ref":"charts/bubble.md","articles":[]},{"title":"Scatter","level":"1.6.7","depth":2,"path":"charts/scatter.md","ref":"charts/scatter.md","articles":[]},{"title":"Area","level":"1.6.8","depth":2,"path":"charts/area.md","ref":"charts/area.md","articles":[]},{"title":"Mixed","level":"1.6.9","depth":2,"path":"charts/mixed.md","ref":"charts/mixed.md","articles":[]}]},"previous":{"title":"Tooltip","level":"1.5.5","depth":2,"path":"configuration/tooltip.md","ref":"configuration/tooltip.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga","redirect"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"chartjs":{"defaults":null},"fontsettings":{"theme":"white","family":"sans","size":2},"highlight":{},"ga":{"configuration":"auto","token":"UA-28909194-3"},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"redirect":{},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"anchorjs":{"icon":"#","placement":"left","visible":"always"},"search-plus":{}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"configuration/elements.md","mtime":"2020-01-03T18:58:33.754Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2020-01-03T19:01:49.281Z"},"basePath":"..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Elements","level":"1.5.6","depth":2,"next":{"title":"Charts","level":"1.6","depth":1,"path":"charts/README.md","ref":"charts/README.md","articles":[{"title":"Line","level":"1.6.1","depth":2,"path":"charts/line.md","ref":"charts/line.md","articles":[]},{"title":"Bar","level":"1.6.2","depth":2,"path":"charts/bar.md","ref":"charts/bar.md","articles":[]},{"title":"Radar","level":"1.6.3","depth":2,"path":"charts/radar.md","ref":"charts/radar.md","articles":[]},{"title":"Doughnut & Pie","level":"1.6.4","depth":2,"path":"charts/doughnut.md","ref":"charts/doughnut.md","articles":[]},{"title":"Polar Area","level":"1.6.5","depth":2,"path":"charts/polar.md","ref":"charts/polar.md","articles":[]},{"title":"Bubble","level":"1.6.6","depth":2,"path":"charts/bubble.md","ref":"charts/bubble.md","articles":[]},{"title":"Scatter","level":"1.6.7","depth":2,"path":"charts/scatter.md","ref":"charts/scatter.md","articles":[]},{"title":"Area","level":"1.6.8","depth":2,"path":"charts/area.md","ref":"charts/area.md","articles":[]},{"title":"Mixed","level":"1.6.9","depth":2,"path":"charts/mixed.md","ref":"charts/mixed.md","articles":[]}]},"previous":{"title":"Tooltip","level":"1.5.5","depth":2,"path":"configuration/tooltip.md","ref":"configuration/tooltip.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga","redirect"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"chartjs":{"defaults":null},"fontsettings":{"theme":"white","family":"sans","size":2},"highlight":{},"ga":{"configuration":"auto","token":"UA-28909194-3"},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"redirect":{},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"anchorjs":{"icon":"#","placement":"left","visible":"always"},"search-plus":{}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"configuration/elements.md","mtime":"2020-01-03T19:10:59.190Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2020-01-03T19:14:15.189Z"},"basePath":"..","book":{"language":""}});
         });
     </script>
 </div>

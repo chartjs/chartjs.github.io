@@ -957,9 +957,9 @@
                                 <section class="normal markdown-section">
                                 
                                 <h1 id="fonts">Fonts</h1>
-<p>There are 4 special global settings that can change all of the fonts on the chart. These options are in <code>Chart.defaults.global</code>. The global font settings only apply when more specific options are not included in the config.</p>
+<p>There are 4 special global settings that can change all of the fonts on the chart. These options are in <code>Chart.defaults</code>. The global font settings only apply when more specific options are not included in the config.</p>
 <p>For example, in this chart the text will all be red except for the labels in the legend.</p>
-<pre><code class="lang-javascript">Chart.defaults.global.defaultFontColor = <span class="hljs-string">&apos;red&apos;</span>;
+<pre><code class="lang-javascript">Chart.defaults.fontColor = <span class="hljs-string">&apos;red&apos;</span>;
 <span class="hljs-keyword">let</span> chart = <span class="hljs-keyword">new</span> Chart(ctx, {
     type: <span class="hljs-string">&apos;line&apos;</span>,
     data: data,
@@ -984,25 +984,25 @@
 </thead>
 <tbody>
 <tr>
-<td><code>defaultFontColor</code></td>
+<td><code>fontColor</code></td>
 <td><code>Color</code></td>
 <td><code>&apos;#666&apos;</code></td>
 <td>Default font color for all text.</td>
 </tr>
 <tr>
-<td><code>defaultFontFamily</code></td>
+<td><code>fontFamily</code></td>
 <td><code>string</code></td>
 <td><code>&quot;&apos;Helvetica Neue&apos;, &apos;Helvetica&apos;, &apos;Arial&apos;, sans-serif&quot;</code></td>
 <td>Default font family for all text.</td>
 </tr>
 <tr>
-<td><code>defaultFontSize</code></td>
+<td><code>fontSize</code></td>
 <td><code>number</code></td>
 <td><code>12</code></td>
 <td>Default font size (in px) for text. Does not apply to radialLinear scale point labels.</td>
 </tr>
 <tr>
-<td><code>defaultFontStyle</code></td>
+<td><code>fontStyle</code></td>
 <td><code>string</code></td>
 <td><code>&apos;normal&apos;</code></td>
 <td>Default font style. Does not apply to tooltip title or footer. Does not apply to chart title.</td>
@@ -1054,7 +1054,7 @@
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Fonts","level":"1.4.8","depth":2,"next":{"title":"Performance","level":"1.4.9","depth":2,"path":"general/performance.md","ref":"general/performance.md","articles":[]},"previous":{"title":"Colors","level":"1.4.7","depth":2,"path":"general/colors.md","ref":"general/colors.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga","redirect"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"chartjs":{"defaults":null},"fontsettings":{"theme":"white","family":"sans","size":2},"highlight":{},"ga":{"configuration":"auto","token":"UA-28909194-3"},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"redirect":{},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"anchorjs":{"icon":"#","placement":"left","visible":"always"},"search-plus":{}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"general/fonts.md","mtime":"2020-01-03T18:58:33.754Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2020-01-03T19:01:49.281Z"},"basePath":"..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Fonts","level":"1.4.8","depth":2,"next":{"title":"Performance","level":"1.4.9","depth":2,"path":"general/performance.md","ref":"general/performance.md","articles":[]},"previous":{"title":"Colors","level":"1.4.7","depth":2,"path":"general/colors.md","ref":"general/colors.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga","redirect"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"chartjs":{"defaults":null},"fontsettings":{"theme":"white","family":"sans","size":2},"highlight":{},"ga":{"configuration":"auto","token":"UA-28909194-3"},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"redirect":{},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"anchorjs":{"icon":"#","placement":"left","visible":"always"},"search-plus":{}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"general/fonts.md","mtime":"2020-01-03T19:10:59.190Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2020-01-03T19:14:15.189Z"},"basePath":"..","book":{"language":""}});
         });
     </script>
 </div>

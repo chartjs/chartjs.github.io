@@ -960,9 +960,9 @@
 <p>The configuration is used to change how the chart behaves. There are properties to control styling, fonts, the legend, etc.</p>
 <h2 id="global-configuration">Global Configuration</h2>
 <p>This concept was introduced in Chart.js 1.0 to keep configuration <a href="https://en.wikipedia.org/wiki/Don%27t_repeat_yourself" target="_blank">DRY</a>, and allow for changing options globally across chart types, avoiding the need to specify options for each instance, or the default for a particular chart type.</p>
-<p>Chart.js merges the options object passed to the chart with the global configuration using chart type defaults and scales defaults appropriately. This way you can be as specific as you would like in your individual chart configuration, while still changing the defaults for all chart types where applicable. The global general options are defined in <code>Chart.defaults.global</code>. The defaults for each chart type are discussed in the documentation for that chart type.</p>
+<p>Chart.js merges the options object passed to the chart with the global configuration using chart type defaults and scales defaults appropriately. This way you can be as specific as you would like in your individual chart configuration, while still changing the defaults for all chart types where applicable. The global general options are defined in <code>Chart.defaults</code>. The defaults for each chart type are discussed in the documentation for that chart type.</p>
 <p>The following example would set the hover mode to &apos;nearest&apos; for all charts where this was not overridden by the chart type defaults or the options passed to the constructor on creation.</p>
-<pre><code class="lang-javascript">Chart.defaults.global.hover.mode = <span class="hljs-string">&apos;nearest&apos;</span>;
+<pre><code class="lang-javascript">Chart.defaults.hover.mode = <span class="hljs-string">&apos;nearest&apos;</span>;
 
 <span class="hljs-comment">// Hover mode is set to nearest because it was not overridden here</span>
 <span class="hljs-keyword">var</span> chartHoverModeNearest = <span class="hljs-keyword">new</span> Chart(ctx, {
@@ -987,13 +987,13 @@
 <ul>
 <li>per dataset: dataset.*</li>
 <li>per chart: options.datasets[type].*</li>
-<li>or globally: Chart.defaults.global.datasets[type].*</li>
+<li>or globally: Chart.defaults.datasets[type].*</li>
 </ul>
 <p>where type corresponds to the dataset type.</p>
 <p><em>Note:</em> dataset options take precedence over element options.</p>
 <p>The following example would set the <code>showLine</code> option to &apos;false&apos; for all line datasets except for those overridden by options passed to the dataset on creation.</p>
 <pre><code class="lang-javascript"><span class="hljs-comment">// Do not show lines for all datasets by default</span>
-Chart.defaults.global.datasets.line.showLine = <span class="hljs-literal">false</span>;
+Chart.defaults.datasets.line.showLine = <span class="hljs-literal">false</span>;
 
 <span class="hljs-comment">// This chart would show a line only for the third dataset</span>
 <span class="hljs-keyword">var</span> chart = <span class="hljs-keyword">new</span> Chart(ctx, {
@@ -1056,7 +1056,7 @@ Chart.defaults.global.datasets.line.showLine = <span class="hljs-literal">false<
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Configuration","level":"1.5","depth":1,"next":{"title":"Animations","level":"1.5.1","depth":2,"path":"configuration/animations.md","ref":"configuration/animations.md","articles":[]},"previous":{"title":"Performance","level":"1.4.9","depth":2,"path":"general/performance.md","ref":"general/performance.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga","redirect"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"chartjs":{"defaults":null},"fontsettings":{"theme":"white","family":"sans","size":2},"highlight":{},"ga":{"configuration":"auto","token":"UA-28909194-3"},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"redirect":{},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"anchorjs":{"icon":"#","placement":"left","visible":"always"},"search-plus":{}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"configuration/README.md","mtime":"2020-01-03T18:58:33.754Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2020-01-03T19:01:49.281Z"},"basePath":"..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Configuration","level":"1.5","depth":1,"next":{"title":"Animations","level":"1.5.1","depth":2,"path":"configuration/animations.md","ref":"configuration/animations.md","articles":[]},"previous":{"title":"Performance","level":"1.4.9","depth":2,"path":"general/performance.md","ref":"general/performance.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga","redirect"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"chartjs":{"defaults":null},"fontsettings":{"theme":"white","family":"sans","size":2},"highlight":{},"ga":{"configuration":"auto","token":"UA-28909194-3"},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"redirect":{},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"anchorjs":{"icon":"#","placement":"left","visible":"always"},"search-plus":{}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"configuration/README.md","mtime":"2020-01-03T19:10:59.190Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2020-01-03T19:14:15.189Z"},"basePath":"..","book":{"language":""}});
         });
     </script>
 </div>

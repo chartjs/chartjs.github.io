@@ -3689,27 +3689,32 @@ __proto__: null,
 effects: effects
 });
 
-var defaults = {
+var require$$7 = {
+  color: 'rgba(0,0,0,0.1)',
+  elements: {},
+  events: ['mousemove', 'mouseout', 'click', 'touchstart', 'touchmove'],
+  fontColor: '#666',
+  fontFamily: "'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
+  fontSize: 12,
+  fontStyle: 'normal',
+  lineHeight: 1.2,
+  hover: {
+    onHover: null,
+    mode: 'nearest',
+    intersect: true
+  },
+  maintainAspectRatio: true,
+  onClick: null,
+  responsive: true,
+  showLines: true,
+
   /**
    * @private
    */
   _set: function _set(scope, values) {
-    return coreHelpers.merge(this[scope] || (this[scope] = {}), values);
+    return merge(this[scope] || (this[scope] = {}), values);
   }
-}; // TODO(v3): remove 'global' from namespace.  all default are global and
-// there's inconsistency around which options are under 'global'
-
-defaults._set('global', {
-  defaultColor: 'rgba(0,0,0,0.1)',
-  defaultFontColor: '#666',
-  defaultFontFamily: "'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
-  defaultFontSize: 12,
-  defaultFontStyle: 'normal',
-  defaultLineHeight: 1.2,
-  showLines: true
-});
-
-var core_defaults = defaults;
+};
 
 /**
  * Converts the given font object into a CSS font string.
@@ -3798,13 +3803,12 @@ function toPadding(value) {
  */
 
 function _parseFont(options) {
-  var globalDefaults = core_defaults.global;
-  var size = valueOrDefault(options.fontSize, globalDefaults.defaultFontSize);
+  var size = valueOrDefault(options.fontSize, require$$7.fontSize);
   var font = {
-    family: valueOrDefault(options.fontFamily, globalDefaults.defaultFontFamily),
-    lineHeight: toLineHeight(valueOrDefault(options.lineHeight, globalDefaults.defaultLineHeight), size),
+    family: valueOrDefault(options.fontFamily, require$$7.fontFamily),
+    lineHeight: toLineHeight(valueOrDefault(options.lineHeight, require$$7.lineHeight), size),
     size: size,
-    style: valueOrDefault(options.fontStyle, globalDefaults.defaultFontStyle),
+    style: valueOrDefault(options.fontStyle, require$$7.fontStyle),
     weight: null,
     string: ''
   };
@@ -4488,27 +4492,25 @@ function () {
 
 var core_animation = Animation;
 
-core_defaults._set('global', {
-  animation: {
-    duration: 1000,
-    easing: 'easeOutQuart',
-    active: {
-      duration: 400
-    },
-    resize: {
-      duration: 0
-    },
-    numbers: {
-      type: 'number',
-      properties: ['x', 'y', 'borderWidth', 'radius', 'tension']
-    },
-    colors: {
-      type: 'color',
-      properties: ['borderColor', 'backgroundColor']
-    },
-    onProgress: noop,
-    onComplete: noop
-  }
+require$$7._set('animation', {
+  duration: 1000,
+  easing: 'easeOutQuart',
+  active: {
+    duration: 400
+  },
+  resize: {
+    duration: 0
+  },
+  numbers: {
+    type: 'number',
+    properties: ['x', 'y', 'borderWidth', 'radius', 'tension']
+  },
+  colors: {
+    type: 'color',
+    properties: ['borderColor', 'backgroundColor']
+  },
+  onProgress: noop,
+  onComplete: noop
 });
 
 function copyOptions(target, values) {
@@ -5936,14 +5938,12 @@ Element.extend = inherits;
 
 var TAU$1 = Math.PI * 2;
 
-core_defaults._set('global', {
-  elements: {
-    arc: {
-      backgroundColor: core_defaults.global.defaultColor,
-      borderColor: '#fff',
-      borderWidth: 2,
-      borderAlign: 'center'
-    }
+require$$7._set('elements', {
+  arc: {
+    backgroundColor: require$$7.color,
+    borderColor: '#fff',
+    borderWidth: 2,
+    borderAlign: 'center'
   }
 });
 
@@ -6497,22 +6497,20 @@ function _computeSegments(line) {
   return solidSegments(points, start, max, completeLoop);
 }
 
-var defaultColor = core_defaults.global.defaultColor;
+var defaultColor = require$$7.color;
 
-core_defaults._set('global', {
-  elements: {
-    line: {
-      tension: 0.4,
-      backgroundColor: defaultColor,
-      borderWidth: 3,
-      borderColor: defaultColor,
-      borderCapStyle: 'butt',
-      borderDash: [],
-      borderDashOffset: 0.0,
-      borderJoinStyle: 'miter',
-      capBezierPoints: true,
-      fill: true
-    }
+require$$7._set('elements', {
+  line: {
+    tension: 0.4,
+    backgroundColor: defaultColor,
+    borderWidth: 3,
+    borderColor: defaultColor,
+    borderCapStyle: 'butt',
+    borderDash: [],
+    borderDashOffset: 0.0,
+    borderJoinStyle: 'miter',
+    capBezierPoints: true,
+    fill: true
   }
 });
 
@@ -6894,21 +6892,19 @@ function (_Element) {
 
 Line.prototype._type = 'line';
 
-var defaultColor$1 = core_defaults.global.defaultColor;
+var defaultColor$1 = require$$7.color;
 
-core_defaults._set('global', {
-  elements: {
-    point: {
-      radius: 3,
-      pointStyle: 'circle',
-      backgroundColor: defaultColor$1,
-      borderColor: defaultColor$1,
-      borderWidth: 1,
-      // Hover
-      hitRadius: 1,
-      hoverRadius: 4,
-      hoverBorderWidth: 1
-    }
+require$$7._set('elements', {
+  point: {
+    radius: 3,
+    pointStyle: 'circle',
+    backgroundColor: defaultColor$1,
+    borderColor: defaultColor$1,
+    borderWidth: 1,
+    // Hover
+    hitRadius: 1,
+    hoverRadius: 4,
+    hoverBorderWidth: 1
   }
 });
 
@@ -6993,16 +6989,14 @@ function (_Element) {
 
 Point.prototype._type = 'point';
 
-var defaultColor$2 = core_defaults.global.defaultColor;
+var defaultColor$2 = require$$7.color;
 
-core_defaults._set('global', {
-  elements: {
-    rectangle: {
-      backgroundColor: defaultColor$2,
-      borderColor: defaultColor$2,
-      borderSkipped: 'bottom',
-      borderWidth: 0
-    }
+require$$7._set('elements', {
+  rectangle: {
+    backgroundColor: defaultColor$2,
+    borderColor: defaultColor$2,
+    borderSkipped: 'bottom',
+    borderWidth: 0
   }
 });
 /**
@@ -7197,7 +7191,7 @@ var require$$9 = {
 
 var valueOrDefault$1 = require$$0.valueOrDefault;
 
-core_defaults._set('bar', {
+require$$7._set('bar', {
   hover: {
     mode: 'index'
   },
@@ -7215,16 +7209,14 @@ core_defaults._set('bar', {
   }
 });
 
-core_defaults._set('global', {
-  datasets: {
-    bar: {
-      categoryPercentage: 0.8,
-      barPercentage: 0.9,
-      animation: {
-        numbers: {
-          type: 'number',
-          properties: ['x', 'y', 'base', 'width', 'height']
-        }
+require$$7._set('datasets', {
+  bar: {
+    categoryPercentage: 0.8,
+    barPercentage: 0.9,
+    animation: {
+      numbers: {
+        type: 'number',
+        properties: ['x', 'y', 'base', 'width', 'height']
       }
     }
   }
@@ -7681,7 +7673,7 @@ var controller_bar = core_datasetController.extend({
 
 var resolve$2 = require$$0.options.resolve;
 
-core_defaults._set('bubble', {
+require$$7._set('bubble', {
   animation: {
     numbers: {
       properties: ['x', 'y', 'borderWidth', 'radius']
@@ -7873,7 +7865,7 @@ var PI$2 = Math.PI;
 var DOUBLE_PI$1 = PI$2 * 2;
 var HALF_PI$1 = PI$2 / 2;
 
-core_defaults._set('doughnut', {
+require$$7._set('doughnut', {
   animation: {
     numbers: {
       type: 'number',
@@ -8196,7 +8188,7 @@ var controller_doughnut = core_datasetController.extend({
   }
 });
 
-core_defaults._set('horizontalBar', {
+require$$7._set('horizontalBar', {
   hover: {
     mode: 'index',
     axis: 'y'
@@ -8226,12 +8218,10 @@ core_defaults._set('horizontalBar', {
   }
 });
 
-core_defaults._set('global', {
-  datasets: {
-    horizontalBar: {
-      categoryPercentage: 0.8,
-      barPercentage: 0.9
-    }
+require$$7._set('datasets', {
+  horizontalBar: {
+    categoryPercentage: 0.8,
+    barPercentage: 0.9
   }
 });
 
@@ -8254,7 +8244,7 @@ var controller_horizontalBar = controller_bar.extend({
 var valueOrDefault$3 = require$$0.valueOrDefault;
 var resolve$3 = require$$0.options.resolve;
 
-core_defaults._set('line', {
+require$$7._set('line', {
   showLines: true,
   spanGaps: false,
   hover: {
@@ -8419,7 +8409,7 @@ var controller_line = core_datasetController.extend({
 
 var resolve$4 = require$$0.options.resolve;
 
-core_defaults._set('polarArea', {
+require$$7._set('polarArea', {
   animation: {
     numbers: {
       type: 'number',
@@ -8629,9 +8619,9 @@ var controller_polarArea = core_datasetController.extend({
   }
 });
 
-core_defaults._set('pie', require$$0.clone(core_defaults.doughnut));
+require$$7._set('pie', require$$0.clone(require$$7.doughnut));
 
-core_defaults._set('pie', {
+require$$7._set('pie', {
   cutoutPercentage: 0
 }); // Pie charts are Doughnut chart with different defaults
 
@@ -8640,7 +8630,7 @@ var controller_pie = controller_doughnut;
 
 var valueOrDefault$4 = require$$0.valueOrDefault;
 
-core_defaults._set('radar', {
+require$$7._set('radar', {
   spanGaps: false,
   scales: {
     r: {
@@ -8774,7 +8764,7 @@ var controller_radar = core_datasetController.extend({
   }
 });
 
-core_defaults._set('scatter', {
+require$$7._set('scatter', {
   scales: {
     x: {
       type: 'linear',
@@ -8797,11 +8787,9 @@ core_defaults._set('scatter', {
   }
 });
 
-core_defaults._set('global', {
-  datasets: {
-    scatter: {
-      showLine: false
-    }
+require$$7._set('datasets', {
+  scatter: {
+    showLine: false
   }
 }); // Scatter charts use line controllers
 
@@ -9382,14 +9370,12 @@ function placeBoxes(boxes, chartArea, params) {
   chartArea.y = y;
 }
 
-core_defaults._set('global', {
-  layout: {
-    padding: {
-      top: 0,
-      right: 0,
-      bottom: 0,
-      left: 0
-    }
+require$$7._set('layout', {
+  padding: {
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0
   }
 });
 /**
@@ -10083,9 +10069,7 @@ var platform = require$$0.extend({
   removeEventListener: function removeEventListener() {}
 }, implementation);
 
-core_defaults._set('global', {
-  plugins: {}
-});
+require$$7._set('plugins', {});
 /**
  * The plugin service singleton
  * @namespace Chart.plugins
@@ -10229,7 +10213,7 @@ var core_plugins = {
       }
 
       if (opts === true) {
-        opts = require$$0.clone(core_defaults.global.plugins[id]);
+        opts = require$$0.clone(require$$7.plugins[id]);
       }
 
       plugins.push(plugin);
@@ -10272,7 +10256,7 @@ var core_scaleService = {
   },
   getScaleDefaults: function getScaleDefaults(type) {
     // Return the scale defaults merged with the global settings so that we always use the latest ones
-    return Object.prototype.hasOwnProperty.call(this.defaults, type) ? require$$0.merge({}, [core_defaults.scale, this.defaults[type]]) : {};
+    return Object.prototype.hasOwnProperty.call(this.defaults, type) ? require$$0.merge({}, [require$$7.scale, this.defaults[type]]) : {};
   },
   updateScaleDefaults: function updateScaleDefaults(type, additions) {
     var me = this;
@@ -10296,105 +10280,103 @@ var core_scaleService = {
 var valueOrDefault$5 = require$$0.valueOrDefault;
 var getRtlHelper = require$$0.rtl.getRtlAdapter;
 
-core_defaults._set('global', {
-  tooltips: {
-    enabled: true,
-    custom: null,
-    mode: 'nearest',
-    position: 'average',
-    intersect: true,
-    backgroundColor: 'rgba(0,0,0,0.8)',
-    titleFontStyle: 'bold',
-    titleSpacing: 2,
-    titleMarginBottom: 6,
-    titleFontColor: '#fff',
-    titleAlign: 'left',
-    bodySpacing: 2,
-    bodyFontColor: '#fff',
-    bodyAlign: 'left',
-    footerFontStyle: 'bold',
-    footerSpacing: 2,
-    footerMarginTop: 6,
-    footerFontColor: '#fff',
-    footerAlign: 'left',
-    yPadding: 6,
-    xPadding: 6,
-    caretPadding: 2,
-    caretSize: 5,
-    cornerRadius: 6,
-    multiKeyBackground: '#fff',
-    displayColors: true,
-    borderColor: 'rgba(0,0,0,0)',
-    borderWidth: 0,
-    animation: {
-      duration: 400,
-      easing: 'easeOutQuart',
-      numbers: {
-        type: 'number',
-        properties: ['x', 'y', 'width', 'height']
-      },
-      opacity: {
-        easing: 'linear',
-        duration: 200
-      }
+require$$7._set('tooltips', {
+  enabled: true,
+  custom: null,
+  mode: 'nearest',
+  position: 'average',
+  intersect: true,
+  backgroundColor: 'rgba(0,0,0,0.8)',
+  titleFontStyle: 'bold',
+  titleSpacing: 2,
+  titleMarginBottom: 6,
+  titleFontColor: '#fff',
+  titleAlign: 'left',
+  bodySpacing: 2,
+  bodyFontColor: '#fff',
+  bodyAlign: 'left',
+  footerFontStyle: 'bold',
+  footerSpacing: 2,
+  footerMarginTop: 6,
+  footerFontColor: '#fff',
+  footerAlign: 'left',
+  yPadding: 6,
+  xPadding: 6,
+  caretPadding: 2,
+  caretSize: 5,
+  cornerRadius: 6,
+  multiKeyBackground: '#fff',
+  displayColors: true,
+  borderColor: 'rgba(0,0,0,0)',
+  borderWidth: 0,
+  animation: {
+    duration: 400,
+    easing: 'easeOutQuart',
+    numbers: {
+      type: 'number',
+      properties: ['x', 'y', 'width', 'height']
     },
-    callbacks: {
-      // Args are: (tooltipItems, data)
-      beforeTitle: require$$0.noop,
-      title: function title(tooltipItems, data) {
-        var title = '';
-        var labels = data.labels;
-        var labelCount = labels ? labels.length : 0;
-
-        if (tooltipItems.length > 0) {
-          var item = tooltipItems[0];
-
-          if (item.label) {
-            title = item.label;
-          } else if (labelCount > 0 && item.index < labelCount) {
-            title = labels[item.index];
-          }
-        }
-
-        return title;
-      },
-      afterTitle: require$$0.noop,
-      // Args are: (tooltipItems, data)
-      beforeBody: require$$0.noop,
-      // Args are: (tooltipItem, data)
-      beforeLabel: require$$0.noop,
-      label: function label(tooltipItem, data) {
-        var label = data.datasets[tooltipItem.datasetIndex].label || '';
-
-        if (label) {
-          label += ': ';
-        }
-
-        if (!require$$0.isNullOrUndef(tooltipItem.value)) {
-          label += tooltipItem.value;
-        }
-
-        return label;
-      },
-      labelColor: function labelColor(tooltipItem, chart) {
-        var meta = chart.getDatasetMeta(tooltipItem.datasetIndex);
-        var options = meta.controller.getStyle(tooltipItem.index);
-        return {
-          borderColor: options.borderColor,
-          backgroundColor: options.backgroundColor
-        };
-      },
-      labelTextColor: function labelTextColor() {
-        return this.options.bodyFontColor;
-      },
-      afterLabel: require$$0.noop,
-      // Args are: (tooltipItems, data)
-      afterBody: require$$0.noop,
-      // Args are: (tooltipItems, data)
-      beforeFooter: require$$0.noop,
-      footer: require$$0.noop,
-      afterFooter: require$$0.noop
+    opacity: {
+      easing: 'linear',
+      duration: 200
     }
+  },
+  callbacks: {
+    // Args are: (tooltipItems, data)
+    beforeTitle: require$$0.noop,
+    title: function title(tooltipItems, data) {
+      var title = '';
+      var labels = data.labels;
+      var labelCount = labels ? labels.length : 0;
+
+      if (tooltipItems.length > 0) {
+        var item = tooltipItems[0];
+
+        if (item.label) {
+          title = item.label;
+        } else if (labelCount > 0 && item.index < labelCount) {
+          title = labels[item.index];
+        }
+      }
+
+      return title;
+    },
+    afterTitle: require$$0.noop,
+    // Args are: (tooltipItems, data)
+    beforeBody: require$$0.noop,
+    // Args are: (tooltipItem, data)
+    beforeLabel: require$$0.noop,
+    label: function label(tooltipItem, data) {
+      var label = data.datasets[tooltipItem.datasetIndex].label || '';
+
+      if (label) {
+        label += ': ';
+      }
+
+      if (!require$$0.isNullOrUndef(tooltipItem.value)) {
+        label += tooltipItem.value;
+      }
+
+      return label;
+    },
+    labelColor: function labelColor(tooltipItem, chart) {
+      var meta = chart.getDatasetMeta(tooltipItem.datasetIndex);
+      var options = meta.controller.getStyle(tooltipItem.index);
+      return {
+        borderColor: options.borderColor,
+        backgroundColor: options.backgroundColor
+      };
+    },
+    labelTextColor: function labelTextColor() {
+      return this.options.bodyFontColor;
+    },
+    afterLabel: require$$0.noop,
+    // Args are: (tooltipItems, data)
+    afterBody: require$$0.noop,
+    // Args are: (tooltipItems, data)
+    beforeFooter: require$$0.noop,
+    footer: require$$0.noop,
+    afterFooter: require$$0.noop
   }
 });
 
@@ -10528,17 +10510,16 @@ function createTooltipItem(chart, item) {
 
 
 function resolveOptions(options) {
-  var globalDefaults = core_defaults.global;
-  options = require$$0.extend({}, globalDefaults.tooltips, options);
-  options.bodyFontFamily = valueOrDefault$5(options.bodyFontFamily, globalDefaults.defaultFontFamily);
-  options.bodyFontStyle = valueOrDefault$5(options.bodyFontStyle, globalDefaults.defaultFontStyle);
-  options.bodyFontSize = valueOrDefault$5(options.bodyFontSize, globalDefaults.defaultFontSize);
-  options.titleFontFamily = valueOrDefault$5(options.titleFontFamily, globalDefaults.defaultFontFamily);
-  options.titleFontStyle = valueOrDefault$5(options.titleFontStyle, globalDefaults.defaultFontStyle);
-  options.titleFontSize = valueOrDefault$5(options.titleFontSize, globalDefaults.defaultFontSize);
-  options.footerFontFamily = valueOrDefault$5(options.footerFontFamily, globalDefaults.defaultFontFamily);
-  options.footerFontStyle = valueOrDefault$5(options.footerFontStyle, globalDefaults.defaultFontStyle);
-  options.footerFontSize = valueOrDefault$5(options.footerFontSize, globalDefaults.defaultFontSize);
+  options = require$$0.extend({}, require$$7.tooltips, options);
+  options.bodyFontFamily = valueOrDefault$5(options.bodyFontFamily, require$$7.fontFamily);
+  options.bodyFontStyle = valueOrDefault$5(options.bodyFontStyle, require$$7.fontStyle);
+  options.bodyFontSize = valueOrDefault$5(options.bodyFontSize, require$$7.fontSize);
+  options.titleFontFamily = valueOrDefault$5(options.titleFontFamily, require$$7.fontFamily);
+  options.titleFontStyle = valueOrDefault$5(options.titleFontStyle, require$$7.fontStyle);
+  options.titleFontSize = valueOrDefault$5(options.titleFontSize, require$$7.fontSize);
+  options.footerFontFamily = valueOrDefault$5(options.footerFontFamily, require$$7.fontFamily);
+  options.footerFontStyle = valueOrDefault$5(options.footerFontStyle, require$$7.fontStyle);
+  options.footerFontSize = valueOrDefault$5(options.footerFontSize, require$$7.fontSize);
   return options;
 }
 /**
@@ -11357,22 +11338,9 @@ var core_tooltip = Tooltip;
 
 var valueOrDefault$6 = require$$0.valueOrDefault;
 
-core_defaults._set('global', {
-  elements: {},
-  events: ['mousemove', 'mouseout', 'click', 'touchstart', 'touchmove'],
-  hover: {
-    onHover: null,
-    mode: 'nearest',
-    intersect: true
-  },
-  onClick: null,
-  maintainAspectRatio: true,
-  responsive: true
-});
-
 function mergeScaleConfig(config, options) {
   options = options || {};
-  var chartDefaults = core_defaults[config.type] || {
+  var chartDefaults = require$$7[config.type] || {
     scales: {}
   };
   var configScales = options.scales || {};
@@ -11393,7 +11361,7 @@ function mergeScaleConfig(config, options) {
 
 
   config.data.datasets.forEach(function (dataset) {
-    var datasetDefaults = core_defaults[dataset.type || config.type] || {
+    var datasetDefaults = require$$7[dataset.type || config.type] || {
       scales: {}
     };
     var defaultScaleOptions = datasetDefaults.scales || {};
@@ -11437,7 +11405,7 @@ function initConfig(config) {
   data.datasets = data.datasets || [];
   data.labels = data.labels || [];
   var scaleConfig = mergeScaleConfig(config, config.options);
-  config.options = mergeConfig(core_defaults.global, core_defaults[config.type], config.options || {});
+  config.options = mergeConfig(require$$7, require$$7[config.type], config.options || {});
   config.options.scales = scaleConfig;
   return config;
 }
@@ -11452,7 +11420,7 @@ function updateConfig(chart) {
     core_layouts.removeBox(chart, scale);
   });
   var scaleConfig = mergeScaleConfig(chart.config, newOptions);
-  newOptions = mergeConfig(core_defaults.global, core_defaults[chart.config.type], newOptions);
+  newOptions = mergeConfig(require$$7, require$$7[chart.config.type], newOptions);
   chart.options = chart.config.options = newOptions;
   chart.options.scales = scaleConfig;
   chart._animationsDisabled = isAnimationDisabled(newOptions);
@@ -12601,7 +12569,7 @@ var isNullOrUndef$1 = require$$0.isNullOrUndef;
 var valueOrDefault$7 = require$$0.valueOrDefault;
 var resolve$5 = require$$0.options.resolve;
 
-core_defaults._set('scale', {
+require$$7._set('scale', {
   display: true,
   offset: false,
   reverse: false,
@@ -12794,7 +12762,7 @@ function parseFontOptions(options, nestedOpts) {
     fontStyle: valueOrDefault$7(nestedOpts.fontStyle, options.fontStyle),
     lineHeight: valueOrDefault$7(nestedOpts.lineHeight, options.lineHeight)
   }), {
-    color: resolve$5([nestedOpts.fontColor, options.fontColor, core_defaults.global.defaultFontColor])
+    color: resolve$5([nestedOpts.fontColor, options.fontColor, require$$7.fontColor])
   });
 }
 
@@ -14001,7 +13969,7 @@ function (_Element) {
         return;
       }
 
-      var scaleLabelFontColor = valueOrDefault$7(scaleLabel.fontColor, core_defaults.global.defaultFontColor);
+      var scaleLabelFontColor = valueOrDefault$7(scaleLabel.fontColor, require$$7.fontColor);
 
       var scaleLabelFont = require$$0.options._parseFont(scaleLabel);
 
@@ -14845,7 +14813,7 @@ function (_Scale) {
 
       if (start === 0) {
         start = me._getFirstTickValue(me.minNotZero);
-        offset = valueOrDefault$8(me.options.ticks.fontSize, core_defaults.global.defaultFontSize) / me._length;
+        offset = valueOrDefault$8(me.options.ticks.fontSize, require$$7.fontSize) / me._length;
       }
 
       me._startValue = log10$1(start);
@@ -14925,7 +14893,7 @@ function getTickBackdropHeight(opts) {
   var tickOpts = opts.ticks;
 
   if (tickOpts.display && opts.display) {
-    return valueOrDefault$9(tickOpts.fontSize, core_defaults.global.defaultFontSize) + tickOpts.backdropPaddingY * 2;
+    return valueOrDefault$9(tickOpts.fontSize, require$$7.fontSize) + tickOpts.backdropPaddingY * 2;
   }
 
   return 0;
@@ -15094,7 +15062,7 @@ function drawPointLabels(scale) {
     var extra = i === 0 ? tickBackdropHeight / 2 : 0;
     var pointLabelPosition = scale.getPointPosition(i, outerDistance + extra + 5); // Keep this in loop since we may support array properties here
 
-    var pointLabelFontColor = valueAtIndexOrDefault$1(pointLabelOpts.fontColor, i, core_defaults.global.defaultFontColor);
+    var pointLabelFontColor = valueAtIndexOrDefault$1(pointLabelOpts.fontColor, i, require$$7.fontColor);
     ctx.fillStyle = pointLabelFontColor;
     var angleRadians = scale.getIndexAngle(i);
     var angle = toDegrees(angleRadians);
@@ -15370,7 +15338,7 @@ function (_LinearScaleBase) {
 
       var tickFont = require$$0.options._parseFont(tickOpts);
 
-      var tickFontColor = valueOrDefault$9(tickOpts.fontColor, core_defaults.global.defaultFontColor);
+      var tickFontColor = valueOrDefault$9(tickOpts.fontColor, require$$7.fontColor);
       var offset, width;
       ctx.save();
       ctx.font = tickFont.string;
@@ -16197,7 +16165,7 @@ function (_Scale) {
       var angle = toRadians(me.isHorizontal() ? ticksOpts.maxRotation : ticksOpts.minRotation);
       var cosRotation = Math.cos(angle);
       var sinRotation = Math.sin(angle);
-      var tickFontSize = valueOrDefault$a(ticksOpts.fontSize, core_defaults.global.defaultFontSize);
+      var tickFontSize = valueOrDefault$a(ticksOpts.fontSize, require$$7.fontSize);
       return {
         w: tickLabelWidth * cosRotation + tickFontSize * sinRotation,
         h: tickLabelWidth * sinRotation + tickFontSize * cosRotation
@@ -16301,11 +16269,9 @@ core_adapters._date.override(typeof moment === 'function' ? {
  * @see https://github.com/chartjs/Chart.js/issues/2440#issuecomment-256461897
  */
 
-core_defaults._set('global', {
-  plugins: {
-    filler: {
-      propagate: true
-    }
+require$$7._set('plugins', {
+  filler: {
+    propagate: true
   }
 });
 
@@ -16882,7 +16848,7 @@ var require$$0$1 = {
           scale = _meta.scale;
       var lineOpts = line.options;
       var fillOption = lineOpts.fill;
-      var color = lineOpts.backgroundColor || core_defaults.global.defaultColor;
+      var color = lineOpts.backgroundColor || require$$7.color;
 
       var _ref3 = fillOption || {},
           _ref3$above = _ref3.above,
@@ -16909,63 +16875,61 @@ var require$$0$1 = {
 var getRtlHelper$1 = require$$0.rtl.getRtlAdapter;
 var valueOrDefault$b = require$$0.valueOrDefault;
 
-core_defaults._set('global', {
-  legend: {
-    display: true,
-    position: 'top',
-    align: 'center',
-    fullWidth: true,
-    reverse: false,
-    weight: 1000,
-    // a callback that will handle
-    onClick: function onClick(e, legendItem) {
-      var index = legendItem.datasetIndex;
-      var ci = this.chart;
-      var meta = ci.getDatasetMeta(index); // See controller.isDatasetVisible comment
+require$$7._set('legend', {
+  display: true,
+  position: 'top',
+  align: 'center',
+  fullWidth: true,
+  reverse: false,
+  weight: 1000,
+  // a callback that will handle
+  onClick: function onClick(e, legendItem) {
+    var index = legendItem.datasetIndex;
+    var ci = this.chart;
+    var meta = ci.getDatasetMeta(index); // See controller.isDatasetVisible comment
 
-      meta.hidden = meta.hidden === null ? !ci.data.datasets[index].hidden : null; // We hid a dataset ... rerender the chart
+    meta.hidden = meta.hidden === null ? !ci.data.datasets[index].hidden : null; // We hid a dataset ... rerender the chart
 
-      ci.update();
-    },
-    onHover: null,
-    onLeave: null,
-    labels: {
-      boxWidth: 40,
-      padding: 10,
-      // Generates labels shown in the legend
-      // Valid properties to return:
-      // text : text to display
-      // fillStyle : fill of coloured box
-      // strokeStyle: stroke of coloured box
-      // hidden : if this legend item refers to a hidden item
-      // lineCap : cap style for line
-      // lineDash
-      // lineDashOffset :
-      // lineJoin :
-      // lineWidth :
-      generateLabels: function generateLabels(chart) {
-        var datasets = chart.data.datasets;
-        var options = chart.options.legend || {};
-        var usePointStyle = options.labels && options.labels.usePointStyle;
-        return chart._getSortedDatasetMetas().map(function (meta) {
-          var style = meta.controller.getStyle(usePointStyle ? 0 : undefined);
-          return {
-            text: datasets[meta.index].label,
-            fillStyle: style.backgroundColor,
-            hidden: !meta.visible,
-            lineCap: style.borderCapStyle,
-            lineDash: style.borderDash,
-            lineDashOffset: style.borderDashOffset,
-            lineJoin: style.borderJoinStyle,
-            lineWidth: style.borderWidth,
-            strokeStyle: style.borderColor,
-            pointStyle: style.pointStyle,
-            rotation: style.rotation,
-            // Below is extra data used for toggling the datasets
-            datasetIndex: meta.index
-          };
-        }, this);
-      }
+    ci.update();
+  },
+  onHover: null,
+  onLeave: null,
+  labels: {
+    boxWidth: 40,
+    padding: 10,
+    // Generates labels shown in the legend
+    // Valid properties to return:
+    // text : text to display
+    // fillStyle : fill of coloured box
+    // strokeStyle: stroke of coloured box
+    // hidden : if this legend item refers to a hidden item
+    // lineCap : cap style for line
+    // lineDash
+    // lineDashOffset :
+    // lineJoin :
+    // lineWidth :
+    generateLabels: function generateLabels(chart) {
+      var datasets = chart.data.datasets;
+      var options = chart.options.legend || {};
+      var usePointStyle = options.labels && options.labels.usePointStyle;
+      return chart._getSortedDatasetMetas().map(function (meta) {
+        var style = meta.controller.getStyle(usePointStyle ? 0 : undefined);
+        return {
+          text: datasets[meta.index].label,
+          fillStyle: style.backgroundColor,
+          hidden: !meta.visible,
+          lineCap: style.borderCapStyle,
+          lineDash: style.borderDash,
+          lineDashOffset: style.borderDashOffset,
+          lineJoin: style.borderJoinStyle,
+          lineWidth: style.borderWidth,
+          strokeStyle: style.borderColor,
+          pointStyle: style.pointStyle,
+          rotation: style.rotation,
+          // Below is extra data used for toggling the datasets
+          datasetIndex: meta.index
+        };
+      }, this);
     }
   }
 });
@@ -17228,9 +17192,8 @@ function (_Element) {
       var me = this;
       var opts = me.options;
       var labelOpts = opts.labels;
-      var globalDefaults = core_defaults.global;
-      var defaultColor = globalDefaults.defaultColor;
-      var lineDefault = globalDefaults.elements.line;
+      var defaultColor = require$$7.color;
+      var lineDefault = require$$7.elements.line;
       var legendHeight = me.height;
       var columnHeights = me.columnHeights;
       var legendWidth = me.width;
@@ -17242,7 +17205,7 @@ function (_Element) {
 
       var rtlHelper = getRtlHelper$1(opts.rtl, me.left, me.minSize.width);
       var ctx = me.ctx;
-      var fontColor = valueOrDefault$b(labelOpts.fontColor, globalDefaults.defaultFontColor);
+      var fontColor = valueOrDefault$b(labelOpts.fontColor, require$$7.fontColor);
 
       var labelFont = require$$0.options._parseFont(labelOpts);
 
@@ -17499,7 +17462,7 @@ var plugin_legend = {
     var legend = chart.legend;
 
     if (legendOpts) {
-      require$$0.mergeIf(legendOpts, core_defaults.global.legend);
+      require$$0.mergeIf(legendOpts, require$$7.legend);
 
       if (legend) {
         core_layouts.configure(chart, legend, legendOpts);
@@ -17521,17 +17484,15 @@ var plugin_legend = {
   }
 };
 
-core_defaults._set('global', {
-  title: {
-    display: false,
-    fontStyle: 'bold',
-    fullWidth: true,
-    padding: 10,
-    position: 'top',
-    text: '',
-    weight: 2000 // by default greater than legend (1000) to be above
+require$$7._set('title', {
+  display: false,
+  fontStyle: 'bold',
+  fullWidth: true,
+  padding: 10,
+  position: 'top',
+  text: '',
+  weight: 2000 // by default greater than legend (1000) to be above
 
-  }
 });
 /**
  * IMPORTANT: this class is exposed publicly as Chart.Title, backward compatibility required!
@@ -17687,7 +17648,7 @@ function (_Element) {
       var bottom = me.bottom;
       var right = me.right;
       var maxWidth, titleX, titleY;
-      ctx.fillStyle = require$$0.valueOrDefault(opts.fontColor, core_defaults.global.defaultFontColor); // render in correct colour
+      ctx.fillStyle = require$$0.valueOrDefault(opts.fontColor, require$$7.fontColor); // render in correct colour
 
       ctx.font = fontOpts.string; // Horizontal
 
@@ -17762,7 +17723,7 @@ var plugin_title = {
     var titleBlock = chart.titleBlock;
 
     if (titleOpts) {
-      require$$0.mergeIf(titleOpts, core_defaults.global.title);
+      require$$0.mergeIf(titleOpts, require$$7.title);
 
       if (titleBlock) {
         core_layouts.configure(chart, titleBlock, titleOpts);
@@ -17796,7 +17757,7 @@ Chart.Animator = core_animator;
 Chart.animationService = Animations;
 Chart.controllers = controllers;
 Chart.DatasetController = core_datasetController;
-Chart.defaults = core_defaults;
+Chart.defaults = require$$7;
 Chart.Element = Element;
 Chart.elements = require$$9;
 Chart.Interaction = require$$10;
