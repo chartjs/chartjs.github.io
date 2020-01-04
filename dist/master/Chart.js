@@ -144,10 +144,6 @@ function _possibleConstructorReturn(self, call) {
   return _assertThisInitialized(self);
 }
 
-function _slicedToArray(arr, i) {
-  return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest();
-}
-
 function _toConsumableArray(arr) {
   return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread();
 }
@@ -160,50 +156,12 @@ function _arrayWithoutHoles(arr) {
   }
 }
 
-function _arrayWithHoles(arr) {
-  if (Array.isArray(arr)) return arr;
-}
-
 function _iterableToArray(iter) {
   if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter);
 }
 
-function _iterableToArrayLimit(arr, i) {
-  if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) {
-    return;
-  }
-
-  var _arr = [];
-  var _n = true;
-  var _d = false;
-  var _e = undefined;
-
-  try {
-    for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
-      _arr.push(_s.value);
-
-      if (i && _arr.length === i) break;
-    }
-  } catch (err) {
-    _d = true;
-    _e = err;
-  } finally {
-    try {
-      if (!_n && _i["return"] != null) _i["return"]();
-    } finally {
-      if (_d) throw _e;
-    }
-  }
-
-  return _arr;
-}
-
 function _nonIterableSpread() {
   throw new TypeError("Invalid attempt to spread non-iterable instance");
-}
-
-function _nonIterableRest() {
-  throw new TypeError("Invalid attempt to destructure non-iterable instance");
 }
 
 function createCommonjsModule(fn, module) {
@@ -4210,78 +4168,55 @@ function () {
     value: function _update() {
       var me = this;
       var date = Date.now();
-      var charts = me._charts;
       var remaining = 0;
-      var _iteratorNormalCompletion = true;
-      var _didIteratorError = false;
-      var _iteratorError = undefined;
 
-      try {
-        for (var _iterator = charts[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-          var _step$value = _slicedToArray(_step.value, 2),
-              chart = _step$value[0],
-              anims = _step$value[1];
-
-          if (!anims.running || !anims.items.length) {
-            continue;
-          }
-
-          var items = anims.items;
-          var i = items.length - 1;
-          var draw = false;
-          var item = void 0;
-
-          for (; i >= 0; --i) {
-            item = items[i];
-
-            if (item._active) {
-              item.tick(date);
-              draw = true;
-            } else {
-              // Remove the item by replacing it with last item and removing the last
-              // A lot faster than splice.
-              items[i] = items[items.length - 1];
-              items.pop();
-            }
-          }
-
-          if (draw) {
-            chart.draw();
-
-            if (chart.options.animation.debug) {
-              drawFPS(chart, items.length, date, me._lastDate);
-            }
-          }
-
-          me._notify(chart, anims, date, 'progress');
-
-          if (!items.length) {
-            anims.running = false;
-
-            me._notify(chart, anims, date, 'complete');
-          }
-
-          remaining += items.length;
+      me._charts.forEach(function (anims, chart) {
+        if (!anims.running || !anims.items.length) {
+          return;
         }
-      } catch (err) {
-        _didIteratorError = true;
-        _iteratorError = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion && _iterator["return"] != null) {
-            _iterator["return"]();
-          }
-        } finally {
-          if (_didIteratorError) {
-            throw _iteratorError;
+
+        var items = anims.items;
+        var i = items.length - 1;
+        var draw = false;
+        var item;
+
+        for (; i >= 0; --i) {
+          item = items[i];
+
+          if (item._active) {
+            item.tick(date);
+            draw = true;
+          } else {
+            // Remove the item by replacing it with last item and removing the last
+            // A lot faster than splice.
+            items[i] = items[items.length - 1];
+            items.pop();
           }
         }
-      }
 
-      this._lastDate = date;
+        if (draw) {
+          chart.draw();
+
+          if (chart.options.animation.debug) {
+            drawFPS(chart, items.length, date, me._lastDate);
+          }
+        }
+
+        me._notify(chart, anims, date, 'progress');
+
+        if (!items.length) {
+          anims.running = false;
+
+          me._notify(chart, anims, date, 'complete');
+        }
+
+        remaining += items.length;
+      });
+
+      me._lastDate = date;
 
       if (remaining === 0) {
-        this._running = false;
+        me._running = false;
       }
     }
   }, {
@@ -4589,36 +4524,15 @@ function () {
           return;
         }
 
-        var _iteratorNormalCompletion = true;
-        var _didIteratorError = false;
-        var _iteratorError = undefined;
-
-        try {
-          for (var _iterator = (cfg.properties || [key])[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-            var prop = _step.value;
-
-            // Can have only one config per animation.
-            if (!animatedProps.has(prop)) {
-              animatedProps.set(prop, extend({}, animDefaults, cfg));
-            } else if (prop === key) {
-              // Single property targetting config wins over multi-targetting.
-              animatedProps.set(prop, extend({}, animatedProps.get(prop), cfg));
-            }
+        (cfg.properties || [key]).forEach(function (prop) {
+          // Can have only one config per animation.
+          if (!animatedProps.has(prop)) {
+            animatedProps.set(prop, extend({}, animDefaults, cfg));
+          } else if (prop === key) {
+            // Single property targetting config wins over multi-targetting.
+            animatedProps.set(prop, extend({}, animatedProps.get(prop), cfg));
           }
-        } catch (err) {
-          _didIteratorError = true;
-          _iteratorError = err;
-        } finally {
-          try {
-            if (!_iteratorNormalCompletion && _iterator["return"] != null) {
-              _iterator["return"]();
-            }
-          } finally {
-            if (_didIteratorError) {
-              throw _iteratorError;
-            }
-          }
-        }
+        });
       });
     }
     /**
