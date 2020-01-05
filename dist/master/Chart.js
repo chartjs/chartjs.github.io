@@ -7157,7 +7157,8 @@ require$$7._set('bar', {
       }
     },
     y: {
-      type: 'linear'
+      type: 'linear',
+      beginAtZero: true
     }
   }
 });
