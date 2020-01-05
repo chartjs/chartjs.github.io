@@ -12969,6 +12969,7 @@ function (_Element) {
       var samplingEnabled; // Update Lifecycle - Probably don't want to ever extend or overwrite this function ;)
 
       me.beforeUpdate(); // Absorb the master measurements
+      // TODO: make some of these variables private
 
       me.maxWidth = maxWidth;
       me.maxHeight = maxHeight;
@@ -13027,10 +13028,7 @@ function (_Element) {
       } // IMPORTANT: after this point, we consider that `this.ticks` will NEVER change!
 
 
-      me.afterUpdate(); // TODO(v3): remove minSize as a public property and return value from all layout boxes. It is unused
-      // make maxWidth and maxHeight private
-
-      return me.minSize;
+      me.afterUpdate();
     }
     /**
      * @private
@@ -13208,7 +13206,7 @@ function (_Element) {
     value: function fit() {
       var me = this; // Reset
 
-      var minSize = me.minSize = {
+      var minSize = {
         width: 0,
         height: 0
       };
@@ -16920,7 +16918,6 @@ function (_Element) {
       me.afterFit(); //
 
       me.afterUpdate();
-      return me.minSize;
     }
   }, {
     key: "afterUpdate",
@@ -16952,7 +16949,7 @@ function (_Element) {
       me.paddingRight = 0;
       me.paddingBottom = 0; // Reset minSize
 
-      me.minSize = {
+      me._minSize = {
         width: 0,
         height: 0
       };
@@ -17004,7 +17001,7 @@ function (_Element) {
       var fontSize = labelFont.size; // Reset hit boxes
 
       var hitboxes = me.legendHitBoxes = [];
-      var minSize = me.minSize;
+      var minSize = me._minSize;
       var isHorizontal = me.isHorizontal();
 
       if (isHorizontal) {
@@ -17117,7 +17114,7 @@ function (_Element) {
         return;
       }
 
-      var rtlHelper = getRtlHelper$1(opts.rtl, me.left, me.minSize.width);
+      var rtlHelper = getRtlHelper$1(opts.rtl, me.left, me._minSize.width);
       var ctx = me.ctx;
       var fontColor = valueOrDefault$b(labelOpts.fontColor, require$$7.fontColor);
 
@@ -17231,17 +17228,17 @@ function (_Element) {
         var width = boxWidth + fontSize / 2 + textWidth;
         var x = cursor.x;
         var y = cursor.y;
-        rtlHelper.setWidth(me.minSize.width); // Use (me.left + me.minSize.width) and (me.top + me.minSize.height)
+        rtlHelper.setWidth(me._minSize.width); // Use (me.left + me._minSize.width) and (me.top + me._minSize.height)
         // instead of me.right and me.bottom because me.width and me.height
-        // may have been changed since me.minSize was calculated
+        // may have been changed since me._minSize was calculated
 
         if (isHorizontal) {
-          if (i > 0 && x + width + labelOpts.padding > me.left + me.minSize.width) {
+          if (i > 0 && x + width + labelOpts.padding > me.left + me._minSize.width) {
             y = cursor.y += itemHeight;
             cursor.line++;
             x = cursor.x = me.left + alignmentOffset(legendWidth, lineWidths[cursor.line]);
           }
-        } else if (i > 0 && y + itemHeight > me.top + me.minSize.height) {
+        } else if (i > 0 && y + itemHeight > me.top + me._minSize.height) {
           x = cursor.x = x + me.columnWidths[cursor.line] + labelOpts.padding;
           cursor.line++;
           y = cursor.y = me.top + alignmentOffset(legendHeight, columnHeights[cursor.line]);
@@ -17461,7 +17458,6 @@ function (_Element) {
       me.afterFit(); //
 
       me.afterUpdate();
-      return me.minSize;
     }
   }, {
     key: "afterUpdate",
@@ -17485,13 +17481,7 @@ function (_Element) {
 
         me.top = 0;
         me.bottom = me.height;
-      } // Reset minSize
-
-
-      me.minSize = {
-        width: 0,
-        height: 0
-      };
+      }
     }
   }, {
     key: "afterSetDimensions",
@@ -17515,7 +17505,7 @@ function (_Element) {
     value: function fit() {
       var me = this;
       var opts = me.options;
-      var minSize = me.minSize = {};
+      var minSize = {};
       var isHorizontal = me.isHorizontal();
       var lineCount, textSize;
 
