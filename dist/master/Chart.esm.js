@@ -12536,8 +12536,8 @@ require$$7._set('scale', {
 function sample(arr, numItems) {
   var result = [];
   var increment = arr.length / numItems;
-  var i = 0;
   var len = arr.length;
+  var i = 0;
 
   for (; i < len; i += increment) {
     result.push(arr[Math.floor(i)]);
@@ -12549,11 +12549,11 @@ function sample(arr, numItems) {
 function getPixelForGridLine(scale, index, offsetGridLines) {
   var length = scale.ticks.length;
   var validIndex = Math.min(index, length - 1);
-  var lineValue = scale.getPixelForTick(validIndex);
   var start = scale._startPixel;
   var end = scale._endPixel;
   var epsilon = 1e-6; // 1e-6 is margin in pixels for accumulated error.
 
+  var lineValue = scale.getPixelForTick(validIndex);
   var offset;
 
   if (offsetGridLines) {
@@ -12659,14 +12659,13 @@ function getTickMarkLength(options) {
 }
 
 function getScaleLabelHeight(options) {
-  var font, padding;
-
   if (!options.display) {
     return 0;
   }
 
-  font = require$$0.options._parseFont(options);
-  padding = require$$0.options.toPadding(options.padding);
+  var font = require$$0.options._parseFont(options);
+
+  var padding = require$$0.options.toPadding(options.padding);
   return font.lineHeight + padding.height;
 }
 
@@ -12970,7 +12969,7 @@ function (_Element) {
       var samplingEnabled; // Update Lifecycle - Probably don't want to ever extend or overwrite this function ;)
 
       me.beforeUpdate(); // Absorb the master measurements
-      // TODO: make some of these variables private
+      // TODO: make maxWidth, maxHeight private
 
       me.maxWidth = maxWidth;
       me.maxHeight = maxHeight;
@@ -12983,8 +12982,7 @@ function (_Element) {
       me.ticks = null;
       me._labelSizes = null;
       me._maxLabelLines = 0;
-      me.longestLabelWidth = 0;
-      me.longestTextCache = me.longestTextCache || {};
+      me._longestTextCache = me._longestTextCache || {};
       me._gridLineItems = null;
       me._labelItems = null; // Dimensions
 
@@ -13351,8 +13349,7 @@ function (_Element) {
       var labelSizes = me._labelSizes;
 
       if (!labelSizes) {
-        me._labelSizes = labelSizes = computeLabelSizes(me.ctx, parseTickFontOptions(me.options.ticks), me.ticks, me.longestTextCache);
-        me.longestLabelWidth = labelSizes.widest.width;
+        me._labelSizes = labelSizes = computeLabelSizes(me.ctx, parseTickFontOptions(me.options.ticks), me.ticks, me._longestTextCache);
       }
 
       return labelSizes;
@@ -13756,12 +13753,12 @@ function (_Element) {
 
       var items = me._gridLineItems || (me._gridLineItems = me._computeGridLineItems(chartArea));
 
-      var width, color, i, ilen, item;
+      var i, ilen;
 
       for (i = 0, ilen = items.length; i < ilen; ++i) {
-        item = items[i];
-        width = item.width;
-        color = item.color;
+        var item = items[i];
+        var width = item.width;
+        var color = item.color;
 
         if (width && color) {
           ctx.save();
@@ -13837,11 +13834,11 @@ function (_Element) {
 
       var items = me._labelItems || (me._labelItems = me._computeLabelItems(chartArea));
 
-      var i, j, ilen, jlen, item, tickFont, label, y;
+      var i, j, ilen, jlen;
 
       for (i = 0, ilen = items.length; i < ilen; ++i) {
-        item = items[i];
-        tickFont = item.font; // Make sure we draw text in the correct color and font
+        var item = items[i];
+        var tickFont = item.font; // Make sure we draw text in the correct color and font
 
         ctx.save();
         ctx.translate(item.x, item.y);
@@ -13850,8 +13847,8 @@ function (_Element) {
         ctx.fillStyle = tickFont.color;
         ctx.textBaseline = 'middle';
         ctx.textAlign = item.textAlign;
-        label = item.label;
-        y = item.textOffset;
+        var label = item.label;
+        var y = item.textOffset;
 
         if (isArray$1(label)) {
           for (j = 0, jlen = label.length; j < jlen; ++j) {
@@ -13890,8 +13887,8 @@ function (_Element) {
       var halfLineHeight = scaleLabelFont.lineHeight / 2;
       var scaleLabelAlign = scaleLabel.align;
       var position = options.position;
-      var rotation = 0;
       var isReverse = me.options.reverse;
+      var rotation = 0;
       var scaleLabelX, scaleLabelY, textAlign;
 
       if (me.isHorizontal()) {
@@ -14012,10 +14009,10 @@ function (_Element) {
 
       var axisID = me.axis + 'AxisID';
       var result = [];
-      var i, ilen, meta;
+      var i, ilen;
 
       for (i = 0, ilen = metas.length; i < ilen; ++i) {
-        meta = metas[i];
+        var meta = metas[i];
 
         if (meta[axisID] === me.id && (!type || meta.type === type)) {
           result.push(meta);
