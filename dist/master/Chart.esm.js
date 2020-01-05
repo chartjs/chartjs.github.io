@@ -17396,6 +17396,7 @@ var plugin_legend = {
 };
 
 require$$7._set('title', {
+  align: 'center',
   display: false,
   fontStyle: 'bold',
   fullWidth: true,
@@ -17552,18 +17553,51 @@ function (_Element) {
       var bottom = me.bottom;
       var right = me.right;
       var maxWidth, titleX, titleY;
+      var align;
       ctx.fillStyle = require$$0.valueOrDefault(opts.fontColor, require$$7.fontColor); // render in correct colour
 
       ctx.font = fontOpts.string; // Horizontal
 
       if (me.isHorizontal()) {
-        titleX = left + (right - left) / 2; // midpoint of the width
+        switch (opts.align) {
+          case 'start':
+            titleX = left;
+            align = 'left';
+            break;
+
+          case 'end':
+            titleX = right;
+            align = 'right';
+            break;
+
+          default:
+            titleX = left + (right - left) / 2;
+            align = 'center';
+            break;
+        }
 
         titleY = top + offset;
         maxWidth = right - left;
       } else {
         titleX = opts.position === 'left' ? left + offset : right - offset;
-        titleY = top + (bottom - top) / 2;
+
+        switch (opts.align) {
+          case 'start':
+            titleY = opts.position === 'left' ? bottom : top;
+            align = 'left';
+            break;
+
+          case 'end':
+            titleY = opts.position === 'left' ? top : bottom;
+            align = 'right';
+            break;
+
+          default:
+            titleY = top + (bottom - top) / 2;
+            align = 'center';
+            break;
+        }
+
         maxWidth = bottom - top;
         rotation = Math.PI * (opts.position === 'left' ? -0.5 : 0.5);
       }
@@ -17571,7 +17605,7 @@ function (_Element) {
       ctx.save();
       ctx.translate(titleX, titleY);
       ctx.rotate(rotation);
-      ctx.textAlign = 'center';
+      ctx.textAlign = align;
       ctx.textBaseline = 'middle';
       var text = opts.text;
 
