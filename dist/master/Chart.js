@@ -3773,6 +3773,11 @@ function toPadding(value) {
 
 function _parseFont(options) {
   var size = valueOrDefault(options.fontSize, defaults.fontSize);
+
+  if (typeof size === 'string') {
+    size = parseInt(size, 10);
+  }
+
   var font = {
     family: valueOrDefault(options.fontFamily, defaults.fontFamily),
     lineHeight: toLineHeight(valueOrDefault(options.lineHeight, defaults.lineHeight), size),
@@ -4866,18 +4871,18 @@ function updateStacks(controller, parsed) {
   var iScale = meta.iScale,
       vScale = meta.vScale,
       datasetIndex = meta.index;
-  var iId = iScale.id;
-  var vId = vScale.id;
+  var iAxis = iScale.axis;
+  var vAxis = vScale.axis;
   var key = getStackKey(iScale, vScale, meta);
   var ilen = parsed.length;
   var stack;
 
   for (var i = 0; i < ilen; ++i) {
     var item = parsed[i];
-    var index = item[iId],
-        value = item[vId];
+    var index = item[iAxis],
+        value = item[vAxis];
     var itemStacks = item._stacks || (item._stacks = {});
-    stack = itemStacks[vId] = getOrCreateStack(stacks, key, index);
+    stack = itemStacks[vAxis] = getOrCreateStack(stacks, key, index);
     stack[datasetIndex] = value;
   }
 }
@@ -5132,7 +5137,7 @@ require$$0.extend(DatasetController.prototype, {
     var iScale = meta.iScale,
         vScale = meta.vScale,
         _stacked = meta._stacked;
-    var iScaleId = iScale.id;
+    var iAxis = iScale.axis;
     var sorted = true;
     var i, parsed, cur, prev;
 
@@ -5157,7 +5162,7 @@ require$$0.extend(DatasetController.prototype, {
         meta._parsed[i + start] = cur = parsed[i];
 
         if (sorted) {
-          if (prev && cur[iScaleId] < prev[iScaleId]) {
+          if (prev && cur[iAxis] < prev[iAxis]) {
             sorted = false;
           }
 
@@ -5191,8 +5196,8 @@ require$$0.extend(DatasetController.prototype, {
   _parsePrimitiveData: function _parsePrimitiveData(meta, data, start, count) {
     var iScale = meta.iScale,
         vScale = meta.vScale;
-    var iId = iScale.id;
-    var vId = vScale.id;
+    var iAxis = iScale.axis;
+    var vAxis = vScale.axis;
 
     var labels = iScale._getLabels();
 
@@ -5204,7 +5209,7 @@ require$$0.extend(DatasetController.prototype, {
       var _parsed$i;
 
       index = i + start;
-      parsed[i] = (_parsed$i = {}, _defineProperty(_parsed$i, iId, singleScale || iScale._parse(labels[index], index)), _defineProperty(_parsed$i, vId, vScale._parse(data[index], index)), _parsed$i);
+      parsed[i] = (_parsed$i = {}, _defineProperty(_parsed$i, iAxis, singleScale || iScale._parse(labels[index], index)), _defineProperty(_parsed$i, vAxis, vScale._parse(data[index], index)), _parsed$i);
     }
 
     return parsed;
@@ -5218,23 +5223,22 @@ require$$0.extend(DatasetController.prototype, {
    * @param {number} count - number of items to parse
    * @returns {object} parsed item - item containing index and a parsed value
    * for each scale id.
-   * Example: {xScale0: 0, yScale0: 1}
+   * Example: {x: 0, y: 1}
    * @private
    */
   _parseArrayData: function _parseArrayData(meta, data, start, count) {
     var xScale = meta.xScale,
         yScale = meta.yScale;
-    var xId = xScale.id;
-    var yId = yScale.id;
     var parsed = new Array(count);
     var i, ilen, index, item;
 
     for (i = 0, ilen = count; i < ilen; ++i) {
-      var _parsed$i2;
-
       index = i + start;
       item = data[index];
-      parsed[i] = (_parsed$i2 = {}, _defineProperty(_parsed$i2, xId, xScale._parse(item[0], index)), _defineProperty(_parsed$i2, yId, yScale._parse(item[1], index)), _parsed$i2);
+      parsed[i] = {
+        x: xScale._parse(item[0], index),
+        y: yScale._parse(item[1], index)
+      };
     }
 
     return parsed;
@@ -5254,17 +5258,16 @@ require$$0.extend(DatasetController.prototype, {
   _parseObjectData: function _parseObjectData(meta, data, start, count) {
     var xScale = meta.xScale,
         yScale = meta.yScale;
-    var xId = xScale.id;
-    var yId = yScale.id;
     var parsed = new Array(count);
     var i, ilen, index, item;
 
     for (i = 0, ilen = count; i < ilen; ++i) {
-      var _parsed$i3;
-
       index = i + start;
       item = data[index];
-      parsed[i] = (_parsed$i3 = {}, _defineProperty(_parsed$i3, xId, xScale._parseObject(item, 'x', index)), _defineProperty(_parsed$i3, yId, yScale._parseObject(item, 'y', index)), _parsed$i3);
+      parsed[i] = {
+        x: xScale._parseObject(item, 'x', index),
+        y: yScale._parseObject(item, 'y', index)
+      };
     }
 
     return parsed;
@@ -5274,13 +5277,7 @@ require$$0.extend(DatasetController.prototype, {
    * @private
    */
   _getParsed: function _getParsed(index) {
-    var data = this._cachedMeta._parsed;
-
-    if (index < 0 || index >= data.length) {
-      return;
-    }
-
-    return data[index];
+    return this._cachedMeta._parsed[index];
   },
 
   /**
@@ -5289,10 +5286,10 @@ require$$0.extend(DatasetController.prototype, {
   _applyStack: function _applyStack(scale, parsed) {
     var chart = this.chart;
     var meta = this._cachedMeta;
-    var value = parsed[scale.id];
+    var value = parsed[scale.axis];
     var stack = {
       keys: getSortedDatasetIndices(chart, true),
-      values: parsed._stacks[scale.id]
+      values: parsed._stacks[scale.axis]
     };
     return applyStack(stack, value, meta.index);
   },
@@ -5324,7 +5321,7 @@ require$$0.extend(DatasetController.prototype, {
 
     function _compute() {
       if (stack) {
-        stack.values = parsed._stacks[scale.id]; // Need to consider individual stack values for data range,
+        stack.values = parsed._stacks[scale.axis]; // Need to consider individual stack values for data range,
         // in addition to the stacked value
 
         min = Math.min(min, value);
@@ -5343,8 +5340,8 @@ require$$0.extend(DatasetController.prototype, {
     function _skip() {
       item = data[i];
       parsed = _parsed[i];
-      value = parsed[scale.id];
-      otherValue = parsed[otherScale.id];
+      value = parsed[scale.axis];
+      otherValue = parsed[otherScale.axis];
       return item && item.hidden || isNaN(value) || otherMin > otherValue || otherMax < otherValue;
     }
 
@@ -5388,7 +5385,7 @@ require$$0.extend(DatasetController.prototype, {
     var i, ilen, value;
 
     for (i = 0, ilen = parsed.length; i < ilen; ++i) {
-      value = parsed[i][scale.id];
+      value = parsed[i][scale.axis];
 
       if (!isNaN(value)) {
         values.push(value);
@@ -5445,8 +5442,8 @@ require$$0.extend(DatasetController.prototype, {
     var parsed = me._getParsed(index);
 
     return {
-      label: iScale ? '' + iScale.getLabelForValue(parsed[iScale.id]) : '',
-      value: vScale ? '' + vScale.getLabelForValue(parsed[vScale.id]) : ''
+      label: iScale ? '' + iScale.getLabelForValue(parsed[iScale.axis]) : '',
+      value: vScale ? '' + vScale.getLabelForValue(parsed[vScale.axis]) : ''
     };
   },
 
@@ -7282,7 +7279,7 @@ function parseFloatBar(arr, item, vScale, i) {
   // to make stacking straight forward
 
 
-  item[vScale.id] = barEnd;
+  item[vScale.axis] = barEnd;
   item._custom = {
     barStart: barStart,
     barEnd: barEnd,
@@ -7306,12 +7303,12 @@ function parseArrayOrPrimitive(meta, data, start, count) {
   for (i = start, ilen = start + count; i < ilen; ++i) {
     entry = data[i];
     item = {};
-    item[iScale.id] = singleScale || iScale._parse(labels[i], i);
+    item[iScale.axis] = singleScale || iScale._parse(labels[i], i);
 
     if (require$$0.isArray(entry)) {
       parseFloatBar(entry, item, vScale, i);
     } else {
-      item[vScale.id] = vScale._parse(entry, i);
+      item[vScale.axis] = vScale._parse(entry, i);
     }
 
     parsed.push(item);
@@ -7361,13 +7358,13 @@ var controller_bar = core_datasetController.extend({
     for (i = start, ilen = start + count; i < ilen; ++i) {
       obj = data[i];
       item = {};
-      item[iScale.id] = iScale._parseObject(obj, iScale.axis, i);
+      item[iScale.axis] = iScale._parseObject(obj, iScale.axis, i);
       value = obj[vProp];
 
       if (require$$0.isArray(value)) {
         parseFloatBar(value, item, vScale, i);
       } else {
-        item[vScale.id] = vScale._parseObject(obj, vProp, i);
+        item[vScale.axis] = vScale._parseObject(obj, vProp, i);
       }
 
       parsed.push(item);
@@ -7388,9 +7385,9 @@ var controller_bar = core_datasetController.extend({
     var parsed = me._getParsed(index);
 
     var custom = parsed._custom;
-    var value = custom ? '[' + custom.start + ', ' + custom.end + ']' : '' + vScale.getLabelForValue(parsed[vScale.id]);
+    var value = custom ? '[' + custom.start + ', ' + custom.end + ']' : '' + vScale.getLabelForValue(parsed[vScale.axis]);
     return {
-      label: '' + iScale.getLabelForValue(parsed[iScale.id]),
+      label: '' + iScale.getLabelForValue(parsed[iScale.axis]),
       value: value
     };
   },
@@ -7526,7 +7523,7 @@ var controller_bar = core_datasetController.extend({
     var i, ilen;
 
     for (i = 0, ilen = meta.data.length; i < ilen; ++i) {
-      pixels.push(iScale.getPixelForValue(me._getParsed(i)[iScale.id]));
+      pixels.push(iScale.getPixelForValue(me._getParsed(i)[iScale.axis]));
     }
 
     return {
@@ -7551,9 +7548,9 @@ var controller_bar = core_datasetController.extend({
     var parsed = me._getParsed(index);
 
     var custom = parsed._custom;
-    var value = parsed[vScale.id];
+    var value = parsed[vScale.axis];
     var start = 0;
-    var length = meta._stacked ? me._applyStack(vScale, parsed) : parsed[vScale.id];
+    var length = meta._stacked ? me._applyStack(vScale, parsed) : parsed[vScale.axis];
     var base, head, size;
 
     if (length !== value) {
@@ -7616,7 +7613,7 @@ var controller_bar = core_datasetController.extend({
     require$$0.canvas.clipArea(chart.ctx, chart.chartArea);
 
     for (; i < ilen; ++i) {
-      if (!isNaN(me._getParsed(i)[vScale.id])) {
+      if (!isNaN(me._getParsed(i)[vScale.axis])) {
         rects[i].draw(me._ctx);
       }
     }
@@ -7671,16 +7668,16 @@ var controller_bubble = core_datasetController.extend({
   _parseObjectData: function _parseObjectData(meta, data, start, count) {
     var xScale = meta.xScale,
         yScale = meta.yScale;
-    var xId = xScale.id;
-    var yId = yScale.id;
     var parsed = [];
     var i, ilen, item;
 
     for (i = start, ilen = start + count; i < ilen; ++i) {
-      var _parsed$push;
-
       item = data[i];
-      parsed.push((_parsed$push = {}, _defineProperty(_parsed$push, xId, xScale._parseObject(item, 'x', i)), _defineProperty(_parsed$push, yId, yScale._parseObject(item, 'y', i)), _defineProperty(_parsed$push, "_custom", item && item.r && +item.r), _parsed$push));
+      parsed.push({
+        x: xScale._parseObject(item, 'x', i),
+        y: yScale._parseObject(item, 'y', i),
+        _custom: item && item.r && +item.r
+      });
     }
 
     return parsed;
@@ -7713,8 +7710,8 @@ var controller_bubble = core_datasetController.extend({
 
     var parsed = me._getParsed(index);
 
-    var x = xScale.getLabelForValue(parsed[xScale.id]);
-    var y = yScale.getLabelForValue(parsed[yScale.id]);
+    var x = xScale.getLabelForValue(parsed.x);
+    var y = yScale.getLabelForValue(parsed.y);
     var r = parsed._custom;
     return {
       label: meta.label,
@@ -7756,8 +7753,8 @@ var controller_bubble = core_datasetController.extend({
 
       var parsed = !reset && me._getParsed(index);
 
-      var x = reset ? xScale.getPixelForDecimal(0.5) : xScale.getPixelForValue(parsed[xScale.id]);
-      var y = reset ? yScale.getBasePixel() : yScale.getPixelForValue(parsed[yScale.id]);
+      var x = reset ? xScale.getPixelForDecimal(0.5) : xScale.getPixelForValue(parsed.x);
+      var y = reset ? yScale.getBasePixel() : yScale.getPixelForValue(parsed.y);
       var properties = {
         x: x,
         y: y,
@@ -8285,8 +8282,8 @@ var controller_line = core_datasetController.extend({
 
       var parsed = me._getParsed(index);
 
-      var x = xScale.getPixelForValue(parsed[xScale.id]);
-      var y = reset ? yScale.getBasePixel() : yScale.getPixelForValue(_stacked ? me._applyStack(yScale, parsed) : parsed[yScale.id]);
+      var x = xScale.getPixelForValue(parsed.x);
+      var y = reset ? yScale.getBasePixel() : yScale.getPixelForValue(_stacked ? me._applyStack(yScale, parsed) : parsed.y);
       var properties = {
         x: x,
         y: y,
@@ -8650,7 +8647,7 @@ var controller_radar = core_datasetController.extend({
 
     return {
       label: vScale._getLabels()[index],
-      value: '' + vScale.getLabelForValue(parsed[vScale.id])
+      value: '' + vScale.getLabelForValue(parsed[vScale.axis])
     };
   },
   update: function update(mode) {
