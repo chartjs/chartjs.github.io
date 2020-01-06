@@ -12122,6 +12122,21 @@ function () {
 
       return typeof meta.hidden === 'boolean' ? !meta.hidden : !this.data.datasets[datasetIndex].hidden;
     }
+  }, {
+    key: "setDatasetVisibility",
+    value: function setDatasetVisibility(datasetIndex, visible) {
+      var meta = this.getDatasetMeta(datasetIndex);
+      meta.hidden = !visible;
+    }
+  }, {
+    key: "setDataVisibility",
+    value: function setDataVisibility(datasetIndex, index, visible) {
+      var meta = this.getDatasetMeta(datasetIndex);
+
+      if (meta.data[index]) {
+        meta.data[index].hidden = !visible;
+      }
+    }
     /**
      * @private
      */
