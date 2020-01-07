@@ -12602,69 +12602,6 @@ function garbageCollect(caches, length) {
     }
   });
 }
-/**
- * Returns {width, height, offset} objects for the first, last, widest, highest tick
- * labels where offset indicates the anchor point offset from the top in pixels.
- */
-
-
-function computeLabelSizes(ctx, tickFonts, ticks, caches) {
-  var length = ticks.length;
-  var widths = [];
-  var heights = [];
-  var offsets = [];
-  var i, j, jlen, label, tickFont, fontString, cache, lineHeight, width, height, nestedLabel, widest, highest;
-
-  for (i = 0; i < length; ++i) {
-    label = ticks[i].label;
-    tickFont = ticks[i].major ? tickFonts.major : tickFonts.minor;
-    ctx.font = fontString = tickFont.string;
-    cache = caches[fontString] = caches[fontString] || {
-      data: {},
-      gc: []
-    };
-    lineHeight = tickFont.lineHeight;
-    width = height = 0; // Undefined labels and arrays should not be measured
-
-    if (!isNullOrUndef$1(label) && !isArray$1(label)) {
-      width = require$$0.measureText(ctx, cache.data, cache.gc, width, label);
-      height = lineHeight;
-    } else if (isArray$1(label)) {
-      // if it is an array let's measure each element
-      for (j = 0, jlen = label.length; j < jlen; ++j) {
-        nestedLabel = label[j]; // Undefined labels and arrays should not be measured
-
-        if (!isNullOrUndef$1(nestedLabel) && !isArray$1(nestedLabel)) {
-          width = require$$0.measureText(ctx, cache.data, cache.gc, width, nestedLabel);
-          height += lineHeight;
-        }
-      }
-    }
-
-    widths.push(width);
-    heights.push(height);
-    offsets.push(lineHeight / 2);
-  }
-
-  garbageCollect(caches, length);
-  widest = widths.indexOf(Math.max.apply(null, widths));
-  highest = heights.indexOf(Math.max.apply(null, heights));
-
-  function valueAt(idx) {
-    return {
-      width: widths[idx] || 0,
-      height: heights[idx] || 0,
-      offset: offsets[idx] || 0
-    };
-  }
-
-  return {
-    first: valueAt(0),
-    last: valueAt(length - 1),
-    widest: valueAt(widest),
-    highest: valueAt(highest)
-  };
-}
 
 function getTickMarkLength(options) {
   return options.drawTicks ? options.tickMarkLength : 0;
@@ -13361,10 +13298,86 @@ function (_Element) {
       var labelSizes = me._labelSizes;
 
       if (!labelSizes) {
-        me._labelSizes = labelSizes = computeLabelSizes(me.ctx, parseTickFontOptions(me.options.ticks), me.ticks, me._longestTextCache);
+        me._labelSizes = labelSizes = me._computeLabelSizes();
       }
 
       return labelSizes;
+    }
+    /**
+     * Returns {width, height, offset} objects for the first, last, widest, highest tick
+     * labels where offset indicates the anchor point offset from the top in pixels.
+     * @private
+     */
+
+  }, {
+    key: "_computeLabelSizes",
+    value: function _computeLabelSizes() {
+      var me = this;
+      var ctx = me.ctx;
+      var tickFonts = parseTickFontOptions(me.options.ticks);
+      var caches = me._longestTextCache;
+      var sampleSize = me.options.ticks.sampleSize;
+      var widths = [];
+      var heights = [];
+      var offsets = [];
+      var ticks = me.ticks;
+
+      if (sampleSize < ticks.length) {
+        ticks = sample(ticks, sampleSize);
+      }
+
+      var length = ticks.length;
+      var i, j, jlen, label, tickFont, fontString, cache, lineHeight, width, height, nestedLabel, widest, highest;
+
+      for (i = 0; i < length; ++i) {
+        label = ticks[i].label;
+        tickFont = ticks[i].major ? tickFonts.major : tickFonts.minor;
+        ctx.font = fontString = tickFont.string;
+        cache = caches[fontString] = caches[fontString] || {
+          data: {},
+          gc: []
+        };
+        lineHeight = tickFont.lineHeight;
+        width = height = 0; // Undefined labels and arrays should not be measured
+
+        if (!isNullOrUndef$1(label) && !isArray$1(label)) {
+          width = require$$0.measureText(ctx, cache.data, cache.gc, width, label);
+          height = lineHeight;
+        } else if (isArray$1(label)) {
+          // if it is an array let's measure each element
+          for (j = 0, jlen = label.length; j < jlen; ++j) {
+            nestedLabel = label[j]; // Undefined labels and arrays should not be measured
+
+            if (!isNullOrUndef$1(nestedLabel) && !isArray$1(nestedLabel)) {
+              width = require$$0.measureText(ctx, cache.data, cache.gc, width, nestedLabel);
+              height += lineHeight;
+            }
+          }
+        }
+
+        widths.push(width);
+        heights.push(height);
+        offsets.push(lineHeight / 2);
+      }
+
+      garbageCollect(caches, length);
+      widest = widths.indexOf(Math.max.apply(null, widths));
+      highest = heights.indexOf(Math.max.apply(null, heights));
+
+      function valueAt(idx) {
+        return {
+          width: widths[idx] || 0,
+          height: heights[idx] || 0,
+          offset: offsets[idx] || 0
+        };
+      }
+
+      return {
+        first: valueAt(0),
+        last: valueAt(length - 1),
+        widest: valueAt(widest),
+        highest: valueAt(highest)
+      };
     }
     /**
      * Used to get the label to display in the tooltip for the given value
