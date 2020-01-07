@@ -13511,7 +13511,9 @@ function (_Element) {
       var me = this;
       var tickOpts = me.options.ticks;
       var axisLength = me._length;
-      var ticksLimit = tickOpts.maxTicksLimit || axisLength / me._tickSize() + 1;
+
+      var ticksLimit = tickOpts.maxTicksLimit || axisLength / me._tickSize();
+
       var majorIndices = tickOpts.major.enabled ? getMajorIndices(ticks) : [];
       var numMajorIndices = majorIndices.length;
       var first = majorIndices[0];
@@ -16159,14 +16161,11 @@ function (_Scale) {
 
       var exampleLabel = me._tickFormatFunction(exampleTime, 0, ticksFromTimestamps(me, [exampleTime], me._majorUnit), format);
 
-      var size = me._getLabelSize(exampleLabel);
+      var size = me._getLabelSize(exampleLabel); // subtract 1 - if offset then there's one less label than tick
+      // if not offset then one half label padding is added to each end leaving room for one less label
 
-      var capacity = Math.floor(me.isHorizontal() ? me.width / size.w : me.height / size.h);
 
-      if (me.options.offset) {
-        capacity--;
-      }
-
+      var capacity = Math.floor(me.isHorizontal() ? me.width / size.w : me.height / size.h) - 1;
       return capacity > 0 ? capacity : 1;
     }
   }]);
