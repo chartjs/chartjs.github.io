@@ -7745,9 +7745,7 @@ var controller_bubble = core_datasetController.extend({
 
     var includeOptions = me._includeOptions(mode, sharedOptions);
 
-    var i;
-
-    for (i = 0; i < points.length; i++) {
+    for (var i = 0; i < points.length; i++) {
       var point = points[i];
       var index = start + i;
 
@@ -7762,7 +7760,7 @@ var controller_bubble = core_datasetController.extend({
       };
 
       if (includeOptions) {
-        properties.options = i === 0 ? firstOpts : me._resolveDataElementOptions(i, mode);
+        properties.options = me._resolveDataElementOptions(i, mode);
 
         if (reset) {
           properties.options.radius = 0;
@@ -8274,9 +8272,7 @@ var controller_line = core_datasetController.extend({
 
     var includeOptions = me._includeOptions(mode, sharedOptions);
 
-    var i;
-
-    for (i = 0; i < points.length; ++i) {
+    for (var i = 0; i < points.length; ++i) {
       var index = start + i;
       var point = points[i];
 
@@ -8291,7 +8287,7 @@ var controller_line = core_datasetController.extend({
       };
 
       if (includeOptions) {
-        properties.options = i === 0 ? firstOpts : me._resolveDataElementOptions(index, mode);
+        properties.options = me._resolveDataElementOptions(index, mode);
       }
 
       me._updateElement(point, index, properties, mode);
