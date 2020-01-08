@@ -3010,6 +3010,17 @@ function _angleBetween(angle, start, end) {
 
   return a === s || a === e || angleToStart > angleToEnd && startToAngle < endToAngle;
 }
+/**
+ * Limit `value` between `min` and `max`
+ * @param {number} value
+ * @param {number} min
+ * @param {number} max
+ * @private
+ */
+
+function _limitValue(value, min, max) {
+  return Math.max(min, Math.min(max, value));
+}
 
 var math = /*#__PURE__*/Object.freeze({
 __proto__: null,
@@ -3027,7 +3038,8 @@ getAngleFromPoint: getAngleFromPoint,
 distanceBetweenPoints: distanceBetweenPoints,
 _angleDiff: _angleDiff,
 _normalizeAngle: _normalizeAngle,
-_angleBetween: _angleBetween
+_angleBetween: _angleBetween,
+_limitValue: _limitValue
 });
 
 var EPSILON = Number.EPSILON || 1e-14;
@@ -6967,6 +6979,10 @@ function parseBorderSkipped(bar) {
   return res;
 }
 
+function skipOrLimit(skip, value, min, max) {
+  return skip ? 0 : Math.max(Math.min(value, max), min);
+}
+
 function parseBorderWidth(bar, maxW, maxH) {
   var value = bar.options.borderWidth;
   var skip = parseBorderSkipped(bar);
@@ -6982,10 +6998,10 @@ function parseBorderWidth(bar, maxW, maxH) {
   }
 
   return {
-    t: skip.top || t < 0 ? 0 : t > maxH ? maxH : t,
-    r: skip.right || r < 0 ? 0 : r > maxW ? maxW : r,
-    b: skip.bottom || b < 0 ? 0 : b > maxH ? maxH : b,
-    l: skip.left || l < 0 ? 0 : l > maxW ? maxW : l
+    t: skipOrLimit(skip.top, t, 0, maxH),
+    r: skipOrLimit(skip.right, r, 0, maxW),
+    b: skipOrLimit(skip.bottom, b, 0, maxH),
+    l: skipOrLimit(skip.left, l, 0, maxW)
   };
 }
 
@@ -7278,6 +7294,10 @@ function parseArrayOrPrimitive(meta, data, start, count) {
   return parsed;
 }
 
+function isFloatBar(custom) {
+  return custom && custom.barStart !== undefined && custom.barEnd !== undefined;
+}
+
 var controller_bar = core_datasetController.extend({
   dataElementType: require$$9.Rectangle,
 
@@ -7346,7 +7366,7 @@ var controller_bar = core_datasetController.extend({
     var parsed = me._getParsed(index);
 
     var custom = parsed._custom;
-    var value = custom ? '[' + custom.start + ', ' + custom.end + ']' : '' + vScale.getLabelForValue(parsed[vScale.axis]);
+    var value = isFloatBar(custom) ? '[' + custom.start + ', ' + custom.end + ']' : '' + vScale.getLabelForValue(parsed[vScale.axis]);
     return {
       label: '' + iScale.getLabelForValue(parsed[iScale.axis]),
       value: value
@@ -7445,6 +7465,13 @@ var controller_bar = core_datasetController.extend({
       if (item.index === last) {
         break;
       }
+    } // No stacks? that means there is no visible data. Let's still initialize an `undefined`
+    // stack where possible invisible bars will be located.
+    // https://github.com/chartjs/Chart.js/issues/6368
+
+
+    if (!stacks.length) {
+      stacks.push(undefined);
     }
 
     return stacks;
@@ -7511,7 +7538,7 @@ var controller_bar = core_datasetController.extend({
     var custom = parsed._custom;
     var value = parsed[vScale.axis];
     var start = 0;
-    var length = meta._stacked ? me._applyStack(vScale, parsed) : parsed[vScale.axis];
+    var length = meta._stacked ? me._applyStack(vScale, parsed) : value;
     var base, head, size;
 
     if (length !== value) {
@@ -7519,7 +7546,7 @@ var controller_bar = core_datasetController.extend({
       length = value;
     }
 
-    if (custom && custom.barStart !== undefined && custom.barEnd !== undefined) {
+    if (isFloatBar(custom)) {
       value = custom.barStart;
       length = custom.barEnd - custom.barStart; // bars crossing origin are not stacked
 
@@ -7528,9 +7555,13 @@ var controller_bar = core_datasetController.extend({
       }
 
       start += value;
-    }
+    } // Limit the bar to only extend up to 10 pixels past scale bounds (chartArea)
+    // So we don't try to draw so huge rectangles.
+    // https://github.com/chartjs/Chart.js/issues/5247
+    // TODO: use borderWidth instead (need to move the parsing from rectangle)
 
-    base = vScale.getPixelForValue(start);
+
+    base = require$$0.math._limitValue(vScale.getPixelForValue(start), vScale._startPixel - 10, vScale._endPixel + 10);
     head = vScale.getPixelForValue(start + length);
     size = head - base;
 
