@@ -2786,7 +2786,7 @@ function drawPoint(ctx, style, radius, x, y, rotation) {
  */
 
 function _isPointInArea(point, area) {
-  var epsilon = 1e-6; // 1e-6 is margin in pixels for accumulated error.
+  var epsilon = 0.5; // margin - to match rounded decimals
 
   return point.x > area.left - epsilon && point.x < area.right + epsilon && point.y > area.top - epsilon && point.y < area.bottom + epsilon;
 }
@@ -8136,7 +8136,8 @@ defaults._set('horizontalBar', {
   scales: {
     x: {
       type: 'linear',
-      position: 'bottom'
+      position: 'bottom',
+      beginAtZero: true
     },
     y: {
       type: 'category',
@@ -8804,6 +8805,8 @@ function evaluateAllVisibleItems(chart, handler) {
 /**
  * Helper function to check the items at the hovered index on the index scale
  * @param {Chart} chart - the chart
+ * @param {string} axis - the axis mode. x|y|xy
+ * @param {object} position - the point to be nearest to
  * @param {function} handler - the callback to execute for each visible item
  * @return whether all scales were of a suitable type
  */
@@ -8862,14 +8865,19 @@ function getDistanceMetricForAxis(axis) {
 }
 /**
  * Helper function to get the items that intersect the event position
- * @param {ChartElement[]} items - elements to filter
+ * @param {Chart} chart - the chart
  * @param {object} position - the point to be nearest to
+ * @param {string} axis - the axis mode. x|y|xy
  * @return {ChartElement[]} the nearest items
  */
 
 
 function getIntersectItems(chart, position, axis) {
   var items = [];
+
+  if (!_isPointInArea(position, chart.chartArea)) {
+    return items;
+  }
 
   var evaluationFunc = function evaluationFunc(element, datasetIndex, index) {
     if (element.inRange(position.x, position.y)) {
@@ -8904,6 +8912,10 @@ function getNearestItems(chart, position, axis, intersect) {
   var distanceMetric = getDistanceMetricForAxis(axis);
   var minDistance = Number.POSITIVE_INFINITY;
   var items = [];
+
+  if (!_isPointInArea(position, chart.chartArea)) {
+    return items;
+  }
 
   var evaluationFunc = function evaluationFunc(element, datasetIndex, index) {
     if (intersect && !element.inRange(position.x, position.y)) {
@@ -10954,7 +10966,6 @@ function (_Element) {
 
     me.opacity = 0;
     me._active = [];
-    me._lastActive = [];
     me.initialize();
     return _this;
   }
@@ -11479,31 +11490,30 @@ function (_Element) {
     value: function handleEvent(e) {
       var me = this;
       var options = me.options;
+      var lastActive = me._active || [];
       var changed = false;
-      me._lastActive = me._lastActive || []; // Find Active Elements for tooltips
+      var active = []; // Find Active Elements for tooltips
 
-      if (e.type === 'mouseout') {
-        me._active = [];
-      } else {
-        me._active = me._chart.getElementsAtEventForMode(e, options.mode, options);
+      if (e.type !== 'mouseout') {
+        active = me._chart.getElementsAtEventForMode(e, options.mode, options);
 
         if (options.reverse) {
-          me._active.reverse();
+          active.reverse();
         }
       } // Remember Last Actives
 
 
-      changed = !helpers._elementsEqual(me._active, me._lastActive); // Only handle target event on tooltip change
+      changed = !helpers._elementsEqual(active, lastActive); // Only handle target event on tooltip change
 
       if (changed) {
-        me._lastActive = me._active;
+        me._active = active;
 
         if (options.enabled || options.custom) {
           me._eventPosition = {
             x: e.x,
             y: e.y
           };
-          me.update(true); // me.pivot();
+          me.update(true);
         }
       }
 
