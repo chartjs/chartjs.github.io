@@ -2928,10 +2928,10 @@ var sign = Math.sign ? function (x) {
   return x > 0 ? 1 : -1;
 };
 function toRadians(degrees) {
-  return degrees * (Math.PI / 180);
+  return degrees * (PI$1 / 180);
 }
 function toDegrees(radians) {
-  return radians * (180 / Math.PI);
+  return radians * (180 / PI$1);
 }
 /**
  * Returns the number of decimal places
@@ -2963,8 +2963,8 @@ function getAngleFromPoint(centrePoint, anglePoint) {
   var radialDistanceFromCenter = Math.sqrt(distanceFromXCenter * distanceFromXCenter + distanceFromYCenter * distanceFromYCenter);
   var angle = Math.atan2(distanceFromYCenter, distanceFromXCenter);
 
-  if (angle < -0.5 * Math.PI) {
-    angle += 2.0 * Math.PI; // make sure the returned angle is in the range of (-PI/2, 3PI/2]
+  if (angle < -0.5 * PI$1) {
+    angle += TAU; // make sure the returned angle is in the range of (-PI/2, 3PI/2]
   }
 
   return {
@@ -5737,6 +5737,11 @@ helpers.extend(DatasetController.prototype, {
 
     if (numData > numMeta) {
       me.insertElements(numMeta, numData - numMeta);
+
+      if (changed && numMeta) {
+        // insertElements parses the new elements. The old ones might need parsing too.
+        me._parse(0, numMeta);
+      }
     } else if (numData < numMeta) {
       meta.data.splice(numData, numMeta - numData);
 
@@ -8383,7 +8388,7 @@ defaults._set('polarArea', {
       }
     }
   },
-  startAngle: -0.5 * Math.PI,
+  startAngle: 0,
   legend: {
     labels: {
       generateLabels: function generateLabels(chart) {
@@ -8434,6 +8439,12 @@ defaults._set('polarArea', {
   }
 });
 
+function getStartAngleRadians(deg) {
+  // radialLinear scale draws angleLines using startAngle. 0 is expected to be at top.
+  // Here we adjust to standard unit circle used in drawing, where 0 is at right.
+  return helpers.math.toRadians(deg) - 0.5 * Math.PI;
+}
+
 var polarArea = DatasetController.extend({
   dataElementType: elements.Arc,
 
@@ -8456,13 +8467,11 @@ var polarArea = DatasetController.extend({
     return this._cachedMeta.rAxisID;
   },
   update: function update(mode) {
-    var me = this;
-    var meta = me._cachedMeta;
-    var arcs = meta.data;
+    var arcs = this._cachedMeta.data;
 
-    me._updateRadius();
+    this._updateRadius();
 
-    me.updateElements(arcs, 0, mode);
+    this.updateElements(arcs, 0, mode);
   },
 
   /**
@@ -8490,7 +8499,7 @@ var polarArea = DatasetController.extend({
     var scale = chart.scales.r;
     var centerX = scale.xCenter;
     var centerY = scale.yCenter;
-    var datasetStartAngle = opts.startAngle || 0;
+    var datasetStartAngle = getStartAngleRadians(opts.startAngle);
     var angle = datasetStartAngle;
     var i;
     me._cachedMeta.count = me.countVisibleElements();
@@ -15189,7 +15198,7 @@ function fitWithPointLabels(scale) {
     scale._pointLabelSizes[i] = textSize; // Add quarter circle to make degree 0 mean top of circle
 
     var angleRadians = scale.getIndexAngle(i);
-    var angle = toDegrees(angleRadians) % 360;
+    var angle = toDegrees(angleRadians);
     var hLimits = determineLimits(angle, pointPosition.x, textSize.w, 0, 180);
     var vLimits = determineLimits(angle, pointPosition.y, textSize.h, 90, 270);
 
@@ -15426,12 +15435,10 @@ function (_LinearScaleBase) {
     key: "getIndexAngle",
     value: function getIndexAngle(index) {
       var chart = this.chart;
-      var angleMultiplier = 360 / chart.data.labels.length;
+      var angleMultiplier = Math.PI * 2 / chart.data.labels.length;
       var options = chart.options || {};
-      var startAngle = options.startAngle || 0; // Start from the top instead of right, so remove a quarter of the circle
-
-      var angle = (index * angleMultiplier + startAngle) % 360;
-      return (angle < 0 ? angle + 360 : angle) * Math.PI * 2 / 360;
+      var startAngle = options.startAngle || 0;
+      return _normalizeAngle(index * angleMultiplier + toRadians(startAngle));
     }
   }, {
     key: "getDistanceFromCenterForValue",
