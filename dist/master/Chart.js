@@ -12819,6 +12819,8 @@ defaults._set('scale', {
     minRotation: 0,
     maxRotation: 50,
     mirror: false,
+    lineWidth: 0,
+    strokeStyle: '',
     padding: 0,
     display: true,
     autoSkip: true,
@@ -12913,7 +12915,9 @@ function parseFontOptions(options, nestedOpts) {
     fontStyle: valueOrDefault$7(nestedOpts.fontStyle, options.fontStyle),
     lineHeight: valueOrDefault$7(nestedOpts.lineHeight, options.lineHeight)
   }), {
-    color: resolve$5([nestedOpts.fontColor, options.fontColor, defaults.fontColor])
+    color: resolve$5([nestedOpts.fontColor, options.fontColor, defaults.fontColor]),
+    lineWidth: valueOrDefault$7(nestedOpts.lineWidth, options.lineWidth),
+    strokeStyle: valueOrDefault$7(nestedOpts.strokeStyle, options.strokeStyle)
   });
 }
 
@@ -14153,7 +14157,8 @@ function (_Element) {
 
       for (i = 0, ilen = items.length; i < ilen; ++i) {
         var item = items[i];
-        var tickFont = item.font; // Make sure we draw text in the correct color and font
+        var tickFont = item.font;
+        var useStroke = tickFont.lineWidth > 0 && tickFont.strokeStyle !== ''; // Make sure we draw text in the correct color and font
 
         ctx.save();
         ctx.translate(item.x, item.y);
@@ -14162,16 +14167,30 @@ function (_Element) {
         ctx.fillStyle = tickFont.color;
         ctx.textBaseline = 'middle';
         ctx.textAlign = item.textAlign;
+
+        if (useStroke) {
+          ctx.strokeStyle = tickFont.strokeStyle;
+          ctx.lineWidth = tickFont.lineWidth;
+        }
+
         var label = item.label;
         var y = item.textOffset;
 
         if (isArray$1(label)) {
           for (j = 0, jlen = label.length; j < jlen; ++j) {
             // We just make sure the multiline element is a string here..
+            if (useStroke) {
+              ctx.strokeText('' + label[j], 0, y);
+            }
+
             ctx.fillText('' + label[j], 0, y);
             y += tickFont.lineHeight;
           }
         } else {
+          if (useStroke) {
+            ctx.strokeText(label, 0, y);
+          }
+
           ctx.fillText(label, 0, y);
         }
 
