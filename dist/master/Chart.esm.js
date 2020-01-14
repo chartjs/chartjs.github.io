@@ -14367,6 +14367,10 @@ function (_Scale) {
     value: function _parse(raw, index) {
       var labels = this._getLabels();
 
+      if (labels[index] === raw) {
+        return index;
+      }
+
       var first = labels.indexOf(raw);
       var last = labels.lastIndexOf(raw);
       return first === -1 || first !== last ? index : first;
