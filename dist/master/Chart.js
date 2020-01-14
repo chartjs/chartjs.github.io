@@ -5089,12 +5089,29 @@ helpers.extend(DatasetController.prototype, {
 
     var scaleChanged = me._scaleCheck();
 
-    var meta = me._cachedMeta; // make sure cached _stacked status is current
+    var meta = me._cachedMeta;
+    var dataset = me.getDataset();
+    var stackChanged = false; // make sure cached _stacked status is current
 
-    meta._stacked = isStacked(meta.vScale, meta); // Re-sync meta data in case the user replaced the data array or if we missed
+    meta._stacked = isStacked(meta.vScale, meta); // detect change in stack option
+
+    if (meta.stack !== dataset.stack) {
+      stackChanged = true; // remove values from old stack
+
+      meta._parsed.forEach(function (parsed) {
+        delete parsed._stacks[meta.vScale.id][meta.index];
+      });
+
+      meta.stack = dataset.stack;
+    } // Re-sync meta data in case the user replaced the data array or if we missed
     // any updates and so make sure that we handle number of datapoints changing.
 
-    me.resyncElements(dataChanged | labelsChanged | scaleChanged);
+
+    me.resyncElements(dataChanged | labelsChanged | scaleChanged | stackChanged); // if stack changed, update stack values for the whole dataset
+
+    if (stackChanged) {
+      updateStacks(me, meta._parsed);
+    }
   },
 
   /**
@@ -12908,28 +12925,6 @@ function getScaleLabelHeight(options) {
   return font.lineHeight + padding.height;
 }
 
-function parseFontOptions(options, nestedOpts) {
-  return helpers.extend(helpers.options._parseFont({
-    fontFamily: valueOrDefault$7(nestedOpts.fontFamily, options.fontFamily),
-    fontSize: valueOrDefault$7(nestedOpts.fontSize, options.fontSize),
-    fontStyle: valueOrDefault$7(nestedOpts.fontStyle, options.fontStyle),
-    lineHeight: valueOrDefault$7(nestedOpts.lineHeight, options.lineHeight)
-  }), {
-    color: resolve$5([nestedOpts.fontColor, options.fontColor, defaults.fontColor]),
-    lineWidth: valueOrDefault$7(nestedOpts.lineWidth, options.lineWidth),
-    strokeStyle: valueOrDefault$7(nestedOpts.strokeStyle, options.strokeStyle)
-  });
-}
-
-function parseTickFontOptions(options) {
-  var minor = parseFontOptions(options, options.minor);
-  var major = options.major.enabled ? parseFontOptions(options, options.major) : minor;
-  return {
-    minor: minor,
-    major: major
-  };
-}
-
 function getEvenSpacing(arr) {
   var len = arr.length;
   var i, diff;
@@ -13476,15 +13471,13 @@ function (_Element) {
 
 
       if (tickOpts.display && display) {
-        var tickFonts = parseTickFontOptions(tickOpts);
-
         var labelSizes = me._getLabelSizes();
 
         var firstLabelSize = labelSizes.first;
         var lastLabelSize = labelSizes.last;
         var widestLabelSize = labelSizes.widest;
         var highestLabelSize = labelSizes.highest;
-        var lineSpace = tickFonts.minor.lineHeight * 0.4;
+        var lineSpace = highestLabelSize.offset * 0.8;
         var tickPadding = tickOpts.padding;
 
         if (isHorizontal) {
@@ -13606,7 +13599,6 @@ function (_Element) {
     value: function _computeLabelSizes() {
       var me = this;
       var ctx = me.ctx;
-      var tickFonts = parseTickFontOptions(me.options.ticks);
       var caches = me._longestTextCache;
       var sampleSize = me.options.ticks.sampleSize;
       var widths = [];
@@ -13623,7 +13615,7 @@ function (_Element) {
 
       for (i = 0; i < length; ++i) {
         label = ticks[i].label;
-        tickFont = ticks[i].major ? tickFonts.major : tickFonts.minor;
+        tickFont = me._resolveTickFontOptions(i);
         ctx.font = fontString = tickFont.string;
         cache = caches[fontString] = caches[fontString] || {
           data: {},
@@ -13978,7 +13970,6 @@ function (_Element) {
       var isMirrored = optionTicks.mirror;
       var isHorizontal = me.isHorizontal();
       var ticks = me.ticks;
-      var fonts = parseTickFontOptions(optionTicks);
       var tickPadding = optionTicks.padding;
       var tl = getTickMarkLength(options.gridLines);
       var rotation = -helpers.math.toRadians(me.labelRotation);
@@ -14023,7 +14014,7 @@ function (_Element) {
         tick = ticks[i];
         label = tick.label;
         pixel = me.getPixelForTick(i) + optionTicks.labelOffset;
-        font = tick.major ? fonts.major : fonts.minor;
+        font = me._resolveTickFontOptions(i);
         lineHeight = font.lineHeight;
         lineCount = isArray$1(label) ? label.length : 1;
 
@@ -14354,6 +14345,28 @@ function (_Element) {
       }
 
       return result;
+    }
+  }, {
+    key: "_resolveTickFontOptions",
+    value: function _resolveTickFontOptions(index) {
+      var me = this;
+      var options = me.options.ticks;
+      var context = {
+        chart: me.chart,
+        scale: me,
+        tick: me.ticks[index],
+        index: index
+      };
+      return helpers.extend(helpers.options._parseFont({
+        fontFamily: resolve$5([options.fontFamily], context),
+        fontSize: resolve$5([options.fontSize], context),
+        fontStyle: resolve$5([options.fontStyle], context),
+        lineHeight: resolve$5([options.lineHeight], context)
+      }), {
+        color: resolve$5([options.fontColor, defaults.fontColor], context),
+        lineWidth: resolve$5([options.lineWidth], context),
+        strokeStyle: resolve$5([options.strokeStyle], context)
+      });
     }
   }]);
 
