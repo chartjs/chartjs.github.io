@@ -5120,7 +5120,7 @@ helpers.extend(DatasetController.prototype, {
    */
   _configure: function _configure() {
     var me = this;
-    me._config = helpers.merge({}, [me.chart.options.datasets[me._type], me.getDataset()], {
+    me._config = helpers.merge({}, [me.chart.options[me._type].datasets, me.getDataset()], {
       merger: function merger(key, target, source) {
         if (key !== 'data') {
           helpers._merger(key, target, source);
@@ -5313,14 +5313,14 @@ helpers.extend(DatasetController.prototype, {
       keys: getSortedDatasetIndices(this.chart, true),
       values: null
     };
+    var min = Number.POSITIVE_INFINITY;
     var max = Number.NEGATIVE_INFINITY;
 
     var _getUserBounds = getUserBounds(otherScale),
         otherMin = _getUserBounds.min,
         otherMax = _getUserBounds.max;
 
-    var i, item, value, parsed, min, minPositive, otherValue;
-    min = minPositive = Number.POSITIVE_INFINITY;
+    var i, item, value, parsed, otherValue;
 
     function _compute() {
       if (stack) {
@@ -5334,10 +5334,6 @@ helpers.extend(DatasetController.prototype, {
 
       min = Math.min(min, value);
       max = Math.max(max, value);
-
-      if (value > 0) {
-        minPositive = Math.min(minPositive, value);
-      }
     }
 
     function _skip() {
@@ -5374,8 +5370,7 @@ helpers.extend(DatasetController.prototype, {
 
     return {
       min: min,
-      max: max,
-      minPositive: minPositive
+      max: max
     };
   },
 
@@ -7144,6 +7139,16 @@ defaults._set('bar', {
   hover: {
     mode: 'index'
   },
+  datasets: {
+    categoryPercentage: 0.8,
+    barPercentage: 0.9,
+    animation: {
+      numbers: {
+        type: 'number',
+        properties: ['x', 'y', 'base', 'width', 'height']
+      }
+    }
+  },
   scales: {
     x: {
       type: 'category',
@@ -7155,19 +7160,6 @@ defaults._set('bar', {
     y: {
       type: 'linear',
       beginAtZero: true
-    }
-  }
-});
-
-defaults._set('datasets', {
-  bar: {
-    categoryPercentage: 0.8,
-    barPercentage: 0.9,
-    animation: {
-      numbers: {
-        type: 'number',
-        properties: ['x', 'y', 'base', 'width', 'height']
-      }
     }
   }
 });
@@ -8171,6 +8163,10 @@ defaults._set('horizontalBar', {
       }
     }
   },
+  datasets: {
+    categoryPercentage: 0.8,
+    barPercentage: 0.9
+  },
   elements: {
     rectangle: {
       borderSkipped: 'left'
@@ -8179,13 +8175,6 @@ defaults._set('horizontalBar', {
   tooltips: {
     mode: 'index',
     axis: 'y'
-  }
-});
-
-defaults._set('datasets', {
-  horizontalBar: {
-    categoryPercentage: 0.8,
-    barPercentage: 0.9
   }
 });
 
@@ -8749,6 +8738,9 @@ defaults._set('scatter', {
       position: 'left'
     }
   },
+  datasets: {
+    showLine: false
+  },
   tooltips: {
     callbacks: {
       title: function title() {
@@ -8758,12 +8750,6 @@ defaults._set('scatter', {
         return '(' + item.label + ', ' + item.value + ')';
       }
     }
-  }
-});
-
-defaults._set('datasets', {
-  scatter: {
-    showLine: false
   }
 }); // Scatter charts use line controllers
 
@@ -13106,7 +13092,6 @@ function (_Element) {
           minDefined = _me$_getUserBounds.minDefined,
           maxDefined = _me$_getUserBounds.maxDefined;
 
-      var minPositive = Number.POSITIVE_INFINITY;
       var i, ilen, metas, minmax;
 
       if (minDefined && maxDefined) {
@@ -13128,14 +13113,11 @@ function (_Element) {
         if (!maxDefined) {
           max = Math.max(max, minmax.max);
         }
-
-        minPositive = Math.min(minPositive, minmax.minPositive);
       }
 
       return {
         min: min,
-        max: max,
-        minPositive: minPositive
+        max: max
       };
     }
   }, {
@@ -14863,12 +14845,13 @@ function (_LinearScaleBase) {
 
 LinearScale._defaults = defaultConfig$1;
 
-var valueOrDefault$8 = helpers.valueOrDefault;
-var log10$1 = helpers.math.log10;
-
 function isMajor(tickVal) {
-  var remain = tickVal / Math.pow(10, Math.floor(log10$1(tickVal)));
+  var remain = tickVal / Math.pow(10, Math.floor(log10(tickVal)));
   return remain === 1;
+}
+
+function finiteOrDefault(value, def) {
+  return isNumberFinite(value) ? value : def;
 }
 /**
  * Generate a set of logarithmic ticks
@@ -14879,20 +14862,12 @@ function isMajor(tickVal) {
 
 
 function generateTicks$1(generationOptions, dataRange) {
-  var endExp = Math.floor(log10$1(dataRange.max));
+  var endExp = Math.floor(log10(dataRange.max));
   var endSignificand = Math.ceil(dataRange.max / Math.pow(10, endExp));
   var ticks = [];
-  var tickVal = valueOrDefault$8(generationOptions.min, Math.pow(10, Math.floor(log10$1(dataRange.min))));
-  var exp, significand;
-
-  if (tickVal === 0) {
-    exp = 0;
-    significand = 0;
-  } else {
-    exp = Math.floor(log10$1(tickVal));
-    significand = Math.floor(tickVal / Math.pow(10, exp));
-  }
-
+  var tickVal = finiteOrDefault(generationOptions.min, Math.pow(10, Math.floor(log10(dataRange.min))));
+  var exp = Math.floor(log10(tickVal));
+  var significand = Math.floor(tickVal / Math.pow(10, exp));
   var precision = exp < 0 ? Math.pow(10, Math.abs(exp)) : 1;
 
   do {
@@ -14911,7 +14886,7 @@ function generateTicks$1(generationOptions, dataRange) {
     tickVal = Math.round(significand * Math.pow(10, exp) * precision) / precision;
   } while (exp < endExp || exp === endExp && significand < endSignificand);
 
-  var lastTick = valueOrDefault$8(generationOptions.max, tickVal);
+  var lastTick = finiteOrDefault(generationOptions.max, tickVal);
   ticks.push({
     value: lastTick,
     major: isMajor(tickVal)
@@ -14946,7 +14921,11 @@ function (_Scale) {
       // eslint-disable-line no-unused-vars
       var value = LinearScaleBase.prototype._parse.apply(this, arguments);
 
-      return helpers.isFinite(value) && value >= 0 ? value : undefined;
+      if (value === 0) {
+        return undefined;
+      }
+
+      return isNumberFinite(value) && value > 0 ? value : NaN;
     }
   }, {
     key: "determineDataLimits",
@@ -14957,10 +14936,8 @@ function (_Scale) {
 
       var min = minmax.min;
       var max = minmax.max;
-      var minPositive = minmax.minPositive;
-      me.min = helpers.isFinite(min) ? Math.max(0, min) : null;
-      me.max = helpers.isFinite(max) ? Math.max(0, max) : null;
-      me.minNotZero = helpers.isFinite(minPositive) ? minPositive : null;
+      me.min = isNumberFinite(min) ? Math.max(0, min) : null;
+      me.max = isNumberFinite(max) ? Math.max(0, max) : null;
       me.handleTickRangeOptions();
     }
   }, {
@@ -14973,31 +14950,22 @@ function (_Scale) {
       var max = me.max;
 
       if (min === max) {
-        if (min !== 0 && min !== null) {
-          min = Math.pow(10, Math.floor(log10$1(min)) - 1);
-          max = Math.pow(10, Math.floor(log10$1(max)) + 1);
-        } else {
+        if (min <= 0) {
+          // includes null
           min = DEFAULT_MIN;
           max = DEFAULT_MAX;
-        }
-      }
-
-      if (min === null) {
-        min = Math.pow(10, Math.floor(log10$1(max)) - 1);
-      }
-
-      if (max === null) {
-        max = min !== 0 ? Math.pow(10, Math.floor(log10$1(min)) + 1) : DEFAULT_MAX;
-      }
-
-      if (me.minNotZero === null) {
-        if (min > 0) {
-          me.minNotZero = min;
-        } else if (max < 1) {
-          me.minNotZero = Math.pow(10, Math.floor(log10$1(max)));
         } else {
-          me.minNotZero = DEFAULT_MIN;
+          min = Math.pow(10, Math.floor(log10(min)) - 1);
+          max = Math.pow(10, Math.floor(log10(max)) + 1);
         }
+      }
+
+      if (min <= 0) {
+        min = Math.pow(10, Math.floor(log10(max)) - 1);
+      }
+
+      if (max <= 0) {
+        max = Math.pow(10, Math.floor(log10(min)) + 1);
       }
 
       me.min = min;
@@ -15034,6 +15002,11 @@ function (_Scale) {
       return ticks;
     }
   }, {
+    key: "getLabelForValue",
+    value: function getLabelForValue(value) {
+      return value === undefined ? 0 : value;
+    }
+  }, {
     key: "getPixelForTick",
     value: function getPixelForTick(index) {
       var ticks = this.ticks;
@@ -15044,56 +15017,34 @@ function (_Scale) {
 
       return this.getPixelForValue(ticks[index].value);
     }
-    /**
-     * Returns the value of the first tick.
-     * @param {number} value - The minimum not zero value.
-     * @return {number} The first tick value.
-     * @private
-     */
-
-  }, {
-    key: "_getFirstTickValue",
-    value: function _getFirstTickValue(value) {
-      var exp = Math.floor(log10$1(value));
-      var significand = Math.floor(value / Math.pow(10, exp));
-      return significand * Math.pow(10, exp);
-    }
   }, {
     key: "_configure",
     value: function _configure() {
       var me = this;
       var start = me.min;
-      var offset = 0;
 
       Scale.prototype._configure.call(me);
 
-      if (start === 0) {
-        start = me._getFirstTickValue(me.minNotZero);
-        offset = valueOrDefault$8(me.options.ticks.fontSize, defaults.fontSize) / me._length;
-      }
-
-      me._startValue = log10$1(start);
-      me._valueOffset = offset;
-      me._valueRange = (log10$1(me.max) - log10$1(start)) / (1 - offset);
+      me._startValue = log10(start);
+      me._valueRange = log10(me.max) - log10(start);
     }
   }, {
     key: "getPixelForValue",
     value: function getPixelForValue(value) {
       var me = this;
-      var decimal = 0;
 
-      if (value > me.min && value > 0) {
-        decimal = (log10$1(value) - me._startValue) / me._valueRange + me._valueOffset;
+      if (value === undefined || value === 0) {
+        value = me.min;
       }
 
-      return me.getPixelForDecimal(decimal);
+      return me.getPixelForDecimal(value === me.min ? 0 : (log10(value) - me._startValue) / me._valueRange);
     }
   }, {
     key: "getValueForPixel",
     value: function getValueForPixel(pixel) {
       var me = this;
       var decimal = me.getDecimalForPixel(pixel);
-      return decimal === 0 && me.min === 0 ? 0 : Math.pow(10, me._startValue + (decimal - me._valueOffset) * me._valueRange);
+      return Math.pow(10, me._startValue + decimal * me._valueRange);
     }
   }]);
 
@@ -15103,7 +15054,7 @@ function (_Scale) {
 
 LogarithmicScale._defaults = defaultConfig$2;
 
-var valueOrDefault$9 = helpers.valueOrDefault;
+var valueOrDefault$8 = helpers.valueOrDefault;
 var valueAtIndexOrDefault$1 = helpers.valueAtIndexOrDefault;
 var resolve$6 = helpers.options.resolve;
 var defaultConfig$3 = {
@@ -15149,7 +15100,7 @@ function getTickBackdropHeight(opts) {
   var tickOpts = opts.ticks;
 
   if (tickOpts.display && opts.display) {
-    return valueOrDefault$9(tickOpts.fontSize, defaults.fontSize) + tickOpts.backdropPaddingY * 2;
+    return valueOrDefault$8(tickOpts.fontSize, defaults.fontSize) + tickOpts.backdropPaddingY * 2;
   }
 
   return 0;
@@ -15533,8 +15484,8 @@ function (_LinearScaleBase) {
       var opts = me.options;
       var gridLineOpts = opts.gridLines;
       var angleLineOpts = opts.angleLines;
-      var lineWidth = valueOrDefault$9(angleLineOpts.lineWidth, gridLineOpts.lineWidth);
-      var lineColor = valueOrDefault$9(angleLineOpts.color, gridLineOpts.color);
+      var lineWidth = valueOrDefault$8(angleLineOpts.lineWidth, gridLineOpts.lineWidth);
+      var lineColor = valueOrDefault$8(angleLineOpts.color, gridLineOpts.color);
       var i, offset, position;
 
       if (opts.pointLabels.display) {
@@ -15592,7 +15543,7 @@ function (_LinearScaleBase) {
 
       var tickFont = helpers.options._parseFont(tickOpts);
 
-      var tickFontColor = valueOrDefault$9(tickOpts.fontColor, defaults.fontColor);
+      var tickFontColor = valueOrDefault$8(tickOpts.fontColor, defaults.fontColor);
       var offset, width;
       ctx.save();
       ctx.font = tickFont.string;
@@ -15634,7 +15585,7 @@ function (_LinearScaleBase) {
 RadialLinearScale._defaults = defaultConfig$3;
 
 var resolve$7 = helpers.options.resolve;
-var valueOrDefault$a = helpers.valueOrDefault; // Integer constants are from the ES6 spec.
+var valueOrDefault$9 = helpers.valueOrDefault; // Integer constants are from the ES6 spec.
 
 var MAX_INTEGER = Number.MAX_SAFE_INTEGER || 9007199254740991;
 var INTERVALS = {
@@ -16419,7 +16370,7 @@ function (_Scale) {
       var angle = toRadians(me.isHorizontal() ? ticksOpts.maxRotation : ticksOpts.minRotation);
       var cosRotation = Math.cos(angle);
       var sinRotation = Math.sin(angle);
-      var tickFontSize = valueOrDefault$a(ticksOpts.fontSize, defaults.fontSize);
+      var tickFontSize = valueOrDefault$9(ticksOpts.fontSize, defaults.fontSize);
       return {
         w: tickLabelWidth * cosRotation + tickFontSize * sinRotation,
         h: tickLabelWidth * sinRotation + tickFontSize * cosRotation
@@ -17124,7 +17075,7 @@ var filler = {
 };
 
 var getRtlHelper$1 = helpers.rtl.getRtlAdapter;
-var valueOrDefault$b = helpers.valueOrDefault;
+var valueOrDefault$a = helpers.valueOrDefault;
 
 defaults._set('legend', {
   display: true,
@@ -17464,7 +17415,7 @@ function (_Element) {
 
       var rtlHelper = getRtlHelper$1(opts.rtl, me.left, me._minSize.width);
       var ctx = me.ctx;
-      var fontColor = valueOrDefault$b(labelOpts.fontColor, defaults.fontColor);
+      var fontColor = valueOrDefault$a(labelOpts.fontColor, defaults.fontColor);
 
       var labelFont = helpers.options._parseFont(labelOpts);
 
@@ -17489,17 +17440,17 @@ function (_Element) {
 
 
         ctx.save();
-        var lineWidth = valueOrDefault$b(legendItem.lineWidth, lineDefault.borderWidth);
-        ctx.fillStyle = valueOrDefault$b(legendItem.fillStyle, defaultColor);
-        ctx.lineCap = valueOrDefault$b(legendItem.lineCap, lineDefault.borderCapStyle);
-        ctx.lineDashOffset = valueOrDefault$b(legendItem.lineDashOffset, lineDefault.borderDashOffset);
-        ctx.lineJoin = valueOrDefault$b(legendItem.lineJoin, lineDefault.borderJoinStyle);
+        var lineWidth = valueOrDefault$a(legendItem.lineWidth, lineDefault.borderWidth);
+        ctx.fillStyle = valueOrDefault$a(legendItem.fillStyle, defaultColor);
+        ctx.lineCap = valueOrDefault$a(legendItem.lineCap, lineDefault.borderCapStyle);
+        ctx.lineDashOffset = valueOrDefault$a(legendItem.lineDashOffset, lineDefault.borderDashOffset);
+        ctx.lineJoin = valueOrDefault$a(legendItem.lineJoin, lineDefault.borderJoinStyle);
         ctx.lineWidth = lineWidth;
-        ctx.strokeStyle = valueOrDefault$b(legendItem.strokeStyle, defaultColor);
+        ctx.strokeStyle = valueOrDefault$a(legendItem.strokeStyle, defaultColor);
 
         if (ctx.setLineDash) {
           // IE 9 and 10 do not support line dash
-          ctx.setLineDash(valueOrDefault$b(legendItem.lineDash, lineDefault.borderDash));
+          ctx.setLineDash(valueOrDefault$a(legendItem.lineDash, lineDefault.borderDash));
         }
 
         if (labelOpts && labelOpts.usePointStyle) {
@@ -17626,7 +17577,7 @@ function (_Element) {
 
       var rtlHelper = getRtlHelper$1(opts.rtl, me.left, me.minSize.width);
       var ctx = me.ctx;
-      var fontColor = valueOrDefault$b(titleOpts.fontColor, defaults.fontColor);
+      var fontColor = valueOrDefault$a(titleOpts.fontColor, defaults.fontColor);
       var position = titleOpts.position;
       var x, textAlign;
       var halfFontSize = titleFont.size / 2;
