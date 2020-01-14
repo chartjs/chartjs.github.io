@@ -9956,11 +9956,9 @@ var dom$1 = {
 
     var expando = listener[EXPANDO_KEY] || (listener[EXPANDO_KEY] = {});
     var proxies = expando.proxies || (expando.proxies = {});
-
-    var proxy = proxies[chart.id + '_' + type] = function (event) {
+    var proxy = proxies[chart.id + '_' + type] = throttled(function (event) {
       listener(fromNativeEvent(event, chart));
-    };
-
+    }, chart);
     addListener(canvas, type, proxy);
   },
   removeEventListener: function removeEventListener(chart, type, listener) {
