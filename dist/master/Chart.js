@@ -10636,7 +10636,7 @@ var positioners = {
 
       if (el && el.hasValue()) {
         var center = el.getCenterPoint();
-        var d = helpers.distanceBetweenPoints(eventPosition, center);
+        var d = helpers.math.distanceBetweenPoints(eventPosition, center);
 
         if (d < minDistance) {
           minDistance = d;
