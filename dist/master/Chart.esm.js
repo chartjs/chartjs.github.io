@@ -2652,8 +2652,11 @@ function _alignPixel(chart, pixel, width) {
 function clear(chart) {
   chart.ctx.clearRect(0, 0, chart.width, chart.height);
 }
-function drawPoint(ctx, style, radius, x, y, rotation) {
+function drawPoint(ctx, options, x, y) {
   var type, xOffset, yOffset, size, cornerRadius;
+  var style = options.pointStyle;
+  var rotation = options.rotation;
+  var radius = options.radius;
   var rad = (rotation || 0) * RAD_PER_DEG;
 
   if (style && _typeof(style) === 'object') {
@@ -2775,7 +2778,10 @@ function drawPoint(ctx, style, radius, x, y, rotation) {
   }
 
   ctx.fill();
-  ctx.stroke();
+
+  if (options.borderWidth > 0) {
+    ctx.stroke();
+  }
 }
 /**
  * Returns true if the point is inside the rectangle
@@ -6902,9 +6908,8 @@ function (_Element) {
     value: function draw(ctx, chartArea) {
       var me = this;
       var options = me.options;
-      var radius = options.radius;
 
-      if (me.skip || radius <= 0) {
+      if (me.skip || options.radius <= 0) {
         return;
       } // Clipping for Points.
 
@@ -6913,7 +6918,7 @@ function (_Element) {
         ctx.strokeStyle = options.borderColor;
         ctx.lineWidth = options.borderWidth;
         ctx.fillStyle = options.backgroundColor;
-        helpers.canvas.drawPoint(ctx, options.pointStyle, radius, me.x, me.y, options.rotation);
+        helpers.canvas.drawPoint(ctx, options, me.x, me.y);
       }
     }
   }]);
