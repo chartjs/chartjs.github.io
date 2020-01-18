@@ -1,5 +1,5 @@
 /*!
- * Chart.js v2.9.1
+ * Chart.js v3.0.0-dev
  * https://www.chartjs.org
  * (c) 2020 Chart.js Contributors
  * Released under the MIT License
@@ -3392,23 +3392,18 @@ function getMaximumHeight(domNode) {
 }
 function retinaScale(chart, forceRatio) {
   var pixelRatio = chart.currentDevicePixelRatio = forceRatio || typeof window !== 'undefined' && window.devicePixelRatio || 1;
-
-  if (pixelRatio === 1) {
-    return;
-  }
-
-  var canvasElement = chart.canvas;
-  var height = chart.height;
-  var width = chart.width;
-  canvasElement.height = height * pixelRatio;
-  canvasElement.width = width * pixelRatio;
-  chart.ctx.scale(pixelRatio, pixelRatio); // If no style has been set on the canvas, the render size is used as display size,
+  var canvas = chart.canvas,
+      width = chart.width,
+      height = chart.height;
+  canvas.height = height * pixelRatio;
+  canvas.width = width * pixelRatio;
+  chart.ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0); // If no style has been set on the canvas, the render size is used as display size,
   // making the chart visually bigger, so let's enforce it to the "correct" values.
   // See https://github.com/chartjs/Chart.js/issues/3575
 
-  if (!canvasElement.style.height && !canvasElement.style.width) {
-    canvasElement.style.height = height + 'px';
-    canvasElement.style.width = width + 'px';
+  if (!canvas.style.height && !canvas.style.width) {
+    canvas.style.height = height + 'px';
+    canvas.style.width = width + 'px';
   }
 }
 
@@ -7064,23 +7059,24 @@ function (_Element) {
     key: "draw",
     value: function draw(ctx) {
       var options = this.options;
-      var rects = boundingRects(this);
-      var outer = rects.outer;
-      var inner = rects.inner;
-      ctx.fillStyle = options.backgroundColor;
-      ctx.fillRect(outer.x, outer.y, outer.w, outer.h);
 
-      if (outer.w === inner.w && outer.h === inner.h) {
-        return;
-      }
+      var _boundingRects = boundingRects(this),
+          inner = _boundingRects.inner,
+          outer = _boundingRects.outer;
 
       ctx.save();
-      ctx.beginPath();
-      ctx.rect(outer.x, outer.y, outer.w, outer.h);
-      ctx.clip();
-      ctx.fillStyle = options.borderColor;
-      ctx.rect(inner.x, inner.y, inner.w, inner.h);
-      ctx.fill('evenodd');
+
+      if (outer.w !== inner.w || outer.h !== inner.h) {
+        ctx.beginPath();
+        ctx.rect(outer.x, outer.y, outer.w, outer.h);
+        ctx.clip();
+        ctx.rect(inner.x, inner.y, inner.w, inner.h);
+        ctx.fillStyle = options.borderColor;
+        ctx.fill('evenodd');
+      }
+
+      ctx.fillStyle = options.backgroundColor;
+      ctx.fillRect(inner.x, inner.y, inner.w, inner.h);
       ctx.restore();
     }
   }, {
@@ -11751,11 +11747,6 @@ function () {
 
       var newWidth = Math.max(0, Math.floor(helpers.dom.getMaximumWidth(canvas)));
       var newHeight = Math.max(0, Math.floor(aspectRatio ? newWidth / aspectRatio : helpers.dom.getMaximumHeight(canvas)));
-
-      if (me.width === newWidth && me.height === newHeight) {
-        return;
-      }
-
       canvas.width = me.width = newWidth;
       canvas.height = me.height = newHeight;
       canvas.style.width = newWidth + 'px';
@@ -12234,7 +12225,6 @@ function () {
       var me = this;
       var ctx = me.ctx;
       var clip = meta._clip;
-      var canvas = me.canvas;
       var area = me.chartArea;
       var args = {
         meta: meta,
@@ -12247,9 +12237,9 @@ function () {
 
       helpers.canvas.clipArea(ctx, {
         left: clip.left === false ? 0 : area.left - clip.left,
-        right: clip.right === false ? canvas.width : area.right + clip.right,
+        right: clip.right === false ? me.width : area.right + clip.right,
         top: clip.top === false ? 0 : area.top - clip.top,
-        bottom: clip.bottom === false ? canvas.height : area.bottom + clip.bottom
+        bottom: clip.bottom === false ? me.height : area.bottom + clip.bottom
       });
       meta.controller.draw();
       helpers.canvas.unclipArea(ctx);
@@ -17771,7 +17761,7 @@ var legend = {
       createNewLegendAndAttach(chart, legendOpts);
     }
   },
-  beforeUpdate: function beforeUpdate(chart) {
+  afterUpdate: function afterUpdate(chart) {
     var legendOpts = chart.options.legend;
     var legend = chart.legend;
 
@@ -17781,6 +17771,7 @@ var legend = {
       if (legend) {
         layouts.configure(chart, legend, legendOpts);
         legend.options = legendOpts;
+        legend.buildLabels();
       } else {
         createNewLegendAndAttach(chart, legendOpts);
       }
