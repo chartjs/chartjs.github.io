@@ -12600,6 +12600,12 @@ function () {
 
 Chart.instances = {};
 
+/**
+ * @namespace Chart._adapters
+ * @since 2.8.0
+ * @private
+ */
+
 function _abstract() {
   throw new Error('This method is not implemented: either no adapter can ' + 'be found or an incomplete integration was provided.');
 }
@@ -12697,9 +12703,8 @@ DateAdapter.override = function (members) {
   helpers.extend(DateAdapter.prototype, members);
 };
 
-var _date = DateAdapter;
-var core_adapters = {
-  _date: _date
+var _adapters = {
+  _date: DateAdapter
 };
 
 var math$1 = helpers.math;
@@ -16180,7 +16185,7 @@ function (_Scale) {
 
     var options = me.options;
     var time = options.time || (options.time = {});
-    var adapter = me._adapter = new core_adapters._date(options.adapters.date);
+    var adapter = me._adapter = new _adapters._date(options.adapters.date);
     me._cache = {}; // Backward compatibility: before introducing adapter, `displayFormats` was
     // supposed to contain *all* unit/string pairs but this can't be resolved
     // when loading the scale (adapters are loaded afterward), so let's populate
@@ -16411,6 +16416,7 @@ var scales = {
   time: TimeScale
 };
 
+// TODO v3 - make this adapter external (chartjs-adapter-moment)
 var FORMATS = {
   datetime: 'MMM D, YYYY, h:mm:ss a',
   millisecond: 'h:mm:ss.SSS a',
@@ -16424,7 +16430,7 @@ var FORMATS = {
   year: 'YYYY'
 };
 
-core_adapters._date.override(typeof moment === 'function' ? {
+_adapters._date.override(typeof moment === 'function' ? {
   _id: 'moment',
   // DEBUG ONLY
   formats: function formats() {
@@ -18086,7 +18092,7 @@ var plugins = {
  * @namespace Chart
  */
 Chart.helpers = helpers;
-Chart._adapters = core_adapters;
+Chart._adapters = _adapters;
 Chart.Animation = Animation;
 Chart.Animator = instance;
 Chart.animationService = Animations;
