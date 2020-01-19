@@ -11316,14 +11316,13 @@ function (_Element) {
         textColor = me.labelTextColors[i];
         ctx.fillStyle = textColor;
         helpers.each(bodyItem.before, fillLineOfText);
-        lines = bodyItem.lines;
+        lines = bodyItem.lines; // Draw Legend-like boxes if needed
+
+        if (displayColors && lines.length) {
+          me._drawColorBox(ctx, pt, i, rtlHelper);
+        }
 
         for (j = 0, jlen = lines.length; j < jlen; ++j) {
-          // Draw Legend-like boxes if needed
-          if (displayColors) {
-            me._drawColorBox(ctx, pt, i, rtlHelper);
-          }
-
           fillLineOfText(lines[j]);
         }
 
@@ -14493,14 +14492,14 @@ function generateTicks(generationOptions, dataRange) {
   // for details.
 
   var MIN_SPACING = 1e-14;
-  var stepSize = generationOptions.stepSize;
+  var stepSize = generationOptions.stepSize,
+      min = generationOptions.min,
+      max = generationOptions.max,
+      precision = generationOptions.precision;
   var unit = stepSize || 1;
   var maxNumSpaces = generationOptions.maxTicks - 1;
-  var min = generationOptions.min;
-  var max = generationOptions.max;
-  var precision = generationOptions.precision;
-  var rmin = dataRange.min;
-  var rmax = dataRange.max;
+  var rmin = dataRange.min,
+      rmax = dataRange.max;
   var spacing = helpers.niceNum((rmax - rmin) / maxNumSpaces / unit) * unit;
   var factor, niceMin, niceMax, numSpaces; // Beyond MIN_SPACING floating point numbers being to lose precision
   // such that we can't do the math necessary to generate ticks
@@ -14532,13 +14531,10 @@ function generateTicks(generationOptions, dataRange) {
   niceMin = Math.floor(rmin / spacing) * spacing;
   niceMax = Math.ceil(rmax / spacing) * spacing; // If min, max and stepSize is set and they make an evenly spaced scale use it.
 
-  if (stepSize) {
+  if (stepSize && !isNullOrUndef$2(min) && !isNullOrUndef$2(max)) {
     // If very close to our whole number, use it.
-    if (!isNullOrUndef$2(min) && almostWhole(min / spacing, spacing / 1000)) {
+    if (almostWhole((max - min) / stepSize, spacing / 1000)) {
       niceMin = min;
-    }
-
-    if (!isNullOrUndef$2(max) && almostWhole(max / spacing, spacing / 1000)) {
       niceMax = max;
     }
   }
@@ -14665,8 +14661,8 @@ function (_Scale) {
     value: function getTickLimit() {
       var me = this;
       var tickOpts = me.options.ticks;
-      var stepSize = tickOpts.stepSize;
-      var maxTicksLimit = tickOpts.maxTicksLimit;
+      var maxTicksLimit = tickOpts.maxTicksLimit,
+          stepSize = tickOpts.stepSize;
       var maxTicks;
 
       if (stepSize) {
