@@ -1222,13 +1222,14 @@
 <p>Example:</p>
 <pre><code class="lang-javascript"><span class="hljs-comment">/**
  * Custom positioner
- * @function Chart.Tooltip.positioners.custom
+ * @function Tooltip.positioners.custom
  * @param elements {Chart.Element[]} the tooltip elements
  * @param eventPosition {Point} the position of the event in canvas coordinates
  * @returns {Point} the tooltip position
  */</span>
-Chart.Tooltip.positioners.custom = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">elements, eventPosition</span>) </span>{
-    <span class="hljs-comment">/** @type {Chart.Tooltip} */</span>
+<span class="hljs-keyword">const</span> tooltipPlugin = Chart.plugins.getAll().find(p =&gt; p.id === <span class="hljs-string">&apos;tooltip&apos;</span>);
+tooltipPlugin.positioners.custom = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">elements, eventPosition</span>) </span>{
+    <span class="hljs-comment">/** @type {Tooltip} */</span>
     <span class="hljs-keyword">var</span> tooltip = <span class="hljs-keyword">this</span>;
 
     <span class="hljs-comment">/* ... */</span>
@@ -1252,7 +1253,7 @@ Chart.Tooltip.positioners.custom = <span class="hljs-function"><span class="hljs
 <h3 id="filter-callback">Filter Callback</h3>
 <p>Allows filtering of <a href="#tooltip-item-interface">tooltip items</a>. Must implement at minimum a function that can be passed to <a href="https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Array/filter" target="_blank">Array.prototype.filter</a>. This function can also accept a second parameter that is the data object passed to the chart.</p>
 <h2 id="tooltip-callbacks">Tooltip Callbacks</h2>
-<p>The tooltip label configuration is nested below the tooltip configuration using the <code>callbacks</code> key. The tooltip has the following callbacks for providing text. For all functions, <code>this</code> will be the tooltip object created from the <code>Chart.Tooltip</code> constructor.</p>
+<p>The tooltip label configuration is nested below the tooltip configuration using the <code>callbacks</code> key. The tooltip has the following callbacks for providing text. For all functions, <code>this</code> will be the tooltip object created from the <code>Tooltip</code> constructor.</p>
 <p>All functions are called with the same arguments: a <a href="#tooltip-item-interface">tooltip item</a> and the <code>data</code> object passed to the chart. All functions must return either a string or an array of strings. Arrays of strings are treated as multiple lines of text.</p>
 <table>
 <thead>
@@ -1599,7 +1600,7 @@ Chart.Tooltip.positioners.custom = <span class="hljs-function"><span class="hljs
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Tooltip","level":"1.5.5","depth":2,"next":{"title":"Elements","level":"1.5.6","depth":2,"path":"configuration/elements.md","ref":"configuration/elements.md","articles":[]},"previous":{"title":"Title","level":"1.5.4","depth":2,"path":"configuration/title.md","ref":"configuration/title.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga","redirect"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"chartjs":{"defaults":null},"fontsettings":{"theme":"white","family":"sans","size":2},"highlight":{},"ga":{"configuration":"auto","token":"UA-28909194-3"},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"redirect":{},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"anchorjs":{"icon":"#","placement":"left","visible":"always"},"search-plus":{}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"configuration/tooltip.md","mtime":"2020-01-19T14:05:30.758Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2020-01-19T14:08:54.268Z"},"basePath":"..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Tooltip","level":"1.5.5","depth":2,"next":{"title":"Elements","level":"1.5.6","depth":2,"path":"configuration/elements.md","ref":"configuration/elements.md","articles":[]},"previous":{"title":"Title","level":"1.5.4","depth":2,"path":"configuration/title.md","ref":"configuration/title.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga","redirect"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"chartjs":{"defaults":null},"fontsettings":{"theme":"white","family":"sans","size":2},"highlight":{},"ga":{"configuration":"auto","token":"UA-28909194-3"},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"redirect":{},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"anchorjs":{"icon":"#","placement":"left","visible":"always"},"search-plus":{}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"configuration/tooltip.md","mtime":"2020-01-21T11:38:35.817Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2020-01-21T11:41:53.029Z"},"basePath":"..","book":{"language":""}});
         });
     </script>
 </div>
