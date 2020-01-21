@@ -6371,7 +6371,7 @@ function solidSegments(points, start, max, loop) {
   for (end = start + 1; end <= max; ++end) {
     var cur = points[end % count];
 
-    if (cur.skip) {
+    if (cur.skip || cur.stop) {
       if (!prev.skip) {
         loop = false;
         result.push({
@@ -6379,7 +6379,7 @@ function solidSegments(points, start, max, loop) {
           end: (end - 1) % count,
           loop: loop
         });
-        start = last = null;
+        start = last = cur.stop ? end : null;
       }
     } else {
       last = end;
@@ -6424,7 +6424,7 @@ function _computeSegments(line) {
       start = _findStartAndEnd.start,
       end = _findStartAndEnd.end;
 
-  if (spanGaps) {
+  if (spanGaps === true) {
     return [{
       start: start,
       end: end,
@@ -8287,6 +8287,10 @@ var line = DatasetController.extend({
 
     var includeOptions = me._includeOptions(mode, sharedOptions);
 
+    var spanGaps = valueOrDefault$3(me._config.spanGaps, me.chart.options.spanGaps);
+    var maxGapLength = helpers.math.isNumber(spanGaps) ? spanGaps : Number.POSITIVE_INFINITY;
+    var prevParsed;
+
     for (var i = 0; i < points.length; ++i) {
       var index = start + i;
       var point = points[i];
@@ -8298,7 +8302,8 @@ var line = DatasetController.extend({
       var properties = {
         x: x,
         y: y,
-        skip: isNaN(x) || isNaN(y)
+        skip: isNaN(x) || isNaN(y),
+        stop: i > 0 && parsed.x - prevParsed.x > maxGapLength
       };
 
       if (includeOptions) {
@@ -8306,6 +8311,8 @@ var line = DatasetController.extend({
       }
 
       me._updateElement(point, index, properties, mode);
+
+      prevParsed = parsed;
     }
 
     me._updateSharedOptions(sharedOptions, mode);
