@@ -9032,9 +9032,17 @@ var Interaction = {
       var items = options.intersect ? getIntersectItems(chart, position, axis) : getNearestItems(chart, position, axis);
 
       if (items.length > 0) {
-        items = [{
-          datasetIndex: items[0].datasetIndex
-        }]; // when mode: 'dataset' we only need to return datasetIndex
+        var datasetIndex = items[0].datasetIndex;
+        var data = chart.getDatasetMeta(datasetIndex).data;
+        items = [];
+
+        for (var i = 0; i < data.length; ++i) {
+          items.push({
+            element: data[i],
+            datasetIndex: datasetIndex,
+            index: i
+          });
+        }
       }
 
       return items;
@@ -11418,12 +11426,6 @@ function () {
       if (mode === 'dataset') {
         meta = this.getDatasetMeta(items[0].datasetIndex);
         meta.controller['_' + prefix + 'DatasetHoverStyle']();
-
-        for (i = 0, ilen = meta.data.length; i < ilen; ++i) {
-          meta.controller[prefix + 'HoverStyle'](meta.data[i], items[0].datasetIndex, i);
-        }
-
-        return;
       }
 
       for (i = 0, ilen = items.length; i < ilen; ++i) {
@@ -15584,20 +15586,28 @@ function pointsFromSegments(boundary, line) {
     if (y !== null) {
       points.push({
         x: first.x,
-        y: y
+        y: y,
+        _prop: 'x',
+        _ref: first
       });
       points.push({
         x: last.x,
-        y: y
+        y: y,
+        _prop: 'x',
+        _ref: last
       });
     } else if (x !== null) {
       points.push({
         x: x,
-        y: first.y
+        y: first.y,
+        _prop: 'y',
+        _ref: first
       });
       points.push({
         x: x,
-        y: last.y
+        y: last.y,
+        _prop: 'y',
+        _ref: last
       });
     }
   });
@@ -15616,6 +15626,7 @@ function getTarget(source) {
   var boundary = computeBoundary(source);
   var points = [];
   var _loop = false;
+  var _refPoints = false;
 
   if (boundary instanceof simpleArc) {
     return boundary;
@@ -15626,6 +15637,7 @@ function getTarget(source) {
     points = boundary;
   } else {
     points = pointsFromSegments(boundary, line);
+    _refPoints = true;
   }
 
   return points.length ? new Line({
@@ -15634,7 +15646,8 @@ function getTarget(source) {
       tension: 0
     },
     _loop: _loop,
-    _fullLoop: _loop
+    _fullLoop: _loop,
+    _refPoints: _refPoints
   }) : null;
 }
 
@@ -15711,6 +15724,19 @@ function _segments(line, target, property) {
   var points = line.points;
   var tpoints = target.points;
   var parts = [];
+
+  if (target._refPoints) {
+    // Update properties from reference points. (In case those points are animating)
+    for (var i = 0, ilen = tpoints.length; i < ilen; ++i) {
+      var point = tpoints[i];
+      var prop = point._prop;
+
+      if (prop) {
+        point[prop] = point._ref[prop];
+      }
+    }
+  }
+
   var _iteratorNormalCompletion = true;
   var _didIteratorError = false;
   var _iteratorError = undefined;
