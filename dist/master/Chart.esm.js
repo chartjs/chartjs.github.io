@@ -5656,6 +5656,11 @@ helpers.extend(DatasetController.prototype, {
    * @private
    */
   _getSharedOptions: function _getSharedOptions(mode, el, options) {
+    if (!mode) {
+      // store element option sharing status for usage in interactions
+      this._sharedOptions = options && options.$shared;
+    }
+
     if (mode !== 'reset' && options && options.$shared && el && el.options && el.options.$shared) {
       return {
         target: el.options,
@@ -6916,6 +6921,12 @@ function (_Element) {
         helpers.canvas.drawPoint(ctx, options, me.x, me.y);
       }
     }
+  }, {
+    key: "getRange",
+    value: function getRange() {
+      var options = this.options || {};
+      return options.radius + options.hitRadius;
+    }
   }]);
 
   return Point;
@@ -7113,6 +7124,11 @@ function (_Element) {
         x: this.x,
         y: this.y
       };
+    }
+  }, {
+    key: "getRange",
+    value: function getRange(axis) {
+      return axis === 'x' ? this.width / 2 : this.height / 2;
     }
   }]);
 
@@ -8764,6 +8780,63 @@ var controllers = {
 };
 
 /**
+ * Binary search
+ * @param {array} table - the table search. must be sorted!
+ * @param {string} key - property name for the value in each entry
+ * @param {number} value - value to find
+ * @private
+ */
+
+function _lookup(table, key, value) {
+  var hi = table.length - 1;
+  var lo = 0;
+  var mid;
+
+  while (hi - lo > 1) {
+    mid = lo + hi >> 1;
+
+    if (table[mid][key] < value) {
+      lo = mid;
+    } else {
+      hi = mid;
+    }
+  }
+
+  return {
+    lo: lo,
+    hi: hi
+  };
+}
+/**
+ * Reverse binary search
+ * @param {array} table - the table search. must be sorted!
+ * @param {string} key - property name for the value in each entry
+ * @param {number} value - value to find
+ * @private
+ */
+
+function _rlookup(table, key, value) {
+  var hi = table.length - 1;
+  var lo = 0;
+  var mid;
+
+  while (hi - lo > 1) {
+    mid = lo + hi >> 1;
+
+    if (table[mid][key] < value) {
+      hi = mid;
+    } else {
+      lo = mid;
+    }
+  }
+
+  return {
+    lo: lo,
+    hi: hi
+  };
+}
+
+/**
  * Helper function to get relative position for an event
  * @param {Event|IEvent} event - The event to get the position for
  * @param {Chart} chart - The chart
@@ -8807,49 +8880,82 @@ function evaluateAllVisibleItems(chart, handler) {
   }
 }
 /**
- * Helper function to check the items at the hovered index on the index scale
+ * Helper function to do binary search when possible
+ * @param {object} metaset - the dataset meta
+ * @param {string} axis - the axis mide. x|y|xy
+ * @param {number} value - the value to find
+ * @param {boolean} intersect - should the element intersect
+ * @returns {lo, hi} indices to search data array between
+ */
+
+
+function binarySearch(metaset, axis, value, intersect) {
+  var controller = metaset.controller,
+      data = metaset.data,
+      _sorted = metaset._sorted;
+  var iScale = controller._cachedMeta.iScale;
+
+  if (iScale && axis === iScale.axis && _sorted) {
+    var lookupMethod = iScale._reversePixels ? _rlookup : _lookup;
+
+    if (!intersect) {
+      return lookupMethod(data, axis, value);
+    } else if (controller._sharedOptions) {
+      // _sharedOptions indicates that each element has equal options -> equal proportions
+      // So we can do a ranged binary search based on the range of first element and
+      // be confident to get the full range of indices that can intersect with the value.
+      var el = data[0];
+      var range = typeof el.getRange === 'function' && el.getRange(axis);
+
+      if (range) {
+        var start = lookupMethod(data, axis, value - range);
+        var end = lookupMethod(data, axis, value + range);
+        return {
+          lo: start.lo,
+          hi: end.hi
+        };
+      }
+    }
+  } // Default to all elements, when binary search can not be used.
+
+
+  return {
+    lo: 0,
+    hi: data.length - 1
+  };
+}
+/**
+ * Helper function to get items using binary search, when the data is sorted.
  * @param {Chart} chart - the chart
  * @param {string} axis - the axis mode. x|y|xy
  * @param {object} position - the point to be nearest to
  * @param {function} handler - the callback to execute for each visible item
- * @return whether all scales were of a suitable type
+ * @param {boolean} intersect - consider intersecting items
  */
 
 
-function evaluateItemsAtIndex(chart, axis, position, handler) {
+function optimizedEvaluateItems(chart, axis, position, handler, intersect) {
   var metasets = chart._getSortedVisibleDatasetMetas();
 
-  var indices = [];
+  var value = position[axis];
 
   for (var i = 0, ilen = metasets.length; i < ilen; ++i) {
-    var metaset = metasets[i];
-    var iScale = metaset.controller._cachedMeta.iScale;
+    var _metasets$i2 = metasets[i],
+        index = _metasets$i2.index,
+        data = _metasets$i2.data;
 
-    if (!iScale || axis !== iScale.axis || !iScale.getIndexForPixel) {
-      return false;
-    }
+    var _binarySearch = binarySearch(metasets[i], axis, value, intersect),
+        lo = _binarySearch.lo,
+        hi = _binarySearch.hi;
 
-    var index = iScale.getIndexForPixel(position[axis]);
+    for (var j = lo; j <= hi; ++j) {
+      var element = data[j];
 
-    if (!isNumber(index)) {
-      return false;
-    }
-
-    indices.push(index);
-  } // do this only after checking whether all scales are of a suitable type
-
-
-  for (var _i = 0, _ilen = metasets.length; _i < _ilen; ++_i) {
-    var _metaset = metasets[_i];
-    var _index = indices[_i];
-    var element = _metaset.data[_index];
-
-    if (!element.skip) {
-      handler(element, _metaset.index, _index);
+      if (!element.skip) {
+        handler(element, index, j);
+      }
     }
   }
-
-  return true;
 }
 /**
  * Get a distance metric function for two points based on the
@@ -8893,13 +8999,7 @@ function getIntersectItems(chart, position, axis) {
     }
   };
 
-  var optimized = evaluateItemsAtIndex(chart, axis, position, evaluationFunc);
-
-  if (optimized) {
-    return items;
-  }
-
-  evaluateAllVisibleItems(chart, evaluationFunc);
+  optimizedEvaluateItems(chart, axis, position, evaluationFunc, true);
   return items;
 }
 /**
@@ -8946,13 +9046,7 @@ function getNearestItems(chart, position, axis, intersect) {
     }
   };
 
-  var optimized = evaluateItemsAtIndex(chart, axis, position, evaluationFunc);
-
-  if (optimized) {
-    return items;
-  }
-
-  evaluateAllVisibleItems(chart, evaluationFunc);
+  optimizedEvaluateItems(chart, axis, position, evaluationFunc);
   return items;
 }
 /**
@@ -14635,42 +14729,6 @@ function buildLookupTable(timestamps, min, max, distribution) {
   }
 
   return table;
-} // @see adapted from https://www.anujgakhar.com/2014/03/01/binary-search-in-javascript/
-
-
-function lookup(table, key, value) {
-  var lo = 0;
-  var hi = table.length - 1;
-  var mid, i0, i1;
-
-  while (lo >= 0 && lo <= hi) {
-    mid = lo + hi >> 1;
-    i0 = mid > 0 && table[mid - 1] || null;
-    i1 = table[mid];
-
-    if (!i0) {
-      // given value is outside table (before first item)
-      return {
-        lo: null,
-        hi: i1
-      };
-    } else if (i1[key] < value) {
-      lo = mid + 1;
-    } else if (i0[key] > value) {
-      hi = mid - 1;
-    } else {
-      return {
-        lo: i0,
-        hi: i1
-      };
-    }
-  } // given value is outside table (after last item)
-
-
-  return {
-    lo: i1,
-    hi: null
-  };
 }
 /**
  * Linearly interpolates the given source `value` using the table items `skey` values and
@@ -14681,10 +14739,13 @@ function lookup(table, key, value) {
 
 
 function interpolate(table, skey, sval, tkey) {
-  var range = lookup(table, skey, sval); // Note: the lookup table ALWAYS contains at least 2 items (min and max)
+  var _lookup2 = _lookup(table, skey, sval),
+      lo = _lookup2.lo,
+      hi = _lookup2.hi; // Note: the lookup table ALWAYS contains at least 2 items (min and max)
 
-  var prev = !range.lo ? table[0] : !range.hi ? table[table.length - 2] : range.lo;
-  var next = !range.lo ? table[1] : !range.hi ? table[table.length - 1] : range.hi;
+
+  var prev = table[lo];
+  var next = table[hi];
   var span = next[skey] - prev[skey];
   var ratio = span ? (sval - prev[skey]) / span : 0;
   var offset = (next[tkey] - prev[tkey]) * ratio;
@@ -15269,18 +15330,6 @@ function (_Scale) {
       var offsets = me._offsets;
       var pos = me.getDecimalForPixel(pixel) / offsets.factor - offsets.end;
       return interpolate(me._table, 'pos', pos, 'time');
-    }
-  }, {
-    key: "getIndexForPixel",
-    value: function getIndexForPixel(pixel) {
-      var me = this;
-
-      if (me.options.distribution !== 'series') {
-        return null; // not implemented
-      }
-
-      var index = Math.round(me._numIndices * me.getDecimalForPixel(pixel));
-      return index < 0 || index >= me.numIndices ? null : index;
     }
     /**
      * @private
