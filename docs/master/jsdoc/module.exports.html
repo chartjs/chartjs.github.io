@@ -4,7 +4,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width">
-	<title>Documentation Interface: IPlugin</title>
+	<title>Documentation Class: exports</title>
 
 	<!--[if lt IE 9]>
 	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -86,14 +86,16 @@
 		<div id="main">
 			
 
-	<h1 class="page-title">Interface: IPlugin</h1>
+	<h1 class="page-title">Class: exports</h1>
 <section>
 
 <header>
     
         <h2>
-        IPlugin
+        exports
         </h2>
+        
+            <div class="class-description">Abstract class that allows abstracting platform dependencies away from the chart.</div>
         
     
 </header>
@@ -103,22 +105,29 @@
     <div class="container-overview">
     
         
-            <div class="description">Plugin extension hooks.</div>
-        
+<hr>
+<dt>
+    <h4 class="name" id="exports"><span class="type-signature"></span>new exports()</h4>
+    
+    
+</dt>
+<dd>
 
-        
+    
+
+    
+
+    
+
+    
+    
+
+    
 <dl class="details">
     
 
 	
 
-	
-	<dt class="tag-since method-doc-label method-doc-details-label">Since:</dt>
-	<dd class="tag-since">
-		<ul class="dummy">
-			<li>2.1.0</li>
-		</ul>
-	</dd>
 	
 
 	
@@ -153,7 +162,21 @@
 </dl>
 
 
-        
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
     
     </div>
 
@@ -167,6 +190,74 @@
 
     
 
+    
+        <h3 class="subsection-title">Members</h3>
+
+        <dl>
+            
+<hr>
+<dt class="name" id="disableCSSInjection">
+    <h4 id="disableCSSInjection"><span class="type-signature"></span>disableCSSInjection<span class="type-signature"></span></h4>
+
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        When `true`, prevents the automatic injection of the stylesheet required to
+correctly detect when the chart is added to the DOM and then resized. This
+switch has been added to allow external stylesheet (`dist/Chart(.min)?.js`)
+to be manually imported to make this library compatible with any CSP.
+See https://github.com/chartjs/Chart.js/issues/5208
+    </div>
+    
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+</dd>
+
+        </dl>
     
 
     
@@ -176,7 +267,7 @@
             
 <hr>
 <dt>
-    <h4 class="name" id="afterDatasetDraw"><span class="type-signature"></span>afterDatasetDraw(chart, args, options)</h4>
+    <h4 class="name" id=".addBox"><span class="type-signature">&lt;static> </span>addBox(chart, item)</h4>
     
     
 </dt>
@@ -184,9 +275,8 @@
 
     
     <div class="description">
-        Called after the `chart` datasets at the given `args.index` have been drawn
-(datasets are drawn in the reverse order). Note that this hook will not be called
-if the datasets drawing has been previously cancelled.
+        Register a box to a chart.
+A box is simply a reference to an object that requires layout. eg. Scales, Legend, Title.
     </div>
     
 
@@ -238,20 +328,20 @@ if the datasets drawing has been previously cancelled.
 
             
 
-            <td class="description last">The chart instance.</td>
+            <td class="description last">the chart to use</td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>args</code></td>
+                <td class="name"><code>item</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">object</span>
+<span class="param-type"><a href="ILayoutItem.html">ILayoutItem</a></span>
 
 
 
@@ -262,105 +352,7 @@ if the datasets drawing has been previously cancelled.
 
             
 
-            <td class="description last">The call arguments.
-                <h6 class="method-params-label method-subparams-label">Properties</h6>
-                
-
-<table class="params table table-striped">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>index</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The dataset index.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>meta</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The dataset metadata.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-            </td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>options</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The plugin options.</td>
+            <td class="description last">the item to add to be layed out</td>
         </tr>
 
     
@@ -428,7 +420,7 @@ if the datasets drawing has been previously cancelled.
             
 <hr>
 <dt>
-    <h4 class="name" id="afterDatasetsDraw"><span class="type-signature"></span>afterDatasetsDraw(chart, options)</h4>
+    <h4 class="name" id=".clear"><span class="type-signature">&lt;static> </span>clear()</h4>
     
     
 </dt>
@@ -436,8 +428,7 @@ if the datasets drawing has been previously cancelled.
 
     
     <div class="description">
-        Called after the `chart` datasets have been drawn. Note that this hook
-will not be called if the datasets drawing has been previously cancelled.
+        Remove all registered plugins.
     </div>
     
 
@@ -446,233 +437,6 @@ will not be called if the datasets drawing has been previously cancelled.
     
 
     
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params table table-striped">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>chart</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Chart.Controller</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The chart instance.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>options</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The plugin options.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    
-
-    
-<dl class="details">
-    
-
-	
-
-	
-
-	
-
-    
-
-    
-
-    
-
-    
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dd>
-
-        
-            
-<hr>
-<dt>
-    <h4 class="name" id="afterDatasetsUpdate"><span class="type-signature"></span>afterDatasetsUpdate(chart, options)</h4>
-    
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        Called after the `chart` datasets have been updated. Note that this hook
-will not be called if the datasets update has been previously cancelled.
-    </div>
-    
-
-    
-
-    
-
-    
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params table table-striped">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>chart</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Chart.Controller</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The chart instance.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>options</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The plugin options.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
     
 
     
@@ -685,7 +449,7 @@ will not be called if the datasets update has been previously cancelled.
 	<dt class="tag-since method-doc-label method-doc-details-label">Since:</dt>
 	<dd class="tag-since">
 		<ul class="dummy">
-			<li>version 2.1.5</li>
+			<li>2.1.5</li>
 		</ul>
 	</dd>
 	
@@ -741,7 +505,7 @@ will not be called if the datasets update has been previously cancelled.
             
 <hr>
 <dt>
-    <h4 class="name" id="afterDatasetUpdate"><span class="type-signature"></span>afterDatasetUpdate(chart, args, options)</h4>
+    <h4 class="name" id=".configure"><span class="type-signature">&lt;static> </span>configure(chart, item, options)</h4>
     
     
 </dt>
@@ -749,8 +513,7 @@ will not be called if the datasets update has been previously cancelled.
 
     
     <div class="description">
-        Called after the `chart` datasets at the given `args.index` has been updated. Note
-that this hook will not be called if the datasets update has been previously cancelled.
+        Sets (or updates) options on the given `item`.
     </div>
     
 
@@ -802,20 +565,20 @@ that this hook will not be called if the datasets update has been previously can
 
             
 
-            <td class="description last">The chart instance.</td>
+            <td class="description last">the chart in which the item lives (or will be added to)</td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>args</code></td>
+                <td class="name"><code>item</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">object</span>
+<span class="param-type"><a href="ILayoutItem.html">ILayoutItem</a></span>
 
 
 
@@ -826,81 +589,7 @@ that this hook will not be called if the datasets update has been previously can
 
             
 
-            <td class="description last">The call arguments.
-                <h6 class="method-params-label method-subparams-label">Properties</h6>
-                
-
-<table class="params table table-striped">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>index</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The dataset index.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>meta</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The dataset metadata.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-            </td>
+            <td class="description last">the item to configure with the given options</td>
         </tr>
 
     
@@ -924,7 +613,7 @@ that this hook will not be called if the datasets update has been previously can
 
             
 
-            <td class="description last">The plugin options.</td>
+            <td class="description last">the new item options.</td>
         </tr>
 
     
@@ -992,7 +681,7 @@ that this hook will not be called if the datasets update has been previously can
             
 <hr>
 <dt>
-    <h4 class="name" id="afterDraw"><span class="type-signature"></span>afterDraw(chart, options)</h4>
+    <h4 class="name" id=".count"><span class="type-signature">&lt;static> </span>count()</h4>
     
     
 </dt>
@@ -1000,8 +689,7 @@ that this hook will not be called if the datasets update has been previously can
 
     
     <div class="description">
-        Called after the `chart` has been drawn. Note that this hook will not be called
-if the drawing has been previously cancelled.
+        Returns the number of registered plugins?
     </div>
     
 
@@ -1010,1701 +698,6 @@ if the drawing has been previously cancelled.
     
 
     
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params table table-striped">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>chart</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Chart.Controller</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The chart instance.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>options</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The plugin options.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    
-
-    
-<dl class="details">
-    
-
-	
-
-	
-
-	
-
-    
-
-    
-
-    
-
-    
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dd>
-
-        
-            
-<hr>
-<dt>
-    <h4 class="name" id="afterEvent"><span class="type-signature"></span>afterEvent(chart, event, options)</h4>
-    
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        Called after the `event` has been consumed. Note that this hook
-will not be called if the `event` has been previously discarded.
-    </div>
-    
-
-    
-
-    
-
-    
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params table table-striped">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>chart</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Chart.Controller</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The chart instance.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>event</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="IEvent.html">IEvent</a></span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The event object.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>options</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The plugin options.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    
-
-    
-<dl class="details">
-    
-
-	
-
-	
-
-	
-
-    
-
-    
-
-    
-
-    
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dd>
-
-        
-            
-<hr>
-<dt>
-    <h4 class="name" id="afterInit"><span class="type-signature"></span>afterInit(chart, options)</h4>
-    
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        Called after `chart` has been initialized and before the first update.
-    </div>
-    
-
-    
-
-    
-
-    
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params table table-striped">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>chart</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Chart.Controller</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The chart instance.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>options</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The plugin options.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    
-
-    
-<dl class="details">
-    
-
-	
-
-	
-
-	
-
-    
-
-    
-
-    
-
-    
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dd>
-
-        
-            
-<hr>
-<dt>
-    <h4 class="name" id="afterLayout"><span class="type-signature"></span>afterLayout(chart, options)</h4>
-    
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        Called after the `chart` has been layed out. Note that this hook will not
-be called if the layout update has been previously cancelled.
-    </div>
-    
-
-    
-
-    
-
-    
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params table table-striped">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>chart</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Chart.Controller</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The chart instance.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>options</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The plugin options.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    
-
-    
-<dl class="details">
-    
-
-	
-
-	
-
-	
-
-    
-
-    
-
-    
-
-    
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dd>
-
-        
-            
-<hr>
-<dt>
-    <h4 class="name" id="afterRender"><span class="type-signature"></span>afterRender(chart, options)</h4>
-    
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        Called after the `chart` has been fully rendered (and animation completed). Note
-that this hook will not be called if the rendering has been previously cancelled.
-    </div>
-    
-
-    
-
-    
-
-    
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params table table-striped">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>chart</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Chart.Controller</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The chart instance.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>options</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The plugin options.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    
-
-    
-<dl class="details">
-    
-
-	
-
-	
-
-	
-
-    
-
-    
-
-    
-
-    
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dd>
-
-        
-            
-<hr>
-<dt>
-    <h4 class="name" id="afterTooltipDraw"><span class="type-signature"></span>afterTooltipDraw(chart, args, options)</h4>
-    
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        Called after drawing the `tooltip`. Note that this hook will not
-be called if the tooltip drawing has been previously cancelled.
-    </div>
-    
-
-    
-
-    
-
-    
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params table table-striped">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>chart</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="Chart.html">Chart</a></span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The chart instance.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>args</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The call arguments.
-                <h6 class="method-params-label method-subparams-label">Properties</h6>
-                
-
-<table class="params table table-striped">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>tooltip</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Tooltip</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The tooltip.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-            </td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>options</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The plugin options.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    
-
-    
-<dl class="details">
-    
-
-	
-
-	
-
-	
-
-    
-
-    
-
-    
-
-    
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dd>
-
-        
-            
-<hr>
-<dt>
-    <h4 class="name" id="afterUpdate"><span class="type-signature"></span>afterUpdate(chart, options)</h4>
-    
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        Called after `chart` has been updated and before rendering. Note that this
-hook will not be called if the chart update has been previously cancelled.
-    </div>
-    
-
-    
-
-    
-
-    
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params table table-striped">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>chart</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Chart.Controller</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The chart instance.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>options</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The plugin options.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    
-
-    
-<dl class="details">
-    
-
-	
-
-	
-
-	
-
-    
-
-    
-
-    
-
-    
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dd>
-
-        
-            
-<hr>
-<dt>
-    <h4 class="name" id="beforeDatasetDraw"><span class="type-signature"></span>beforeDatasetDraw(chart, args, options)</h4>
-    
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        Called before drawing the `chart` dataset at the given `args.index` (datasets
-are drawn in the reverse order). If any plugin returns `false`, the datasets drawing
-is cancelled until another `render` is triggered.
-    </div>
-    
-
-    
-
-    
-
-    
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params table table-striped">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>chart</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="Chart.html">Chart</a></span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The chart instance.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>args</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The call arguments.
-                <h6 class="method-params-label method-subparams-label">Properties</h6>
-                
-
-<table class="params table table-striped">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>index</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The dataset index.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>meta</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The dataset metadata.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-            </td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>options</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The plugin options.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    
-
-    
-<dl class="details">
-    
-
-	
-
-	
-
-	
-
-    
-
-    
-
-    
-
-    
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <h5>Returns:</h5>
-    
-            
-<div class="param-desc">
-    `false` to cancel the chart datasets drawing.
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">boolean</span>
-
-
-
-    </dd>
-</dl>
-
-
-        
-
-    
-</dd>
-
-        
-            
-<hr>
-<dt>
-    <h4 class="name" id="beforeDatasetsDraw"><span class="type-signature"></span>beforeDatasetsDraw(chart, options)</h4>
-    
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        Called before drawing the `chart` datasets. If any plugin returns `false`,
-the datasets drawing is cancelled until another `render` is triggered.
-    </div>
-    
-
-    
-
-    
-
-    
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params table table-striped">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>chart</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Chart.Controller</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The chart instance.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>options</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The plugin options.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    
-
-    
-<dl class="details">
-    
-
-	
-
-	
-
-	
-
-    
-
-    
-
-    
-
-    
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <h5>Returns:</h5>
-    
-            
-<div class="param-desc">
-    `false` to cancel the chart datasets drawing.
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">boolean</span>
-
-
-
-    </dd>
-</dl>
-
-
-        
-
-    
-</dd>
-
-        
-            
-<hr>
-<dt>
-    <h4 class="name" id="beforeDatasetsUpdate"><span class="type-signature"></span>beforeDatasetsUpdate(chart, options)</h4>
-    
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        Called before updating the `chart` datasets. If any plugin returns `false`,
-the datasets update is cancelled until another `update` is triggered.
-    </div>
-    
-
-    
-
-    
-
-    
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params table table-striped">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>chart</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Chart.Controller</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The chart instance.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>options</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The plugin options.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
     
 
     
@@ -2717,7 +710,112 @@ the datasets update is cancelled until another `update` is triggered.
 	<dt class="tag-since method-doc-label method-doc-details-label">Since:</dt>
 	<dd class="tag-since">
 		<ul class="dummy">
-			<li>version 2.1.5</li>
+			<li>2.1.5</li>
+		</ul>
+	</dd>
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">number</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id=".getAll"><span class="type-signature">&lt;static> </span>getAll()</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Returns all registered plugin instances.
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+	<dt class="tag-since method-doc-label method-doc-details-label">Since:</dt>
+	<dd class="tag-since">
+		<ul class="dummy">
+			<li>2.1.5</li>
 		</ul>
 	</dd>
 	
@@ -2769,7 +867,237 @@ the datasets update is cancelled until another `update` is triggered.
     
             
 <div class="param-desc">
-    false to cancel the datasets update.
+    array of plugin objects.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Array.&lt;<a href="IPlugin.html">IPlugin</a>></span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id=".notify"><span class="type-signature">&lt;static> </span>notify(chart, hook [, args])</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Calls enabled plugins for `chart` on the specified hook and with the given args.
+This method immediately returns as soon as a plugin explicitly returns false. The
+returned value can be used, for instance, to interrupt the current action.
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Argument</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>chart</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Chart.html">Chart</a></span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">The chart instance for which plugins should be called.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>hook</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">The name of the plugin method to call (e.g. 'beforeUpdate').</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>args</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Extra arguments to apply to the hook call.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    false if any of the plugins return false, else returns true.
 </div>
 
 
@@ -2797,7 +1125,7 @@ the datasets update is cancelled until another `update` is triggered.
             
 <hr>
 <dt>
-    <h4 class="name" id="beforeDatasetUpdate"><span class="type-signature"></span>beforeDatasetUpdate(chart, args, options)</h4>
+    <h4 class="name" id=".register"><span class="type-signature">&lt;static> </span>register(plugins)</h4>
     
     
 </dt>
@@ -2805,8 +1133,138 @@ the datasets update is cancelled until another `update` is triggered.
 
     
     <div class="description">
-        Called before updating the `chart` dataset at the given `args.index`. If any plugin
-returns `false`, the datasets update is cancelled until another `update` is triggered.
+        Registers the given plugin(s) if not already registered.
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>plugins</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;<a href="IPlugin.html">IPlugin</a>></span>
+|
+
+<span class="param-type"><a href="IPlugin.html">IPlugin</a></span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">plugin instance(s).</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id=".removeBox"><span class="type-signature">&lt;static> </span>removeBox(chart, layoutItem)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Remove a layoutItem from a chart
     </div>
     
 
@@ -2858,20 +1316,20 @@ returns `false`, the datasets update is cancelled until another `update` is trig
 
             
 
-            <td class="description last">The chart instance.</td>
+            <td class="description last">the chart to remove the box from</td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>args</code></td>
+                <td class="name"><code>layoutItem</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">object</span>
+<span class="param-type"><a href="ILayoutItem.html">ILayoutItem</a></span>
 
 
 
@@ -2882,9 +1340,94 @@ returns `false`, the datasets update is cancelled until another `update` is trig
 
             
 
-            <td class="description last">The call arguments.
-                <h6 class="method-params-label method-subparams-label">Properties</h6>
-                
+            <td class="description last">the item to remove from the layout</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id=".unregister"><span class="type-signature">&lt;static> </span>unregister(plugins)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Unregisters the given plugin(s) only if registered.
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
 
 <table class="params table table-striped">
     <thead>
@@ -2908,7 +1451,163 @@ returns `false`, the datasets update is cancelled until another `update` is trig
 
         <tr>
             
-                <td class="name"><code>index</code></td>
+                <td class="name"><code>plugins</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;<a href="IPlugin.html">IPlugin</a>></span>
+|
+
+<span class="param-type"><a href="IPlugin.html">IPlugin</a></span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">plugin instance(s).</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id=".update"><span class="type-signature">&lt;static> </span>update(chart, width, height)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Fits boxes of the given chart into the given size by having each box measure itself
+then running a fitting algorithm
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>chart</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Chart.html">Chart</a></span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">the chart</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>width</code></td>
             
 
             <td class="type">
@@ -2925,20 +1624,20 @@ returns `false`, the datasets update is cancelled until another `update` is trig
 
             
 
-            <td class="description last">The dataset index.</td>
+            <td class="description last">the width to fit into</td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>meta</code></td>
+                <td class="name"><code>height</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">object</span>
+<span class="param-type">number</span>
 
 
 
@@ -2949,38 +1648,7 @@ returns `false`, the datasets update is cancelled until another `update` is trig
 
             
 
-            <td class="description last">The dataset metadata.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-            </td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>options</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The plugin options.</td>
+            <td class="description last">the height to fit into</td>
         </tr>
 
     
@@ -3040,133 +1708,164 @@ returns `false`, the datasets update is cancelled until another `update` is trig
     
 
     
-    <h5>Returns:</h5>
-    
-            
-<div class="param-desc">
-    `false` to cancel the chart datasets drawing.
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">boolean</span>
-
-
-
-    </dd>
-</dl>
-
-
-        
 
     
 </dd>
 
+        </dl>
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+	<h1 class="page-title">Class: exports</h1>
+<section>
+
+<header>
+    
+        <h2>
+        exports
+        </h2>
         
-            
+            <div class="class-description">Platform class for charts without access to the DOM or to many element properties
+This platform is used by default for any chart passed an OffscreenCanvas.</div>
+        
+    
+</header>
+
+
+<article>
+    <div class="container-overview">
+    
+        
 <hr>
 <dt>
-    <h4 class="name" id="beforeDraw"><span class="type-signature"></span>beforeDraw(chart, options)</h4>
+    <h4 class="name" id="exports"><span class="type-signature"></span>new exports()</h4>
     
     
 </dt>
 <dd>
 
     
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+    
+    </div>
+
+    
+        <h3 class="subsection-title">Extends</h3>
+
+        
+
+
+    <ul>
+        <li>BasePlatform</li>
+    </ul>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Members</h3>
+
+        <dl>
+            
+<hr>
+<dt class="name" id="disableCSSInjection">
+    <h4 id="disableCSSInjection"><span class="type-signature"></span>disableCSSInjection<span class="type-signature"></span></h4>
+
+    
+</dt>
+<dd>
+    
     <div class="description">
-        Called before drawing `chart` at every animation frame. If any plugin returns `false`,
-the frame drawing is cancelled untilanother `render` is triggered.
+        When `true`, prevents the automatic injection of the stylesheet required to
+correctly detect when the chart is added to the DOM and then resized. This
+switch has been added to allow external stylesheet (`dist/Chart(.min)?.js`)
+to be manually imported to make this library compatible with any CSP.
+See https://github.com/chartjs/Chart.js/issues/5208
     </div>
     
 
     
 
     
-
-    
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params table table-striped">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>chart</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Chart.Controller</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The chart instance.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>options</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The plugin options.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    
-
-    
 <dl class="details">
     
 
@@ -3207,49 +1906,19 @@ the frame drawing is cancelled untilanother `render` is triggered.
 
 
     
-
-    
-
-    
-
-    
-
-    
-
-    
-    <h5>Returns:</h5>
-    
-            
-<div class="param-desc">
-    `false` to cancel the chart drawing.
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">boolean</span>
-
-
-
-    </dd>
-</dl>
-
-
-        
-
-    
 </dd>
 
-        
+        </dl>
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        <dl>
             
 <hr>
 <dt>
-    <h4 class="name" id="beforeEvent"><span class="type-signature"></span>beforeEvent(chart, event, options)</h4>
+    <h4 class="name" id=".addBox"><span class="type-signature">&lt;static> </span>addBox(chart, item)</h4>
     
     
 </dt>
@@ -3257,691 +1926,8 @@ the frame drawing is cancelled untilanother `render` is triggered.
 
     
     <div class="description">
-        Called before processing the specified `event`. If any plugin returns `false`,
-the event will be discarded.
-    </div>
-    
-
-    
-
-    
-
-    
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params table table-striped">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>chart</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Chart.Controller</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The chart instance.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>event</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="IEvent.html">IEvent</a></span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The event object.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>options</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The plugin options.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    
-
-    
-<dl class="details">
-    
-
-	
-
-	
-
-	
-
-    
-
-    
-
-    
-
-    
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dd>
-
-        
-            
-<hr>
-<dt>
-    <h4 class="name" id="beforeInit"><span class="type-signature"></span>beforeInit(chart, options)</h4>
-    
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        Called before initializing `chart`.
-    </div>
-    
-
-    
-
-    
-
-    
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params table table-striped">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>chart</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Chart.Controller</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The chart instance.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>options</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The plugin options.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    
-
-    
-<dl class="details">
-    
-
-	
-
-	
-
-	
-
-    
-
-    
-
-    
-
-    
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dd>
-
-        
-            
-<hr>
-<dt>
-    <h4 class="name" id="beforeLayout"><span class="type-signature"></span>beforeLayout(chart, options)</h4>
-    
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        Called before laying out `chart`. If any plugin returns `false`,
-the layout update is cancelled until another `update` is triggered.
-    </div>
-    
-
-    
-
-    
-
-    
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params table table-striped">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>chart</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Chart.Controller</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The chart instance.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>options</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The plugin options.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    
-
-    
-<dl class="details">
-    
-
-	
-
-	
-
-	
-
-    
-
-    
-
-    
-
-    
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <h5>Returns:</h5>
-    
-            
-<div class="param-desc">
-    `false` to cancel the chart layout.
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">boolean</span>
-
-
-
-    </dd>
-</dl>
-
-
-        
-
-    
-</dd>
-
-        
-            
-<hr>
-<dt>
-    <h4 class="name" id="beforeRender"><span class="type-signature"></span>beforeRender(chart, options)</h4>
-    
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        Called before rendering `chart`. If any plugin returns `false`,
-the rendering is cancelled until another `render` is triggered.
-    </div>
-    
-
-    
-
-    
-
-    
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params table table-striped">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>chart</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Chart.Controller</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The chart instance.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>options</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The plugin options.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    
-
-    
-<dl class="details">
-    
-
-	
-
-	
-
-	
-
-    
-
-    
-
-    
-
-    
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <h5>Returns:</h5>
-    
-            
-<div class="param-desc">
-    `false` to cancel the chart rendering.
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">boolean</span>
-
-
-
-    </dd>
-</dl>
-
-
-        
-
-    
-</dd>
-
-        
-            
-<hr>
-<dt>
-    <h4 class="name" id="beforeTooltipDraw"><span class="type-signature"></span>beforeTooltipDraw(chart, args, options)</h4>
-    
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        Called before drawing the `tooltip`. If any plugin returns `false`,
-the tooltip drawing is cancelled until another `render` is triggered.
+        Register a box to a chart.
+A box is simply a reference to an object that requires layout. eg. Scales, Legend, Title.
     </div>
     
 
@@ -3993,20 +1979,20 @@ the tooltip drawing is cancelled until another `render` is triggered.
 
             
 
-            <td class="description last">The chart instance.</td>
+            <td class="description last">the chart to use</td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>args</code></td>
+                <td class="name"><code>item</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">object</span>
+<span class="param-type"><a href="ILayoutItem.html">ILayoutItem</a></span>
 
 
 
@@ -4017,434 +2003,7 @@ the tooltip drawing is cancelled until another `render` is triggered.
 
             
 
-            <td class="description last">The call arguments.
-                <h6 class="method-params-label method-subparams-label">Properties</h6>
-                
-
-<table class="params table table-striped">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>tooltip</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Tooltip</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The tooltip.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-            </td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>options</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The plugin options.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    
-
-    
-<dl class="details">
-    
-
-	
-
-	
-
-	
-
-    
-
-    
-
-    
-
-    
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <h5>Returns:</h5>
-    
-            
-<div class="param-desc">
-    `false` to cancel the chart tooltip drawing.
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">boolean</span>
-
-
-
-    </dd>
-</dl>
-
-
-        
-
-    
-</dd>
-
-        
-            
-<hr>
-<dt>
-    <h4 class="name" id="beforeUpdate"><span class="type-signature"></span>beforeUpdate(chart, options)</h4>
-    
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        Called before updating `chart`. If any plugin returns `false`, the update
-is cancelled (and thus subsequent render(s)) until another `update` is triggered.
-    </div>
-    
-
-    
-
-    
-
-    
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params table table-striped">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>chart</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Chart.Controller</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The chart instance.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>options</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The plugin options.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    
-
-    
-<dl class="details">
-    
-
-	
-
-	
-
-	
-
-    
-
-    
-
-    
-
-    
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <h5>Returns:</h5>
-    
-            
-<div class="param-desc">
-    `false` to cancel the chart update.
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">boolean</span>
-
-
-
-    </dd>
-</dl>
-
-
-        
-
-    
-</dd>
-
-        
-            
-<hr>
-<dt>
-    <h4 class="name" id="destroy"><span class="type-signature"></span>destroy(chart, options)</h4>
-    
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        Called after the chart as been destroyed.
-    </div>
-    
-
-    
-
-    
-
-    
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params table table-striped">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>chart</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Chart.Controller</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The chart instance.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>options</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The plugin options.</td>
+            <td class="description last">the item to add to be layed out</td>
         </tr>
 
     
@@ -4512,7 +2071,7 @@ is cancelled (and thus subsequent render(s)) until another `update` is triggered
             
 <hr>
 <dt>
-    <h4 class="name" id="reset"><span class="type-signature"></span>reset(chart, options)</h4>
+    <h4 class="name" id=".clear"><span class="type-signature">&lt;static> </span>clear()</h4>
     
     
 </dt>
@@ -4520,7 +2079,7 @@ is cancelled (and thus subsequent render(s)) until another `update` is triggered
 
     
     <div class="description">
-        Called during chart reset
+        Remove all registered plugins.
     </div>
     
 
@@ -4529,80 +2088,6 @@ is cancelled (and thus subsequent render(s)) until another `update` is triggered
     
 
     
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params table table-striped">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>chart</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Chart.Controller</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The chart instance.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>options</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The plugin options.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
     
 
     
@@ -4615,7 +2100,7 @@ is cancelled (and thus subsequent render(s)) until another `update` is triggered
 	<dt class="tag-since method-doc-label method-doc-details-label">Since:</dt>
 	<dd class="tag-since">
 		<ul class="dummy">
-			<li>version 3.0.0</li>
+			<li>2.1.5</li>
 		</ul>
 	</dd>
 	
@@ -4671,7 +2156,7 @@ is cancelled (and thus subsequent render(s)) until another `update` is triggered
             
 <hr>
 <dt>
-    <h4 class="name" id="resize"><span class="type-signature"></span>resize(chart, size, options)</h4>
+    <h4 class="name" id=".configure"><span class="type-signature">&lt;static> </span>configure(chart, item, options)</h4>
     
     
 </dt>
@@ -4679,7 +2164,7 @@ is cancelled (and thus subsequent render(s)) until another `update` is triggered
 
     
     <div class="description">
-        Called after the chart as been resized.
+        Sets (or updates) options on the given `item`.
     </div>
     
 
@@ -4720,7 +2205,7 @@ is cancelled (and thus subsequent render(s)) until another `update` is triggered
             <td class="type">
             
                 
-<span class="param-type">Chart.Controller</span>
+<span class="param-type"><a href="Chart.html">Chart</a></span>
 
 
 
@@ -4731,20 +2216,20 @@ is cancelled (and thus subsequent render(s)) until another `update` is triggered
 
             
 
-            <td class="description last">The chart instance.</td>
+            <td class="description last">the chart in which the item lives (or will be added to)</td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>size</code></td>
+                <td class="name"><code>item</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">number</span>
+<span class="param-type"><a href="ILayoutItem.html">ILayoutItem</a></span>
 
 
 
@@ -4755,7 +2240,7 @@ is cancelled (and thus subsequent render(s)) until another `update` is triggered
 
             
 
-            <td class="description last">The new canvas display size (eq. canvas.style width & height).</td>
+            <td class="description last">the item to configure with the given options</td>
         </tr>
 
     
@@ -4779,7 +2264,2692 @@ is cancelled (and thus subsequent render(s)) until another `update` is triggered
 
             
 
-            <td class="description last">The plugin options.</td>
+            <td class="description last">the new item options.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id=".count"><span class="type-signature">&lt;static> </span>count()</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Returns the number of registered plugins?
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+	<dt class="tag-since method-doc-label method-doc-details-label">Since:</dt>
+	<dd class="tag-since">
+		<ul class="dummy">
+			<li>2.1.5</li>
+		</ul>
+	</dd>
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">number</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id=".getAll"><span class="type-signature">&lt;static> </span>getAll()</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Returns all registered plugin instances.
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+	<dt class="tag-since method-doc-label method-doc-details-label">Since:</dt>
+	<dd class="tag-since">
+		<ul class="dummy">
+			<li>2.1.5</li>
+		</ul>
+	</dd>
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    array of plugin objects.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Array.&lt;<a href="IPlugin.html">IPlugin</a>></span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id=".notify"><span class="type-signature">&lt;static> </span>notify(chart, hook [, args])</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Calls enabled plugins for `chart` on the specified hook and with the given args.
+This method immediately returns as soon as a plugin explicitly returns false. The
+returned value can be used, for instance, to interrupt the current action.
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Argument</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>chart</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Chart.html">Chart</a></span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">The chart instance for which plugins should be called.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>hook</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">The name of the plugin method to call (e.g. 'beforeUpdate').</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>args</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Extra arguments to apply to the hook call.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    false if any of the plugins return false, else returns true.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">boolean</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id=".register"><span class="type-signature">&lt;static> </span>register(plugins)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Registers the given plugin(s) if not already registered.
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>plugins</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;<a href="IPlugin.html">IPlugin</a>></span>
+|
+
+<span class="param-type"><a href="IPlugin.html">IPlugin</a></span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">plugin instance(s).</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id=".removeBox"><span class="type-signature">&lt;static> </span>removeBox(chart, layoutItem)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Remove a layoutItem from a chart
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>chart</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Chart.html">Chart</a></span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">the chart to remove the box from</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>layoutItem</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="ILayoutItem.html">ILayoutItem</a></span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">the item to remove from the layout</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id=".unregister"><span class="type-signature">&lt;static> </span>unregister(plugins)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Unregisters the given plugin(s) only if registered.
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>plugins</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;<a href="IPlugin.html">IPlugin</a>></span>
+|
+
+<span class="param-type"><a href="IPlugin.html">IPlugin</a></span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">plugin instance(s).</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id=".update"><span class="type-signature">&lt;static> </span>update(chart, width, height)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Fits boxes of the given chart into the given size by having each box measure itself
+then running a fitting algorithm
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>chart</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Chart.html">Chart</a></span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">the chart</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>width</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">the width to fit into</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>height</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">the height to fit into</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        </dl>
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+	<h1 class="page-title">Class: exports</h1>
+<section>
+
+<header>
+    
+        <h2>
+        exports
+        </h2>
+        
+            <div class="class-description">Platform class for charts that can access the DOM and global window/document properties</div>
+        
+    
+</header>
+
+
+<article>
+    <div class="container-overview">
+    
+        
+<hr>
+<dt>
+    <h4 class="name" id="exports"><span class="type-signature"></span>new exports()</h4>
+    
+    
+</dt>
+<dd>
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+    
+    </div>
+
+    
+        <h3 class="subsection-title">Extends</h3>
+
+        
+
+
+    <ul>
+        <li>BasePlatform</li>
+    </ul>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Members</h3>
+
+        <dl>
+            
+<hr>
+<dt class="name" id="disableCSSInjection">
+    <h4 id="disableCSSInjection"><span class="type-signature"></span>disableCSSInjection<span class="type-signature"></span></h4>
+
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        When `true`, prevents the automatic injection of the stylesheet required to
+correctly detect when the chart is added to the DOM and then resized. This
+switch has been added to allow external stylesheet (`dist/Chart(.min)?.js`)
+to be manually imported to make this library compatible with any CSP.
+See https://github.com/chartjs/Chart.js/issues/5208
+    </div>
+    
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+</dd>
+
+        </dl>
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        <dl>
+            
+<hr>
+<dt>
+    <h4 class="name" id=".addBox"><span class="type-signature">&lt;static> </span>addBox(chart, item)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Register a box to a chart.
+A box is simply a reference to an object that requires layout. eg. Scales, Legend, Title.
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>chart</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Chart.html">Chart</a></span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">the chart to use</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>item</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="ILayoutItem.html">ILayoutItem</a></span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">the item to add to be layed out</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id=".clear"><span class="type-signature">&lt;static> </span>clear()</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Remove all registered plugins.
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+	<dt class="tag-since method-doc-label method-doc-details-label">Since:</dt>
+	<dd class="tag-since">
+		<ul class="dummy">
+			<li>2.1.5</li>
+		</ul>
+	</dd>
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id=".configure"><span class="type-signature">&lt;static> </span>configure(chart, item, options)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Sets (or updates) options on the given `item`.
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>chart</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Chart.html">Chart</a></span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">the chart in which the item lives (or will be added to)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>item</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="ILayoutItem.html">ILayoutItem</a></span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">the item to configure with the given options</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>options</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">the new item options.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id=".count"><span class="type-signature">&lt;static> </span>count()</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Returns the number of registered plugins?
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+	<dt class="tag-since method-doc-label method-doc-details-label">Since:</dt>
+	<dd class="tag-since">
+		<ul class="dummy">
+			<li>2.1.5</li>
+		</ul>
+	</dd>
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">number</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id=".getAll"><span class="type-signature">&lt;static> </span>getAll()</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Returns all registered plugin instances.
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+	<dt class="tag-since method-doc-label method-doc-details-label">Since:</dt>
+	<dd class="tag-since">
+		<ul class="dummy">
+			<li>2.1.5</li>
+		</ul>
+	</dd>
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    array of plugin objects.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Array.&lt;<a href="IPlugin.html">IPlugin</a>></span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id=".notify"><span class="type-signature">&lt;static> </span>notify(chart, hook [, args])</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Calls enabled plugins for `chart` on the specified hook and with the given args.
+This method immediately returns as soon as a plugin explicitly returns false. The
+returned value can be used, for instance, to interrupt the current action.
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Argument</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>chart</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Chart.html">Chart</a></span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">The chart instance for which plugins should be called.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>hook</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">The name of the plugin method to call (e.g. 'beforeUpdate').</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>args</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Extra arguments to apply to the hook call.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    false if any of the plugins return false, else returns true.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">boolean</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id=".register"><span class="type-signature">&lt;static> </span>register(plugins)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Registers the given plugin(s) if not already registered.
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>plugins</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;<a href="IPlugin.html">IPlugin</a>></span>
+|
+
+<span class="param-type"><a href="IPlugin.html">IPlugin</a></span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">plugin instance(s).</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id=".removeBox"><span class="type-signature">&lt;static> </span>removeBox(chart, layoutItem)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Remove a layoutItem from a chart
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>chart</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Chart.html">Chart</a></span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">the chart to remove the box from</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>layoutItem</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="ILayoutItem.html">ILayoutItem</a></span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">the item to remove from the layout</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id=".unregister"><span class="type-signature">&lt;static> </span>unregister(plugins)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Unregisters the given plugin(s) only if registered.
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>plugins</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;<a href="IPlugin.html">IPlugin</a>></span>
+|
+
+<span class="param-type"><a href="IPlugin.html">IPlugin</a></span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">plugin instance(s).</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id=".update"><span class="type-signature">&lt;static> </span>update(chart, width, height)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Fits boxes of the given chart into the given size by having each box measure itself
+then running a fitting algorithm
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>chart</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Chart.html">Chart</a></span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">the chart</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>width</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">the width to fit into</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>height</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">the height to fit into</td>
         </tr>
 
     

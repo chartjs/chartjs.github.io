@@ -9627,22 +9627,111 @@ var layouts = {
   }
 };
 
+var BasePlatform =
+/*#__PURE__*/
+function () {
+  /**
+   * @constructor
+   */
+  function BasePlatform() {
+    _classCallCheck(this, BasePlatform);
+  }
+  /**
+   * Called at chart construction time, returns a context2d instance implementing
+   * the [W3C Canvas 2D Context API standard]{@link https://www.w3.org/TR/2dcontext/}.
+   * @param {canvas} canvas - The canvas from which to acquire context (platform specific)
+   * @param {object} options - The chart options
+   * @returns {CanvasRenderingContext2D} context2d instance
+   */
+
+
+  _createClass(BasePlatform, [{
+    key: "acquireContext",
+    value: function acquireContext() {}
+    /**
+     * Called at chart destruction time, releases any resources associated to the context
+     * previously returned by the acquireContext() method.
+     * @param {CanvasRenderingContext2D} context - The context2d instance
+     * @returns {boolean} true if the method succeeded, else false
+     */
+
+  }, {
+    key: "releaseContext",
+    value: function releaseContext() {}
+    /**
+     * Registers the specified listener on the given chart.
+     * @param {Chart} chart - Chart from which to listen for event
+     * @param {string} type - The ({@link IEvent}) type to listen for
+     * @param {function} listener - Receives a notification (an object that implements
+     * the {@link IEvent} interface) when an event of the specified type occurs.
+     */
+
+  }, {
+    key: "addEventListener",
+    value: function addEventListener() {}
+    /**
+     * Removes the specified listener previously registered with addEventListener.
+     * @param {Chart} chart - Chart from which to remove the listener
+     * @param {string} type - The ({@link IEvent}) type to remove
+     * @param {function} listener - The listener function to remove from the event target.
+     */
+
+  }, {
+    key: "removeEventListener",
+    value: function removeEventListener() {}
+    /**
+     * @returns {number} the current devicePixelRatio of the device this platform is connected to.
+     */
+
+  }, {
+    key: "getDevicePixelRatio",
+    value: function getDevicePixelRatio() {
+      return 1;
+    }
+  }]);
+
+  return BasePlatform;
+}();
+
 /**
  * Platform fallback implementation (minimal).
  * @see https://github.com/chartjs/Chart.js/pull/4591#issuecomment-319575939
  */
-var platform_basic = {
-  acquireContext: function acquireContext(item) {
-    if (item && item.canvas) {
-      // Support for any object associated to a canvas (including a context2d)
-      item = item.canvas;
-    }
+/**
+ * Platform class for charts without access to the DOM or to many element properties
+ * This platform is used by default for any chart passed an OffscreenCanvas.
+ * @extends BasePlatform
+ */
 
-    return item && item.getContext('2d') || null;
+var BasicPlatform =
+/*#__PURE__*/
+function (_BasePlatform) {
+  _inherits(BasicPlatform, _BasePlatform);
+
+  function BasicPlatform() {
+    _classCallCheck(this, BasicPlatform);
+
+    return _possibleConstructorReturn(this, _getPrototypeOf(BasicPlatform).apply(this, arguments));
   }
-};
+
+  _createClass(BasicPlatform, [{
+    key: "acquireContext",
+    value: function acquireContext(item) {
+      // To prevent canvas fingerprinting, some add-ons undefine the getContext
+      // method, for example: https://github.com/kkapsner/CanvasBlocker
+      // https://github.com/chartjs/Chart.js/issues/2807
+      return item && item.getContext && item.getContext('2d') || null;
+    }
+  }]);
+
+  return BasicPlatform;
+}(BasePlatform);
 
 var stylesheet = "/*\n * DOM element rendering detection\n * https://davidwalsh.name/detect-node-insertion\n */\n@keyframes chartjs-render-animation {\n\tfrom { opacity: 0.99; }\n\tto { opacity: 1; }\n}\n\n.chartjs-render-monitor {\n\tanimation: chartjs-render-animation 0.001s;\n}\n\n/*\n * DOM element resizing detection\n * https://github.com/marcj/css-element-queries\n */\n.chartjs-size-monitor,\n.chartjs-size-monitor-expand,\n.chartjs-size-monitor-shrink {\n\tposition: absolute;\n\tdirection: ltr;\n\tleft: 0;\n\ttop: 0;\n\tright: 0;\n\tbottom: 0;\n\toverflow: hidden;\n\tpointer-events: none;\n\tvisibility: hidden;\n\tz-index: -1;\n}\n\n.chartjs-size-monitor-expand > div {\n\tposition: absolute;\n\twidth: 1000000px;\n\theight: 1000000px;\n\tleft: 0;\n\ttop: 0;\n}\n\n.chartjs-size-monitor-shrink > div {\n\tposition: absolute;\n\twidth: 200%;\n\theight: 200%;\n\tleft: 0;\n\ttop: 0;\n}\n";
+
+var platform = {
+  disableCSSInjection: false
+};
 
 /**
  * Chart.Platform implementation for targeting a web browser
@@ -9951,215 +10040,171 @@ function injectCSS(rootNode, css) {
     rootNode.appendChild(style);
   }
 }
+/**
+ * Platform class for charts that can access the DOM and global window/document properties
+ * @extends BasePlatform
+ */
 
-var dom$1 = {
+
+var DomPlatform =
+/*#__PURE__*/
+function (_BasePlatform) {
+  _inherits(DomPlatform, _BasePlatform);
+
   /**
-   * When `true`, prevents the automatic injection of the stylesheet required to
-   * correctly detect when the chart is added to the DOM and then resized. This
-   * switch has been added to allow external stylesheet (`dist/Chart(.min)?.js`)
-   * to be manually imported to make this library compatible with any CSP.
-   * See https://github.com/chartjs/Chart.js/issues/5208
+   * @constructor
    */
-  disableCSSInjection: false,
+  function DomPlatform() {
+    var _this;
 
-  /**
-   * This property holds whether this platform is enabled for the current environment.
-   * Currently used by platform.js to select the proper implementation.
-   * @private
-   */
-  _enabled: typeof window !== 'undefined' && typeof document !== 'undefined',
+    _classCallCheck(this, DomPlatform);
 
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(DomPlatform).call(this));
+    /**
+     * When `true`, prevents the automatic injection of the stylesheet required to
+     * correctly detect when the chart is added to the DOM and then resized. This
+     * switch has been added to allow external stylesheet (`dist/Chart(.min)?.js`)
+     * to be manually imported to make this library compatible with any CSP.
+     * See https://github.com/chartjs/Chart.js/issues/5208
+     */
+
+    _this.disableCSSInjection = platform.disableCSSInjection;
+    return _this;
+  }
   /**
    * Initializes resources that depend on platform options.
    * @param {HTMLCanvasElement} canvas - The Canvas element.
    * @private
    */
-  _ensureLoaded: function _ensureLoaded(canvas) {
-    if (!this.disableCSSInjection) {
-      // If the canvas is in a shadow DOM, then the styles must also be inserted
-      // into the same shadow DOM.
-      // https://github.com/chartjs/Chart.js/issues/5763
-      var root = canvas.getRootNode ? canvas.getRootNode() : document;
-      var targetNode = root.host ? root : document.head;
-      injectCSS(targetNode, stylesheet);
-    }
-  },
-  acquireContext: function acquireContext(item, config) {
-    if (typeof item === 'string') {
-      item = document.getElementById(item);
-    } else if (item.length) {
-      // Support for array based queries (such as jQuery)
-      item = item[0];
-    }
-
-    if (item && item.canvas) {
-      // Support for any object associated to a canvas (including a context2d)
-      item = item.canvas;
-    } // To prevent canvas fingerprinting, some add-ons undefine the getContext
-    // method, for example: https://github.com/kkapsner/CanvasBlocker
-    // https://github.com/chartjs/Chart.js/issues/2807
 
 
-    var context = item && item.getContext && item.getContext('2d'); // `instanceof HTMLCanvasElement/CanvasRenderingContext2D` fails when the item is
-    // inside an iframe or when running in a protected environment. We could guess the
-    // types from their toString() value but let's keep things flexible and assume it's
-    // a sufficient condition if the item has a context2D which has item as `canvas`.
-    // https://github.com/chartjs/Chart.js/issues/3887
-    // https://github.com/chartjs/Chart.js/issues/4102
-    // https://github.com/chartjs/Chart.js/issues/4152
-
-    if (context && context.canvas === item) {
-      // Load platform resources on first chart creation, to make it possible to
-      // import the library before setting platform options.
-      this._ensureLoaded(item);
-
-      initCanvas(item, config);
-      return context;
-    }
-
-    return null;
-  },
-  releaseContext: function releaseContext(context) {
-    var canvas = context.canvas;
-
-    if (!canvas[EXPANDO_KEY]) {
-      return;
-    }
-
-    var initial = canvas[EXPANDO_KEY].initial;
-    ['height', 'width'].forEach(function (prop) {
-      var value = initial[prop];
-
-      if (helpers.isNullOrUndef(value)) {
-        canvas.removeAttribute(prop);
-      } else {
-        canvas.setAttribute(prop, value);
+  _createClass(DomPlatform, [{
+    key: "_ensureLoaded",
+    value: function _ensureLoaded(canvas) {
+      if (!this.disableCSSInjection) {
+        // If the canvas is in a shadow DOM, then the styles must also be inserted
+        // into the same shadow DOM.
+        // https://github.com/chartjs/Chart.js/issues/5763
+        var root = canvas.getRootNode ? canvas.getRootNode() : document;
+        var targetNode = root.host ? root : document.head;
+        injectCSS(targetNode, stylesheet);
       }
-    });
-    var style = initial.style || {};
-    Object.keys(style).forEach(function (key) {
-      canvas.style[key] = style[key];
-    }); // The canvas render size might have been changed (and thus the state stack discarded),
-    // we can't use save() and restore() to restore the initial state. So make sure that at
-    // least the canvas context is reset to the default state by setting the canvas width.
-    // https://www.w3.org/TR/2011/WD-html5-20110525/the-canvas-element.html
-    // eslint-disable-next-line no-self-assign
-
-    canvas.width = canvas.width;
-    delete canvas[EXPANDO_KEY];
-  },
-  addEventListener: function addEventListener(chart, type, listener) {
-    var canvas = chart.canvas;
-
-    if (type === 'resize') {
-      // Note: the resize event is not supported on all browsers.
-      addResizeListener(canvas, listener, chart);
-      return;
     }
+  }, {
+    key: "acquireContext",
+    value: function acquireContext(canvas, config) {
+      // To prevent canvas fingerprinting, some add-ons undefine the getContext
+      // method, for example: https://github.com/kkapsner/CanvasBlocker
+      // https://github.com/chartjs/Chart.js/issues/2807
+      var context = canvas && canvas.getContext && canvas.getContext('2d'); // `instanceof HTMLCanvasElement/CanvasRenderingContext2D` fails when the canvas is
+      // inside an iframe or when running in a protected environment. We could guess the
+      // types from their toString() value but let's keep things flexible and assume it's
+      // a sufficient condition if the canvas has a context2D which has canvas as `canvas`.
+      // https://github.com/chartjs/Chart.js/issues/3887
+      // https://github.com/chartjs/Chart.js/issues/4102
+      // https://github.com/chartjs/Chart.js/issues/4152
 
-    var expando = listener[EXPANDO_KEY] || (listener[EXPANDO_KEY] = {});
-    var proxies = expando.proxies || (expando.proxies = {});
-    var proxy = proxies[chart.id + '_' + type] = throttled(function (event) {
-      listener(fromNativeEvent(event, chart));
-    }, chart);
-    addListener(canvas, type, proxy);
-  },
-  removeEventListener: function removeEventListener(chart, type, listener) {
-    var canvas = chart.canvas;
+      if (context && context.canvas === canvas) {
+        // Load platform resources on first chart creation, to make it possible to
+        // import the library before setting platform options.
+        this._ensureLoaded(canvas);
 
-    if (type === 'resize') {
-      // Note: the resize event is not supported on all browsers.
-      removeResizeListener(canvas);
-      return;
+        initCanvas(canvas, config);
+        return context;
+      }
+
+      return null;
     }
+  }, {
+    key: "releaseContext",
+    value: function releaseContext(context) {
+      var canvas = context.canvas;
 
-    var expando = listener[EXPANDO_KEY] || {};
-    var proxies = expando.proxies || {};
-    var proxy = proxies[chart.id + '_' + type];
+      if (!canvas[EXPANDO_KEY]) {
+        return;
+      }
 
-    if (!proxy) {
-      return;
+      var initial = canvas[EXPANDO_KEY].initial;
+      ['height', 'width'].forEach(function (prop) {
+        var value = initial[prop];
+
+        if (helpers.isNullOrUndef(value)) {
+          canvas.removeAttribute(prop);
+        } else {
+          canvas.setAttribute(prop, value);
+        }
+      });
+      var style = initial.style || {};
+      Object.keys(style).forEach(function (key) {
+        canvas.style[key] = style[key];
+      }); // The canvas render size might have been changed (and thus the state stack discarded),
+      // we can't use save() and restore() to restore the initial state. So make sure that at
+      // least the canvas context is reset to the default state by setting the canvas width.
+      // https://www.w3.org/TR/2011/WD-html5-20110525/the-canvas-element.html
+      // eslint-disable-next-line no-self-assign
+
+      canvas.width = canvas.width;
+      delete canvas[EXPANDO_KEY];
     }
+  }, {
+    key: "addEventListener",
+    value: function addEventListener(chart, type, listener) {
+      var canvas = chart.canvas;
 
-    removeListener(canvas, type, proxy);
-  },
-  getDevicePixelRatio: function getDevicePixelRatio() {
-    return window.devicePixelRatio;
-  }
-};
+      if (type === 'resize') {
+        // Note: the resize event is not supported on all browsers.
+        addResizeListener(canvas, listener, chart);
+        return;
+      }
 
-var implementation = dom$1._enabled ? dom$1 : platform_basic;
+      var expando = listener[EXPANDO_KEY] || (listener[EXPANDO_KEY] = {});
+      var proxies = expando.proxies || (expando.proxies = {});
+      var proxy = proxies[chart.id + '_' + type] = throttled(function (event) {
+        listener(fromNativeEvent(event, chart));
+      }, chart);
+      addListener(canvas, type, proxy);
+    }
+  }, {
+    key: "removeEventListener",
+    value: function removeEventListener(chart, type, listener) {
+      var canvas = chart.canvas;
+
+      if (type === 'resize') {
+        // Note: the resize event is not supported on all browsers.
+        removeResizeListener(canvas);
+        return;
+      }
+
+      var expando = listener[EXPANDO_KEY] || {};
+      var proxies = expando.proxies || {};
+      var proxy = proxies[chart.id + '_' + type];
+
+      if (!proxy) {
+        return;
+      }
+
+      removeListener(canvas, type, proxy);
+    }
+  }, {
+    key: "getDevicePixelRatio",
+    value: function getDevicePixelRatio() {
+      return window.devicePixelRatio;
+    }
+  }]);
+
+  return DomPlatform;
+}(BasePlatform);
+
 /**
- * @namespace Chart.platform
+ * @namespace Chart.platforms
  * @see https://chartjs.gitbooks.io/proposals/content/Platform.html
- * @since 2.4.0
- */
+*/
 
-var platform = helpers.extend({
-  /**
-   * @since 2.7.0
-   */
-  initialize: function initialize() {},
-
-  /**
-   * Called at chart construction time, returns a context2d instance implementing
-   * the [W3C Canvas 2D Context API standard]{@link https://www.w3.org/TR/2dcontext/}.
-   * @param {*} item - The native item from which to acquire context (platform specific)
-   * @param {object} options - The chart options
-   * @returns {CanvasRenderingContext2D} context2d instance
-   */
-  acquireContext: function acquireContext() {},
-
-  /**
-   * Called at chart destruction time, releases any resources associated to the context
-   * previously returned by the acquireContext() method.
-   * @param {CanvasRenderingContext2D} context - The context2d instance
-   * @returns {boolean} true if the method succeeded, else false
-   */
-  releaseContext: function releaseContext() {},
-
-  /**
-   * Registers the specified listener on the given chart.
-   * @param {Chart} chart - Chart from which to listen for event
-   * @param {string} type - The ({@link IEvent}) type to listen for
-   * @param {function} listener - Receives a notification (an object that implements
-   * the {@link IEvent} interface) when an event of the specified type occurs.
-   */
-  addEventListener: function addEventListener() {},
-
-  /**
-   * Removes the specified listener previously registered with addEventListener.
-   * @param {Chart} chart - Chart from which to remove the listener
-   * @param {string} type - The ({@link IEvent}) type to remove
-   * @param {function} listener - The listener function to remove from the event target.
-   */
-  removeEventListener: function removeEventListener() {},
-
-  /**
-   * Returs current devicePixelRatio of the device this platform is connected to.
-   */
-  getDevicePixelRatio: function getDevicePixelRatio() {
-    return 1;
-  }
-}, implementation);
-/**
- * @interface IPlatform
- * Allows abstracting platform dependencies away from the chart
- * @borrows Chart.platform.acquireContext as acquireContext
- * @borrows Chart.platform.releaseContext as releaseContext
- * @borrows Chart.platform.addEventListener as addEventListener
- * @borrows Chart.platform.removeEventListener as removeEventListener
- */
-
-/**
- * @interface IEvent
- * @prop {string} type - The event type name, possible values are:
- * 'contextmenu', 'mouseenter', 'mousedown', 'mousemove', 'mouseup', 'mouseout',
- * 'click', 'dblclick', 'keydown', 'keypress', 'keyup' and 'resize'
- * @prop {*} native - The original native event (null for emulated events, e.g. 'resize')
- * @prop {number} x - The mouse x position, relative to the canvas (null for incompatible events)
- * @prop {number} y - The mouse y position, relative to the canvas (null for incompatible events)
- */
+var platforms = {
+  BasicPlatform: BasicPlatform,
+  DomPlatform: DomPlatform,
+  BasePlatform: BasePlatform
+};
 
 defaults._set('plugins', {});
 /**
@@ -10719,6 +10764,31 @@ function onAnimationProgress(ctx) {
   helpers.callback(animationOptions && animationOptions.onProgress, arguments, chart);
 }
 
+function isDomSupported() {
+  return (typeof window === "undefined" ? "undefined" : _typeof(window)) !== undefined && (typeof document === "undefined" ? "undefined" : _typeof(document)) !== undefined;
+}
+/**
+ * Chart.js can take a string id of a canvas element, a 2d context, or a canvas element itself.
+ * Attempt to unwrap the item passed into the chart constructor so that it is a canvas element (if possible).
+ */
+
+
+function getCanvas(item) {
+  if (isDomSupported() && typeof item === 'string') {
+    item = document.getElementById(item);
+  } else if (item.length) {
+    // Support for array based queries (such as jQuery)
+    item = item[0];
+  }
+
+  if (item && item.canvas) {
+    // Support for any object associated to a canvas (including a context2d)
+    item = item.canvas;
+  }
+
+  return item;
+}
+
 var Chart =
 /*#__PURE__*/
 function () {
@@ -10727,7 +10797,11 @@ function () {
 
     var me = this;
     config = initConfig(config);
-    var context = platform.acquireContext(item, config);
+    var initialCanvas = getCanvas(item);
+
+    me._initializePlatform(initialCanvas, config);
+
+    var context = me.platform.acquireContext(initialCanvas, config);
     var canvas = context && context.canvas;
     var height = canvas && canvas.height;
     var width = canvas && canvas.width;
@@ -10765,7 +10839,9 @@ function () {
 
     instance.listen(me, 'complete', onAnimationsComplete);
     instance.listen(me, 'progress', onAnimationProgress);
-    me.initialize();
+
+    me._initialize();
+
     me.update();
   }
   /**
@@ -10774,8 +10850,8 @@ function () {
 
 
   _createClass(Chart, [{
-    key: "initialize",
-    value: function initialize() {
+    key: "_initialize",
+    value: function _initialize() {
       var me = this; // Before init plugin notification
 
       pluginsCore.notify(me, 'beforeInit');
@@ -10790,6 +10866,25 @@ function () {
 
       pluginsCore.notify(me, 'afterInit');
       return me;
+    }
+    /**
+     * @private
+     */
+
+  }, {
+    key: "_initializePlatform",
+    value: function _initializePlatform(canvas, config) {
+      var me = this;
+
+      if (config.platform) {
+        me.platform = new config.platform();
+      } else if (!isDomSupported()) {
+        me.platform = new BasicPlatform();
+      } else if (window.OffscreenCanvas && canvas instanceof window.OffscreenCanvas) {
+        me.platform = new BasicPlatform();
+      } else {
+        me.platform = new DomPlatform();
+      }
     }
   }, {
     key: "clear",
@@ -10816,7 +10911,7 @@ function () {
 
       var newWidth = Math.max(0, Math.floor(helpers.dom.getMaximumWidth(canvas)));
       var newHeight = Math.max(0, Math.floor(aspectRatio ? newWidth / aspectRatio : helpers.dom.getMaximumHeight(canvas)));
-      var newRatio = options.devicePixelRatio || platform.getDevicePixelRatio();
+      var newRatio = options.devicePixelRatio || me.platform.getDevicePixelRatio();
 
       if (me.width === newWidth && me.height === newHeight && oldRatio === newRatio) {
         return;
@@ -11450,7 +11545,7 @@ function () {
       if (canvas) {
         me.unbindEvents();
         helpers.canvas.clear(me);
-        platform.releaseContext(me.ctx);
+        me.platform.releaseContext(me.ctx);
         me.canvas = null;
         me.ctx = null;
       }
@@ -11478,7 +11573,7 @@ function () {
       };
 
       helpers.each(me.options.events, function (type) {
-        platform.addEventListener(me, type, listener);
+        me.platform.addEventListener(me, type, listener);
         listeners[type] = listener;
       }); // Elements used to detect size change should not be injected for non responsive charts.
       // See https://github.com/chartjs/Chart.js/issues/2210
@@ -11488,7 +11583,7 @@ function () {
           me.resize();
         };
 
-        platform.addEventListener(me, 'resize', listener);
+        me.platform.addEventListener(me, 'resize', listener);
         listeners.resize = listener;
       }
     }
@@ -11508,7 +11603,7 @@ function () {
 
       delete me._listeners;
       helpers.each(listeners, function (listener, type) {
-        platform.removeEventListener(me, type, listener);
+        me.platform.removeEventListener(me, type, listener);
       });
     }
   }, {
@@ -13033,7 +13128,14 @@ function (_Element) {
 
         if (isHorizontal) {
           x = pixel;
-          textOffset = position === 'top' ? ((!rotation ? 0.5 : 1) - lineCount) * lineHeight : (!rotation ? 0.5 : 0) * lineHeight;
+
+          if (position === 'top') {
+            textOffset = (Math.sin(rotation) * (lineCount / 2) + 0.5) * lineHeight;
+            textOffset -= (rotation === 0 ? lineCount - 0.5 : Math.cos(rotation) * (lineCount / 2)) * lineHeight;
+          } else {
+            textOffset = Math.sin(rotation) * (lineCount / 2) * lineHeight;
+            textOffset += (rotation === 0 ? 0.5 : Math.cos(rotation) * (lineCount / 2)) * lineHeight;
+          }
         } else {
           y = pixel;
           textOffset = (1 - lineCount) * lineHeight / 2;
@@ -18215,6 +18317,7 @@ Chart.Element = Element;
 Chart.elements = elements;
 Chart.Interaction = Interaction;
 Chart.layouts = layouts;
+Chart.platforms = platforms;
 Chart.platform = platform;
 Chart.plugins = pluginsCore;
 Chart.Scale = Scale;
@@ -18230,8 +18333,6 @@ for (var k in plugins) {
     Chart.plugins.register(plugins[k]);
   }
 }
-
-Chart.platform.initialize();
 
 if (typeof window !== 'undefined') {
   window.Chart = Chart;
