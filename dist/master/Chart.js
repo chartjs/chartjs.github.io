@@ -13163,11 +13163,6 @@ function (_Element) {
     value: function _drawGrid(chartArea) {
       var me = this;
       var gridLines = me.options.gridLines;
-
-      if (!gridLines.display) {
-        return;
-      }
-
       var ctx = me.ctx;
       var chart = me.chart;
       var context = {
@@ -13180,35 +13175,37 @@ function (_Element) {
 
       var i, ilen;
 
-      for (i = 0, ilen = items.length; i < ilen; ++i) {
-        var item = items[i];
-        var width = item.width;
-        var color = item.color;
+      if (gridLines.display) {
+        for (i = 0, ilen = items.length; i < ilen; ++i) {
+          var item = items[i];
+          var width = item.width;
+          var color = item.color;
 
-        if (width && color) {
-          ctx.save();
-          ctx.lineWidth = width;
-          ctx.strokeStyle = color;
+          if (width && color) {
+            ctx.save();
+            ctx.lineWidth = width;
+            ctx.strokeStyle = color;
 
-          if (ctx.setLineDash) {
-            ctx.setLineDash(item.borderDash);
-            ctx.lineDashOffset = item.borderDashOffset;
+            if (ctx.setLineDash) {
+              ctx.setLineDash(item.borderDash);
+              ctx.lineDashOffset = item.borderDashOffset;
+            }
+
+            ctx.beginPath();
+
+            if (gridLines.drawTicks) {
+              ctx.moveTo(item.tx1, item.ty1);
+              ctx.lineTo(item.tx2, item.ty2);
+            }
+
+            if (gridLines.drawOnChartArea) {
+              ctx.moveTo(item.x1, item.y1);
+              ctx.lineTo(item.x2, item.y2);
+            }
+
+            ctx.stroke();
+            ctx.restore();
           }
-
-          ctx.beginPath();
-
-          if (gridLines.drawTicks) {
-            ctx.moveTo(item.tx1, item.ty1);
-            ctx.lineTo(item.tx2, item.ty2);
-          }
-
-          if (gridLines.drawOnChartArea) {
-            ctx.moveTo(item.x1, item.y1);
-            ctx.lineTo(item.x2, item.y2);
-          }
-
-          ctx.stroke();
-          ctx.restore();
         }
       }
 
