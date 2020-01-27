@@ -13878,6 +13878,11 @@ function (_Scale) {
       me._endValue = end;
       me._valueRange = end - start;
     }
+  }, {
+    key: "getLabelForValue",
+    value: function getLabelForValue(value) {
+      return new Intl.NumberFormat().format(value);
+    }
   }]);
 
   return LinearScaleBase;
@@ -14135,7 +14140,7 @@ function (_Scale) {
   }, {
     key: "getLabelForValue",
     value: function getLabelForValue(value) {
-      return value === undefined ? 0 : value;
+      return value === undefined ? 0 : new Intl.NumberFormat().format(value);
     }
   }, {
     key: "getPixelForTick",
@@ -17271,8 +17276,10 @@ defaults._set('tooltips', {
         label += ': ';
       }
 
-      if (!helpers.isNullOrUndef(tooltipItem.value)) {
-        label += tooltipItem.value;
+      var value = tooltipItem.value;
+
+      if (!helpers.isNullOrUndef(value)) {
+        label += value;
       }
 
       return label;
