@@ -9815,7 +9815,7 @@ function initCanvas(canvas, config) {
     } else {
       var displayHeight = readUsedSize(canvas, 'height');
 
-      if (displayWidth !== undefined) {
+      if (displayHeight !== undefined) {
         canvas.height = displayHeight;
       }
     }
