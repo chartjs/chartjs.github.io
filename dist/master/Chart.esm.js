@@ -8895,7 +8895,7 @@ function binarySearch(metaset, axis, value, intersect) {
       _sorted = metaset._sorted;
   var iScale = controller._cachedMeta.iScale;
 
-  if (iScale && axis === iScale.axis && _sorted) {
+  if (iScale && axis === iScale.axis && _sorted && data.length) {
     var lookupMethod = iScale._reversePixels ? _rlookup : _lookup;
 
     if (!intersect) {
