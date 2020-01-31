@@ -2637,6 +2637,74 @@ var TWO_THIRDS_PI = PI * 2 / 3;
  */
 
 /**
+ * @private
+ */
+
+function _measureText(ctx, data, gc, longest, string) {
+  var textWidth = data[string];
+
+  if (!textWidth) {
+    textWidth = data[string] = ctx.measureText(string).width;
+    gc.push(string);
+  }
+
+  if (textWidth > longest) {
+    longest = textWidth;
+  }
+
+  return longest;
+}
+/**
+ * @private
+ */
+
+function _longestText(ctx, font, arrayOfThings, cache) {
+  cache = cache || {};
+  var data = cache.data = cache.data || {};
+  var gc = cache.garbageCollect = cache.garbageCollect || [];
+
+  if (cache.font !== font) {
+    data = cache.data = {};
+    gc = cache.garbageCollect = [];
+    cache.font = font;
+  }
+
+  ctx.font = font;
+  var longest = 0;
+  var ilen = arrayOfThings.length;
+  var i, j, jlen, thing, nestedThing;
+
+  for (i = 0; i < ilen; i++) {
+    thing = arrayOfThings[i]; // Undefined strings and arrays should not be measured
+
+    if (thing !== undefined && thing !== null && isArray(thing) !== true) {
+      longest = _measureText(ctx, data, gc, longest, thing);
+    } else if (isArray(thing)) {
+      // if it is an array lets measure each element
+      // to do maybe simplify this function a bit so we can do this more recursively?
+      for (j = 0, jlen = thing.length; j < jlen; j++) {
+        nestedThing = thing[j]; // Undefined strings and arrays should not be measured
+
+        if (nestedThing !== undefined && nestedThing !== null && !isArray(nestedThing)) {
+          longest = _measureText(ctx, data, gc, longest, nestedThing);
+        }
+      }
+    }
+  }
+
+  var gcLen = gc.length / 2;
+
+  if (gcLen > arrayOfThings.length) {
+    for (i = 0; i < gcLen; i++) {
+      delete data[gc[i]];
+    }
+
+    gc.splice(0, gcLen);
+  }
+
+  return longest;
+}
+/**
  * Returns the aligned pixel value to avoid anti-aliasing blur
  * @param {Chart} chart - The chart instance.
  * @param {number} pixel - A pixel value.
@@ -2846,6 +2914,8 @@ function _bezierCurveTo(ctx, previous, target, flip) {
 
 var canvas = /*#__PURE__*/Object.freeze({
 __proto__: null,
+_measureText: _measureText,
+_longestText: _longestText,
 _alignPixel: _alignPixel,
 clear: clear,
 drawPoint: drawPoint,
@@ -3931,22 +4001,6 @@ var colorHelper = !chartjsColor ? function (value) {
 
   return chartjsColor(value);
 };
-
-function measureText(ctx, data, gc, longest, string) {
-  var textWidth = data[string];
-
-  if (!textWidth) {
-    textWidth = data[string] = ctx.measureText(string).width;
-    gc.push(string);
-  }
-
-  if (textWidth > longest) {
-    longest = textWidth;
-  }
-
-  return longest;
-}
-
 var helpers = _objectSpread2({}, coreHelpers, {
   canvas: canvas,
   curve: curve,
@@ -4040,53 +4094,6 @@ var helpers = _objectSpread2({}, coreHelpers, {
   fontString: function fontString(pixelSize, fontStyle, fontFamily) {
     return fontStyle + ' ' + pixelSize + 'px ' + fontFamily;
   },
-  longestText: function longestText(ctx, font, arrayOfThings, cache) {
-    cache = cache || {};
-    var data = cache.data = cache.data || {};
-    var gc = cache.garbageCollect = cache.garbageCollect || [];
-
-    if (cache.font !== font) {
-      data = cache.data = {};
-      gc = cache.garbageCollect = [];
-      cache.font = font;
-    }
-
-    ctx.font = font;
-    var longest = 0;
-    var ilen = arrayOfThings.length;
-    var i, j, jlen, thing, nestedThing;
-
-    for (i = 0; i < ilen; i++) {
-      thing = arrayOfThings[i]; // Undefined strings and arrays should not be measured
-
-      if (thing !== undefined && thing !== null && isArray(thing) !== true) {
-        longest = measureText(ctx, data, gc, longest, thing);
-      } else if (isArray(thing)) {
-        // if it is an array lets measure each element
-        // to do maybe simplify this function a bit so we can do this more recursively?
-        for (j = 0, jlen = thing.length; j < jlen; j++) {
-          nestedThing = thing[j]; // Undefined strings and arrays should not be measured
-
-          if (nestedThing !== undefined && nestedThing !== null && !isArray(nestedThing)) {
-            longest = measureText(ctx, data, gc, longest, nestedThing);
-          }
-        }
-      }
-    }
-
-    var gcLen = gc.length / 2;
-
-    if (gcLen > arrayOfThings.length) {
-      for (i = 0; i < gcLen; i++) {
-        delete data[gc[i]];
-      }
-
-      gc.splice(0, gcLen);
-    }
-
-    return longest;
-  },
-  measureText: measureText,
   color: colorHelper,
   getHoverColor: function getHoverColor(colorValue) {
     return colorValue instanceof CanvasPattern || colorValue instanceof CanvasGradient ? colorValue : colorHelper(colorValue).saturate(0.5).darken(0.1).rgbString();
@@ -11835,7 +11842,6 @@ var elements = {
   Rectangle: Rectangle
 };
 
-var math$1 = helpers.math;
 /**
  * Namespace to hold static tick generation functions
  * @namespace Chart.Ticks
@@ -11854,7 +11860,7 @@ var Ticks = {
      * @return {string|string[]} the label to display
      */
     values: function values(value) {
-      return helpers.isArray(value) ? value : '' + value;
+      return isArray(value) ? value : '' + value;
     },
 
     /**
@@ -11862,7 +11868,7 @@ var Ticks = {
      * @method Chart.Ticks.formatters.linear
      * @param tickValue {number} the value to be formatted
      * @param index {number} the position of the tickValue parameter in the ticks array
-     * @param ticks {number[]} the list of ticks being converted
+     * @param ticks {object[]} the list of ticks being converted
      * @return {string} string representation of the tickValue parameter
      */
     linear: function linear(tickValue, index, ticks) {
@@ -11876,7 +11882,7 @@ var Ticks = {
         }
       }
 
-      var logDelta = math$1.log10(Math.abs(delta));
+      var logDelta = log10(Math.abs(delta));
       var tickString = '';
 
       if (tickValue !== 0) {
@@ -11884,7 +11890,7 @@ var Ticks = {
 
         if (maxTick < 1e-4) {
           // all ticks are small numbers; use scientific notation
-          var logTick = math$1.log10(Math.abs(tickValue));
+          var logTick = log10(Math.abs(tickValue));
           var numExponential = Math.floor(logTick) - Math.floor(logDelta);
           numExponential = Math.max(Math.min(numExponential, 20), 0);
           tickString = tickValue.toExponential(numExponential);
@@ -11905,13 +11911,6 @@ var Ticks = {
     }
   }
 };
-
-var alignPixel = helpers.canvas._alignPixel;
-var isArray$1 = helpers.isArray;
-var isFinite$1 = helpers.isFinite;
-var isNullOrUndef$1 = helpers.isNullOrUndef;
-var valueOrDefault$6 = helpers.valueOrDefault;
-var resolve$5 = helpers.options.resolve;
 
 defaults._set('scale', {
   display: true,
@@ -12007,7 +12006,7 @@ function getPixelForGridLine(scale, index, offsetGridLines) {
 }
 
 function garbageCollect(caches, length) {
-  helpers.each(caches, function (cache) {
+  each(caches, function (cache) {
     var gc = cache.gc;
     var gcLen = gc.length / 2;
     var i;
@@ -12031,9 +12030,9 @@ function getScaleLabelHeight(options) {
     return 0;
   }
 
-  var font = helpers.options._parseFont(options);
+  var font = _parseFont(options);
 
-  var padding = helpers.options.toPadding(options.padding);
+  var padding = toPadding(options.padding);
   return font.lineHeight + padding.height;
 }
 
@@ -12064,7 +12063,7 @@ function calculateSpacing(majorIndices, ticks, axisLength, ticksLimit) {
     return Math.max(spacing, 1);
   }
 
-  factors = helpers.math._factorize(evenMajorSpacing);
+  factors = _factorize(evenMajorSpacing);
 
   for (i = 0, ilen = factors.length - 1; i < ilen; i++) {
     factor = factors[i];
@@ -12106,8 +12105,8 @@ function skipMajors(ticks, newTicks, majorIndices, spacing) {
 }
 
 function skip(ticks, newTicks, spacing, majorStart, majorEnd) {
-  var start = valueOrDefault$6(majorStart, 0);
-  var end = Math.min(valueOrDefault$6(majorEnd, ticks.length), ticks.length);
+  var start = valueOrDefault(majorStart, 0);
+  var end = Math.min(valueOrDefault(majorEnd, ticks.length), ticks.length);
   var count = 0;
   var length, i, next;
   spacing = Math.ceil(spacing);
@@ -12187,19 +12186,19 @@ function (_Element) {
       var min = this._userMin;
       var max = this._userMax;
 
-      if (isNullOrUndef$1(min) || isNaN(min)) {
+      if (isNullOrUndef(min) || isNaN(min)) {
         min = Number.POSITIVE_INFINITY;
       }
 
-      if (isNullOrUndef$1(max) || isNaN(max)) {
+      if (isNullOrUndef(max) || isNaN(max)) {
         max = Number.NEGATIVE_INFINITY;
       }
 
       return {
         min: min,
         max: max,
-        minDefined: isFinite$1(min),
-        maxDefined: isFinite$1(max)
+        minDefined: isNumberFinite(min),
+        maxDefined: isNumberFinite(max)
       };
     }
     /**
@@ -12293,7 +12292,7 @@ function (_Element) {
   }, {
     key: "beforeUpdate",
     value: function beforeUpdate() {
-      helpers.callback(this.options.beforeUpdate, [this]);
+      callback(this.options.beforeUpdate, [this]);
     }
     /**
      * @param {number} maxWidth - the max width in pixels
@@ -12317,7 +12316,7 @@ function (_Element) {
 
       me.maxWidth = maxWidth;
       me.maxHeight = maxHeight;
-      me.margins = helpers.extend({
+      me.margins = extend({
         left: 0,
         right: 0,
         top: 0,
@@ -12402,13 +12401,13 @@ function (_Element) {
   }, {
     key: "afterUpdate",
     value: function afterUpdate() {
-      helpers.callback(this.options.afterUpdate, [this]);
+      callback(this.options.afterUpdate, [this]);
     } //
 
   }, {
     key: "beforeSetDimensions",
     value: function beforeSetDimensions() {
-      helpers.callback(this.options.beforeSetDimensions, [this]);
+      callback(this.options.beforeSetDimensions, [this]);
     }
   }, {
     key: "setDimensions",
@@ -12436,13 +12435,13 @@ function (_Element) {
   }, {
     key: "afterSetDimensions",
     value: function afterSetDimensions() {
-      helpers.callback(this.options.afterSetDimensions, [this]);
+      callback(this.options.afterSetDimensions, [this]);
     } // Data limits
 
   }, {
     key: "beforeDataLimits",
     value: function beforeDataLimits() {
-      helpers.callback(this.options.beforeDataLimits, [this]);
+      callback(this.options.beforeDataLimits, [this]);
     }
   }, {
     key: "determineDataLimits",
@@ -12450,13 +12449,13 @@ function (_Element) {
   }, {
     key: "afterDataLimits",
     value: function afterDataLimits() {
-      helpers.callback(this.options.afterDataLimits, [this]);
+      callback(this.options.afterDataLimits, [this]);
     } //
 
   }, {
     key: "beforeBuildTicks",
     value: function beforeBuildTicks() {
-      helpers.callback(this.options.beforeBuildTicks, [this]);
+      callback(this.options.beforeBuildTicks, [this]);
     }
   }, {
     key: "buildTicks",
@@ -12464,12 +12463,12 @@ function (_Element) {
   }, {
     key: "afterBuildTicks",
     value: function afterBuildTicks() {
-      helpers.callback(this.options.afterBuildTicks, [this]);
+      callback(this.options.afterBuildTicks, [this]);
     }
   }, {
     key: "beforeTickToLabelConversion",
     value: function beforeTickToLabelConversion() {
-      helpers.callback(this.options.beforeTickToLabelConversion, [this]);
+      callback(this.options.beforeTickToLabelConversion, [this]);
     }
     /**
      * Convert ticks to label strings
@@ -12484,19 +12483,19 @@ function (_Element) {
 
       for (i = 0, ilen = ticks.length; i < ilen; i++) {
         tick = ticks[i];
-        tick.label = helpers.callback(tickOpts.callback, [tick.value, i, ticks], me);
+        tick.label = callback(tickOpts.callback, [tick.value, i, ticks], me);
       }
     }
   }, {
     key: "afterTickToLabelConversion",
     value: function afterTickToLabelConversion() {
-      helpers.callback(this.options.afterTickToLabelConversion, [this]);
+      callback(this.options.afterTickToLabelConversion, [this]);
     } //
 
   }, {
     key: "beforeCalculateLabelRotation",
     value: function beforeCalculateLabelRotation() {
-      helpers.callback(this.options.beforeCalculateLabelRotation, [this]);
+      callback(this.options.beforeCalculateLabelRotation, [this]);
     }
   }, {
     key: "calculateLabelRotation",
@@ -12527,7 +12526,7 @@ function (_Element) {
         tickWidth = maxWidth / (numTicks - (options.offset ? 0.5 : 1));
         maxHeight = me.maxHeight - getTickMarkLength(options.gridLines) - tickOpts.padding - getScaleLabelHeight(options.scaleLabel);
         maxLabelDiagonal = Math.sqrt(maxLabelWidth * maxLabelWidth + maxLabelHeight * maxLabelHeight);
-        labelRotation = helpers.math.toDegrees(Math.min(Math.asin(Math.min((labelSizes.highest.height + 6) / tickWidth, 1)), Math.asin(Math.min(maxHeight / maxLabelDiagonal, 1)) - Math.asin(maxLabelHeight / maxLabelDiagonal)));
+        labelRotation = toDegrees(Math.min(Math.asin(Math.min((labelSizes.highest.height + 6) / tickWidth, 1)), Math.asin(Math.min(maxHeight / maxLabelDiagonal, 1)) - Math.asin(maxLabelHeight / maxLabelDiagonal)));
         labelRotation = Math.max(minRotation, Math.min(maxRotation, labelRotation));
       }
 
@@ -12536,13 +12535,13 @@ function (_Element) {
   }, {
     key: "afterCalculateLabelRotation",
     value: function afterCalculateLabelRotation() {
-      helpers.callback(this.options.afterCalculateLabelRotation, [this]);
+      callback(this.options.afterCalculateLabelRotation, [this]);
     } //
 
   }, {
     key: "beforeFit",
     value: function beforeFit() {
-      helpers.callback(this.options.beforeFit, [this]);
+      callback(this.options.beforeFit, [this]);
     }
   }, {
     key: "fit",
@@ -12591,7 +12590,7 @@ function (_Element) {
         if (isHorizontal) {
           // A horizontal axis is more constrained by the height.
           var isRotated = me.labelRotation !== 0;
-          var angleRadians = helpers.math.toRadians(me.labelRotation);
+          var angleRadians = toRadians(me.labelRotation);
           var cosRotation = Math.cos(angleRadians);
           var sinRotation = Math.sin(angleRadians);
           var labelHeight = sinRotation * widestLabelSize.width + cosRotation * (highestLabelSize.height - (isRotated ? highestLabelSize.offset : 0)) + (isRotated ? 0 : lineSpace); // padding
@@ -12656,7 +12655,7 @@ function (_Element) {
   }, {
     key: "afterFit",
     value: function afterFit() {
-      helpers.callback(this.options.afterFit, [this]);
+      callback(this.options.afterFit, [this]);
     } // Shared Methods
 
   }, {
@@ -12732,16 +12731,16 @@ function (_Element) {
         lineHeight = tickFont.lineHeight;
         width = height = 0; // Undefined labels and arrays should not be measured
 
-        if (!isNullOrUndef$1(label) && !isArray$1(label)) {
-          width = helpers.measureText(ctx, cache.data, cache.gc, width, label);
+        if (!isNullOrUndef(label) && !isArray(label)) {
+          width = _measureText(ctx, cache.data, cache.gc, width, label);
           height = lineHeight;
-        } else if (isArray$1(label)) {
+        } else if (isArray(label)) {
           // if it is an array let's measure each element
           for (j = 0, jlen = label.length; j < jlen; ++j) {
             nestedLabel = label[j]; // Undefined labels and arrays should not be measured
 
-            if (!isNullOrUndef$1(nestedLabel) && !isArray$1(nestedLabel)) {
-              width = helpers.measureText(ctx, cache.data, cache.gc, width, nestedLabel);
+            if (!isNullOrUndef(nestedLabel) && !isArray(nestedLabel)) {
+              width = _measureText(ctx, cache.data, cache.gc, width, nestedLabel);
               height += lineHeight;
             }
           }
@@ -12884,13 +12883,13 @@ function (_Element) {
       if (numMajorIndices > 0) {
         var i, ilen;
         var avgMajorSpacing = numMajorIndices > 1 ? Math.round((last - first) / (numMajorIndices - 1)) : null;
-        skip(ticks, newTicks, spacing, helpers.isNullOrUndef(avgMajorSpacing) ? 0 : first - avgMajorSpacing, first);
+        skip(ticks, newTicks, spacing, isNullOrUndef(avgMajorSpacing) ? 0 : first - avgMajorSpacing, first);
 
         for (i = 0, ilen = numMajorIndices - 1; i < ilen; i++) {
           skip(ticks, newTicks, spacing, majorIndices[i], majorIndices[i + 1]);
         }
 
-        skip(ticks, newTicks, spacing, last, helpers.isNullOrUndef(avgMajorSpacing) ? ticks.length : last + avgMajorSpacing);
+        skip(ticks, newTicks, spacing, last, isNullOrUndef(avgMajorSpacing) ? ticks.length : last + avgMajorSpacing);
         return newTicks;
       }
 
@@ -12907,7 +12906,7 @@ function (_Element) {
       var me = this;
       var optionTicks = me.options.ticks; // Calculate space needed by label in axis direction.
 
-      var rot = helpers.math.toRadians(me.labelRotation);
+      var rot = toRadians(me.labelRotation);
       var cos = Math.abs(Math.cos(rot));
       var sin = Math.abs(Math.sin(rot));
 
@@ -12957,11 +12956,11 @@ function (_Element) {
         scale: me,
         tick: ticks[0]
       };
-      var axisWidth = gridLines.drawBorder ? resolve$5([gridLines.borderWidth, gridLines.lineWidth, 0], context, 0) : 0;
+      var axisWidth = gridLines.drawBorder ? resolve([gridLines.borderWidth, gridLines.lineWidth, 0], context, 0) : 0;
       var axisHalfWidth = axisWidth / 2;
 
       var alignBorderValue = function alignBorderValue(pixel) {
-        return alignPixel(chart, pixel, axisWidth);
+        return _alignPixel(chart, pixel, axisWidth);
       };
 
       var borderValue, i, tick, lineValue, alignedLineValue;
@@ -12994,7 +12993,7 @@ function (_Element) {
       } else if (axis === 'x') {
         if (position === 'center') {
           borderValue = alignBorderValue((chartArea.top + chartArea.bottom) / 2);
-        } else if (helpers.isObject(position)) {
+        } else if (isObject(position)) {
           var positionAxisID = Object.keys(position)[0];
           var value = position[positionAxisID];
           borderValue = alignBorderValue(me.chart.scales[positionAxisID].getPixelForValue(value));
@@ -13007,7 +13006,7 @@ function (_Element) {
       } else if (axis === 'y') {
         if (position === 'center') {
           borderValue = alignBorderValue((chartArea.left + chartArea.right) / 2);
-        } else if (helpers.isObject(position)) {
+        } else if (isObject(position)) {
           var _positionAxisID = Object.keys(position)[0];
           var _value = position[_positionAxisID];
           borderValue = alignBorderValue(me.chart.scales[_positionAxisID].getPixelForValue(_value));
@@ -13025,17 +13024,17 @@ function (_Element) {
           scale: me,
           tick: tick
         };
-        var lineWidth = resolve$5([gridLines.lineWidth], context, i);
-        var lineColor = resolve$5([gridLines.color], context, i);
+        var lineWidth = resolve([gridLines.lineWidth], context, i);
+        var lineColor = resolve([gridLines.color], context, i);
         var borderDash = gridLines.borderDash || [];
-        var borderDashOffset = resolve$5([gridLines.borderDashOffset], context, i);
+        var borderDashOffset = resolve([gridLines.borderDashOffset], context, i);
         lineValue = getPixelForGridLine(me, i, offsetGridLines); // Skip if the pixel is out of the range
 
         if (lineValue === undefined) {
           continue;
         }
 
-        alignedLineValue = alignPixel(chart, lineValue, lineWidth);
+        alignedLineValue = _alignPixel(chart, lineValue, lineWidth);
 
         if (isHorizontal) {
           tx1 = tx2 = x1 = x2 = alignedLineValue;
@@ -13080,7 +13079,7 @@ function (_Element) {
       var ticks = me.ticks;
       var tickPadding = optionTicks.padding;
       var tl = getTickMarkLength(options.gridLines);
-      var rotation = -helpers.math.toRadians(me.labelRotation);
+      var rotation = -toRadians(me.labelRotation);
       var items = [];
       var i, ilen, tick, label, x, y, textAlign, pixel, font, lineHeight, lineCount, textOffset;
 
@@ -13099,7 +13098,7 @@ function (_Element) {
       } else if (axis === 'x') {
         if (position === 'center') {
           y = (chartArea.top + chartArea.bottom) / 2 + tl + tickPadding;
-        } else if (helpers.isObject(position)) {
+        } else if (isObject(position)) {
           var positionAxisID = Object.keys(position)[0];
           var value = position[positionAxisID];
           y = me.chart.scales[positionAxisID].getPixelForValue(value) + tl + tickPadding;
@@ -13109,7 +13108,7 @@ function (_Element) {
       } else if (axis === 'y') {
         if (position === 'center') {
           x = (chartArea.left + chartArea.right) / 2 - tl - tickPadding;
-        } else if (helpers.isObject(position)) {
+        } else if (isObject(position)) {
           var _positionAxisID2 = Object.keys(position)[0];
           var _value2 = position[_positionAxisID2];
           x = me.chart.scales[_positionAxisID2].getPixelForValue(_value2);
@@ -13124,7 +13123,7 @@ function (_Element) {
         pixel = me.getPixelForTick(i) + optionTicks.labelOffset;
         font = me._resolveTickFontOptions(i);
         lineHeight = font.lineHeight;
-        lineCount = isArray$1(label) ? label.length : 1;
+        lineCount = isArray(label) ? label.length : 1;
 
         if (isHorizontal) {
           x = pixel;
@@ -13169,7 +13168,7 @@ function (_Element) {
         scale: me,
         tick: me.ticks[0]
       };
-      var axisWidth = gridLines.drawBorder ? resolve$5([gridLines.borderWidth, gridLines.lineWidth, 0], context, 0) : 0;
+      var axisWidth = gridLines.drawBorder ? resolve([gridLines.borderWidth, gridLines.lineWidth, 0], context, 0) : 0;
 
       var items = me._gridLineItems || (me._gridLineItems = me._computeGridLineItems(chartArea));
 
@@ -13216,22 +13215,22 @@ function (_Element) {
           scale: me,
           tick: me.ticks[items.ticksLength - 1]
         };
-        var lastLineWidth = resolve$5([gridLines.lineWidth, 1], context, items.ticksLength - 1);
+        var lastLineWidth = resolve([gridLines.lineWidth, 1], context, items.ticksLength - 1);
         var borderValue = items.borderValue;
         var x1, x2, y1, y2;
 
         if (me.isHorizontal()) {
-          x1 = alignPixel(chart, me.left, firstLineWidth) - firstLineWidth / 2;
-          x2 = alignPixel(chart, me.right, lastLineWidth) + lastLineWidth / 2;
+          x1 = _alignPixel(chart, me.left, firstLineWidth) - firstLineWidth / 2;
+          x2 = _alignPixel(chart, me.right, lastLineWidth) + lastLineWidth / 2;
           y1 = y2 = borderValue;
         } else {
-          y1 = alignPixel(chart, me.top, firstLineWidth) - firstLineWidth / 2;
-          y2 = alignPixel(chart, me.bottom, lastLineWidth) + lastLineWidth / 2;
+          y1 = _alignPixel(chart, me.top, firstLineWidth) - firstLineWidth / 2;
+          y2 = _alignPixel(chart, me.bottom, lastLineWidth) + lastLineWidth / 2;
           x1 = x2 = borderValue;
         }
 
         ctx.lineWidth = axisWidth;
-        ctx.strokeStyle = resolve$5([gridLines.borderColor, gridLines.color], context, 0);
+        ctx.strokeStyle = resolve([gridLines.borderColor, gridLines.color], context, 0);
         ctx.beginPath();
         ctx.moveTo(x1, y1);
         ctx.lineTo(x2, y2);
@@ -13279,7 +13278,7 @@ function (_Element) {
         var label = item.label;
         var y = item.textOffset;
 
-        if (isArray$1(label)) {
+        if (isArray(label)) {
           for (j = 0, jlen = label.length; j < jlen; ++j) {
             // We just make sure the multiline element is a string here..
             if (useStroke) {
@@ -13316,11 +13315,11 @@ function (_Element) {
         return;
       }
 
-      var scaleLabelFontColor = valueOrDefault$6(scaleLabel.fontColor, defaults.fontColor);
+      var scaleLabelFontColor = valueOrDefault(scaleLabel.fontColor, defaults.fontColor);
 
-      var scaleLabelFont = helpers.options._parseFont(scaleLabel);
+      var scaleLabelFont = _parseFont(scaleLabel);
 
-      var scaleLabelPadding = helpers.options.toPadding(scaleLabel.padding);
+      var scaleLabelPadding = toPadding(scaleLabel.padding);
       var halfLineHeight = scaleLabelFont.lineHeight / 2;
       var scaleLabelAlign = scaleLabel.align;
       var position = options.position;
@@ -13469,15 +13468,15 @@ function (_Element) {
         tick: me.ticks[index],
         index: index
       };
-      return helpers.extend(helpers.options._parseFont({
-        fontFamily: resolve$5([options.fontFamily], context),
-        fontSize: resolve$5([options.fontSize], context),
-        fontStyle: resolve$5([options.fontStyle], context),
-        lineHeight: resolve$5([options.lineHeight], context)
+      return extend(_parseFont({
+        fontFamily: resolve([options.fontFamily], context),
+        fontSize: resolve([options.fontSize], context),
+        fontStyle: resolve([options.fontStyle], context),
+        lineHeight: resolve([options.lineHeight], context)
       }), {
-        color: resolve$5([options.fontColor, defaults.fontColor], context),
-        lineWidth: resolve$5([options.lineWidth], context),
-        strokeStyle: resolve$5([options.strokeStyle], context)
+        color: resolve([options.fontColor, defaults.fontColor], context),
+        lineWidth: resolve([options.lineWidth], context),
+        strokeStyle: resolve([options.strokeStyle], context)
       });
     }
   }]);
@@ -13611,7 +13610,7 @@ function (_Scale) {
 
 CategoryScale._defaults = defaultConfig;
 
-var isNullOrUndef$2 = helpers.isNullOrUndef;
+var isNullOrUndef$1 = helpers.isNullOrUndef;
 /**
  * Generate a set of linear ticks
  * @param generationOptions the options used to generate the ticks
@@ -13637,7 +13636,7 @@ function generateTicks(generationOptions, dataRange) {
   var factor, niceMin, niceMax, numSpaces; // Beyond MIN_SPACING floating point numbers being to lose precision
   // such that we can't do the math necessary to generate ticks
 
-  if (spacing < MIN_SPACING && isNullOrUndef$2(min) && isNullOrUndef$2(max)) {
+  if (spacing < MIN_SPACING && isNullOrUndef$1(min) && isNullOrUndef$1(max)) {
     return [{
       value: rmin
     }, {
@@ -13652,7 +13651,7 @@ function generateTicks(generationOptions, dataRange) {
     spacing = helpers.niceNum(numSpaces * spacing / maxNumSpaces / unit) * unit;
   }
 
-  if (stepSize || isNullOrUndef$2(precision)) {
+  if (stepSize || isNullOrUndef$1(precision)) {
     // If a precision is not specified, calculate factor based on spacing
     factor = Math.pow(10, _decimalPlaces(spacing));
   } else {
@@ -13664,7 +13663,7 @@ function generateTicks(generationOptions, dataRange) {
   niceMin = Math.floor(rmin / spacing) * spacing;
   niceMax = Math.ceil(rmax / spacing) * spacing; // If min, max and stepSize is set and they make an evenly spaced scale use it.
 
-  if (stepSize && !isNullOrUndef$2(min) && !isNullOrUndef$2(max)) {
+  if (stepSize && !isNullOrUndef$1(min) && !isNullOrUndef$1(max)) {
     // If very close to our whole number, use it.
     if (almostWhole((max - min) / stepSize, spacing / 1000)) {
       niceMin = min;
@@ -13683,7 +13682,7 @@ function generateTicks(generationOptions, dataRange) {
   niceMin = Math.round(niceMin * factor) / factor;
   niceMax = Math.round(niceMax * factor) / factor;
   ticks.push({
-    value: isNullOrUndef$2(min) ? niceMin : min
+    value: isNullOrUndef$1(min) ? niceMin : min
   });
 
   for (var j = 1; j < numSpaces; ++j) {
@@ -13693,7 +13692,7 @@ function generateTicks(generationOptions, dataRange) {
   }
 
   ticks.push({
-    value: isNullOrUndef$2(max) ? niceMax : max
+    value: isNullOrUndef$1(max) ? niceMax : max
   });
   return ticks;
 }
@@ -14190,9 +14189,9 @@ function (_Scale) {
 
 LogarithmicScale._defaults = defaultConfig$2;
 
-var valueOrDefault$7 = helpers.valueOrDefault;
+var valueOrDefault$6 = helpers.valueOrDefault;
 var valueAtIndexOrDefault$1 = helpers.valueAtIndexOrDefault;
-var resolve$6 = helpers.options.resolve;
+var resolve$5 = helpers.options.resolve;
 var defaultConfig$3 = {
   display: true,
   // Boolean - Whether to animate scaling the chart from the centre
@@ -14236,7 +14235,7 @@ function getTickBackdropHeight(opts) {
   var tickOpts = opts.ticks;
 
   if (tickOpts.display && opts.display) {
-    return valueOrDefault$7(tickOpts.fontSize, defaults.fontSize) + tickOpts.backdropPaddingY * 2;
+    return valueOrDefault$6(tickOpts.fontSize, defaults.fontSize) + tickOpts.backdropPaddingY * 2;
   }
 
   return 0;
@@ -14245,7 +14244,7 @@ function getTickBackdropHeight(opts) {
 function measureLabelSize(ctx, lineHeight, label) {
   if (helpers.isArray(label)) {
     return {
-      w: helpers.longestText(ctx, ctx.font, label),
+      w: _longestText(ctx, ctx.font, label),
       h: label.length * lineHeight
     };
   }
@@ -14620,8 +14619,8 @@ function (_LinearScaleBase) {
       var opts = me.options;
       var gridLineOpts = opts.gridLines;
       var angleLineOpts = opts.angleLines;
-      var lineWidth = valueOrDefault$7(angleLineOpts.lineWidth, gridLineOpts.lineWidth);
-      var lineColor = valueOrDefault$7(angleLineOpts.color, gridLineOpts.color);
+      var lineWidth = valueOrDefault$6(angleLineOpts.lineWidth, gridLineOpts.lineWidth);
+      var lineColor = valueOrDefault$6(angleLineOpts.color, gridLineOpts.color);
       var i, offset, position;
 
       if (opts.pointLabels.display) {
@@ -14643,8 +14642,8 @@ function (_LinearScaleBase) {
         ctx.strokeStyle = lineColor;
 
         if (ctx.setLineDash) {
-          ctx.setLineDash(resolve$6([angleLineOpts.borderDash, gridLineOpts.borderDash, []]));
-          ctx.lineDashOffset = resolve$6([angleLineOpts.borderDashOffset, gridLineOpts.borderDashOffset, 0.0]);
+          ctx.setLineDash(resolve$5([angleLineOpts.borderDash, gridLineOpts.borderDash, []]));
+          ctx.lineDashOffset = resolve$5([angleLineOpts.borderDashOffset, gridLineOpts.borderDashOffset, 0.0]);
         }
 
         for (i = me.chart.data.labels.length - 1; i >= 0; i--) {
@@ -14679,7 +14678,7 @@ function (_LinearScaleBase) {
 
       var tickFont = helpers.options._parseFont(tickOpts);
 
-      var tickFontColor = valueOrDefault$7(tickOpts.fontColor, defaults.fontColor);
+      var tickFontColor = valueOrDefault$6(tickOpts.fontColor, defaults.fontColor);
       var offset, width;
       ctx.save();
       ctx.font = tickFont.string;
@@ -14720,8 +14719,8 @@ function (_LinearScaleBase) {
 
 RadialLinearScale._defaults = defaultConfig$3;
 
-var resolve$7 = helpers.options.resolve;
-var valueOrDefault$8 = helpers.valueOrDefault; // Integer constants are from the ES6 spec.
+var resolve$6 = helpers.options.resolve;
+var valueOrDefault$7 = helpers.valueOrDefault; // Integer constants are from the ES6 spec.
 
 var MAX_INTEGER = Number.MAX_SAFE_INTEGER || 9007199254740991;
 var INTERVALS = {
@@ -14957,7 +14956,7 @@ function generate(scale, min, max, capacity) {
   var options = scale.options;
   var timeOpts = options.time;
   var minor = timeOpts.unit || determineUnitForAutoTicks(timeOpts.minUnit, min, max, capacity);
-  var stepSize = resolve$7([timeOpts.stepSize, timeOpts.unitStepSize, 1]);
+  var stepSize = resolve$6([timeOpts.stepSize, timeOpts.unitStepSize, 1]);
   var weekday = minor === 'week' ? timeOpts.isoWeekday : false;
   var ticks = [];
   var first = min;
@@ -15403,7 +15402,7 @@ function (_Scale) {
       var major = majorUnit && majorFormat && tick && tick.major;
       var label = adapter.format(time, format ? format : major ? majorFormat : minorFormat);
       var nestedTickOpts = major ? tickOpts.major : tickOpts.minor;
-      var formatter = resolve$7([nestedTickOpts.callback, tickOpts.callback]);
+      var formatter = resolve$6([nestedTickOpts.callback, tickOpts.callback]);
       return formatter ? formatter(label, index, ticks) : label;
     }
   }, {
@@ -15460,7 +15459,7 @@ function (_Scale) {
       var angle = toRadians(me.isHorizontal() ? ticksOpts.maxRotation : ticksOpts.minRotation);
       var cosRotation = Math.cos(angle);
       var sinRotation = Math.sin(angle);
-      var tickFontSize = valueOrDefault$8(ticksOpts.fontSize, defaults.fontSize);
+      var tickFontSize = valueOrDefault$7(ticksOpts.fontSize, defaults.fontSize);
       return {
         w: tickLabelWidth * cosRotation + tickFontSize * sinRotation,
         h: tickLabelWidth * sinRotation + tickFontSize * cosRotation
@@ -16190,7 +16189,7 @@ var filler = {
 };
 
 var getRtlHelper = helpers.rtl.getRtlAdapter;
-var valueOrDefault$9 = helpers.valueOrDefault;
+var valueOrDefault$8 = helpers.valueOrDefault;
 
 defaults._set('legend', {
   display: true,
@@ -16530,7 +16529,7 @@ function (_Element) {
 
       var rtlHelper = getRtlHelper(opts.rtl, me.left, me._minSize.width);
       var ctx = me.ctx;
-      var fontColor = valueOrDefault$9(labelOpts.fontColor, defaults.fontColor);
+      var fontColor = valueOrDefault$8(labelOpts.fontColor, defaults.fontColor);
 
       var labelFont = helpers.options._parseFont(labelOpts);
 
@@ -16555,17 +16554,17 @@ function (_Element) {
 
 
         ctx.save();
-        var lineWidth = valueOrDefault$9(legendItem.lineWidth, lineDefault.borderWidth);
-        ctx.fillStyle = valueOrDefault$9(legendItem.fillStyle, defaultColor);
-        ctx.lineCap = valueOrDefault$9(legendItem.lineCap, lineDefault.borderCapStyle);
-        ctx.lineDashOffset = valueOrDefault$9(legendItem.lineDashOffset, lineDefault.borderDashOffset);
-        ctx.lineJoin = valueOrDefault$9(legendItem.lineJoin, lineDefault.borderJoinStyle);
+        var lineWidth = valueOrDefault$8(legendItem.lineWidth, lineDefault.borderWidth);
+        ctx.fillStyle = valueOrDefault$8(legendItem.fillStyle, defaultColor);
+        ctx.lineCap = valueOrDefault$8(legendItem.lineCap, lineDefault.borderCapStyle);
+        ctx.lineDashOffset = valueOrDefault$8(legendItem.lineDashOffset, lineDefault.borderDashOffset);
+        ctx.lineJoin = valueOrDefault$8(legendItem.lineJoin, lineDefault.borderJoinStyle);
         ctx.lineWidth = lineWidth;
-        ctx.strokeStyle = valueOrDefault$9(legendItem.strokeStyle, defaultColor);
+        ctx.strokeStyle = valueOrDefault$8(legendItem.strokeStyle, defaultColor);
 
         if (ctx.setLineDash) {
           // IE 9 and 10 do not support line dash
-          ctx.setLineDash(valueOrDefault$9(legendItem.lineDash, lineDefault.borderDash));
+          ctx.setLineDash(valueOrDefault$8(legendItem.lineDash, lineDefault.borderDash));
         }
 
         if (labelOpts && labelOpts.usePointStyle) {
@@ -16697,7 +16696,7 @@ function (_Element) {
 
       var rtlHelper = getRtlHelper(opts.rtl, me.left, me.minSize.width);
       var ctx = me.ctx;
-      var fontColor = valueOrDefault$9(titleOpts.fontColor, defaults.fontColor);
+      var fontColor = valueOrDefault$8(titleOpts.fontColor, defaults.fontColor);
       var position = titleOpts.position;
       var x, textAlign;
       var halfFontSize = titleFont.size / 2;
@@ -17199,7 +17198,7 @@ var title = {
   }
 };
 
-var valueOrDefault$a = helpers.valueOrDefault;
+var valueOrDefault$9 = helpers.valueOrDefault;
 var getRtlHelper$1 = helpers.rtl.getRtlAdapter;
 
 defaults._set('tooltips', {
@@ -17435,15 +17434,15 @@ function createTooltipItem(chart, item) {
 
 function resolveOptions(options) {
   options = helpers.extend({}, defaults.tooltips, options);
-  options.bodyFontFamily = valueOrDefault$a(options.bodyFontFamily, defaults.fontFamily);
-  options.bodyFontStyle = valueOrDefault$a(options.bodyFontStyle, defaults.fontStyle);
-  options.bodyFontSize = valueOrDefault$a(options.bodyFontSize, defaults.fontSize);
-  options.titleFontFamily = valueOrDefault$a(options.titleFontFamily, defaults.fontFamily);
-  options.titleFontStyle = valueOrDefault$a(options.titleFontStyle, defaults.fontStyle);
-  options.titleFontSize = valueOrDefault$a(options.titleFontSize, defaults.fontSize);
-  options.footerFontFamily = valueOrDefault$a(options.footerFontFamily, defaults.fontFamily);
-  options.footerFontStyle = valueOrDefault$a(options.footerFontStyle, defaults.fontStyle);
-  options.footerFontSize = valueOrDefault$a(options.footerFontSize, defaults.fontSize);
+  options.bodyFontFamily = valueOrDefault$9(options.bodyFontFamily, defaults.fontFamily);
+  options.bodyFontStyle = valueOrDefault$9(options.bodyFontStyle, defaults.fontStyle);
+  options.bodyFontSize = valueOrDefault$9(options.bodyFontSize, defaults.fontSize);
+  options.titleFontFamily = valueOrDefault$9(options.titleFontFamily, defaults.fontFamily);
+  options.titleFontStyle = valueOrDefault$9(options.titleFontStyle, defaults.fontStyle);
+  options.titleFontSize = valueOrDefault$9(options.titleFontSize, defaults.fontSize);
+  options.footerFontFamily = valueOrDefault$9(options.footerFontFamily, defaults.fontFamily);
+  options.footerFontStyle = valueOrDefault$9(options.footerFontStyle, defaults.fontStyle);
+  options.footerFontSize = valueOrDefault$9(options.footerFontSize, defaults.fontSize);
   return options;
 }
 /**
