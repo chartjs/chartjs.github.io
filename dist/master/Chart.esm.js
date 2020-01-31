@@ -4072,7 +4072,7 @@ var helpers = _objectSpread2({}, coreHelpers, {
 
     return niceFraction * Math.pow(10, exponent);
   },
-  // Request animation polyfill - https://www.paulirish.com/2011/requestanimationframe-for-smart-animating/
+  // Request animation polyfill
   requestAnimFrame: function () {
     if (typeof window === 'undefined') {
       return function (callback) {
@@ -4080,9 +4080,7 @@ var helpers = _objectSpread2({}, coreHelpers, {
       };
     }
 
-    return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function (callback) {
-      return window.setTimeout(callback, 1000 / 60);
-    };
+    return window.requestAnimationFrame;
   }(),
   // -- Canvas methods
   fontString: function fontString(pixelSize, fontStyle, fontFamily) {
@@ -11727,9 +11725,12 @@ Chart.instances = {};
  * @since 2.8.0
  * @private
  */
+/**
+ * @return {*}
+ */
 
 function _abstract() {
-  throw new Error('This method is not implemented: either no adapter can ' + 'be found or an incomplete integration was provided.');
+  throw new Error('This method is not implemented: either no adapter can be found or an incomplete integration was provided.');
 }
 /**
  * Date adapter (current used by the time scale)
@@ -11740,89 +11741,120 @@ function _abstract() {
 
 /**
  * Currently supported unit string values.
- * @typedef {('millisecond'|'second'|'minute'|'hour'|'day'|'week'|'month'|'quarter'|'year')}
+ * @typedef {('millisecond'|'second'|'minute'|'hour'|'day'|'week'|'month'|'quarter'|'year')} Unit
  * @memberof Chart._adapters._date
- * @name Unit
- */
-
-/**
- * @class
  */
 
 
-function DateAdapter(options) {
-  this.options = options || {};
-}
+var DateAdapter =
+/*#__PURE__*/
+function () {
+  function DateAdapter(options) {
+    _classCallCheck(this, DateAdapter);
 
-helpers.extend(DateAdapter.prototype,
-/** @lends DateAdapter */
-{
+    this.options = options || {};
+  }
   /**
    * Returns a map of time formats for the supported formatting units defined
    * in Unit as well as 'datetime' representing a detailed date/time string.
    * @returns {{string: string}}
    */
-  formats: _abstract,
 
-  /**
-   * Parses the given `value` and return the associated timestamp.
-   * @param {any} value - the value to parse (usually comes from the data)
-   * @param {string} [format] - the expected data format
-   * @returns {(number|null)}
-   * @function
-   */
-  parse: _abstract,
 
-  /**
-   * Returns the formatted date in the specified `format` for a given `timestamp`.
-   * @param {number} timestamp - the timestamp to format
-   * @param {string} format - the date/time token
-   * @return {string}
-   * @function
-   */
-  format: _abstract,
+  _createClass(DateAdapter, [{
+    key: "formats",
+    value: function formats() {
+      return _abstract();
+    }
+    /**
+     * Parses the given `value` and return the associated timestamp.
+     * @param {any} value - the value to parse (usually comes from the data)
+     * @param {string} [format] - the expected data format
+     * @returns {(number|null)}
+     */
 
-  /**
-   * Adds the specified `amount` of `unit` to the given `timestamp`.
-   * @param {number} timestamp - the input timestamp
-   * @param {number} amount - the amount to add
-   * @param {Unit} unit - the unit as string
-   * @return {number}
-   * @function
-   */
-  add: _abstract,
+  }, {
+    key: "parse",
+    value: function parse(value, format) {
+      // eslint-disable-line no-unused-vars
+      return _abstract();
+    }
+    /**
+     * Returns the formatted date in the specified `format` for a given `timestamp`.
+     * @param {number} timestamp - the timestamp to format
+     * @param {string} format - the date/time token
+     * @return {string}
+     */
 
-  /**
-   * Returns the number of `unit` between the given timestamps.
-   * @param {number} max - the input timestamp (reference)
-   * @param {number} min - the timestamp to substract
-   * @param {Unit} unit - the unit as string
-   * @return {number}
-   * @function
-   */
-  diff: _abstract,
+  }, {
+    key: "format",
+    value: function format(timestamp, _format) {
+      // eslint-disable-line no-unused-vars
+      return _abstract();
+    }
+    /**
+     * Adds the specified `amount` of `unit` to the given `timestamp`.
+     * @param {number} timestamp - the input timestamp
+     * @param {number} amount - the amount to add
+     * @param {Unit} unit - the unit as string
+     * @return {number}
+     */
 
-  /**
-   * Returns start of `unit` for the given `timestamp`.
-   * @param {number} timestamp - the input timestamp
-   * @param {Unit} unit - the unit as string
-   * @param {number} [weekday] - the ISO day of the week with 1 being Monday
-   * and 7 being Sunday (only needed if param *unit* is `isoWeek`).
-   * @function
-   */
-  startOf: _abstract,
+  }, {
+    key: "add",
+    value: function add(timestamp, amount, unit) {
+      // eslint-disable-line no-unused-vars
+      return _abstract();
+    }
+    /**
+     * Returns the number of `unit` between the given timestamps.
+     * @param {number} a - the input timestamp (reference)
+     * @param {number} b - the timestamp to subtract
+     * @param {Unit} unit - the unit as string
+     * @return {number}
+     */
 
-  /**
-   * Returns end of `unit` for the given `timestamp`.
-   * @param {number} timestamp - the input timestamp
-   * @param {Unit} unit - the unit as string
-   * @function
-   */
-  endOf: _abstract
-});
+  }, {
+    key: "diff",
+    value: function diff(a, b, unit) {
+      // eslint-disable-line no-unused-vars
+      return _abstract();
+    }
+    /**
+     * Returns start of `unit` for the given `timestamp`.
+     * @param {number} timestamp - the input timestamp
+     * @param {Unit} unit - the unit as string
+     * @param {number} [weekday] - the ISO day of the week with 1 being Monday
+     * and 7 being Sunday (only needed if param *unit* is `isoWeek`).
+     * @return {number}
+     */
+
+  }, {
+    key: "startOf",
+    value: function startOf(timestamp, unit, weekday) {
+      // eslint-disable-line no-unused-vars
+      return _abstract();
+    }
+    /**
+     * Returns end of `unit` for the given `timestamp`.
+     * @param {number} timestamp - the input timestamp
+     * @param {Unit} unit - the unit as string
+     * @return {number}
+     */
+
+  }, {
+    key: "endOf",
+    value: function endOf(timestamp, unit) {
+      // eslint-disable-line no-unused-vars
+      return _abstract();
+    }
+  }]);
+
+  return DateAdapter;
+}();
 
 DateAdapter.override = function (members) {
-  helpers.extend(DateAdapter.prototype, members);
+  extend(DateAdapter.prototype, members);
 };
 
 var _adapters = {
