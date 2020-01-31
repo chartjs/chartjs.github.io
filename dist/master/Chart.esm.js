@@ -3983,10 +3983,7 @@ overrideTextDirection: overrideTextDirection,
 restoreTextDirection: restoreTextDirection
 });
 
-var colorHelper = !chartjsColor ? function (value) {
-  console.error('Color.js not found!');
-  return value;
-} : function (value) {
+var colorHelper = function colorHelper(value) {
   if (value instanceof CanvasGradient || value instanceof CanvasPattern) {
     // TODO: figure out what this should be. Previously returned
     // the default color
@@ -3995,6 +3992,7 @@ var colorHelper = !chartjsColor ? function (value) {
 
   return chartjsColor(value);
 };
+
 var helpers = _objectSpread2({}, coreHelpers, {
   canvas: canvas,
   curve: curve,
@@ -4003,34 +4001,6 @@ var helpers = _objectSpread2({}, coreHelpers, {
   options: options,
   math: math,
   rtl: rtl,
-  // Implementation of the nice number algorithm used in determining where axis labels will go
-  niceNum: function niceNum(range, round) {
-    var exponent = Math.floor(log10(range));
-    var fraction = range / Math.pow(10, exponent);
-    var niceFraction;
-
-    if (round) {
-      if (fraction < 1.5) {
-        niceFraction = 1;
-      } else if (fraction < 3) {
-        niceFraction = 2;
-      } else if (fraction < 7) {
-        niceFraction = 5;
-      } else {
-        niceFraction = 10;
-      }
-    } else if (fraction <= 1.0) {
-      niceFraction = 1;
-    } else if (fraction <= 2) {
-      niceFraction = 2;
-    } else if (fraction <= 5) {
-      niceFraction = 5;
-    } else {
-      niceFraction = 10;
-    }
-
-    return niceFraction * Math.pow(10, exponent);
-  },
   // Request animation polyfill
   requestAnimFrame: function () {
     if (typeof window === 'undefined') {
@@ -13601,13 +13571,40 @@ function (_Scale) {
 
 CategoryScale._defaults = defaultConfig;
 
-var isNullOrUndef$1 = helpers.isNullOrUndef;
+function niceNum(range, round) {
+  var exponent = Math.floor(log10(range));
+  var fraction = range / Math.pow(10, exponent);
+  var niceFraction;
+
+  if (round) {
+    if (fraction < 1.5) {
+      niceFraction = 1;
+    } else if (fraction < 3) {
+      niceFraction = 2;
+    } else if (fraction < 7) {
+      niceFraction = 5;
+    } else {
+      niceFraction = 10;
+    }
+  } else if (fraction <= 1.0) {
+    niceFraction = 1;
+  } else if (fraction <= 2) {
+    niceFraction = 2;
+  } else if (fraction <= 5) {
+    niceFraction = 5;
+  } else {
+    niceFraction = 10;
+  }
+
+  return niceFraction * Math.pow(10, exponent);
+}
 /**
  * Generate a set of linear ticks
  * @param generationOptions the options used to generate the ticks
  * @param dataRange the range of the data
  * @returns {number[]} array of tick values
  */
+
 
 function generateTicks(generationOptions, dataRange) {
   var ticks = []; // To get a "nice" value for the tick spacing, we will use the appropriately named
@@ -13623,11 +13620,11 @@ function generateTicks(generationOptions, dataRange) {
   var maxNumSpaces = generationOptions.maxTicks - 1;
   var rmin = dataRange.min,
       rmax = dataRange.max;
-  var spacing = helpers.niceNum((rmax - rmin) / maxNumSpaces / unit) * unit;
+  var spacing = niceNum((rmax - rmin) / maxNumSpaces / unit) * unit;
   var factor, niceMin, niceMax, numSpaces; // Beyond MIN_SPACING floating point numbers being to lose precision
   // such that we can't do the math necessary to generate ticks
 
-  if (spacing < MIN_SPACING && isNullOrUndef$1(min) && isNullOrUndef$1(max)) {
+  if (spacing < MIN_SPACING && isNullOrUndef(min) && isNullOrUndef(max)) {
     return [{
       value: rmin
     }, {
@@ -13639,10 +13636,10 @@ function generateTicks(generationOptions, dataRange) {
 
   if (numSpaces > maxNumSpaces) {
     // If the calculated num of spaces exceeds maxNumSpaces, recalculate it
-    spacing = helpers.niceNum(numSpaces * spacing / maxNumSpaces / unit) * unit;
+    spacing = niceNum(numSpaces * spacing / maxNumSpaces / unit) * unit;
   }
 
-  if (stepSize || isNullOrUndef$1(precision)) {
+  if (stepSize || isNullOrUndef(precision)) {
     // If a precision is not specified, calculate factor based on spacing
     factor = Math.pow(10, _decimalPlaces(spacing));
   } else {
@@ -13654,7 +13651,7 @@ function generateTicks(generationOptions, dataRange) {
   niceMin = Math.floor(rmin / spacing) * spacing;
   niceMax = Math.ceil(rmax / spacing) * spacing; // If min, max and stepSize is set and they make an evenly spaced scale use it.
 
-  if (stepSize && !isNullOrUndef$1(min) && !isNullOrUndef$1(max)) {
+  if (stepSize && !isNullOrUndef(min) && !isNullOrUndef(max)) {
     // If very close to our whole number, use it.
     if (almostWhole((max - min) / stepSize, spacing / 1000)) {
       niceMin = min;
@@ -13673,7 +13670,7 @@ function generateTicks(generationOptions, dataRange) {
   niceMin = Math.round(niceMin * factor) / factor;
   niceMax = Math.round(niceMax * factor) / factor;
   ticks.push({
-    value: isNullOrUndef$1(min) ? niceMin : min
+    value: isNullOrUndef(min) ? niceMin : min
   });
 
   for (var j = 1; j < numSpaces; ++j) {
@@ -13683,7 +13680,7 @@ function generateTicks(generationOptions, dataRange) {
   }
 
   ticks.push({
-    value: isNullOrUndef$1(max) ? niceMax : max
+    value: isNullOrUndef(max) ? niceMax : max
   });
   return ticks;
 }
@@ -13703,7 +13700,7 @@ function (_Scale) {
     key: "_parse",
     value: function _parse(raw, index) {
       // eslint-disable-line no-unused-vars
-      if (helpers.isNullOrUndef(raw)) {
+      if (isNullOrUndef(raw)) {
         return NaN;
       }
 
@@ -13828,7 +13825,7 @@ function (_Scale) {
         min: opts.min,
         max: opts.max,
         precision: tickOpts.precision,
-        stepSize: helpers.valueOrDefault(tickOpts.fixedStepSize, tickOpts.stepSize)
+        stepSize: valueOrDefault(tickOpts.fixedStepSize, tickOpts.stepSize)
       };
       var ticks = generateTicks(numericGeneratorOptions, me);
       ticks = me._handleDirectionalChanges(ticks); // At this point, we need to update our max and min given the tick values since we have expanded the
@@ -13854,12 +13851,11 @@ function (_Scale) {
       var ticks = me.ticks;
       var start = me.min;
       var end = me.max;
-      var offset;
 
       Scale.prototype._configure.call(me);
 
       if (me.options.offset && ticks.length) {
-        offset = (end - start) / Math.max(ticks.length - 1, 1) / 2;
+        var offset = (end - start) / Math.max(ticks.length - 1, 1) / 2;
         start -= offset;
         end += offset;
       }
