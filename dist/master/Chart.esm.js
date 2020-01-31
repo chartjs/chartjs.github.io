@@ -10754,13 +10754,13 @@ function onAnimationsComplete(ctx) {
   var chart = ctx.chart;
   var animationOptions = chart.options.animation;
   pluginsCore.notify(chart, 'afterRender');
-  helpers.callback(animationOptions && animationOptions.onComplete, arguments, chart);
+  helpers.callback(animationOptions && animationOptions.onComplete, [ctx], chart);
 }
 
 function onAnimationProgress(ctx) {
   var chart = ctx.chart;
   var animationOptions = chart.options.animation;
-  helpers.callback(animationOptions && animationOptions.onProgress, arguments, chart);
+  helpers.callback(animationOptions && animationOptions.onProgress, [ctx], chart);
 }
 
 function isDomSupported() {
@@ -10972,7 +10972,7 @@ function () {
       if (scaleOpts) {
         items = items.concat(Object.keys(scaleOpts).map(function (axisID) {
           var axisOptions = scaleOpts[axisID];
-          var isRadial = axisID.charAt(0).toLowerCase === 'r';
+          var isRadial = axisID.charAt(0).toLowerCase() === 'r';
           var isHorizontal = axisID.charAt(0).toLowerCase() === 'x';
           return {
             options: axisOptions,
