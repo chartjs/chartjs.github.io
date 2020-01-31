@@ -14706,9 +14706,6 @@ function (_LinearScaleBase) {
 
 RadialLinearScale._defaults = defaultConfig$3;
 
-var resolve$6 = helpers.options.resolve;
-var valueOrDefault$7 = helpers.valueOrDefault; // Integer constants are from the ES6 spec.
-
 var MAX_INTEGER = Number.MAX_SAFE_INTEGER || 9007199254740991;
 var INTERVALS = {
   millisecond: {
@@ -14856,7 +14853,7 @@ function interpolate(table, skey, sval, tkey) {
 }
 
 function parse(scale, input) {
-  if (helpers.isNullOrUndef(input)) {
+  if (isNullOrUndef(input)) {
     return null;
   }
 
@@ -14870,7 +14867,7 @@ function parse(scale, input) {
   } // Only parse if its not a timestamp already
 
 
-  if (!helpers.isFinite(value)) {
+  if (!isNumberFinite(value)) {
     value = typeof parser === 'string' ? adapter.parse(value, parser) : adapter.parse(value);
   }
 
@@ -14943,7 +14940,7 @@ function generate(scale, min, max, capacity) {
   var options = scale.options;
   var timeOpts = options.time;
   var minor = timeOpts.unit || determineUnitForAutoTicks(timeOpts.minUnit, min, max, capacity);
-  var stepSize = resolve$6([timeOpts.stepSize, timeOpts.unitStepSize, 1]);
+  var stepSize = resolve([timeOpts.stepSize, timeOpts.unitStepSize, 1]);
   var weekday = minor === 'week' ? timeOpts.isoWeekday : false;
   var ticks = [];
   var first = min;
@@ -15278,7 +15275,7 @@ function (_Scale) {
     // when loading the scale (adapters are loaded afterward), so let's populate
     // missing formats on update
 
-    helpers.mergeIf(time.displayFormats, adapter.formats());
+    mergeIf(time.displayFormats, adapter.formats());
     return _this;
   }
 
@@ -15318,8 +15315,8 @@ function (_Scale) {
         }
       }
 
-      min = helpers.isFinite(min) && !isNaN(min) ? min : +adapter.startOf(Date.now(), unit);
-      max = helpers.isFinite(max) && !isNaN(max) ? max : +adapter.endOf(Date.now(), unit) + 1; // Make sure that max is strictly higher than min (required by the lookup table)
+      min = isNumberFinite(min) && !isNaN(min) ? min : +adapter.startOf(Date.now(), unit);
+      max = isNumberFinite(max) && !isNaN(max) ? max : +adapter.endOf(Date.now(), unit) + 1; // Make sure that max is strictly higher than min (required by the lookup table)
 
       me.min = Math.min(min, max);
       me.max = Math.max(min + 1, max);
@@ -15389,7 +15386,7 @@ function (_Scale) {
       var major = majorUnit && majorFormat && tick && tick.major;
       var label = adapter.format(time, format ? format : major ? majorFormat : minorFormat);
       var nestedTickOpts = major ? tickOpts.major : tickOpts.minor;
-      var formatter = resolve$6([nestedTickOpts.callback, tickOpts.callback]);
+      var formatter = resolve([nestedTickOpts.callback, tickOpts.callback]);
       return formatter ? formatter(label, index, ticks) : label;
     }
   }, {
@@ -15446,7 +15443,7 @@ function (_Scale) {
       var angle = toRadians(me.isHorizontal() ? ticksOpts.maxRotation : ticksOpts.minRotation);
       var cosRotation = Math.cos(angle);
       var sinRotation = Math.sin(angle);
-      var tickFontSize = valueOrDefault$7(ticksOpts.fontSize, defaults.fontSize);
+      var tickFontSize = valueOrDefault(ticksOpts.fontSize, defaults.fontSize);
       return {
         w: tickLabelWidth * cosRotation + tickFontSize * sinRotation,
         h: tickLabelWidth * sinRotation + tickFontSize * cosRotation
@@ -16176,7 +16173,7 @@ var filler = {
 };
 
 var getRtlHelper = helpers.rtl.getRtlAdapter;
-var valueOrDefault$8 = helpers.valueOrDefault;
+var valueOrDefault$7 = helpers.valueOrDefault;
 
 defaults._set('legend', {
   display: true,
@@ -16516,7 +16513,7 @@ function (_Element) {
 
       var rtlHelper = getRtlHelper(opts.rtl, me.left, me._minSize.width);
       var ctx = me.ctx;
-      var fontColor = valueOrDefault$8(labelOpts.fontColor, defaults.fontColor);
+      var fontColor = valueOrDefault$7(labelOpts.fontColor, defaults.fontColor);
 
       var labelFont = helpers.options._parseFont(labelOpts);
 
@@ -16541,17 +16538,17 @@ function (_Element) {
 
 
         ctx.save();
-        var lineWidth = valueOrDefault$8(legendItem.lineWidth, lineDefault.borderWidth);
-        ctx.fillStyle = valueOrDefault$8(legendItem.fillStyle, defaultColor);
-        ctx.lineCap = valueOrDefault$8(legendItem.lineCap, lineDefault.borderCapStyle);
-        ctx.lineDashOffset = valueOrDefault$8(legendItem.lineDashOffset, lineDefault.borderDashOffset);
-        ctx.lineJoin = valueOrDefault$8(legendItem.lineJoin, lineDefault.borderJoinStyle);
+        var lineWidth = valueOrDefault$7(legendItem.lineWidth, lineDefault.borderWidth);
+        ctx.fillStyle = valueOrDefault$7(legendItem.fillStyle, defaultColor);
+        ctx.lineCap = valueOrDefault$7(legendItem.lineCap, lineDefault.borderCapStyle);
+        ctx.lineDashOffset = valueOrDefault$7(legendItem.lineDashOffset, lineDefault.borderDashOffset);
+        ctx.lineJoin = valueOrDefault$7(legendItem.lineJoin, lineDefault.borderJoinStyle);
         ctx.lineWidth = lineWidth;
-        ctx.strokeStyle = valueOrDefault$8(legendItem.strokeStyle, defaultColor);
+        ctx.strokeStyle = valueOrDefault$7(legendItem.strokeStyle, defaultColor);
 
         if (ctx.setLineDash) {
           // IE 9 and 10 do not support line dash
-          ctx.setLineDash(valueOrDefault$8(legendItem.lineDash, lineDefault.borderDash));
+          ctx.setLineDash(valueOrDefault$7(legendItem.lineDash, lineDefault.borderDash));
         }
 
         if (labelOpts && labelOpts.usePointStyle) {
@@ -16683,7 +16680,7 @@ function (_Element) {
 
       var rtlHelper = getRtlHelper(opts.rtl, me.left, me.minSize.width);
       var ctx = me.ctx;
-      var fontColor = valueOrDefault$8(titleOpts.fontColor, defaults.fontColor);
+      var fontColor = valueOrDefault$7(titleOpts.fontColor, defaults.fontColor);
       var position = titleOpts.position;
       var x, textAlign;
       var halfFontSize = titleFont.size / 2;
@@ -17185,7 +17182,7 @@ var title = {
   }
 };
 
-var valueOrDefault$9 = helpers.valueOrDefault;
+var valueOrDefault$8 = helpers.valueOrDefault;
 var getRtlHelper$1 = helpers.rtl.getRtlAdapter;
 
 defaults._set('tooltips', {
@@ -17421,15 +17418,15 @@ function createTooltipItem(chart, item) {
 
 function resolveOptions(options) {
   options = helpers.extend({}, defaults.tooltips, options);
-  options.bodyFontFamily = valueOrDefault$9(options.bodyFontFamily, defaults.fontFamily);
-  options.bodyFontStyle = valueOrDefault$9(options.bodyFontStyle, defaults.fontStyle);
-  options.bodyFontSize = valueOrDefault$9(options.bodyFontSize, defaults.fontSize);
-  options.titleFontFamily = valueOrDefault$9(options.titleFontFamily, defaults.fontFamily);
-  options.titleFontStyle = valueOrDefault$9(options.titleFontStyle, defaults.fontStyle);
-  options.titleFontSize = valueOrDefault$9(options.titleFontSize, defaults.fontSize);
-  options.footerFontFamily = valueOrDefault$9(options.footerFontFamily, defaults.fontFamily);
-  options.footerFontStyle = valueOrDefault$9(options.footerFontStyle, defaults.fontStyle);
-  options.footerFontSize = valueOrDefault$9(options.footerFontSize, defaults.fontSize);
+  options.bodyFontFamily = valueOrDefault$8(options.bodyFontFamily, defaults.fontFamily);
+  options.bodyFontStyle = valueOrDefault$8(options.bodyFontStyle, defaults.fontStyle);
+  options.bodyFontSize = valueOrDefault$8(options.bodyFontSize, defaults.fontSize);
+  options.titleFontFamily = valueOrDefault$8(options.titleFontFamily, defaults.fontFamily);
+  options.titleFontStyle = valueOrDefault$8(options.titleFontStyle, defaults.fontStyle);
+  options.titleFontSize = valueOrDefault$8(options.titleFontSize, defaults.fontSize);
+  options.footerFontFamily = valueOrDefault$8(options.footerFontFamily, defaults.fontFamily);
+  options.footerFontStyle = valueOrDefault$8(options.footerFontStyle, defaults.fontStyle);
+  options.footerFontSize = valueOrDefault$8(options.footerFontSize, defaults.fontSize);
   return options;
 }
 /**
