@@ -4003,47 +4003,6 @@ var helpers = _objectSpread2({}, coreHelpers, {
   options: options,
   math: math,
   rtl: rtl,
-  findIndex: Array.prototype.findIndex ? function (array, callback, scope) {
-    return array.findIndex(callback, scope);
-  } : function (array, callback, scope) {
-    scope = scope === undefined ? array : scope;
-
-    for (var i = 0, ilen = array.length; i < ilen; ++i) {
-      if (callback.call(scope, array[i], i, array)) {
-        return i;
-      }
-    }
-
-    return -1;
-  },
-  findNextWhere: function findNextWhere(arrayToSearch, filterCallback, startIndex) {
-    // Default to start of the array
-    if (isNullOrUndef(startIndex)) {
-      startIndex = -1;
-    }
-
-    for (var i = startIndex + 1; i < arrayToSearch.length; i++) {
-      var currentItem = arrayToSearch[i];
-
-      if (filterCallback(currentItem)) {
-        return currentItem;
-      }
-    }
-  },
-  findPreviousWhere: function findPreviousWhere(arrayToSearch, filterCallback, startIndex) {
-    // Default to end of the array
-    if (isNullOrUndef(startIndex)) {
-      startIndex = arrayToSearch.length;
-    }
-
-    for (var i = startIndex - 1; i >= 0; i--) {
-      var currentItem = arrayToSearch[i];
-
-      if (filterCallback(currentItem)) {
-        return currentItem;
-      }
-    }
-  },
   // Implementation of the nice number algorithm used in determining where axis labels will go
   niceNum: function niceNum(range, round) {
     var exponent = Math.floor(log10(range));
@@ -7984,6 +7943,12 @@ function fastPathSegment(ctx, line, segment, params) {
     lastY = y;
   }
 }
+/**
+ * @param {Line} line - the line
+ * @returns {function}
+ * @private
+ */
+
 
 function _getSegmentMethod(line) {
   var opts = line.options;
@@ -8109,7 +8074,7 @@ function (_Element) {
         result.push(interpolated);
       }
 
-      return result.lenght === 1 ? result[0] : result;
+      return result.length === 1 ? result[0] : result;
     }
     /**
      * Append a segment of this line to current path.
