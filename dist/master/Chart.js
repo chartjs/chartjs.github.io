@@ -14941,11 +14941,13 @@ function determineMajorUnit(unit) {
  */
 
 
-function generate(scale, min, max, capacity) {
+function generate(scale) {
   var adapter = scale._adapter;
+  var min = scale.min;
+  var max = scale.max;
   var options = scale.options;
   var timeOpts = options.time;
-  var minor = timeOpts.unit || determineUnitForAutoTicks(timeOpts.minUnit, min, max, capacity);
+  var minor = timeOpts.unit || determineUnitForAutoTicks(timeOpts.minUnit, min, max, scale._getLabelCapacity(min));
   var stepSize = resolve([timeOpts.stepSize, timeOpts.unitStepSize, 1]);
   var weekday = minor === 'week' ? timeOpts.isoWeekday : false;
   var ticks = [];
@@ -15115,24 +15117,16 @@ function getAllTimestamps(scale) {
 }
 
 function getTimestampsForTicks(scale) {
-  var min = scale.min;
-  var max = scale.max;
   var options = scale.options;
-
-  var capacity = scale._getLabelCapacity(min);
-
   var source = options.ticks.source;
-  var timestamps;
 
   if (source === 'data' || source === 'auto' && options.distribution === 'series') {
-    timestamps = getAllTimestamps(scale);
+    return getAllTimestamps(scale);
   } else if (source === 'labels') {
-    timestamps = getLabelTimestamps(scale);
-  } else {
-    timestamps = generate(scale, min, max, capacity);
+    return getLabelTimestamps(scale);
   }
 
-  return timestamps;
+  return generate(scale);
 }
 
 function getTimestampsForTable(scale) {
