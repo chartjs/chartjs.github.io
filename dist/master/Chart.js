@@ -18172,7 +18172,7 @@ function (_Element) {
         y: me.y
       }; // IE11/Edge does not like very small opacities, so snap to 0
 
-      opacity = Math.abs(opacity < 1e-3) ? 0 : opacity; // Truthy/falsey value for empty tooltip
+      opacity = Math.abs(opacity) < 1e-3 ? 0 : opacity; // Truthy/falsey value for empty tooltip
 
       var hasTooltipContent = me.title.length || me.beforeBody.length || me.body.length || me.afterBody.length || me.footer.length;
 
