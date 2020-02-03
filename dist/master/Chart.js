@@ -5892,7 +5892,7 @@ function parseBorderWidth(bar, maxW, maxH) {
   var skip = parseBorderSkipped(bar);
   var t, r, b, l;
 
-  if (helpers.isObject(value)) {
+  if (isObject(value)) {
     t = +value.top || 0;
     r = +value.right || 0;
     b = +value.bottom || 0;
@@ -6019,8 +6019,6 @@ function (_Element) {
 
 Rectangle.prototype._type = 'rectangle';
 
-var valueOrDefault$1 = helpers.valueOrDefault;
-
 defaults._set('bar', {
   hover: {
     mode: 'index'
@@ -6083,10 +6081,10 @@ function computeFitCategoryTraits(index, ruler, options) {
   var thickness = options.barThickness;
   var count = ruler.stackCount;
   var curr = ruler.pixels[index];
-  var min = helpers.isNullOrUndef(thickness) ? computeMinSampleSize(ruler.scale, ruler.pixels) : -1;
+  var min = isNullOrUndef(thickness) ? computeMinSampleSize(ruler.scale, ruler.pixels) : -1;
   var size, ratio;
 
-  if (helpers.isNullOrUndef(thickness)) {
+  if (isNullOrUndef(thickness)) {
     size = min * options.categoryPercentage;
     ratio = options.barPercentage;
   } else {
@@ -6182,7 +6180,7 @@ function parseArrayOrPrimitive(meta, data, start, count) {
     item = {};
     item[iScale.axis] = singleScale || iScale._parse(labels[i], i);
 
-    if (helpers.isArray(entry)) {
+    if (isArray(entry)) {
       parseFloatBar(entry, item, vScale, i);
     } else {
       item[vScale.axis] = vScale._parse(entry, i);
@@ -6242,7 +6240,7 @@ var bar = DatasetController.extend({
       item[iScale.axis] = iScale._parseObject(obj, iScale.axis, i);
       value = obj[vProp];
 
-      if (helpers.isArray(value)) {
+      if (isArray(value)) {
         parseFloatBar(value, item, vScale, i);
       } else {
         item[vScale.axis] = vScale._parseObject(obj, vProp, i);
@@ -6450,7 +6448,7 @@ var bar = DatasetController.extend({
       value = custom.barStart;
       length = custom.barEnd - custom.barStart; // bars crossing origin are not stacked
 
-      if (value !== 0 && helpers.math.sign(value) !== helpers.math.sign(custom.barEnd)) {
+      if (value !== 0 && sign(value) !== sign(custom.barEnd)) {
         start = 0;
       }
 
@@ -6461,7 +6459,7 @@ var bar = DatasetController.extend({
     // TODO: use borderWidth instead (need to move the parsing from rectangle)
 
 
-    base = helpers.math._limitValue(vScale.getPixelForValue(start), vScale._startPixel - 10, vScale._endPixel + 10);
+    base = _limitValue(vScale.getPixelForValue(start), vScale._startPixel - 10, vScale._endPixel + 10);
     head = vScale.getPixelForValue(start + length);
     size = head - base;
 
@@ -6486,7 +6484,7 @@ var bar = DatasetController.extend({
     var range = options.barThickness === 'flex' ? computeFlexCategoryTraits(index, ruler, options) : computeFitCategoryTraits(index, ruler, options);
     var stackIndex = me.getStackIndex(me.index, me._cachedMeta.stack);
     var center = range.start + range.chunk * stackIndex + range.chunk / 2;
-    var size = Math.min(valueOrDefault$1(options.maxBarThickness, Infinity), range.chunk * range.ratio);
+    var size = Math.min(valueOrDefault(options.maxBarThickness, Infinity), range.chunk * range.ratio);
     return {
       base: center - size / 2,
       head: center + size / 2,
@@ -6502,7 +6500,7 @@ var bar = DatasetController.extend({
     var rects = meta.data;
     var ilen = rects.length;
     var i = 0;
-    helpers.canvas.clipArea(chart.ctx, chart.chartArea);
+    clipArea(chart.ctx, chart.chartArea);
 
     for (; i < ilen; ++i) {
       if (!isNaN(me._getParsed(i)[vScale.axis])) {
@@ -6510,7 +6508,7 @@ var bar = DatasetController.extend({
       }
     }
 
-    helpers.canvas.unclipArea(chart.ctx);
+    unclipArea(chart.ctx);
   }
 });
 
@@ -6596,11 +6594,11 @@ function (_Element) {
       } // Clipping for Points.
 
 
-      if (chartArea === undefined || helpers.canvas._isPointInArea(me, chartArea)) {
+      if (chartArea === undefined || _isPointInArea(me, chartArea)) {
         ctx.strokeStyle = options.borderColor;
         ctx.lineWidth = options.borderWidth;
         ctx.fillStyle = options.backgroundColor;
-        helpers.canvas.drawPoint(ctx, options, me.x, me.y);
+        drawPoint(ctx, options, me.x, me.y);
       }
     }
   }, {
@@ -6615,8 +6613,6 @@ function (_Element) {
 }(Element);
 
 Point.prototype._type = 'point';
-
-var resolve$2 = helpers.options.resolve;
 
 defaults._set('bubble', {
   animation: {
@@ -6788,7 +6784,7 @@ var bubble = DatasetController.extend({
     }; // In case values were cached (and thus frozen), we need to clone the values
 
     if (values.$shared) {
-      values = helpers.extend({}, values, {
+      values = extend({}, values, {
         $shared: false
       });
     } // Custom radius resolution
@@ -6798,7 +6794,7 @@ var bubble = DatasetController.extend({
       values.radius = 0;
     }
 
-    values.radius += resolve$2([parsed && parsed._custom, me._config.radius, chart.options.elements.point.radius], context, index);
+    values.radius += resolve([parsed && parsed._custom, me._config.radius, chart.options.elements.point.radius], context, index);
     return values;
   }
 });
@@ -7012,7 +7008,6 @@ function (_Element) {
 
 Arc.prototype._type = 'arc';
 
-var valueOrDefault$2 = helpers.valueOrDefault;
 var PI$2 = Math.PI;
 var DOUBLE_PI$1 = PI$2 * 2;
 var HALF_PI$1 = PI$2 / 2;
@@ -7084,7 +7079,7 @@ defaults._set('doughnut', {
         var dataLabel = data.labels[tooltipItem.index];
         var value = ': ' + data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
 
-        if (helpers.isArray(dataLabel)) {
+        if (isArray(dataLabel)) {
           // show value on first line of multiline label
           // need to clone because we are changing the value
           dataLabel = dataLabel.slice();
@@ -7101,7 +7096,7 @@ defaults._set('doughnut', {
 
 var doughnut = DatasetController.extend({
   dataElementType: Arc,
-  linkScales: helpers.noop,
+  linkScales: noop,
 
   /**
    * @private
@@ -7328,7 +7323,7 @@ var doughnut = DatasetController.extend({
    * @private
    */
   _getRingWeight: function _getRingWeight(dataSetIndex) {
-    return Math.max(valueOrDefault$2(this.chart.data.datasets[dataSetIndex].weight, 1), 0);
+    return Math.max(valueOrDefault(this.chart.data.datasets[dataSetIndex].weight, 1), 0);
   },
 
   /**
@@ -8144,9 +8139,6 @@ function (_Element) {
 
 Line.prototype._type = 'line';
 
-var valueOrDefault$3 = helpers.valueOrDefault;
-var resolve$3 = helpers.options.resolve;
-
 defaults._set('line', {
   showLines: true,
   spanGaps: false,
@@ -8196,7 +8188,7 @@ var line = DatasetController.extend({
     var points = meta.data || [];
     var options = me.chart.options;
     var config = me._config;
-    var showLine = me._showLine = valueOrDefault$3(config.showLine, options.showLines); // Update Line
+    var showLine = me._showLine = valueOrDefault(config.showLine, options.showLines); // Update Line
 
     if (showLine && mode !== 'resize') {
       var properties = {
@@ -8226,8 +8218,8 @@ var line = DatasetController.extend({
 
     var includeOptions = me._includeOptions(mode, sharedOptions);
 
-    var spanGaps = valueOrDefault$3(me._config.spanGaps, me.chart.options.spanGaps);
-    var maxGapLength = helpers.math.isNumber(spanGaps) ? spanGaps : Number.POSITIVE_INFINITY;
+    var spanGaps = valueOrDefault(me._config.spanGaps, me.chart.options.spanGaps);
+    var maxGapLength = isNumber(spanGaps) ? spanGaps : Number.POSITIVE_INFINITY;
     var prevParsed;
 
     for (var i = 0; i < points.length; ++i) {
@@ -8271,9 +8263,9 @@ var line = DatasetController.extend({
     // This option gives lines the ability to span gaps
 
 
-    values.spanGaps = valueOrDefault$3(config.spanGaps, options.spanGaps);
-    values.tension = valueOrDefault$3(config.lineTension, lineOptions.tension);
-    values.steppedLine = resolve$3([config.steppedLine, lineOptions.stepped]);
+    values.spanGaps = valueOrDefault(config.spanGaps, options.spanGaps);
+    values.tension = valueOrDefault(config.lineTension, lineOptions.tension);
+    values.steppedLine = resolve([config.steppedLine, lineOptions.stepped]);
     return values;
   },
 
@@ -8325,8 +8317,6 @@ var line = DatasetController.extend({
     }
   }
 });
-
-var resolve$4 = helpers.options.resolve;
 
 defaults._set('polarArea', {
   animation: {
@@ -8406,7 +8396,7 @@ defaults._set('polarArea', {
 function getStartAngleRadians(deg) {
   // radialLinear scale draws angleLines using startAngle. 0 is expected to be at top.
   // Here we adjust to standard unit circle used in drawing, where 0 is at right.
-  return helpers.math.toRadians(deg) - 0.5 * Math.PI;
+  return toRadians(deg) - 0.5 * Math.PI;
 }
 
 var polarArea = DatasetController.extend({
@@ -8538,17 +8528,15 @@ var polarArea = DatasetController.extend({
       dataset: dataset,
       datasetIndex: me.index
     };
-    return resolve$4([me.chart.options.elements.arc.angle, 2 * Math.PI / count], context, index);
+    return resolve([me.chart.options.elements.arc.angle, 2 * Math.PI / count], context, index);
   }
 });
 
-defaults._set('pie', helpers.clone(defaults.doughnut));
+defaults._set('pie', clone(defaults.doughnut));
 
 defaults._set('pie', {
   cutoutPercentage: 0
 }); // Pie charts are Doughnut chart with different defaults
-
-var valueOrDefault$4 = helpers.valueOrDefault;
 
 defaults._set('radar', {
   spanGaps: false,
@@ -8678,8 +8666,8 @@ var radar = DatasetController.extend({
 
     var values = DatasetController.prototype._resolveDatasetElementOptions.apply(me, arguments);
 
-    values.spanGaps = valueOrDefault$4(config.spanGaps, options.spanGaps);
-    values.tension = valueOrDefault$4(config.lineTension, options.elements.line.tension);
+    values.spanGaps = valueOrDefault(config.spanGaps, options.spanGaps);
+    values.tension = valueOrDefault(config.lineTension, options.elements.line.tension);
     return values;
   }
 });
@@ -10587,7 +10575,7 @@ var scaleService = {
   }
 };
 
-var valueOrDefault$5 = helpers.valueOrDefault;
+var valueOrDefault$1 = helpers.valueOrDefault;
 
 function mergeScaleConfig(config, options) {
   options = options || {};
@@ -10926,7 +10914,7 @@ function () {
       helpers.each(items, function (item) {
         var scaleOptions = item.options;
         var id = scaleOptions.id;
-        var scaleType = valueOrDefault$5(scaleOptions.type, item.dtype);
+        var scaleType = valueOrDefault$1(scaleOptions.type, item.dtype);
 
         if (scaleOptions.position === undefined || positionIsHorizontal(scaleOptions.position, scaleOptions.axis || id[0]) !== positionIsHorizontal(item.dposition)) {
           scaleOptions.position = item.dposition;
@@ -14182,9 +14170,9 @@ function (_Scale) {
 
 LogarithmicScale._defaults = defaultConfig$2;
 
-var valueOrDefault$6 = helpers.valueOrDefault;
+var valueOrDefault$2 = helpers.valueOrDefault;
 var valueAtIndexOrDefault$1 = helpers.valueAtIndexOrDefault;
-var resolve$5 = helpers.options.resolve;
+var resolve$2 = helpers.options.resolve;
 var defaultConfig$3 = {
   display: true,
   // Boolean - Whether to animate scaling the chart from the centre
@@ -14228,7 +14216,7 @@ function getTickBackdropHeight(opts) {
   var tickOpts = opts.ticks;
 
   if (tickOpts.display && opts.display) {
-    return valueOrDefault$6(tickOpts.fontSize, defaults.fontSize) + tickOpts.backdropPaddingY * 2;
+    return valueOrDefault$2(tickOpts.fontSize, defaults.fontSize) + tickOpts.backdropPaddingY * 2;
   }
 
   return 0;
@@ -14612,8 +14600,8 @@ function (_LinearScaleBase) {
       var opts = me.options;
       var gridLineOpts = opts.gridLines;
       var angleLineOpts = opts.angleLines;
-      var lineWidth = valueOrDefault$6(angleLineOpts.lineWidth, gridLineOpts.lineWidth);
-      var lineColor = valueOrDefault$6(angleLineOpts.color, gridLineOpts.color);
+      var lineWidth = valueOrDefault$2(angleLineOpts.lineWidth, gridLineOpts.lineWidth);
+      var lineColor = valueOrDefault$2(angleLineOpts.color, gridLineOpts.color);
       var i, offset, position;
 
       if (opts.pointLabels.display) {
@@ -14635,8 +14623,8 @@ function (_LinearScaleBase) {
         ctx.strokeStyle = lineColor;
 
         if (ctx.setLineDash) {
-          ctx.setLineDash(resolve$5([angleLineOpts.borderDash, gridLineOpts.borderDash, []]));
-          ctx.lineDashOffset = resolve$5([angleLineOpts.borderDashOffset, gridLineOpts.borderDashOffset, 0.0]);
+          ctx.setLineDash(resolve$2([angleLineOpts.borderDash, gridLineOpts.borderDash, []]));
+          ctx.lineDashOffset = resolve$2([angleLineOpts.borderDashOffset, gridLineOpts.borderDashOffset, 0.0]);
         }
 
         for (i = me.chart.data.labels.length - 1; i >= 0; i--) {
@@ -14671,7 +14659,7 @@ function (_LinearScaleBase) {
 
       var tickFont = helpers.options._parseFont(tickOpts);
 
-      var tickFontColor = valueOrDefault$6(tickOpts.fontColor, defaults.fontColor);
+      var tickFontColor = valueOrDefault$2(tickOpts.fontColor, defaults.fontColor);
       var offset, width;
       ctx.save();
       ctx.font = tickFont.string;
@@ -16172,9 +16160,6 @@ var filler = {
   }
 };
 
-var getRtlHelper = helpers.rtl.getRtlAdapter;
-var valueOrDefault$7 = helpers.valueOrDefault;
-
 defaults._set('legend', {
   display: true,
   position: 'top',
@@ -16268,7 +16253,7 @@ function (_Element) {
 
     var me = _assertThisInitialized(_this);
 
-    helpers.extend(me, config); // Contains hit boxes for each dataset (in dataset order)
+    extend(me, config); // Contains hit boxes for each dataset (in dataset order)
 
     me.legendHitBoxes = [];
     /**
@@ -16359,7 +16344,7 @@ function (_Element) {
     value: function buildLabels() {
       var me = this;
       var labelOpts = me.options.labels || {};
-      var legendItems = helpers.callback(labelOpts.generateLabels, [me.chart], me) || [];
+      var legendItems = callback(labelOpts.generateLabels, [me.chart], me) || [];
 
       if (labelOpts.filter) {
         legendItems = legendItems.filter(function (item) {
@@ -16389,7 +16374,7 @@ function (_Element) {
       var display = opts.display;
       var ctx = me.ctx;
 
-      var labelFont = helpers.options._parseFont(labelOpts);
+      var labelFont = _parseFont(labelOpts);
 
       var fontSize = labelFont.size; // Reset hit boxes
 
@@ -16511,11 +16496,11 @@ function (_Element) {
 
       me._drawTitle();
 
-      var rtlHelper = getRtlHelper(opts.rtl, me.left, me._minSize.width);
+      var rtlHelper = getAdapter(opts.rtl, me.left, me._minSize.width);
       var ctx = me.ctx;
-      var fontColor = valueOrDefault$7(labelOpts.fontColor, defaults.fontColor);
+      var fontColor = valueOrDefault(labelOpts.fontColor, defaults.fontColor);
 
-      var labelFont = helpers.options._parseFont(labelOpts);
+      var labelFont = _parseFont(labelOpts);
 
       var fontSize = labelFont.size;
       var cursor; // Canvas setup
@@ -16538,17 +16523,17 @@ function (_Element) {
 
 
         ctx.save();
-        var lineWidth = valueOrDefault$7(legendItem.lineWidth, lineDefault.borderWidth);
-        ctx.fillStyle = valueOrDefault$7(legendItem.fillStyle, defaultColor);
-        ctx.lineCap = valueOrDefault$7(legendItem.lineCap, lineDefault.borderCapStyle);
-        ctx.lineDashOffset = valueOrDefault$7(legendItem.lineDashOffset, lineDefault.borderDashOffset);
-        ctx.lineJoin = valueOrDefault$7(legendItem.lineJoin, lineDefault.borderJoinStyle);
+        var lineWidth = valueOrDefault(legendItem.lineWidth, lineDefault.borderWidth);
+        ctx.fillStyle = valueOrDefault(legendItem.fillStyle, defaultColor);
+        ctx.lineCap = valueOrDefault(legendItem.lineCap, lineDefault.borderCapStyle);
+        ctx.lineDashOffset = valueOrDefault(legendItem.lineDashOffset, lineDefault.borderDashOffset);
+        ctx.lineJoin = valueOrDefault(legendItem.lineJoin, lineDefault.borderJoinStyle);
         ctx.lineWidth = lineWidth;
-        ctx.strokeStyle = valueOrDefault$7(legendItem.strokeStyle, defaultColor);
+        ctx.strokeStyle = valueOrDefault(legendItem.strokeStyle, defaultColor);
 
         if (ctx.setLineDash) {
           // IE 9 and 10 do not support line dash
-          ctx.setLineDash(valueOrDefault$7(legendItem.lineDash, lineDefault.borderDash));
+          ctx.setLineDash(valueOrDefault(legendItem.lineDash, lineDefault.borderDash));
         }
 
         if (labelOpts && labelOpts.usePointStyle) {
@@ -16563,7 +16548,7 @@ function (_Element) {
           var centerX = rtlHelper.xPlus(x, boxWidth / 2);
           var centerY = y + fontSize / 2; // Draw pointStyle as legend symbol
 
-          helpers.canvas.drawPoint(ctx, drawOptions, centerX, centerY);
+          drawPoint(ctx, drawOptions, centerX, centerY);
         } else {
           // Draw box as legend symbol
           ctx.fillRect(rtlHelper.leftForLtr(x, boxWidth), y, boxWidth, fontSize);
@@ -16625,7 +16610,7 @@ function (_Element) {
         };
       }
 
-      helpers.rtl.overrideTextDirection(me.ctx, opts.textDirection);
+      overrideTextDirection(me.ctx, opts.textDirection);
       var itemHeight = fontSize + labelOpts.padding;
       me.legendItems.forEach(function (legendItem, i) {
         var textWidth = ctx.measureText(legendItem.text).width;
@@ -16661,7 +16646,7 @@ function (_Element) {
           cursor.y += itemHeight;
         }
       });
-      helpers.rtl.restoreTextDirection(me.ctx, opts.textDirection);
+      restoreTextDirection(me.ctx, opts.textDirection);
     }
   }, {
     key: "_drawTitle",
@@ -16670,17 +16655,17 @@ function (_Element) {
       var opts = me.options;
       var titleOpts = opts.title;
 
-      var titleFont = helpers.options._parseFont(titleOpts);
+      var titleFont = _parseFont(titleOpts);
 
-      var titlePadding = helpers.options.toPadding(titleOpts.padding);
+      var titlePadding = toPadding(titleOpts.padding);
 
       if (!titleOpts.display) {
         return;
       }
 
-      var rtlHelper = getRtlHelper(opts.rtl, me.left, me.minSize.width);
+      var rtlHelper = getAdapter(opts.rtl, me.left, me.minSize.width);
       var ctx = me.ctx;
-      var fontColor = valueOrDefault$7(titleOpts.fontColor, defaults.fontColor);
+      var fontColor = valueOrDefault(titleOpts.fontColor, defaults.fontColor);
       var position = titleOpts.position;
       var x, textAlign;
       var halfFontSize = titleFont.size / 2;
@@ -16759,9 +16744,9 @@ function (_Element) {
     value: function _computeTitleHeight() {
       var titleOpts = this.options.title;
 
-      var titleFont = helpers.options._parseFont(titleOpts);
+      var titleFont = _parseFont(titleOpts);
 
-      var titlePadding = helpers.options.toPadding(titleOpts.padding);
+      var titlePadding = toPadding(titleOpts.padding);
       return titleOpts.display ? titleFont.lineHeight + titlePadding.height : 0;
     }
     /**
@@ -16878,7 +16863,7 @@ var legend = {
     var legend = chart.legend;
 
     if (legendOpts) {
-      helpers.mergeIf(legendOpts, defaults.legend);
+      mergeIf(legendOpts, defaults.legend);
 
       if (legend) {
         layouts.configure(chart, legend, legendOpts);
@@ -17182,8 +17167,8 @@ var title = {
   }
 };
 
-var valueOrDefault$8 = helpers.valueOrDefault;
-var getRtlHelper$1 = helpers.rtl.getRtlAdapter;
+var valueOrDefault$3 = helpers.valueOrDefault;
+var getRtlHelper = helpers.rtl.getRtlAdapter;
 
 defaults._set('tooltips', {
   enabled: true,
@@ -17418,15 +17403,15 @@ function createTooltipItem(chart, item) {
 
 function resolveOptions(options) {
   options = helpers.extend({}, defaults.tooltips, options);
-  options.bodyFontFamily = valueOrDefault$8(options.bodyFontFamily, defaults.fontFamily);
-  options.bodyFontStyle = valueOrDefault$8(options.bodyFontStyle, defaults.fontStyle);
-  options.bodyFontSize = valueOrDefault$8(options.bodyFontSize, defaults.fontSize);
-  options.titleFontFamily = valueOrDefault$8(options.titleFontFamily, defaults.fontFamily);
-  options.titleFontStyle = valueOrDefault$8(options.titleFontStyle, defaults.fontStyle);
-  options.titleFontSize = valueOrDefault$8(options.titleFontSize, defaults.fontSize);
-  options.footerFontFamily = valueOrDefault$8(options.footerFontFamily, defaults.fontFamily);
-  options.footerFontStyle = valueOrDefault$8(options.footerFontStyle, defaults.fontStyle);
-  options.footerFontSize = valueOrDefault$8(options.footerFontSize, defaults.fontSize);
+  options.bodyFontFamily = valueOrDefault$3(options.bodyFontFamily, defaults.fontFamily);
+  options.bodyFontStyle = valueOrDefault$3(options.bodyFontStyle, defaults.fontStyle);
+  options.bodyFontSize = valueOrDefault$3(options.bodyFontSize, defaults.fontSize);
+  options.titleFontFamily = valueOrDefault$3(options.titleFontFamily, defaults.fontFamily);
+  options.titleFontStyle = valueOrDefault$3(options.titleFontStyle, defaults.fontStyle);
+  options.titleFontSize = valueOrDefault$3(options.titleFontSize, defaults.fontSize);
+  options.footerFontFamily = valueOrDefault$3(options.footerFontFamily, defaults.fontFamily);
+  options.footerFontStyle = valueOrDefault$3(options.footerFontStyle, defaults.fontStyle);
+  options.footerFontSize = valueOrDefault$3(options.footerFontSize, defaults.fontSize);
   return options;
 }
 /**
@@ -17943,7 +17928,7 @@ function (_Element) {
       var titleFontSize, titleSpacing, i;
 
       if (length) {
-        var rtlHelper = getRtlHelper$1(options.rtl, me.x, me.width);
+        var rtlHelper = getRtlHelper(options.rtl, me.x, me.width);
         pt.x = getAlignedX(me, options.titleAlign);
         ctx.textAlign = rtlHelper.textAlign(options.titleAlign);
         ctx.textBaseline = 'middle';
@@ -17995,7 +17980,7 @@ function (_Element) {
           bodyAlign = options.bodyAlign,
           displayColors = options.displayColors;
       var xLinePadding = 0;
-      var rtlHelper = getRtlHelper$1(options.rtl, me.x, me.width);
+      var rtlHelper = getRtlHelper(options.rtl, me.x, me.width);
 
       var fillLineOfText = function fillLineOfText(line) {
         ctx.fillText(line, rtlHelper.x(pt.x + xLinePadding), pt.y + bodyFontSize / 2);
@@ -18047,7 +18032,7 @@ function (_Element) {
       var footerFontSize, i;
 
       if (length) {
-        var rtlHelper = getRtlHelper$1(options.rtl, me.x, me.width);
+        var rtlHelper = getRtlHelper(options.rtl, me.x, me.width);
         pt.x = getAlignedX(me, options.footerAlign);
         pt.y += options.footerMarginTop;
         ctx.textAlign = rtlHelper.textAlign(options.footerAlign);
