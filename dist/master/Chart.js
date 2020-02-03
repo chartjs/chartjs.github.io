@@ -3355,6 +3355,7 @@ function parseMaxStyle(styleValue, node, parentProperty) {
  * @param {HTMLElement} domNode - the node to check the constraint on
  * @param {string} maxStyle - the style that defines the maximum for the direction we are using ('max-width' / 'max-height')
  * @param {string} percentageProperty - property of parent to use when calculating width as a percentage
+ * @return {number|undefined} number or undefined if no constraint
  * @see {@link https://www.nathanaeljones.com/blog/2013/reading-max-width-cross-browser}
  */
 
@@ -3373,17 +3374,17 @@ function getConstraintDimension(domNode, maxStyle, percentageProperty) {
   if (hasCNode || hasCContainer) {
     return Math.min(hasCNode ? parseMaxStyle(constrainedNode, domNode, percentageProperty) : infinity, hasCContainer ? parseMaxStyle(constrainedContainer, parentNode, percentageProperty) : infinity);
   }
-
-  return 'none';
 }
 
 function getStyle(el, property) {
   return el.currentStyle ? el.currentStyle[property] : document.defaultView.getComputedStyle(el, null).getPropertyValue(property);
-} // returns Number or undefined if no constraint
+}
+/** @return {number|undefined} number or undefined if no constraint */
 
 function getConstraintWidth(domNode) {
   return getConstraintDimension(domNode, 'max-width', 'clientWidth');
-} // returns Number or undefined if no constraint
+}
+/** @return {number|undefined} number or undefined if no constraint */
 
 
 function getConstraintHeight(domNode) {
@@ -5042,7 +5043,7 @@ helpers.extend(DatasetController.prototype, {
     // any updates and so make sure that we handle number of datapoints changing.
 
 
-    me.resyncElements(dataChanged | labelsChanged | scaleChanged | stackChanged); // if stack changed, update stack values for the whole dataset
+    me.resyncElements(dataChanged || labelsChanged || scaleChanged || stackChanged); // if stack changed, update stack values for the whole dataset
 
     if (stackChanged) {
       updateStacks(me, meta._parsed);
@@ -5396,7 +5397,12 @@ helpers.extend(DatasetController.prototype, {
 
     me._cacheScaleStackStatus();
   },
-  update: helpers.noop,
+
+  /**
+   * @param {string} mode
+   */
+  update: function update(mode) {},
+  // eslint-disable-line no-unused-vars
   draw: function draw() {
     var ctx = this._ctx;
     var meta = this._cachedMeta;
@@ -5432,6 +5438,7 @@ helpers.extend(DatasetController.prototype, {
    * Returns a set of predefined style properties that should be used to represent the dataset
    * or the data if the index is specified
    * @param {number} index - data index
+   * @param {boolean} [active] - true if hover
    * @return {IStyleInterface} style object
    */
   getStyle: function getStyle(index, active) {
@@ -8772,7 +8779,7 @@ function _rlookup(table, key, value) {
 
 /**
  * Helper function to get relative position for an event
- * @param {Event|IEvent} event - The event to get the position for
+ * @param {Event|IEvent} e - The event to get the position for
  * @param {Chart} chart - The chart
  * @returns {object} the event position
  */
@@ -8819,7 +8826,7 @@ function evaluateAllVisibleItems(chart, handler) {
  * @param {string} axis - the axis mide. x|y|xy
  * @param {number} value - the value to find
  * @param {boolean} intersect - should the element intersect
- * @returns {lo, hi} indices to search data array between
+ * @returns {{lo:number, hi:number}} indices to search data array between
  */
 
 
@@ -8864,7 +8871,7 @@ function binarySearch(metaset, axis, value, intersect) {
  * @param {string} axis - the axis mode. x|y|xy
  * @param {object} position - the point to be nearest to
  * @param {function} handler - the callback to execute for each visible item
- * @param {boolean} intersect - consider intersecting items
+ * @param {boolean} [intersect] - consider intersecting items
  */
 
 
@@ -8940,8 +8947,8 @@ function getIntersectItems(chart, position, axis) {
  * Helper function to get the items nearest to the event position considering all visible items in the chart
  * @param {Chart} chart - the chart to look at elements from
  * @param {object} position - the point to be nearest to
- * @param {function} axis - the axes along which to measure distance
- * @param {boolean} intersect - if true, only consider items that intersect the position
+ * @param {string} axis - the axes along which to measure distance
+ * @param {boolean} [intersect] - if true, only consider items that intersect the position
  * @return {ChartElement[]} the nearest items
  */
 
@@ -9575,7 +9582,8 @@ function () {
 
   _createClass(BasePlatform, [{
     key: "acquireContext",
-    value: function acquireContext() {}
+    value: function acquireContext(canvas, options) {} // eslint-disable-line no-unused-vars
+
     /**
      * Called at chart destruction time, releases any resources associated to the context
      * previously returned by the acquireContext() method.
@@ -9585,7 +9593,8 @@ function () {
 
   }, {
     key: "releaseContext",
-    value: function releaseContext() {}
+    value: function releaseContext(context) {} // eslint-disable-line no-unused-vars
+
     /**
      * Registers the specified listener on the given chart.
      * @param {Chart} chart - Chart from which to listen for event
@@ -9596,7 +9605,8 @@ function () {
 
   }, {
     key: "addEventListener",
-    value: function addEventListener() {}
+    value: function addEventListener(chart, type, listener) {} // eslint-disable-line no-unused-vars
+
     /**
      * Removes the specified listener previously registered with addEventListener.
      * @param {Chart} chart - Chart from which to remove the listener
@@ -9606,7 +9616,8 @@ function () {
 
   }, {
     key: "removeEventListener",
-    value: function removeEventListener() {}
+    value: function removeEventListener(chart, type, listener) {} // eslint-disable-line no-unused-vars
+
     /**
      * @returns {number} the current devicePixelRatio of the device this platform is connected to.
      */
@@ -11594,7 +11605,7 @@ function () {
     /**
      * Handle an event
      * @private
-     * @param {IEvent} event the event to handle
+     * @param {IEvent} e the event to handle
      * @return {boolean} true if the chart needs to re-render
      */
 
@@ -12207,7 +12218,7 @@ function (_Element) {
      * Get the padding needed for the scale
      * @method getPadding
      * @private
-     * @returns {Padding} the necessary padding
+     * @returns {object} the necessary padding
      */
 
   }, {
@@ -12412,6 +12423,10 @@ function (_Element) {
     value: function beforeBuildTicks() {
       callback(this.options.beforeBuildTicks, [this]);
     }
+    /**
+     * @return {object[]} the ticks
+     */
+
   }, {
     key: "buildTicks",
     value: function buildTicks() {}
@@ -12739,13 +12754,12 @@ function (_Element) {
      * Returns the location of the given data point. Value can either be an index or a numerical value
      * The coordinate (0, 0) is at the upper-left corner of the canvas
      * @param value
-     * @param index
-     * @param datasetIndex
      */
 
   }, {
     key: "getPixelForValue",
-    value: function getPixelForValue() {}
+    value: function getPixelForValue(value) {} // eslint-disable-line no-unused-vars
+
     /**
      * Used to get the data value from a given pixel. This is the inverse of getPixelForValue
      * The coordinate (0, 0) is at the upper-left corner of the canvas
@@ -12754,7 +12768,8 @@ function (_Element) {
 
   }, {
     key: "getValueForPixel",
-    value: function getValueForPixel() {}
+    value: function getValueForPixel(pixel) {} // eslint-disable-line no-unused-vars
+
     /**
      * Returns the location of the tick at the given index
      * The coordinate (0, 0) is at the upper-left corner of the canvas
@@ -13596,7 +13611,7 @@ function niceNum(range, round) {
  * Generate a set of linear ticks
  * @param generationOptions the options used to generate the ticks
  * @param dataRange the range of the data
- * @returns {number[]} array of tick values
+ * @returns {object[]} array of tick objects
  */
 
 
@@ -13973,7 +13988,7 @@ function finiteOrDefault(value, def) {
  * Generate a set of logarithmic ticks
  * @param generationOptions the options used to generate the ticks
  * @param dataRange the range of the data
- * @returns {number[]} array of tick values
+ * @returns {object[]} array of tick objects
  */
 
 
@@ -15139,9 +15154,9 @@ function getLabelBounds(scale) {
 /**
  * Return subset of `timestamps` between `min` and `max`.
  * Timestamps are assumend to be in sorted order.
- * @param {int[]} timestamps - array of timestamps
- * @param {int} min - min value (timestamp)
- * @param {int} max - max value (timestamp)
+ * @param {number[]} timestamps - array of timestamps
+ * @param {number} min - min value (timestamp)
+ * @param {number} max - max value (timestamp)
  */
 
 
@@ -15568,7 +15583,7 @@ function parseFillOption(line) {
 
 function decodeFill(line, index, count) {
   var fill = parseFillOption(line);
-  var target = parseFloat(fill, 10);
+  var target = parseFloat(fill);
 
   if (isNumberFinite(target) && Math.floor(target) === target) {
     if (fill[0] === '-' || fill[0] === '+') {
@@ -16225,7 +16240,7 @@ defaults._set('legend', {
 });
 /**
  * Helper function to get the box width based on the usePointStyle option
- * @param {object} labelopts - the label options on the legend
+ * @param {object} labelOpts - the label options on the legend
  * @param {number} fontSize - the label font size
  * @return {number} width of the color box area
  */
@@ -16777,8 +16792,8 @@ function (_Element) {
     }
     /**
      * Handle an event
+     * @param {IEvent} e - The event to handle
      * @private
-     * @param {IEvent} event - The event to handle
      */
 
   }, {
@@ -17360,7 +17375,7 @@ function pushOrConcat(base, toPush) {
 }
 /**
  * Returns array of strings split by newline
- * @param {string} value - The value to split by newline.
+ * @param {string} str - The value to split by newline.
  * @returns {string[]} value if newline present - Returned from String split() method
  * @function
  */
@@ -18175,7 +18190,7 @@ function (_Element) {
     /**
      * Handle an event
      * @private
-     * @param {IEvent} event - The event to handle
+     * @param {IEvent} e - The event to handle
      * @returns {boolean} true if the tooltip changed
      */
 
