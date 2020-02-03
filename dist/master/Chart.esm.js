@@ -11813,50 +11813,50 @@ var Ticks = {
     },
 
     /**
-     * Formatter for linear numeric ticks
-     * @method Chart.Ticks.formatters.linear
+     * Formatter for numeric ticks
+     * @method Chart.Ticks.formatters.numeric
      * @param tickValue {number} the value to be formatted
      * @param index {number} the position of the tickValue parameter in the ticks array
      * @param ticks {object[]} the list of ticks being converted
      * @return {string} string representation of the tickValue parameter
      */
-    linear: function linear(tickValue, index, ticks) {
-      // If we have lots of ticks, don't use the ones
+    numeric: function numeric(tickValue, index, ticks) {
+      if (tickValue === 0) {
+        return '0'; // never show decimal places for 0
+      } // If we have lots of ticks, don't use the ones
+
+
       var delta = ticks.length > 3 ? ticks[2].value - ticks[1].value : ticks[1].value - ticks[0].value; // If we have a number like 2.5 as the delta, figure out how many decimal places we need
 
-      if (Math.abs(delta) > 1) {
-        if (tickValue !== Math.floor(tickValue)) {
-          // not an integer
-          delta = tickValue - Math.floor(tickValue);
-        }
+      if (Math.abs(delta) > 1 && tickValue !== Math.floor(tickValue)) {
+        // not an integer
+        delta = tickValue - Math.floor(tickValue);
       }
 
       var logDelta = log10(Math.abs(delta));
-      var tickString = '';
+      var maxTick = Math.max(Math.abs(ticks[0].value), Math.abs(ticks[ticks.length - 1].value));
+      var minTick = Math.min(Math.abs(ticks[0].value), Math.abs(ticks[ticks.length - 1].value));
+      var locale = this.chart.options.locale;
 
-      if (tickValue !== 0) {
-        var maxTick = Math.max(Math.abs(ticks[0].value), Math.abs(ticks[ticks.length - 1].value));
-
-        if (maxTick < 1e-4) {
-          // all ticks are small numbers; use scientific notation
-          var logTick = log10(Math.abs(tickValue));
-          var numExponential = Math.floor(logTick) - Math.floor(logDelta);
-          numExponential = Math.max(Math.min(numExponential, 20), 0);
-          tickString = tickValue.toExponential(numExponential);
-        } else {
-          var numDecimal = -1 * Math.floor(logDelta);
-          numDecimal = Math.max(Math.min(numDecimal, 20), 0); // toFixed has a max of 20 decimal places
-
-          tickString = tickValue.toFixed(numDecimal);
-        }
-      } else {
-        tickString = '0'; // never show decimal places for 0
+      if (maxTick < 1e-4 || minTick > 1e+7) {
+        // all ticks are small or big numbers; use scientific notation
+        var logTick = log10(Math.abs(tickValue));
+        var numExponential = Math.floor(logTick) - Math.floor(logDelta);
+        numExponential = Math.max(Math.min(numExponential, 20), 0);
+        return new Intl.NumberFormat(locale, {
+          notation: 'scientific',
+          minimumFractionDigits: numExponential,
+          maximumFractionDigits: numExponential
+        }).format(tickValue);
       }
 
-      return tickString;
-    },
-    logarithmic: function logarithmic(tickValue) {
-      return tickValue === 0 ? '0' : tickValue.toExponential();
+      var numDecimal = -1 * Math.floor(logDelta);
+      numDecimal = Math.max(Math.min(numDecimal, 20), 0); // toFixed has a max of 20 decimal places
+
+      return new Intl.NumberFormat(locale, {
+        minimumFractionDigits: numDecimal,
+        maximumFractionDigits: numDecimal
+      }).format(tickValue);
     }
   }
 };
@@ -13855,7 +13855,7 @@ function (_Scale) {
   }, {
     key: "getLabelForValue",
     value: function getLabelForValue(value) {
-      return new Intl.NumberFormat().format(value);
+      return new Intl.NumberFormat(this.options.locale).format(value);
     }
   }]);
 
@@ -13864,7 +13864,7 @@ function (_Scale) {
 
 var defaultConfig$1 = {
   ticks: {
-    callback: Ticks.formatters.linear
+    callback: Ticks.formatters.numeric
   }
 };
 
@@ -14007,7 +14007,7 @@ function generateTicks$1(generationOptions, dataRange) {
 var defaultConfig$2 = {
   // label settings
   ticks: {
-    callback: Ticks.formatters.logarithmic,
+    callback: Ticks.formatters.numeric,
     major: {
       enabled: true
     }
@@ -14114,7 +14114,7 @@ function (_Scale) {
   }, {
     key: "getLabelForValue",
     value: function getLabelForValue(value) {
-      return value === undefined ? 0 : new Intl.NumberFormat().format(value);
+      return value === undefined ? 0 : new Intl.NumberFormat(this.options.locale).format(value);
     }
   }, {
     key: "getPixelForTick",
@@ -14192,7 +14192,7 @@ var defaultConfig$3 = {
     backdropPaddingY: 2,
     // Number - The backdrop padding to the side of the label in pixels
     backdropPaddingX: 2,
-    callback: Ticks.formatters.linear
+    callback: Ticks.formatters.numeric
   },
   pointLabels: {
     // Boolean - if true, show point labels
