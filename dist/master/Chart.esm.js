@@ -8717,12 +8717,39 @@ var controllers = {
 /**
  * Binary search
  * @param {array} table - the table search. must be sorted!
+ * @param {number} value - value to find
+ * @private
+ */
+
+function _lookup(table, value) {
+  var hi = table.length - 1;
+  var lo = 0;
+  var mid;
+
+  while (hi - lo > 1) {
+    mid = lo + hi >> 1;
+
+    if (table[mid] < value) {
+      lo = mid;
+    } else {
+      hi = mid;
+    }
+  }
+
+  return {
+    lo: lo,
+    hi: hi
+  };
+}
+/**
+ * Binary search
+ * @param {array} table - the table search. must be sorted!
  * @param {string} key - property name for the value in each entry
  * @param {number} value - value to find
  * @private
  */
 
-function _lookup(table, key, value) {
+function _lookupByKey(table, key, value) {
   var hi = table.length - 1;
   var lo = 0;
   var mid;
@@ -8750,7 +8777,7 @@ function _lookup(table, key, value) {
  * @private
  */
 
-function _rlookup(table, key, value) {
+function _rlookupByKey(table, key, value) {
   var hi = table.length - 1;
   var lo = 0;
   var mid;
@@ -8831,7 +8858,7 @@ function binarySearch(metaset, axis, value, intersect) {
   var iScale = controller._cachedMeta.iScale;
 
   if (iScale && axis === iScale.axis && _sorted && data.length) {
-    var lookupMethod = iScale._reversePixels ? _rlookup : _lookup;
+    var lookupMethod = iScale._reversePixels ? _rlookupByKey : _lookupByKey;
 
     if (!intersect) {
       return lookupMethod(data, axis, value);
@@ -14776,6 +14803,102 @@ function arrayUnique(items) {
 
   return _toConsumableArray(set);
 }
+
+function parse(scale, input) {
+  if (isNullOrUndef(input)) {
+    return null;
+  }
+
+  var adapter = scale._adapter;
+  var options = scale.options.time;
+  var parser = options.parser;
+  var value = input;
+
+  if (typeof parser === 'function') {
+    value = parser(value);
+  } // Only parse if its not a timestamp already
+
+
+  if (!isNumberFinite(value)) {
+    value = typeof parser === 'string' ? adapter.parse(value, parser) : adapter.parse(value);
+  }
+
+  if (value === null) {
+    return value;
+  }
+
+  if (options.round) {
+    value = scale._adapter.startOf(value, options.round);
+  }
+
+  return +value;
+}
+
+function getDataTimestamps(scale) {
+  var isSeries = scale.options.distribution === 'series';
+  var timestamps = scale._cache.data || [];
+  var i, ilen, metas;
+
+  if (timestamps.length) {
+    return timestamps;
+  }
+
+  metas = scale._getMatchingVisibleMetas();
+
+  if (isSeries && metas.length) {
+    return metas[0].controller._getAllParsedValues(scale);
+  }
+
+  for (i = 0, ilen = metas.length; i < ilen; ++i) {
+    timestamps = timestamps.concat(metas[i].controller._getAllParsedValues(scale));
+  } // We can not assume data is in order or unique - not even for single dataset
+  // It seems to be somewhat faster to do sorting first
+
+
+  return scale._cache.data = arrayUnique(timestamps.sort(sorter));
+}
+
+function getLabelTimestamps(scale) {
+  var isSeries = scale.options.distribution === 'series';
+  var timestamps = scale._cache.labels || [];
+  var i, ilen, labels;
+
+  if (timestamps.length) {
+    return timestamps;
+  }
+
+  labels = scale._getLabels();
+
+  for (i = 0, ilen = labels.length; i < ilen; ++i) {
+    timestamps.push(parse(scale, labels[i]));
+  } // We could assume labels are in order and unique - but let's not
+
+
+  return scale._cache.labels = isSeries ? timestamps : arrayUnique(timestamps.sort(sorter));
+}
+
+function getAllTimestamps(scale) {
+  var timestamps = scale._cache.all || [];
+  var label, data;
+
+  if (timestamps.length) {
+    return timestamps;
+  }
+
+  data = getDataTimestamps(scale);
+  label = getLabelTimestamps(scale);
+
+  if (data.length && label.length) {
+    // If combining labels and data (data might not contain all labels),
+    // we need to recheck uniqueness and sort
+    timestamps = arrayUnique(data.concat(label).sort(sorter));
+  } else {
+    timestamps = data.length ? data : label;
+  }
+
+  timestamps = scale._cache.all = timestamps;
+  return timestamps;
+}
 /**
  * Returns an array of {time, pos} objects used to interpolate a specific `time` or position
  * (`pos`) on the scale, by searching entries before and after the requested value. `pos` is
@@ -14842,9 +14965,9 @@ function buildLookupTable(timestamps, min, max, distribution) {
 
 
 function interpolate(table, skey, sval, tkey) {
-  var _lookup2 = _lookup(table, skey, sval),
-      lo = _lookup2.lo,
-      hi = _lookup2.hi; // Note: the lookup table ALWAYS contains at least 2 items (min and max)
+  var _lookupByKey2 = _lookupByKey(table, skey, sval),
+      lo = _lookupByKey2.lo,
+      hi = _lookupByKey2.hi; // Note: the lookup table ALWAYS contains at least 2 items (min and max)
 
 
   var prev = table[lo];
@@ -14853,36 +14976,6 @@ function interpolate(table, skey, sval, tkey) {
   var ratio = span ? (sval - prev[skey]) / span : 0;
   var offset = (next[tkey] - prev[tkey]) * ratio;
   return prev[tkey] + offset;
-}
-
-function parse(scale, input) {
-  if (isNullOrUndef(input)) {
-    return null;
-  }
-
-  var adapter = scale._adapter;
-  var options = scale.options.time;
-  var parser = options.parser;
-  var value = input;
-
-  if (typeof parser === 'function') {
-    value = parser(value);
-  } // Only parse if its not a timestamp already
-
-
-  if (!isNumberFinite(value)) {
-    value = typeof parser === 'string' ? adapter.parse(value, parser) : adapter.parse(value);
-  }
-
-  if (value === null) {
-    return value;
-  }
-
-  if (options.round) {
-    value = scale._adapter.startOf(value, options.round);
-  }
-
-  return +value;
 }
 /**
  * Figures out what unit results in an appropriate number of auto-generated ticks
@@ -14930,6 +15023,19 @@ function determineMajorUnit(unit) {
     }
   }
 }
+
+function addTick(timestamps, ticks, time) {
+  if (!timestamps.length) {
+    return;
+  }
+
+  var _lookup2 = _lookup(timestamps, time),
+      lo = _lookup2.lo,
+      hi = _lookup2.hi;
+
+  var timestamp = timestamps[lo] >= time ? timestamps[lo] : timestamps[hi];
+  ticks.add(timestamp);
+}
 /**
  * Generates a maximum of `capacity` timestamps between min and max, rounded to the
  * `minor` unit using the given scale time `options`.
@@ -14945,9 +15051,9 @@ function generate(scale) {
   var options = scale.options;
   var timeOpts = options.time;
   var minor = timeOpts.unit || determineUnitForAutoTicks(timeOpts.minUnit, min, max, scale._getLabelCapacity(min));
-  var stepSize = resolve([timeOpts.stepSize, timeOpts.unitStepSize, 1]);
+  var stepSize = valueOrDefault(timeOpts.stepSize, 1);
   var weekday = minor === 'week' ? timeOpts.isoWeekday : false;
-  var ticks = [];
+  var ticks = new Set();
   var first = min;
   var time; // For 'week' unit, handle the first day of week option
 
@@ -14962,15 +15068,28 @@ function generate(scale) {
     throw min + ' and ' + max + ' are too far apart with stepSize of ' + stepSize + ' ' + minor;
   }
 
-  for (time = first; time < max; time = +adapter.add(time, stepSize, minor)) {
-    ticks.push(time);
+  if (scale.options.ticks.source === 'data') {
+    // need to make sure ticks are in data in this case
+    var timestamps = getDataTimestamps(scale);
+
+    for (time = first; time < max; time = +adapter.add(time, stepSize, minor)) {
+      addTick(timestamps, ticks, time);
+    }
+
+    if (time === max || options.bounds === 'ticks') {
+      addTick(timestamps, ticks, time);
+    }
+  } else {
+    for (time = first; time < max; time = +adapter.add(time, stepSize, minor)) {
+      ticks.add(time);
+    }
+
+    if (time === max || options.bounds === 'ticks') {
+      ticks.add(time);
+    }
   }
 
-  if (time === max || options.bounds === 'ticks') {
-    ticks.push(time);
-  }
-
-  return ticks;
+  return _toConsumableArray(ticks);
 }
 /**
  * Returns the start and end offsets from edges in the form of {start, end}
@@ -15047,79 +15166,8 @@ function ticksFromTimestamps(scale, values, majorUnit) {
   return ilen === 0 || !majorUnit ? ticks : setMajorTicks(scale, ticks, map, majorUnit);
 }
 
-function getDataTimestamps(scale) {
-  var isSeries = scale.options.distribution === 'series';
-  var timestamps = scale._cache.data || [];
-  var i, ilen, metas;
-
-  if (timestamps.length) {
-    return timestamps;
-  }
-
-  metas = scale._getMatchingVisibleMetas();
-
-  if (isSeries && metas.length) {
-    return metas[0].controller._getAllParsedValues(scale);
-  }
-
-  for (i = 0, ilen = metas.length; i < ilen; ++i) {
-    timestamps = timestamps.concat(metas[i].controller._getAllParsedValues(scale));
-  } // We can not assume data is in order or unique - not even for single dataset
-  // It seems to be somewhat faster to do sorting first
-
-
-  return scale._cache.data = arrayUnique(timestamps.sort(sorter));
-}
-
-function getLabelTimestamps(scale) {
-  var isSeries = scale.options.distribution === 'series';
-  var timestamps = scale._cache.labels || [];
-  var i, ilen, labels;
-
-  if (timestamps.length) {
-    return timestamps;
-  }
-
-  labels = scale._getLabels();
-
-  for (i = 0, ilen = labels.length; i < ilen; ++i) {
-    timestamps.push(parse(scale, labels[i]));
-  } // We could assume labels are in order and unique - but let's not
-
-
-  return scale._cache.labels = isSeries ? timestamps : arrayUnique(timestamps.sort(sorter));
-}
-
-function getAllTimestamps(scale) {
-  var timestamps = scale._cache.all || [];
-  var label, data;
-
-  if (timestamps.length) {
-    return timestamps;
-  }
-
-  data = getDataTimestamps(scale);
-  label = getLabelTimestamps(scale);
-
-  if (data.length && label.length) {
-    // If combining labels and data (data might not contain all labels),
-    // we need to recheck uniqueness and sort
-    timestamps = arrayUnique(data.concat(label).sort(sorter));
-  } else {
-    timestamps = data.length ? data : label;
-  }
-
-  timestamps = scale._cache.all = timestamps;
-  return timestamps;
-}
-
 function getTimestampsForTicks(scale) {
-  var options = scale.options;
-  var source = options.ticks.source;
-
-  if (source === 'data' || source === 'auto' && options.distribution === 'series') {
-    return getAllTimestamps(scale);
-  } else if (source === 'labels') {
+  if (scale.options.ticks.source === 'labels') {
     return getLabelTimestamps(scale);
   }
 
