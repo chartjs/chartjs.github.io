@@ -15547,18 +15547,17 @@ function (_Scale) {
     key: "_tickFormatFunction",
     value: function _tickFormatFunction(time, index, ticks, format) {
       var me = this;
-      var adapter = me._adapter;
       var options = me.options;
       var formats = options.time.displayFormats;
-      var minorFormat = formats[me._unit];
       var majorUnit = me._majorUnit;
+      var minorFormat = formats[me._unit];
       var majorFormat = formats[majorUnit];
       var tick = ticks[index];
-      var tickOpts = options.ticks;
       var major = majorUnit && majorFormat && tick && tick.major;
-      var label = adapter.format(time, format ? format : major ? majorFormat : minorFormat);
-      var nestedTickOpts = major ? tickOpts.major : tickOpts.minor;
-      var formatter = resolve([nestedTickOpts.callback, tickOpts.callback]);
+
+      var label = me._adapter.format(time, format ? format : major ? majorFormat : minorFormat);
+
+      var formatter = options.ticks.callback;
       return formatter ? formatter(label, index, ticks) : label;
     }
   }, {
