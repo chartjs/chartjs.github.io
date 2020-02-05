@@ -5957,8 +5957,8 @@ defaults._set('elements', {
 });
 /**
  * Helper function to get the bounds of the bar regardless of the orientation
- * @param bar {Chart.Element.Rectangle} the bar
- * @return {Bounds} bounds of the bar
+ * @param bar {Rectangle} the bar
+ * @return {object} bounds of the bar
  * @private
  */
 
@@ -9068,7 +9068,7 @@ function getDistanceMetricForAxis(axis) {
  * @param {Chart} chart - the chart
  * @param {object} position - the point to be nearest to
  * @param {string} axis - the axis mode. x|y|xy
- * @return {ChartElement[]} the nearest items
+ * @return {object[]} the nearest items
  */
 
 
@@ -9098,7 +9098,7 @@ function getIntersectItems(chart, position, axis) {
  * @param {object} position - the point to be nearest to
  * @param {string} axis - the axes along which to measure distance
  * @param {boolean} [intersect] - if true, only consider items that intersect the position
- * @return {ChartElement[]} the nearest items
+ * @return {object[]} the nearest items
  */
 
 
@@ -9325,7 +9325,6 @@ var Interaction = {
   }
 };
 
-var extend$1 = helpers.extend;
 var STATIC_POSITIONS = ['left', 'top', 'right', 'bottom'];
 
 function filterByPosition(array, position) {
@@ -9631,7 +9630,7 @@ var layouts = {
     }
 
     var layoutOptions = chart.options.layout || {};
-    var padding = helpers.options.toPadding(layoutOptions.padding);
+    var padding = toPadding(layoutOptions.padding);
     var availableWidth = width - padding.width;
     var availableHeight = height - padding.height;
     var boxes = buildLayoutBoxes(chart.boxes);
@@ -9671,8 +9670,8 @@ var layouts = {
       vBoxMaxWidth: availableWidth / 2 / verticalBoxes.length,
       hBoxMaxHeight: availableHeight / 2
     });
-    var chartArea = extend$1({
-      maxPadding: extend$1({}, padding),
+    var chartArea = extend({
+      maxPadding: extend({}, padding),
       w: availableWidth,
       h: availableHeight,
       x: padding.left,
@@ -9703,9 +9702,9 @@ var layouts = {
       width: chartArea.w
     }; // Finally update boxes in chartArea (radial scale for example)
 
-    helpers.each(boxes.chartArea, function (layout) {
+    each(boxes.chartArea, function (layout) {
       var box = layout.box;
-      extend$1(box, chart.chartArea);
+      extend(box, chart.chartArea);
       box.update(chartArea.w, chartArea.h);
     });
   }
@@ -10472,14 +10471,14 @@ var pluginsCore = {
 /**
  * @method IPlugin#beforeInit
  * @desc Called before initializing `chart`.
- * @param {Chart.Controller} chart - The chart instance.
+ * @param {Chart} chart - The chart instance.
  * @param {object} options - The plugin options.
  */
 
 /**
  * @method IPlugin#afterInit
  * @desc Called after `chart` has been initialized and before the first update.
- * @param {Chart.Controller} chart - The chart instance.
+ * @param {Chart} chart - The chart instance.
  * @param {object} options - The plugin options.
  */
 
@@ -10487,7 +10486,7 @@ var pluginsCore = {
  * @method IPlugin#beforeUpdate
  * @desc Called before updating `chart`. If any plugin returns `false`, the update
  * is cancelled (and thus subsequent render(s)) until another `update` is triggered.
- * @param {Chart.Controller} chart - The chart instance.
+ * @param {Chart} chart - The chart instance.
  * @param {object} options - The plugin options.
  * @returns {boolean} `false` to cancel the chart update.
  */
@@ -10496,14 +10495,14 @@ var pluginsCore = {
  * @method IPlugin#afterUpdate
  * @desc Called after `chart` has been updated and before rendering. Note that this
  * hook will not be called if the chart update has been previously cancelled.
- * @param {Chart.Controller} chart - The chart instance.
+ * @param {Chart} chart - The chart instance.
  * @param {object} options - The plugin options.
  */
 
 /**
  * @method IPlugin#reset
  * @desc Called during chart reset
- * @param {Chart.Controller} chart - The chart instance.
+ * @param {Chart} chart - The chart instance.
  * @param {object} options - The plugin options.
  * @since version 3.0.0
  */
@@ -10512,7 +10511,7 @@ var pluginsCore = {
  * @method IPlugin#beforeDatasetsUpdate
  * @desc Called before updating the `chart` datasets. If any plugin returns `false`,
  * the datasets update is cancelled until another `update` is triggered.
- * @param {Chart.Controller} chart - The chart instance.
+ * @param {Chart} chart - The chart instance.
  * @param {object} options - The plugin options.
  * @returns {boolean} false to cancel the datasets update.
  * @since version 2.1.5
@@ -10522,7 +10521,7 @@ var pluginsCore = {
  * @method IPlugin#afterDatasetsUpdate
  * @desc Called after the `chart` datasets have been updated. Note that this hook
  * will not be called if the datasets update has been previously cancelled.
- * @param {Chart.Controller} chart - The chart instance.
+ * @param {Chart} chart - The chart instance.
  * @param {object} options - The plugin options.
  * @since version 2.1.5
  */
@@ -10554,7 +10553,7 @@ var pluginsCore = {
  * @method IPlugin#beforeLayout
  * @desc Called before laying out `chart`. If any plugin returns `false`,
  * the layout update is cancelled until another `update` is triggered.
- * @param {Chart.Controller} chart - The chart instance.
+ * @param {Chart} chart - The chart instance.
  * @param {object} options - The plugin options.
  * @returns {boolean} `false` to cancel the chart layout.
  */
@@ -10563,7 +10562,7 @@ var pluginsCore = {
  * @method IPlugin#afterLayout
  * @desc Called after the `chart` has been layed out. Note that this hook will not
  * be called if the layout update has been previously cancelled.
- * @param {Chart.Controller} chart - The chart instance.
+ * @param {Chart} chart - The chart instance.
  * @param {object} options - The plugin options.
  */
 
@@ -10571,7 +10570,7 @@ var pluginsCore = {
  * @method IPlugin#beforeRender
  * @desc Called before rendering `chart`. If any plugin returns `false`,
  * the rendering is cancelled until another `render` is triggered.
- * @param {Chart.Controller} chart - The chart instance.
+ * @param {Chart} chart - The chart instance.
  * @param {object} options - The plugin options.
  * @returns {boolean} `false` to cancel the chart rendering.
  */
@@ -10580,7 +10579,7 @@ var pluginsCore = {
  * @method IPlugin#afterRender
  * @desc Called after the `chart` has been fully rendered (and animation completed). Note
  * that this hook will not be called if the rendering has been previously cancelled.
- * @param {Chart.Controller} chart - The chart instance.
+ * @param {Chart} chart - The chart instance.
  * @param {object} options - The plugin options.
  */
 
@@ -10588,7 +10587,7 @@ var pluginsCore = {
  * @method IPlugin#beforeDraw
  * @desc Called before drawing `chart` at every animation frame. If any plugin returns `false`,
  * the frame drawing is cancelled untilanother `render` is triggered.
- * @param {Chart.Controller} chart - The chart instance.
+ * @param {Chart} chart - The chart instance.
  * @param {object} options - The plugin options.
  * @returns {boolean} `false` to cancel the chart drawing.
  */
@@ -10597,7 +10596,7 @@ var pluginsCore = {
  * @method IPlugin#afterDraw
  * @desc Called after the `chart` has been drawn. Note that this hook will not be called
  * if the drawing has been previously cancelled.
- * @param {Chart.Controller} chart - The chart instance.
+ * @param {Chart} chart - The chart instance.
  * @param {object} options - The plugin options.
  */
 
@@ -10605,7 +10604,7 @@ var pluginsCore = {
  * @method IPlugin#beforeDatasetsDraw
  * @desc Called before drawing the `chart` datasets. If any plugin returns `false`,
  * the datasets drawing is cancelled until another `render` is triggered.
- * @param {Chart.Controller} chart - The chart instance.
+ * @param {Chart} chart - The chart instance.
  * @param {object} options - The plugin options.
  * @returns {boolean} `false` to cancel the chart datasets drawing.
  */
@@ -10614,7 +10613,7 @@ var pluginsCore = {
  * @method IPlugin#afterDatasetsDraw
  * @desc Called after the `chart` datasets have been drawn. Note that this hook
  * will not be called if the datasets drawing has been previously cancelled.
- * @param {Chart.Controller} chart - The chart instance.
+ * @param {Chart} chart - The chart instance.
  * @param {object} options - The plugin options.
  */
 
@@ -10668,7 +10667,7 @@ var pluginsCore = {
  * @method IPlugin#beforeEvent
  * @desc Called before processing the specified `event`. If any plugin returns `false`,
  * the event will be discarded.
- * @param {Chart.Controller} chart - The chart instance.
+ * @param {Chart} chart - The chart instance.
  * @param {IEvent} event - The event object.
  * @param {object} options - The plugin options.
  */
@@ -10677,7 +10676,7 @@ var pluginsCore = {
  * @method IPlugin#afterEvent
  * @desc Called after the `event` has been consumed. Note that this hook
  * will not be called if the `event` has been previously discarded.
- * @param {Chart.Controller} chart - The chart instance.
+ * @param {Chart} chart - The chart instance.
  * @param {IEvent} event - The event object.
  * @param {object} options - The plugin options.
  */
@@ -10685,7 +10684,7 @@ var pluginsCore = {
 /**
  * @method IPlugin#resize
  * @desc Called after the chart as been resized.
- * @param {Chart.Controller} chart - The chart instance.
+ * @param {Chart} chart - The chart instance.
  * @param {number} size - The new canvas display size (eq. canvas.style width & height).
  * @param {object} options - The plugin options.
  */
@@ -10693,7 +10692,7 @@ var pluginsCore = {
 /**
  * @method IPlugin#destroy
  * @desc Called after the chart as been destroyed.
- * @param {Chart.Controller} chart - The chart instance.
+ * @param {Chart} chart - The chart instance.
  * @param {object} options - The plugin options.
  */
 
@@ -14656,8 +14655,8 @@ function (_LinearScaleBase) {
       var me = this;
       LinearScaleBase.prototype.generateTickLabels.call(me, ticks); // Point labels
 
-      me.pointLabels = me.chart.data.labels.map(function () {
-        var label = helpers.callback(me.options.pointLabels.callback, arguments, me);
+      me.pointLabels = me.chart.data.labels.map(function (value, index) {
+        var label = helpers.callback(me.options.pointLabels.callback, [value, index], me);
         return label || label === 0 ? label : '';
       });
     }
@@ -17461,11 +17460,11 @@ var positioners = {
   /**
    * Average mode places the tooltip at the average position of the elements shown
    * @function Chart.Tooltip.positioners.average
-   * @param elements {ChartElement[]} the elements being displayed in the tooltip
+   * @param items {object[]} the items being displayed in the tooltip
    * @returns {object} tooltip position
    */
-  average: function average(elements) {
-    if (!elements.length) {
+  average: function average(items) {
+    if (!items.length) {
       return false;
     }
 
@@ -17474,8 +17473,8 @@ var positioners = {
     var y = 0;
     var count = 0;
 
-    for (i = 0, len = elements.length; i < len; ++i) {
-      var el = elements[i].element;
+    for (i = 0, len = items.length; i < len; ++i) {
+      var el = items[i].element;
 
       if (el && el.hasValue()) {
         var pos = el.tooltipPosition();
@@ -17494,18 +17493,18 @@ var positioners = {
   /**
    * Gets the tooltip position nearest of the item nearest to the event position
    * @function Chart.Tooltip.positioners.nearest
-   * @param elements {Chart.Element[]} the tooltip elements
+   * @param items {object[]} the tooltip items
    * @param eventPosition {object} the position of the event in canvas coordinates
    * @returns {object} the tooltip position
    */
-  nearest: function nearest(elements, eventPosition) {
+  nearest: function nearest(items, eventPosition) {
     var x = eventPosition.x;
     var y = eventPosition.y;
     var minDistance = Number.POSITIVE_INFINITY;
     var i, len, nearestElement;
 
-    for (i = 0, len = elements.length; i < len; ++i) {
-      var el = elements[i].element;
+    for (i = 0, len = items.length; i < len; ++i) {
+      var el = items[i].element;
 
       if (el && el.hasValue()) {
         var center = el.getCenterPoint();
@@ -17545,8 +17544,8 @@ function pushOrConcat(base, toPush) {
 }
 /**
  * Returns array of strings split by newline
- * @param {string} str - The value to split by newline.
- * @returns {string[]} value if newline present - Returned from String split() method
+ * @param {string|undefined} str - The value to split by newline.
+ * @returns {string|string[]} value if newline present - Returned from String split() method
  * @function
  */
 
