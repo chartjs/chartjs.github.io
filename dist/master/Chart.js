@@ -16846,7 +16846,7 @@ function (_Element) {
         return;
       }
 
-      var rtlHelper = getAdapter(opts.rtl, me.left, me.minSize.width);
+      var rtlHelper = getAdapter(opts.rtl, me.left, me._minSize.width);
       var ctx = me.ctx;
       var fontColor = valueOrDefault(titleOpts.fontColor, defaults.fontColor);
       var position = titleOpts.position;
