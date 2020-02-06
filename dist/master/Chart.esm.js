@@ -4127,10 +4127,10 @@ function () {
 
         if (draw) {
           chart.draw();
+        }
 
-          if (chart.options.animation.debug) {
-            drawFPS(chart, items.length, date, me._lastDate);
-          }
+        if (chart.options.animation.debug) {
+          drawFPS(chart, items.length, date, me._lastDate);
         }
 
         me._notify(chart, anims, date, 'progress');
@@ -4279,13 +4279,16 @@ var instance = new Animator();
 
 var transparent = 'transparent';
 var interpolators = {
-  number: function number(from, to, factor) {
-    return from + (to - from) * factor;
+  "boolean": function boolean(from, to, factor) {
+    return factor > 0.5 ? to : from;
   },
   color: function color(from, to, factor) {
     var c0 = helpers.color(from || transparent);
     var c1 = c0.valid && helpers.color(to || transparent);
     return c1 && c1.valid ? c1.mix(c0, factor).rgbaString() : to;
+  },
+  number: function number(from, to, factor) {
+    return from + (to - from) * factor;
   }
 };
 
@@ -4296,25 +4299,12 @@ function () {
     _classCallCheck(this, Animation);
 
     var me = this;
-    var from = cfg.from;
-
-    if (from === undefined) {
-      from = target[prop];
-    }
-
-    if (to === undefined) {
-      to = target[prop];
-    }
-
-    if (from === undefined) {
-      from = to;
-    } else if (to === undefined) {
-      to = from;
-    }
-
+    var currentValue = target[prop];
+    to = resolve([cfg.to, to, currentValue, cfg.from]);
+    var from = resolve([cfg.from, currentValue, to]);
     me._active = true;
     me._fn = cfg.fn || interpolators[cfg.type || _typeof(from)];
-    me._easing = helpers.easing.effects[cfg.easing || 'linear'];
+    me._easing = effects[cfg.easing || 'linear'];
     me._start = Math.floor(Date.now() + (cfg.delay || 0));
     me._duration = Math.floor(cfg.duration);
     me._loop = !!cfg.loop;
@@ -4373,25 +4363,55 @@ function () {
   return Animation;
 }();
 
+var numbers = ['x', 'y', 'borderWidth', 'radius', 'tension'];
+var colors = ['borderColor', 'backgroundColor'];
+
 defaults._set('animation', {
+  // Plain properties can be overridden in each object
   duration: 1000,
   easing: 'easeOutQuart',
+  onProgress: noop,
+  onComplete: noop,
+  // Property sets
+  colors: {
+    type: 'color',
+    properties: colors
+  },
+  numbers: {
+    type: 'number',
+    properties: numbers
+  },
+  // Update modes. These are overrides / additions to the above animations.
   active: {
     duration: 400
   },
   resize: {
     duration: 0
   },
-  numbers: {
-    type: 'number',
-    properties: ['x', 'y', 'borderWidth', 'radius', 'tension']
+  show: {
+    colors: {
+      type: 'color',
+      properties: colors,
+      from: 'transparent'
+    },
+    visible: {
+      type: 'boolean',
+      duration: 0 // show immediately
+
+    }
   },
-  colors: {
-    type: 'color',
-    properties: ['borderColor', 'backgroundColor']
-  },
-  onProgress: noop,
-  onComplete: noop
+  hide: {
+    colors: {
+      type: 'color',
+      properties: colors,
+      to: 'transparent'
+    },
+    visible: {
+      type: 'boolean',
+      easing: 'easeInExpo' // for keeping the dataset visible almost all the way through the animation
+
+    }
+  }
 });
 
 function copyOptions(target, values) {
@@ -4526,18 +4546,18 @@ function () {
         }
 
         var value = values[prop];
+        var animation = running[prop];
+
+        if (animation) {
+          animation.cancel();
+        }
+
         var cfg = animatedProps.get(prop);
 
         if (!cfg || !cfg.duration) {
           // not animated, set directly to new value
           target[prop] = value;
           continue;
-        }
-
-        var animation = running[prop];
-
-        if (animation) {
-          animation.cancel();
         }
 
         running[prop] = animation = new Animation(cfg, target, prop, value);
@@ -5630,12 +5650,8 @@ function () {
       var chartAnim = resolve$1([chart.options.animation], context, index, info);
       var config = helpers.mergeIf({}, [datasetAnim, chartAnim]);
 
-      if (active && config.active) {
-        config = helpers.extend({}, config, config.active);
-      }
-
-      if (mode === 'resize' && config.resize) {
-        config = helpers.extend({}, config, config.resize);
+      if (config[mode]) {
+        config = helpers.extend({}, config, config[mode]);
       }
 
       var animations = new Animations(chart, config);
@@ -5674,6 +5690,10 @@ function () {
   }, {
     key: "_includeOptions",
     value: function _includeOptions(mode, sharedOptions) {
+      if (mode === 'hide' || mode === 'show') {
+        return true;
+      }
+
       return mode !== 'resize' && !sharedOptions;
     }
     /**
@@ -6419,8 +6439,8 @@ function (_DatasetController) {
     key: "update",
     value: function update(mode) {
       var me = this;
-      var rects = me._cachedMeta.data;
-      me.updateElements(rects, 0, mode);
+      var meta = me._cachedMeta;
+      me.updateElements(meta.data, 0, mode);
     }
   }, {
     key: "updateElements",
@@ -8435,9 +8455,7 @@ function (_DatasetController) {
       } // Update Points
 
 
-      if (meta.visible) {
-        me.updateElements(points, 0, mode);
-      }
+      me.updateElements(points, 0, mode);
     }
   }, {
     key: "updateElements",
@@ -11518,13 +11536,16 @@ function () {
     key: "updateDatasets",
     value: function updateDatasets(mode) {
       var me = this;
+      var isFunction = typeof mode === 'function';
 
       if (pluginsCore.notify(me, 'beforeDatasetsUpdate') === false) {
         return;
       }
 
       for (var i = 0, ilen = me.data.datasets.length; i < ilen; ++i) {
-        me.updateDataset(i, mode);
+        me.updateDataset(i, isFunction ? mode({
+          datesetIndex: i
+        }) : mode);
       }
 
       pluginsCore.notify(me, 'afterDatasetsUpdate');
@@ -11798,6 +11819,38 @@ function () {
       if (meta.data[index]) {
         meta.data[index].hidden = !visible;
       }
+    }
+    /**
+     * @private
+     */
+
+  }, {
+    key: "_updateDatasetVisibility",
+    value: function _updateDatasetVisibility(datasetIndex, visible) {
+      var me = this;
+      var mode = visible ? 'show' : 'hide';
+      var meta = me.getDatasetMeta(datasetIndex);
+
+      var anims = meta.controller._resolveAnimations(undefined, mode);
+
+      me.setDatasetVisibility(datasetIndex, visible); // Animate visible state, so hide animation can be seen. This could be handled better if update / updateDataset returned a Promise.
+
+      anims.update(meta, {
+        visible: visible
+      });
+      me.update(function (ctx) {
+        return ctx.datasetIndex === datasetIndex ? mode : undefined;
+      });
+    }
+  }, {
+    key: "hide",
+    value: function hide(datasetIndex) {
+      this._updateDatasetVisibility(datasetIndex, false);
+    }
+  }, {
+    key: "show",
+    value: function show(datasetIndex) {
+      this._updateDatasetVisibility(datasetIndex, true);
     }
     /**
      * @private
@@ -12556,6 +12609,10 @@ function (_Element) {
         max: max
       };
     }
+    /**
+     * @private
+    	 */
+
   }, {
     key: "_invalidateCaches",
     value: function _invalidateCaches() {}
@@ -13373,8 +13430,8 @@ function (_Element) {
         });
       }
 
-      items.ticksLength = ticksLength;
-      items.borderValue = borderValue;
+      me._ticksLength = ticksLength;
+      me._borderValue = borderValue;
       return items;
     }
     /**
@@ -13528,10 +13585,10 @@ function (_Element) {
         var firstLineWidth = axisWidth;
         context = {
           scale: me,
-          tick: me.ticks[items.ticksLength - 1]
+          tick: me.ticks[me._ticksLength - 1]
         };
-        var lastLineWidth = resolve([gridLines.lineWidth, 1], context, items.ticksLength - 1);
-        var borderValue = items.borderValue;
+        var lastLineWidth = resolve([gridLines.lineWidth, 1], context, me._ticksLength - 1);
+        var borderValue = me._borderValue;
         var x1, x2, y1, y2;
 
         if (me.isHorizontal()) {
@@ -13772,6 +13829,10 @@ function (_Element) {
 
       return result;
     }
+    /**
+     * @private
+    	 */
+
   }, {
     key: "_resolveTickFontOptions",
     value: function _resolveTickFontOptions(index) {
@@ -16551,11 +16612,14 @@ defaults._set('legend', {
   onClick: function onClick(e, legendItem) {
     var index = legendItem.datasetIndex;
     var ci = this.chart;
-    var meta = ci.getDatasetMeta(index); // See controller.isDatasetVisible comment
 
-    meta.hidden = meta.hidden === null ? !ci.data.datasets[index].hidden : null; // We hid a dataset ... rerender the chart
-
-    ci.update();
+    if (ci.isDatasetVisible(index)) {
+      ci.hide(index);
+      legendItem.hidden = true;
+    } else {
+      ci.show(index);
+      legendItem.hidden = false;
+    }
   },
   onHover: null,
   onLeave: null,
