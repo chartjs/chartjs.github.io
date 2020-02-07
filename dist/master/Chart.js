@@ -144,6 +144,36 @@ function _possibleConstructorReturn(self, call) {
   return _assertThisInitialized(self);
 }
 
+function _superPropBase(object, property) {
+  while (!Object.prototype.hasOwnProperty.call(object, property)) {
+    object = _getPrototypeOf(object);
+    if (object === null) break;
+  }
+
+  return object;
+}
+
+function _get(target, property, receiver) {
+  if (typeof Reflect !== "undefined" && Reflect.get) {
+    _get = Reflect.get;
+  } else {
+    _get = function _get(target, property, receiver) {
+      var base = _superPropBase(target, property);
+
+      if (!base) return;
+      var desc = Object.getOwnPropertyDescriptor(base, property);
+
+      if (desc.get) {
+        return desc.get.call(receiver);
+      }
+
+      return desc.value;
+    };
+  }
+
+  return _get(target, property, receiver || target);
+}
+
 function _toConsumableArray(arr) {
   return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread();
 }
@@ -2319,7 +2349,7 @@ function isObject(value) {
  */
 
 var isNumberFinite = function isNumberFinite(value) {
-  return (typeof value === 'number' || value instanceof Number) && isFinite(value);
+  return (typeof value === 'number' || value instanceof Number) && isFinite(+value);
 };
 /**
  * Returns `value` if defined, else returns `defaultValue`.
@@ -2426,6 +2456,7 @@ function arrayEquals(a0, a1) {
  * @param {Array} a0 - The array to compare
  * @param {Array} a1 - The array to compare
  * @returns {boolean}
+ * @private
  */
 
 function _elementsEqual(a0, a1) {
@@ -2596,6 +2627,10 @@ function inherits(extensions) {
   ChartElement.__super__ = me.prototype;
   return ChartElement;
 }
+/**
+ * @private
+ */
+
 function _deprecated(scope, value, previous, current) {
   if (value !== undefined) {
     console.warn(scope + ': "' + previous + '" is deprecated. Please use "' + current + '" instead');
@@ -2625,6 +2660,10 @@ extend: extend,
 inherits: inherits,
 _deprecated: _deprecated
 });
+
+/**
+ * @typedef { import("../core/core.controller").default } Chart
+ */
 
 var PI = Math.PI;
 var RAD_PER_DEG = PI / 180;
@@ -2892,7 +2931,7 @@ function _steppedLineTo(ctx, previous, target, flip, mode) {
     var midpoint = (previous.x + target.x) / 2.0;
     ctx.lineTo(midpoint, previous.y);
     ctx.lineTo(midpoint, target.y);
-  } else if (mode === 'after' ^ flip) {
+  } else if (mode === 'after' !== !!flip) {
     ctx.lineTo(previous.x, target.y);
   } else {
     ctx.lineTo(target.x, previous.y);
@@ -2980,6 +3019,10 @@ function almostWhole(x, epsilon) {
   var rounded = Math.round(x);
   return rounded - epsilon <= x && rounded + epsilon >= x;
 }
+/**
+ * @private
+ */
+
 function _setMinAndMaxByKey(array, target, property) {
   var i, ilen, value;
 
@@ -3273,6 +3316,10 @@ function capBezierPoints(points, area) {
     }
   }
 }
+/**
+ * @private
+ */
+
 
 function _updateBezierControlPoints(points, options, area, loop) {
   var i, ilen, point, controlPoints; // Only consider points that are drawn in case the spanGaps option is used
@@ -3974,9 +4021,7 @@ var overrideTextDirection = function overrideTextDirection(ctx, direction) {
   }
 };
 
-var restoreTextDirection = function restoreTextDirection(ctx) {
-  var original = ctx.prevTextDirection;
-
+var restoreTextDirection = function restoreTextDirection(ctx, original) {
   if (original !== undefined) {
     delete ctx.prevTextDirection;
     ctx.canvas.style.setProperty('direction', original[0], original[1]);
@@ -4028,6 +4073,10 @@ var helpers = _objectSpread2({}, coreHelpers, {
   }
 });
 
+/**
+ * @typedef { import("./core.controller").default } Chart
+ */
+
 function drawFPS(chart, count, date, lastDate) {
   var fps = 1000 / (date - lastDate) | 0;
   var ctx = chart.ctx;
@@ -4053,6 +4102,7 @@ function () {
     this._request = null;
     this._charts = new Map();
     this._running = false;
+    this._lastDate = undefined;
   }
   /**
    * @private
@@ -4304,20 +4354,19 @@ function () {
   function Animation(cfg, target, prop, to) {
     _classCallCheck(this, Animation);
 
-    var me = this;
     var currentValue = target[prop];
     to = resolve([cfg.to, to, currentValue, cfg.from]);
     var from = resolve([cfg.from, currentValue, to]);
-    me._active = true;
-    me._fn = cfg.fn || interpolators[cfg.type || _typeof(from)];
-    me._easing = effects[cfg.easing || 'linear'];
-    me._start = Math.floor(Date.now() + (cfg.delay || 0));
-    me._duration = Math.floor(cfg.duration);
-    me._loop = !!cfg.loop;
-    me._target = target;
-    me._prop = prop;
-    me._from = from;
-    me._to = to;
+    this._active = true;
+    this._fn = cfg.fn || interpolators[cfg.type || _typeof(from)];
+    this._easing = effects[cfg.easing || 'linear'];
+    this._start = Math.floor(Date.now() + (cfg.delay || 0));
+    this._duration = Math.floor(cfg.duration);
+    this._loop = !!cfg.loop;
+    this._target = target;
+    this._prop = prop;
+    this._from = from;
+    this._to = to;
   }
 
   _createClass(Animation, [{
@@ -4839,25 +4888,31 @@ function getFirstScaleId(chart, axis) {
 var DatasetController =
 /*#__PURE__*/
 function () {
-  /** Base class for all dataset controllers (line, bar, etc) */
   function DatasetController(chart, datasetIndex) {
     _classCallCheck(this, DatasetController);
 
-    this.initialize(chart, datasetIndex);
+    this.chart = chart;
+    this._ctx = chart.ctx;
+    this.index = datasetIndex;
+    this._cachedAnimations = {};
+    this._cachedDataOpts = {};
+    this._cachedMeta = this.getMeta();
+    this._type = this._cachedMeta.type;
+    this._config = undefined;
+    this._parsing = false;
+    this._data = undefined;
+    this._dataCopy = undefined;
+    this._objectData = undefined;
+    this._labels = undefined;
+    this._scaleStacked = {};
+    this.initialize();
   }
 
   _createClass(DatasetController, [{
     key: "initialize",
-    value: function initialize(chart, datasetIndex) {
+    value: function initialize() {
       var me = this;
-      var meta;
-      me.chart = chart;
-      me._ctx = chart.ctx;
-      me.index = datasetIndex;
-      me._cachedAnimations = {};
-      me._cachedDataOpts = {};
-      me._cachedMeta = meta = me.getMeta();
-      me._type = meta.type;
+      var meta = me._cachedMeta;
 
       me._configure();
 
@@ -5410,6 +5465,7 @@ function () {
       return !cache || !iScale || !vScale || cache[iScale.id] !== iScale.options.stacked || cache[vScale.id] !== vScale.options.stacked;
     }
     /**
+     * @return {number|boolean}
      * @private
      */
 
@@ -5481,6 +5537,10 @@ function () {
         elements[i].draw(ctx);
       }
     }
+    /**
+     * @private
+     */
+
   }, {
     key: "_addAutomaticHoverColors",
     value: function _addAutomaticHoverColors(index, options) {
@@ -5503,7 +5563,7 @@ function () {
      * or the data if the index is specified
      * @param {number} index - data index
      * @param {boolean} [active] - true if hover
-     * @return {IStyleInterface} style object
+     * @return {object} style object
      */
 
   }, {
@@ -5525,6 +5585,10 @@ function () {
 
       return options;
     }
+    /**
+     * @private
+     */
+
   }, {
     key: "_getContext",
     value: function _getContext(index, active) {
@@ -5545,7 +5609,8 @@ function () {
     value: function _resolveDatasetElementOptions(active) {
       var me = this;
       var chart = me.chart;
-      var datasetOpts = me._config;
+      var datasetOpts = me._config; // @ts-ignore
+
       var options = chart.options.elements[me.datasetElementType.prototype._type] || {};
       var elementOptions = me._datasetElementOptions;
       var values = {};
@@ -5582,7 +5647,8 @@ function () {
       }
 
       var chart = me.chart;
-      var datasetOpts = me._config;
+      var datasetOpts = me._config; // @ts-ignore
+
       var options = chart.options.elements[me.dataElementType.prototype._type] || {};
       var elementOptions = me._dataElementOptions;
       var values = {};
@@ -5835,6 +5901,10 @@ function () {
 
       me.updateElements(elements, start, 'reset');
     }
+  }, {
+    key: "updateElements",
+    value: function updateElements(element, start, mode) {} // eslint-disable-line no-unused-vars
+
     /**
      * @private
      */
@@ -5903,46 +5973,51 @@ function () {
 }();
 
 DatasetController.extend = helpers.inherits;
-DatasetController.extend({
-  /**
-   * Element type used to generate a meta dataset (e.g. Chart.element.Line).
-   * @type {Chart.core.element}
-   */
-  datasetElementType: null,
+/**
+ * Element type used to generate a meta dataset (e.g. Chart.element.Line).
+ */
 
-  /**
-   * Element type used to generate a meta data (e.g. Chart.element.Point).
-   * @type {Chart.core.element}
-   */
-  dataElementType: null,
+DatasetController.prototype.datasetElementType = null;
+/**
+ * Element type used to generate a meta data (e.g. Chart.element.Point).
+ */
 
-  /**
-   * Dataset element option keys to be resolved in _resolveDatasetElementOptions.
-   * A derived controller may override this to resolve controller-specific options.
-   * The keys defined here are for backward compatibility for legend styles.
-   * @private
-   */
-  _datasetElementOptions: ['backgroundColor', 'borderCapStyle', 'borderColor', 'borderDash', 'borderDashOffset', 'borderJoinStyle', 'borderWidth'],
+DatasetController.prototype.dataElementType = null;
+/**
+ * Dataset element option keys to be resolved in _resolveDatasetElementOptions.
+ * A derived controller may override this to resolve controller-specific options.
+ * The keys defined here are for backward compatibility for legend styles.
+ * @type {string[]}
+ * @private
+ */
 
-  /**
-   * Data element option keys to be resolved in _resolveDataElementOptions.
-   * A derived controller may override this to resolve controller-specific options.
-   * The keys defined here are for backward compatibility for legend styles.
-   * @private
-   */
-  _dataElementOptions: ['backgroundColor', 'borderColor', 'borderWidth', 'pointStyle']
-});
+DatasetController.prototype._datasetElementOptions = ['backgroundColor', 'borderCapStyle', 'borderColor', 'borderDash', 'borderDashOffset', 'borderJoinStyle', 'borderWidth'];
+/**
+ * Data element option keys to be resolved in _resolveDataElementOptions.
+ * A derived controller may override this to resolve controller-specific options.
+ * The keys defined here are for backward compatibility for legend styles.
+ * @type {string[]|object}
+ * @private
+ */
+
+DatasetController.prototype._dataElementOptions = ['backgroundColor', 'borderColor', 'borderWidth', 'pointStyle'];
 
 var Element =
 /*#__PURE__*/
 function () {
-  function Element(configuration) {
+  /**
+   * @param {object} [cfg] optional configuration
+   */
+  function Element(cfg) {
     _classCallCheck(this, Element);
 
-    if (configuration) {
-      extend(this, configuration);
-    } // this.hidden = false; we assume Element has an attribute called hidden, but do not initialize to save memory
+    this.x = undefined;
+    this.y = undefined;
+    this.hidden = undefined;
 
+    if (cfg) {
+      extend(this, cfg);
+    }
   }
 
   _createClass(Element, [{
@@ -6091,10 +6166,23 @@ var Rectangle =
 function (_Element) {
   _inherits(Rectangle, _Element);
 
-  function Rectangle(props) {
+  function Rectangle(cfg) {
+    var _this;
+
     _classCallCheck(this, Rectangle);
 
-    return _possibleConstructorReturn(this, _getPrototypeOf(Rectangle).call(this, props));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(Rectangle).call(this));
+    _this.options = undefined;
+    _this.horizontal = undefined;
+    _this.base = undefined;
+    _this.width = undefined;
+    _this.height = undefined;
+
+    if (cfg) {
+      extend(_assertThisInitialized(_this), cfg);
+    }
+
+    return _this;
   }
 
   _createClass(Rectangle, [{
@@ -6724,10 +6812,21 @@ var Point =
 function (_Element) {
   _inherits(Point, _Element);
 
-  function Point(props) {
+  function Point(cfg) {
+    var _this;
+
     _classCallCheck(this, Point);
 
-    return _possibleConstructorReturn(this, _getPrototypeOf(Point).call(this, props));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(Point).call(this));
+    _this.options = undefined;
+    _this.skip = undefined;
+    _this.stop = undefined;
+
+    if (cfg) {
+      extend(_assertThisInitialized(_this), cfg);
+    }
+
+    return _this;
   }
 
   _createClass(Point, [{
@@ -6977,7 +7076,7 @@ function (_DatasetController) {
 
       var parsed = me._getParsed(index);
 
-      var values = DatasetController.prototype._resolveDataElementOptions.apply(me, arguments); // Scriptable options
+      var values = _get(_getPrototypeOf(BubbleController.prototype), "_resolveDataElementOptions", this).apply(me, arguments); // Scriptable options
 
 
       var context = {
@@ -7113,10 +7212,24 @@ var Arc =
 function (_Element) {
   _inherits(Arc, _Element);
 
-  function Arc(props) {
+  function Arc(cfg) {
+    var _this;
+
     _classCallCheck(this, Arc);
 
-    return _possibleConstructorReturn(this, _getPrototypeOf(Arc).call(this, props));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(Arc).call(this));
+    _this.options = undefined;
+    _this.circumference = undefined;
+    _this.startAngle = undefined;
+    _this.endAngle = undefined;
+    _this.innerRadius = undefined;
+    _this.outerRadius = undefined;
+
+    if (cfg) {
+      extend(_assertThisInitialized(_this), cfg);
+    }
+
+    return _this;
   }
 
   _createClass(Arc, [{
@@ -7318,9 +7431,14 @@ function (_DatasetController) {
   _inherits(DoughnutController, _DatasetController);
 
   function DoughnutController(chart, datasetIndex) {
+    var _this;
+
     _classCallCheck(this, DoughnutController);
 
-    return _possibleConstructorReturn(this, _getPrototypeOf(DoughnutController).call(this, chart, datasetIndex));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(DoughnutController).call(this, chart, datasetIndex));
+    _this.innerRadius = undefined;
+    _this.outerRadius = undefined;
+    return _this;
   }
 
   _createClass(DoughnutController, [{
@@ -7664,7 +7782,8 @@ function (_BarController) {
  * @private
  */
 
-function _pointInLine(p1, p2, t) {
+function _pointInLine(p1, p2, t, mode) {
+  // eslint-disable-line no-unused-vars
   return {
     x: p1.x + t * (p2.x - p1.x),
     y: p1.y + t * (p2.y - p1.y)
@@ -7684,7 +7803,8 @@ function _steppedInterpolation(p1, p2, t, mode) {
  * @private
  */
 
-function _bezierInterpolation(p1, p2, t) {
+function _bezierInterpolation(p1, p2, t, mode) {
+  // eslint-disable-line no-unused-vars
   var cp1 = {
     x: p1.controlPointNextX,
     y: p1.controlPointNextY
@@ -7706,6 +7826,14 @@ function _bezierInterpolation(p1, p2, t) {
 
   return _pointInLine(d, e, t);
 }
+
+/**
+ * @typedef { import("../elements/element.line").default } Line
+ */
+
+/**
+ * @typedef { import("../elements/element.point").default } Point
+ */
 
 function propertyFn(property) {
   if (property === 'angle') {
@@ -8012,6 +8140,10 @@ function _computeSegments(line) {
   return solidSegments(points, start, max, completeLoop);
 }
 
+/**
+ * @typedef { import("./element.point").default } Point
+ */
+
 var defaultColor$2 = defaults.color;
 
 defaults._set('elements', {
@@ -8201,6 +8333,10 @@ function _getSegmentMethod(line) {
   var useFastPath = !line._loop && !opts.tension && !opts.steppedLine && !borderDash;
   return useFastPath ? fastPathSegment : pathSegment;
 }
+/**
+ * @private
+ */
+
 
 function _getInterpolationMethod(options) {
   if (options.steppedLine) {
@@ -8219,10 +8355,24 @@ var Line =
 function (_Element) {
   _inherits(Line, _Element);
 
-  function Line(props) {
+  function Line(cfg) {
+    var _this;
+
     _classCallCheck(this, Line);
 
-    return _possibleConstructorReturn(this, _getPrototypeOf(Line).call(this, props));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(Line).call(this));
+    _this.options = undefined;
+    _this._loop = undefined;
+    _this._fullLoop = undefined;
+    _this._controlPointsUpdated = undefined;
+    _this._points = undefined;
+    _this._segments = undefined;
+
+    if (cfg) {
+      extend(_assertThisInitialized(_this), cfg);
+    }
+
+    return _this;
   }
 
   _createClass(Line, [{
@@ -8344,15 +8494,12 @@ function (_Element) {
     /**
      * Append all segments of this line to current path.
      * @param {CanvasRenderingContext2D} ctx
-     * @param {object} params
-     * @param {object} params.move - move to starting point (vs line to it)
-     * @param {object} params.reverse - path the segment from end to start
      * @returns {undefined|boolean} - true if line is a full loop (path should be closed)
      */
 
   }, {
     key: "path",
-    value: function path(ctx, params) {
+    value: function path(ctx) {
       var me = this;
       var segments = me.segments;
       var ilen = segments.length;
@@ -8362,7 +8509,7 @@ function (_Element) {
       var loop = me._loop;
 
       for (var i = 0; i < ilen; ++i) {
-        loop &= segmentMethod(ctx, me, segments[i], params);
+        loop &= segmentMethod(ctx, me, segments[i]);
       }
 
       return !!loop;
@@ -8435,9 +8582,13 @@ function (_DatasetController) {
   _inherits(LineController, _DatasetController);
 
   function LineController(chart, datasetIndex) {
+    var _this;
+
     _classCallCheck(this, LineController);
 
-    return _possibleConstructorReturn(this, _getPrototypeOf(LineController).call(this, chart, datasetIndex));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(LineController).call(this, chart, datasetIndex));
+    _this._showLine = undefined;
+    return _this;
   }
 
   _createClass(LineController, [{
@@ -8701,9 +8852,14 @@ function (_DatasetController) {
   _inherits(PolarAreaController, _DatasetController);
 
   function PolarAreaController(chart, datasetIndex) {
+    var _this;
+
     _classCallCheck(this, PolarAreaController);
 
-    return _possibleConstructorReturn(this, _getPrototypeOf(PolarAreaController).call(this, chart, datasetIndex));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(PolarAreaController).call(this, chart, datasetIndex));
+    _this.innerRadius = undefined;
+    _this.outerRadius = undefined;
+    return _this;
   }
   /**
    * @private
@@ -8986,7 +9142,7 @@ function (_DatasetController) {
       var config = me._config;
       var options = me.chart.options;
 
-      var values = DatasetController.prototype._resolveDatasetElementOptions.apply(me, arguments);
+      var values = _get(_getPrototypeOf(RadarController.prototype), "_resolveDatasetElementOptions", this).apply(me, arguments);
 
       values.spanGaps = valueOrDefault(config.spanGaps, options.spanGaps);
       values.tension = valueOrDefault(config.lineTension, options.elements.line.tension);
@@ -9003,7 +9159,7 @@ RadarController.prototype.dataElementType = Point;
  * @private
  */
 
-RadarController.prototype._datasetElementOptions = ['backgroundColor', 'borderWidth', 'borderColor', 'borderCapStyle', 'borderDash', 'borderDashOffset', 'borderJoinStyle', 'fill'];
+RadarController.prototype._datasetElementOptions = ['backgroundColor', 'borderColor', 'borderCapStyle', 'borderDash', 'borderDashOffset', 'borderJoinStyle', 'borderWidth', 'fill'];
 /**
  * @private
  */
@@ -9148,6 +9304,14 @@ function _rlookupByKey(table, key, value) {
 }
 
 /**
+ * @typedef { import("./core.controller").default } Chart
+ */
+
+/**
+ * @typedef { import("../platform/platform.base").IEvent } IEvent
+ */
+
+/**
  * Helper function to get relative position for an event
  * @param {Event|IEvent} e - The event to get the position for
  * @param {Chart} chart - The chart
@@ -9155,7 +9319,7 @@ function _rlookupByKey(table, key, value) {
  */
 
 function getRelativePosition$1(e, chart) {
-  if (e["native"]) {
+  if ('native' in e) {
     return {
       x: e.x,
       y: e.y
@@ -9362,6 +9526,7 @@ function getNearestItems(chart, position, axis, intersect) {
 }
 /**
  * @interface IInteractionOptions
+ * @typedef {object} IInteractionOptions
  */
 
 /**
@@ -9545,6 +9710,10 @@ var Interaction = {
     }
   }
 };
+
+/**
+ * @typedef { import("./core.controller").default } Chart
+ */
 
 var STATIC_POSITIONS = ['left', 'top', 'right', 'bottom'];
 
@@ -9754,13 +9923,15 @@ defaults._set('layout', {
 });
 /**
  * @interface ILayoutItem
+ * @typedef {object} ILayoutItem
  * @prop {string} position - The position of the item in the chart layout. Possible values are
  * 'left', 'top', 'right', 'bottom', and 'chartArea'
  * @prop {number} weight - The weight used to sort the item. Higher weights are further away from the chart area
  * @prop {boolean} fullWidth - if true, and the item is horizontal, then push vertical boxes down
  * @prop {function} isHorizontal - returns true if the layout item is horizontal (ie. top or bottom)
  * @prop {function} update - Takes two parameters: width and height. Returns size of item
- * @prop {function} getPadding -  Returns an object with padding on the edges
+ * @prop {function} draw - Draws the element
+ * @prop {function} [getPadding] -  Returns an object with padding on the edges
  * @prop {number} width - Width of item. Must be valid after update()
  * @prop {number} height - Height of item. Must be valid after update()
  * @prop {number} left - Left edge of the item. Set by layout system and cannot be used in update
@@ -9790,7 +9961,7 @@ var layouts = {
 
     item.fullWidth = item.fullWidth || false;
     item.position = item.position || 'top';
-    item.weight = item.weight || 0;
+    item.weight = item.weight || 0; // @ts-ignore
 
     item._layers = item._layers || function () {
       return [{
@@ -9943,7 +10114,7 @@ function () {
   /**
    * Called at chart construction time, returns a context2d instance implementing
    * the [W3C Canvas 2D Context API standard]{@link https://www.w3.org/TR/2dcontext/}.
-   * @param {canvas} canvas - The canvas from which to acquire context (platform specific)
+   * @param {HTMLCanvasElement} canvas - The canvas from which to acquire context (platform specific)
    * @param {object} options - The chart options
    * @returns {CanvasRenderingContext2D} context2d instance
    */
@@ -9951,8 +10122,10 @@ function () {
 
   _createClass(BasePlatform, [{
     key: "acquireContext",
-    value: function acquireContext(canvas, options) {} // eslint-disable-line no-unused-vars
-
+    value: function acquireContext(canvas, options) {
+      // eslint-disable-line no-unused-vars
+      return undefined;
+    }
     /**
      * Called at chart destruction time, releases any resources associated to the context
      * previously returned by the acquireContext() method.
@@ -9962,8 +10135,10 @@ function () {
 
   }, {
     key: "releaseContext",
-    value: function releaseContext(context) {} // eslint-disable-line no-unused-vars
-
+    value: function releaseContext(context) {
+      // eslint-disable-line no-unused-vars
+      return false;
+    }
     /**
      * Registers the specified listener on the given chart.
      * @param {Chart} chart - Chart from which to listen for event
@@ -10035,11 +10210,11 @@ function (_BasePlatform) {
   return BasicPlatform;
 }(BasePlatform);
 
-var stylesheet = "/*\n * DOM element rendering detection\n * https://davidwalsh.name/detect-node-insertion\n */\n@keyframes chartjs-render-animation {\n\tfrom { opacity: 0.99; }\n\tto { opacity: 1; }\n}\n\n.chartjs-render-monitor {\n\tanimation: chartjs-render-animation 0.001s;\n}\n\n/*\n * DOM element resizing detection\n * https://github.com/marcj/css-element-queries\n */\n.chartjs-size-monitor,\n.chartjs-size-monitor-expand,\n.chartjs-size-monitor-shrink {\n\tposition: absolute;\n\tdirection: ltr;\n\tleft: 0;\n\ttop: 0;\n\tright: 0;\n\tbottom: 0;\n\toverflow: hidden;\n\tpointer-events: none;\n\tvisibility: hidden;\n\tz-index: -1;\n}\n\n.chartjs-size-monitor-expand > div {\n\tposition: absolute;\n\twidth: 1000000px;\n\theight: 1000000px;\n\tleft: 0;\n\ttop: 0;\n}\n\n.chartjs-size-monitor-shrink > div {\n\tposition: absolute;\n\twidth: 200%;\n\theight: 200%;\n\tleft: 0;\n\ttop: 0;\n}\n";
-
 var platform = {
   disableCSSInjection: false
 };
+
+var stylesheet = "/*\n * DOM element rendering detection\n * https://davidwalsh.name/detect-node-insertion\n */\n@keyframes chartjs-render-animation {\n\tfrom { opacity: 0.99; }\n\tto { opacity: 1; }\n}\n\n.chartjs-render-monitor {\n\tanimation: chartjs-render-animation 0.001s;\n}\n\n/*\n * DOM element resizing detection\n * https://github.com/marcj/css-element-queries\n */\n.chartjs-size-monitor,\n.chartjs-size-monitor-expand,\n.chartjs-size-monitor-shrink {\n\tposition: absolute;\n\tdirection: ltr;\n\tleft: 0;\n\ttop: 0;\n\tright: 0;\n\tbottom: 0;\n\toverflow: hidden;\n\tpointer-events: none;\n\tvisibility: hidden;\n\tz-index: -1;\n}\n\n.chartjs-size-monitor-expand > div {\n\tposition: absolute;\n\twidth: 1000000px;\n\theight: 1000000px;\n\tleft: 0;\n\ttop: 0;\n}\n\n.chartjs-size-monitor-shrink > div {\n\tposition: absolute;\n\twidth: 200%;\n\theight: 200%;\n\tleft: 0;\n\ttop: 0;\n}\n";
 
 /**
  * Chart.Platform implementation for targeting a web browser
@@ -10215,7 +10390,7 @@ function createDiv(cls) {
 } // Implementation based on https://github.com/marcj/css-element-queries
 
 
-function createResizer(handler) {
+function createResizer(domPlatform, handler) {
   var maxSize = 1000000; // NOTE(SB) Don't use innerHTML because it could be considered unsafe.
   // https://github.com/chartjs/Chart.js/issues/5902
 
@@ -10227,7 +10402,7 @@ function createResizer(handler) {
   resizer.appendChild(expand);
   resizer.appendChild(shrink);
 
-  resizer._reset = function () {
+  domPlatform._reset = function () {
     expand.scrollLeft = maxSize;
     expand.scrollTop = maxSize;
     shrink.scrollLeft = maxSize;
@@ -10235,7 +10410,7 @@ function createResizer(handler) {
   };
 
   var onScroll = function onScroll() {
-    resizer._reset();
+    domPlatform._reset();
 
     handler();
   };
@@ -10281,10 +10456,10 @@ function unwatchForRender(node) {
   node.classList.remove(CSS_RENDER_MONITOR);
 }
 
-function addResizeListener(node, listener, chart) {
+function addResizeListener(node, listener, chart, domPlatform) {
   var expando = node[EXPANDO_KEY] || (node[EXPANDO_KEY] = {}); // Let's keep track of this added resizer and thus avoid DOM query when removing it.
 
-  var resizer = expando.resizer = createResizer(throttled(function () {
+  var resizer = expando.resizer = createResizer(domPlatform, throttled(function () {
     if (expando.resizer) {
       var container = chart.options.maintainAspectRatio && node.parentNode;
       var w = container ? container.clientWidth : 0;
@@ -10313,7 +10488,7 @@ function addResizeListener(node, listener, chart) {
       } // The container size might have changed, let's reset the resizer state.
 
 
-      resizer._reset();
+      domPlatform._reset();
     }
   });
 }
@@ -10330,7 +10505,7 @@ function removeResizeListener(node) {
 }
 /**
  * Injects CSS styles inline if the styles are not already present.
- * @param {HTMLDocument|ShadowRoot} rootNode - the node to contain the <style>.
+ * @param {Node} rootNode - the HTMLDocument|ShadowRoot node to contain the <style>.
  * @param {string} css - the CSS to be injected.
  */
 
@@ -10393,7 +10568,8 @@ function (_BasePlatform) {
         // If the canvas is in a shadow DOM, then the styles must also be inserted
         // into the same shadow DOM.
         // https://github.com/chartjs/Chart.js/issues/5763
-        var root = canvas.getRootNode ? canvas.getRootNode() : document;
+        var root = canvas.getRootNode ? canvas.getRootNode() : document; // @ts-ignore
+
         var targetNode = root.host ? root : document.head;
         injectCSS(targetNode, stylesheet);
       }
@@ -10429,7 +10605,7 @@ function (_BasePlatform) {
       var canvas = context.canvas;
 
       if (!canvas[EXPANDO_KEY]) {
-        return;
+        return false;
       }
 
       var initial = canvas[EXPANDO_KEY].initial;
@@ -10453,6 +10629,7 @@ function (_BasePlatform) {
 
       canvas.width = canvas.width;
       delete canvas[EXPANDO_KEY];
+      return true;
     }
   }, {
     key: "addEventListener",
@@ -10461,7 +10638,7 @@ function (_BasePlatform) {
 
       if (type === 'resize') {
         // Note: the resize event is not supported on all browsers.
-        addResizeListener(canvas, listener, chart);
+        addResizeListener(canvas, listener, chart, this);
         return;
       }
 
@@ -10513,6 +10690,18 @@ var platforms = {
   DomPlatform: DomPlatform,
   BasePlatform: BasePlatform
 };
+
+/**
+ * @typedef { import("./core.controller").default } Chart
+ */
+
+/**
+ * @typedef { import("../platform/platform.base").IEvent } IEvent
+ */
+
+/**
+ * @typedef { import("../plugins/plugin.tooltip").default } Tooltip
+ */
 
 defaults._set('plugins', {});
 /**
@@ -10686,6 +10875,7 @@ var pluginsCore = {
 /**
  * Plugin extension hooks.
  * @interface IPlugin
+ * @typedef {object} IPlugin
  * @since 2.1.0
  */
 
@@ -10955,6 +11145,10 @@ var scaleService = {
   }
 };
 
+/**
+ * @typedef { import("../platform/platform.base").IEvent } IEvent
+ */
+
 var valueOrDefault$1 = helpers.valueOrDefault;
 
 function mergeScaleConfig(config, options) {
@@ -11020,7 +11214,10 @@ function initConfig(config) {
   config = config || {}; // Do NOT use mergeConfig for the data object because this method merges arrays
   // and so would change references to labels and datasets, preventing data updates.
 
-  var data = config.data = config.data || {};
+  var data = config.data = config.data || {
+    datasets: [],
+    labels: []
+  };
   data.datasets = data.datasets || [];
   data.labels = data.labels || [];
   var scaleConfig = mergeScaleConfig(config, config.options);
@@ -11106,24 +11303,36 @@ function () {
     var me = this;
     config = initConfig(config);
     var initialCanvas = getCanvas(item);
-
-    me._initializePlatform(initialCanvas, config);
-
+    this.platform = me._initializePlatform(initialCanvas, config);
     var context = me.platform.acquireContext(initialCanvas, config);
     var canvas = context && context.canvas;
     var height = canvas && canvas.height;
     var width = canvas && canvas.width;
-    me.id = helpers.uid();
-    me.ctx = context;
-    me.canvas = canvas;
-    me.config = config;
-    me.width = width;
-    me.height = height;
-    me.aspectRatio = height ? width / height : null;
-    me.options = config.options;
-    me._bufferedRender = false;
-    me._layers = [];
-    me._metasets = []; // Add the chart instance to the global namespace
+    this.id = helpers.uid();
+    this.ctx = context;
+    this.canvas = canvas;
+    this.config = config;
+    this.width = width;
+    this.height = height;
+    this.aspectRatio = height ? width / height : null;
+    this.options = config.options;
+    this._bufferedRender = false;
+    this._layers = [];
+    this._metasets = [];
+    this.boxes = [];
+    this.currentDevicePixelRatio = undefined;
+    this.chartArea = undefined;
+    this.data = undefined;
+    this.active = undefined;
+    this.lastActive = undefined;
+    this._lastEvent = undefined;
+    this._listeners = {
+      resize: undefined
+    };
+    this._sortedMetasets = [];
+    this._updating = false;
+    this.scales = {};
+    this.scale = undefined; // Add the chart instance to the global namespace
 
     Chart.instances[me.id] = me; // Define alias to the config data: `chart.data === chart.config.data`
 
@@ -11182,17 +11391,15 @@ function () {
   }, {
     key: "_initializePlatform",
     value: function _initializePlatform(canvas, config) {
-      var me = this;
-
       if (config.platform) {
-        me.platform = new config.platform();
+        return new config.platform();
       } else if (!isDomSupported()) {
-        me.platform = new BasicPlatform();
+        return new BasicPlatform();
       } else if (window.OffscreenCanvas && canvas instanceof window.OffscreenCanvas) {
-        me.platform = new BasicPlatform();
-      } else {
-        me.platform = new DomPlatform();
+        return new BasicPlatform();
       }
+
+      return new DomPlatform();
     }
   }, {
     key: "clear",
@@ -11909,7 +12116,7 @@ function () {
     key: "bindEvents",
     value: function bindEvents() {
       var me = this;
-      var listeners = me._listeners = {};
+      var listeners = me._listeners;
 
       var listener = function listener() {
         me.eventHandler.apply(me, arguments);
@@ -12264,11 +12471,7 @@ var Ticks = {
         var logTick = log10(Math.abs(tickValue));
         var numExponential = Math.floor(logTick) - Math.floor(logDelta);
         numExponential = Math.max(Math.min(numExponential, 20), 0);
-        return new Intl.NumberFormat(locale, {
-          notation: 'scientific',
-          minimumFractionDigits: numExponential,
-          maximumFractionDigits: numExponential
-        }).format(tickValue);
+        return tickValue.toExponential(numExponential);
       }
 
       var numDecimal = -1 * Math.floor(logDelta);
@@ -12507,22 +12710,119 @@ var Scale =
 function (_Element) {
   _inherits(Scale, _Element);
 
-  function Scale() {
+  function Scale(cfg) {
+    var _this;
+
     _classCallCheck(this, Scale);
 
-    return _possibleConstructorReturn(this, _getPrototypeOf(Scale).apply(this, arguments));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(Scale).call(this));
+    /** @type {string} */
+
+    _this.id = cfg.id;
+    _this.type = cfg.type;
+    /** @type {object} */
+
+    _this.options = cfg.options;
+    _this.ctx = cfg.ctx;
+    _this.chart = cfg.chart; // implements box
+
+    /** @type {number} */
+
+    _this.top = undefined;
+    /** @type {number} */
+
+    _this.bottom = undefined;
+    /** @type {number} */
+
+    _this.left = undefined;
+    /** @type {number} */
+
+    _this.right = undefined;
+    /** @type {number} */
+
+    _this.width = undefined;
+    /** @type {number} */
+
+    _this.height = undefined;
+    _this.margins = {
+      left: 0,
+      right: 0,
+      top: 0,
+      bottom: 0
+    }; // TODO: make maxWidth, maxHeight private
+
+    /** @type {number} */
+
+    _this.maxWidth = undefined;
+    /** @type {number} */
+
+    _this.maxHeight = undefined;
+    /** @type {number} */
+
+    _this.paddingTop = undefined;
+    /** @type {number} */
+
+    _this.paddingBottom = undefined;
+    /** @type {number} */
+
+    _this.paddingLeft = undefined;
+    /** @type {number} */
+
+    _this.paddingRight = undefined; // scale-specific properties
+
+    /** @type {string} */
+
+    _this.axis = undefined;
+    /** @type {number} */
+
+    _this.labelRotation = undefined;
+    _this.min = undefined;
+    _this.max = undefined;
+    /** @type {object[]} */
+
+    _this.ticks = null;
+    /** @type {object[]} */
+
+    _this._gridLineItems = null;
+    /** @type {object[]} */
+
+    _this._labelItems = null;
+    /** @type {object} */
+
+    _this._labelSizes = null;
+    /** @type {number} */
+
+    _this._length = undefined;
+    /** @type {object} */
+
+    _this._longestTextCache = {};
+    /** @type {number} */
+
+    _this._maxLabelLines = undefined;
+    /** @type {number} */
+
+    _this._startPixel = undefined;
+    /** @type {number} */
+
+    _this._endPixel = undefined;
+    _this._reversePixels = undefined;
+    _this._userMax = undefined;
+    _this._userMin = undefined;
+    _this._ticksLength = undefined;
+    _this._borderValue = undefined;
+    return _this;
   }
+  /**
+   * Parse a supported input value to internal representation.
+   * @param {*} raw
+   * @param {number} index
+   * @private
+   * @since 3.0
+   */
+
 
   _createClass(Scale, [{
     key: "_parse",
-
-    /**
-     * Parse a supported input value to internal representation.
-     * @param {*} raw
-     * @param {number} index
-     * @private
-     * @since 3.0
-     */
     value: function _parse(raw, index) {
       // eslint-disable-line no-unused-vars
       return raw;
@@ -12686,7 +12986,6 @@ function (_Element) {
       var samplingEnabled; // Update Lifecycle - Probably don't want to ever extend or overwrite this function ;)
 
       me.beforeUpdate(); // Absorb the master measurements
-      // TODO: make maxWidth, maxHeight private
 
       me.maxWidth = maxWidth;
       me.maxHeight = maxHeight;
@@ -12699,7 +12998,6 @@ function (_Element) {
       me.ticks = null;
       me._labelSizes = null;
       me._maxLabelLines = 0;
-      me._longestTextCache = me._longestTextCache || {};
       me._gridLineItems = null;
       me._labelItems = null; // Dimensions
 
@@ -12837,7 +13135,9 @@ function (_Element) {
 
   }, {
     key: "buildTicks",
-    value: function buildTicks() {}
+    value: function buildTicks() {
+      return [];
+    }
   }, {
     key: "afterBuildTicks",
     value: function afterBuildTicks() {
@@ -13875,10 +14175,22 @@ var CategoryScale =
 function (_Scale) {
   _inherits(CategoryScale, _Scale);
 
-  function CategoryScale() {
+  function CategoryScale(cfg) {
+    var _this;
+
     _classCallCheck(this, CategoryScale);
 
-    return _possibleConstructorReturn(this, _getPrototypeOf(CategoryScale).apply(this, arguments));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(CategoryScale).call(this, cfg));
+    /** @type {number} */
+
+    _this._numLabels = undefined;
+    /** @type {number} */
+
+    _this._startValue = undefined;
+    /** @type {number} */
+
+    _this._valueRange = undefined;
+    return _this;
   }
 
   _createClass(CategoryScale, [{
@@ -14111,10 +14423,28 @@ var LinearScaleBase =
 function (_Scale) {
   _inherits(LinearScaleBase, _Scale);
 
-  function LinearScaleBase() {
+  function LinearScaleBase(cfg) {
+    var _this;
+
     _classCallCheck(this, LinearScaleBase);
 
-    return _possibleConstructorReturn(this, _getPrototypeOf(LinearScaleBase).apply(this, arguments));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(LinearScaleBase).call(this, cfg));
+    /** @type {number} */
+
+    _this.start = undefined;
+    /** @type {number} */
+
+    _this.end = undefined;
+    /** @type {number} */
+
+    _this._startValue = undefined;
+    /** @type {number} */
+
+    _this._endValue = undefined;
+    /** @type {number} */
+
+    _this._valueRange = undefined;
+    return _this;
   }
 
   _createClass(LinearScaleBase, [{
@@ -14125,7 +14455,7 @@ function (_Scale) {
         return NaN;
       }
 
-      if ((typeof raw === 'number' || raw instanceof Number) && !isFinite(raw)) {
+      if ((typeof raw === 'number' || raw instanceof Number) && !isFinite(+raw)) {
         return NaN;
       }
 
@@ -14331,7 +14661,11 @@ function (_LinearScaleBase) {
 
 
       me.handleTickRangeOptions();
-    } // Returns the maximum number of ticks based on the scale dimension
+    }
+    /**
+     * Returns the maximum number of ticks based on the scale dimension
+     * @private
+    	 */
 
   }, {
     key: "_computeTickLimit",
@@ -14452,10 +14786,25 @@ var LogarithmicScale =
 function (_Scale) {
   _inherits(LogarithmicScale, _Scale);
 
-  function LogarithmicScale() {
+  function LogarithmicScale(cfg) {
+    var _this;
+
     _classCallCheck(this, LogarithmicScale);
 
-    return _possibleConstructorReturn(this, _getPrototypeOf(LogarithmicScale).apply(this, arguments));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(LogarithmicScale).call(this, cfg));
+    /** @type {number} */
+
+    _this.start = undefined;
+    /** @type {number} */
+
+    _this.end = undefined;
+    /** @type {number} */
+
+    _this._startValue = undefined;
+    /** @type {number} */
+
+    _this._valueRange = undefined;
+    return _this;
   }
 
   _createClass(LogarithmicScale, [{
@@ -14828,8 +15177,8 @@ function drawRadiusLine(scale, gridLineOpts, radius, index) {
   var ctx = scale.ctx;
   var circular = gridLineOpts.circular;
   var valueCount = scale.chart.data.labels.length;
-  var lineColor = valueAtIndexOrDefault$1(gridLineOpts.color, index - 1);
-  var lineWidth = valueAtIndexOrDefault$1(gridLineOpts.lineWidth, index - 1);
+  var lineColor = valueAtIndexOrDefault$1(gridLineOpts.color, index - 1, undefined);
+  var lineWidth = valueAtIndexOrDefault$1(gridLineOpts.lineWidth, index - 1, undefined);
   var pointPosition;
 
   if (!circular && !valueCount || !lineColor || !lineWidth) {
@@ -14875,10 +15224,25 @@ var RadialLinearScale =
 function (_LinearScaleBase) {
   _inherits(RadialLinearScale, _LinearScaleBase);
 
-  function RadialLinearScale() {
+  function RadialLinearScale(cfg) {
+    var _this;
+
     _classCallCheck(this, RadialLinearScale);
 
-    return _possibleConstructorReturn(this, _getPrototypeOf(RadialLinearScale).apply(this, arguments));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(RadialLinearScale).call(this, cfg));
+    /** @type {number} */
+
+    _this.xCenter = undefined;
+    /** @type {number} */
+
+    _this.yCenter = undefined;
+    /** @type {number} */
+
+    _this.drawingArea = undefined;
+    /** @type {string[]} */
+
+    _this.pointLabels = undefined;
+    return _this;
   }
 
   _createClass(RadialLinearScale, [{
@@ -15664,6 +16028,36 @@ var TimeScale =
 function (_Scale) {
   _inherits(TimeScale, _Scale);
 
+  function TimeScale(props) {
+    var _this;
+
+    _classCallCheck(this, TimeScale);
+
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(TimeScale).call(this, props));
+    var options = _this.options;
+    var time = options.time || (options.time = {});
+    var adapter = _this._adapter = new _adapters._date(options.adapters.date);
+    _this._cache = {};
+    /** @type {string | undefined} */
+
+    _this._unit = undefined;
+    /** @type {string | undefined} */
+
+    _this._majorUnit = undefined;
+    /** @type {object | undefined} */
+
+    _this._offsets = undefined;
+    /** @type {object[] | undefined} */
+
+    _this._table = undefined; // Backward compatibility: before introducing adapter, `displayFormats` was
+    // supposed to contain *all* unit/string pairs but this can't be resolved
+    // when loading the scale (adapters are loaded afterward), so let's populate
+    // missing formats on update
+
+    mergeIf(time.displayFormats, adapter.formats());
+    return _this;
+  }
+
   _createClass(TimeScale, [{
     key: "_parse",
     value: function _parse(raw, index) {
@@ -15692,30 +16086,7 @@ function (_Scale) {
     value: function _invalidateCaches() {
       this._cache = {};
     }
-  }]);
-
-  function TimeScale(props) {
-    var _this;
-
-    _classCallCheck(this, TimeScale);
-
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(TimeScale).call(this, props));
-
-    var me = _assertThisInitialized(_this);
-
-    var options = me.options;
-    var time = options.time || (options.time = {});
-    var adapter = me._adapter = new _adapters._date(options.adapters.date);
-    me._cache = {}; // Backward compatibility: before introducing adapter, `displayFormats` was
-    // supposed to contain *all* unit/string pairs but this can't be resolved
-    // when loading the scale (adapters are loaded afterward), so let's populate
-    // missing formats on update
-
-    mergeIf(time.displayFormats, adapter.formats());
-    return _this;
-  }
-
-  _createClass(TimeScale, [{
+  }, {
     key: "determineDataLimits",
     value: function determineDataLimits() {
       var me = this;
@@ -16065,7 +16436,9 @@ function () {
   function simpleArc(opts) {
     _classCallCheck(this, simpleArc);
 
-    extend(this, opts);
+    this.x = opts.x;
+    this.y = opts.y;
+    this.radius = opts.radius;
   }
 
   _createClass(simpleArc, [{
@@ -16210,7 +16583,8 @@ function getTarget(source) {
   }
 
   if (isArray(boundary)) {
-    _loop = true;
+    _loop = true; // @ts-ignore
+
     points = boundary;
   } else {
     points = pointsFromSegments(boundary, line);
@@ -16456,18 +16830,19 @@ function _fill(ctx, cfg) {
     ctx.save();
     clipBounds(ctx, scale, getBounds(property, start, end));
     ctx.beginPath();
-    var loop = !!line.pathSegment(ctx, src);
+    var lineLoop = !!line.pathSegment(ctx, src);
 
-    if (loop) {
+    if (lineLoop) {
       ctx.closePath();
     } else {
       interpolatedLineTo(ctx, target, end, property);
     }
 
-    loop &= target.pathSegment(ctx, tgt, {
-      move: loop,
+    var targetLoop = !!target.pathSegment(ctx, tgt, {
+      move: lineLoop,
       reverse: true
     });
+    var loop = lineLoop && targetLoop;
 
     if (!loop) {
       interpolatedLineTo(ctx, target, start, property);
@@ -16536,7 +16911,8 @@ var filler = {
           fill: decodeFill(line, i, count),
           chart: chart,
           scale: meta.vScale,
-          line: line
+          line: line,
+          target: undefined
         };
       }
 
@@ -16606,6 +16982,10 @@ var filler = {
     }
   }
 };
+
+/**
+ * @typedef { import("../platform/platform.base").IEvent } IEvent
+ */
 
 defaults._set('legend', {
   display: true,
@@ -16700,19 +17080,40 @@ function (_Element) {
     _classCallCheck(this, Legend);
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(Legend).call(this));
+    extend(_assertThisInitialized(_this), config); // Contains hit boxes for each dataset (in dataset order)
 
-    var me = _assertThisInitialized(_this);
-
-    extend(me, config); // Contains hit boxes for each dataset (in dataset order)
-
-    me.legendHitBoxes = [];
+    _this.legendHitBoxes = [];
     /**
     	 * @private
     	 */
 
-    me._hoveredItem = null; // Are we in doughnut mode which has a different data type
+    _this._hoveredItem = null; // Are we in doughnut mode which has a different data type
 
-    me.doughnutMode = false;
+    _this.doughnutMode = false;
+    _this.chart = config.chart;
+    _this.options = config.options;
+    _this.ctx = config.ctx;
+    _this.legendItems = undefined;
+    _this.columnWidths = undefined;
+    _this.columnHeights = undefined;
+    _this.lineWidths = undefined;
+    _this._minSize = undefined;
+    _this.maxHeight = undefined;
+    _this.maxWidth = undefined;
+    _this.top = undefined;
+    _this.bottom = undefined;
+    _this.left = undefined;
+    _this.right = undefined;
+    _this.height = undefined;
+    _this.width = undefined;
+    _this.margins = undefined;
+    _this.paddingTop = undefined;
+    _this.paddingBottom = undefined;
+    _this.paddingLeft = undefined;
+    _this.paddingRight = undefined;
+    _this.position = undefined;
+    _this.weight = undefined;
+    _this.fullWidth = undefined;
     return _this;
   } // These methods are ordered by lifecycle. Utilities then follow.
   // Any function defined here is inherited by all legend types.
@@ -17363,12 +17764,25 @@ function (_Element) {
     _classCallCheck(this, Title);
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(Title).call(this));
+    helpers.extend(_assertThisInitialized(_this), config);
+    _this.chart = config.chart;
+    _this.options = config.options;
+    _this.ctx = config.ctx;
+    _this.margins = undefined;
+    _this._padding = undefined;
+    _this.legendHitBoxes = []; // Contains hit boxes for each dataset (in dataset order)
 
-    var me = _assertThisInitialized(_this);
-
-    helpers.extend(me, config); // Contains hit boxes for each dataset (in dataset order)
-
-    me.legendHitBoxes = [];
+    _this.top = undefined;
+    _this.bottom = undefined;
+    _this.left = undefined;
+    _this.right = undefined;
+    _this.width = undefined;
+    _this.height = undefined;
+    _this.maxWidth = undefined;
+    _this.maxHeight = undefined;
+    _this.position = undefined;
+    _this.weight = undefined;
+    _this.fullWidth = undefined;
     return _this;
   } // These methods are ordered by lifecycle. Utilities then follow.
 
@@ -17617,6 +18031,10 @@ var title = {
   }
 };
 
+/**
+ * @typedef { import("../platform/platform.base").IEvent } IEvent
+ */
+
 var valueOrDefault$3 = helpers.valueOrDefault;
 var getRtlHelper = helpers.rtl.getRtlAdapter;
 
@@ -17810,7 +18228,7 @@ function pushOrConcat(base, toPush) {
 }
 /**
  * Returns array of strings split by newline
- * @param {string|undefined} str - The value to split by newline.
+ * @param {*} str - The value to split by newline.
  * @returns {string|string[]} value if newline present - Returned from String split() method
  * @function
  */
@@ -18105,13 +18523,33 @@ function (_Element) {
 
     _classCallCheck(this, Tooltip);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Tooltip).call(this, config));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(Tooltip).call(this));
+    _this.opacity = 0;
+    _this._active = [];
+    _this._chart = config._chart;
+    _this._eventPosition = undefined;
+    _this._size = undefined;
+    _this._cachedAnimations = undefined;
+    _this.$animations = undefined;
+    _this.options = undefined;
+    _this.dataPoints = undefined;
+    _this.title = undefined;
+    _this.beforeBody = undefined;
+    _this.body = undefined;
+    _this.afterBody = undefined;
+    _this.footer = undefined;
+    _this.xAlign = undefined;
+    _this.yAlign = undefined;
+    _this.x = undefined;
+    _this.y = undefined;
+    _this.height = undefined;
+    _this.width = undefined;
+    _this.caretX = undefined;
+    _this.labelColors = undefined;
+    _this.labelTextColors = undefined;
 
-    var me = _assertThisInitialized(_this);
+    _this.initialize();
 
-    me.opacity = 0;
-    me._active = [];
-    me.initialize();
     return _this;
   }
 
@@ -18756,6 +19194,7 @@ for (var k in plugins) {
 }
 
 if (typeof window !== 'undefined') {
+  // @ts-ignore
   window.Chart = Chart;
 }
 
