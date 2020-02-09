@@ -2331,32 +2331,55 @@ __proto__: null,
 effects: effects
 });
 
-var defaults = {
-  color: 'rgba(0,0,0,0.1)',
-  elements: {},
-  events: ['mousemove', 'mouseout', 'click', 'touchstart', 'touchmove'],
-  fontColor: '#666',
-  fontFamily: "'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
-  fontSize: 12,
-  fontStyle: 'normal',
-  lineHeight: 1.2,
-  hover: {
-    onHover: null,
-    mode: 'nearest',
-    intersect: true
-  },
-  maintainAspectRatio: true,
-  onClick: null,
-  responsive: true,
-  showLines: true,
+var Defaults =
+/*#__PURE__*/
+function () {
+  function Defaults() {
+    _classCallCheck(this, Defaults);
 
+    this.color = 'rgba(0,0,0,0.1)';
+    this.elements = {};
+    this.events = ['mousemove', 'mouseout', 'click', 'touchstart', 'touchmove'];
+    this.fontColor = '#666';
+    this.fontFamily = "'Helvetica Neue', 'Helvetica', 'Arial', sans-serif";
+    this.fontSize = 12;
+    this.fontStyle = 'normal';
+    this.lineHeight = 1.2;
+    this.hover = {
+      onHover: null,
+      mode: 'nearest',
+      intersect: true
+    };
+    this.maintainAspectRatio = true;
+    this.onClick = null;
+    this.responsive = true;
+    this.showLines = true;
+    this.plugins = undefined;
+    this.scale = undefined;
+    this.legend = undefined;
+    this.title = undefined;
+    this.tooltips = undefined;
+    this.doughnut = undefined;
+  }
   /**
+   * @param {string} scope
+   * @param {*} values
    * @private
    */
-  _set: function _set(scope, values) {
-    return merge(this[scope] || (this[scope] = {}), values);
-  }
-};
+
+
+  _createClass(Defaults, [{
+    key: "set",
+    value: function set(scope, values) {
+      return merge(this[scope] || (this[scope] = {}), values);
+    }
+  }]);
+
+  return Defaults;
+}(); // singleton instance
+
+
+var defaults = new Defaults();
 
 /**
  * Converts the given font object into a CSS font string.
@@ -2971,8 +2994,7 @@ function () {
 
 var numbers = ['x', 'y', 'borderWidth', 'radius', 'tension'];
 var colors = ['borderColor', 'backgroundColor'];
-
-defaults._set('animation', {
+defaults.set('animation', {
   // Plain properties can be overridden in each object
   duration: 1000,
   easing: 'easeOutQuart',
@@ -4592,8 +4614,7 @@ function () {
 Element.extend = inherits;
 
 var defaultColor = defaults.color;
-
-defaults._set('elements', {
+defaults.set('elements', {
   rectangle: {
     backgroundColor: defaultColor,
     borderColor: defaultColor,
@@ -4607,7 +4628,6 @@ defaults._set('elements', {
  * @return {object} bounds of the bar
  * @private
  */
-
 
 function getBarBounds(bar) {
   var x1, x2, y1, y2, half;
@@ -4807,7 +4827,7 @@ function (_Element) {
 
 Rectangle.prototype._type = 'rectangle';
 
-defaults._set('bar', {
+defaults.set('bar', {
   hover: {
     mode: 'index'
   },
@@ -4839,7 +4859,6 @@ defaults._set('bar', {
  * Computes the "optimal" sample size to maintain bars equally sized while preventing overlap.
  * @private
  */
-
 
 function computeMinSampleSize(scale, pixels) {
   var min = scale._length;
@@ -5343,8 +5362,7 @@ BarController.prototype.dataElementType = Rectangle;
 BarController.prototype._dataElementOptions = ['backgroundColor', 'borderColor', 'borderSkipped', 'borderWidth', 'barPercentage', 'barThickness', 'categoryPercentage', 'maxBarThickness', 'minBarLength'];
 
 var defaultColor$1 = defaults.color;
-
-defaults._set('elements', {
+defaults.set('elements', {
   point: {
     radius: 3,
     pointStyle: 'circle',
@@ -5455,7 +5473,7 @@ function (_Element) {
 
 Point.prototype._type = 'point';
 
-defaults._set('bubble', {
+defaults.set('bubble', {
   animation: {
     numbers: {
       properties: ['x', 'y', 'borderWidth', 'radius']
@@ -5668,8 +5686,7 @@ BubbleController.prototype.dataElementType = Point;
 BubbleController.prototype._dataElementOptions = ['backgroundColor', 'borderColor', 'borderWidth', 'hitRadius', 'radius', 'pointStyle', 'rotation'];
 
 var TAU$1 = Math.PI * 2;
-
-defaults._set('elements', {
+defaults.set('elements', {
   arc: {
     backgroundColor: defaults.color,
     borderColor: '#fff',
@@ -5893,8 +5910,7 @@ Arc.prototype._type = 'arc';
 var PI$2 = Math.PI;
 var DOUBLE_PI$1 = PI$2 * 2;
 var HALF_PI$1 = PI$2 / 2;
-
-defaults._set('doughnut', {
+defaults.set('doughnut', {
   animation: {
     numbers: {
       type: 'number',
@@ -6260,7 +6276,7 @@ DoughnutController.prototype.dataElementType = Arc;
 
 DoughnutController.prototype._dataElementOptions = ['backgroundColor', 'borderColor', 'borderWidth', 'borderAlign', 'hoverBackgroundColor', 'hoverBorderColor', 'hoverBorderWidth'];
 
-defaults._set('horizontalBar', {
+defaults.set('horizontalBar', {
   hover: {
     mode: 'index',
     axis: 'y'
@@ -6696,8 +6712,7 @@ function _computeSegments(line) {
  */
 
 var defaultColor$2 = defaults.color;
-
-defaults._set('elements', {
+defaults.set('elements', {
   line: {
     tension: 0.4,
     backgroundColor: defaultColor$2,
@@ -7111,7 +7126,7 @@ function (_Element) {
 
 Line.prototype._type = 'line';
 
-defaults._set('line', {
+defaults.set('line', {
   showLines: true,
   spanGaps: false,
   hover: {
@@ -7316,7 +7331,7 @@ LineController.prototype._dataElementOptions = {
   rotation: 'pointRotation'
 };
 
-defaults._set('polarArea', {
+defaults.set('polarArea', {
   animation: {
     numbers: {
       type: 'number',
@@ -7563,13 +7578,12 @@ PolarAreaController.prototype.dataElementType = Arc;
 
 PolarAreaController.prototype._dataElementOptions = ['backgroundColor', 'borderColor', 'borderWidth', 'borderAlign', 'hoverBackgroundColor', 'hoverBorderColor', 'hoverBorderWidth'];
 
-defaults._set('pie', clone$1(defaults.doughnut));
-
-defaults._set('pie', {
+defaults.set('pie', clone$1(defaults.doughnut));
+defaults.set('pie', {
   cutoutPercentage: 0
 }); // Pie charts are Doughnut chart with different defaults
 
-defaults._set('radar', {
+defaults.set('radar', {
   spanGaps: false,
   scales: {
     r: {
@@ -7729,7 +7743,7 @@ RadarController.prototype._dataElementOptions = {
   rotation: 'pointRotation'
 };
 
-defaults._set('scatter', {
+defaults.set('scatter', {
   scales: {
     x: {
       type: 'linear',
@@ -8464,7 +8478,7 @@ function placeBoxes(boxes, chartArea, params) {
   chartArea.y = y;
 }
 
-defaults._set('layout', {
+defaults.set('layout', {
   padding: {
     top: 0,
     right: 0,
@@ -8493,7 +8507,6 @@ defaults._set('layout', {
 // The layout service is very self explanatory.  It's responsible for the layout within a chart.
 // Scales, Legends and Plugins all rely on the layout service and can easily register to be placed anywhere they need
 // It is this service's responsibility of carrying out that layout.
-
 
 var layouts = {
   defaults: {},
@@ -9254,13 +9267,12 @@ var platforms = {
  * @typedef { import("../plugins/plugin.tooltip").default } Tooltip
  */
 
-defaults._set('plugins', {});
+defaults.set('plugins', {});
 /**
  * The plugin service singleton
  * @namespace Chart.plugins
  * @since 2.1.0
  */
-
 
 var PluginService =
 /*#__PURE__*/
@@ -11065,7 +11077,7 @@ var Ticks = {
   }
 };
 
-defaults._set('scale', {
+defaults.set('scale', {
   display: true,
   offset: false,
   reverse: false,
@@ -11114,7 +11126,6 @@ defaults._set('scale', {
   }
 });
 /** Returns a new array containing numItems from arr */
-
 
 function sample(arr, numItems) {
   var result = [];
@@ -14930,8 +14941,7 @@ _adapters._date.override(typeof moment === 'function' ? {
  * @see https://github.com/chartjs/Chart.js/issues/2380#issuecomment-279961569
  * @see https://github.com/chartjs/Chart.js/issues/2440#issuecomment-256461897
  */
-
-defaults._set('plugins', {
+defaults.set('plugins', {
   filler: {
     propagate: true
   }
@@ -15567,7 +15577,7 @@ var filler = {
  * @typedef { import("../platform/platform.base").IEvent } IEvent
  */
 
-defaults._set('legend', {
+defaults.set('legend', {
   display: true,
   position: 'top',
   align: 'center',
@@ -15639,7 +15649,6 @@ defaults._set('legend', {
  * @param {number} fontSize - the label font size
  * @return {number} width of the color box area
  */
-
 
 function getBoxWidth(labelOpts, fontSize) {
   return labelOpts.usePointStyle && labelOpts.boxWidth > fontSize ? fontSize : labelOpts.boxWidth;
@@ -16317,7 +16326,7 @@ var legend = {
   }
 };
 
-defaults._set('title', {
+defaults.set('title', {
   align: 'center',
   display: false,
   fontStyle: 'bold',
@@ -16331,7 +16340,6 @@ defaults._set('title', {
 /**
  * IMPORTANT: this class is exposed publicly as Chart.Title, backward compatibility required!
  */
-
 
 var Title =
 /*#__PURE__*/
@@ -16617,8 +16625,7 @@ var title = {
 
 var valueOrDefault$3 = helpers.valueOrDefault;
 var getRtlHelper = helpers.rtl.getRtlAdapter;
-
-defaults._set('tooltips', {
+defaults.set('tooltips', {
   enabled: true,
   custom: null,
   mode: 'nearest',
@@ -16719,7 +16726,6 @@ defaults._set('tooltips', {
     afterFooter: helpers.noop
   }
 });
-
 var positioners = {
   /**
    * Average mode places the tooltip at the average position of the elements shown
