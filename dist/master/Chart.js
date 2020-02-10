@@ -5972,12 +5972,12 @@ defaults.set('elements', {
 });
 
 function clipArc(ctx, arc) {
-  var startAngle = arc.startAngle;
-  var endAngle = arc.endAngle;
-  var pixelMargin = arc.pixelMargin;
-  var angleMargin = pixelMargin / arc.outerRadius;
-  var x = arc.x;
-  var y = arc.y; // Draw an inner border by cliping the arc and drawing a double-width border
+  var startAngle = arc.startAngle,
+      endAngle = arc.endAngle,
+      pixelMargin = arc.pixelMargin,
+      x = arc.x,
+      y = arc.y;
+  var angleMargin = pixelMargin / arc.outerRadius; // Draw an inner border by cliping the arc and drawing a double-width border
   // Enlarge the clipping arc by 0.33 pixels to eliminate glitches between borders
 
   ctx.beginPath();
@@ -6075,35 +6075,27 @@ function (_Element) {
 
     return _this;
   }
+  /**
+   * @param {number} chartX
+   * @param {number} chartY
+   */
+
 
   _createClass(Arc, [{
     key: "inRange",
     value: function inRange(chartX, chartY) {
       var me = this;
-      var pointRelativePosition = getAngleFromPoint(me, {
+
+      var _getAngleFromPoint = getAngleFromPoint(me, {
         x: chartX,
         y: chartY
-      });
-      var angle = pointRelativePosition.angle;
-      var distance = pointRelativePosition.distance; // Sanitise angle range
-
-      var startAngle = me.startAngle;
-      var endAngle = me.endAngle;
-
-      while (endAngle < startAngle) {
-        endAngle += TAU$1;
-      }
-
-      while (angle > endAngle) {
-        angle -= TAU$1;
-      }
-
-      while (angle < startAngle) {
-        angle += TAU$1;
-      } // Check if within the range of the open/close angle
+      }),
+          angle = _getAngleFromPoint.angle,
+          distance = _getAngleFromPoint.distance; // Check if within the range of the open/close angle
 
 
-      var betweenAngles = angle >= startAngle && angle <= endAngle;
+      var betweenAngles = _angleBetween(angle, me.startAngle, me.endAngle);
+
       var withinRadius = distance >= me.innerRadius && distance <= me.outerRadius;
       return betweenAngles && withinRadius;
     }
@@ -6190,7 +6182,7 @@ defaults.set('doughnut', {
   animation: {
     numbers: {
       type: 'number',
-      properties: ['x', 'y', 'startAngle', 'endAngle', 'innerRadius', 'outerRadius']
+      properties: ['circumference', 'endAngle', 'innerRadius', 'outerRadius', 'startAngle', 'x', 'y']
     },
     // Boolean - Whether we animate the rotation of the Doughnut
     animateRotate: true,
