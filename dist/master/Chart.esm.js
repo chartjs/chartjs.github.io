@@ -3050,6 +3050,10 @@ function () {
         me._running = false;
       }
     }
+    /**
+     * @private
+     */
+
   }, {
     key: "_getAnims",
     value: function _getAnims(chart) {
@@ -3501,7 +3505,7 @@ var arrayEvents = ['push', 'pop', 'shift', 'splice', 'unshift'];
 /**
  * Hooks the array methods that add or remove values ('push', pop', 'shift', 'splice',
  * 'unshift') and notify the listener AFTER the array has been altered. Listeners are
- * called on the 'onData*' callbacks (e.g. onDataPush, etc.) with same arguments.
+ * called on the '_onData*' callbacks (e.g. _onDataPush, etc.) with same arguments.
  */
 
 function listenArrayEvents(array, listener) {
@@ -3519,7 +3523,7 @@ function listenArrayEvents(array, listener) {
     }
   });
   arrayEvents.forEach(function (key) {
-    var method = 'onData' + key.charAt(0).toUpperCase() + key.slice(1);
+    var method = '_onData' + key.charAt(0).toUpperCase() + key.slice(1);
     var base = array[key];
     Object.defineProperty(array, key, {
       configurable: true,
@@ -3855,8 +3859,8 @@ function () {
      */
 
   }, {
-    key: "destroy",
-    value: function destroy() {
+    key: "_destroy",
+    value: function _destroy() {
       if (this._data) {
         unlistenArrayEvents(this._data, this);
       }
@@ -3972,7 +3976,8 @@ function () {
       // any updates and so make sure that we handle number of datapoints changing.
 
 
-      me.resyncElements(dataChanged || labelsChanged || scaleChanged || stackChanged); // if stack changed, update stack values for the whole dataset
+      me._resyncElements(dataChanged || labelsChanged || scaleChanged || stackChanged); // if stack changed, update stack values for the whole dataset
+
 
       if (stackChanged) {
         updateStacks(me, meta._parsed);
@@ -4691,18 +4696,18 @@ function () {
      */
 
   }, {
-    key: "resyncElements",
-    value: function resyncElements(changed) {
+    key: "_resyncElements",
+    value: function _resyncElements(changed) {
       var me = this;
       var meta = me._cachedMeta;
       var numMeta = meta.data.length;
       var numData = me._data.length;
 
       if (numData > numMeta) {
-        me.insertElements(numMeta, numData - numMeta);
+        me._insertElements(numMeta, numData - numMeta);
 
         if (changed && numMeta) {
-          // insertElements parses the new elements. The old ones might need parsing too.
+          // _insertElements parses the new elements. The old ones might need parsing too.
           me._parse(0, numMeta);
         }
       } else if (numData < numMeta) {
@@ -4720,8 +4725,8 @@ function () {
      */
 
   }, {
-    key: "insertElements",
-    value: function insertElements(start, count) {
+    key: "_insertElements",
+    value: function _insertElements(start, count) {
       var me = this;
       var elements = new Array(count);
       var meta = me._cachedMeta;
@@ -4753,8 +4758,8 @@ function () {
      */
 
   }, {
-    key: "removeElements",
-    value: function removeElements(start, count) {
+    key: "_removeElements",
+    value: function _removeElements(start, count) {
       var me = this;
 
       if (me._parsing) {
@@ -4768,47 +4773,49 @@ function () {
      */
 
   }, {
-    key: "onDataPush",
-    value: function onDataPush() {
+    key: "_onDataPush",
+    value: function _onDataPush() {
       var count = arguments.length;
-      this.insertElements(this.getDataset().data.length - count, count);
+
+      this._insertElements(this.getDataset().data.length - count, count);
     }
     /**
      * @private
      */
 
   }, {
-    key: "onDataPop",
-    value: function onDataPop() {
-      this.removeElements(this._cachedMeta.data.length - 1, 1);
+    key: "_onDataPop",
+    value: function _onDataPop() {
+      this._removeElements(this._cachedMeta.data.length - 1, 1);
     }
     /**
      * @private
      */
 
   }, {
-    key: "onDataShift",
-    value: function onDataShift() {
-      this.removeElements(0, 1);
+    key: "_onDataShift",
+    value: function _onDataShift() {
+      this._removeElements(0, 1);
     }
     /**
      * @private
      */
 
   }, {
-    key: "onDataSplice",
-    value: function onDataSplice(start, count) {
-      this.removeElements(start, count);
-      this.insertElements(start, arguments.length - 2);
+    key: "_onDataSplice",
+    value: function _onDataSplice(start, count) {
+      this._removeElements(start, count);
+
+      this._insertElements(start, arguments.length - 2);
     }
     /**
      * @private
      */
 
   }, {
-    key: "onDataUnshift",
-    value: function onDataUnshift() {
-      this.insertElements(0, arguments.length);
+    key: "_onDataUnshift",
+    value: function _onDataUnshift() {
+      this._insertElements(0, arguments.length);
     }
   }]);
 
@@ -5384,7 +5391,8 @@ function (_DatasetController) {
       var vscale = me._cachedMeta.vScale;
       var base = vscale.getBasePixel();
       var horizontal = vscale.isHorizontal();
-      var ruler = me.getRuler();
+
+      var ruler = me._getRuler();
 
       var firstOpts = me._resolveDataElementOptions(start, mode);
 
@@ -5399,8 +5407,10 @@ function (_DatasetController) {
 
         var options = me._resolveDataElementOptions(index, mode);
 
-        var vpixels = me.calculateBarValuePixels(index, options);
-        var ipixels = me.calculateBarIndexPixels(index, ruler, options);
+        var vpixels = me._calculateBarValuePixels(index, options);
+
+        var ipixels = me._calculateBarIndexPixels(index, ruler, options);
+
         var properties = {
           horizontal: horizontal,
           base: reset ? base : vpixels.base,
@@ -5477,8 +5487,8 @@ function (_DatasetController) {
      */
 
   }, {
-    key: "getStackCount",
-    value: function getStackCount() {
+    key: "_getStackCount",
+    value: function _getStackCount() {
       return this._getStacks().length;
     }
     /**
@@ -5490,8 +5500,8 @@ function (_DatasetController) {
      */
 
   }, {
-    key: "getStackIndex",
-    value: function getStackIndex(datasetIndex, name) {
+    key: "_getStackIndex",
+    value: function _getStackIndex(datasetIndex, name) {
       var stacks = this._getStacks(datasetIndex);
 
       var index = name !== undefined ? stacks.indexOf(name) : -1; // indexOf returns -1 if element is not present
@@ -5503,8 +5513,8 @@ function (_DatasetController) {
      */
 
   }, {
-    key: "getRuler",
-    value: function getRuler() {
+    key: "_getRuler",
+    value: function _getRuler() {
       var me = this;
       var meta = me._cachedMeta;
       var iScale = meta.iScale;
@@ -5519,7 +5529,7 @@ function (_DatasetController) {
         pixels: pixels,
         start: iScale._startPixel,
         end: iScale._endPixel,
-        stackCount: me.getStackCount(),
+        stackCount: me._getStackCount(),
         scale: iScale
       };
     }
@@ -5529,8 +5539,8 @@ function (_DatasetController) {
      */
 
   }, {
-    key: "calculateBarValuePixels",
-    value: function calculateBarValuePixels(index, options) {
+    key: "_calculateBarValuePixels",
+    value: function _calculateBarValuePixels(index, options) {
       var me = this;
       var meta = me._cachedMeta;
       var vScale = meta.vScale;
@@ -5585,11 +5595,13 @@ function (_DatasetController) {
      */
 
   }, {
-    key: "calculateBarIndexPixels",
-    value: function calculateBarIndexPixels(index, ruler, options) {
+    key: "_calculateBarIndexPixels",
+    value: function _calculateBarIndexPixels(index, ruler, options) {
       var me = this;
       var range = options.barThickness === 'flex' ? computeFlexCategoryTraits(index, ruler, options) : computeFitCategoryTraits(index, ruler, options);
-      var stackIndex = me.getStackIndex(me.index, me._cachedMeta.stack);
+
+      var stackIndex = me._getStackIndex(me.index, me._cachedMeta.stack);
+
       var center = range.start + range.chunk * stackIndex + range.chunk / 2;
       var size = Math.min(valueOrDefault(options.maxBarThickness, Infinity), range.chunk * range.ratio);
       return {
@@ -9637,7 +9649,8 @@ function () {
   }, {
     key: "notify",
     value: function notify(chart, hook, args) {
-      var descriptors = this.descriptors(chart);
+      var descriptors = this._descriptors(chart);
+
       var ilen = descriptors.length;
       var i, descriptor, plugin, params, method;
 
@@ -9660,13 +9673,14 @@ function () {
     }
     /**
      * Returns descriptors of enabled plugins for the given chart.
+     * @param {Chart} chart
      * @returns {object[]} [{ plugin, options }]
      * @private
      */
 
   }, {
-    key: "descriptors",
-    value: function descriptors(chart) {
+    key: "_descriptors",
+    value: function _descriptors(chart) {
       var cache = chart.$plugins || (chart.$plugins = {});
 
       if (cache.id === this._cacheId) {
@@ -9711,6 +9725,7 @@ function () {
      * Invalidates cache for the given chart: descriptors hold a reference on plugin option,
      * but in some cases, this reference can be changed by the user when updating options.
      * https://github.com/chartjs/Chart.js/issues/5111#issuecomment-355934167
+     * @param {Chart} chart
      * @private
      */
 
@@ -10186,7 +10201,8 @@ function () {
     this._sortedMetasets = [];
     this._updating = false;
     this.scales = {};
-    this.scale = undefined; // Add the chart instance to the global namespace
+    this.scale = undefined;
+    this.$plugins = undefined; // Add the chart instance to the global namespace
 
     Chart.instances[me.id] = me; // Define alias to the config data: `chart.data === chart.config.data`
 
@@ -10440,7 +10456,7 @@ function () {
 
       if (numMeta > numData) {
         for (var i = numData; i < numMeta; ++i) {
-          me.destroyDatasetMeta(i);
+          me._destroyDatasetMeta(i);
         }
 
         metasets.splice(numData, numMeta - numData);
@@ -10462,7 +10478,8 @@ function () {
         var type = dataset.type || me.config.type;
 
         if (meta.type && meta.type !== type) {
-          me.destroyDatasetMeta(i);
+          me._destroyDatasetMeta(i);
+
           meta = me.getDatasetMeta(i);
         }
 
@@ -10499,8 +10516,8 @@ function () {
      */
 
   }, {
-    key: "resetElements",
-    value: function resetElements() {
+    key: "_resetElements",
+    value: function _resetElements() {
       var me = this;
       helpers.each(me.data.datasets, function (dataset, datasetIndex) {
         me.getDatasetMeta(datasetIndex).controller.reset();
@@ -10513,7 +10530,8 @@ function () {
   }, {
     key: "reset",
     value: function reset() {
-      this.resetElements();
+      this._resetElements();
+
       pluginsCore.notify(this, 'reset');
     }
   }, {
@@ -10538,7 +10556,8 @@ function () {
         me.getDatasetMeta(i).controller.buildOrUpdateElements();
       }
 
-      me.updateLayout(); // Can only reset the new controllers after the scales have been updated
+      me._updateLayout(); // Can only reset the new controllers after the scales have been updated
+
 
       if (me.options.animation) {
         helpers.each(newControllers, function (controller) {
@@ -10546,7 +10565,8 @@ function () {
         });
       }
 
-      me.updateDatasets(mode); // Do this before render so that any plugins that need final scale updates can use it
+      me._updateDatasets(mode); // Do this before render so that any plugins that need final scale updates can use it
+
 
       pluginsCore.notify(me, 'afterUpdate');
 
@@ -10554,7 +10574,7 @@ function () {
 
 
       if (me._lastEvent) {
-        me.eventHandler(me._lastEvent);
+        me._eventHandler(me._lastEvent);
       }
 
       me.render();
@@ -10567,8 +10587,8 @@ function () {
      */
 
   }, {
-    key: "updateLayout",
-    value: function updateLayout() {
+    key: "_updateLayout",
+    value: function _updateLayout() {
       var me = this;
 
       if (pluginsCore.notify(me, 'beforeLayout') === false) {
@@ -10600,8 +10620,8 @@ function () {
      */
 
   }, {
-    key: "updateDatasets",
-    value: function updateDatasets(mode) {
+    key: "_updateDatasets",
+    value: function _updateDatasets(mode) {
       var me = this;
       var isFunction = typeof mode === 'function';
 
@@ -10610,7 +10630,7 @@ function () {
       }
 
       for (var i = 0, ilen = me.data.datasets.length; i < ilen; ++i) {
-        me.updateDataset(i, isFunction ? mode({
+        me._updateDataset(i, isFunction ? mode({
           datasetIndex: i
         }) : mode);
       }
@@ -10624,8 +10644,8 @@ function () {
      */
 
   }, {
-    key: "updateDataset",
-    value: function updateDataset(index, mode) {
+    key: "_updateDataset",
+    value: function _updateDataset(index, mode) {
       var me = this;
       var meta = me.getDatasetMeta(index);
       var args = {
@@ -10690,7 +10710,8 @@ function () {
         layers[i].draw(me.chartArea);
       }
 
-      me.drawDatasets(); // Rest of layers
+      me._drawDatasets(); // Rest of layers
+
 
       for (; i < layers.length; ++i) {
         layers[i].draw(me.chartArea);
@@ -10736,8 +10757,8 @@ function () {
      */
 
   }, {
-    key: "drawDatasets",
-    value: function drawDatasets() {
+    key: "_drawDatasets",
+    value: function _drawDatasets() {
       var me = this;
       var metasets, i;
 
@@ -10748,7 +10769,7 @@ function () {
       metasets = me._getSortedVisibleDatasetMetas();
 
       for (i = metasets.length - 1; i >= 0; --i) {
-        me.drawDataset(metasets[i]);
+        me._drawDataset(metasets[i]);
       }
 
       pluginsCore.notify(me, 'afterDatasetsDraw');
@@ -10760,8 +10781,8 @@ function () {
      */
 
   }, {
-    key: "drawDataset",
-    value: function drawDataset(meta) {
+    key: "_drawDataset",
+    value: function _drawDataset(meta) {
       var me = this;
       var ctx = me.ctx;
       var clip = meta._clip;
@@ -10924,13 +10945,14 @@ function () {
      */
 
   }, {
-    key: "destroyDatasetMeta",
-    value: function destroyDatasetMeta(datasetIndex) {
+    key: "_destroyDatasetMeta",
+    value: function _destroyDatasetMeta(datasetIndex) {
       var me = this;
       var meta = me._metasets && me._metasets[datasetIndex];
 
       if (meta) {
-        meta.controller.destroy();
+        meta.controller._destroy();
+
         delete me._metasets[datasetIndex];
       }
     }
@@ -10943,7 +10965,7 @@ function () {
       me.stop(); // dataset controllers need to cleanup associated data
 
       for (i = 0, ilen = me.data.datasets.length; i < ilen; ++i) {
-        me.destroyDatasetMeta(i);
+        me._destroyDatasetMeta(i);
       }
 
       if (canvas) {
@@ -10973,7 +10995,7 @@ function () {
       var listeners = me._listeners;
 
       var listener = function listener() {
-        me.eventHandler.apply(me, arguments);
+        me._eventHandler.apply(me, arguments);
       };
 
       helpers.each(me.options.events, function (type) {
@@ -11054,29 +11076,30 @@ function () {
      */
 
   }, {
-    key: "eventHandler",
-    value: function eventHandler(e) {
+    key: "_eventHandler",
+    value: function _eventHandler(e) {
       var me = this;
 
       if (pluginsCore.notify(me, 'beforeEvent', [e]) === false) {
         return;
       }
 
-      me.handleEvent(e);
+      me._handleEvent(e);
+
       pluginsCore.notify(me, 'afterEvent', [e]);
       me.render();
       return me;
     }
     /**
      * Handle an event
-     * @private
      * @param {IEvent} e the event to handle
      * @return {boolean} true if the chart needs to re-render
+     * @private
      */
 
   }, {
-    key: "handleEvent",
-    value: function handleEvent(e) {
+    key: "_handleEvent",
+    value: function _handleEvent(e) {
       var me = this;
       var options = me.options || {};
       var hoverOptions = options.hover;
@@ -11228,7 +11251,7 @@ function () {
     /**
      * Returns start of `unit` for the given `timestamp`.
      * @param {number} timestamp - the input timestamp
-     * @param {Unit} unit - the unit as string
+     * @param {Unit|'isoWeek'} unit - the unit as string
      * @param {number} [weekday] - the ISO day of the week with 1 being Monday
      * and 7 being Sunday (only needed if param *unit* is `isoWeek`).
      * @return {number}
@@ -11243,7 +11266,7 @@ function () {
     /**
      * Returns end of `unit` for the given `timestamp`.
      * @param {number} timestamp - the input timestamp
-     * @param {Unit} unit - the unit as string
+     * @param {Unit|'isoWeek'} unit - the unit as string
      * @return {number}
      */
 
@@ -11699,6 +11722,7 @@ function (_Element) {
       return null;
     }
     /**
+     * @return {{min: number, max: number, minDefined: boolean, maxDefined: boolean}}
      * @private
      * @since 3.0
      */
@@ -11725,6 +11749,8 @@ function (_Element) {
       };
     }
     /**
+     * @param {boolean} canStack
+     * @return {{min: number, max: number}}
      * @private
      * @since 3.0
      */
@@ -11777,9 +11803,8 @@ function (_Element) {
     value: function _invalidateCaches() {}
     /**
      * Get the padding needed for the scale
-     * @method getPadding
+     * @return {{top: number, left: number, bottom: number, right: number}}
      * @private
-     * @returns {object} the necessary padding
      */
 
   }, {
@@ -11795,6 +11820,7 @@ function (_Element) {
     }
     /**
      * Returns the scale tick objects ({label, major})
+     * @return {object[]}
      * @since 2.7
      */
 
@@ -11804,8 +11830,9 @@ function (_Element) {
       return this.ticks;
     }
     /**
-    * @private
-    */
+     * @return {string[]}
+     * @private
+     */
 
   }, {
     key: "_getLabels",
@@ -11824,7 +11851,7 @@ function (_Element) {
     /**
      * @param {number} maxWidth - the max width in pixels
      * @param {number} maxHeight - the max height in pixels
-     * @param {object} margins - the space between the edge of the other scales and edge of the chart
+     * @param {{top: number, left: number, bottom: number, right: number}} margins - the space between the edge of the other scales and edge of the chart
      *   This space comes from two sources:
      *     - padding - space that's required to show the labels at the edges of the scale
      *     - thickness of scales or legends in another orientation
@@ -12003,6 +12030,7 @@ function (_Element) {
     }
     /**
      * Convert ticks to label strings
+     * @param {object[]} ticks
      */
 
   }, {
@@ -12189,6 +12217,10 @@ function (_Element) {
       callback(this.options.afterFit, [this]);
     } // Shared Methods
 
+    /**
+     * @return {boolean}
+     */
+
   }, {
     key: "isHorizontal",
     value: function isHorizontal() {
@@ -12197,11 +12229,19 @@ function (_Element) {
           position = _this$options.position;
       return position === 'top' || position === 'bottom' || axis === 'x';
     }
+    /**
+     * @return {boolean}
+     */
+
   }, {
     key: "isFullWidth",
     value: function isFullWidth() {
       return this.options.fullWidth;
     }
+    /**
+     * @param {object[]} ticks
+     */
+
   }, {
     key: "_convertTicksToLabels",
     value: function _convertTicksToLabels(ticks) {
@@ -12211,6 +12251,7 @@ function (_Element) {
       me.afterTickToLabelConversion();
     }
     /**
+     * @return {{ first: object, last: object, widest: object, highest: object }}
      * @private
      */
 
@@ -12229,6 +12270,7 @@ function (_Element) {
     /**
      * Returns {width, height, offset} objects for the first, last, widest, highest tick
      * labels where offset indicates the anchor point offset from the top in pixels.
+     * @return {{ first: object, last: object, widest: object, highest: object }}
      * @private
      */
 
@@ -12303,7 +12345,8 @@ function (_Element) {
     }
     /**
      * Used to get the label to display in the tooltip for the given value
-     * @param value
+     * @param {*} value
+     * @return {string}
      */
 
   }, {
@@ -12314,17 +12357,21 @@ function (_Element) {
     /**
      * Returns the location of the given data point. Value can either be an index or a numerical value
      * The coordinate (0, 0) is at the upper-left corner of the canvas
-     * @param value
+     * @param {*} value
+     * @return {number}
      */
 
   }, {
     key: "getPixelForValue",
-    value: function getPixelForValue(value) {} // eslint-disable-line no-unused-vars
-
+    value: function getPixelForValue(value) {
+      // eslint-disable-line no-unused-vars
+      return NaN;
+    }
     /**
      * Used to get the data value from a given pixel. This is the inverse of getPixelForValue
      * The coordinate (0, 0) is at the upper-left corner of the canvas
-     * @param pixel
+     * @param {number} pixel
+     * @return {*}
      */
 
   }, {
@@ -12334,6 +12381,8 @@ function (_Element) {
     /**
      * Returns the location of the tick at the given index
      * The coordinate (0, 0) is at the upper-left corner of the canvas
+     * @param {number} index
+     * @return {number}
      */
 
   }, {
@@ -12348,6 +12397,8 @@ function (_Element) {
     /**
      * Utility for getting the pixel location of a percentage of scale
      * The coordinate (0, 0) is at the upper-left corner of the canvas
+     * @param {number} decimal
+     * @return {number}
      */
 
   }, {
@@ -12361,6 +12412,11 @@ function (_Element) {
 
       return me._startPixel + decimal * me._length;
     }
+    /**
+     * @param {number} pixel
+     * @return {number}
+     */
+
   }, {
     key: "getDecimalForPixel",
     value: function getDecimalForPixel(pixel) {
@@ -12370,6 +12426,7 @@ function (_Element) {
     /**
      * Returns the pixel for the minimum chart value
      * The coordinate (0, 0) is at the upper-left corner of the canvas
+     * @return {number}
      */
 
   }, {
@@ -12377,6 +12434,10 @@ function (_Element) {
     value: function getBasePixel() {
       return this.getPixelForValue(this.getBaseValue());
     }
+    /**
+     * @return {number}
+     */
+
   }, {
     key: "getBaseValue",
     value: function getBaseValue() {
@@ -12386,6 +12447,8 @@ function (_Element) {
     }
     /**
      * Returns a subset of ticks to be plotted to avoid overlapping labels.
+     * @param {object[]} ticks
+     * @return {object[]}
      * @private
      */
 
@@ -12428,6 +12491,7 @@ function (_Element) {
       return newTicks;
     }
     /**
+     * @return {number}
      * @private
      */
 
@@ -12450,6 +12514,7 @@ function (_Element) {
       return me.isHorizontal() ? h * cos > w * sin ? w / cos : h / sin : h * sin < w * cos ? h / cos : w / sin;
     }
     /**
+     * @return {boolean}
      * @private
      */
 
@@ -12926,6 +12991,7 @@ function (_Element) {
       me._drawLabels(chartArea);
     }
     /**
+     * @return {object[]}
      * @private
      */
 
@@ -12964,6 +13030,7 @@ function (_Element) {
     /**
      * Returns visible dataset metas that are attached to this scale
      * @param {string} [type] - if specified, also filter by dataset type
+     * @return {object[]}
      * @private
      */
 
@@ -12989,6 +13056,8 @@ function (_Element) {
       return result;
     }
     /**
+     * @param {number} index
+     * @return {object}
      * @private
     	 */
 
@@ -13746,10 +13815,15 @@ function (_Scale) {
 
       return ticks;
     }
+    /**
+     * @param {number} value
+     * @return {string}
+     */
+
   }, {
     key: "getLabelForValue",
     value: function getLabelForValue(value) {
-      return value === undefined ? 0 : new Intl.NumberFormat(this.options.locale).format(value);
+      return value === undefined ? '0' : new Intl.NumberFormat(this.options.locale).format(value);
     }
   }, {
     key: "getPixelForTick",
@@ -14344,58 +14418,82 @@ function (_LinearScaleBase) {
 
 RadialLinearScale._defaults = defaultConfig$3;
 
+/**
+ * @typedef { import("../core/core.adapters").Unit } Unit
+ */
+// Integer constants are from the ES6 spec.
+
 var MAX_INTEGER = Number.MAX_SAFE_INTEGER || 9007199254740991;
-var INTERVALS = {
-  millisecond: {
-    common: true,
-    size: 1,
-    steps: 1000
-  },
-  second: {
-    common: true,
-    size: 1000,
-    steps: 60
-  },
-  minute: {
-    common: true,
-    size: 60000,
-    steps: 60
-  },
-  hour: {
-    common: true,
-    size: 3600000,
-    steps: 24
-  },
-  day: {
-    common: true,
-    size: 86400000,
-    steps: 30
-  },
-  week: {
-    common: false,
-    size: 604800000,
-    steps: 4
-  },
-  month: {
-    common: true,
-    size: 2.628e9,
-    steps: 12
-  },
-  quarter: {
-    common: false,
-    size: 7.884e9,
-    steps: 4
-  },
-  year: {
-    common: true,
-    size: 3.154e10
-  }
-};
-var UNITS = Object.keys(INTERVALS);
+/**
+ * @type {Map<Unit, {common: boolean, size: number, steps: number|undefined}>}
+ */
+
+var INTERVALS = new Map();
+INTERVALS.set('millisecond', {
+  common: true,
+  size: 1,
+  steps: 1000
+});
+INTERVALS.set('second', {
+  common: true,
+  size: 1000,
+  steps: 60
+});
+INTERVALS.set('minute', {
+  common: true,
+  size: 60000,
+  steps: 60
+});
+INTERVALS.set('hour', {
+  common: true,
+  size: 3600000,
+  steps: 24
+});
+INTERVALS.set('day', {
+  common: true,
+  size: 86400000,
+  steps: 30
+});
+INTERVALS.set('week', {
+  common: false,
+  size: 604800000,
+  steps: 4
+});
+INTERVALS.set('month', {
+  common: true,
+  size: 2.628e9,
+  steps: 12
+});
+INTERVALS.set('quarter', {
+  common: false,
+  size: 7.884e9,
+  steps: 4
+});
+INTERVALS.set('year', {
+  common: true,
+  size: 3.154e10,
+  steps: undefined
+});
+/**
+ * @type {Unit[]}
+ */
+
+var UNITS = [];
+INTERVALS.forEach(function (v, k) {
+  return UNITS.push(k);
+});
+/**
+ * @param {number} a
+ * @param {number} b
+ */
 
 function sorter(a, b) {
   return a - b;
 }
+/**
+ * @param {number[]} items
+ */
+
 
 function arrayUnique(items) {
   var set = new Set();
@@ -14411,6 +14509,11 @@ function arrayUnique(items) {
 
   return _toConsumableArray(set);
 }
+/**
+ * @param {TimeScale} scale
+ * {*} input
+ */
+
 
 function parse(scale, input) {
   if (isNullOrUndef(input)) {
@@ -14441,6 +14544,10 @@ function parse(scale, input) {
 
   return +value;
 }
+/**
+ * @param {TimeScale} scale
+ */
+
 
 function getDataTimestamps(scale) {
   var isSeries = scale.options.distribution === 'series';
@@ -14465,6 +14572,10 @@ function getDataTimestamps(scale) {
 
   return scale._cache.data = arrayUnique(timestamps.sort(sorter));
 }
+/**
+ * @param {TimeScale} scale
+ */
+
 
 function getLabelTimestamps(scale) {
   var isSeries = scale.options.distribution === 'series';
@@ -14484,6 +14595,10 @@ function getLabelTimestamps(scale) {
 
   return scale._cache.labels = isSeries ? timestamps : arrayUnique(timestamps.sort(sorter));
 }
+/**
+ * @param {TimeScale} scale
+ */
+
 
 function getAllTimestamps(scale) {
   var timestamps = scale._cache.all || [];
@@ -14521,6 +14636,11 @@ function getAllTimestamps(scale) {
  * If 'series', timestamps will be positioned at the same distance from each other. In this
  * case, only timestamps that break the time linearity are registered, meaning that in the
  * best case, all timestamps are linear, the table contains only min and max.
+ * @param {number[]} timestamps
+ * @param {number} min
+ * @param {number} max
+ * @param {string} distribution
+ * @return {object[]}
  */
 
 
@@ -14569,6 +14689,11 @@ function buildLookupTable(timestamps, min, max, distribution) {
  * returns the associated `tkey` value. For example, interpolate(table, 'time', 42, 'pos')
  * returns the position for a timestamp equal to 42. If value is out of bounds, values at
  * index [0, 1] or [n - 1, n] are used for the interpolation.
+ * @param {object} table
+ * @param {string} skey
+ * @param {number} sval
+ * @param {string} tkey
+ * @return {object}
  */
 
 
@@ -14587,6 +14712,11 @@ function interpolate(table, skey, sval, tkey) {
 }
 /**
  * Figures out what unit results in an appropriate number of auto-generated ticks
+ * @param {Unit} minUnit
+ * @param {number} min
+ * @param {number} max
+ * @param {number} capacity
+ * @return {object}
  */
 
 
@@ -14595,7 +14725,7 @@ function determineUnitForAutoTicks(minUnit, min, max, capacity) {
   var i, interval, factor;
 
   for (i = UNITS.indexOf(minUnit); i < ilen - 1; ++i) {
-    interval = INTERVALS[UNITS[i]];
+    interval = INTERVALS.get(UNITS[i]);
     factor = interval.steps ? interval.steps : MAX_INTEGER;
 
     if (interval.common && Math.ceil((max - min) / (factor * interval.size)) <= capacity) {
@@ -14607,30 +14737,45 @@ function determineUnitForAutoTicks(minUnit, min, max, capacity) {
 }
 /**
  * Figures out what unit to format a set of ticks with
+ * @param {TimeScale} scale
+ * @param {number} numTicks
+ * @param {Unit} minUnit
+ * @param {number} min
+ * @param {number} max
+ * @return {Unit}
  */
 
 
 function determineUnitForFormatting(scale, numTicks, minUnit, min, max) {
-  var i, unit;
+  for (var i = UNITS.length - 1; i >= UNITS.indexOf(minUnit); i--) {
+    var unit = UNITS[i];
 
-  for (i = UNITS.length - 1; i >= UNITS.indexOf(minUnit); i--) {
-    unit = UNITS[i];
-
-    if (INTERVALS[unit].common && scale._adapter.diff(max, min, unit) >= numTicks - 1) {
+    if (INTERVALS.get(unit).common && scale._adapter.diff(max, min, unit) >= numTicks - 1) {
       return unit;
     }
   }
 
   return UNITS[minUnit ? UNITS.indexOf(minUnit) : 0];
 }
+/**
+ * @param {Unit} unit
+ * @return {object}
+ */
+
 
 function determineMajorUnit(unit) {
   for (var i = UNITS.indexOf(unit) + 1, ilen = UNITS.length; i < ilen; ++i) {
-    if (INTERVALS[UNITS[i]].common) {
+    if (INTERVALS.get(UNITS[i]).common) {
       return UNITS[i];
     }
   }
 }
+/**
+ * @param {number[]} timestamps
+ * @param {Set<object>} ticks
+ * @param {number} time
+ */
+
 
 function addTick(timestamps, ticks, time) {
   if (!timestamps.length) {
@@ -14649,6 +14794,7 @@ function addTick(timestamps, ticks, time) {
  * `minor` unit using the given scale time `options`.
  * Important: this method can return ticks outside the min and max range, it's the
  * responsibility of the calling code to clamp values if needed.
+ * @param {TimeScale} scale
  */
 
 
@@ -14704,6 +14850,12 @@ function generate(scale) {
  * where each value is a relative width to the scale and ranges between 0 and 1.
  * They add extra margins on the both sides by scaling down the original scale.
  * Offsets are added when the `offset` option is true.
+ * @param {object} table
+ * @param {number[]} timestamps
+ * @param {number} min
+ * @param {number} max
+ * @param {object} options
+ * @return {object}
  */
 
 
@@ -14736,6 +14888,14 @@ function computeOffsets(table, timestamps, min, max, options) {
     factor: 1 / (start + 1 + end)
   };
 }
+/**
+ * @param {TimeScale} scale
+ * @param {object[]} ticks
+ * @param {object} map
+ * @param {Unit} majorUnit
+ * @return {object[]}
+ */
+
 
 function setMajorTicks(scale, ticks, map, majorUnit) {
   var adapter = scale._adapter;
@@ -14753,6 +14913,13 @@ function setMajorTicks(scale, ticks, map, majorUnit) {
 
   return ticks;
 }
+/**
+ * @param {TimeScale} scale
+ * @param {number[]} values
+ * @param {Unit|undefined} [majorUnit]
+ * @return {object[]}
+ */
+
 
 function ticksFromTimestamps(scale, values, majorUnit) {
   var ticks = [];
@@ -14773,6 +14940,10 @@ function ticksFromTimestamps(scale, values, majorUnit) {
 
   return ilen === 0 || !majorUnit ? ticks : setMajorTicks(scale, ticks, map, majorUnit);
 }
+/**
+ * @param {TimeScale} scale
+ */
+
 
 function getTimestampsForTicks(scale) {
   if (scale.options.ticks.source === 'labels') {
@@ -14781,10 +14952,18 @@ function getTimestampsForTicks(scale) {
 
   return generate(scale);
 }
+/**
+ * @param {TimeScale} scale
+ */
+
 
 function getTimestampsForTable(scale) {
   return scale.options.distribution === 'series' ? getAllTimestamps(scale) : [scale.min, scale.max];
 }
+/**
+ * @param {TimeScale} scale
+ */
+
 
 function getLabelBounds(scale) {
   var arr = getLabelTimestamps(scale);
@@ -14881,6 +15060,9 @@ var TimeScale =
 function (_Scale) {
   _inherits(TimeScale, _Scale);
 
+  /**
+   * @param {object} props
+   */
   function TimeScale(props) {
     var _this;
 
@@ -14890,19 +15072,23 @@ function (_Scale) {
     var options = _this.options;
     var time = options.time || (options.time = {});
     var adapter = _this._adapter = new _adapters._date(options.adapters.date);
-    _this._cache = {};
-    /** @type {string | undefined} */
+    _this._cache = {
+      data: [],
+      labels: [],
+      all: []
+    };
+    /** @type {Unit} */
 
-    _this._unit = undefined;
-    /** @type {string | undefined} */
+    _this._unit = 'day';
+    /** @type {Unit | undefined} */
 
     _this._majorUnit = undefined;
-    /** @type {object | undefined} */
+    /** @type {object} */
 
-    _this._offsets = undefined;
-    /** @type {object[] | undefined} */
+    _this._offsets = {};
+    /** @type {object[]} */
 
-    _this._table = undefined; // Backward compatibility: before introducing adapter, `displayFormats` was
+    _this._table = []; // Backward compatibility: before introducing adapter, `displayFormats` was
     // supposed to contain *all* unit/string pairs but this can't be resolved
     // when loading the scale (adapters are loaded afterward), so let's populate
     // missing formats on update
@@ -14910,6 +15096,12 @@ function (_Scale) {
     mergeIf(time.displayFormats, adapter.formats());
     return _this;
   }
+  /**
+   * @param {*} raw
+   * @param {number} index
+   * @return {number}
+   */
+
 
   _createClass(TimeScale, [{
     key: "_parse",
@@ -14921,6 +15113,13 @@ function (_Scale) {
 
       return parse(this, raw);
     }
+    /**
+     * @param {object} obj
+     * @param {string} axis
+     * @param {number} index
+     * @return {number}
+     */
+
   }, {
     key: "_parseObject",
     value: function _parseObject(obj, axis, index) {
@@ -14937,7 +15136,11 @@ function (_Scale) {
   }, {
     key: "_invalidateCaches",
     value: function _invalidateCaches() {
-      this._cache = {};
+      this._cache = {
+        data: [],
+        labels: [],
+        all: []
+      };
     }
   }, {
     key: "determineDataLimits",
@@ -14952,6 +15155,10 @@ function (_Scale) {
           max = _me$_getUserBounds.max,
           minDefined = _me$_getUserBounds.minDefined,
           maxDefined = _me$_getUserBounds.maxDefined;
+      /**
+       * @param {object} bounds
+       */
+
 
       function _applyBounds(bounds) {
         if (!minDefined && !isNaN(bounds.min)) {
@@ -14981,6 +15188,10 @@ function (_Scale) {
       me.min = Math.min(min, max);
       me.max = Math.max(min + 1, max);
     }
+    /**
+     * @return {object[]}
+     */
+
   }, {
     key: "buildTicks",
     value: function buildTicks() {
@@ -15013,6 +15224,11 @@ function (_Scale) {
 
       return ticksFromTimestamps(me, ticks, me._majorUnit);
     }
+    /**
+     * @param {number} value
+     * @return {string}
+     */
+
   }, {
     key: "getLabelForValue",
     value: function getLabelForValue(value) {
@@ -15028,6 +15244,11 @@ function (_Scale) {
     }
     /**
      * Function to format an individual tick mark
+     * @param {number} time
+     * @param {number} index
+     * @param {object[]} ticks
+     * @param {string|undefined} [format]
+     * @return {string}
      * @private
      */
 
@@ -15037,9 +15258,10 @@ function (_Scale) {
       var me = this;
       var options = me.options;
       var formats = options.time.displayFormats;
+      var unit = me._unit;
       var majorUnit = me._majorUnit;
-      var minorFormat = formats[me._unit];
-      var majorFormat = formats[majorUnit];
+      var minorFormat = unit && formats[unit];
+      var majorFormat = majorUnit && formats[majorUnit];
       var tick = ticks[index];
       var major = majorUnit && majorFormat && tick && tick.major;
 
@@ -15048,6 +15270,10 @@ function (_Scale) {
       var formatter = options.ticks.callback;
       return formatter ? formatter(label, index, ticks) : label;
     }
+    /**
+     * @param {object[]} ticks
+     */
+
   }, {
     key: "generateTickLabels",
     value: function generateTickLabels(ticks) {
@@ -15060,6 +15286,7 @@ function (_Scale) {
     }
     /**
      * @param {number} value - Milliseconds since epoch (1 January 1970 00:00:00 UTC)
+     * @return {number}
      */
 
   }, {
@@ -15070,6 +15297,11 @@ function (_Scale) {
       var pos = interpolate(me._table, 'time', value, 'pos');
       return me.getPixelForDecimal((offsets.start + pos) * offsets.factor);
     }
+    /**
+     * @param {number} index
+     * @return {number}
+     */
+
   }, {
     key: "getPixelForTick",
     value: function getPixelForTick(index) {
@@ -15081,6 +15313,11 @@ function (_Scale) {
 
       return this.getPixelForValue(ticks[index].value);
     }
+    /**
+     * @param {number} pixel
+     * @return {number}
+     */
+
   }, {
     key: "getValueForPixel",
     value: function getValueForPixel(pixel) {
@@ -15090,6 +15327,8 @@ function (_Scale) {
       return interpolate(me._table, 'pos', pos, 'time');
     }
     /**
+     * @param {string} label
+     * @return {{w:number, h:number}}
      * @private
      */
 
@@ -15109,6 +15348,8 @@ function (_Scale) {
       };
     }
     /**
+     * @param {number} exampleTime
+     * @return {number}
      * @private
      */
 
