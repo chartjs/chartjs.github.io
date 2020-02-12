@@ -6759,6 +6759,7 @@ function getSegment(segment, points, bounds) {
  * @param {string} bounds.property - the property of a `Point` we are bounding. `x`, `y` or `angle`.
  * @param {number} bounds.start - start value of the property
  * @param {number} bounds.end - end value of the property
+ * @private
  **/
 
 
@@ -6822,6 +6823,7 @@ function _boundSegment(segment, points, bounds) {
  * @param {string} bounds.property - the property we are bounding with. `x`, `y` or `angle`.
  * @param {number} bounds.start - start value of the `property`
  * @param {number} bounds.end - end value of the `property`
+ * @private
  */
 
 function _boundSegments(line, bounds) {
@@ -6950,6 +6952,7 @@ function solidSegments(points, start, max, loop) {
  * Compute the continuous segments that define the whole line
  * There can be skipped points within a segment, if spanGaps is true.
  * @param {Line} line
+ * @private
  */
 
 
@@ -11803,7 +11806,7 @@ function (_Element) {
     value: function _invalidateCaches() {}
     /**
      * Get the padding needed for the scale
-     * @return {{top: number, left: number, bottom: number, right: number}}
+     * @return {{top: number, left: number, bottom: number, right: number}} the necessary padding
      * @private
      */
 
@@ -12184,7 +12187,7 @@ function (_Element) {
         }
       }
 
-      me.handleMargins();
+      me._handleMargins();
 
       if (isHorizontal) {
         me.width = me._length = chart.width - me.margins.left - me.margins.right;
@@ -12200,8 +12203,8 @@ function (_Element) {
      */
 
   }, {
-    key: "handleMargins",
-    value: function handleMargins() {
+    key: "_handleMargins",
+    value: function _handleMargins() {
       var me = this;
 
       if (me.margins) {
@@ -12240,6 +12243,7 @@ function (_Element) {
     }
     /**
      * @param {object[]} ticks
+     * @private
      */
 
   }, {
@@ -13114,6 +13118,10 @@ function (_Scale) {
     _this._valueRange = undefined;
     return _this;
   }
+  /**
+   * @private
+   */
+
 
   _createClass(CategoryScale, [{
     key: "_parse",
@@ -13170,6 +13178,10 @@ function (_Scale) {
 
       return value;
     }
+    /**
+     * @private
+     */
+
   }, {
     key: "_configure",
     value: function _configure() {
@@ -13368,6 +13380,10 @@ function (_Scale) {
     _this._valueRange = undefined;
     return _this;
   }
+  /**
+   * @private
+   */
+
 
   _createClass(LinearScaleBase, [{
     key: "_parse",
@@ -13471,11 +13487,19 @@ function (_Scale) {
 
       return maxTicks;
     }
+    /**
+     * @private
+     */
+
   }, {
     key: "_computeTickLimit",
     value: function _computeTickLimit() {
       return Number.POSITIVE_INFINITY;
     }
+    /**
+     * @private
+     */
+
   }, {
     key: "_handleDirectionalChanges",
     value: function _handleDirectionalChanges(ticks) {
@@ -13517,6 +13541,10 @@ function (_Scale) {
 
       return ticks;
     }
+    /**
+     * @private
+     */
+
   }, {
     key: "_configure",
     value: function _configure() {
@@ -13728,6 +13756,10 @@ function (_Scale) {
     _this._valueRange = undefined;
     return _this;
   }
+  /**
+   * @private
+   */
+
 
   _createClass(LogarithmicScale, [{
     key: "_parse",
@@ -13836,6 +13868,10 @@ function (_Scale) {
 
       return this.getPixelForValue(ticks[index].value);
     }
+    /**
+     * @private
+     */
+
   }, {
     key: "_configure",
     value: function _configure() {
@@ -14035,7 +14071,7 @@ function fitWithPointLabels(scale) {
     }
   }
 
-  scale.setReductions(scale.drawingArea, furthestLimits, furthestAngles);
+  scale._setReductions(scale.drawingArea, furthestLimits, furthestAngles);
 }
 
 function getTextAlignForAngle(angle) {
@@ -14197,7 +14233,11 @@ function (_LinearScaleBase) {
       me.max = helpers.isFinite(max) && !isNaN(max) ? max : 0; // Common base implementation to handle min, max, beginAtZero
 
       me.handleTickRangeOptions();
-    } // Returns the maximum number of ticks based on the scale dimension
+    }
+    /**
+     * Returns the maximum number of ticks based on the scale dimension
+     * @private
+     */
 
   }, {
     key: "_computeTickLimit",
@@ -14233,8 +14273,8 @@ function (_LinearScaleBase) {
      */
 
   }, {
-    key: "setReductions",
-    value: function setReductions(largestPossibleRadius, furthestLimits, furthestAngles) {
+    key: "_setReductions",
+    value: function _setReductions(largestPossibleRadius, furthestLimits, furthestAngles) {
       var me = this;
       var radiusReductionLeft = furthestLimits.l / Math.sin(furthestAngles.l);
       var radiusReductionRight = Math.max(furthestLimits.r - me.width, 0) / Math.sin(furthestAngles.r);
@@ -15100,6 +15140,7 @@ function (_Scale) {
    * @param {*} raw
    * @param {number} index
    * @return {number}
+   * @private
    */
 
 
@@ -15118,6 +15159,7 @@ function (_Scale) {
      * @param {string} axis
      * @param {number} index
      * @return {number}
+     * @private
      */
 
   }, {
@@ -15133,6 +15175,10 @@ function (_Scale) {
 
       return null;
     }
+    /**
+     * @private
+     */
+
   }, {
     key: "_invalidateCaches",
     value: function _invalidateCaches() {
@@ -16591,6 +16637,10 @@ function (_Element) {
       });
       restoreTextDirection(me.ctx, opts.textDirection);
     }
+    /**
+     * @private
+     */
+
   }, {
     key: "_drawTitle",
     value: function _drawTitle() {
@@ -16682,6 +16732,10 @@ function (_Element) {
       ctx.font = titleFont.string;
       ctx.fillText(titleOpts.text, x, y);
     }
+    /**
+     * @private
+     */
+
   }, {
     key: "_computeTitleHeight",
     value: function _computeTitleHeight() {
@@ -16721,7 +16775,6 @@ function (_Element) {
     /**
      * Handle an event
      * @param {IEvent} e - The event to handle
-     * @private
      */
 
   }, {
@@ -17924,6 +17977,10 @@ function (_Element) {
         }
       }
     }
+    /**
+     * @private
+     */
+
   }, {
     key: "_drawColorBox",
     value: function _drawColorBox(ctx, pt, i, rtlHelper) {
@@ -18151,7 +18208,6 @@ function (_Element) {
     }
     /**
      * Handle an event
-     * @private
      * @param {IEvent} e - The event to handle
      * @returns {boolean} true if the tooltip changed
      */
