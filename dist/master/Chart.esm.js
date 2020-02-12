@@ -6670,9 +6670,6 @@ function _bezierInterpolation(p1, p2, t, mode) {
 
 /**
  * @typedef { import("../elements/element.line").default } Line
- */
-
-/**
  * @typedef { import("../elements/element.point").default } Point
  */
 
@@ -8147,10 +8144,8 @@ function _rlookupByKey(table, key, value) {
 
 /**
  * @typedef { import("./core.controller").default } Chart
- */
-
-/**
  * @typedef { import("../platform/platform.base").IEvent } IEvent
+ * @typedef {{axis?:'x'|'y'|'xy', intersect:boolean}} IInteractionOptions
  */
 
 /**
@@ -8366,17 +8361,6 @@ function getNearestItems(chart, position, axis, intersect) {
   optimizedEvaluateItems(chart, axis, position, evaluationFunc);
   return items;
 }
-/**
- * @interface IInteractionOptions
- * @typedef {object} IInteractionOptions
- */
-
-/**
- * If true, only consider items that intersect the point
- * @name IInterfaceOptions#boolean
- * @type Boolean
- */
-
 /**
  * Contains interaction related functions
  * @namespace Chart.Interaction
@@ -9534,13 +9518,7 @@ var platforms = {
 
 /**
  * @typedef { import("./core.controller").default } Chart
- */
-
-/**
  * @typedef { import("../platform/platform.base").IEvent } IEvent
- */
-
-/**
  * @typedef { import("../plugins/plugin.tooltip").default } Tooltip
  */
 
@@ -14465,7 +14443,7 @@ RadialLinearScale._defaults = defaultConfig$3;
 
 var MAX_INTEGER = Number.MAX_SAFE_INTEGER || 9007199254740991;
 /**
- * @type {Map<Unit, {common: boolean, size: number, steps: number|undefined}>}
+ * @type {Map<Unit, {common: boolean, size: number, steps?: number}>}
  */
 
 var INTERVALS = new Map();
@@ -14511,8 +14489,7 @@ INTERVALS.set('quarter', {
 });
 INTERVALS.set('year', {
   common: true,
-  size: 3.154e10,
-  steps: undefined
+  size: 3.154e10
 });
 /**
  * @type {Unit[]}
