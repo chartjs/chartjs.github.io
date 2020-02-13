@@ -64,6 +64,15 @@
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<dl class="tsd-comment-tags">
+						<dt>namespace</dt>
+						<dd><p>Chart.helpers</p>
+						</dd>
+					</dl>
+				</div>
+			</section>
 			<section class="tsd-panel-group tsd-index-group">
 				<h2>Index</h2>
 				<section class="tsd-panel tsd-index-panel">
@@ -120,10 +129,10 @@
 				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-external-module">
 					<a name="extend" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagConst">Const</span> extend</h3>
-					<div class="tsd-signature tsd-kind-icon">extend<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">assign</span><span class="tsd-signature-symbol"> = Object.assign || function(target) {return merge(target, [].slice.call(arguments, 1), {merger: function(key, dst, src) {dst[key] &#x3D; src[key];}});}</span></div>
+					<div class="tsd-signature tsd-kind-icon">extend<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">assign</span><span class="tsd-signature-symbol"> = Object.assign || function(target, ...args) {return merge(target, args, {merger(key, dst, src) {dst[key] &#x3D; src[key];}});}</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/7609385/src/helpers/helpers.core.js#L308">helpers/helpers.core.js:308</a></li>
+							<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/a476c32/src/helpers/helpers.core.js#L303">helpers/helpers.core.js:303</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -149,10 +158,10 @@
 				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-external-module">
 					<a name="uid" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagConst">Const</span> uid</h3>
-					<div class="tsd-signature tsd-kind-icon">uid<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">(Anonymous function)</span><span class="tsd-signature-symbol"> = (function() {var id &#x3D; 0;return function() {return id++;};}())</span></div>
+					<div class="tsd-signature tsd-kind-icon">uid<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">(Anonymous function)</span><span class="tsd-signature-symbol"> = (function() {let id &#x3D; 0;return function() {return id++;};}())</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/7609385/src/helpers/helpers.core.js#L16">helpers/helpers.core.js:16</a></li>
+							<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/a476c32/src/helpers/helpers.core.js#L14">helpers/helpers.core.js:14</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -180,7 +189,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/7609385/src/helpers/helpers.core.js#L344">helpers/helpers.core.js:344</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/a476c32/src/helpers/helpers.core.js#L341">helpers/helpers.core.js:341</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -214,7 +223,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/7609385/src/helpers/helpers.core.js#L176">helpers/helpers.core.js:176</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/a476c32/src/helpers/helpers.core.js#L172">helpers/helpers.core.js:172</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -251,7 +260,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/7609385/src/helpers/helpers.core.js#L226">helpers/helpers.core.js:226</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/a476c32/src/helpers/helpers.core.js#L222">helpers/helpers.core.js:222</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -289,7 +298,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/7609385/src/helpers/helpers.core.js#L290">helpers/helpers.core.js:290</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/a476c32/src/helpers/helpers.core.js#L285">helpers/helpers.core.js:285</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -323,7 +332,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/7609385/src/helpers/helpers.core.js#L145">helpers/helpers.core.js:145</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/a476c32/src/helpers/helpers.core.js#L141">helpers/helpers.core.js:141</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -365,7 +374,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/7609385/src/helpers/helpers.core.js#L101">helpers/helpers.core.js:101</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/a476c32/src/helpers/helpers.core.js#L97">helpers/helpers.core.js:97</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -406,7 +415,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/7609385/src/helpers/helpers.core.js#L200">helpers/helpers.core.js:200</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/a476c32/src/helpers/helpers.core.js#L196">helpers/helpers.core.js:196</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -437,7 +446,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/7609385/src/helpers/helpers.core.js#L116">helpers/helpers.core.js:116</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/a476c32/src/helpers/helpers.core.js#L112">helpers/helpers.core.js:112</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -482,7 +491,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/7609385/src/helpers/helpers.core.js#L319">helpers/helpers.core.js:319</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/a476c32/src/helpers/helpers.core.js#L314">helpers/helpers.core.js:314</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -510,7 +519,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/7609385/src/helpers/helpers.core.js#L39">helpers/helpers.core.js:39</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/a476c32/src/helpers/helpers.core.js#L37">helpers/helpers.core.js:37</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -545,7 +554,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/7609385/src/helpers/helpers.core.js#L29">helpers/helpers.core.js:29</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/a476c32/src/helpers/helpers.core.js#L27">helpers/helpers.core.js:27</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -581,7 +590,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/7609385/src/helpers/helpers.core.js#L65">helpers/helpers.core.js:65</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/a476c32/src/helpers/helpers.core.js#L63">helpers/helpers.core.js:63</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -614,7 +623,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/7609385/src/helpers/helpers.core.js#L56">helpers/helpers.core.js:56</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/a476c32/src/helpers/helpers.core.js#L54">helpers/helpers.core.js:54</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -650,7 +659,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/7609385/src/helpers/helpers.core.js#L247">helpers/helpers.core.js:247</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/a476c32/src/helpers/helpers.core.js#L243">helpers/helpers.core.js:243</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -694,7 +703,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/7609385/src/helpers/helpers.core.js#L281">helpers/helpers.core.js:281</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/a476c32/src/helpers/helpers.core.js#L276">helpers/helpers.core.js:276</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -733,7 +742,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/7609385/src/helpers/helpers.core.js#L9">helpers/helpers.core.js:9</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/a476c32/src/helpers/helpers.core.js#L7">helpers/helpers.core.js:7</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -755,7 +764,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/7609385/src/helpers/helpers.core.js#L89">helpers/helpers.core.js:89</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/a476c32/src/helpers/helpers.core.js#L85">helpers/helpers.core.js:85</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -798,7 +807,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/7609385/src/helpers/helpers.core.js#L78">helpers/helpers.core.js:78</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/a476c32/src/helpers/helpers.core.js#L74">helpers/helpers.core.js:74</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">

@@ -1124,7 +1124,6 @@ function index(input) {
 /**
  * An empty function that can be used, for example, for optional callback.
  */
-
 function noop() {}
 /**
  * Returns a unique id, sequentially generated from a global variable.
@@ -1369,25 +1368,24 @@ function _merger(key, target, source, options) {
 function merge(target, source, options) {
   var sources = isArray(source) ? source : [source];
   var ilen = sources.length;
-  var merger, i, keys, klen, k;
 
   if (!isObject(target)) {
     return target;
   }
 
   options = options || {};
-  merger = options.merger || _merger;
+  var merger = options.merger || _merger;
 
-  for (i = 0; i < ilen; ++i) {
+  for (var i = 0; i < ilen; ++i) {
     source = sources[i];
 
     if (!isObject(source)) {
       continue;
     }
 
-    keys = Object.keys(source);
+    var keys = Object.keys(source);
 
-    for (k = 0, klen = keys.length; k < klen; ++k) {
+    for (var k = 0, klen = keys.length; k < klen; ++k) {
       merger(keys[k], target, source, options);
     }
   }
@@ -1432,7 +1430,11 @@ function _mergerIf(key, target, source) {
  */
 
 var extend = Object.assign || function (target) {
-  return merge(target, [].slice.call(arguments, 1), {
+  for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+    args[_key - 1] = arguments[_key];
+  }
+
+  return merge(target, args, {
     merger: function merger(key, dst, src) {
       dst[key] = src[key];
     }
@@ -1443,8 +1445,10 @@ var extend = Object.assign || function (target) {
  */
 
 function inherits(extensions) {
+  // eslint-disable-next-line no-invalid-this
   var me = this;
   var ChartElement = extensions && Object.prototype.hasOwnProperty.call(extensions, 'constructor') ? extensions.constructor : function () {
+    // eslint-disable-next-line prefer-rest-params
     return me.apply(this, arguments);
   };
 
@@ -2381,7 +2385,6 @@ retinaScale: retinaScale
  * @namespace Chart.helpers.easing.effects
  * @see http://www.robertpenner.com/easing/
  */
-
 var effects = {
   linear: function linear(t) {
     return t;
@@ -2403,7 +2406,7 @@ var effects = {
     return t * t * t;
   },
   easeOutCubic: function easeOutCubic(t) {
-    return (t = t - 1) * t * t + 1;
+    return (t -= 1) * t * t + 1;
   },
   easeInOutCubic: function easeInOutCubic(t) {
     if ((t /= 0.5) < 1) {
@@ -2416,7 +2419,7 @@ var effects = {
     return t * t * t * t;
   },
   easeOutQuart: function easeOutQuart(t) {
-    return -((t = t - 1) * t * t * t - 1);
+    return -((t -= 1) * t * t * t - 1);
   },
   easeInOutQuart: function easeInOutQuart(t) {
     if ((t /= 0.5) < 1) {
@@ -2429,7 +2432,7 @@ var effects = {
     return t * t * t * t * t;
   },
   easeOutQuint: function easeOutQuint(t) {
-    return (t = t - 1) * t * t * t * t + 1;
+    return (t -= 1) * t * t * t * t + 1;
   },
   easeInOutQuint: function easeInOutQuint(t) {
     if ((t /= 0.5) < 1) {
@@ -2476,7 +2479,7 @@ var effects = {
     return -(Math.sqrt(1 - t * t) - 1);
   },
   easeOutCirc: function easeOutCirc(t) {
-    return Math.sqrt(1 - (t = t - 1) * t);
+    return Math.sqrt(1 - (t -= 1) * t);
   },
   easeInOutCirc: function easeInOutCirc(t) {
     if ((t /= 0.5) < 1) {
@@ -2564,7 +2567,7 @@ var effects = {
   },
   easeOutBack: function easeOutBack(t) {
     var s = 1.70158;
-    return (t = t - 1) * t * ((s + 1) * t + s) + 1;
+    return (t -= 1) * t * ((s + 1) * t + s) + 1;
   },
   easeInOutBack: function easeInOutBack(t) {
     var s = 1.70158;
@@ -2601,11 +2604,6 @@ var effects = {
     return effects.easeOutBounce(t * 2 - 1) * 0.5 + 0.5;
   }
 };
-
-var easing = /*#__PURE__*/Object.freeze({
-__proto__: null,
-effects: effects
-});
 
 var Defaults =
 /*#__PURE__*/
@@ -2899,7 +2897,9 @@ var helpers = _objectSpread2({}, coreHelpers, {
   canvas: canvas,
   curve: curve,
   dom: dom,
-  easing: easing,
+  easing: {
+    effects: effects
+  },
   options: options,
   math: math,
   rtl: rtl,
@@ -3180,6 +3180,16 @@ function () {
 
       this._notify(chart, anims, Date.now(), 'complete');
     }
+    /**
+     * Remove chart from Animator
+     * @param {Chart} chart
+     */
+
+  }, {
+    key: "remove",
+    value: function remove(chart) {
+      return this._charts["delete"](chart);
+    }
   }]);
 
   return Animator;
@@ -3449,7 +3459,7 @@ function () {
         }
 
         if (prop === 'options') {
-          animations.push.apply(animations, this._animateOptions(target, values));
+          animations.push.apply(animations, _toConsumableArray(this._animateOptions(target, values)));
           continue;
         }
 
@@ -3535,7 +3545,10 @@ function listenArrayEvents(array, listener) {
       configurable: true,
       enumerable: false,
       value: function value() {
-        var args = Array.prototype.slice.call(arguments);
+        for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+          args[_key] = arguments[_key];
+        }
+
         var res = base.apply(this, args);
 
         array._chartjs.listeners.forEach(function (object) {
@@ -3938,14 +3951,13 @@ function () {
     value: function addElements() {
       var me = this;
       var meta = me._cachedMeta;
-      var i, ilen, data;
 
       me._dataCheck();
 
-      data = me._data;
+      var data = me._data;
       var metaData = meta.data = new Array(data.length);
 
-      for (i = 0, ilen = data.length; i < ilen; ++i) {
+      for (var i = 0, ilen = data.length; i < ilen; ++i) {
         metaData[i] = new me.dataElementType();
       }
 
@@ -5205,7 +5217,6 @@ function computeFlexCategoryTraits(index, ruler, options) {
   var prev = index > 0 ? pixels[index - 1] : null;
   var next = index < pixels.length - 1 ? pixels[index + 1] : null;
   var percent = options.categoryPercentage;
-  var start, size;
 
   if (prev === null) {
     // first data: its size is double based on the next point or,
@@ -5218,8 +5229,8 @@ function computeFlexCategoryTraits(index, ruler, options) {
     next = curr + curr - prev;
   }
 
-  start = curr - (curr - Math.min(prev, next)) / 2 * percent;
-  size = Math.abs(next - prev) / 2 * percent;
+  var start = curr - (curr - Math.min(prev, next)) / 2 * percent;
+  var size = Math.abs(next - prev) / 2 * percent;
   return {
     chunk: size / ruler.stackCount,
     ratio: options.barPercentage,
@@ -5291,22 +5302,22 @@ var BarController =
 function (_DatasetController) {
   _inherits(BarController, _DatasetController);
 
-  function BarController(chart, datasetIndex) {
+  function BarController() {
     _classCallCheck(this, BarController);
 
-    return _possibleConstructorReturn(this, _getPrototypeOf(BarController).call(this, chart, datasetIndex));
+    return _possibleConstructorReturn(this, _getPrototypeOf(BarController).apply(this, arguments));
   }
-  /**
-   * Overriding primitive data parsing since we support mixed primitive/array
-   * data for float bars
-   * @private
-   */
-
 
   _createClass(BarController, [{
     key: "_parsePrimitiveData",
-    value: function _parsePrimitiveData() {
-      return parseArrayOrPrimitive.apply(this, arguments);
+
+    /**
+     * Overriding primitive data parsing since we support mixed primitive/array
+     * data for float bars
+     * @private
+     */
+    value: function _parsePrimitiveData(meta, data, start, count) {
+      return parseArrayOrPrimitive(meta, data, start, count);
     }
     /**
      * Overriding array data parsing since we support mixed primitive/array
@@ -5316,8 +5327,8 @@ function (_DatasetController) {
 
   }, {
     key: "_parseArrayData",
-    value: function _parseArrayData() {
-      return parseArrayOrPrimitive.apply(this, arguments);
+    value: function _parseArrayData(meta, data, start, count) {
+      return parseArrayOrPrimitive(meta, data, start, count);
     }
     /**
      * Overriding object data parsing since we support mixed primitive/array
@@ -5376,9 +5387,10 @@ function (_DatasetController) {
     key: "initialize",
     value: function initialize() {
       var me = this;
-      var meta;
-      DatasetController.prototype.initialize.apply(me, arguments);
-      meta = me._cachedMeta;
+
+      _get(_getPrototypeOf(BarController.prototype), "initialize", this).call(this);
+
+      var meta = me._cachedMeta;
       meta.stack = me.getDataset().stack;
       meta.bar = true;
     }
@@ -5558,7 +5570,7 @@ function (_DatasetController) {
       var value = parsed[vScale.axis];
       var start = 0;
       var length = meta._stacked ? me._applyStack(vScale, parsed) : value;
-      var base, head, size;
+      var head, size;
 
       if (length !== value) {
         start = length - value;
@@ -5580,7 +5592,8 @@ function (_DatasetController) {
       // TODO: use borderWidth instead (need to move the parsing from rectangle)
 
 
-      base = _limitValue(vScale.getPixelForValue(start), vScale._startPixel - 10, vScale._endPixel + 10);
+      var base = _limitValue(vScale.getPixelForValue(start), vScale._startPixel - 10, vScale._endPixel + 10);
+
       head = vScale.getPixelForValue(start + length);
       size = head - base;
 
@@ -5792,19 +5805,19 @@ var BubbleController =
 function (_DatasetController) {
   _inherits(BubbleController, _DatasetController);
 
-  function BubbleController(chart, datasetIndex) {
+  function BubbleController() {
     _classCallCheck(this, BubbleController);
 
-    return _possibleConstructorReturn(this, _getPrototypeOf(BubbleController).call(this, chart, datasetIndex));
+    return _possibleConstructorReturn(this, _getPrototypeOf(BubbleController).apply(this, arguments));
   }
-  /**
-   * Parse array of objects
-   * @private
-   */
-
 
   _createClass(BubbleController, [{
     key: "_parseObjectData",
+
+    /**
+     * Parse array of objects
+     * @private
+     */
     value: function _parseObjectData(meta, data, start, count) {
       var xScale = meta.xScale,
           yScale = meta.yScale;
@@ -5933,7 +5946,7 @@ function (_DatasetController) {
 
       var parsed = me._getParsed(index);
 
-      var values = _get(_getPrototypeOf(BubbleController.prototype), "_resolveDataElementOptions", this).apply(me, arguments); // Scriptable options
+      var values = _get(_getPrototypeOf(BubbleController.prototype), "_resolveDataElementOptions", this).call(this, index, mode); // Scriptable options
 
 
       var context = {
@@ -6337,9 +6350,8 @@ function (_DatasetController) {
       var cutout = opts.cutoutPercentage / 100 || 0;
       var circumference = opts.circumference;
 
-      var chartWeight = me._getRingWeight(me.index);
+      var chartWeight = me._getRingWeight(me.index); // If the chart's circumference isn't a full circle, calculate size as a ratio of the width/height of the arc
 
-      var maxWidth, maxHeight, i, ilen; // If the chart's circumference isn't a full circle, calculate size as a ratio of the width/height of the arc
 
       if (circumference < DOUBLE_PI$1) {
         var startAngle = opts.rotation % DOUBLE_PI$1;
@@ -6363,13 +6375,13 @@ function (_DatasetController) {
         offsetY = -(maxY + minY) / 2;
       }
 
-      for (i = 0, ilen = arcs.length; i < ilen; ++i) {
+      for (var i = 0, ilen = arcs.length; i < ilen; ++i) {
         arcs[i]._options = me._resolveDataElementOptions(i, mode);
       }
 
       chart.borderWidth = me.getMaxBorderWidth();
-      maxWidth = (chartArea.right - chartArea.left - chart.borderWidth) / ratioX;
-      maxHeight = (chartArea.bottom - chartArea.top - chart.borderWidth) / ratioY;
+      var maxWidth = (chartArea.right - chartArea.left - chart.borderWidth) / ratioX;
+      var maxHeight = (chartArea.bottom - chartArea.top - chart.borderWidth) / ratioY;
       chart.outerRadius = Math.max(Math.min(maxWidth, maxHeight) / 2, 0);
       chart.innerRadius = Math.max(chart.outerRadius * cutout, 0);
       chart.radiusLength = (chart.outerRadius - chart.innerRadius) / (me._getVisibleDatasetWeightTotal() || 1);
@@ -6596,18 +6608,18 @@ var HorizontalBarController =
 function (_BarController) {
   _inherits(HorizontalBarController, _BarController);
 
-  function HorizontalBarController(chart, datasetIndex) {
+  function HorizontalBarController() {
     _classCallCheck(this, HorizontalBarController);
 
-    return _possibleConstructorReturn(this, _getPrototypeOf(HorizontalBarController).call(this, chart, datasetIndex));
+    return _possibleConstructorReturn(this, _getPrototypeOf(HorizontalBarController).apply(this, arguments));
   }
-  /**
-   * @private
-   */
-
 
   _createClass(HorizontalBarController, [{
     key: "_getValueScaleId",
+
+    /**
+     * @private
+     */
     value: function _getValueScaleId() {
       return this._cachedMeta.xAxisID;
     }
@@ -6628,7 +6640,6 @@ function (_BarController) {
 /**
  * @private
  */
-
 function _pointInLine(p1, p2, t, mode) {
   // eslint-disable-line no-unused-vars
   return {
@@ -6718,7 +6729,8 @@ function getSegment(segment, points, bounds) {
       between = _propertyFn.between,
       normalize = _propertyFn.normalize;
 
-  var count = points.length;
+  var count = points.length; // eslint-disable-next-line prefer-const
+
   var start = segment.start,
       end = segment.end,
       loop = segment.loop;
@@ -7053,7 +7065,7 @@ function pathSegment(ctx, line, segment, params) {
   var points = line.points,
       options = line.options;
   var lineMethod = getLineMethod(options);
-  var count = points.length;
+  var count = points.length; // eslint-disable-next-line prefer-const
 
   var _ref = params || {},
       _ref$move = _ref.move,
@@ -7512,13 +7524,13 @@ function (_DatasetController) {
 
   }, {
     key: "_resolveDatasetElementOptions",
-    value: function _resolveDatasetElementOptions() {
+    value: function _resolveDatasetElementOptions(active) {
       var me = this;
       var config = me._config;
       var options = me.chart.options;
       var lineOptions = options.elements.line;
 
-      var values = DatasetController.prototype._resolveDatasetElementOptions.apply(me, arguments); // The default behavior of lines is to break at null values, according
+      var values = _get(_getPrototypeOf(LineController.prototype), "_resolveDatasetElementOptions", this).call(this, active); // The default behavior of lines is to break at null values, according
       // to https://github.com/chartjs/Chart.js/issues/2435#issuecomment-216718158
       // This option gives lines the ability to span gaps
 
@@ -7883,18 +7895,18 @@ var RadarController =
 function (_DatasetController) {
   _inherits(RadarController, _DatasetController);
 
-  function RadarController(chart, datasetIndex) {
+  function RadarController() {
     _classCallCheck(this, RadarController);
 
-    return _possibleConstructorReturn(this, _getPrototypeOf(RadarController).call(this, chart, datasetIndex));
+    return _possibleConstructorReturn(this, _getPrototypeOf(RadarController).apply(this, arguments));
   }
-  /**
-   * @private
-   */
-
 
   _createClass(RadarController, [{
     key: "_getIndexScaleId",
+
+    /**
+     * @private
+     */
     value: function _getIndexScaleId() {
       return this._cachedMeta.rAxisID;
     }
@@ -7982,12 +7994,12 @@ function (_DatasetController) {
 
   }, {
     key: "_resolveDatasetElementOptions",
-    value: function _resolveDatasetElementOptions() {
+    value: function _resolveDatasetElementOptions(active) {
       var me = this;
       var config = me._config;
       var options = me.chart.options;
 
-      var values = _get(_getPrototypeOf(RadarController.prototype), "_resolveDatasetElementOptions", this).apply(me, arguments);
+      var values = _get(_getPrototypeOf(RadarController.prototype), "_resolveDatasetElementOptions", this).call(this, active);
 
       values.spanGaps = valueOrDefault(config.spanGaps, options.spanGaps);
       values.tension = valueOrDefault(config.lineTension, options.elements.line.tension);
@@ -8070,7 +8082,6 @@ var controllers = {
  * @param {number} value - value to find
  * @private
  */
-
 function _lookup(table, value) {
   var hi = table.length - 1;
   var lo = 0;
@@ -8623,7 +8634,6 @@ function getCombinedMax(maxPadding, chartArea, a, b) {
 function updateDims(chartArea, params, layout) {
   var box = layout.box;
   var maxPadding = chartArea.maxPadding;
-  var newWidth, newHeight;
 
   if (layout.size) {
     // this layout was already counted for, lets first reduce old size
@@ -8641,8 +8651,8 @@ function updateDims(chartArea, params, layout) {
     maxPadding.right = Math.max(maxPadding.right, boxPadding.right);
   }
 
-  newWidth = params.outerWidth - getCombinedMax(maxPadding, chartArea, 'left', 'right');
-  newHeight = params.outerHeight - getCombinedMax(maxPadding, chartArea, 'top', 'bottom');
+  var newWidth = params.outerWidth - getCombinedMax(maxPadding, chartArea, 'left', 'right');
+  var newHeight = params.outerHeight - getCombinedMax(maxPadding, chartArea, 'top', 'bottom');
 
   if (newWidth !== chartArea.w || newHeight !== chartArea.h) {
     chartArea.w = newWidth;
@@ -8797,8 +8807,8 @@ var layouts = {
     item._layers = item._layers || function () {
       return [{
         z: 0,
-        draw: function draw() {
-          item.draw.apply(item, arguments);
+        draw: function draw(chartArea) {
+          item.draw(chartArea);
         }
       }];
     };
@@ -8933,26 +8943,30 @@ var layouts = {
   }
 };
 
+/**
+ * @typedef { import("../core/core.controller").default } Chart
+ */
+
+/**
+ * Abstract class that allows abstracting platform dependencies away from the chart.
+ */
 var BasePlatform =
 /*#__PURE__*/
 function () {
-  /**
-   * @constructor
-   */
   function BasePlatform() {
     _classCallCheck(this, BasePlatform);
   }
-  /**
-   * Called at chart construction time, returns a context2d instance implementing
-   * the [W3C Canvas 2D Context API standard]{@link https://www.w3.org/TR/2dcontext/}.
-   * @param {HTMLCanvasElement} canvas - The canvas from which to acquire context (platform specific)
-   * @param {object} options - The chart options
-   * @returns {CanvasRenderingContext2D} context2d instance
-   */
-
 
   _createClass(BasePlatform, [{
     key: "acquireContext",
+
+    /**
+     * Called at chart construction time, returns a context2d instance implementing
+     * the [W3C Canvas 2D Context API standard]{@link https://www.w3.org/TR/2dcontext/}.
+     * @param {HTMLCanvasElement} canvas - The canvas from which to acquire context (platform specific)
+     * @param {object} options - The chart options
+     * @returns {CanvasRenderingContext2D} context2d instance
+     */
     value: function acquireContext(canvas, options) {
       // eslint-disable-line no-unused-vars
       return undefined;
@@ -9008,10 +9022,6 @@ function () {
 }();
 
 /**
- * Platform fallback implementation (minimal).
- * @see https://github.com/chartjs/Chart.js/pull/4591#issuecomment-319575939
- */
-/**
  * Platform class for charts without access to the DOM or to many element properties
  * This platform is used by default for any chart passed an OffscreenCanvas.
  * @extends BasePlatform
@@ -9047,9 +9057,6 @@ var platform = {
 
 var stylesheet = "/*\n * DOM element rendering detection\n * https://davidwalsh.name/detect-node-insertion\n */\n@keyframes chartjs-render-animation {\n\tfrom { opacity: 0.99; }\n\tto { opacity: 1; }\n}\n\n.chartjs-render-monitor {\n\tanimation: chartjs-render-animation 0.001s;\n}\n\n/*\n * DOM element resizing detection\n * https://github.com/marcj/css-element-queries\n */\n.chartjs-size-monitor,\n.chartjs-size-monitor-expand,\n.chartjs-size-monitor-shrink {\n\tposition: absolute;\n\tdirection: ltr;\n\tleft: 0;\n\ttop: 0;\n\tright: 0;\n\tbottom: 0;\n\toverflow: hidden;\n\tpointer-events: none;\n\tvisibility: hidden;\n\tz-index: -1;\n}\n\n.chartjs-size-monitor-expand > div {\n\tposition: absolute;\n\twidth: 1000000px;\n\theight: 1000000px;\n\tleft: 0;\n\ttop: 0;\n}\n\n.chartjs-size-monitor-shrink > div {\n\tposition: absolute;\n\twidth: 200%;\n\theight: 200%;\n\tleft: 0;\n\ttop: 0;\n}\n";
 
-/**
- * Chart.Platform implementation for targeting a web browser
- */
 var EXPANDO_KEY = '$chartjs';
 var CSS_PREFIX = 'chartjs-';
 var CSS_SIZE_MONITOR = CSS_PREFIX + 'size-monitor';
@@ -9201,8 +9208,11 @@ function throttled(fn, thisArg) {
   var ticking = false;
   var args = [];
   return function () {
-    args = Array.prototype.slice.call(arguments);
-    thisArg = thisArg || this;
+    for (var _len = arguments.length, rest = new Array(_len), _key = 0; _key < _len; _key++) {
+      rest[_key] = arguments[_key];
+    }
+
+    args = Array.prototype.slice.call(rest);
 
     if (!ticking) {
       ticking = true;
@@ -10057,7 +10067,11 @@ function mergeScaleConfig(config, options) {
 function mergeConfig()
 /* config objects ... */
 {
-  return helpers.merge({}, [].slice.call(arguments), {
+  for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+    args[_key] = arguments[_key];
+  }
+
+  return helpers.merge({}, args, {
     merger: function merger(key, target, source, options) {
       if (key !== 'scales' && key !== 'scale') {
         helpers._merger(key, target, source, options);
@@ -10585,13 +10599,15 @@ function () {
       layouts.update(me, me.width, me.height);
       me._layers = [];
       helpers.each(me.boxes, function (box) {
+        var _me$_layers;
+
         // _configure is called twice, once in core.scale.update and once here.
         // Here the boxes are fully updated and at their final positions.
         if (box._configure) {
           box._configure();
         }
 
-        me._layers.push.apply(me._layers, box._layers());
+        (_me$_layers = me._layers).push.apply(_me$_layers, _toConsumableArray(box._layers()));
       }, me);
 
       me._layers.forEach(function (item, index) {
@@ -10677,7 +10693,7 @@ function () {
     key: "draw",
     value: function draw() {
       var me = this;
-      var i, layers;
+      var i;
       me.clear();
 
       if (me.width <= 0 || me.height <= 0) {
@@ -10691,7 +10707,7 @@ function () {
       // layers <= 0 before(default, backward compat), and the rest after
 
 
-      layers = me._layers;
+      var layers = me._layers;
 
       for (i = 0; i < layers.length && layers[i].z <= 0; ++i) {
         layers[i].draw(me.chartArea);
@@ -10747,15 +10763,14 @@ function () {
     key: "_drawDatasets",
     value: function _drawDatasets() {
       var me = this;
-      var metasets, i;
 
       if (pluginsCore.notify(me, 'beforeDatasetsDraw') === false) {
         return;
       }
 
-      metasets = me._getSortedVisibleDatasetMetas();
+      var metasets = me._getSortedVisibleDatasetMetas();
 
-      for (i = metasets.length - 1; i >= 0; --i) {
+      for (var i = metasets.length - 1; i >= 0; --i) {
         me._drawDataset(metasets[i]);
       }
 
@@ -10949,7 +10964,8 @@ function () {
       var me = this;
       var canvas = me.canvas;
       var i, ilen;
-      me.stop(); // dataset controllers need to cleanup associated data
+      me.stop();
+      instance.remove(me); // dataset controllers need to cleanup associated data
 
       for (i = 0, ilen = me.data.datasets.length; i < ilen; ++i) {
         me._destroyDatasetMeta(i);
@@ -10969,7 +10985,9 @@ function () {
   }, {
     key: "toBase64Image",
     value: function toBase64Image() {
-      return this.canvas.toDataURL.apply(this.canvas, arguments);
+      var _this$canvas;
+
+      return (_this$canvas = this.canvas).toDataURL.apply(_this$canvas, arguments);
     }
     /**
      * @private
@@ -10981,8 +10999,8 @@ function () {
       var me = this;
       var listeners = me._listeners;
 
-      var listener = function listener() {
-        me._eventHandler.apply(me, arguments);
+      var listener = function listener(e) {
+        me._eventHandler(e);
       };
 
       helpers.each(me.options.events, function (type) {
@@ -11135,11 +11153,6 @@ function () {
 
 Chart.instances = {};
 
-/**
- * @namespace Chart._adapters
- * @since 2.8.0
- * @private
- */
 /**
  * @return {*}
  */
@@ -11491,18 +11504,17 @@ function getEvenSpacing(arr) {
 
 function calculateSpacing(majorIndices, ticks, axisLength, ticksLimit) {
   var evenMajorSpacing = getEvenSpacing(majorIndices);
-  var spacing = ticks.length / ticksLimit;
-  var factors, factor, i, ilen; // If the major ticks are evenly spaced apart, place the minor ticks
+  var spacing = ticks.length / ticksLimit; // If the major ticks are evenly spaced apart, place the minor ticks
   // so that they divide the major ticks into even chunks
 
   if (!evenMajorSpacing) {
     return Math.max(spacing, 1);
   }
 
-  factors = _factorize(evenMajorSpacing);
+  var factors = _factorize(evenMajorSpacing);
 
-  for (i = 0, ilen = factors.length - 1; i < ilen; i++) {
-    factor = factors[i];
+  for (var i = 0, ilen = factors.length - 1; i < ilen; i++) {
+    var factor = factors[i];
 
     if (factor > spacing) {
       return factor;
@@ -11573,6 +11585,7 @@ var Scale =
 function (_Element) {
   _inherits(Scale, _Element);
 
+  // eslint-disable-next-line max-statements
   function Scale(cfg) {
     var _this;
 
@@ -11745,7 +11758,7 @@ function (_Element) {
   }, {
     key: "_getMinMax",
     value: function _getMinMax(canStack) {
-      var me = this;
+      var me = this; // eslint-disable-next-line prefer-const
 
       var _me$_getUserBounds = me._getUserBounds(),
           min = _me$_getUserBounds.min,
@@ -11753,7 +11766,7 @@ function (_Element) {
           minDefined = _me$_getUserBounds.minDefined,
           maxDefined = _me$_getUserBounds.maxDefined;
 
-      var i, ilen, metas, minmax;
+      var minmax;
 
       if (minDefined && maxDefined) {
         return {
@@ -11762,9 +11775,9 @@ function (_Element) {
         };
       }
 
-      metas = me._getMatchingVisibleMetas();
+      var metas = me._getMatchingVisibleMetas();
 
-      for (i = 0, ilen = metas.length; i < ilen; ++i) {
+      for (var i = 0, ilen = metas.length; i < ilen; ++i) {
         minmax = metas[i].controller._getMinMax(me, canStack);
 
         if (!minDefined) {
@@ -11849,8 +11862,7 @@ function (_Element) {
     value: function update(maxWidth, maxHeight, margins) {
       var me = this;
       var tickOpts = me.options.ticks;
-      var sampleSize = tickOpts.sampleSize;
-      var samplingEnabled; // Update Lifecycle - Probably don't want to ever extend or overwrite this function ;)
+      var sampleSize = tickOpts.sampleSize; // Update Lifecycle - Probably don't want to ever extend or overwrite this function ;)
 
       me.beforeUpdate(); // Absorb the master measurements
 
@@ -11881,7 +11893,7 @@ function (_Element) {
       me.afterBuildTicks(); // Compute tick rotation and fit using a sampled subset of labels
       // We generally don't need to compute the size of every single label for determining scale size
 
-      samplingEnabled = sampleSize < me.ticks.length;
+      var samplingEnabled = sampleSize < me.ticks.length;
 
       me._convertTicksToLabels(samplingEnabled ? sample(me.ticks, sampleSize) : me.ticks); // _configure is called twice, once here, once from core.controller.updateLayout.
       // Here we haven't been positioned yet, but dimensions are correct.
@@ -12053,19 +12065,20 @@ function (_Element) {
       var minRotation = tickOpts.minRotation || 0;
       var maxRotation = tickOpts.maxRotation;
       var labelRotation = minRotation;
-      var labelSizes, maxLabelWidth, maxLabelHeight, maxWidth, tickWidth, maxHeight, maxLabelDiagonal;
+      var tickWidth, maxHeight, maxLabelDiagonal;
 
       if (!me._isVisible() || !tickOpts.display || minRotation >= maxRotation || numTicks <= 1 || !me.isHorizontal()) {
         me.labelRotation = minRotation;
         return;
       }
 
-      labelSizes = me._getLabelSizes();
-      maxLabelWidth = labelSizes.widest.width;
-      maxLabelHeight = labelSizes.highest.height - labelSizes.highest.offset; // Estimate the width of each grid based on the canvas width, the maximum
+      var labelSizes = me._getLabelSizes();
+
+      var maxLabelWidth = labelSizes.widest.width;
+      var maxLabelHeight = labelSizes.highest.height - labelSizes.highest.offset; // Estimate the width of each grid based on the canvas width, the maximum
       // label width and the number of tick intervals
 
-      maxWidth = Math.min(me.maxWidth, me.chart.width - maxLabelWidth);
+      var maxWidth = Math.min(me.maxWidth, me.chart.width - maxLabelWidth);
       tickWidth = options.offset ? me.maxWidth / numTicks : maxWidth / (numTicks - 1); // Allow 3 pixels x2 padding either side for label readability
 
       if (maxLabelWidth + 6 > tickWidth) {
@@ -12279,7 +12292,7 @@ function (_Element) {
       }
 
       var length = ticks.length;
-      var i, j, jlen, label, tickFont, fontString, cache, lineHeight, width, height, nestedLabel, widest, highest;
+      var i, j, jlen, label, tickFont, fontString, cache, lineHeight, width, height, nestedLabel;
 
       for (i = 0; i < length; ++i) {
         label = ticks[i].label;
@@ -12313,8 +12326,8 @@ function (_Element) {
       }
 
       garbageCollect(caches, length);
-      widest = widths.indexOf(Math.max.apply(null, widths));
-      highest = heights.indexOf(Math.max.apply(null, heights));
+      var widest = widths.indexOf(Math.max.apply(null, widths));
+      var highest = heights.indexOf(Math.max.apply(null, heights));
 
       function valueAt(idx) {
         return {
@@ -12889,7 +12902,8 @@ function (_Element) {
 
   }, {
     key: "_drawTitle",
-    value: function _drawTitle() {
+    value: function _drawTitle(chartArea) {
+      // eslint-disable-line no-unused-vars
       var me = this;
       var ctx = me.ctx;
       var options = me.options;
@@ -12995,23 +13009,23 @@ function (_Element) {
         // backward compatibility: draw has been overridden by custom scale
         return [{
           z: tz,
-          draw: function draw() {
-            me.draw.apply(me, arguments);
+          draw: function draw(chartArea) {
+            me.draw(chartArea);
           }
         }];
       }
 
       return [{
         z: gz,
-        draw: function draw() {
-          me._drawGrid.apply(me, arguments);
+        draw: function draw(chartArea) {
+          me._drawGrid(chartArea);
 
-          me._drawTitle.apply(me, arguments);
+          me._drawTitle();
         }
       }, {
         z: tz,
-        draw: function draw() {
-          me._drawLabels.apply(me, arguments);
+        draw: function draw(chartArea) {
+          me._drawLabels(chartArea);
         }
       }];
     }
@@ -13453,7 +13467,8 @@ function (_Scale) {
     key: "getTickLimit",
     value: function getTickLimit() {
       var me = this;
-      var tickOpts = me.options.ticks;
+      var tickOpts = me.options.ticks; // eslint-disable-next-line prefer-const
+
       var maxTicksLimit = tickOpts.maxTicksLimit,
           stepSize = tickOpts.stepSize;
       var maxTicks;
@@ -13605,13 +13620,13 @@ function (_LinearScaleBase) {
     key: "_computeTickLimit",
     value: function _computeTickLimit() {
       var me = this;
-      var tickFont;
 
       if (me.isHorizontal()) {
         return Math.ceil(me.width / 40);
       }
 
-      tickFont = _parseFont(me.options.ticks);
+      var tickFont = _parseFont(me.options.ticks);
+
       return Math.ceil(me.height / tickFont.lineHeight);
     }
     /**
@@ -13748,8 +13763,7 @@ function (_Scale) {
   _createClass(LogarithmicScale, [{
     key: "_parse",
     value: function _parse(raw, index) {
-      // eslint-disable-line no-unused-vars
-      var value = LinearScaleBase.prototype._parse.apply(this, arguments);
+      var value = LinearScaleBase.prototype._parse.apply(this, [raw, index]);
 
       if (value === 0) {
         return undefined;
@@ -14575,13 +14589,13 @@ function parse(scale, input) {
 function getDataTimestamps(scale) {
   var isSeries = scale.options.distribution === 'series';
   var timestamps = scale._cache.data || [];
-  var i, ilen, metas;
+  var i, ilen;
 
   if (timestamps.length) {
     return timestamps;
   }
 
-  metas = scale._getMatchingVisibleMetas();
+  var metas = scale._getMatchingVisibleMetas();
 
   if (isSeries && metas.length) {
     return metas[0].controller._getAllParsedValues(scale);
@@ -14603,13 +14617,13 @@ function getDataTimestamps(scale) {
 function getLabelTimestamps(scale) {
   var isSeries = scale.options.distribution === 'series';
   var timestamps = scale._cache.labels || [];
-  var i, ilen, labels;
+  var i, ilen;
 
   if (timestamps.length) {
     return timestamps;
   }
 
-  labels = scale._getLabels();
+  var labels = scale._getLabels();
 
   for (i = 0, ilen = labels.length; i < ilen; ++i) {
     timestamps.push(parse(scale, labels[i]));
@@ -14625,14 +14639,13 @@ function getLabelTimestamps(scale) {
 
 function getAllTimestamps(scale) {
   var timestamps = scale._cache.all || [];
-  var label, data;
 
   if (timestamps.length) {
     return timestamps;
   }
 
-  data = getDataTimestamps(scale);
-  label = getLabelTimestamps(scale);
+  var data = getDataTimestamps(scale);
+  var label = getLabelTimestamps(scale);
 
   if (data.length && label.length) {
     // If combining labels and data (data might not contain all labels),
@@ -14842,7 +14855,7 @@ function generate(scale) {
   first = +adapter.startOf(first, weekday ? 'day' : minor); // Prevent browser from freezing in case user options request millions of milliseconds
 
   if (adapter.diff(max, min, minor) > 100000 * stepSize) {
-    throw min + ' and ' + max + ' are too far apart with stepSize of ' + stepSize + ' ' + minor;
+    throw new Error(min + ' and ' + max + ' are too far apart with stepSize of ' + stepSize + ' ' + minor);
   }
 
   if (scale.options.ticks.source === 'data') {
@@ -15177,7 +15190,7 @@ function (_Scale) {
       var me = this;
       var options = me.options;
       var adapter = me._adapter;
-      var unit = options.time.unit || 'day';
+      var unit = options.time.unit || 'day'; // eslint-disable-next-line prefer-const
 
       var _me$_getUserBounds = me._getUserBounds(),
           min = _me$_getUserBounds.min,
@@ -15294,7 +15307,7 @@ function (_Scale) {
       var tick = ticks[index];
       var major = majorUnit && majorFormat && tick && tick.major;
 
-      var label = me._adapter.format(time, format ? format : major ? majorFormat : minorFormat);
+      var label = me._adapter.format(time, format || (major ? majorFormat : minorFormat));
 
       var formatter = options.ticks.callback;
       return formatter ? formatter(label, index, ticks) : label;
@@ -15468,11 +15481,6 @@ _adapters._date.override(typeof moment === 'function' ? {
   }
 } : {});
 
-/**
- * Plugin based on discussion from the following Chart.js issues:
- * @see https://github.com/chartjs/Chart.js/issues/2380#issuecomment-279961569
- * @see https://github.com/chartjs/Chart.js/issues/2440#issuecomment-256461897
- */
 defaults.set('plugins', {
   filler: {
     propagate: true
@@ -15611,10 +15619,10 @@ function computeCircularBoundary(source) {
   var length = scale._getLabels().length;
 
   var target = [];
-  var start, end, value, i, center;
-  start = options.reverse ? scale.max : scale.min;
-  end = options.reverse ? scale.min : scale.max;
-  value = fill === 'start' ? start : fill === 'end' ? end : scale.getBaseValue();
+  var start = options.reverse ? scale.max : scale.min;
+  var end = options.reverse ? scale.min : scale.max;
+  var value = fill === 'start' ? start : fill === 'end' ? end : scale.getBaseValue();
+  var i, center;
 
   if (options.gridLines.circular) {
     center = scale.getPointPositionForValue(0, start);
@@ -16271,8 +16279,7 @@ function (_Element) {
     }
   }, {
     key: "afterUpdate",
-    value: function afterUpdate() {} //
-
+    value: function afterUpdate() {}
   }, {
     key: "beforeSetDimensions",
     value: function beforeSetDimensions() {}
@@ -16306,8 +16313,7 @@ function (_Element) {
     }
   }, {
     key: "afterSetDimensions",
-    value: function afterSetDimensions() {} //
-
+    value: function afterSetDimensions() {}
   }, {
     key: "beforeBuildLabels",
     value: function beforeBuildLabels() {}
@@ -16332,8 +16338,7 @@ function (_Element) {
     }
   }, {
     key: "afterBuildLabels",
-    value: function afterBuildLabels() {} //
-
+    value: function afterBuildLabels() {}
   }, {
     key: "beforeFit",
     value: function beforeFit() {}
@@ -16766,7 +16771,6 @@ function (_Element) {
       var me = this;
       var opts = me.options;
       var type = e.type === 'mouseup' ? 'click' : e.type;
-      var hoveredItem;
 
       if (type === 'mousemove') {
         if (!opts.onHover && !opts.onLeave) {
@@ -16781,7 +16785,7 @@ function (_Element) {
       } // Chart event already has relative position in it
 
 
-      hoveredItem = me._getLegendItemAt(e.x, e.y);
+      var hoveredItem = me._getLegendItemAt(e.x, e.y);
 
       if (type === 'click') {
         if (hoveredItem && opts.onClick) {
@@ -16944,8 +16948,7 @@ function (_Element) {
     }
   }, {
     key: "afterUpdate",
-    value: function afterUpdate() {} //
-
+    value: function afterUpdate() {}
   }, {
     key: "beforeSetDimensions",
     value: function beforeSetDimensions() {}
@@ -16968,8 +16971,7 @@ function (_Element) {
     }
   }, {
     key: "afterSetDimensions",
-    value: function afterSetDimensions() {} //
-
+    value: function afterSetDimensions() {}
   }, {
     key: "beforeBuildLabels",
     value: function beforeBuildLabels() {}
@@ -16978,8 +16980,7 @@ function (_Element) {
     value: function buildLabels() {}
   }, {
     key: "afterBuildLabels",
-    value: function afterBuildLabels() {} //
-
+    value: function afterBuildLabels() {}
   }, {
     key: "beforeFit",
     value: function beforeFit() {}
@@ -16990,16 +16991,17 @@ function (_Element) {
       var opts = me.options;
       var minSize = {};
       var isHorizontal = me.isHorizontal();
-      var lineCount, textSize;
 
       if (!opts.display) {
         me.width = minSize.width = me.height = minSize.height = 0;
         return;
       }
 
-      lineCount = helpers.isArray(opts.text) ? opts.text.length : 1;
+      var lineCount = helpers.isArray(opts.text) ? opts.text.length : 1;
       me._padding = helpers.options.toPadding(opts.padding);
-      textSize = lineCount * helpers.options._parseFont(opts).lineHeight + me._padding.height;
+
+      var textSize = lineCount * helpers.options._parseFont(opts).lineHeight + me._padding.height;
+
       me.width = minSize.width = isHorizontal ? me.maxWidth : textSize;
       me.height = minSize.height = isHorizontal ? textSize : me.maxHeight;
     }
@@ -17497,10 +17499,6 @@ function determineAlignment(chart, options, size) {
 
   var lf, rf; // functions to determine left, right alignment
 
-  var olf, orf; // functions to determine if left/right alignment causes tooltip to go outside chart
-
-  var yf; // function to get the y alignment if the tooltip goes outside of the left or right edges
-
   var midX = (chartArea.left + chartArea.right) / 2;
   var midY = (chartArea.top + chartArea.bottom) / 2;
 
@@ -17520,17 +17518,19 @@ function determineAlignment(chart, options, size) {
     rf = function rf(value) {
       return value >= chart.width - width / 2;
     };
-  }
+  } // functions to determine if left/right alignment causes tooltip to go outside chart
 
-  olf = function olf(value) {
+
+  var olf = function olf(value) {
     return value + width + options.caretSize + options.caretPadding > chart.width;
   };
 
-  orf = function orf(value) {
+  var orf = function orf(value) {
     return value - width - options.caretSize - options.caretPadding < 0;
-  };
+  }; // function to get the y alignment if the tooltip goes outside of the left or right edges
 
-  yf = function yf(value) {
+
+  var yf = function yf(value) {
     return value <= midY ? 'top' : 'bottom';
   };
 
@@ -17557,6 +17557,7 @@ function determineAlignment(chart, options, size) {
 }
 
 function alignX(size, xAlign, chartWidth) {
+  // eslint-disable-next-line prefer-const
   var x = size.x,
       width = size.width;
 
@@ -17578,6 +17579,7 @@ function alignX(size, xAlign, chartWidth) {
 }
 
 function alignY(size, yAlign, paddingAndSize) {
+  // eslint-disable-next-line prefer-const
   var y = size.y,
       height = size.height;
 
@@ -17708,13 +17710,13 @@ function (_Element) {
 
   }, {
     key: "getTitle",
-    value: function getTitle() {
+    value: function getTitle(tooltipitem, data) {
       var me = this;
       var opts = me.options;
       var callbacks = opts.callbacks;
-      var beforeTitle = callbacks.beforeTitle.apply(me, arguments);
-      var title = callbacks.title.apply(me, arguments);
-      var afterTitle = callbacks.afterTitle.apply(me, arguments);
+      var beforeTitle = callbacks.beforeTitle.apply(me, [tooltipitem, data]);
+      var title = callbacks.title.apply(me, [tooltipitem, data]);
+      var afterTitle = callbacks.afterTitle.apply(me, [tooltipitem, data]);
       var lines = [];
       lines = pushOrConcat(lines, splitNewlines(beforeTitle));
       lines = pushOrConcat(lines, splitNewlines(title));
@@ -17724,8 +17726,8 @@ function (_Element) {
 
   }, {
     key: "getBeforeBody",
-    value: function getBeforeBody() {
-      return getBeforeAfterBodyLines(this.options.callbacks.beforeBody.apply(this, arguments));
+    value: function getBeforeBody(tooltipitem, data) {
+      return getBeforeAfterBodyLines(this.options.callbacks.beforeBody.apply(this, [tooltipitem, data]));
     } // Args are: (tooltipItem, data)
 
   }, {
@@ -17750,19 +17752,19 @@ function (_Element) {
 
   }, {
     key: "getAfterBody",
-    value: function getAfterBody() {
-      return getBeforeAfterBodyLines(this.options.callbacks.afterBody.apply(this, arguments));
+    value: function getAfterBody(tooltipitem, data) {
+      return getBeforeAfterBodyLines(this.options.callbacks.afterBody.apply(this, [tooltipitem, data]));
     } // Get the footer and beforeFooter and afterFooter lines
     // Args are: (tooltipItem, data)
 
   }, {
     key: "getFooter",
-    value: function getFooter() {
+    value: function getFooter(tooltipitem, data) {
       var me = this;
       var callbacks = me.options.callbacks;
-      var beforeFooter = callbacks.beforeFooter.apply(me, arguments);
-      var footer = callbacks.footer.apply(me, arguments);
-      var afterFooter = callbacks.afterFooter.apply(me, arguments);
+      var beforeFooter = callbacks.beforeFooter.apply(me, [tooltipitem, data]);
+      var footer = callbacks.footer.apply(me, [tooltipitem, data]);
+      var afterFooter = callbacks.afterFooter.apply(me, [tooltipitem, data]);
       var lines = [];
       lines = pushOrConcat(lines, splitNewlines(beforeFooter));
       lines = pushOrConcat(lines, splitNewlines(footer));
