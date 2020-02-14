@@ -4860,29 +4860,11 @@ function _boundSegment(segment, points, bounds) {
 }
 function _boundSegments(line, bounds) {
   var result = [];
-  var _iteratorNormalCompletion = true;
-  var _didIteratorError = false;
-  var _iteratorError = undefined;
-  try {
-    for (var _iterator = line.segments[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-      var segment = _step.value;
-      var sub = _boundSegment(segment, line.points, bounds);
-      if (sub.length) {
-        result.push.apply(result, _toConsumableArray(sub));
-      }
-    }
-  } catch (err) {
-    _didIteratorError = true;
-    _iteratorError = err;
-  } finally {
-    try {
-      if (!_iteratorNormalCompletion && _iterator["return"] != null) {
-        _iterator["return"]();
-      }
-    } finally {
-      if (_didIteratorError) {
-        throw _iteratorError;
-      }
+  var segments = line.segments;
+  for (var i = 0; i < segments.length; i++) {
+    var sub = _boundSegment(segments[i], line.points, bounds);
+    if (sub.length) {
+      result.push.apply(result, _toConsumableArray(sub));
     }
   }
   return result;
@@ -10778,6 +10760,7 @@ function _getEdge(a, b, prop, fn) {
   return a ? a[prop] : b ? b[prop] : 0;
 }
 function _segments(line, target, property) {
+  var segments = line.segments;
   var points = line.points;
   var tpoints = target.points;
   var parts = [];
@@ -10790,85 +10773,30 @@ function _segments(line, target, property) {
       }
     }
   }
-  var _iteratorNormalCompletion = true;
-  var _didIteratorError = false;
-  var _iteratorError = undefined;
-  try {
-    for (var _iterator = line.segments[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-      var segment = _step.value;
-      var bounds = getBounds(property, points[segment.start], points[segment.end], segment.loop);
-      if (!target.segments) {
-        parts.push({
-          source: segment,
-          target: bounds,
-          start: points[segment.start],
-          end: points[segment.end]
-        });
-        continue;
-      }
-      var subs = _boundSegments(target, bounds);
-      var _iteratorNormalCompletion2 = true;
-      var _didIteratorError2 = false;
-      var _iteratorError2 = undefined;
-      try {
-        for (var _iterator2 = subs[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-          var sub = _step2.value;
-          var subBounds = getBounds(property, tpoints[sub.start], tpoints[sub.end], sub.loop);
-          var fillSources = _boundSegment(segment, points, subBounds);
-          var _iteratorNormalCompletion3 = true;
-          var _didIteratorError3 = false;
-          var _iteratorError3 = undefined;
-          try {
-            for (var _iterator3 = fillSources[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-              var source = _step3.value;
-              parts.push({
-                source: source,
-                target: sub,
-                start: _defineProperty({}, property, _getEdge(bounds, subBounds, 'start', Math.max)),
-                end: _defineProperty({}, property, _getEdge(bounds, subBounds, 'end', Math.min))
-              });
-            }
-          } catch (err) {
-            _didIteratorError3 = true;
-            _iteratorError3 = err;
-          } finally {
-            try {
-              if (!_iteratorNormalCompletion3 && _iterator3["return"] != null) {
-                _iterator3["return"]();
-              }
-            } finally {
-              if (_didIteratorError3) {
-                throw _iteratorError3;
-              }
-            }
-          }
-        }
-      } catch (err) {
-        _didIteratorError2 = true;
-        _iteratorError2 = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion2 && _iterator2["return"] != null) {
-            _iterator2["return"]();
-          }
-        } finally {
-          if (_didIteratorError2) {
-            throw _iteratorError2;
-          }
-        }
-      }
+  for (var _i = 0; _i < segments.length; _i++) {
+    var segment = segments[_i];
+    var bounds = getBounds(property, points[segment.start], points[segment.end], segment.loop);
+    if (!target.segments) {
+      parts.push({
+        source: segment,
+        target: bounds,
+        start: points[segment.start],
+        end: points[segment.end]
+      });
+      continue;
     }
-  } catch (err) {
-    _didIteratorError = true;
-    _iteratorError = err;
-  } finally {
-    try {
-      if (!_iteratorNormalCompletion && _iterator["return"] != null) {
-        _iterator["return"]();
-      }
-    } finally {
-      if (_didIteratorError) {
-        throw _iteratorError;
+    var subs = _boundSegments(target, bounds);
+    for (var j = 0; j < subs.length; ++j) {
+      var sub = subs[j];
+      var subBounds = getBounds(property, tpoints[sub.start], tpoints[sub.end], sub.loop);
+      var fillSources = _boundSegment(segment, points, subBounds);
+      for (var k = 0; k < fillSources.length; k++) {
+        parts.push({
+          source: fillSources[k],
+          target: sub,
+          start: _defineProperty({}, property, _getEdge(bounds, subBounds, 'start', Math.max)),
+          end: _defineProperty({}, property, _getEdge(bounds, subBounds, 'end', Math.min))
+        });
       }
     }
   }
