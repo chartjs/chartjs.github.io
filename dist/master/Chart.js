@@ -65,6 +65,24 @@ function _defineProperty(obj, key, value) {
   return obj;
 }
 
+function _extends() {
+  _extends = Object.assign || function (target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i];
+
+      for (var key in source) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+          target[key] = source[key];
+        }
+      }
+    }
+
+    return target;
+  };
+
+  return _extends.apply(this, arguments);
+}
+
 function ownKeys(object, enumerableOnly) {
   var keys = Object.keys(object);
 
@@ -202,6 +220,7 @@ function _nonIterableSpread() {
  * (c) 2020 Jukka Kurkela
  * Released under the MIT License
  */
+
 /**
  * @packageDocumentation
  * @module Index
@@ -214,76 +233,110 @@ function _nonIterableSpread() {
 /**
   * @private
   */
-const map = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, A: 10, B: 11, C: 12, D: 13, E: 14, F: 15, a: 10, b: 11, c: 12, d: 13, e: 14, f: 15};
+var map = {
+  0: 0,
+  1: 1,
+  2: 2,
+  3: 3,
+  4: 4,
+  5: 5,
+  6: 6,
+  7: 7,
+  8: 8,
+  9: 9,
+  A: 10,
+  B: 11,
+  C: 12,
+  D: 13,
+  E: 14,
+  F: 15,
+  a: 10,
+  b: 11,
+  c: 12,
+  d: 13,
+  e: 14,
+  f: 15
+};
 /**
  * @private
  */
-const hex = '0123456789ABCDEF';
 
+var hex = '0123456789ABCDEF';
 /**
  * @param {number} b - byte
  * @private
  */
-const h1 = (b) => hex[b & 0xF];
 
+var h1 = function h1(b) {
+  return hex[b & 0xF];
+};
 /**
  * @param {number} b - byte
  * @private
  */
-const h2 = (b) => hex[(b & 0xF0) >> 4] + hex[b & 0xF];
 
+
+var h2 = function h2(b) {
+  return hex[(b & 0xF0) >> 4] + hex[b & 0xF];
+};
 /**
  * @param {number} b - byte
  * @private
  */
-const eq = (b) => (((b & 0xF0) >> 4) === (b & 0xF));
 
+
+var eq = function eq(b) {
+  return (b & 0xF0) >> 4 === (b & 0xF);
+};
 /**
  * @param {RGBA} v - the color
  * @private
  */
-function isShort(v) {
-	return eq(v.r) && eq(v.g) && eq(v.b) && eq(v.a);
-}
 
+
+function isShort(v) {
+  return eq(v.r) && eq(v.g) && eq(v.b) && eq(v.a);
+}
 /**
  * Parse HEX to color
  * @param {string} str - the string
  */
-function hexParse(str) {
-	var len = str.length;
-	var ret;
-	if (str[0] === '#') {
-		if (len === 4 || len === 5) {
-			ret = {
-				r: 255 & map[str[1]] * 17,
-				g: 255 & map[str[2]] * 17,
-				b: 255 & map[str[3]] * 17,
-				a: len === 5 ? map[str[4]] * 17 : 255
-			};
-		} else if (len === 7 || len === 9) {
-			ret = {
-				r: map[str[1]] << 4 | map[str[2]],
-				g: map[str[3]] << 4 | map[str[4]],
-				b: map[str[5]] << 4 | map[str[6]],
-				a: len === 9 ? (map[str[7]] << 4 | map[str[8]]) : 255
-			};
-		}
-	}
-	return ret;
-}
 
+
+function hexParse(str) {
+  var len = str.length;
+  var ret;
+
+  if (str[0] === '#') {
+    if (len === 4 || len === 5) {
+      ret = {
+        r: 255 & map[str[1]] * 17,
+        g: 255 & map[str[2]] * 17,
+        b: 255 & map[str[3]] * 17,
+        a: len === 5 ? map[str[4]] * 17 : 255
+      };
+    } else if (len === 7 || len === 9) {
+      ret = {
+        r: map[str[1]] << 4 | map[str[2]],
+        g: map[str[3]] << 4 | map[str[4]],
+        b: map[str[5]] << 4 | map[str[6]],
+        a: len === 9 ? map[str[7]] << 4 | map[str[8]] : 255
+      };
+    }
+  }
+
+  return ret;
+}
 /**
  * Return HEX string from color
  * @param {RGBA} v - the color
  */
-function hexString(v) {
-	var f = isShort(v) ? h1 : h2;
-	return v
-		? '#' + f(v.r) + f(v.g) + f(v.b) + (v.a < 255 ? f(v.a) : '')
-		: v;
-}
 
+
+function _hexString(v) {
+  var f = isShort(v) ? h1 : h2;
+  return v ? '#' + f(v.r) + f(v.g) + f(v.b) + (v.a < 255 ? f(v.a) : '') : v;
+}
 /**
  * @packageDocumentation
  * @module Index
@@ -293,42 +346,47 @@ function hexString(v) {
  * Rounds to decimal to nearest integer
  * @param {number} v - the number to round
  */
-function round(v) {
-	return v + 0.5 | 0;
-}
 
+
+function round(v) {
+  return v + 0.5 | 0;
+}
 /**
  * convert percent to byte 0..255
  * @param {number} v - 0..100
  */
-function p2b(v) {
-	return round(v * 2.55);
-}
 
+
+function p2b(v) {
+  return round(v * 2.55);
+}
 /**
  * convert normalized to byte 0..255
  * @param {number} v - 0..1
  */
-function n2b(v) {
-	return round(v * 255);
-}
 
+
+function n2b(v) {
+  return round(v * 255);
+}
 /**
  * convert byte to normalized 0..1
  * @param {number} v - 0..255
  */
-function b2n(v) {
-	return round(v / 2.55) / 100;
-}
 
+
+function b2n(v) {
+  return round(v / 2.55) / 100;
+}
 /**
  * convert normalized to percent 0..100
  * @param {number} v - 0..1
  */
-function n2p(v) {
-	return round(v * 100);
-}
 
+
+function n2p(v) {
+  return round(v * 100);
+}
 /**
  * @packageDocumentation
  * @module Index
@@ -341,55 +399,52 @@ function n2p(v) {
 /**
  * @private
  */
-const RGB_RE = /^rgba?\(\s*([-+.\d]+)(%)?[\s,]+([-+.e\d]+)(%)?[\s,]+([-+.e\d]+)(%)?(?:[\s,/]+([-+.e\d]+)(%)?)?\s*\)$/;
 
+
+var RGB_RE = /^rgba?\(\s*([-+.\d]+)(%)?[\s,]+([-+.e\d]+)(%)?[\s,]+([-+.e\d]+)(%)?(?:[\s,/]+([-+.e\d]+)(%)?)?\s*\)$/;
 /**
  * Parse rgb(a) string to RGBA
  * @param {string} str - the rgb string
  * @returns {RGBA} - the parsed color
  */
+
 function rgbParse(str) {
-	const m = RGB_RE.exec(str);
-	let a = 255;
-	let r, g, b;
+  var m = RGB_RE.exec(str);
+  var a = 255;
+  var r, g, b;
 
-	if (!m) {
-		return;
-	}
+  if (!m) {
+    return;
+  } // r is undefined
 
-	// r is undefined
-	if (m[7] !== r) {
-		const v = +m[7];
-		a = 255 & (m[8] ? p2b(v) : v * 255);
-	}
 
-	r = +m[1];
-	g = +m[3];
-	b = +m[5];
-	r = 255 & (m[2] ? p2b(r) : r);
-	g = 255 & (m[4] ? p2b(g) : g);
-	b = 255 & (m[6] ? p2b(b) : b);
+  if (m[7] !== r) {
+    var v = +m[7];
+    a = 255 & (m[8] ? p2b(v) : v * 255);
+  }
 
-	return {
-		r: r,
-		g: g,
-		b: b,
-		a: a
-	};
+  r = +m[1];
+  g = +m[3];
+  b = +m[5];
+  r = 255 & (m[2] ? p2b(r) : r);
+  g = 255 & (m[4] ? p2b(g) : g);
+  b = 255 & (m[6] ? p2b(b) : b);
+  return {
+    r: r,
+    g: g,
+    b: b,
+    a: a
+  };
 }
-
 /**
  * Return rgb(a) string from color
  * @param {RGBA} v - the color
  */
-function rgbString(v) {
-	return v && (
-		v.a < 255
-			? `rgba(${v.r}, ${v.g}, ${v.b}, ${b2n(v.a)})`
-			: `rgb(${v.r}, ${v.g}, ${v.b})`
-	);
-}
 
+
+function _rgbString(v) {
+  return v && (v.a < 255 ? "rgba(".concat(v.r, ", ").concat(v.g, ", ").concat(v.b, ", ").concat(b2n(v.a), ")") : "rgb(".concat(v.r, ", ").concat(v.g, ", ").concat(v.b, ")"));
+}
 /**
  * @packageDocumentation
  * @module Index
@@ -402,9 +457,10 @@ function rgbString(v) {
 /**
  * @private
  */
-const HUE_RE = /^(hsla?|hwb|hsv)\(\s*([-+.e\d]+)(?:deg)?[\s,]+([-+.e\d]+)%[\s,]+([-+.e\d]+)%(?:[\s,]+([-+.e\d]+)(%)?)?\s*\)$/;
 
-// https://jsfiddle.net/Lamik/reuk63ay/91
+
+var HUE_RE = /^(hsla?|hwb|hsv)\(\s*([-+.e\d]+)(?:deg)?[\s,]+([-+.e\d]+)%[\s,]+([-+.e\d]+)%(?:[\s,]+([-+.e\d]+)(%)?)?\s*\)$/; // https://jsfiddle.net/Lamik/reuk63ay/91
+
 /**
  * Converts hsl to rgb normalized
  * @param {number} h - hue [0..360]
@@ -412,15 +468,20 @@ const HUE_RE = /^(hsla?|hwb|hsv)\(\s*([-+.e\d]+)(?:deg)?[\s,]+([-+.e\d]+)%[\s,]+
  * @param {number} l - lightness [0..1]
  * @returns {number[]} - [r, g, b] each normalized to [0..1]
  */
-function hsl2rgbn(h, s, l) {
-	const a = s * Math.min(l, 1 - l);
-	/**
-	 * @param {number} n
-	 */
-	const f = (n, k = (n + h / 30) % 12) => l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
-	return [f(0), f(8), f(4)];
-}
 
+function hsl2rgbn(h, s, l) {
+  var a = s * Math.min(l, 1 - l);
+  /**
+   * @param {number} n
+   */
+
+  var f = function f(n) {
+    var k = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : (n + h / 30) % 12;
+    return l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+  };
+
+  return [f(0), f(8), f(4)];
+}
 /**
  * Convert hsv to rgb normalized
  * @url https://jsfiddle.net/Lamik/Lr61wqub/15/
@@ -429,14 +490,19 @@ function hsl2rgbn(h, s, l) {
  * @param {number} v - value [0..1]
  * @returns {number[]} - [r, g, b] each normalized to [0..1]
  */
-function hsv2rgbn(h, s, v) {
-	/**
-	 * @param {number} n
-	 */
-	const f = (n, k = (n + h / 60) % 6) => v - v * s * Math.max(Math.min(k, 4 - k, 1), 0);
-	return [f(5), f(3), f(1)];
-}
 
+
+function hsv2rgbn(h, s, v) {
+  /**
+   * @param {number} n
+   */
+  var f = function f(n) {
+    var k = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : (n + h / 60) % 6;
+    return v - v * s * Math.max(Math.min(k, 4 - k, 1), 0);
+  };
+
+  return [f(5), f(3), f(1)];
+}
 /**
  * Convert hwb to rgb nomarlized
  * @param {number} h - hue [0..360]
@@ -444,48 +510,51 @@ function hsv2rgbn(h, s, v) {
  * @param {number} b - blackness [0..1]
  * @returns {number[]} - [r, g, b] each normalized to [0..1]
  */
-function hwb2rgbn(h, w, b) {
-	const rgb = hsl2rgbn(h, 1, 0.5);
-	let i;
-	if (w + b > 1) {
-		i = 1 / (w + b);
-		w *= i;
-		b *= i;
-	}
-	for (i = 0; i < 3; i++) {
-		rgb[i] *= 1 - w - b;
-		rgb[i] += w;
-	}
-	return rgb;
-}
 
+
+function hwb2rgbn(h, w, b) {
+  var rgb = hsl2rgbn(h, 1, 0.5);
+  var i;
+
+  if (w + b > 1) {
+    i = 1 / (w + b);
+    w *= i;
+    b *= i;
+  }
+
+  for (i = 0; i < 3; i++) {
+    rgb[i] *= 1 - w - b;
+    rgb[i] += w;
+  }
+
+  return rgb;
+}
 /**
  * Convert rgb to hsl
  * @param {RGBA} v - the color
  * @returns {number[]} - [h, s, l]
  */
-function rgb2hsl(v) {
-	const range = 255;
-	const r = v.r / range;
-	const g = v.g / range;
-	const b = v.b / range;
-	const max = Math.max(r, g, b);
-	const min = Math.min(r, g, b);
-	const l = (max + min) / 2;
-	let h, s, d;
-	if (max !== min) {
-		d = max - min;
-		s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-		h = max === r
-			? ((g - b) / d) + (g < b ? 6 : 0)
-			: max === g
-				? (b - r) / d + 2
-				: (r - g) / d + 4;
-		h = h * 60 + 0.5;
-	}
-	return [h | 0, s || 0, l];
-}
 
+
+function rgb2hsl(v) {
+  var range = 255;
+  var r = v.r / range;
+  var g = v.g / range;
+  var b = v.b / range;
+  var max = Math.max(r, g, b);
+  var min = Math.min(r, g, b);
+  var l = (max + min) / 2;
+  var h, s, d;
+
+  if (max !== min) {
+    d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    h = max === r ? (g - b) / d + (g < b ? 6 : 0) : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
+    h = h * 60 + 0.5;
+  }
+
+  return [h | 0, s || 0, l];
+}
 /**
  * @param {function} f
  * @param {number|number[]} a
@@ -493,14 +562,11 @@ function rgb2hsl(v) {
  * @param {number} c
  * @private
  */
-function calln(f, a, b, c) {
-	return (
-		Array.isArray(a)
-			? f(a[0], a[1], a[2])
-			: f(a, b, c)
-	).map(n2b);
-}
 
+
+function calln(f, a, b, c) {
+  return (Array.isArray(a) ? f(a[0], a[1], a[2]) : f(a, b, c)).map(n2b);
+}
 /**
  * Convert hsl to rgb
  * @param {number|number[]} h - hue | [h, s, l]
@@ -508,10 +574,11 @@ function calln(f, a, b, c) {
  * @param {number} [l] - lightness
  * @returns {number[]}
  */
-function hsl2rgb(h, s, l) {
-	return calln(hsl2rgbn, h, s, l);
-}
 
+
+function hsl2rgb(h, s, l) {
+  return calln(hsl2rgbn, h, s, l);
+}
 /**
  * Convert hwb to rgb
  * @param {number|number[]} h - hue | [h, s, l]
@@ -519,10 +586,11 @@ function hsl2rgb(h, s, l) {
  * @param {number} [b] - blackness
  * @returns {number[]}
  */
-function hwb2rgb(h, w, b) {
-	return calln(hwb2rgbn, h, w, b);
-}
 
+
+function hwb2rgb(h, w, b) {
+  return calln(hwb2rgbn, h, w, b);
+}
 /**
  * Convert hsv to rgb
  * @param {number|number[]} h - hue | [h, s, l]
@@ -530,86 +598,96 @@ function hwb2rgb(h, w, b) {
  * @param {number} [v] - value
  * @returns {number[]}
  */
-function hsv2rgb(h, s, v) {
-	return calln(hsv2rgbn, h, s, v);
-}
 
+
+function hsv2rgb(h, s, v) {
+  return calln(hsv2rgbn, h, s, v);
+}
 /**
  * @param {number} h - the angle
  * @private
  */
-function hue(h) {
-	return (h % 360 + 360) % 360;
-}
 
+
+function hue(h) {
+  return (h % 360 + 360) % 360;
+}
 /**
  * Parse hsl/hsv/hwb color string
  * @param {string} str - hsl/hsv/hwb color string
  * @returns {RGBA} - the parsed color components
  */
-function hueParse(str) {
-	const m = HUE_RE.exec(str);
-	let a = 255;
-	let v;
-	if (!m) {
-		return;
-	}
-	// v is undefined
-	if (m[5] !== v) {
-		a = m[6] ? p2b(+m[5]) : n2b(+m[5]);
-	}
-	const h = hue(+m[2]);
-	const p1 = +m[3] / 100;
-	const p2 = +m[4] / 100;
-	if (m[1] === 'hwb') {
-		v = hwb2rgb(h, p1, p2);
-	} else if (m[1] === 'hsv') {
-		v = hsv2rgb(h, p1, p2);
-	} else {
-		v = hsl2rgb(h, p1, p2);
-	}
-	return {
-		r: v[0],
-		g: v[1],
-		b: v[2],
-		a: a
-	};
-}
 
+
+function hueParse(str) {
+  var m = HUE_RE.exec(str);
+  var a = 255;
+  var v;
+
+  if (!m) {
+    return;
+  } // v is undefined
+
+
+  if (m[5] !== v) {
+    a = m[6] ? p2b(+m[5]) : n2b(+m[5]);
+  }
+
+  var h = hue(+m[2]);
+  var p1 = +m[3] / 100;
+  var p2 = +m[4] / 100;
+
+  if (m[1] === 'hwb') {
+    v = hwb2rgb(h, p1, p2);
+  } else if (m[1] === 'hsv') {
+    v = hsv2rgb(h, p1, p2);
+  } else {
+    v = hsl2rgb(h, p1, p2);
+  }
+
+  return {
+    r: v[0],
+    g: v[1],
+    b: v[2],
+    a: a
+  };
+}
 /**
  * Rotate the `v` color by `deg` degrees
  * @param {RGBA} v - the color
  * @param {number} deg - degrees to rotate
  */
-function rotate(v, deg) {
-	var h = rgb2hsl(v);
-	h[0] = hue(h[0] + deg);
-	h = hsl2rgb(h);
-	v.r = h[0];
-	v.g = h[1];
-	v.b = h[2];
-}
 
+
+function _rotate(v, deg) {
+  var h = rgb2hsl(v);
+  h[0] = hue(h[0] + deg);
+  h = hsl2rgb(h);
+  v.r = h[0];
+  v.g = h[1];
+  v.b = h[2];
+}
 /**
  * Return hsl(a) string from color components
  * @param {RGBA} v - the color
  * @return {string|undefined}
  */
-function hslString(v) {
-	if (!v) {
-		return;
-	}
-	const a = rgb2hsl(v);
-	const h = a[0];
-	const s = n2p(a[1]);
-	const l = n2p(a[2]);
-	return v.a < 255
-		? `hsla(${h}, ${s}%, ${l}%, ${b2n(v.a)})`
-		: `hsl(${h}, ${s}%, ${l}%)`;
+
+
+function _hslString(v) {
+  if (!v) {
+    return;
+  }
+
+  var a = rgb2hsl(v);
+  var h = a[0];
+  var s = n2p(a[1]);
+  var l = n2p(a[2]);
+  return v.a < 255 ? "hsla(".concat(h, ", ").concat(s, "%, ").concat(l, "%, ").concat(b2n(v.a), ")") : "hsl(".concat(h, ", ").concat(s, "%, ").concat(l, "%)");
 }
 
 var map$1 = {
-	x: 'dark',
+  x: 'dark',
   Z: 'light',
   Y: 're',
   X: 'blu',
@@ -637,24 +715,29 @@ var map$1 = {
   I: 'ightg',
   J: 'wh'
 };
+
 function unpack(obj) {
-	var unpacked = {};
-	var keys = Object.keys(obj);
-	var tkeys = Object.keys(map$1);
-	var i, j, k, ok, nk;
-	for (i = 0; i < keys.length; i++) {
-		ok = nk = keys[i];
-		for (j = 0; j < tkeys.length; j++) {
-			k = tkeys[j];
-			nk = nk.replace(k, map$1[k]);
-		}
-		k = parseInt(obj[ok], 16);
-		unpacked[nk] = [k >> 16 & 0xFF, k >> 8 & 0xFF, k & 0xFF];
-	}
-	return unpacked;
+  var unpacked = {};
+  var keys = Object.keys(obj);
+  var tkeys = Object.keys(map$1);
+  var i, j, k, ok, nk;
+
+  for (i = 0; i < keys.length; i++) {
+    ok = nk = keys[i];
+
+    for (j = 0; j < tkeys.length; j++) {
+      k = tkeys[j];
+      nk = nk.replace(k, map$1[k]);
+    }
+
+    k = parseInt(obj[ok], 16);
+    unpacked[nk] = [k >> 16 & 0xFF, k >> 8 & 0xFF, k & 0xFF];
+  }
+
+  return unpacked;
 }
 
-const names = unpack({
+var names = unpack({
   OiceXe: 'f0f8ff',
   antiquewEte: 'faebd7',
   aqua: 'ffff',
@@ -804,7 +887,6 @@ const names = unpack({
   Lw: 'ffff00',
   LwgYF: '9acd32'
 });
-
 /**
  * @packageDocumentation
  * @module Index
@@ -815,22 +897,21 @@ const names = unpack({
  */
 
 names.transparent = [0, 0, 0, 0];
-
 /**
  * Parse color name
  * @param {string} str - the color name
  * @return {RGBA} - the color
  */
-function nameParse(str) {
-	var a = names[str];
-	return a && {
-		r: a[0],
-		g: a[1],
-		b: a[2],
-		a: a.length === 4 ? a[3] : 255
-	};
-}
 
+function nameParse(str) {
+  var a = names[str];
+  return a && {
+    r: a[0],
+    g: a[1],
+    b: a[2],
+    a: a.length === 4 ? a[3] : 255
+  };
+}
 /**
  * @packageDocumentation
  * @module Index
@@ -847,254 +928,329 @@ function nameParse(str) {
   * @param {number} ratio - ratio [0..1]
   * @private
   */
-function modHSL(v, i, ratio) {
-	if (v) {
-		let tmp = rgb2hsl(v);
-		tmp[i] = Math.max(0, Math.min(tmp[i] + tmp[i] * ratio, i === 0 ? 360 : 1));
-		tmp = hsl2rgb(tmp);
-		v.r = tmp[0];
-		v.g = tmp[1];
-		v.b = tmp[2];
-	}
-}
 
+
+function modHSL(v, i, ratio) {
+  if (v) {
+    var tmp = rgb2hsl(v);
+    tmp[i] = Math.max(0, Math.min(tmp[i] + tmp[i] * ratio, i === 0 ? 360 : 1));
+    tmp = hsl2rgb(tmp);
+    v.r = tmp[0];
+    v.g = tmp[1];
+    v.b = tmp[2];
+  }
+}
 /**
  * Clone color
  * @param {RGBA} v - the color
  * @param {object} [proto] - prototype
  */
-function clone(v, proto) {
-	return v ? Object.assign(proto || {}, v) : v;
-}
 
+
+function clone(v, proto) {
+  return v ? _extends(proto || {}, v) : v;
+}
 /**
  *
  * @param {RGBA|number[]} input
  */
-function fromObject(input) {
-	var v = {r: 0, g: 0, b: 0, a: 255};
-	if (Array.isArray(input)) {
-		if (input.length >= 3) {
-			v = {r: input[0], g: input[1], b: input[2], a: 255};
-			if (input.length > 3) {
-				v.a = n2b(input[3]);
-			}
-		}
-	} else {
-		v = clone(input, {r: 0, g: 0, b: 0, a: 1});
-		v.a = n2b(v.a);
-	}
-	return v;
-}
 
+
+function fromObject(input) {
+  var v = {
+    r: 0,
+    g: 0,
+    b: 0,
+    a: 255
+  };
+
+  if (Array.isArray(input)) {
+    if (input.length >= 3) {
+      v = {
+        r: input[0],
+        g: input[1],
+        b: input[2],
+        a: 255
+      };
+
+      if (input.length > 3) {
+        v.a = n2b(input[3]);
+      }
+    }
+  } else {
+    v = clone(input, {
+      r: 0,
+      g: 0,
+      b: 0,
+      a: 1
+    });
+    v.a = n2b(v.a);
+  }
+
+  return v;
+}
 /**
  * @param {string} str
  */
+
+
 function functionParse(str) {
-	if (str.charAt(0) === 'r') {
-		return rgbParse(str);
-	}
-	return hueParse(str);
+  if (str.charAt(0) === 'r') {
+    return rgbParse(str);
+  }
+
+  return hueParse(str);
 }
 
-class Color {
-	/**
-	 * constructor
-	 * @param {Color|RGBA|string|number[]} input
-	 */
-	constructor(input) {
-		if (input instanceof Color) {
-			return input;
-		}
-		const type = typeof input;
-		let v;
-		if (type === 'object') {
-			// @ts-ignore
-			v = fromObject(input);
-		} else if (type === 'string') {
-			// @ts-ignore
-			v = hexParse(input) || nameParse(input) || functionParse(input);
-		}
+var Color =
+/*#__PURE__*/
+function () {
+  /**
+   * constructor
+   * @param {Color|RGBA|string|number[]} input
+   */
+  function Color(input) {
+    _classCallCheck(this, Color);
 
-		/** @type {RGBA} */
-		this._rgb = v;
-		/** @type {boolean} */
-		this._valid = !!v;
-	}
+    if (input instanceof Color) {
+      return input;
+    }
 
-	/**
-	 * `true` if this is a valid color
-	 * @returns {boolean}
-	 */
-	get valid() {
-		return this._valid;
-	}
+    var type = _typeof(input);
 
-	/**
-	 * @returns {RGBA} - the color
-	 */
-	get rgb() {
-		var v = clone(this._rgb);
-		if (v) {
-			v.a = b2n(v.a);
-		}
-		return v;
-	}
+    var v;
 
-	/**
-	 * @param {RGBA} obj - the color
-	 */
-	set rgb(obj) {
-		this._rgb = fromObject(obj);
-	}
+    if (type === 'object') {
+      // @ts-ignore
+      v = fromObject(input);
+    } else if (type === 'string') {
+      // @ts-ignore
+      v = hexParse(input) || nameParse(input) || functionParse(input);
+    }
+    /** @type {RGBA} */
 
-	/**
-	 * rgb(a) string
-	 */
-	rgbString() {
-		return rgbString(this._rgb);
-	}
 
-	/**
-	 * hex string
-	 */
-	hexString() {
-		return hexString(this._rgb);
-	}
+    this._rgb = v;
+    /** @type {boolean} */
 
-	/**
-	 * hsl(a) string
-	 */
-	hslString() {
-		return hslString(this._rgb);
-	}
+    this._valid = !!v;
+  }
+  /**
+   * `true` if this is a valid color
+   * @returns {boolean}
+   */
 
-	/**
-	 * Mix another color to this color.
-	 * @param {Color} color - Color to mix in
-	 * @param {number} weight - 0..1
-	 */
-	mix(color, weight) {
-		const me = this;
-		if (color) {
-			const c1 = me.rgb;
-			const c2 = color.rgb;
-			let w2; // using instead of undefined in the next line
-			const p = weight === w2 ? 0.5 : weight;
-			const w = 2 * p - 1;
-			const a = c1.a - c2.a;
-			const w1 = ((w * a === -1 ? w : (w + a) / (1 + w * a)) + 1) / 2.0;
-			w2 = 1 - w1;
-			c1.r = 0xFF & w1 * c1.r + w2 * c2.r + 0.5;
-			c1.g = 0xFF & w1 * c1.g + w2 * c2.g + 0.5;
-			c1.b = 0xFF & w1 * c1.b + w2 * c2.b + 0.5;
-			c1.a = p * c1.a + (1 - p) * c2.a;
-			me.rgb = c1;
-		}
-		return me;
-	}
 
-	/**
-	 * Clone
-	 */
-	clone() {
-		return new Color(this.rgb);
-	}
+  _createClass(Color, [{
+    key: "rgbString",
 
-	/**
-	 * Set aplha
-	 * @param {number} a - the alpha [0..1]
-	 */
-	alpha(a) {
-		this._rgb.a = n2b(a);
-		return this;
-	}
+    /**
+     * rgb(a) string
+     */
+    value: function rgbString() {
+      return _rgbString(this._rgb);
+    }
+    /**
+     * hex string
+     */
 
-	/**
-	 * Make clearer
-	 * @param {number} ratio - ratio [0..1]
-	 */
-	clearer(ratio) {
-		const rgb = this._rgb;
-		rgb.a *= 1 - ratio;
-		return this;
-	}
+  }, {
+    key: "hexString",
+    value: function hexString() {
+      return _hexString(this._rgb);
+    }
+    /**
+     * hsl(a) string
+     */
 
-	/**
-	 * Convert to grayscale
-	 */
-	greyscale() {
-		const rgb = this._rgb;
-		// http://en.wikipedia.org/wiki/Grayscale#Converting_color_to_grayscale
-		const val = round(rgb.r * 0.3 + rgb.g * 0.59 + rgb.b * 0.11);
-		rgb.r = rgb.g = rgb.b = val;
-		return this;
-	}
+  }, {
+    key: "hslString",
+    value: function hslString() {
+      return _hslString(this._rgb);
+    }
+    /**
+     * Mix another color to this color.
+     * @param {Color} color - Color to mix in
+     * @param {number} weight - 0..1
+     */
 
-	/**
-	 * Opaquer
-	 * @param {number} ratio - ratio [0..1]
-	 */
-	opaquer(ratio) {
-		const rgb = this._rgb;
-		rgb.a *= 1 + ratio;
-		return this;
-	}
+  }, {
+    key: "mix",
+    value: function mix(color, weight) {
+      var me = this;
 
-	negate() {
-		const v = this._rgb;
-		v.r = 255 - v.r;
-		v.g = 255 - v.g;
-		v.b = 255 - v.b;
-		return this;
-	}
+      if (color) {
+        var c1 = me.rgb;
+        var c2 = color.rgb;
+        var w2; // using instead of undefined in the next line
 
-	/**
-	 * Lighten
-	 * @param {number} ratio - ratio [0..1]
-	 */
-	lighten(ratio) {
-		modHSL(this._rgb, 2, ratio);
-		return this;
-	}
+        var p = weight === w2 ? 0.5 : weight;
+        var w = 2 * p - 1;
+        var a = c1.a - c2.a;
+        var w1 = ((w * a === -1 ? w : (w + a) / (1 + w * a)) + 1) / 2.0;
+        w2 = 1 - w1;
+        c1.r = 0xFF & w1 * c1.r + w2 * c2.r + 0.5;
+        c1.g = 0xFF & w1 * c1.g + w2 * c2.g + 0.5;
+        c1.b = 0xFF & w1 * c1.b + w2 * c2.b + 0.5;
+        c1.a = p * c1.a + (1 - p) * c2.a;
+        me.rgb = c1;
+      }
 
-	/**
-	 * Darken
-	 * @param {number} ratio - ratio [0..1]
-	 */
-	darken(ratio) {
-		modHSL(this._rgb, 2, -ratio);
-		return this;
-	}
+      return me;
+    }
+    /**
+     * Clone
+     */
 
-	/**
-	 * Saturate
-	 * @param {number} ratio - ratio [0..1]
-	 */
-	saturate(ratio) {
-		modHSL(this._rgb, 1, ratio);
-		return this;
-	}
+  }, {
+    key: "clone",
+    value: function clone() {
+      return new Color(this.rgb);
+    }
+    /**
+     * Set aplha
+     * @param {number} a - the alpha [0..1]
+     */
 
-	/**
-	 * Desaturate
-	 * @param {number} ratio - ratio [0..1]
-	 */
-	desaturate(ratio) {
-		modHSL(this._rgb, 1, -ratio);
-		return this;
-	}
+  }, {
+    key: "alpha",
+    value: function alpha(a) {
+      this._rgb.a = n2b(a);
+      return this;
+    }
+    /**
+     * Make clearer
+     * @param {number} ratio - ratio [0..1]
+     */
 
-	/**
-	 * Rotate
-	 * @param {number} deg - degrees to rotate
-	 */
-	rotate(deg) {
-		rotate(this._rgb, deg);
-		return this;
-	}
-}
+  }, {
+    key: "clearer",
+    value: function clearer(ratio) {
+      var rgb = this._rgb;
+      rgb.a *= 1 - ratio;
+      return this;
+    }
+    /**
+     * Convert to grayscale
+     */
 
+  }, {
+    key: "greyscale",
+    value: function greyscale() {
+      var rgb = this._rgb; // http://en.wikipedia.org/wiki/Grayscale#Converting_color_to_grayscale
+
+      var val = round(rgb.r * 0.3 + rgb.g * 0.59 + rgb.b * 0.11);
+      rgb.r = rgb.g = rgb.b = val;
+      return this;
+    }
+    /**
+     * Opaquer
+     * @param {number} ratio - ratio [0..1]
+     */
+
+  }, {
+    key: "opaquer",
+    value: function opaquer(ratio) {
+      var rgb = this._rgb;
+      rgb.a *= 1 + ratio;
+      return this;
+    }
+  }, {
+    key: "negate",
+    value: function negate() {
+      var v = this._rgb;
+      v.r = 255 - v.r;
+      v.g = 255 - v.g;
+      v.b = 255 - v.b;
+      return this;
+    }
+    /**
+     * Lighten
+     * @param {number} ratio - ratio [0..1]
+     */
+
+  }, {
+    key: "lighten",
+    value: function lighten(ratio) {
+      modHSL(this._rgb, 2, ratio);
+      return this;
+    }
+    /**
+     * Darken
+     * @param {number} ratio - ratio [0..1]
+     */
+
+  }, {
+    key: "darken",
+    value: function darken(ratio) {
+      modHSL(this._rgb, 2, -ratio);
+      return this;
+    }
+    /**
+     * Saturate
+     * @param {number} ratio - ratio [0..1]
+     */
+
+  }, {
+    key: "saturate",
+    value: function saturate(ratio) {
+      modHSL(this._rgb, 1, ratio);
+      return this;
+    }
+    /**
+     * Desaturate
+     * @param {number} ratio - ratio [0..1]
+     */
+
+  }, {
+    key: "desaturate",
+    value: function desaturate(ratio) {
+      modHSL(this._rgb, 1, -ratio);
+      return this;
+    }
+    /**
+     * Rotate
+     * @param {number} deg - degrees to rotate
+     */
+
+  }, {
+    key: "rotate",
+    value: function rotate(deg) {
+      _rotate(this._rgb, deg);
+
+      return this;
+    }
+  }, {
+    key: "valid",
+    get: function get() {
+      return this._valid;
+    }
+    /**
+     * @returns {RGBA} - the color
+     */
+
+  }, {
+    key: "rgb",
+    get: function get() {
+      var v = clone(this._rgb);
+
+      if (v) {
+        v.a = b2n(v.a);
+      }
+
+      return v;
+    }
+    /**
+     * @param {RGBA} obj - the color
+     */
+    ,
+    set: function set(obj) {
+      this._rgb = fromObject(obj);
+    }
+  }]);
+
+  return Color;
+}();
 /**
  * @packageDocumentation
  * @module Index
@@ -1108,13 +1264,14 @@ class Color {
  * @property {number} a - alpha [0..1]
  */
 
-
 /**
  * Construct new Color instance
  * @param {Color|RGBA|string|number[]} input
  */
+
+
 function index(input) {
-	return new Color(input);
+  return new Color(input);
 }
 
 /**
@@ -1422,25 +1579,6 @@ function _mergerIf(key, target, source) {
   }
 }
 /**
- * Applies the contents of two or more objects together into the first object.
- * @param {object} target - The target object in which all objects are merged into.
- * @param {object} arg1 - Object containing additional properties to merge in target.
- * @param {object} argN - Additional objects containing properties to merge in target.
- * @returns {object} The `target` object.
- */
-
-var extend = Object.assign || function (target) {
-  for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-    args[_key - 1] = arguments[_key];
-  }
-
-  return merge(target, args, {
-    merger: function merger(key, dst, src) {
-      dst[key] = src[key];
-    }
-  });
-};
-/**
  * Basic javascript inheritance based on the model created in Backbone.js
  */
 
@@ -1461,7 +1599,7 @@ function inherits(extensions) {
   ChartElement.extend = inherits;
 
   if (extensions) {
-    extend(ChartElement.prototype, extensions);
+    _extends(ChartElement.prototype, extensions);
   }
 
   ChartElement.__super__ = me.prototype;
@@ -1496,7 +1634,6 @@ _merger: _merger,
 merge: merge,
 mergeIf: mergeIf,
 _mergerIf: _mergerIf,
-extend: extend,
 inherits: inherits,
 _deprecated: _deprecated
 });
@@ -3341,11 +3478,11 @@ function copyOptions(target, values) {
   }
 
   if (oldOpts.$shared) {
-    target.options = extend({}, oldOpts, newOpts, {
+    target.options = _extends({}, oldOpts, newOpts, {
       $shared: false
     });
   } else {
-    extend(oldOpts, newOpts);
+    _extends(oldOpts, newOpts);
   }
 
   delete values.options;
@@ -3393,10 +3530,10 @@ function () {
         (cfg.properties || [key]).forEach(function (prop) {
           // Can have only one config per animation.
           if (!animatedProps.has(prop)) {
-            animatedProps.set(prop, extend({}, animDefaults, cfg));
+            animatedProps.set(prop, _extends({}, animDefaults, cfg));
           } else if (prop === key) {
             // Single property targetting config wins over multi-targetting.
-            animatedProps.set(prop, extend({}, animatedProps.get(prop), cfg));
+            animatedProps.set(prop, _extends({}, animatedProps.get(prop), cfg));
           }
         });
       });
@@ -3425,7 +3562,7 @@ function () {
         if (options.$shared) {
           // If the current / old options are $shared, meaning other elements are
           // using the same options, we need to clone to become unique.
-          target.options = options = extend({}, options, {
+          target.options = options = _extends({}, options, {
             $shared: false,
             $animations: {}
           });
@@ -3500,7 +3637,8 @@ function () {
         copyOptions(target, values); // copyOptions removes the `options` from `values`,
         // unless it can be directly assigned.
 
-        extend(target, values);
+        _extends(target, values);
+
         return;
       }
 
@@ -4589,7 +4727,7 @@ function () {
       var config = helpers.mergeIf({}, [datasetAnim, chartAnim]);
 
       if (config[mode]) {
-        config = helpers.extend({}, config, config[mode]);
+        config = _extends({}, config, config[mode]);
       }
 
       var animations = new Animations(chart, config);
@@ -4643,7 +4781,7 @@ function () {
     key: "_updateElement",
     value: function _updateElement(element, index, properties, mode) {
       if (mode === 'reset' || mode === 'none') {
-        helpers.extend(element, properties);
+        _extends(element, properties);
       } else {
         this._resolveAnimations(index, mode).update(element, properties);
       }
@@ -4884,7 +5022,7 @@ function () {
     this.hidden = undefined;
 
     if (cfg) {
-      extend(this, cfg);
+      _extends(this, cfg);
     }
   }
 
@@ -5045,7 +5183,7 @@ function (_Element) {
     _this.height = undefined;
 
     if (cfg) {
-      extend(_assertThisInitialized(_this), cfg);
+      _extends(_assertThisInitialized(_this), cfg);
     }
 
     return _this;
@@ -5693,7 +5831,7 @@ function (_Element) {
     _this.stop = undefined;
 
     if (cfg) {
-      extend(_assertThisInitialized(_this), cfg);
+      _extends(_assertThisInitialized(_this), cfg);
     }
 
     return _this;
@@ -5957,7 +6095,7 @@ function (_DatasetController) {
       }; // In case values were cached (and thus frozen), we need to clone the values
 
       if (values.$shared) {
-        values = extend({}, values, {
+        values = _extends({}, values, {
           $shared: false
         });
       } // Custom radius resolution
@@ -6095,7 +6233,7 @@ function (_Element) {
     _this.outerRadius = undefined;
 
     if (cfg) {
-      extend(_assertThisInitialized(_this), cfg);
+      _extends(_assertThisInitialized(_this), cfg);
     }
 
     return _this;
@@ -7227,7 +7365,7 @@ function (_Element) {
     _this._segments = undefined;
 
     if (cfg) {
-      extend(_assertThisInitialized(_this), cfg);
+      _extends(_assertThisInitialized(_this), cfg);
     }
 
     return _this;
@@ -8903,13 +9041,15 @@ var layouts = {
       vBoxMaxWidth: availableWidth / 2 / verticalBoxes.length,
       hBoxMaxHeight: availableHeight / 2
     });
-    var chartArea = extend({
-      maxPadding: extend({}, padding),
+
+    var chartArea = _extends({
+      maxPadding: _extends({}, padding),
       w: availableWidth,
       h: availableHeight,
       x: padding.left,
       y: padding.top
     }, padding);
+
     setLayoutDims(verticalBoxes.concat(horizontalBoxes), params); // First fit vertical boxes
 
     fitBoxes(verticalBoxes, chartArea, params); // Then fit horizontal boxes
@@ -8937,7 +9077,9 @@ var layouts = {
 
     each(boxes.chartArea, function (layout) {
       var box = layout.box;
-      extend(box, chart.chartArea);
+
+      _extends(box, chart.chartArea);
+
       box.update(chartArea.w, chartArea.h);
     });
   }
@@ -9996,7 +10138,7 @@ var scaleService = {
     var me = this;
 
     if (Object.prototype.hasOwnProperty.call(me.defaults, type)) {
-      me.defaults[type] = extend(me.defaults[type], additions);
+      me.defaults[type] = _extends(me.defaults[type], additions);
     }
   },
   addScalesToLayout: function addScalesToLayout(chart) {
@@ -11154,9 +11296,14 @@ function () {
 Chart.instances = {};
 
 /**
- * @return {*}
+ * @namespace Chart._adapters
+ * @since 2.8.0
+ * @private
  */
 
+/**
+ * @return {*}
+ */
 function _abstract() {
   throw new Error('This method is not implemented: either no adapter can be found or an incomplete integration was provided.');
 }
@@ -11282,7 +11429,7 @@ function () {
 }();
 
 DateAdapter.override = function (members) {
-  extend(DateAdapter.prototype, members);
+  _extends(DateAdapter.prototype, members);
 };
 
 var _adapters = {
@@ -11674,9 +11821,6 @@ function (_Element) {
     _this._longestTextCache = {};
     /** @type {number} */
 
-    _this._maxLabelLines = undefined;
-    /** @type {number} */
-
     _this._startPixel = undefined;
     /** @type {number} */
 
@@ -11868,7 +12012,7 @@ function (_Element) {
 
       me.maxWidth = maxWidth;
       me.maxHeight = maxHeight;
-      me.margins = extend({
+      me.margins = _extends({
         left: 0,
         right: 0,
         top: 0,
@@ -11876,7 +12020,6 @@ function (_Element) {
       }, margins);
       me.ticks = null;
       me._labelSizes = null;
-      me._maxLabelLines = 0;
       me._gridLineItems = null;
       me._labelItems = null; // Dimensions
 
@@ -13074,7 +13217,7 @@ function (_Element) {
         tick: me.ticks[index],
         index: index
       };
-      return extend(_parseFont({
+      return _extends(_parseFont({
         fontFamily: resolve([options.fontFamily], context),
         fontSize: resolve([options.fontSize], context),
         fontStyle: resolve([options.fontStyle], context),
@@ -16209,7 +16352,9 @@ function (_Element) {
     _classCallCheck(this, Legend);
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(Legend).call(this));
-    extend(_assertThisInitialized(_this), config); // Contains hit boxes for each dataset (in dataset order)
+
+    _extends(_assertThisInitialized(_this), config); // Contains hit boxes for each dataset (in dataset order)
+
 
     _this.legendHitBoxes = [];
     /**
@@ -16895,7 +17040,9 @@ function (_Element) {
     _classCallCheck(this, Title);
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(Title).call(this));
-    helpers.extend(_assertThisInitialized(_this), config);
+
+    _extends(_assertThisInitialized(_this), config);
+
     _this.chart = config.chart;
     _this.options = config.options;
     _this.ctx = config.ctx;
@@ -17397,7 +17544,7 @@ function createTooltipItem(chart, item) {
 
 
 function resolveOptions(options) {
-  options = helpers.extend({}, defaults.tooltips, options);
+  options = _extends({}, defaults.tooltips, options);
   options.bodyFontFamily = valueOrDefault$3(options.bodyFontFamily, defaults.fontFamily);
   options.bodyFontStyle = valueOrDefault$3(options.bodyFontStyle, defaults.fontStyle);
   options.bodyFontSize = valueOrDefault$3(options.bodyFontSize, defaults.fontSize);
@@ -17841,7 +17988,9 @@ function (_Element) {
         me.afterBody = me.getAfterBody(tooltipItems, data);
         me.footer = me.getFooter(tooltipItems, data);
         var size = me._size = getTooltipSize(me);
-        var positionAndSize = helpers.extend({}, position, size);
+
+        var positionAndSize = _extends({}, position, size);
+
         var alignment = determineAlignment(me._chart, options, positionAndSize);
         var backgroundPoint = getBackgroundPoint(options, positionAndSize, alignment, me._chart);
         me.xAlign = alignment.xAlign;
@@ -18139,7 +18288,8 @@ function (_Element) {
           return;
         }
 
-        var positionAndSize = helpers.extend({}, position, me._size);
+        var positionAndSize = _extends({}, position, me._size);
+
         var alignment = determineAlignment(chart, options, positionAndSize);
         var point = getBackgroundPoint(options, positionAndSize, alignment, chart);
 
