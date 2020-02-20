@@ -77,7 +77,6 @@
 						<section class="tsd-index-section tsd-is-not-exported">
 							<h3>Variables</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported"><a href="_scales_scale_time_.html#intervals" class="tsd-kind-icon">INTERVALS</a></li>
 								<li class="tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported"><a href="_scales_scale_time_.html#max_integer" class="tsd-kind-icon">MAX_<wbr>INTEGER</a></li>
 								<li class="tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported"><a href="_scales_scale_time_.html#units" class="tsd-kind-icon">UNITS</a></li>
 							</ul>
@@ -110,6 +109,7 @@
 						<section class="tsd-index-section tsd-is-not-exported">
 							<h3>Object literals</h3>
 							<ul class="tsd-index-list">
+								<li class="tsd-kind-object-literal tsd-parent-kind-external-module tsd-is-not-exported"><a href="_scales_scale_time_.html#intervals" class="tsd-kind-icon">INTERVALS</a></li>
 								<li class="tsd-kind-object-literal tsd-parent-kind-external-module tsd-is-not-exported"><a href="_scales_scale_time_.html#defaultconfig" class="tsd-kind-icon">default<wbr>Config</a></li>
 							</ul>
 						</section>
@@ -119,29 +119,12 @@
 			<section class="tsd-panel-group tsd-member-group tsd-is-not-exported">
 				<h2>Variables</h2>
 				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
-					<a name="intervals" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagConst">Const</span> INTERVALS</h3>
-					<div class="tsd-signature tsd-kind-icon">INTERVALS<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Map</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">"millisecond"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"second"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"minute"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"hour"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"day"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"week"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"month"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"quarter"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"year"</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-symbol">{ </span>common<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>size<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>steps<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = new Map()</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/ee7520b/src/scales/scale.time.js#L18">scales/scale.time.js:18</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<dl class="tsd-comment-tags">
-							<dt>type</dt>
-							<dd><p>{Map&lt;Unit, {common: boolean, size: number, steps?: number}&gt;}</p>
-							</dd>
-						</dl>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
 					<a name="max_integer" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagConst">Const</span> MAX_<wbr>INTEGER</h3>
 					<div class="tsd-signature tsd-kind-icon">MAX_<wbr>INTEGER<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = Number.MAX_SAFE_INTEGER || 9007199254740991</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/ee7520b/src/scales/scale.time.js#L13">scales/scale.time.js:13</a></li>
+							<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L14">scales/scale.time.js:14</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -149,16 +132,19 @@
 							<dt>typedef</dt>
 							<dd><p>{ import(&quot;../core/core.adapters&quot;).Unit } Unit</p>
 							</dd>
+							<dt>typedef</dt>
+							<dd><p>{{common: boolean, size: number, steps?: number}} Interval</p>
+							</dd>
 						</dl>
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
 					<a name="units" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagConst">Const</span> UNITS</h3>
-					<div class="tsd-signature tsd-kind-icon">UNITS<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">"millisecond"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"second"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"minute"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"hour"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"day"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"week"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"month"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"quarter"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"year"</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> = []</span></div>
+					<div class="tsd-signature tsd-kind-icon">UNITS<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">"millisecond"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"second"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"minute"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"hour"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"day"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"week"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"month"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"quarter"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"year"</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> = (Object.keys(INTERVALS))</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/ee7520b/src/scales/scale.time.js#L32">scales/scale.time.js:32</a></li>
+							<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L34">scales/scale.time.js:34</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -182,7 +168,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/ee7520b/src/scales/scale.time.js#L310">scales/scale.time.js:310</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L310">scales/scale.time.js:310</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -215,7 +201,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/ee7520b/src/scales/scale.time.js#L46">scales/scale.time.js:46</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L47">scales/scale.time.js:47</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -242,7 +228,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/ee7520b/src/scales/scale.time.js#L189">scales/scale.time.js:189</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L190">scales/scale.time.js:190</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -284,7 +270,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/ee7520b/src/scales/scale.time.js#L388">scales/scale.time.js:388</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L388">scales/scale.time.js:388</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -327,7 +313,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/ee7520b/src/scales/scale.time.js#L297">scales/scale.time.js:297</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L297">scales/scale.time.js:297</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -352,7 +338,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/ee7520b/src/scales/scale.time.js#L257">scales/scale.time.js:257</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L258">scales/scale.time.js:258</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -389,7 +375,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/ee7520b/src/scales/scale.time.js#L282">scales/scale.time.js:282</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L282">scales/scale.time.js:282</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -429,7 +415,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/ee7520b/src/scales/scale.time.js#L502">scales/scale.time.js:502</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L503">scales/scale.time.js:503</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -473,7 +459,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/ee7520b/src/scales/scale.time.js#L326">scales/scale.time.js:326</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L326">scales/scale.time.js:326</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -500,13 +486,13 @@
 					<a name="getalltimestamps" class="tsd-anchor"></a>
 					<h3>get<wbr>All<wbr>Timestamps</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>All<wbr>Timestamps<span class="tsd-signature-symbol">(</span>scale<span class="tsd-signature-symbol">: </span><a href="../classes/_scales_scale_time_.timescale.html" class="tsd-signature-type">TimeScale</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span></li>
+						<li class="tsd-signature tsd-kind-icon">get<wbr>All<wbr>Timestamps<span class="tsd-signature-symbol">(</span>scale<span class="tsd-signature-symbol">: </span><a href="../classes/_scales_scale_time_.timescale.html" class="tsd-signature-type">TimeScale</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/ee7520b/src/scales/scale.time.js#L148">scales/scale.time.js:148</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L149">scales/scale.time.js:149</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -519,7 +505,7 @@
 									</div>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -533,7 +519,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/ee7520b/src/scales/scale.time.js#L100">scales/scale.time.js:100</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L101">scales/scale.time.js:101</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -560,7 +546,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/ee7520b/src/scales/scale.time.js#L483">scales/scale.time.js:483</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L484">scales/scale.time.js:484</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -595,7 +581,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/ee7520b/src/scales/scale.time.js#L127">scales/scale.time.js:127</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L128">scales/scale.time.js:128</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -622,7 +608,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/ee7520b/src/scales/scale.time.js#L474">scales/scale.time.js:474</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L475">scales/scale.time.js:475</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -649,7 +635,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/ee7520b/src/scales/scale.time.js#L463">scales/scale.time.js:463</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L464">scales/scale.time.js:464</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -676,7 +662,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/ee7520b/src/scales/scale.time.js#L235">scales/scale.time.js:235</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L236">scales/scale.time.js:236</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -716,7 +702,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/ee7520b/src/scales/scale.time.js#L65">scales/scale.time.js:65</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L66">scales/scale.time.js:66</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -725,12 +711,11 @@
 							<ul class="tsd-parameters">
 								<li>
 									<h5>scale: <a href="../classes/_scales_scale_time_.timescale.html" class="tsd-signature-type">TimeScale</a></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>{*} input</p>
-									</div>
 								</li>
 								<li>
 									<h5>input: <span class="tsd-signature-type">any</span></h5>
+									<div class="tsd-comment tsd-typography">
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
@@ -747,7 +732,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/ee7520b/src/scales/scale.time.js#L418">scales/scale.time.js:418</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L418">scales/scale.time.js:418</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -781,7 +766,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/ee7520b/src/scales/scale.time.js#L39">scales/scale.time.js:39</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L40">scales/scale.time.js:40</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -811,7 +796,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/ee7520b/src/scales/scale.time.js#L439">scales/scale.time.js:439</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L439">scales/scale.time.js:439</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -836,12 +821,379 @@
 			<section class="tsd-panel-group tsd-member-group tsd-is-not-exported">
 				<h2>Object literals</h2>
 				<section class="tsd-panel tsd-member tsd-kind-object-literal tsd-parent-kind-external-module tsd-is-not-exported">
+					<a name="intervals" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> INTERVALS</h3>
+					<div class="tsd-signature tsd-kind-icon">INTERVALS<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L19">scales/scale.time.js:19</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<dl class="tsd-comment-tags">
+							<dt>type</dt>
+							<dd><p>{Object&lt;Unit, Interval&gt;}</p>
+							</dd>
+						</dl>
+					</div>
+					<section class="tsd-panel tsd-member tsd-kind-object-literal tsd-parent-kind-object-literal tsd-is-not-exported">
+						<a name="intervals.day" class="tsd-anchor"></a>
+						<h3>day</h3>
+						<div class="tsd-signature tsd-kind-icon">day<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L24">scales/scale.time.js:24</a></li>
+							</ul>
+						</aside>
+						<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal tsd-is-not-exported">
+							<a name="intervals.day.common" class="tsd-anchor"></a>
+							<h3>common</h3>
+							<div class="tsd-signature tsd-kind-icon">common<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = true</span></div>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L24">scales/scale.time.js:24</a></li>
+								</ul>
+							</aside>
+						</section>
+						<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal tsd-is-not-exported">
+							<a name="intervals.day.size" class="tsd-anchor"></a>
+							<h3>size</h3>
+							<div class="tsd-signature tsd-kind-icon">size<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 86400000</span></div>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L24">scales/scale.time.js:24</a></li>
+								</ul>
+							</aside>
+						</section>
+						<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal tsd-is-not-exported">
+							<a name="intervals.day.steps" class="tsd-anchor"></a>
+							<h3>steps</h3>
+							<div class="tsd-signature tsd-kind-icon">steps<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 30</span></div>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L24">scales/scale.time.js:24</a></li>
+								</ul>
+							</aside>
+						</section>
+					</section>
+					<section class="tsd-panel tsd-member tsd-kind-object-literal tsd-parent-kind-object-literal tsd-is-not-exported">
+						<a name="intervals.hour" class="tsd-anchor"></a>
+						<h3>hour</h3>
+						<div class="tsd-signature tsd-kind-icon">hour<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L23">scales/scale.time.js:23</a></li>
+							</ul>
+						</aside>
+						<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal tsd-is-not-exported">
+							<a name="intervals.hour.common-1" class="tsd-anchor"></a>
+							<h3>common</h3>
+							<div class="tsd-signature tsd-kind-icon">common<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = true</span></div>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L23">scales/scale.time.js:23</a></li>
+								</ul>
+							</aside>
+						</section>
+						<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal tsd-is-not-exported">
+							<a name="intervals.hour.size-1" class="tsd-anchor"></a>
+							<h3>size</h3>
+							<div class="tsd-signature tsd-kind-icon">size<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 3600000</span></div>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L23">scales/scale.time.js:23</a></li>
+								</ul>
+							</aside>
+						</section>
+						<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal tsd-is-not-exported">
+							<a name="intervals.hour.steps-1" class="tsd-anchor"></a>
+							<h3>steps</h3>
+							<div class="tsd-signature tsd-kind-icon">steps<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 24</span></div>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L23">scales/scale.time.js:23</a></li>
+								</ul>
+							</aside>
+						</section>
+					</section>
+					<section class="tsd-panel tsd-member tsd-kind-object-literal tsd-parent-kind-object-literal tsd-is-not-exported">
+						<a name="intervals.millisecond" class="tsd-anchor"></a>
+						<h3>millisecond</h3>
+						<div class="tsd-signature tsd-kind-icon">millisecond<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L20">scales/scale.time.js:20</a></li>
+							</ul>
+						</aside>
+						<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal tsd-is-not-exported">
+							<a name="intervals.millisecond.common-2" class="tsd-anchor"></a>
+							<h3>common</h3>
+							<div class="tsd-signature tsd-kind-icon">common<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = true</span></div>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L20">scales/scale.time.js:20</a></li>
+								</ul>
+							</aside>
+						</section>
+						<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal tsd-is-not-exported">
+							<a name="intervals.millisecond.size-2" class="tsd-anchor"></a>
+							<h3>size</h3>
+							<div class="tsd-signature tsd-kind-icon">size<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 1</span></div>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L20">scales/scale.time.js:20</a></li>
+								</ul>
+							</aside>
+						</section>
+						<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal tsd-is-not-exported">
+							<a name="intervals.millisecond.steps-2" class="tsd-anchor"></a>
+							<h3>steps</h3>
+							<div class="tsd-signature tsd-kind-icon">steps<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 1000</span></div>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L20">scales/scale.time.js:20</a></li>
+								</ul>
+							</aside>
+						</section>
+					</section>
+					<section class="tsd-panel tsd-member tsd-kind-object-literal tsd-parent-kind-object-literal tsd-is-not-exported">
+						<a name="intervals.minute" class="tsd-anchor"></a>
+						<h3>minute</h3>
+						<div class="tsd-signature tsd-kind-icon">minute<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L22">scales/scale.time.js:22</a></li>
+							</ul>
+						</aside>
+						<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal tsd-is-not-exported">
+							<a name="intervals.minute.common-3" class="tsd-anchor"></a>
+							<h3>common</h3>
+							<div class="tsd-signature tsd-kind-icon">common<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = true</span></div>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L22">scales/scale.time.js:22</a></li>
+								</ul>
+							</aside>
+						</section>
+						<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal tsd-is-not-exported">
+							<a name="intervals.minute.size-3" class="tsd-anchor"></a>
+							<h3>size</h3>
+							<div class="tsd-signature tsd-kind-icon">size<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 60000</span></div>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L22">scales/scale.time.js:22</a></li>
+								</ul>
+							</aside>
+						</section>
+						<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal tsd-is-not-exported">
+							<a name="intervals.minute.steps-3" class="tsd-anchor"></a>
+							<h3>steps</h3>
+							<div class="tsd-signature tsd-kind-icon">steps<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 60</span></div>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L22">scales/scale.time.js:22</a></li>
+								</ul>
+							</aside>
+						</section>
+					</section>
+					<section class="tsd-panel tsd-member tsd-kind-object-literal tsd-parent-kind-object-literal tsd-is-not-exported">
+						<a name="intervals.month" class="tsd-anchor"></a>
+						<h3>month</h3>
+						<div class="tsd-signature tsd-kind-icon">month<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L26">scales/scale.time.js:26</a></li>
+							</ul>
+						</aside>
+						<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal tsd-is-not-exported">
+							<a name="intervals.month.common-4" class="tsd-anchor"></a>
+							<h3>common</h3>
+							<div class="tsd-signature tsd-kind-icon">common<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = true</span></div>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L26">scales/scale.time.js:26</a></li>
+								</ul>
+							</aside>
+						</section>
+						<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal tsd-is-not-exported">
+							<a name="intervals.month.size-4" class="tsd-anchor"></a>
+							<h3>size</h3>
+							<div class="tsd-signature tsd-kind-icon">size<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 2628000000</span></div>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L26">scales/scale.time.js:26</a></li>
+								</ul>
+							</aside>
+						</section>
+						<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal tsd-is-not-exported">
+							<a name="intervals.month.steps-4" class="tsd-anchor"></a>
+							<h3>steps</h3>
+							<div class="tsd-signature tsd-kind-icon">steps<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 12</span></div>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L26">scales/scale.time.js:26</a></li>
+								</ul>
+							</aside>
+						</section>
+					</section>
+					<section class="tsd-panel tsd-member tsd-kind-object-literal tsd-parent-kind-object-literal tsd-is-not-exported">
+						<a name="intervals.quarter" class="tsd-anchor"></a>
+						<h3>quarter</h3>
+						<div class="tsd-signature tsd-kind-icon">quarter<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L27">scales/scale.time.js:27</a></li>
+							</ul>
+						</aside>
+						<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal tsd-is-not-exported">
+							<a name="intervals.quarter.common-5" class="tsd-anchor"></a>
+							<h3>common</h3>
+							<div class="tsd-signature tsd-kind-icon">common<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = false</span></div>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L27">scales/scale.time.js:27</a></li>
+								</ul>
+							</aside>
+						</section>
+						<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal tsd-is-not-exported">
+							<a name="intervals.quarter.size-5" class="tsd-anchor"></a>
+							<h3>size</h3>
+							<div class="tsd-signature tsd-kind-icon">size<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 7884000000</span></div>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L27">scales/scale.time.js:27</a></li>
+								</ul>
+							</aside>
+						</section>
+						<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal tsd-is-not-exported">
+							<a name="intervals.quarter.steps-5" class="tsd-anchor"></a>
+							<h3>steps</h3>
+							<div class="tsd-signature tsd-kind-icon">steps<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 4</span></div>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L27">scales/scale.time.js:27</a></li>
+								</ul>
+							</aside>
+						</section>
+					</section>
+					<section class="tsd-panel tsd-member tsd-kind-object-literal tsd-parent-kind-object-literal tsd-is-not-exported">
+						<a name="intervals.second" class="tsd-anchor"></a>
+						<h3>second</h3>
+						<div class="tsd-signature tsd-kind-icon">second<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L21">scales/scale.time.js:21</a></li>
+							</ul>
+						</aside>
+						<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal tsd-is-not-exported">
+							<a name="intervals.second.common-6" class="tsd-anchor"></a>
+							<h3>common</h3>
+							<div class="tsd-signature tsd-kind-icon">common<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = true</span></div>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L21">scales/scale.time.js:21</a></li>
+								</ul>
+							</aside>
+						</section>
+						<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal tsd-is-not-exported">
+							<a name="intervals.second.size-6" class="tsd-anchor"></a>
+							<h3>size</h3>
+							<div class="tsd-signature tsd-kind-icon">size<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 1000</span></div>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L21">scales/scale.time.js:21</a></li>
+								</ul>
+							</aside>
+						</section>
+						<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal tsd-is-not-exported">
+							<a name="intervals.second.steps-6" class="tsd-anchor"></a>
+							<h3>steps</h3>
+							<div class="tsd-signature tsd-kind-icon">steps<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 60</span></div>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L21">scales/scale.time.js:21</a></li>
+								</ul>
+							</aside>
+						</section>
+					</section>
+					<section class="tsd-panel tsd-member tsd-kind-object-literal tsd-parent-kind-object-literal tsd-is-not-exported">
+						<a name="intervals.week" class="tsd-anchor"></a>
+						<h3>week</h3>
+						<div class="tsd-signature tsd-kind-icon">week<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L25">scales/scale.time.js:25</a></li>
+							</ul>
+						</aside>
+						<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal tsd-is-not-exported">
+							<a name="intervals.week.common-7" class="tsd-anchor"></a>
+							<h3>common</h3>
+							<div class="tsd-signature tsd-kind-icon">common<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = false</span></div>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L25">scales/scale.time.js:25</a></li>
+								</ul>
+							</aside>
+						</section>
+						<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal tsd-is-not-exported">
+							<a name="intervals.week.size-7" class="tsd-anchor"></a>
+							<h3>size</h3>
+							<div class="tsd-signature tsd-kind-icon">size<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 604800000</span></div>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L25">scales/scale.time.js:25</a></li>
+								</ul>
+							</aside>
+						</section>
+						<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal tsd-is-not-exported">
+							<a name="intervals.week.steps-7" class="tsd-anchor"></a>
+							<h3>steps</h3>
+							<div class="tsd-signature tsd-kind-icon">steps<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 4</span></div>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L25">scales/scale.time.js:25</a></li>
+								</ul>
+							</aside>
+						</section>
+					</section>
+					<section class="tsd-panel tsd-member tsd-kind-object-literal tsd-parent-kind-object-literal tsd-is-not-exported">
+						<a name="intervals.year" class="tsd-anchor"></a>
+						<h3>year</h3>
+						<div class="tsd-signature tsd-kind-icon">year<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L28">scales/scale.time.js:28</a></li>
+							</ul>
+						</aside>
+						<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal tsd-is-not-exported">
+							<a name="intervals.year.common-8" class="tsd-anchor"></a>
+							<h3>common</h3>
+							<div class="tsd-signature tsd-kind-icon">common<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = true</span></div>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L28">scales/scale.time.js:28</a></li>
+								</ul>
+							</aside>
+						</section>
+						<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal tsd-is-not-exported">
+							<a name="intervals.year.size-8" class="tsd-anchor"></a>
+							<h3>size</h3>
+							<div class="tsd-signature tsd-kind-icon">size<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 31540000000</span></div>
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L28">scales/scale.time.js:28</a></li>
+								</ul>
+							</aside>
+						</section>
+					</section>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-object-literal tsd-parent-kind-external-module tsd-is-not-exported">
 					<a name="defaultconfig" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagConst">Const</span> default<wbr>Config</h3>
 					<div class="tsd-signature tsd-kind-icon">default<wbr>Config<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/ee7520b/src/scales/scale.time.js#L519">scales/scale.time.js:519</a></li>
+							<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L520">scales/scale.time.js:520</a></li>
 						</ul>
 					</aside>
 					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal tsd-is-not-exported">
@@ -850,7 +1202,7 @@
 						<div class="tsd-signature tsd-kind-icon">adapters<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{}</span></div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/ee7520b/src/scales/scale.time.js#L538">scales/scale.time.js:538</a></li>
+								<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L539">scales/scale.time.js:539</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-type-declaration">
@@ -865,7 +1217,7 @@
 						<div class="tsd-signature tsd-kind-icon">bounds<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> = &quot;data&quot;</span></div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/ee7520b/src/scales/scale.time.js#L536">scales/scale.time.js:536</a></li>
+								<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L537">scales/scale.time.js:537</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-comment tsd-typography">
@@ -892,7 +1244,7 @@
 						<div class="tsd-signature tsd-kind-icon">distribution<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> = &quot;linear&quot;</span></div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/ee7520b/src/scales/scale.time.js#L527">scales/scale.time.js:527</a></li>
+								<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L528">scales/scale.time.js:528</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-comment tsd-typography">
@@ -919,7 +1271,7 @@
 						<div class="tsd-signature tsd-kind-icon">ticks<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/ee7520b/src/scales/scale.time.js#L547">scales/scale.time.js:547</a></li>
+								<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L548">scales/scale.time.js:548</a></li>
 							</ul>
 						</aside>
 						<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal tsd-is-not-exported">
@@ -928,7 +1280,7 @@
 							<div class="tsd-signature tsd-kind-icon">auto<wbr>Skip<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = false</span></div>
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/ee7520b/src/scales/scale.time.js#L548">scales/scale.time.js:548</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L549">scales/scale.time.js:549</a></li>
 								</ul>
 							</aside>
 						</section>
@@ -938,7 +1290,7 @@
 							<div class="tsd-signature tsd-kind-icon">source<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> = &quot;auto&quot;</span></div>
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/ee7520b/src/scales/scale.time.js#L558">scales/scale.time.js:558</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L559">scales/scale.time.js:559</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -966,7 +1318,7 @@
 							<div class="tsd-signature tsd-kind-icon">major<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/ee7520b/src/scales/scale.time.js#L560">scales/scale.time.js:560</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L561">scales/scale.time.js:561</a></li>
 								</ul>
 							</aside>
 							<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal tsd-is-not-exported">
@@ -975,7 +1327,7 @@
 								<div class="tsd-signature tsd-kind-icon">enabled<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = false</span></div>
 								<aside class="tsd-sources">
 									<ul>
-										<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/ee7520b/src/scales/scale.time.js#L561">scales/scale.time.js:561</a></li>
+										<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L562">scales/scale.time.js:562</a></li>
 									</ul>
 								</aside>
 							</section>
@@ -987,7 +1339,7 @@
 						<div class="tsd-signature tsd-kind-icon">time<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/ee7520b/src/scales/scale.time.js#L539">scales/scale.time.js:539</a></li>
+								<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L540">scales/scale.time.js:540</a></li>
 							</ul>
 						</aside>
 						<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal tsd-is-not-exported">
@@ -996,7 +1348,7 @@
 							<div class="tsd-signature tsd-kind-icon">display<wbr>Formats<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{}</span></div>
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/ee7520b/src/scales/scale.time.js#L545">scales/scale.time.js:545</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L546">scales/scale.time.js:546</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-type-declaration">
@@ -1011,7 +1363,7 @@
 							<div class="tsd-signature tsd-kind-icon">iso<wbr>Weekday<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = false</span></div>
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/ee7520b/src/scales/scale.time.js#L543">scales/scale.time.js:543</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L544">scales/scale.time.js:544</a></li>
 								</ul>
 							</aside>
 						</section>
@@ -1021,7 +1373,7 @@
 							<div class="tsd-signature tsd-kind-icon">min<wbr>Unit<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> = &quot;millisecond&quot;</span></div>
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/ee7520b/src/scales/scale.time.js#L544">scales/scale.time.js:544</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L545">scales/scale.time.js:545</a></li>
 								</ul>
 							</aside>
 						</section>
@@ -1031,7 +1383,7 @@
 							<div class="tsd-signature tsd-kind-icon">parser<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = false</span></div>
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/ee7520b/src/scales/scale.time.js#L540">scales/scale.time.js:540</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L541">scales/scale.time.js:541</a></li>
 								</ul>
 							</aside>
 						</section>
@@ -1041,7 +1393,7 @@
 							<div class="tsd-signature tsd-kind-icon">round<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = false</span></div>
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/ee7520b/src/scales/scale.time.js#L542">scales/scale.time.js:542</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L543">scales/scale.time.js:543</a></li>
 								</ul>
 							</aside>
 						</section>
@@ -1051,7 +1403,7 @@
 							<div class="tsd-signature tsd-kind-icon">unit<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = false</span></div>
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/ee7520b/src/scales/scale.time.js#L541">scales/scale.time.js:541</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2e5b072/src/scales/scale.time.js#L542">scales/scale.time.js:542</a></li>
 								</ul>
 							</aside>
 						</section>
@@ -1074,9 +1426,6 @@
 				<ul class="before-current">
 					<li class=" tsd-kind-class tsd-parent-kind-external-module">
 						<a href="../classes/_scales_scale_time_.timescale.html" class="tsd-kind-icon">Time<wbr>Scale</a>
-					</li>
-					<li class=" tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="_scales_scale_time_.html#intervals" class="tsd-kind-icon">INTERVALS</a>
 					</li>
 					<li class=" tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
 						<a href="_scales_scale_time_.html#max_integer" class="tsd-kind-icon">MAX_<wbr>INTEGER</a>
@@ -1143,6 +1492,9 @@
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
 						<a href="_scales_scale_time_.html#ticksfromtimestamps" class="tsd-kind-icon">ticks<wbr>From<wbr>Timestamps</a>
+					</li>
+					<li class=" tsd-kind-object-literal tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="_scales_scale_time_.html#intervals" class="tsd-kind-icon">INTERVALS</a>
 					</li>
 					<li class=" tsd-kind-object-literal tsd-parent-kind-external-module tsd-is-not-exported">
 						<a href="_scales_scale_time_.html#defaultconfig" class="tsd-kind-icon">default<wbr>Config</a>

@@ -5256,7 +5256,7 @@ function (_DatasetController) {
     var _this;
     _classCallCheck(this, LineController);
     _this = _possibleConstructorReturn(this, _getPrototypeOf(LineController).call(this, chart, datasetIndex));
-    _this._showLine = undefined;
+    _this._showLine = false;
     return _this;
   }
   _createClass(LineController, [{
@@ -6821,7 +6821,7 @@ var EVENT_TYPES = {
 function readUsedSize(element, property) {
   var value = helpers.dom.getStyle(element, property);
   var matches = value && value.match(/^(\d+)(\.\d+)?px$/);
-  return matches ? Number(matches[1]) : undefined;
+  return matches ? +matches[1] : undefined;
 }
 function initCanvas(canvas, config) {
   var style = canvas.style;
@@ -6859,17 +6859,19 @@ function initCanvas(canvas, config) {
   return canvas;
 }
 var supportsEventListenerOptions = function () {
-  var supports = false;
+  var passiveSupported = false;
   try {
-    var options = Object.defineProperty({}, 'passive', {
-      get: function get() {
-        supports = true;
+    var options = {
+      get passive() {
+        passiveSupported = true;
+        return false;
       }
-    });
-    window.addEventListener('e', null, options);
+    };
+    window.addEventListener('test', null, options);
+    window.removeEventListener('test', null, options);
   } catch (e) {
   }
-  return supports;
+  return passiveSupported;
 }();
 var eventListenerOptions = supportsEventListenerOptions ? {
   passive: true
@@ -7362,9 +7364,7 @@ function () {
     this.active = undefined;
     this.lastActive = undefined;
     this._lastEvent = undefined;
-    this._listeners = {
-      resize: undefined
-    };
+    this._listeners = {};
     this._sortedMetasets = [];
     this._updating = false;
     this.scales = {};
@@ -8361,19 +8361,19 @@ function (_Element) {
     _this.labelRotation = undefined;
     _this.min = undefined;
     _this.max = undefined;
-    _this.ticks = null;
+    _this.ticks = [];
     _this._gridLineItems = null;
     _this._labelItems = null;
     _this._labelSizes = null;
-    _this._length = undefined;
+    _this._length = 0;
     _this._longestTextCache = {};
     _this._startPixel = undefined;
     _this._endPixel = undefined;
-    _this._reversePixels = undefined;
+    _this._reversePixels = false;
     _this._userMax = undefined;
     _this._userMin = undefined;
-    _this._ticksLength = undefined;
-    _this._borderValue = undefined;
+    _this._ticksLength = 0;
+    _this._borderValue = 0;
     return _this;
   }
   _createClass(Scale, [{
@@ -9257,7 +9257,8 @@ function (_Element) {
       var position = options.position;
       var isReverse = me.options.reverse;
       var rotation = 0;
-      var scaleLabelX, scaleLabelY, textAlign;
+      var textAlign;
+      var scaleLabelX, scaleLabelY;
       if (me.isHorizontal()) {
         switch (scaleLabelAlign) {
           case 'start':
@@ -9391,9 +9392,9 @@ function (_Scale) {
     var _this;
     _classCallCheck(this, CategoryScale);
     _this = _possibleConstructorReturn(this, _getPrototypeOf(CategoryScale).call(this, cfg));
-    _this._numLabels = undefined;
+    _this._numLabels = 0;
     _this._startValue = undefined;
-    _this._valueRange = undefined;
+    _this._valueRange = 0;
     return _this;
   }
   _createClass(CategoryScale, [{
@@ -9583,7 +9584,7 @@ function (_Scale) {
     _this.end = undefined;
     _this._startValue = undefined;
     _this._endValue = undefined;
-    _this._valueRange = undefined;
+    _this._valueRange = 0;
     return _this;
   }
   _createClass(LinearScaleBase, [{
@@ -9850,7 +9851,7 @@ function (_Scale) {
     _this.start = undefined;
     _this.end = undefined;
     _this._startValue = undefined;
-    _this._valueRange = undefined;
+    _this._valueRange = 0;
     return _this;
   }
   _createClass(LogarithmicScale, [{
@@ -10171,7 +10172,7 @@ function (_LinearScaleBase) {
     _this.xCenter = undefined;
     _this.yCenter = undefined;
     _this.drawingArea = undefined;
-    _this.pointLabels = undefined;
+    _this.pointLabels = [];
     return _this;
   }
   _createClass(RadialLinearScale, [{
@@ -10376,55 +10377,54 @@ function (_LinearScaleBase) {
 RadialLinearScale._defaults = defaultConfig$3;
 
 var MAX_INTEGER = Number.MAX_SAFE_INTEGER || 9007199254740991;
-var INTERVALS = new Map();
-INTERVALS.set('millisecond', {
-  common: true,
-  size: 1,
-  steps: 1000
-});
-INTERVALS.set('second', {
-  common: true,
-  size: 1000,
-  steps: 60
-});
-INTERVALS.set('minute', {
-  common: true,
-  size: 60000,
-  steps: 60
-});
-INTERVALS.set('hour', {
-  common: true,
-  size: 3600000,
-  steps: 24
-});
-INTERVALS.set('day', {
-  common: true,
-  size: 86400000,
-  steps: 30
-});
-INTERVALS.set('week', {
-  common: false,
-  size: 604800000,
-  steps: 4
-});
-INTERVALS.set('month', {
-  common: true,
-  size: 2.628e9,
-  steps: 12
-});
-INTERVALS.set('quarter', {
-  common: false,
-  size: 7.884e9,
-  steps: 4
-});
-INTERVALS.set('year', {
-  common: true,
-  size: 3.154e10
-});
-var UNITS = [];
-INTERVALS.forEach(function (v, k) {
-  return UNITS.push(k);
-});
+var INTERVALS = {
+  millisecond: {
+    common: true,
+    size: 1,
+    steps: 1000
+  },
+  second: {
+    common: true,
+    size: 1000,
+    steps: 60
+  },
+  minute: {
+    common: true,
+    size: 60000,
+    steps: 60
+  },
+  hour: {
+    common: true,
+    size: 3600000,
+    steps: 24
+  },
+  day: {
+    common: true,
+    size: 86400000,
+    steps: 30
+  },
+  week: {
+    common: false,
+    size: 604800000,
+    steps: 4
+  },
+  month: {
+    common: true,
+    size: 2.628e9,
+    steps: 12
+  },
+  quarter: {
+    common: false,
+    size: 7.884e9,
+    steps: 4
+  },
+  year: {
+    common: true,
+    size: 3.154e10
+  }
+};
+var UNITS =
+Object.keys(INTERVALS);
 function sorter(a, b) {
   return a - b;
 }
@@ -10551,10 +10551,9 @@ function interpolate(table, skey, sval, tkey) {
 }
 function determineUnitForAutoTicks(minUnit, min, max, capacity) {
   var ilen = UNITS.length;
-  var i, interval, factor;
-  for (i = UNITS.indexOf(minUnit); i < ilen - 1; ++i) {
-    interval = INTERVALS.get(UNITS[i]);
-    factor = interval.steps ? interval.steps : MAX_INTEGER;
+  for (var i = UNITS.indexOf(minUnit); i < ilen - 1; ++i) {
+    var interval = INTERVALS[UNITS[i]];
+    var factor = interval.steps ? interval.steps : MAX_INTEGER;
     if (interval.common && Math.ceil((max - min) / (factor * interval.size)) <= capacity) {
       return UNITS[i];
     }
@@ -10564,7 +10563,7 @@ function determineUnitForAutoTicks(minUnit, min, max, capacity) {
 function determineUnitForFormatting(scale, numTicks, minUnit, min, max) {
   for (var i = UNITS.length - 1; i >= UNITS.indexOf(minUnit); i--) {
     var unit = UNITS[i];
-    if (INTERVALS.get(unit).common && scale._adapter.diff(max, min, unit) >= numTicks - 1) {
+    if (INTERVALS[unit].common && scale._adapter.diff(max, min, unit) >= numTicks - 1) {
       return unit;
     }
   }
@@ -10572,7 +10571,7 @@ function determineUnitForFormatting(scale, numTicks, minUnit, min, max) {
 }
 function determineMajorUnit(unit) {
   for (var i = UNITS.indexOf(unit) + 1, ilen = UNITS.length; i < ilen; ++i) {
-    if (INTERVALS.get(UNITS[i]).common) {
+    if (INTERVALS[UNITS[i]].common) {
       return UNITS[i];
     }
   }
