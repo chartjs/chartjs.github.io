@@ -214,629 +214,6 @@ function _nonIterableSpread() {
   throw new TypeError("Invalid attempt to spread non-iterable instance");
 }
 
-/*!
- * @kurkle/color v0.1.3
- * https://github.com/kurkle/color#readme
- * (c) 2020 Jukka Kurkela
- * Released under the MIT License
- */
-var map = {
-  0: 0,
-  1: 1,
-  2: 2,
-  3: 3,
-  4: 4,
-  5: 5,
-  6: 6,
-  7: 7,
-  8: 8,
-  9: 9,
-  A: 10,
-  B: 11,
-  C: 12,
-  D: 13,
-  E: 14,
-  F: 15,
-  a: 10,
-  b: 11,
-  c: 12,
-  d: 13,
-  e: 14,
-  f: 15
-};
-var hex = '0123456789ABCDEF';
-var h1 = function h1(b) {
-  return hex[b & 0xF];
-};
-var h2 = function h2(b) {
-  return hex[(b & 0xF0) >> 4] + hex[b & 0xF];
-};
-var eq = function eq(b) {
-  return (b & 0xF0) >> 4 === (b & 0xF);
-};
-function isShort(v) {
-  return eq(v.r) && eq(v.g) && eq(v.b) && eq(v.a);
-}
-function hexParse(str) {
-  var len = str.length;
-  var ret;
-  if (str[0] === '#') {
-    if (len === 4 || len === 5) {
-      ret = {
-        r: 255 & map[str[1]] * 17,
-        g: 255 & map[str[2]] * 17,
-        b: 255 & map[str[3]] * 17,
-        a: len === 5 ? map[str[4]] * 17 : 255
-      };
-    } else if (len === 7 || len === 9) {
-      ret = {
-        r: map[str[1]] << 4 | map[str[2]],
-        g: map[str[3]] << 4 | map[str[4]],
-        b: map[str[5]] << 4 | map[str[6]],
-        a: len === 9 ? map[str[7]] << 4 | map[str[8]] : 255
-      };
-    }
-  }
-  return ret;
-}
-function _hexString(v) {
-  var f = isShort(v) ? h1 : h2;
-  return v ? '#' + f(v.r) + f(v.g) + f(v.b) + (v.a < 255 ? f(v.a) : '') : v;
-}
-function round(v) {
-  return v + 0.5 | 0;
-}
-function p2b(v) {
-  return round(v * 2.55);
-}
-function n2b(v) {
-  return round(v * 255);
-}
-function b2n(v) {
-  return round(v / 2.55) / 100;
-}
-function n2p(v) {
-  return round(v * 100);
-}
-var RGB_RE = /^rgba?\(\s*([-+.\d]+)(%)?[\s,]+([-+.e\d]+)(%)?[\s,]+([-+.e\d]+)(%)?(?:[\s,/]+([-+.e\d]+)(%)?)?\s*\)$/;
-function rgbParse(str) {
-  var m = RGB_RE.exec(str);
-  var a = 255;
-  var r, g, b;
-  if (!m) {
-    return;
-  }
-  if (m[7] !== r) {
-    var v = +m[7];
-    a = 255 & (m[8] ? p2b(v) : v * 255);
-  }
-  r = +m[1];
-  g = +m[3];
-  b = +m[5];
-  r = 255 & (m[2] ? p2b(r) : r);
-  g = 255 & (m[4] ? p2b(g) : g);
-  b = 255 & (m[6] ? p2b(b) : b);
-  return {
-    r: r,
-    g: g,
-    b: b,
-    a: a
-  };
-}
-function _rgbString(v) {
-  return v && (v.a < 255 ? "rgba(".concat(v.r, ", ").concat(v.g, ", ").concat(v.b, ", ").concat(b2n(v.a), ")") : "rgb(".concat(v.r, ", ").concat(v.g, ", ").concat(v.b, ")"));
-}
-var HUE_RE = /^(hsla?|hwb|hsv)\(\s*([-+.e\d]+)(?:deg)?[\s,]+([-+.e\d]+)%[\s,]+([-+.e\d]+)%(?:[\s,]+([-+.e\d]+)(%)?)?\s*\)$/;
-function hsl2rgbn(h, s, l) {
-  var a = s * Math.min(l, 1 - l);
-  var f = function f(n) {
-    var k = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : (n + h / 30) % 12;
-    return l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
-  };
-  return [f(0), f(8), f(4)];
-}
-function hsv2rgbn(h, s, v) {
-  var f = function f(n) {
-    var k = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : (n + h / 60) % 6;
-    return v - v * s * Math.max(Math.min(k, 4 - k, 1), 0);
-  };
-  return [f(5), f(3), f(1)];
-}
-function hwb2rgbn(h, w, b) {
-  var rgb = hsl2rgbn(h, 1, 0.5);
-  var i;
-  if (w + b > 1) {
-    i = 1 / (w + b);
-    w *= i;
-    b *= i;
-  }
-  for (i = 0; i < 3; i++) {
-    rgb[i] *= 1 - w - b;
-    rgb[i] += w;
-  }
-  return rgb;
-}
-function rgb2hsl(v) {
-  var range = 255;
-  var r = v.r / range;
-  var g = v.g / range;
-  var b = v.b / range;
-  var max = Math.max(r, g, b);
-  var min = Math.min(r, g, b);
-  var l = (max + min) / 2;
-  var h, s, d;
-  if (max !== min) {
-    d = max - min;
-    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-    h = max === r ? (g - b) / d + (g < b ? 6 : 0) : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
-    h = h * 60 + 0.5;
-  }
-  return [h | 0, s || 0, l];
-}
-function calln(f, a, b, c) {
-  return (Array.isArray(a) ? f(a[0], a[1], a[2]) : f(a, b, c)).map(n2b);
-}
-function hsl2rgb(h, s, l) {
-  return calln(hsl2rgbn, h, s, l);
-}
-function hwb2rgb(h, w, b) {
-  return calln(hwb2rgbn, h, w, b);
-}
-function hsv2rgb(h, s, v) {
-  return calln(hsv2rgbn, h, s, v);
-}
-function hue(h) {
-  return (h % 360 + 360) % 360;
-}
-function hueParse(str) {
-  var m = HUE_RE.exec(str);
-  var a = 255;
-  var v;
-  if (!m) {
-    return;
-  }
-  if (m[5] !== v) {
-    a = m[6] ? p2b(+m[5]) : n2b(+m[5]);
-  }
-  var h = hue(+m[2]);
-  var p1 = +m[3] / 100;
-  var p2 = +m[4] / 100;
-  if (m[1] === 'hwb') {
-    v = hwb2rgb(h, p1, p2);
-  } else if (m[1] === 'hsv') {
-    v = hsv2rgb(h, p1, p2);
-  } else {
-    v = hsl2rgb(h, p1, p2);
-  }
-  return {
-    r: v[0],
-    g: v[1],
-    b: v[2],
-    a: a
-  };
-}
-function _rotate(v, deg) {
-  var h = rgb2hsl(v);
-  h[0] = hue(h[0] + deg);
-  h = hsl2rgb(h);
-  v.r = h[0];
-  v.g = h[1];
-  v.b = h[2];
-}
-function _hslString(v) {
-  if (!v) {
-    return;
-  }
-  var a = rgb2hsl(v);
-  var h = a[0];
-  var s = n2p(a[1]);
-  var l = n2p(a[2]);
-  return v.a < 255 ? "hsla(".concat(h, ", ").concat(s, "%, ").concat(l, "%, ").concat(b2n(v.a), ")") : "hsl(".concat(h, ", ").concat(s, "%, ").concat(l, "%)");
-}
-var map$1 = {
-  x: 'dark',
-  Z: 'light',
-  Y: 're',
-  X: 'blu',
-  W: 'gr',
-  V: 'medium',
-  U: 'slate',
-  A: 'ee',
-  T: 'ol',
-  S: 'or',
-  B: 'ra',
-  C: 'lateg',
-  D: 'ights',
-  R: 'in',
-  Q: 'turquois',
-  E: 'hi',
-  P: 'ro',
-  O: 'al',
-  N: 'le',
-  M: 'de',
-  L: 'yello',
-  F: 'en',
-  K: 'ch',
-  G: 'arks',
-  H: 'ea',
-  I: 'ightg',
-  J: 'wh'
-};
-function unpack(obj) {
-  var unpacked = {};
-  var keys = Object.keys(obj);
-  var tkeys = Object.keys(map$1);
-  var i, j, k, ok, nk;
-  for (i = 0; i < keys.length; i++) {
-    ok = nk = keys[i];
-    for (j = 0; j < tkeys.length; j++) {
-      k = tkeys[j];
-      nk = nk.replace(k, map$1[k]);
-    }
-    k = parseInt(obj[ok], 16);
-    unpacked[nk] = [k >> 16 & 0xFF, k >> 8 & 0xFF, k & 0xFF];
-  }
-  return unpacked;
-}
-var names = unpack({
-  OiceXe: 'f0f8ff',
-  antiquewEte: 'faebd7',
-  aqua: 'ffff',
-  aquamarRe: '7fffd4',
-  azuY: 'f0ffff',
-  beige: 'f5f5dc',
-  bisque: 'ffe4c4',
-  black: '0',
-  blanKedOmond: 'ffebcd',
-  Xe: 'ff',
-  XeviTet: '8a2be2',
-  bPwn: 'a52a2a',
-  burlywood: 'deb887',
-  caMtXe: '5f9ea0',
-  KartYuse: '7fff00',
-  KocTate: 'd2691e',
-  cSO: 'ff7f50',
-  cSnflowerXe: '6495ed',
-  cSnsilk: 'fff8dc',
-  crimson: 'dc143c',
-  cyan: 'ffff',
-  xXe: '8b',
-  xcyan: '8b8b',
-  xgTMnPd: 'b8860b',
-  xWay: 'a9a9a9',
-  xgYF: '6400',
-  xgYy: 'a9a9a9',
-  xkhaki: 'bdb76b',
-  xmagFta: '8b008b',
-  xTivegYF: '556b2f',
-  xSange: 'ff8c00',
-  xScEd: '9932cc',
-  xYd: '8b0000',
-  xsOmon: 'e9967a',
-  xsHgYF: '8fbc8f',
-  xUXe: '483d8b',
-  xUWay: '2f4f4f',
-  xUgYy: '2f4f4f',
-  xQe: 'ced1',
-  xviTet: '9400d3',
-  dAppRk: 'ff1493',
-  dApskyXe: 'bfff',
-  dimWay: '696969',
-  dimgYy: '696969',
-  dodgerXe: '1e90ff',
-  fiYbrick: 'b22222',
-  flSOwEte: 'fffaf0',
-  foYstWAn: '228b22',
-  fuKsia: 'ff00ff',
-  gaRsbSo: 'dcdcdc',
-  ghostwEte: 'f8f8ff',
-  gTd: 'ffd700',
-  gTMnPd: 'daa520',
-  Way: '808080',
-  gYF: '8000',
-  gYFLw: 'adff2f',
-  gYy: '808080',
-  honeyMw: 'f0fff0',
-  hotpRk: 'ff69b4',
-  RdianYd: 'cd5c5c',
-  Rdigo: '4b0082',
-  ivSy: 'fffff0',
-  khaki: 'f0e68c',
-  lavFMr: 'e6e6fa',
-  lavFMrXsh: 'fff0f5',
-  lawngYF: '7cfc00',
-  NmoncEffon: 'fffacd',
-  ZXe: 'add8e6',
-  ZcSO: 'f08080',
-  Zcyan: 'e0ffff',
-  ZgTMnPdLw: 'fafad2',
-  ZWay: 'd3d3d3',
-  ZgYF: '90ee90',
-  ZgYy: 'd3d3d3',
-  ZpRk: 'ffb6c1',
-  ZsOmon: 'ffa07a',
-  ZsHgYF: '20b2aa',
-  ZskyXe: '87cefa',
-  ZUWay: '778899',
-  ZUgYy: '778899',
-  ZstAlXe: 'b0c4de',
-  ZLw: 'ffffe0',
-  lime: 'ff00',
-  limegYF: '32cd32',
-  lRF: 'faf0e6',
-  magFta: 'ff00ff',
-  maPon: '800000',
-  VaquamarRe: '66cdaa',
-  VXe: 'cd',
-  VScEd: 'ba55d3',
-  VpurpN: '9370db',
-  VsHgYF: '3cb371',
-  VUXe: '7b68ee',
-  VsprRggYF: 'fa9a',
-  VQe: '48d1cc',
-  VviTetYd: 'c71585',
-  midnightXe: '191970',
-  mRtcYam: 'f5fffa',
-  mistyPse: 'ffe4e1',
-  moccasR: 'ffe4b5',
-  navajowEte: 'ffdead',
-  navy: '80',
-  Tdlace: 'fdf5e6',
-  Tive: '808000',
-  TivedBb: '6b8e23',
-  Sange: 'ffa500',
-  SangeYd: 'ff4500',
-  ScEd: 'da70d6',
-  pOegTMnPd: 'eee8aa',
-  pOegYF: '98fb98',
-  pOeQe: 'afeeee',
-  pOeviTetYd: 'db7093',
-  papayawEp: 'ffefd5',
-  pHKpuff: 'ffdab9',
-  peru: 'cd853f',
-  pRk: 'ffc0cb',
-  plum: 'dda0dd',
-  powMrXe: 'b0e0e6',
-  purpN: '800080',
-  YbeccapurpN: '663399',
-  Yd: 'ff0000',
-  Psybrown: 'bc8f8f',
-  PyOXe: '4169e1',
-  saddNbPwn: '8b4513',
-  sOmon: 'fa8072',
-  sandybPwn: 'f4a460',
-  sHgYF: '2e8b57',
-  sHshell: 'fff5ee',
-  siFna: 'a0522d',
-  silver: 'c0c0c0',
-  skyXe: '87ceeb',
-  UXe: '6a5acd',
-  UWay: '708090',
-  UgYy: '708090',
-  snow: 'fffafa',
-  sprRggYF: 'ff7f',
-  stAlXe: '4682b4',
-  tan: 'd2b48c',
-  teO: '8080',
-  tEstN: 'd8bfd8',
-  tomato: 'ff6347',
-  Qe: '40e0d0',
-  viTet: 'ee82ee',
-  JHt: 'f5deb3',
-  wEte: 'ffffff',
-  wEtesmoke: 'f5f5f5',
-  Lw: 'ffff00',
-  LwgYF: '9acd32'
-});
-names.transparent = [0, 0, 0, 0];
-function nameParse(str) {
-  var a = names[str];
-  return a && {
-    r: a[0],
-    g: a[1],
-    b: a[2],
-    a: a.length === 4 ? a[3] : 255
-  };
-}
-function modHSL(v, i, ratio) {
-  if (v) {
-    var tmp = rgb2hsl(v);
-    tmp[i] = Math.max(0, Math.min(tmp[i] + tmp[i] * ratio, i === 0 ? 360 : 1));
-    tmp = hsl2rgb(tmp);
-    v.r = tmp[0];
-    v.g = tmp[1];
-    v.b = tmp[2];
-  }
-}
-function clone(v, proto) {
-  return v ? _extends(proto || {}, v) : v;
-}
-function fromObject(input) {
-  var v = {
-    r: 0,
-    g: 0,
-    b: 0,
-    a: 255
-  };
-  if (Array.isArray(input)) {
-    if (input.length >= 3) {
-      v = {
-        r: input[0],
-        g: input[1],
-        b: input[2],
-        a: 255
-      };
-      if (input.length > 3) {
-        v.a = n2b(input[3]);
-      }
-    }
-  } else {
-    v = clone(input, {
-      r: 0,
-      g: 0,
-      b: 0,
-      a: 1
-    });
-    v.a = n2b(v.a);
-  }
-  return v;
-}
-function functionParse(str) {
-  if (str.charAt(0) === 'r') {
-    return rgbParse(str);
-  }
-  return hueParse(str);
-}
-var Color =
-function () {
-  function Color(input) {
-    _classCallCheck(this, Color);
-    if (input instanceof Color) {
-      return input;
-    }
-    var type = _typeof(input);
-    var v;
-    if (type === 'object') {
-      v = fromObject(input);
-    } else if (type === 'string') {
-      v = hexParse(input) || nameParse(input) || functionParse(input);
-    }
-    this._rgb = v;
-    this._valid = !!v;
-  }
-  _createClass(Color, [{
-    key: "rgbString",
-    value: function rgbString() {
-      return _rgbString(this._rgb);
-    }
-  }, {
-    key: "hexString",
-    value: function hexString() {
-      return _hexString(this._rgb);
-    }
-  }, {
-    key: "hslString",
-    value: function hslString() {
-      return _hslString(this._rgb);
-    }
-  }, {
-    key: "mix",
-    value: function mix(color, weight) {
-      var me = this;
-      if (color) {
-        var c1 = me.rgb;
-        var c2 = color.rgb;
-        var w2;
-        var p = weight === w2 ? 0.5 : weight;
-        var w = 2 * p - 1;
-        var a = c1.a - c2.a;
-        var w1 = ((w * a === -1 ? w : (w + a) / (1 + w * a)) + 1) / 2.0;
-        w2 = 1 - w1;
-        c1.r = 0xFF & w1 * c1.r + w2 * c2.r + 0.5;
-        c1.g = 0xFF & w1 * c1.g + w2 * c2.g + 0.5;
-        c1.b = 0xFF & w1 * c1.b + w2 * c2.b + 0.5;
-        c1.a = p * c1.a + (1 - p) * c2.a;
-        me.rgb = c1;
-      }
-      return me;
-    }
-  }, {
-    key: "clone",
-    value: function clone() {
-      return new Color(this.rgb);
-    }
-  }, {
-    key: "alpha",
-    value: function alpha(a) {
-      this._rgb.a = n2b(a);
-      return this;
-    }
-  }, {
-    key: "clearer",
-    value: function clearer(ratio) {
-      var rgb = this._rgb;
-      rgb.a *= 1 - ratio;
-      return this;
-    }
-  }, {
-    key: "greyscale",
-    value: function greyscale() {
-      var rgb = this._rgb;
-      var val = round(rgb.r * 0.3 + rgb.g * 0.59 + rgb.b * 0.11);
-      rgb.r = rgb.g = rgb.b = val;
-      return this;
-    }
-  }, {
-    key: "opaquer",
-    value: function opaquer(ratio) {
-      var rgb = this._rgb;
-      rgb.a *= 1 + ratio;
-      return this;
-    }
-  }, {
-    key: "negate",
-    value: function negate() {
-      var v = this._rgb;
-      v.r = 255 - v.r;
-      v.g = 255 - v.g;
-      v.b = 255 - v.b;
-      return this;
-    }
-  }, {
-    key: "lighten",
-    value: function lighten(ratio) {
-      modHSL(this._rgb, 2, ratio);
-      return this;
-    }
-  }, {
-    key: "darken",
-    value: function darken(ratio) {
-      modHSL(this._rgb, 2, -ratio);
-      return this;
-    }
-  }, {
-    key: "saturate",
-    value: function saturate(ratio) {
-      modHSL(this._rgb, 1, ratio);
-      return this;
-    }
-  }, {
-    key: "desaturate",
-    value: function desaturate(ratio) {
-      modHSL(this._rgb, 1, -ratio);
-      return this;
-    }
-  }, {
-    key: "rotate",
-    value: function rotate(deg) {
-      _rotate(this._rgb, deg);
-      return this;
-    }
-  }, {
-    key: "valid",
-    get: function get() {
-      return this._valid;
-    }
-  }, {
-    key: "rgb",
-    get: function get() {
-      var v = clone(this._rgb);
-      if (v) {
-        v.a = b2n(v.a);
-      }
-      return v;
-    }
-    ,
-    set: function set(obj) {
-      this._rgb = fromObject(obj);
-    }
-  }]);
-  return Color;
-}();
-function index(input) {
-  return new Color(input);
-}
-
 function noop() {}
 var uid = function () {
   var id = 0;
@@ -927,9 +304,9 @@ function _elementsEqual(a0, a1) {
   }
   return true;
 }
-function clone$1(source) {
+function clone(source) {
   if (isArray(source)) {
-    return source.map(clone$1);
+    return source.map(clone);
   }
   if (isObject(source)) {
     var target = {};
@@ -937,7 +314,7 @@ function clone$1(source) {
     var klen = keys.length;
     var k = 0;
     for (; k < klen; ++k) {
-      target[keys[k]] = clone$1(source[keys[k]]);
+      target[keys[k]] = clone(source[keys[k]]);
     }
     return target;
   }
@@ -949,7 +326,7 @@ function _merger(key, target, source, options) {
   if (isObject(tval) && isObject(sval)) {
     merge(tval, sval, options);
   } else {
-    target[key] = clone$1(sval);
+    target[key] = clone(sval);
   }
 }
 function merge(target, source, options) {
@@ -983,7 +360,7 @@ function _mergerIf(key, target, source) {
   if (isObject(tval) && isObject(sval)) {
     mergeIf(tval, sval);
   } else if (!Object.prototype.hasOwnProperty.call(target, key)) {
-    target[key] = clone$1(sval);
+    target[key] = clone(sval);
   }
 }
 function inherits(extensions) {
@@ -1023,7 +400,7 @@ callback: callback,
 each: each,
 arrayEquals: arrayEquals,
 _elementsEqual: _elementsEqual,
-clone: clone$1,
+clone: clone,
 _merger: _merger,
 merge: merge,
 mergeIf: mergeIf,
@@ -1635,6 +1012,7 @@ function retinaScale(chart, forceRatio) {
 
 var dom = /*#__PURE__*/Object.freeze({
 __proto__: null,
+_getParentNode: _getParentNode,
 getStyle: getStyle,
 getRelativePosition: getRelativePosition,
 getMaximumWidth: getMaximumWidth,
@@ -1958,7 +1336,7 @@ _parseFont: _parseFont,
 resolve: resolve
 });
 
-var getRtlAdapter = function getRtlAdapter(rectX, width) {
+var getRightToLeftAdapter = function getRightToLeftAdapter(rectX, width) {
   return {
     x: function x(_x) {
       return rectX + rectX + width - _x;
@@ -1980,7 +1358,7 @@ var getRtlAdapter = function getRtlAdapter(rectX, width) {
     }
   };
 };
-var getLtrAdapter = function getLtrAdapter() {
+var getLeftToRightAdapter = function getLeftToRightAdapter() {
   return {
     x: function x(_x2) {
       return _x2;
@@ -1998,10 +1376,10 @@ var getLtrAdapter = function getLtrAdapter() {
     }
   };
 };
-var getAdapter = function getAdapter(rtl, rectX, width) {
-  return rtl ? getRtlAdapter(rectX, width) : getLtrAdapter();
-};
-var overrideTextDirection = function overrideTextDirection(ctx, direction) {
+function getRtlAdapter(rtl, rectX, width) {
+  return rtl ? getRightToLeftAdapter(rectX, width) : getLeftToRightAdapter();
+}
+function overrideTextDirection(ctx, direction) {
   var style, original;
   if (direction === 'ltr' || direction === 'rtl') {
     style = ctx.canvas.style;
@@ -2009,27 +1387,654 @@ var overrideTextDirection = function overrideTextDirection(ctx, direction) {
     style.setProperty('direction', direction, 'important');
     ctx.prevTextDirection = original;
   }
-};
-var restoreTextDirection = function restoreTextDirection(ctx, original) {
+}
+function restoreTextDirection(ctx, original) {
   if (original !== undefined) {
     delete ctx.prevTextDirection;
     ctx.canvas.style.setProperty('direction', original[0], original[1]);
   }
-};
+}
 
 var rtl = /*#__PURE__*/Object.freeze({
 __proto__: null,
-getRtlAdapter: getAdapter,
+getRtlAdapter: getRtlAdapter,
 overrideTextDirection: overrideTextDirection,
 restoreTextDirection: restoreTextDirection
 });
 
-var colorHelper = function colorHelper(value) {
-  if (value instanceof CanvasGradient || value instanceof CanvasPattern) {
-    return value;
-  }
-  return index(value);
+/*!
+ * @kurkle/color v0.1.3
+ * https://github.com/kurkle/color#readme
+ * (c) 2020 Jukka Kurkela
+ * Released under the MIT License
+ */
+var map = {
+  0: 0,
+  1: 1,
+  2: 2,
+  3: 3,
+  4: 4,
+  5: 5,
+  6: 6,
+  7: 7,
+  8: 8,
+  9: 9,
+  A: 10,
+  B: 11,
+  C: 12,
+  D: 13,
+  E: 14,
+  F: 15,
+  a: 10,
+  b: 11,
+  c: 12,
+  d: 13,
+  e: 14,
+  f: 15
 };
+var hex = '0123456789ABCDEF';
+var h1 = function h1(b) {
+  return hex[b & 0xF];
+};
+var h2 = function h2(b) {
+  return hex[(b & 0xF0) >> 4] + hex[b & 0xF];
+};
+var eq = function eq(b) {
+  return (b & 0xF0) >> 4 === (b & 0xF);
+};
+function isShort(v) {
+  return eq(v.r) && eq(v.g) && eq(v.b) && eq(v.a);
+}
+function hexParse(str) {
+  var len = str.length;
+  var ret;
+  if (str[0] === '#') {
+    if (len === 4 || len === 5) {
+      ret = {
+        r: 255 & map[str[1]] * 17,
+        g: 255 & map[str[2]] * 17,
+        b: 255 & map[str[3]] * 17,
+        a: len === 5 ? map[str[4]] * 17 : 255
+      };
+    } else if (len === 7 || len === 9) {
+      ret = {
+        r: map[str[1]] << 4 | map[str[2]],
+        g: map[str[3]] << 4 | map[str[4]],
+        b: map[str[5]] << 4 | map[str[6]],
+        a: len === 9 ? map[str[7]] << 4 | map[str[8]] : 255
+      };
+    }
+  }
+  return ret;
+}
+function _hexString(v) {
+  var f = isShort(v) ? h1 : h2;
+  return v ? '#' + f(v.r) + f(v.g) + f(v.b) + (v.a < 255 ? f(v.a) : '') : v;
+}
+function round(v) {
+  return v + 0.5 | 0;
+}
+function p2b(v) {
+  return round(v * 2.55);
+}
+function n2b(v) {
+  return round(v * 255);
+}
+function b2n(v) {
+  return round(v / 2.55) / 100;
+}
+function n2p(v) {
+  return round(v * 100);
+}
+var RGB_RE = /^rgba?\(\s*([-+.\d]+)(%)?[\s,]+([-+.e\d]+)(%)?[\s,]+([-+.e\d]+)(%)?(?:[\s,/]+([-+.e\d]+)(%)?)?\s*\)$/;
+function rgbParse(str) {
+  var m = RGB_RE.exec(str);
+  var a = 255;
+  var r, g, b;
+  if (!m) {
+    return;
+  }
+  if (m[7] !== r) {
+    var v = +m[7];
+    a = 255 & (m[8] ? p2b(v) : v * 255);
+  }
+  r = +m[1];
+  g = +m[3];
+  b = +m[5];
+  r = 255 & (m[2] ? p2b(r) : r);
+  g = 255 & (m[4] ? p2b(g) : g);
+  b = 255 & (m[6] ? p2b(b) : b);
+  return {
+    r: r,
+    g: g,
+    b: b,
+    a: a
+  };
+}
+function _rgbString(v) {
+  return v && (v.a < 255 ? "rgba(".concat(v.r, ", ").concat(v.g, ", ").concat(v.b, ", ").concat(b2n(v.a), ")") : "rgb(".concat(v.r, ", ").concat(v.g, ", ").concat(v.b, ")"));
+}
+var HUE_RE = /^(hsla?|hwb|hsv)\(\s*([-+.e\d]+)(?:deg)?[\s,]+([-+.e\d]+)%[\s,]+([-+.e\d]+)%(?:[\s,]+([-+.e\d]+)(%)?)?\s*\)$/;
+function hsl2rgbn(h, s, l) {
+  var a = s * Math.min(l, 1 - l);
+  var f = function f(n) {
+    var k = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : (n + h / 30) % 12;
+    return l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+  };
+  return [f(0), f(8), f(4)];
+}
+function hsv2rgbn(h, s, v) {
+  var f = function f(n) {
+    var k = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : (n + h / 60) % 6;
+    return v - v * s * Math.max(Math.min(k, 4 - k, 1), 0);
+  };
+  return [f(5), f(3), f(1)];
+}
+function hwb2rgbn(h, w, b) {
+  var rgb = hsl2rgbn(h, 1, 0.5);
+  var i;
+  if (w + b > 1) {
+    i = 1 / (w + b);
+    w *= i;
+    b *= i;
+  }
+  for (i = 0; i < 3; i++) {
+    rgb[i] *= 1 - w - b;
+    rgb[i] += w;
+  }
+  return rgb;
+}
+function rgb2hsl(v) {
+  var range = 255;
+  var r = v.r / range;
+  var g = v.g / range;
+  var b = v.b / range;
+  var max = Math.max(r, g, b);
+  var min = Math.min(r, g, b);
+  var l = (max + min) / 2;
+  var h, s, d;
+  if (max !== min) {
+    d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    h = max === r ? (g - b) / d + (g < b ? 6 : 0) : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
+    h = h * 60 + 0.5;
+  }
+  return [h | 0, s || 0, l];
+}
+function calln(f, a, b, c) {
+  return (Array.isArray(a) ? f(a[0], a[1], a[2]) : f(a, b, c)).map(n2b);
+}
+function hsl2rgb(h, s, l) {
+  return calln(hsl2rgbn, h, s, l);
+}
+function hwb2rgb(h, w, b) {
+  return calln(hwb2rgbn, h, w, b);
+}
+function hsv2rgb(h, s, v) {
+  return calln(hsv2rgbn, h, s, v);
+}
+function hue(h) {
+  return (h % 360 + 360) % 360;
+}
+function hueParse(str) {
+  var m = HUE_RE.exec(str);
+  var a = 255;
+  var v;
+  if (!m) {
+    return;
+  }
+  if (m[5] !== v) {
+    a = m[6] ? p2b(+m[5]) : n2b(+m[5]);
+  }
+  var h = hue(+m[2]);
+  var p1 = +m[3] / 100;
+  var p2 = +m[4] / 100;
+  if (m[1] === 'hwb') {
+    v = hwb2rgb(h, p1, p2);
+  } else if (m[1] === 'hsv') {
+    v = hsv2rgb(h, p1, p2);
+  } else {
+    v = hsl2rgb(h, p1, p2);
+  }
+  return {
+    r: v[0],
+    g: v[1],
+    b: v[2],
+    a: a
+  };
+}
+function _rotate(v, deg) {
+  var h = rgb2hsl(v);
+  h[0] = hue(h[0] + deg);
+  h = hsl2rgb(h);
+  v.r = h[0];
+  v.g = h[1];
+  v.b = h[2];
+}
+function _hslString(v) {
+  if (!v) {
+    return;
+  }
+  var a = rgb2hsl(v);
+  var h = a[0];
+  var s = n2p(a[1]);
+  var l = n2p(a[2]);
+  return v.a < 255 ? "hsla(".concat(h, ", ").concat(s, "%, ").concat(l, "%, ").concat(b2n(v.a), ")") : "hsl(".concat(h, ", ").concat(s, "%, ").concat(l, "%)");
+}
+var map$1 = {
+  x: 'dark',
+  Z: 'light',
+  Y: 're',
+  X: 'blu',
+  W: 'gr',
+  V: 'medium',
+  U: 'slate',
+  A: 'ee',
+  T: 'ol',
+  S: 'or',
+  B: 'ra',
+  C: 'lateg',
+  D: 'ights',
+  R: 'in',
+  Q: 'turquois',
+  E: 'hi',
+  P: 'ro',
+  O: 'al',
+  N: 'le',
+  M: 'de',
+  L: 'yello',
+  F: 'en',
+  K: 'ch',
+  G: 'arks',
+  H: 'ea',
+  I: 'ightg',
+  J: 'wh'
+};
+function unpack(obj) {
+  var unpacked = {};
+  var keys = Object.keys(obj);
+  var tkeys = Object.keys(map$1);
+  var i, j, k, ok, nk;
+  for (i = 0; i < keys.length; i++) {
+    ok = nk = keys[i];
+    for (j = 0; j < tkeys.length; j++) {
+      k = tkeys[j];
+      nk = nk.replace(k, map$1[k]);
+    }
+    k = parseInt(obj[ok], 16);
+    unpacked[nk] = [k >> 16 & 0xFF, k >> 8 & 0xFF, k & 0xFF];
+  }
+  return unpacked;
+}
+var names = unpack({
+  OiceXe: 'f0f8ff',
+  antiquewEte: 'faebd7',
+  aqua: 'ffff',
+  aquamarRe: '7fffd4',
+  azuY: 'f0ffff',
+  beige: 'f5f5dc',
+  bisque: 'ffe4c4',
+  black: '0',
+  blanKedOmond: 'ffebcd',
+  Xe: 'ff',
+  XeviTet: '8a2be2',
+  bPwn: 'a52a2a',
+  burlywood: 'deb887',
+  caMtXe: '5f9ea0',
+  KartYuse: '7fff00',
+  KocTate: 'd2691e',
+  cSO: 'ff7f50',
+  cSnflowerXe: '6495ed',
+  cSnsilk: 'fff8dc',
+  crimson: 'dc143c',
+  cyan: 'ffff',
+  xXe: '8b',
+  xcyan: '8b8b',
+  xgTMnPd: 'b8860b',
+  xWay: 'a9a9a9',
+  xgYF: '6400',
+  xgYy: 'a9a9a9',
+  xkhaki: 'bdb76b',
+  xmagFta: '8b008b',
+  xTivegYF: '556b2f',
+  xSange: 'ff8c00',
+  xScEd: '9932cc',
+  xYd: '8b0000',
+  xsOmon: 'e9967a',
+  xsHgYF: '8fbc8f',
+  xUXe: '483d8b',
+  xUWay: '2f4f4f',
+  xUgYy: '2f4f4f',
+  xQe: 'ced1',
+  xviTet: '9400d3',
+  dAppRk: 'ff1493',
+  dApskyXe: 'bfff',
+  dimWay: '696969',
+  dimgYy: '696969',
+  dodgerXe: '1e90ff',
+  fiYbrick: 'b22222',
+  flSOwEte: 'fffaf0',
+  foYstWAn: '228b22',
+  fuKsia: 'ff00ff',
+  gaRsbSo: 'dcdcdc',
+  ghostwEte: 'f8f8ff',
+  gTd: 'ffd700',
+  gTMnPd: 'daa520',
+  Way: '808080',
+  gYF: '8000',
+  gYFLw: 'adff2f',
+  gYy: '808080',
+  honeyMw: 'f0fff0',
+  hotpRk: 'ff69b4',
+  RdianYd: 'cd5c5c',
+  Rdigo: '4b0082',
+  ivSy: 'fffff0',
+  khaki: 'f0e68c',
+  lavFMr: 'e6e6fa',
+  lavFMrXsh: 'fff0f5',
+  lawngYF: '7cfc00',
+  NmoncEffon: 'fffacd',
+  ZXe: 'add8e6',
+  ZcSO: 'f08080',
+  Zcyan: 'e0ffff',
+  ZgTMnPdLw: 'fafad2',
+  ZWay: 'd3d3d3',
+  ZgYF: '90ee90',
+  ZgYy: 'd3d3d3',
+  ZpRk: 'ffb6c1',
+  ZsOmon: 'ffa07a',
+  ZsHgYF: '20b2aa',
+  ZskyXe: '87cefa',
+  ZUWay: '778899',
+  ZUgYy: '778899',
+  ZstAlXe: 'b0c4de',
+  ZLw: 'ffffe0',
+  lime: 'ff00',
+  limegYF: '32cd32',
+  lRF: 'faf0e6',
+  magFta: 'ff00ff',
+  maPon: '800000',
+  VaquamarRe: '66cdaa',
+  VXe: 'cd',
+  VScEd: 'ba55d3',
+  VpurpN: '9370db',
+  VsHgYF: '3cb371',
+  VUXe: '7b68ee',
+  VsprRggYF: 'fa9a',
+  VQe: '48d1cc',
+  VviTetYd: 'c71585',
+  midnightXe: '191970',
+  mRtcYam: 'f5fffa',
+  mistyPse: 'ffe4e1',
+  moccasR: 'ffe4b5',
+  navajowEte: 'ffdead',
+  navy: '80',
+  Tdlace: 'fdf5e6',
+  Tive: '808000',
+  TivedBb: '6b8e23',
+  Sange: 'ffa500',
+  SangeYd: 'ff4500',
+  ScEd: 'da70d6',
+  pOegTMnPd: 'eee8aa',
+  pOegYF: '98fb98',
+  pOeQe: 'afeeee',
+  pOeviTetYd: 'db7093',
+  papayawEp: 'ffefd5',
+  pHKpuff: 'ffdab9',
+  peru: 'cd853f',
+  pRk: 'ffc0cb',
+  plum: 'dda0dd',
+  powMrXe: 'b0e0e6',
+  purpN: '800080',
+  YbeccapurpN: '663399',
+  Yd: 'ff0000',
+  Psybrown: 'bc8f8f',
+  PyOXe: '4169e1',
+  saddNbPwn: '8b4513',
+  sOmon: 'fa8072',
+  sandybPwn: 'f4a460',
+  sHgYF: '2e8b57',
+  sHshell: 'fff5ee',
+  siFna: 'a0522d',
+  silver: 'c0c0c0',
+  skyXe: '87ceeb',
+  UXe: '6a5acd',
+  UWay: '708090',
+  UgYy: '708090',
+  snow: 'fffafa',
+  sprRggYF: 'ff7f',
+  stAlXe: '4682b4',
+  tan: 'd2b48c',
+  teO: '8080',
+  tEstN: 'd8bfd8',
+  tomato: 'ff6347',
+  Qe: '40e0d0',
+  viTet: 'ee82ee',
+  JHt: 'f5deb3',
+  wEte: 'ffffff',
+  wEtesmoke: 'f5f5f5',
+  Lw: 'ffff00',
+  LwgYF: '9acd32'
+});
+names.transparent = [0, 0, 0, 0];
+function nameParse(str) {
+  var a = names[str];
+  return a && {
+    r: a[0],
+    g: a[1],
+    b: a[2],
+    a: a.length === 4 ? a[3] : 255
+  };
+}
+function modHSL(v, i, ratio) {
+  if (v) {
+    var tmp = rgb2hsl(v);
+    tmp[i] = Math.max(0, Math.min(tmp[i] + tmp[i] * ratio, i === 0 ? 360 : 1));
+    tmp = hsl2rgb(tmp);
+    v.r = tmp[0];
+    v.g = tmp[1];
+    v.b = tmp[2];
+  }
+}
+function clone$1(v, proto) {
+  return v ? _extends(proto || {}, v) : v;
+}
+function fromObject(input) {
+  var v = {
+    r: 0,
+    g: 0,
+    b: 0,
+    a: 255
+  };
+  if (Array.isArray(input)) {
+    if (input.length >= 3) {
+      v = {
+        r: input[0],
+        g: input[1],
+        b: input[2],
+        a: 255
+      };
+      if (input.length > 3) {
+        v.a = n2b(input[3]);
+      }
+    }
+  } else {
+    v = clone$1(input, {
+      r: 0,
+      g: 0,
+      b: 0,
+      a: 1
+    });
+    v.a = n2b(v.a);
+  }
+  return v;
+}
+function functionParse(str) {
+  if (str.charAt(0) === 'r') {
+    return rgbParse(str);
+  }
+  return hueParse(str);
+}
+var Color =
+function () {
+  function Color(input) {
+    _classCallCheck(this, Color);
+    if (input instanceof Color) {
+      return input;
+    }
+    var type = _typeof(input);
+    var v;
+    if (type === 'object') {
+      v = fromObject(input);
+    } else if (type === 'string') {
+      v = hexParse(input) || nameParse(input) || functionParse(input);
+    }
+    this._rgb = v;
+    this._valid = !!v;
+  }
+  _createClass(Color, [{
+    key: "rgbString",
+    value: function rgbString() {
+      return _rgbString(this._rgb);
+    }
+  }, {
+    key: "hexString",
+    value: function hexString() {
+      return _hexString(this._rgb);
+    }
+  }, {
+    key: "hslString",
+    value: function hslString() {
+      return _hslString(this._rgb);
+    }
+  }, {
+    key: "mix",
+    value: function mix(color, weight) {
+      var me = this;
+      if (color) {
+        var c1 = me.rgb;
+        var c2 = color.rgb;
+        var w2;
+        var p = weight === w2 ? 0.5 : weight;
+        var w = 2 * p - 1;
+        var a = c1.a - c2.a;
+        var w1 = ((w * a === -1 ? w : (w + a) / (1 + w * a)) + 1) / 2.0;
+        w2 = 1 - w1;
+        c1.r = 0xFF & w1 * c1.r + w2 * c2.r + 0.5;
+        c1.g = 0xFF & w1 * c1.g + w2 * c2.g + 0.5;
+        c1.b = 0xFF & w1 * c1.b + w2 * c2.b + 0.5;
+        c1.a = p * c1.a + (1 - p) * c2.a;
+        me.rgb = c1;
+      }
+      return me;
+    }
+  }, {
+    key: "clone",
+    value: function clone() {
+      return new Color(this.rgb);
+    }
+  }, {
+    key: "alpha",
+    value: function alpha(a) {
+      this._rgb.a = n2b(a);
+      return this;
+    }
+  }, {
+    key: "clearer",
+    value: function clearer(ratio) {
+      var rgb = this._rgb;
+      rgb.a *= 1 - ratio;
+      return this;
+    }
+  }, {
+    key: "greyscale",
+    value: function greyscale() {
+      var rgb = this._rgb;
+      var val = round(rgb.r * 0.3 + rgb.g * 0.59 + rgb.b * 0.11);
+      rgb.r = rgb.g = rgb.b = val;
+      return this;
+    }
+  }, {
+    key: "opaquer",
+    value: function opaquer(ratio) {
+      var rgb = this._rgb;
+      rgb.a *= 1 + ratio;
+      return this;
+    }
+  }, {
+    key: "negate",
+    value: function negate() {
+      var v = this._rgb;
+      v.r = 255 - v.r;
+      v.g = 255 - v.g;
+      v.b = 255 - v.b;
+      return this;
+    }
+  }, {
+    key: "lighten",
+    value: function lighten(ratio) {
+      modHSL(this._rgb, 2, ratio);
+      return this;
+    }
+  }, {
+    key: "darken",
+    value: function darken(ratio) {
+      modHSL(this._rgb, 2, -ratio);
+      return this;
+    }
+  }, {
+    key: "saturate",
+    value: function saturate(ratio) {
+      modHSL(this._rgb, 1, ratio);
+      return this;
+    }
+  }, {
+    key: "desaturate",
+    value: function desaturate(ratio) {
+      modHSL(this._rgb, 1, -ratio);
+      return this;
+    }
+  }, {
+    key: "rotate",
+    value: function rotate(deg) {
+      _rotate(this._rgb, deg);
+      return this;
+    }
+  }, {
+    key: "valid",
+    get: function get() {
+      return this._valid;
+    }
+  }, {
+    key: "rgb",
+    get: function get() {
+      var v = clone$1(this._rgb);
+      if (v) {
+        v.a = b2n(v.a);
+      }
+      return v;
+    }
+    ,
+    set: function set(obj) {
+      this._rgb = fromObject(obj);
+    }
+  }]);
+  return Color;
+}();
+function index(input) {
+  return new Color(input);
+}
+
+var isPatternOrGradient = function isPatternOrGradient(value) {
+  return value instanceof CanvasGradient || value instanceof CanvasPattern;
+};
+function color(value) {
+  return isPatternOrGradient(value) ? value : index(value);
+}
+function getHoverColor(value) {
+  return isPatternOrGradient(value) ? value : index(value).saturate(0.5).darken(0.1).hexString();
+}
+
 var helpers = _objectSpread2({}, coreHelpers, {
   canvas: canvas,
   curve: curve,
@@ -2051,10 +2056,8 @@ var helpers = _objectSpread2({}, coreHelpers, {
   fontString: function fontString(pixelSize, fontStyle, fontFamily) {
     return fontStyle + ' ' + pixelSize + 'px ' + fontFamily;
   },
-  color: colorHelper,
-  getHoverColor: function getHoverColor(colorValue) {
-    return colorValue instanceof CanvasPattern || colorValue instanceof CanvasGradient ? colorValue : colorHelper(colorValue).saturate(0.5).darken(0.1).hexString();
-  }
+  color: color,
+  getHoverColor: getHoverColor
 });
 
 function drawFPS(chart, count, date, lastDate) {
@@ -3409,7 +3412,7 @@ DatasetController.prototype.dataElementType = null;
 DatasetController.prototype._datasetElementOptions = ['backgroundColor', 'borderCapStyle', 'borderColor', 'borderDash', 'borderDashOffset', 'borderJoinStyle', 'borderWidth'];
 DatasetController.prototype._dataElementOptions = ['backgroundColor', 'borderColor', 'borderWidth', 'pointStyle'];
 
-var Element =
+var Element$1 =
 function () {
   function Element(cfg) {
     _classCallCheck(this, Element);
@@ -3436,7 +3439,7 @@ function () {
   }]);
   return Element;
 }();
-Element.extend = inherits;
+Element$1.extend = inherits;
 
 var defaultColor = defaults.color;
 defaults.set('elements', {
@@ -3615,7 +3618,7 @@ function (_Element) {
     }
   }]);
   return Rectangle;
-}(Element);
+}(Element$1);
 Rectangle.prototype._type = 'rectangle';
 
 defaults.set('bar', {
@@ -4074,7 +4077,7 @@ function (_Element) {
     }
   }]);
   return Point;
-}(Element);
+}(Element$1);
 Point.prototype._type = 'point';
 
 defaults.set('bubble', {
@@ -4392,7 +4395,7 @@ function (_Element) {
     }
   }]);
   return Arc;
-}(Element);
+}(Element$1);
 Arc.prototype._type = 'arc';
 
 var PI$2 = Math.PI;
@@ -4463,6 +4466,39 @@ defaults.set('doughnut', {
     }
   }
 });
+function getRatioAndOffset(rotation, circumference, cutout) {
+  var ratioX = 1;
+  var ratioY = 1;
+  var offsetX = 0;
+  var offsetY = 0;
+  if (circumference < DOUBLE_PI$1) {
+    var startAngle = rotation % DOUBLE_PI$1;
+    startAngle += startAngle >= PI$2 ? -DOUBLE_PI$1 : startAngle < -PI$2 ? DOUBLE_PI$1 : 0;
+    var endAngle = startAngle + circumference;
+    var startX = Math.cos(startAngle);
+    var startY = Math.sin(startAngle);
+    var endX = Math.cos(endAngle);
+    var endY = Math.sin(endAngle);
+    var contains0 = startAngle <= 0 && endAngle >= 0 || endAngle >= DOUBLE_PI$1;
+    var contains90 = startAngle <= HALF_PI$1 && endAngle >= HALF_PI$1 || endAngle >= DOUBLE_PI$1 + HALF_PI$1;
+    var contains180 = startAngle === -PI$2 || endAngle >= PI$2;
+    var contains270 = startAngle <= -HALF_PI$1 && endAngle >= -HALF_PI$1 || endAngle >= PI$2 + HALF_PI$1;
+    var minX = contains180 ? -1 : Math.min(startX, startX * cutout, endX, endX * cutout);
+    var minY = contains270 ? -1 : Math.min(startY, startY * cutout, endY, endY * cutout);
+    var maxX = contains0 ? 1 : Math.max(startX, startX * cutout, endX, endX * cutout);
+    var maxY = contains90 ? 1 : Math.max(startY, startY * cutout, endY, endY * cutout);
+    ratioX = (maxX - minX) / 2;
+    ratioY = (maxY - minY) / 2;
+    offsetX = -(maxX + minX) / 2;
+    offsetY = -(maxY + minY) / 2;
+  }
+  return {
+    ratioX: ratioX,
+    ratioY: ratioY,
+    offsetX: offsetX,
+    offsetY: offsetY
+  };
+}
 var DoughnutController =
 function (_DatasetController) {
   _inherits(DoughnutController, _DatasetController);
@@ -4472,6 +4508,8 @@ function (_DatasetController) {
     _this = _possibleConstructorReturn(this, _getPrototypeOf(DoughnutController).call(this, chart, datasetIndex));
     _this.innerRadius = undefined;
     _this.outerRadius = undefined;
+    _this.offsetX = undefined;
+    _this.offsetY = undefined;
     return _this;
   }
   _createClass(DoughnutController, [{
@@ -4503,52 +4541,28 @@ function (_DatasetController) {
     value: function update(mode) {
       var me = this;
       var chart = me.chart;
-      var chartArea = chart.chartArea;
-      var opts = chart.options;
-      var ratioX = 1;
-      var ratioY = 1;
-      var offsetX = 0;
-      var offsetY = 0;
+      var chartArea = chart.chartArea,
+          options = chart.options;
       var meta = me._cachedMeta;
       var arcs = meta.data;
-      var cutout = opts.cutoutPercentage / 100 || 0;
-      var circumference = opts.circumference;
+      var cutout = options.cutoutPercentage / 100 || 0;
       var chartWeight = me._getRingWeight(me.index);
-      if (circumference < DOUBLE_PI$1) {
-        var startAngle = opts.rotation % DOUBLE_PI$1;
-        startAngle += startAngle >= PI$2 ? -DOUBLE_PI$1 : startAngle < -PI$2 ? DOUBLE_PI$1 : 0;
-        var endAngle = startAngle + circumference;
-        var startX = Math.cos(startAngle);
-        var startY = Math.sin(startAngle);
-        var endX = Math.cos(endAngle);
-        var endY = Math.sin(endAngle);
-        var contains0 = startAngle <= 0 && endAngle >= 0 || endAngle >= DOUBLE_PI$1;
-        var contains90 = startAngle <= HALF_PI$1 && endAngle >= HALF_PI$1 || endAngle >= DOUBLE_PI$1 + HALF_PI$1;
-        var contains180 = startAngle === -PI$2 || endAngle >= PI$2;
-        var contains270 = startAngle <= -HALF_PI$1 && endAngle >= -HALF_PI$1 || endAngle >= PI$2 + HALF_PI$1;
-        var minX = contains180 ? -1 : Math.min(startX, startX * cutout, endX, endX * cutout);
-        var minY = contains270 ? -1 : Math.min(startY, startY * cutout, endY, endY * cutout);
-        var maxX = contains0 ? 1 : Math.max(startX, startX * cutout, endX, endX * cutout);
-        var maxY = contains90 ? 1 : Math.max(startY, startY * cutout, endY, endY * cutout);
-        ratioX = (maxX - minX) / 2;
-        ratioY = (maxY - minY) / 2;
-        offsetX = -(maxX + minX) / 2;
-        offsetY = -(maxY + minY) / 2;
-      }
-      for (var i = 0, ilen = arcs.length; i < ilen; ++i) {
-        arcs[i]._options = me._resolveDataElementOptions(i, mode);
-      }
-      chart.borderWidth = me.getMaxBorderWidth();
-      var maxWidth = (chartArea.right - chartArea.left - chart.borderWidth) / ratioX;
-      var maxHeight = (chartArea.bottom - chartArea.top - chart.borderWidth) / ratioY;
-      chart.outerRadius = Math.max(Math.min(maxWidth, maxHeight) / 2, 0);
-      chart.innerRadius = Math.max(chart.outerRadius * cutout, 0);
-      chart.radiusLength = (chart.outerRadius - chart.innerRadius) / (me._getVisibleDatasetWeightTotal() || 1);
-      chart.offsetX = offsetX * chart.outerRadius;
-      chart.offsetY = offsetY * chart.outerRadius;
+      var _getRatioAndOffset = getRatioAndOffset(options.rotation, options.circumference, cutout),
+          ratioX = _getRatioAndOffset.ratioX,
+          ratioY = _getRatioAndOffset.ratioY,
+          offsetX = _getRatioAndOffset.offsetX,
+          offsetY = _getRatioAndOffset.offsetY;
+      var borderWidth = me.getMaxBorderWidth();
+      var maxWidth = (chartArea.right - chartArea.left - borderWidth) / ratioX;
+      var maxHeight = (chartArea.bottom - chartArea.top - borderWidth) / ratioY;
+      var outerRadius = Math.max(Math.min(maxWidth, maxHeight) / 2, 0);
+      var innerRadius = Math.max(outerRadius * cutout, 0);
+      var radiusLength = (outerRadius - innerRadius) / me._getVisibleDatasetWeightTotal();
+      me.offsetX = offsetX * outerRadius;
+      me.offsetY = offsetY * outerRadius;
       meta.total = me.calculateTotal();
-      me.outerRadius = chart.outerRadius - chart.radiusLength * me._getRingWeightOffset(me.index);
-      me.innerRadius = Math.max(me.outerRadius - chart.radiusLength * chartWeight, 0);
+      me.outerRadius = outerRadius - radiusLength * me._getRingWeightOffset(me.index);
+      me.innerRadius = Math.max(me.outerRadius - radiusLength * chartWeight, 0);
       me.updateElements(arcs, 0, mode);
     }
   }, {
@@ -4570,8 +4584,12 @@ function (_DatasetController) {
       var animationOpts = opts.animation;
       var centerX = (chartArea.left + chartArea.right) / 2;
       var centerY = (chartArea.top + chartArea.bottom) / 2;
-      var innerRadius = reset && animationOpts.animateScale ? 0 : me.innerRadius;
-      var outerRadius = reset && animationOpts.animateScale ? 0 : me.outerRadius;
+      var animateScale = reset && animationOpts.animateScale;
+      var innerRadius = animateScale ? 0 : me.innerRadius;
+      var outerRadius = animateScale ? 0 : me.outerRadius;
+      var firstOpts = me._resolveDataElementOptions(start, mode);
+      var sharedOptions = me._getSharedOptions(mode, arcs[start], firstOpts);
+      var includeOptions = me._includeOptions(mode, sharedOptions);
       var startAngle = opts.rotation;
       var i;
       for (i = 0; i < start; ++i) {
@@ -4581,20 +4599,22 @@ function (_DatasetController) {
         var index = start + i;
         var circumference = me._circumference(index, reset);
         var arc = arcs[i];
-        var options = arc._options || {};
         var properties = {
-          x: centerX + chart.offsetX,
-          y: centerY + chart.offsetY,
+          x: centerX + me.offsetX,
+          y: centerY + me.offsetY,
           startAngle: startAngle,
           endAngle: startAngle + circumference,
           circumference: circumference,
           outerRadius: outerRadius,
-          innerRadius: innerRadius,
-          options: options
+          innerRadius: innerRadius
         };
+        if (includeOptions) {
+          properties.options = me._resolveDataElementOptions(index, mode);
+        }
         startAngle += circumference;
         me._updateElement(arc, index, properties, mode);
       }
+      me._updateSharedOptions(sharedOptions, mode);
     }
   }, {
     key: "calculateTotal",
@@ -4664,13 +4684,13 @@ function (_DatasetController) {
     }
   }, {
     key: "_getRingWeight",
-    value: function _getRingWeight(dataSetIndex) {
-      return Math.max(valueOrDefault(this.chart.data.datasets[dataSetIndex].weight, 1), 0);
+    value: function _getRingWeight(datasetIndex) {
+      return Math.max(valueOrDefault(this.chart.data.datasets[datasetIndex].weight, 1), 0);
     }
   }, {
     key: "_getVisibleDatasetWeightTotal",
     value: function _getVisibleDatasetWeightTotal() {
-      return this._getRingWeightOffset(this.chart.data.datasets.length);
+      return this._getRingWeightOffset(this.chart.data.datasets.length) || 1;
     }
   }]);
   return DoughnutController;
@@ -4984,7 +5004,7 @@ function lineTo(ctx, previous, target) {
   ctx.lineTo(target.x, target.y);
 }
 function getLineMethod(options) {
-  if (options.steppedLine) {
+  if (options.stepped) {
     return _steppedLineTo;
   }
   if (options.tension) {
@@ -5014,13 +5034,13 @@ function pathSegment(ctx, line, segment, params) {
       ctx.moveTo(point.x, point.y);
       move = false;
     } else {
-      lineMethod(ctx, prev, point, reverse, options.steppedLine);
+      lineMethod(ctx, prev, point, reverse, options.stepped);
     }
     prev = point;
   }
   if (loop) {
     point = points[(start + (reverse ? ilen : 0)) % count];
-    lineMethod(ctx, prev, point, reverse, options.steppedLine);
+    lineMethod(ctx, prev, point, reverse, options.stepped);
   }
   return !!loop;
 }
@@ -5073,11 +5093,11 @@ function fastPathSegment(ctx, line, segment, params) {
 function _getSegmentMethod(line) {
   var opts = line.options;
   var borderDash = opts.borderDash && opts.borderDash.length;
-  var useFastPath = !line._loop && !opts.tension && !opts.steppedLine && !borderDash;
+  var useFastPath = !line._loop && !opts.tension && !opts.stepped && !borderDash;
   return useFastPath ? fastPathSegment : pathSegment;
 }
 function _getInterpolationMethod(options) {
-  if (options.steppedLine) {
+  if (options.stepped) {
     return _steppedInterpolation;
   }
   if (options.tension) {
@@ -5111,7 +5131,7 @@ function (_Element) {
         return;
       }
       var options = me.options;
-      if (options.tension && !options.steppedLine) {
+      if (options.tension && !options.stepped) {
         var loop = options.spanGaps ? me._loop : me._fullLoop;
         _updateBezierControlPoints(me._points, options, chartArea, loop);
       }
@@ -5160,7 +5180,7 @@ function (_Element) {
           continue;
         }
         var t = Math.abs((value - p1[property]) / (p2[property] - p1[property]));
-        var interpolated = _interpolate(p1, p2, t, options.steppedLine);
+        var interpolated = _interpolate(p1, p2, t, options.stepped);
         interpolated[property] = point[property];
         result.push(interpolated);
       }
@@ -5217,7 +5237,7 @@ function (_Element) {
     }
   }]);
   return Line;
-}(Element);
+}(Element$1);
 Line.prototype._type = 'line';
 
 defaults.set('line', {
@@ -5309,7 +5329,7 @@ function (_DatasetController) {
       var values = _get(_getPrototypeOf(LineController.prototype), "_resolveDatasetElementOptions", this).call(this, active);
       values.spanGaps = valueOrDefault(config.spanGaps, options.spanGaps);
       values.tension = valueOrDefault(config.lineTension, lineOptions.tension);
-      values.steppedLine = resolve([config.steppedLine, lineOptions.stepped]);
+      values.stepped = resolve([config.stepped, lineOptions.stepped]);
       return values;
     }
   }, {
@@ -5481,11 +5501,11 @@ function (_DatasetController) {
       var chartArea = chart.chartArea;
       var opts = chart.options;
       var minSize = Math.min(chartArea.right - chartArea.left, chartArea.bottom - chartArea.top);
-      chart.outerRadius = Math.max(minSize / 2, 0);
-      chart.innerRadius = Math.max(opts.cutoutPercentage ? chart.outerRadius / 100 * opts.cutoutPercentage : 1, 0);
-      chart.radiusLength = (chart.outerRadius - chart.innerRadius) / chart.getVisibleDatasetCount();
-      me.outerRadius = chart.outerRadius - chart.radiusLength * me.index;
-      me.innerRadius = me.outerRadius - chart.radiusLength;
+      var outerRadius = Math.max(minSize / 2, 0);
+      var innerRadius = Math.max(opts.cutoutPercentage ? outerRadius / 100 * opts.cutoutPercentage : 1, 0);
+      var radiusLength = (outerRadius - innerRadius) / chart.getVisibleDatasetCount();
+      me.outerRadius = outerRadius - radiusLength * me.index;
+      me.innerRadius = me.outerRadius - radiusLength;
     }
   }, {
     key: "updateElements",
@@ -5571,7 +5591,7 @@ function (_DatasetController) {
 PolarAreaController.prototype.dataElementType = Arc;
 PolarAreaController.prototype._dataElementOptions = ['backgroundColor', 'borderColor', 'borderWidth', 'borderAlign', 'hoverBackgroundColor', 'hoverBorderColor', 'hoverBorderWidth'];
 
-defaults.set('pie', clone$1(defaults.doughnut));
+defaults.set('pie', clone(defaults.doughnut));
 defaults.set('pie', {
   cutoutPercentage: 0
 });
@@ -6264,9 +6284,7 @@ function () {
   }
   _createClass(BasePlatform, [{
     key: "acquireContext",
-    value: function acquireContext(canvas, options) {
-      return undefined;
-    }
+    value: function acquireContext(canvas, options) {}
   }, {
     key: "releaseContext",
     value: function releaseContext(context) {
@@ -6303,18 +6321,498 @@ function (_BasePlatform) {
   return BasicPlatform;
 }(BasePlatform);
 
-var platform = {
-  disableCSSInjection: false
+var MapShim = function () {
+  if (typeof Map !== 'undefined') {
+    return Map;
+  }
+  function getIndex(arr, key) {
+    var result = -1;
+    arr.some(function (entry, index) {
+      if (entry[0] === key) {
+        result = index;
+        return true;
+      }
+      return false;
+    });
+    return result;
+  }
+  return (
+    function () {
+      function class_1() {
+        this.__entries__ = [];
+      }
+      Object.defineProperty(class_1.prototype, "size", {
+        get: function get() {
+          return this.__entries__.length;
+        },
+        enumerable: true,
+        configurable: true
+      });
+      class_1.prototype.get = function (key) {
+        var index = getIndex(this.__entries__, key);
+        var entry = this.__entries__[index];
+        return entry && entry[1];
+      };
+      class_1.prototype.set = function (key, value) {
+        var index = getIndex(this.__entries__, key);
+        if (~index) {
+          this.__entries__[index][1] = value;
+        } else {
+          this.__entries__.push([key, value]);
+        }
+      };
+      class_1.prototype["delete"] = function (key) {
+        var entries = this.__entries__;
+        var index = getIndex(entries, key);
+        if (~index) {
+          entries.splice(index, 1);
+        }
+      };
+      class_1.prototype.has = function (key) {
+        return !!~getIndex(this.__entries__, key);
+      };
+      class_1.prototype.clear = function () {
+        this.__entries__.splice(0);
+      };
+      class_1.prototype.forEach = function (callback, ctx) {
+        if (ctx === void 0) {
+          ctx = null;
+        }
+        for (var _i = 0, _a = this.__entries__; _i < _a.length; _i++) {
+          var entry = _a[_i];
+          callback.call(ctx, entry[1], entry[0]);
+        }
+      };
+      return class_1;
+    }()
+  );
+}();
+var isBrowser = typeof window !== 'undefined' && typeof document !== 'undefined' && window.document === document;
+var global$1 = function () {
+  if (typeof global !== 'undefined' && global.Math === Math) {
+    return global;
+  }
+  if (typeof self !== 'undefined' && self.Math === Math) {
+    return self;
+  }
+  if (typeof window !== 'undefined' && window.Math === Math) {
+    return window;
+  }
+  return Function('return this')();
+}();
+var requestAnimationFrame$1 = function () {
+  if (typeof requestAnimationFrame === 'function') {
+    return requestAnimationFrame.bind(global$1);
+  }
+  return function (callback) {
+    return setTimeout(function () {
+      return callback(Date.now());
+    }, 1000 / 60);
+  };
+}();
+var trailingTimeout = 2;
+function throttle(callback, delay) {
+  var leadingCall = false,
+      trailingCall = false,
+      lastCallTime = 0;
+  function resolvePending() {
+    if (leadingCall) {
+      leadingCall = false;
+      callback();
+    }
+    if (trailingCall) {
+      proxy();
+    }
+  }
+  function timeoutCallback() {
+    requestAnimationFrame$1(resolvePending);
+  }
+  function proxy() {
+    var timeStamp = Date.now();
+    if (leadingCall) {
+      if (timeStamp - lastCallTime < trailingTimeout) {
+        return;
+      }
+      trailingCall = true;
+    } else {
+      leadingCall = true;
+      trailingCall = false;
+      setTimeout(timeoutCallback, delay);
+    }
+    lastCallTime = timeStamp;
+  }
+  return proxy;
+}
+var REFRESH_DELAY = 20;
+var transitionKeys = ['top', 'right', 'bottom', 'left', 'width', 'height', 'size', 'weight'];
+var mutationObserverSupported = typeof MutationObserver !== 'undefined';
+var ResizeObserverController =
+function () {
+  function ResizeObserverController() {
+    this.connected_ = false;
+    this.mutationEventsAdded_ = false;
+    this.mutationsObserver_ = null;
+    this.observers_ = [];
+    this.onTransitionEnd_ = this.onTransitionEnd_.bind(this);
+    this.refresh = throttle(this.refresh.bind(this), REFRESH_DELAY);
+  }
+  ResizeObserverController.prototype.addObserver = function (observer) {
+    if (!~this.observers_.indexOf(observer)) {
+      this.observers_.push(observer);
+    }
+    if (!this.connected_) {
+      this.connect_();
+    }
+  };
+  ResizeObserverController.prototype.removeObserver = function (observer) {
+    var observers = this.observers_;
+    var index = observers.indexOf(observer);
+    if (~index) {
+      observers.splice(index, 1);
+    }
+    if (!observers.length && this.connected_) {
+      this.disconnect_();
+    }
+  };
+  ResizeObserverController.prototype.refresh = function () {
+    var changesDetected = this.updateObservers_();
+    if (changesDetected) {
+      this.refresh();
+    }
+  };
+  ResizeObserverController.prototype.updateObservers_ = function () {
+    var activeObservers = this.observers_.filter(function (observer) {
+      return observer.gatherActive(), observer.hasActive();
+    });
+    activeObservers.forEach(function (observer) {
+      return observer.broadcastActive();
+    });
+    return activeObservers.length > 0;
+  };
+  ResizeObserverController.prototype.connect_ = function () {
+    if (!isBrowser || this.connected_) {
+      return;
+    }
+    document.addEventListener('transitionend', this.onTransitionEnd_);
+    window.addEventListener('resize', this.refresh);
+    if (mutationObserverSupported) {
+      this.mutationsObserver_ = new MutationObserver(this.refresh);
+      this.mutationsObserver_.observe(document, {
+        attributes: true,
+        childList: true,
+        characterData: true,
+        subtree: true
+      });
+    } else {
+      document.addEventListener('DOMSubtreeModified', this.refresh);
+      this.mutationEventsAdded_ = true;
+    }
+    this.connected_ = true;
+  };
+  ResizeObserverController.prototype.disconnect_ = function () {
+    if (!isBrowser || !this.connected_) {
+      return;
+    }
+    document.removeEventListener('transitionend', this.onTransitionEnd_);
+    window.removeEventListener('resize', this.refresh);
+    if (this.mutationsObserver_) {
+      this.mutationsObserver_.disconnect();
+    }
+    if (this.mutationEventsAdded_) {
+      document.removeEventListener('DOMSubtreeModified', this.refresh);
+    }
+    this.mutationsObserver_ = null;
+    this.mutationEventsAdded_ = false;
+    this.connected_ = false;
+  };
+  ResizeObserverController.prototype.onTransitionEnd_ = function (_a) {
+    var _b = _a.propertyName,
+        propertyName = _b === void 0 ? '' : _b;
+    var isReflowProperty = transitionKeys.some(function (key) {
+      return !!~propertyName.indexOf(key);
+    });
+    if (isReflowProperty) {
+      this.refresh();
+    }
+  };
+  ResizeObserverController.getInstance = function () {
+    if (!this.instance_) {
+      this.instance_ = new ResizeObserverController();
+    }
+    return this.instance_;
+  };
+  ResizeObserverController.instance_ = null;
+  return ResizeObserverController;
+}();
+var defineConfigurable = function defineConfigurable(target, props) {
+  for (var _i = 0, _a = Object.keys(props); _i < _a.length; _i++) {
+    var key = _a[_i];
+    Object.defineProperty(target, key, {
+      value: props[key],
+      enumerable: false,
+      writable: false,
+      configurable: true
+    });
+  }
+  return target;
 };
-
-var stylesheet = "/*\n * DOM element rendering detection\n * https://davidwalsh.name/detect-node-insertion\n */\n@keyframes chartjs-render-animation {\n\tfrom { opacity: 0.99; }\n\tto { opacity: 1; }\n}\n\n.chartjs-render-monitor {\n\tanimation: chartjs-render-animation 0.001s;\n}\n\n/*\n * DOM element resizing detection\n * https://github.com/marcj/css-element-queries\n */\n.chartjs-size-monitor,\n.chartjs-size-monitor-expand,\n.chartjs-size-monitor-shrink {\n\tposition: absolute;\n\tdirection: ltr;\n\tleft: 0;\n\ttop: 0;\n\tright: 0;\n\tbottom: 0;\n\toverflow: hidden;\n\tpointer-events: none;\n\tvisibility: hidden;\n\tz-index: -1;\n}\n\n.chartjs-size-monitor-expand > div {\n\tposition: absolute;\n\twidth: 1000000px;\n\theight: 1000000px;\n\tleft: 0;\n\ttop: 0;\n}\n\n.chartjs-size-monitor-shrink > div {\n\tposition: absolute;\n\twidth: 200%;\n\theight: 200%;\n\tleft: 0;\n\ttop: 0;\n}\n";
+var getWindowOf = function getWindowOf(target) {
+  var ownerGlobal = target && target.ownerDocument && target.ownerDocument.defaultView;
+  return ownerGlobal || global$1;
+};
+var emptyRect = createRectInit(0, 0, 0, 0);
+function toFloat(value) {
+  return parseFloat(value) || 0;
+}
+function getBordersSize(styles) {
+  var positions = [];
+  for (var _i = 1; _i < arguments.length; _i++) {
+    positions[_i - 1] = arguments[_i];
+  }
+  return positions.reduce(function (size, position) {
+    var value = styles['border-' + position + '-width'];
+    return size + toFloat(value);
+  }, 0);
+}
+function getPaddings(styles) {
+  var positions = ['top', 'right', 'bottom', 'left'];
+  var paddings = {};
+  for (var _i = 0, positions_1 = positions; _i < positions_1.length; _i++) {
+    var position = positions_1[_i];
+    var value = styles['padding-' + position];
+    paddings[position] = toFloat(value);
+  }
+  return paddings;
+}
+function getSVGContentRect(target) {
+  var bbox = target.getBBox();
+  return createRectInit(0, 0, bbox.width, bbox.height);
+}
+function getHTMLElementContentRect(target) {
+  var clientWidth = target.clientWidth,
+      clientHeight = target.clientHeight;
+  if (!clientWidth && !clientHeight) {
+    return emptyRect;
+  }
+  var styles = getWindowOf(target).getComputedStyle(target);
+  var paddings = getPaddings(styles);
+  var horizPad = paddings.left + paddings.right;
+  var vertPad = paddings.top + paddings.bottom;
+  var width = toFloat(styles.width),
+      height = toFloat(styles.height);
+  if (styles.boxSizing === 'border-box') {
+    if (Math.round(width + horizPad) !== clientWidth) {
+      width -= getBordersSize(styles, 'left', 'right') + horizPad;
+    }
+    if (Math.round(height + vertPad) !== clientHeight) {
+      height -= getBordersSize(styles, 'top', 'bottom') + vertPad;
+    }
+  }
+  if (!isDocumentElement(target)) {
+    var vertScrollbar = Math.round(width + horizPad) - clientWidth;
+    var horizScrollbar = Math.round(height + vertPad) - clientHeight;
+    if (Math.abs(vertScrollbar) !== 1) {
+      width -= vertScrollbar;
+    }
+    if (Math.abs(horizScrollbar) !== 1) {
+      height -= horizScrollbar;
+    }
+  }
+  return createRectInit(paddings.left, paddings.top, width, height);
+}
+var isSVGGraphicsElement = function () {
+  if (typeof SVGGraphicsElement !== 'undefined') {
+    return function (target) {
+      return target instanceof getWindowOf(target).SVGGraphicsElement;
+    };
+  }
+  return function (target) {
+    return target instanceof getWindowOf(target).SVGElement && typeof target.getBBox === 'function';
+  };
+}();
+function isDocumentElement(target) {
+  return target === getWindowOf(target).document.documentElement;
+}
+function getContentRect(target) {
+  if (!isBrowser) {
+    return emptyRect;
+  }
+  if (isSVGGraphicsElement(target)) {
+    return getSVGContentRect(target);
+  }
+  return getHTMLElementContentRect(target);
+}
+function createReadOnlyRect(_a) {
+  var x = _a.x,
+      y = _a.y,
+      width = _a.width,
+      height = _a.height;
+  var Constr = typeof DOMRectReadOnly !== 'undefined' ? DOMRectReadOnly : Object;
+  var rect = Object.create(Constr.prototype);
+  defineConfigurable(rect, {
+    x: x,
+    y: y,
+    width: width,
+    height: height,
+    top: y,
+    right: x + width,
+    bottom: height + y,
+    left: x
+  });
+  return rect;
+}
+function createRectInit(x, y, width, height) {
+  return {
+    x: x,
+    y: y,
+    width: width,
+    height: height
+  };
+}
+var ResizeObservation =
+function () {
+  function ResizeObservation(target) {
+    this.broadcastWidth = 0;
+    this.broadcastHeight = 0;
+    this.contentRect_ = createRectInit(0, 0, 0, 0);
+    this.target = target;
+  }
+  ResizeObservation.prototype.isActive = function () {
+    var rect = getContentRect(this.target);
+    this.contentRect_ = rect;
+    return rect.width !== this.broadcastWidth || rect.height !== this.broadcastHeight;
+  };
+  ResizeObservation.prototype.broadcastRect = function () {
+    var rect = this.contentRect_;
+    this.broadcastWidth = rect.width;
+    this.broadcastHeight = rect.height;
+    return rect;
+  };
+  return ResizeObservation;
+}();
+var ResizeObserverEntry =
+function () {
+  function ResizeObserverEntry(target, rectInit) {
+    var contentRect = createReadOnlyRect(rectInit);
+    defineConfigurable(this, {
+      target: target,
+      contentRect: contentRect
+    });
+  }
+  return ResizeObserverEntry;
+}();
+var ResizeObserverSPI =
+function () {
+  function ResizeObserverSPI(callback, controller, callbackCtx) {
+    this.activeObservations_ = [];
+    this.observations_ = new MapShim();
+    if (typeof callback !== 'function') {
+      throw new TypeError('The callback provided as parameter 1 is not a function.');
+    }
+    this.callback_ = callback;
+    this.controller_ = controller;
+    this.callbackCtx_ = callbackCtx;
+  }
+  ResizeObserverSPI.prototype.observe = function (target) {
+    if (!arguments.length) {
+      throw new TypeError('1 argument required, but only 0 present.');
+    }
+    if (typeof Element === 'undefined' || !(Element instanceof Object)) {
+      return;
+    }
+    if (!(target instanceof getWindowOf(target).Element)) {
+      throw new TypeError('parameter 1 is not of type "Element".');
+    }
+    var observations = this.observations_;
+    if (observations.has(target)) {
+      return;
+    }
+    observations.set(target, new ResizeObservation(target));
+    this.controller_.addObserver(this);
+    this.controller_.refresh();
+  };
+  ResizeObserverSPI.prototype.unobserve = function (target) {
+    if (!arguments.length) {
+      throw new TypeError('1 argument required, but only 0 present.');
+    }
+    if (typeof Element === 'undefined' || !(Element instanceof Object)) {
+      return;
+    }
+    if (!(target instanceof getWindowOf(target).Element)) {
+      throw new TypeError('parameter 1 is not of type "Element".');
+    }
+    var observations = this.observations_;
+    if (!observations.has(target)) {
+      return;
+    }
+    observations["delete"](target);
+    if (!observations.size) {
+      this.controller_.removeObserver(this);
+    }
+  };
+  ResizeObserverSPI.prototype.disconnect = function () {
+    this.clearActive();
+    this.observations_.clear();
+    this.controller_.removeObserver(this);
+  };
+  ResizeObserverSPI.prototype.gatherActive = function () {
+    var _this = this;
+    this.clearActive();
+    this.observations_.forEach(function (observation) {
+      if (observation.isActive()) {
+        _this.activeObservations_.push(observation);
+      }
+    });
+  };
+  ResizeObserverSPI.prototype.broadcastActive = function () {
+    if (!this.hasActive()) {
+      return;
+    }
+    var ctx = this.callbackCtx_;
+    var entries = this.activeObservations_.map(function (observation) {
+      return new ResizeObserverEntry(observation.target, observation.broadcastRect());
+    });
+    this.callback_.call(ctx, entries, ctx);
+    this.clearActive();
+  };
+  ResizeObserverSPI.prototype.clearActive = function () {
+    this.activeObservations_.splice(0);
+  };
+  ResizeObserverSPI.prototype.hasActive = function () {
+    return this.activeObservations_.length > 0;
+  };
+  return ResizeObserverSPI;
+}();
+var observers = typeof WeakMap !== 'undefined' ? new WeakMap() : new MapShim();
+var ResizeObserver =
+function () {
+  function ResizeObserver(callback) {
+    if (!(this instanceof ResizeObserver)) {
+      throw new TypeError('Cannot call a class as a function.');
+    }
+    if (!arguments.length) {
+      throw new TypeError('1 argument required, but only 0 present.');
+    }
+    var controller = ResizeObserverController.getInstance();
+    var observer = new ResizeObserverSPI(callback, controller, this);
+    observers.set(this, observer);
+  }
+  return ResizeObserver;
+}();
+['observe', 'unobserve', 'disconnect'].forEach(function (method) {
+  ResizeObserver.prototype[method] = function () {
+    var _a;
+    return (_a = observers.get(this))[method].apply(_a, arguments);
+  };
+});
+var index$1 = function () {
+  if (typeof global$1.ResizeObserver !== 'undefined') {
+    return global$1.ResizeObserver;
+  }
+  return ResizeObserver;
+}();
 
 var EXPANDO_KEY = '$chartjs';
-var CSS_PREFIX = 'chartjs-';
-var CSS_SIZE_MONITOR = CSS_PREFIX + 'size-monitor';
-var CSS_RENDER_MONITOR = CSS_PREFIX + 'render-monitor';
-var CSS_RENDER_ANIMATION = CSS_PREFIX + 'render-animation';
-var ANIMATION_START_EVENTS = ['animationstart', 'webkitAnimationStart'];
 var EVENT_TYPES = {
   touchstart: 'mousedown',
   touchmove: 'mousemove',
@@ -6347,6 +6845,7 @@ function initCanvas(canvas, config) {
     }
   };
   style.display = style.display || 'block';
+  style.boxSizing = style.boxSizing || 'border-box';
   if (renderWidth === null || renderWidth === '') {
     var displayWidth = readUsedSize(canvas, 'width');
     if (displayWidth !== undefined) {
@@ -6418,125 +6917,101 @@ function throttled(fn, thisArg) {
     }
   };
 }
-function createDiv(cls) {
-  var el = document.createElement('div');
-  el.className = cls || '';
-  return el;
-}
-function createResizer(domPlatform, handler) {
-  var maxSize = 1000000;
-  var resizer = createDiv(CSS_SIZE_MONITOR);
-  var expand = createDiv(CSS_SIZE_MONITOR + '-expand');
-  var shrink = createDiv(CSS_SIZE_MONITOR + '-shrink');
-  expand.appendChild(createDiv());
-  shrink.appendChild(createDiv());
-  resizer.appendChild(expand);
-  resizer.appendChild(shrink);
-  domPlatform._reset = function () {
-    expand.scrollLeft = maxSize;
-    expand.scrollTop = maxSize;
-    shrink.scrollLeft = maxSize;
-    shrink.scrollTop = maxSize;
-  };
-  var onScroll = function onScroll() {
-    domPlatform._reset();
-    handler();
-  };
-  addListener(expand, 'scroll', onScroll.bind(expand, 'expand'));
-  addListener(shrink, 'scroll', onScroll.bind(shrink, 'shrink'));
-  return resizer;
-}
-function watchForRender(node, handler) {
-  var expando = node[EXPANDO_KEY] || (node[EXPANDO_KEY] = {});
-  var proxy = expando.renderProxy = function (e) {
-    if (e.animationName === CSS_RENDER_ANIMATION) {
-      handler();
+function watchForResize(element, fn) {
+  var resize = throttled(function (width, height) {
+    var w = element.clientWidth;
+    fn(width, height);
+    if (w < element.clientWidth) {
+      fn();
     }
-  };
-  ANIMATION_START_EVENTS.forEach(function (type) {
-    addListener(node, type, proxy);
+  }, window);
+  var observer = new index$1(function (entries) {
+    var entry = entries[0];
+    resize(entry.contentRect.width, entry.contentRect.height);
   });
-  expando.reflow = !!node.offsetParent;
-  node.classList.add(CSS_RENDER_MONITOR);
+  observer.observe(element);
+  return observer;
 }
-function unwatchForRender(node) {
-  var expando = node[EXPANDO_KEY] || {};
-  var proxy = expando.renderProxy;
-  if (proxy) {
-    ANIMATION_START_EVENTS.forEach(function (type) {
-      removeListener(node, type, proxy);
+function watchForAttachment(element, fn) {
+  var observer = new MutationObserver(function (entries) {
+    var parent = _getParentNode(element);
+    entries.forEach(function (entry) {
+      for (var i = 0; i < entry.addedNodes.length; i++) {
+        var added = entry.addedNodes[i];
+        if (added === element || added === parent) {
+          fn(entry.target);
+        }
+      }
     });
-    delete expando.renderProxy;
-  }
-  node.classList.remove(CSS_RENDER_MONITOR);
-}
-function addResizeListener(node, listener, chart, domPlatform) {
-  var expando = node[EXPANDO_KEY] || (node[EXPANDO_KEY] = {});
-  var resizer = expando.resizer = createResizer(domPlatform, throttled(function () {
-    if (expando.resizer) {
-      var container = chart.options.maintainAspectRatio && node.parentNode;
-      var w = container ? container.clientWidth : 0;
-      listener(createEvent('resize', chart));
-      if (container && container.clientWidth < w && chart.canvas) {
-        listener(createEvent('resize', chart));
-      }
-    }
-  }));
-  watchForRender(node, function () {
-    if (expando.resizer) {
-      var container = node.parentNode;
-      if (container && container !== resizer.parentNode) {
-        container.insertBefore(resizer, container.firstChild);
-      }
-      domPlatform._reset();
-    }
   });
+  observer.observe(document, {
+    childList: true,
+    subtree: true
+  });
+  return observer;
 }
-function removeResizeListener(node) {
-  var expando = node[EXPANDO_KEY] || {};
-  var resizer = expando.resizer;
-  delete expando.resizer;
-  unwatchForRender(node);
-  if (resizer && resizer.parentNode) {
-    resizer.parentNode.removeChild(resizer);
+function watchForDetachment(element, fn) {
+  var parent = _getParentNode(element);
+  if (!parent) {
+    return;
+  }
+  var observer = new MutationObserver(function (entries) {
+    entries.forEach(function (entry) {
+      for (var i = 0; i < entry.removedNodes.length; i++) {
+        if (entry.removedNodes[i] === element) {
+          fn();
+          break;
+        }
+      }
+    });
+  });
+  observer.observe(parent, {
+    childList: true
+  });
+  return observer;
+}
+function removeObserver(proxies, type) {
+  var observer = proxies[type];
+  if (observer) {
+    observer.disconnect();
+    proxies[type] = undefined;
   }
 }
-function injectCSS(rootNode, css) {
-  var expando = rootNode[EXPANDO_KEY] || (rootNode[EXPANDO_KEY] = {});
-  if (!expando.containsStyles) {
-    expando.containsStyles = true;
-    css = '/* Chart.js */\n' + css;
-    var style = document.createElement('style');
-    style.setAttribute('type', 'text/css');
-    style.appendChild(document.createTextNode(css));
-    rootNode.appendChild(style);
+function unlistenForResize(proxies) {
+  removeObserver(proxies, 'attach');
+  removeObserver(proxies, 'detach');
+  removeObserver(proxies, 'resize');
+}
+function listenForResize(canvas, proxies, listener) {
+  var detached = function detached() {
+    return listenForResize(canvas, proxies, listener);
+  };
+  unlistenForResize(proxies);
+  var container = _getParentNode(canvas);
+  if (container) {
+    proxies.resize = watchForResize(container, listener);
+    proxies.detach = watchForDetachment(canvas, detached);
+  } else {
+    proxies.attach = watchForAttachment(canvas, function () {
+      removeObserver(proxies, 'attach');
+      var parent = _getParentNode(canvas);
+      proxies.resize = watchForResize(parent, listener);
+      proxies.detach = watchForDetachment(canvas, detached);
+    });
   }
 }
 var DomPlatform =
 function (_BasePlatform) {
   _inherits(DomPlatform, _BasePlatform);
   function DomPlatform() {
-    var _this;
     _classCallCheck(this, DomPlatform);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(DomPlatform).call(this));
-    _this.disableCSSInjection = platform.disableCSSInjection;
-    return _this;
+    return _possibleConstructorReturn(this, _getPrototypeOf(DomPlatform).apply(this, arguments));
   }
   _createClass(DomPlatform, [{
-    key: "_ensureLoaded",
-    value: function _ensureLoaded(canvas) {
-      if (!this.disableCSSInjection) {
-        var root = canvas.getRootNode ? canvas.getRootNode() : document;
-        var targetNode = root.host ? root : document.head;
-        injectCSS(targetNode, stylesheet);
-      }
-    }
-  }, {
     key: "acquireContext",
     value: function acquireContext(canvas, config) {
       var context = canvas && canvas.getContext && canvas.getContext('2d');
       if (context && context.canvas === canvas) {
-        this._ensureLoaded(canvas);
         initCanvas(canvas, config);
         return context;
       }
@@ -6569,33 +7044,31 @@ function (_BasePlatform) {
   }, {
     key: "addEventListener",
     value: function addEventListener(chart, type, listener) {
+      this.removeEventListener(chart, type);
       var canvas = chart.canvas;
+      var proxies = chart.$proxies || (chart.$proxies = {});
       if (type === 'resize') {
-        addResizeListener(canvas, listener, chart, this);
-        return;
+        return listenForResize(canvas, proxies, listener);
       }
-      var expando = listener[EXPANDO_KEY] || (listener[EXPANDO_KEY] = {});
-      var proxies = expando.proxies || (expando.proxies = {});
-      var proxy = proxies[chart.id + '_' + type] = throttled(function (event) {
+      var proxy = proxies[type] = throttled(function (event) {
         listener(fromNativeEvent(event, chart));
       }, chart);
       addListener(canvas, type, proxy);
     }
   }, {
     key: "removeEventListener",
-    value: function removeEventListener(chart, type, listener) {
+    value: function removeEventListener(chart, type) {
       var canvas = chart.canvas;
+      var proxies = chart.$proxies || (chart.$proxies = {});
       if (type === 'resize') {
-        removeResizeListener(canvas);
-        return;
+        return unlistenForResize(proxies);
       }
-      var expando = listener[EXPANDO_KEY] || {};
-      var proxies = expando.proxies || {};
-      var proxy = proxies[chart.id + '_' + type];
+      var proxy = proxies[type];
       if (!proxy) {
         return;
       }
       removeListener(canvas, type, proxy);
+      proxies[type] = undefined;
     }
   }, {
     key: "getDevicePixelRatio",
@@ -6701,7 +7174,7 @@ function () {
           return;
         }
         if (opts === true) {
-          opts = clone$1(defaults.plugins[id]);
+          opts = clone(defaults.plugins[id]);
         }
         plugins.push(plugin);
         descriptors.push({
@@ -6728,7 +7201,7 @@ var scaleService = {
   defaults: {},
   registerScaleType: function registerScaleType(type, scaleConstructor, scaleDefaults) {
     this.constructors[type] = scaleConstructor;
-    this.defaults[type] = clone$1(scaleDefaults);
+    this.defaults[type] = clone(scaleDefaults);
   },
   getScaleConstructor: function getScaleConstructor(type) {
     return Object.prototype.hasOwnProperty.call(this.constructors, type) ? this.constructors[type] : undefined;
@@ -6751,6 +7224,8 @@ var scaleService = {
     });
   }
 };
+
+var version = "3.0.0-dev";
 
 var valueOrDefault$1 = helpers.valueOrDefault;
 function mergeScaleConfig(config, options) {
@@ -6901,6 +7376,7 @@ function () {
     this.scales = {};
     this.scale = undefined;
     this.$plugins = undefined;
+    this.$proxies = {};
     Chart.instances[me.id] = me;
     Object.defineProperty(me, 'data', {
       get: function get() {
@@ -6924,11 +7400,12 @@ function () {
     value: function _initialize() {
       var me = this;
       pluginsCore.notify(me, 'beforeInit');
-      helpers.dom.retinaScale(me, me.options.devicePixelRatio);
-      me.bindEvents();
       if (me.options.responsive) {
         me.resize(true);
+      } else {
+        helpers.dom.retinaScale(me, me.options.devicePixelRatio);
       }
+      me.bindEvents();
       pluginsCore.notify(me, 'afterInit');
       return me;
     }
@@ -6958,14 +7435,18 @@ function () {
     }
   }, {
     key: "resize",
-    value: function resize(silent) {
+    value: function resize(silent, width, height) {
       var me = this;
       var options = me.options;
       var canvas = me.canvas;
-      var aspectRatio = options.maintainAspectRatio && me.aspectRatio || null;
+      var aspectRatio = options.maintainAspectRatio && me.aspectRatio;
+      if (width === undefined || height === undefined) {
+        width = getMaximumWidth(canvas);
+        height = getMaximumHeight(canvas);
+      }
+      var newWidth = Math.max(0, Math.floor(width));
+      var newHeight = Math.max(0, Math.floor(aspectRatio ? newWidth / aspectRatio : height));
       var oldRatio = me.currentDevicePixelRatio;
-      var newWidth = Math.max(0, Math.floor(helpers.dom.getMaximumWidth(canvas)));
-      var newHeight = Math.max(0, Math.floor(aspectRatio ? newWidth / aspectRatio : helpers.dom.getMaximumHeight(canvas)));
       var newRatio = options.devicePixelRatio || me.platform.getDevicePixelRatio();
       if (me.width === newWidth && me.height === newHeight && oldRatio === newRatio) {
         return;
@@ -7489,8 +7970,10 @@ function () {
         listeners[type] = listener;
       });
       if (me.options.responsive) {
-        listener = function listener() {
-          me.resize();
+        listener = function listener(width, height) {
+          if (me.canvas) {
+            me.resize(false, width, height);
+          }
         };
         me.platform.addEventListener(me, 'resize', listener);
         listeners.resize = listener;
@@ -7581,6 +8064,7 @@ function () {
   }]);
   return Chart;
 }();
+_defineProperty(Chart, "version", version);
 Chart.instances = {};
 
 function _abstract() {
@@ -7867,7 +8351,7 @@ function (_Element) {
     _this.right = undefined;
     _this.width = undefined;
     _this.height = undefined;
-    _this.margins = {
+    _this._margins = {
       left: 0,
       right: 0,
       top: 0,
@@ -7999,7 +8483,7 @@ function (_Element) {
       me.beforeUpdate();
       me.maxWidth = maxWidth;
       me.maxHeight = maxHeight;
-      me.margins = _extends({
+      me._margins = _extends({
         left: 0,
         right: 0,
         top: 0,
@@ -8241,22 +8725,22 @@ function (_Element) {
       }
       me._handleMargins();
       if (isHorizontal) {
-        me.width = me._length = chart.width - me.margins.left - me.margins.right;
+        me.width = me._length = chart.width - me._margins.left - me._margins.right;
         me.height = minSize.height;
       } else {
         me.width = minSize.width;
-        me.height = me._length = chart.height - me.margins.top - me.margins.bottom;
+        me.height = me._length = chart.height - me._margins.top - me._margins.bottom;
       }
     }
   }, {
     key: "_handleMargins",
     value: function _handleMargins() {
       var me = this;
-      if (me.margins) {
-        me.margins.left = Math.max(me.paddingLeft, me.margins.left);
-        me.margins.top = Math.max(me.paddingTop, me.margins.top);
-        me.margins.right = Math.max(me.paddingRight, me.margins.right);
-        me.margins.bottom = Math.max(me.paddingBottom, me.margins.bottom);
+      if (me._margins) {
+        me._margins.left = Math.max(me.paddingLeft, me._margins.left);
+        me._margins.top = Math.max(me.paddingTop, me._margins.top);
+        me._margins.right = Math.max(me.paddingRight, me._margins.right);
+        me._margins.bottom = Math.max(me.paddingBottom, me._margins.bottom);
       }
     }
   }, {
@@ -8902,7 +9386,7 @@ function (_Element) {
     }
   }]);
   return Scale;
-}(Element);
+}(Element$1);
 Scale.prototype._draw = Scale.prototype.draw;
 
 var defaultConfig = {};
@@ -11054,7 +11538,7 @@ function (_Element) {
     _this.right = undefined;
     _this.height = undefined;
     _this.width = undefined;
-    _this.margins = undefined;
+    _this._margins = undefined;
     _this.paddingTop = undefined;
     _this.paddingBottom = undefined;
     _this.paddingLeft = undefined;
@@ -11074,7 +11558,7 @@ function (_Element) {
       me.beforeUpdate();
       me.maxWidth = maxWidth;
       me.maxHeight = maxHeight;
-      me.margins = margins;
+      me._margins = margins;
       me.beforeSetDimensions();
       me.setDimensions();
       me.afterSetDimensions();
@@ -11248,7 +11732,7 @@ function (_Element) {
         return;
       }
       me._drawTitle();
-      var rtlHelper = getAdapter(opts.rtl, me.left, me._minSize.width);
+      var rtlHelper = getRtlAdapter(opts.rtl, me.left, me._minSize.width);
       var ctx = me.ctx;
       var fontColor = valueOrDefault(labelOpts.fontColor, defaults.fontColor);
       var labelFont = _parseFont(labelOpts);
@@ -11376,7 +11860,7 @@ function (_Element) {
       if (!titleOpts.display) {
         return;
       }
-      var rtlHelper = getAdapter(opts.rtl, me.left, me._minSize.width);
+      var rtlHelper = getRtlAdapter(opts.rtl, me.left, me._minSize.width);
       var ctx = me.ctx;
       var fontColor = valueOrDefault(titleOpts.fontColor, defaults.fontColor);
       var position = titleOpts.position;
@@ -11491,7 +11975,7 @@ function (_Element) {
     }
   }]);
   return Legend;
-}(Element);
+}(Element$1);
 function createNewLegendAndAttach(chart, legendOpts) {
   var legend = new Legend({
     ctx: chart.ctx,
@@ -11557,7 +12041,7 @@ function (_Element) {
     _this.chart = config.chart;
     _this.options = config.options;
     _this.ctx = config.ctx;
-    _this.margins = undefined;
+    _this._margins = undefined;
     _this._padding = undefined;
     _this.legendHitBoxes = [];
     _this.top = undefined;
@@ -11583,7 +12067,7 @@ function (_Element) {
       me.beforeUpdate();
       me.maxWidth = maxWidth;
       me.maxHeight = maxHeight;
-      me.margins = margins;
+      me._margins = margins;
       me.beforeSetDimensions();
       me.setDimensions();
       me.afterSetDimensions();
@@ -11732,7 +12216,7 @@ function (_Element) {
     }
   }]);
   return Title;
-}(Element);
+}(Element$1);
 function createNewTitleBlockAndAttach(chart, titleOpts) {
   var title = new Title({
     ctx: chart.ctx,
@@ -12607,7 +13091,7 @@ function (_Element) {
     }
   }]);
   return Tooltip;
-}(Element);
+}(Element$1);
 Tooltip.positioners = positioners;
 var tooltip = {
   id: 'tooltip',
@@ -12664,12 +13148,11 @@ Chart.animationService = Animations;
 Chart.controllers = controllers;
 Chart.DatasetController = DatasetController;
 Chart.defaults = defaults;
-Chart.Element = Element;
+Chart.Element = Element$1;
 Chart.elements = elements;
 Chart.Interaction = Interaction;
 Chart.layouts = layouts;
 Chart.platforms = platforms;
-Chart.platform = platform;
 Chart.plugins = pluginsCore;
 Chart.Scale = Scale;
 Chart.scaleService = scaleService;

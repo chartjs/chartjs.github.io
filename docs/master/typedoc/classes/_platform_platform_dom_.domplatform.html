@@ -97,15 +97,8 @@
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
 						<section class="tsd-index-section ">
-							<h3>Constructors</h3>
-							<ul class="tsd-index-list">
-								<li class="tsd-kind-constructor tsd-parent-kind-class"><a href="_platform_platform_dom_.domplatform.html#constructor" class="tsd-kind-icon">constructor</a></li>
-							</ul>
-						</section>
-						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="_platform_platform_dom_.domplatform.html#_ensureloaded" class="tsd-kind-icon">_ensure<wbr>Loaded</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="_platform_platform_dom_.domplatform.html#acquirecontext" class="tsd-kind-icon">acquire<wbr>Context</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="_platform_platform_dom_.domplatform.html#addeventlistener" class="tsd-kind-icon">add<wbr>Event<wbr>Listener</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="_platform_platform_dom_.domplatform.html#getdevicepixelratio" class="tsd-kind-icon">get<wbr>Device<wbr>Pixel<wbr>Ratio</a></li>
@@ -117,88 +110,43 @@
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
-				<h2>Constructors</h2>
-				<section class="tsd-panel tsd-member tsd-kind-constructor tsd-parent-kind-class">
-					<a name="constructor" class="tsd-anchor"></a>
-					<h3>constructor</h3>
-					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Dom<wbr>Platform<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_platform_platform_dom_.domplatform.html" class="tsd-signature-type">DomPlatform</a></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/7397a41/src/platform/platform.dom.js#L320">platform/platform.dom.js:320</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<dl class="tsd-comment-tags">
-									<dt>constructor</dt>
-									<dd></dd>
-								</dl>
-							</div>
-							<h4 class="tsd-returns-title">Returns <a href="_platform_platform_dom_.domplatform.html" class="tsd-signature-type">DomPlatform</a></h4>
-						</li>
-					</ul>
-				</section>
-			</section>
-			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Methods</h2>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
-					<a name="_ensureloaded" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _ensure<wbr>Loaded</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
-						<li class="tsd-signature tsd-kind-icon">_ensure<wbr>Loaded<span class="tsd-signature-symbol">(</span>canvas<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">HTMLCanvasElement</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/7397a41/src/platform/platform.dom.js#L342">platform/platform.dom.js:342</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Initializes resources that depend on platform options.</p>
-								</div>
-							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>canvas: <span class="tsd-signature-type">HTMLCanvasElement</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>The Canvas element.</p>
-									</div>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
-						</li>
-					</ul>
-				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
 					<a name="acquirecontext" class="tsd-anchor"></a>
 					<h3>acquire<wbr>Context</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
-						<li class="tsd-signature tsd-kind-icon">acquire<wbr>Context<span class="tsd-signature-symbol">(</span>canvas<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, config<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
+						<li class="tsd-signature tsd-kind-icon">acquire<wbr>Context<span class="tsd-signature-symbol">(</span>canvas<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">HTMLCanvasElement</span>, config<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>options<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>aspectRatio<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">CanvasRenderingContext2D</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<p>Overrides <a href="_platform_platform_base_.baseplatform.html">BasePlatform</a>.<a href="_platform_platform_base_.baseplatform.html#acquirecontext">acquireContext</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/7397a41/src/platform/platform.dom.js#L354">platform/platform.dom.js:354</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/ee7520b/src/platform/platform.dom.js#L312">platform/platform.dom.js:312</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>canvas: <span class="tsd-signature-type">any</span></h5>
+									<h5>canvas: <span class="tsd-signature-type">HTMLCanvasElement</span></h5>
 								</li>
 								<li>
-									<h5>config: <span class="tsd-signature-type">any</span></h5>
+									<h5>config: <span class="tsd-signature-symbol">{ </span>options<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>aspectRatio<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> }</span></h5>
+									<ul class="tsd-parameters">
+										<li class="tsd-parameter">
+											<h5>options<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>aspectRatio<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span></h5>
+											<ul class="tsd-parameters">
+												<li class="tsd-parameter">
+													<h5><span class="tsd-flag ts-flagOptional">Optional</span> aspect<wbr>Ratio<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span></h5>
+												</li>
+											</ul>
+										</li>
+									</ul>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">CanvasRenderingContext2D</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -206,26 +154,30 @@
 					<a name="addeventlistener" class="tsd-anchor"></a>
 					<h3>add<wbr>Event<wbr>Listener</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
-						<li class="tsd-signature tsd-kind-icon">add<wbr>Event<wbr>Listener<span class="tsd-signature-symbol">(</span>chart<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, listener<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">add<wbr>Event<wbr>Listener<span class="tsd-signature-symbol">(</span>chart<span class="tsd-signature-symbol">: </span><a href="_core_core_controller_.chart.html" class="tsd-signature-type">Chart</a>, type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, listener<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Function</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<p>Overrides <a href="_platform_platform_base_.baseplatform.html">BasePlatform</a>.<a href="_platform_platform_base_.baseplatform.html#addeventlistener">addEventListener</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/7397a41/src/platform/platform.dom.js#L410">platform/platform.dom.js:410</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/ee7520b/src/platform/platform.dom.js#L376">platform/platform.dom.js:376</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>chart: <span class="tsd-signature-type">any</span></h5>
+									<h5>chart: <a href="_core_core_controller_.chart.html" class="tsd-signature-type">Chart</a></h5>
 								</li>
 								<li>
-									<h5>type: <span class="tsd-signature-type">any</span></h5>
+									<h5>type: <span class="tsd-signature-type">string</span></h5>
 								</li>
 								<li>
-									<h5>listener: <span class="tsd-signature-type">any</span></h5>
+									<h5>listener: <span class="tsd-signature-type">Function</span></h5>
+									<div class="tsd-comment tsd-typography">
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -243,7 +195,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides <a href="_platform_platform_base_.baseplatform.html">BasePlatform</a>.<a href="_platform_platform_base_.baseplatform.html#getdevicepixelratio">getDevicePixelRatio</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/7397a41/src/platform/platform.dom.js#L445">platform/platform.dom.js:445</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/ee7520b/src/platform/platform.dom.js#L415">platform/platform.dom.js:415</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
@@ -254,20 +206,24 @@
 					<a name="releasecontext" class="tsd-anchor"></a>
 					<h3>release<wbr>Context</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
-						<li class="tsd-signature tsd-kind-icon">release<wbr>Context<span class="tsd-signature-symbol">(</span>context<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+						<li class="tsd-signature tsd-kind-icon">release<wbr>Context<span class="tsd-signature-symbol">(</span>context<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">CanvasRenderingContext2D</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<p>Overrides <a href="_platform_platform_base_.baseplatform.html">BasePlatform</a>.<a href="_platform_platform_base_.baseplatform.html#releasecontext">releaseContext</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/7397a41/src/platform/platform.dom.js#L378">platform/platform.dom.js:378</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/ee7520b/src/platform/platform.dom.js#L338">platform/platform.dom.js:338</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>context: <span class="tsd-signature-type">any</span></h5>
+									<h5>context: <span class="tsd-signature-type">CanvasRenderingContext2D</span></h5>
+									<div class="tsd-comment tsd-typography">
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
@@ -278,26 +234,27 @@
 					<a name="removeeventlistener" class="tsd-anchor"></a>
 					<h3>remove<wbr>Event<wbr>Listener</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
-						<li class="tsd-signature tsd-kind-icon">remove<wbr>Event<wbr>Listener<span class="tsd-signature-symbol">(</span>chart<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, listener<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">remove<wbr>Event<wbr>Listener<span class="tsd-signature-symbol">(</span>chart<span class="tsd-signature-symbol">: </span><a href="_core_core_controller_.chart.html" class="tsd-signature-type">Chart</a>, type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<p>Overrides <a href="_platform_platform_base_.baseplatform.html">BasePlatform</a>.<a href="_platform_platform_base_.baseplatform.html#removeeventlistener">removeEventListener</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/7397a41/src/platform/platform.dom.js#L427">platform/platform.dom.js:427</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/ee7520b/src/platform/platform.dom.js#L398">platform/platform.dom.js:398</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>chart: <span class="tsd-signature-type">any</span></h5>
+									<h5>chart: <a href="_core_core_controller_.chart.html" class="tsd-signature-type">Chart</a></h5>
 								</li>
 								<li>
-									<h5>type: <span class="tsd-signature-type">any</span></h5>
-								</li>
-								<li>
-									<h5>listener: <span class="tsd-signature-type">any</span></h5>
+									<h5>type: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -324,12 +281,6 @@
 					<li class="current tsd-kind-class tsd-parent-kind-external-module">
 						<a href="_platform_platform_dom_.domplatform.html" class="tsd-kind-icon">Dom<wbr>Platform</a>
 						<ul>
-							<li class=" tsd-kind-constructor tsd-parent-kind-class">
-								<a href="_platform_platform_dom_.domplatform.html#constructor" class="tsd-kind-icon">constructor</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
-								<a href="_platform_platform_dom_.domplatform.html#_ensureloaded" class="tsd-kind-icon">_ensure<wbr>Loaded</a>
-							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
 								<a href="_platform_platform_dom_.domplatform.html#acquirecontext" class="tsd-kind-icon">acquire<wbr>Context</a>
 							</li>
@@ -350,21 +301,6 @@
 				</ul>
 				<ul class="after-current">
 					<li class=" tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="../modules/_platform_platform_dom_.html#animation_start_events" class="tsd-kind-icon">ANIMATION_<wbr>START_<wbr>EVENTS</a>
-					</li>
-					<li class=" tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="../modules/_platform_platform_dom_.html#css_prefix" class="tsd-kind-icon">CSS_<wbr>PREFIX</a>
-					</li>
-					<li class=" tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="../modules/_platform_platform_dom_.html#css_render_animation" class="tsd-kind-icon">CSS_<wbr>RENDER_<wbr>ANIMATION</a>
-					</li>
-					<li class=" tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="../modules/_platform_platform_dom_.html#css_render_monitor" class="tsd-kind-icon">CSS_<wbr>RENDER_<wbr>MONITOR</a>
-					</li>
-					<li class=" tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="../modules/_platform_platform_dom_.html#css_size_monitor" class="tsd-kind-icon">CSS_<wbr>SIZE_<wbr>MONITOR</a>
-					</li>
-					<li class=" tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
 						<a href="../modules/_platform_platform_dom_.html#expando_key" class="tsd-kind-icon">EXPANDO_<wbr>KEY</a>
 					</li>
 					<li class=" tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
@@ -377,16 +313,7 @@
 						<a href="../modules/_platform_platform_dom_.html#addlistener" class="tsd-kind-icon">add<wbr>Listener</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="../modules/_platform_platform_dom_.html#addresizelistener" class="tsd-kind-icon">add<wbr>Resize<wbr>Listener</a>
-					</li>
-					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="../modules/_platform_platform_dom_.html#creatediv" class="tsd-kind-icon">create<wbr>Div</a>
-					</li>
-					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
 						<a href="../modules/_platform_platform_dom_.html#createevent" class="tsd-kind-icon">create<wbr>Event</a>
-					</li>
-					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="../modules/_platform_platform_dom_.html#createresizer" class="tsd-kind-icon">create<wbr>Resizer</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
 						<a href="../modules/_platform_platform_dom_.html#fromnativeevent" class="tsd-kind-icon">from<wbr>Native<wbr>Event</a>
@@ -395,7 +322,7 @@
 						<a href="../modules/_platform_platform_dom_.html#initcanvas" class="tsd-kind-icon">init<wbr>Canvas</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="../modules/_platform_platform_dom_.html#injectcss" class="tsd-kind-icon">injectCSS</a>
+						<a href="../modules/_platform_platform_dom_.html#listenforresize" class="tsd-kind-icon">listen<wbr>For<wbr>Resize</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
 						<a href="../modules/_platform_platform_dom_.html#readusedsize" class="tsd-kind-icon">read<wbr>Used<wbr>Size</a>
@@ -404,16 +331,22 @@
 						<a href="../modules/_platform_platform_dom_.html#removelistener" class="tsd-kind-icon">remove<wbr>Listener</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="../modules/_platform_platform_dom_.html#removeresizelistener" class="tsd-kind-icon">remove<wbr>Resize<wbr>Listener</a>
+						<a href="../modules/_platform_platform_dom_.html#removeobserver" class="tsd-kind-icon">remove<wbr>Observer</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
 						<a href="../modules/_platform_platform_dom_.html#throttled" class="tsd-kind-icon">throttled</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="../modules/_platform_platform_dom_.html#unwatchforrender" class="tsd-kind-icon">unwatch<wbr>For<wbr>Render</a>
+						<a href="../modules/_platform_platform_dom_.html#unlistenforresize" class="tsd-kind-icon">unlisten<wbr>For<wbr>Resize</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
-						<a href="../modules/_platform_platform_dom_.html#watchforrender" class="tsd-kind-icon">watch<wbr>For<wbr>Render</a>
+						<a href="../modules/_platform_platform_dom_.html#watchforattachment" class="tsd-kind-icon">watch<wbr>For<wbr>Attachment</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="../modules/_platform_platform_dom_.html#watchfordetachment" class="tsd-kind-icon">watch<wbr>For<wbr>Detachment</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="../modules/_platform_platform_dom_.html#watchforresize" class="tsd-kind-icon">watch<wbr>For<wbr>Resize</a>
 					</li>
 					<li class=" tsd-kind-object-literal tsd-parent-kind-external-module tsd-is-not-exported">
 						<a href="../modules/_platform_platform_dom_.html#event_types" class="tsd-kind-icon">EVENT_<wbr>TYPES</a>
