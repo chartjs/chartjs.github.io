@@ -2233,7 +2233,7 @@ function () {
   }]);
   return Animator;
 }();
-var instance = new Animator();
+var Animator$1 = new Animator();
 
 var transparent = 'transparent';
 var interpolators = {
@@ -2473,7 +2473,7 @@ function () {
       }
       var animations = this._createAnimations(target, values);
       if (animations.length) {
-        instance.add(this._chart, animations);
+        Animator$1.add(this._chart, animations);
         return true;
       }
     }
@@ -3162,7 +3162,7 @@ function () {
       var me = this;
       var chart = me.chart;
       var datasetOpts = me._config;
-      var options = chart.options.elements[me.datasetElementType.prototype._type] || {};
+      var options = chart.options.elements[me.datasetElementType._type] || {};
       var elementOptions = me._datasetElementOptions;
       var values = {};
       var context = me._getContext(undefined, active);
@@ -3188,7 +3188,7 @@ function () {
       }
       var chart = me.chart;
       var datasetOpts = me._config;
-      var options = chart.options.elements[me.dataElementType.prototype._type] || {};
+      var options = chart.options.elements[me.dataElementType._type] || {};
       var elementOptions = me._dataElementOptions;
       var values = {};
       var context = me._getContext(index, active);
@@ -3400,7 +3400,7 @@ function () {
   }]);
   return DatasetController;
 }();
-DatasetController.extend = helpers.inherits;
+_defineProperty(DatasetController, "extend", helpers.inherits);
 DatasetController.prototype.datasetElementType = null;
 DatasetController.prototype.dataElementType = null;
 DatasetController.prototype._datasetElementOptions = ['backgroundColor', 'borderCapStyle', 'borderColor', 'borderDash', 'borderDashOffset', 'borderJoinStyle', 'borderWidth'];
@@ -3433,7 +3433,7 @@ function () {
   }]);
   return Element;
 }();
-Element$1.extend = inherits;
+_defineProperty(Element$1, "extend", inherits);
 
 var defaultColor = defaults.color;
 defaults.set('elements', {
@@ -3613,7 +3613,7 @@ function (_Element) {
   }]);
   return Rectangle;
 }(Element$1);
-Rectangle.prototype._type = 'rectangle';
+_defineProperty(Rectangle, "_type", 'rectangle');
 
 defaults.set('bar', {
   hover: {
@@ -4072,7 +4072,7 @@ function (_Element) {
   }]);
   return Point;
 }(Element$1);
-Point.prototype._type = 'point';
+_defineProperty(Point, "_type", 'point');
 
 defaults.set('bubble', {
   animation: {
@@ -4390,7 +4390,7 @@ function (_Element) {
   }]);
   return Arc;
 }(Element$1);
-Arc.prototype._type = 'arc';
+_defineProperty(Arc, "_type", 'arc');
 
 var PI$2 = Math.PI;
 var DOUBLE_PI$1 = PI$2 * 2;
@@ -5232,7 +5232,7 @@ function (_Element) {
   }]);
   return Line;
 }(Element$1);
-Line.prototype._type = 'line';
+_defineProperty(Line, "_type", 'line');
 
 defaults.set('line', {
   showLines: true,
@@ -7384,8 +7384,8 @@ function () {
       console.error("Failed to create chart: can't acquire context from the given item");
       return;
     }
-    instance.listen(me, 'complete', onAnimationsComplete);
-    instance.listen(me, 'progress', onAnimationProgress);
+    Animator$1.listen(me, 'complete', onAnimationsComplete);
+    Animator$1.listen(me, 'progress', onAnimationProgress);
     me._initialize();
     me.update();
   }
@@ -7424,7 +7424,7 @@ function () {
   }, {
     key: "stop",
     value: function stop() {
-      instance.stop(this);
+      Animator$1.stop(this);
       return this;
     }
   }, {
@@ -7712,9 +7712,9 @@ function () {
         pluginsCore.notify(me, 'afterRender');
         helpers.callback(animationOptions && animationOptions.onComplete, [], me);
       };
-      if (instance.has(me)) {
-        if (!instance.running(me)) {
-          instance.start(me);
+      if (Animator$1.has(me)) {
+        if (!Animator$1.running(me)) {
+          Animator$1.start(me);
         }
       } else {
         me.draw();
@@ -7931,7 +7931,7 @@ function () {
       var canvas = me.canvas;
       var i, ilen;
       me.stop();
-      instance.remove(me);
+      Animator$1.remove(me);
       for (i = 0, ilen = me.data.datasets.length; i < ilen; ++i) {
         me._destroyDatasetMeta(i);
       }
@@ -8059,7 +8059,7 @@ function () {
   return Chart;
 }();
 _defineProperty(Chart, "version", version);
-Chart.instances = {};
+_defineProperty(Chart, "instances", {});
 
 function _abstract() {
   throw new Error('This method is not implemented: either no adapter can be found or an incomplete integration was provided.');
@@ -9487,7 +9487,7 @@ function (_Scale) {
   }]);
   return CategoryScale;
 }(Scale);
-CategoryScale._defaults = defaultConfig;
+_defineProperty(CategoryScale, "_defaults", defaultConfig);
 
 function niceNum(range, round) {
   var exponent = Math.floor(log10(range));
@@ -9796,7 +9796,7 @@ function (_LinearScaleBase) {
   }]);
   return LinearScale;
 }(LinearScaleBase);
-LinearScale._defaults = defaultConfig$1;
+_defineProperty(LinearScale, "_defaults", defaultConfig$1);
 
 function isMajor(tickVal) {
   var remain = tickVal / Math.pow(10, Math.floor(log10(tickVal)));
@@ -9967,7 +9967,7 @@ function (_Scale) {
   }]);
   return LogarithmicScale;
 }(Scale);
-LogarithmicScale._defaults = defaultConfig$2;
+_defineProperty(LogarithmicScale, "_defaults", defaultConfig$2);
 
 var valueOrDefault$2 = helpers.valueOrDefault;
 var valueAtIndexOrDefault$1 = helpers.valueAtIndexOrDefault;
@@ -10374,7 +10374,7 @@ function (_LinearScaleBase) {
   }]);
   return RadialLinearScale;
 }(LinearScaleBase);
-RadialLinearScale._defaults = defaultConfig$3;
+_defineProperty(RadialLinearScale, "_defaults", defaultConfig$3);
 
 var MAX_INTEGER = Number.MAX_SAFE_INTEGER || 9007199254740991;
 var INTERVALS = {
@@ -10926,7 +10926,7 @@ function (_Scale) {
   }]);
   return TimeScale;
 }(Scale);
-TimeScale._defaults = defaultConfig$4;
+_defineProperty(TimeScale, "_defaults", defaultConfig$4);
 
 var scales = {
   category: CategoryScale,
@@ -13136,7 +13136,7 @@ var plugins = {
 Chart.helpers = helpers;
 Chart._adapters = _adapters;
 Chart.Animation = Animation;
-Chart.Animator = instance;
+Chart.Animator = Animator$1;
 Chart.animationService = Animations;
 Chart.controllers = controllers;
 Chart.DatasetController = DatasetController;
