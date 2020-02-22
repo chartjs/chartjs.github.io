@@ -1,2 +1,2 @@
 include:
-  - "_*_.html"
+  - "_*.html"
