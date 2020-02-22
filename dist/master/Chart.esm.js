@@ -10404,7 +10404,6 @@ var filler = {
   beforeDatasetsDraw(chart) {
     var metasets = chart._getSortedVisibleDatasetMetas();
     var area = chart.chartArea;
-    var ctx = chart.ctx;
     var i, meta;
     for (i = metasets.length - 1; i >= 0; --i) {
       meta = metasets[i].$filler;
@@ -10412,35 +10411,37 @@ var filler = {
         meta.line.updateControlPoints(area);
       }
     }
-    for (i = metasets.length - 1; i >= 0; --i) {
-      meta = metasets[i].$filler;
-      if (!meta || meta.fill === false) {
-        continue;
-      }
-      var {
+  },
+  beforeDatasetDraw(chart, args) {
+    var area = chart.chartArea;
+    var ctx = chart.ctx;
+    var meta = args.meta.$filler;
+    if (!meta || meta.fill === false) {
+      return;
+    }
+    var {
+      line,
+      target,
+      scale
+    } = meta;
+    var lineOpts = line.options;
+    var fillOption = lineOpts.fill;
+    var color = lineOpts.backgroundColor || defaults.color;
+    var {
+      above = color,
+      below = color
+    } = fillOption || {};
+    if (target && line.points.length) {
+      clipArea(ctx, area);
+      doFill(ctx, {
         line,
         target,
+        above,
+        below,
+        area,
         scale
-      } = meta;
-      var lineOpts = line.options;
-      var fillOption = lineOpts.fill;
-      var color = lineOpts.backgroundColor || defaults.color;
-      var {
-        above = color,
-        below = color
-      } = fillOption || {};
-      if (target && line.points.length) {
-        clipArea(ctx, area);
-        doFill(ctx, {
-          line,
-          target,
-          above,
-          below,
-          area,
-          scale
-        });
-        unclipArea(ctx);
-      }
+      });
+      unclipArea(ctx);
     }
   }
 };

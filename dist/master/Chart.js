@@ -11414,7 +11414,6 @@ var filler = {
   beforeDatasetsDraw: function beforeDatasetsDraw(chart) {
     var metasets = chart._getSortedVisibleDatasetMetas();
     var area = chart.chartArea;
-    var ctx = chart.ctx;
     var i, meta;
     for (i = metasets.length - 1; i >= 0; --i) {
       meta = metasets[i].$filler;
@@ -11422,35 +11421,36 @@ var filler = {
         meta.line.updateControlPoints(area);
       }
     }
-    for (i = metasets.length - 1; i >= 0; --i) {
-      meta = metasets[i].$filler;
-      if (!meta || meta.fill === false) {
-        continue;
-      }
-      var _meta = meta,
-          line = _meta.line,
-          target = _meta.target,
-          scale = _meta.scale;
-      var lineOpts = line.options;
-      var fillOption = lineOpts.fill;
-      var color = lineOpts.backgroundColor || defaults.color;
-      var _ref3 = fillOption || {},
-          _ref3$above = _ref3.above,
-          above = _ref3$above === void 0 ? color : _ref3$above,
-          _ref3$below = _ref3.below,
-          below = _ref3$below === void 0 ? color : _ref3$below;
-      if (target && line.points.length) {
-        clipArea(ctx, area);
-        doFill(ctx, {
-          line: line,
-          target: target,
-          above: above,
-          below: below,
-          area: area,
-          scale: scale
-        });
-        unclipArea(ctx);
-      }
+  },
+  beforeDatasetDraw: function beforeDatasetDraw(chart, args) {
+    var area = chart.chartArea;
+    var ctx = chart.ctx;
+    var meta = args.meta.$filler;
+    if (!meta || meta.fill === false) {
+      return;
+    }
+    var line = meta.line,
+        target = meta.target,
+        scale = meta.scale;
+    var lineOpts = line.options;
+    var fillOption = lineOpts.fill;
+    var color = lineOpts.backgroundColor || defaults.color;
+    var _ref3 = fillOption || {},
+        _ref3$above = _ref3.above,
+        above = _ref3$above === void 0 ? color : _ref3$above,
+        _ref3$below = _ref3.below,
+        below = _ref3$below === void 0 ? color : _ref3$below;
+    if (target && line.points.length) {
+      clipArea(ctx, area);
+      doFill(ctx, {
+        line: line,
+        target: target,
+        above: above,
+        below: below,
+        area: area,
+        scale: scale
+      });
+      unclipArea(ctx);
     }
   }
 };
