@@ -826,7 +826,10 @@ function getRelativePosition(evt, chart) {
 function getMaximumWidth(domNode) {
   var container = _getParentNode(domNode);
   if (!container) {
-    return domNode.clientWidth;
+    if (typeof domNode.clientWidth === 'number') {
+      return domNode.clientWidth;
+    }
+    return domNode.width;
   }
   var clientWidth = container.clientWidth;
   var paddingLeft = _calculatePadding(container, 'padding-left', clientWidth);
@@ -838,7 +841,10 @@ function getMaximumWidth(domNode) {
 function getMaximumHeight(domNode) {
   var container = _getParentNode(domNode);
   if (!container) {
-    return domNode.clientHeight;
+    if (typeof domNode.clientHeight === 'number') {
+      return domNode.clientHeight;
+    }
+    return domNode.height;
   }
   var clientHeight = container.clientHeight;
   var paddingTop = _calculatePadding(container, 'padding-top', clientHeight);
@@ -857,7 +863,7 @@ function retinaScale(chart, forceRatio) {
   canvas.height = height * pixelRatio;
   canvas.width = width * pixelRatio;
   chart.ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
-  if (!canvas.style.height && !canvas.style.width) {
+  if (canvas.style && !canvas.style.height && !canvas.style.width) {
     canvas.style.height = height + 'px';
     canvas.style.width = width + 'px';
   }
@@ -6690,7 +6696,7 @@ function onAnimationProgress(ctx) {
   helpers.callback(animationOptions && animationOptions.onProgress, [ctx], chart);
 }
 function isDomSupported() {
-  return typeof window !== undefined && typeof document !== undefined;
+  return typeof window !== 'undefined' && typeof document !== 'undefined';
 }
 function getCanvas(item) {
   if (isDomSupported() && typeof item === 'string') {
@@ -6771,9 +6777,7 @@ class Chart {
   _initializePlatform(canvas, config) {
     if (config.platform) {
       return new config.platform();
-    } else if (!isDomSupported()) {
-      return new BasicPlatform();
-    } else if (window.OffscreenCanvas && canvas instanceof window.OffscreenCanvas) {
+    } else if (!isDomSupported() || typeof OffscreenCanvas !== 'undefined' && canvas instanceof OffscreenCanvas) {
       return new BasicPlatform();
     }
     return new DomPlatform();
@@ -6804,8 +6808,10 @@ class Chart {
     }
     canvas.width = me.width = newWidth;
     canvas.height = me.height = newHeight;
-    canvas.style.width = newWidth + 'px';
-    canvas.style.height = newHeight + 'px';
+    if (canvas.style) {
+      canvas.style.width = newWidth + 'px';
+      canvas.style.height = newHeight + 'px';
+    }
     helpers.dom.retinaScale(me, newRatio);
     if (!silent) {
       var newSize = {
