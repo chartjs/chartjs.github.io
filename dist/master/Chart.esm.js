@@ -1250,7 +1250,7 @@ restoreTextDirection: restoreTextDirection
 });
 
 /*!
- * @kurkle/color v0.1.3
+ * @kurkle/color v0.1.6
  * https://github.com/kurkle/color#readme
  * (c) 2020 Jukka Kurkela
  * Released under the MIT License
@@ -1315,17 +1315,18 @@ function hexString(v) {
 function round(v) {
   return v + 0.5 | 0;
 }
+var lim = (v, l, h) => Math.max(Math.min(v, h), l);
 function p2b(v) {
-  return round(v * 2.55);
+  return lim(round(v * 2.55), 0, 255);
 }
 function n2b(v) {
-  return round(v * 255);
+  return lim(round(v * 255), 0, 255);
 }
 function b2n(v) {
-  return round(v / 2.55) / 100;
+  return lim(round(v / 2.55) / 100, 0, 1);
 }
 function n2p(v) {
-  return round(v * 100);
+  return lim(round(v * 100), 0, 100);
 }
 var RGB_RE = /^rgba?\(\s*([-+.\d]+)(%)?[\s,]+([-+.e\d]+)(%)?[\s,]+([-+.e\d]+)(%)?(?:[\s,/]+([-+.e\d]+)(%)?)?\s*\)$/;
 function rgbParse(str) {
@@ -2380,7 +2381,7 @@ function getUserBounds(scale) {
     max,
     minDefined,
     maxDefined
-  } = scale._getUserBounds();
+  } = scale.getUserBounds();
   return {
     min: minDefined ? min : Number.NEGATIVE_INFINITY,
     max: maxDefined ? max : Number.POSITIVE_INFINITY
@@ -2442,7 +2443,7 @@ class DatasetController {
   initialize() {
     var me = this;
     var meta = me._cachedMeta;
-    me._configure();
+    me.configure();
     me.linkScales();
     meta._stacked = isStacked(meta.vScale, meta);
     me.addElements();
@@ -2473,17 +2474,17 @@ class DatasetController {
   getScaleForId(scaleID) {
     return this.chart.scales[scaleID];
   }
-  _getValueScaleId() {
+  getValueScaleId() {
     return this._cachedMeta.yAxisID;
   }
-  _getIndexScaleId() {
+  getIndexScaleId() {
     return this._cachedMeta.xAxisID;
   }
   _getValueScale() {
-    return this.getScaleForId(this._getValueScaleId());
+    return this.getScaleForId(this.getValueScaleId());
   }
   _getIndexScale() {
-    return this.getScaleForId(this._getIndexScaleId());
+    return this.getScaleForId(this.getIndexScaleId());
   }
   _getOtherScale(scale) {
     var meta = this._cachedMeta;
@@ -2525,7 +2526,7 @@ class DatasetController {
   _labelCheck() {
     var me = this;
     var iScale = me._cachedMeta.iScale;
-    var labels = iScale ? iScale._getLabels() : me.chart.data.labels;
+    var labels = iScale ? iScale.getLabels() : me.chart.data.labels;
     if (me._labels === labels) {
       return false;
     }
@@ -2566,7 +2567,7 @@ class DatasetController {
       updateStacks(me, meta._parsed);
     }
   }
-  _configure() {
+  configure() {
     var me = this;
     me._config = helpers.merge({}, [me.chart.options[me._type].datasets, me.getDataset()], {
       merger(key, target, source) {
@@ -2577,7 +2578,7 @@ class DatasetController {
     });
     me._parsing = resolve$1([me._config.parsing, me.chart.options.parsing, true]);
   }
-  _parse(start, count) {
+  parse(start, count) {
     var me = this;
     var {
       _cachedMeta: meta,
@@ -2600,11 +2601,11 @@ class DatasetController {
       meta._sorted = true;
     } else {
       if (helpers.isArray(data[start])) {
-        parsed = me._parseArrayData(meta, data, start, count);
+        parsed = me.parseArrayData(meta, data, start, count);
       } else if (helpers.isObject(data[start])) {
-        parsed = me._parseObjectData(meta, data, start, count);
+        parsed = me.parseObjectData(meta, data, start, count);
       } else {
-        parsed = me._parsePrimitiveData(meta, data, start, count);
+        parsed = me.parsePrimitiveData(meta, data, start, count);
       }
       for (i = 0; i < count; ++i) {
         meta._parsed[i + start] = cur = parsed[i];
@@ -2620,30 +2621,30 @@ class DatasetController {
     if (_stacked) {
       updateStacks(me, parsed);
     }
-    iScale._invalidateCaches();
-    vScale._invalidateCaches();
+    iScale.invalidateCaches();
+    vScale.invalidateCaches();
   }
-  _parsePrimitiveData(meta, data, start, count) {
+  parsePrimitiveData(meta, data, start, count) {
     var {
       iScale,
       vScale
     } = meta;
     var iAxis = iScale.axis;
     var vAxis = vScale.axis;
-    var labels = iScale._getLabels();
+    var labels = iScale.getLabels();
     var singleScale = iScale === vScale;
     var parsed = new Array(count);
     var i, ilen, index;
     for (i = 0, ilen = count; i < ilen; ++i) {
       index = i + start;
       parsed[i] = {
-        [iAxis]: singleScale || iScale._parse(labels[index], index),
-        [vAxis]: vScale._parse(data[index], index)
+        [iAxis]: singleScale || iScale.parse(labels[index], index),
+        [vAxis]: vScale.parse(data[index], index)
       };
     }
     return parsed;
   }
-  _parseArrayData(meta, data, start, count) {
+  parseArrayData(meta, data, start, count) {
     var {
       xScale,
       yScale
@@ -2654,13 +2655,13 @@ class DatasetController {
       index = i + start;
       item = data[index];
       parsed[i] = {
-        x: xScale._parse(item[0], index),
-        y: yScale._parse(item[1], index)
+        x: xScale.parse(item[0], index),
+        y: yScale.parse(item[1], index)
       };
     }
     return parsed;
   }
-  _parseObjectData(meta, data, start, count) {
+  parseObjectData(meta, data, start, count) {
     var {
       xScale,
       yScale
@@ -2671,16 +2672,16 @@ class DatasetController {
       index = i + start;
       item = data[index];
       parsed[i] = {
-        x: xScale._parseObject(item, 'x', index),
-        y: yScale._parseObject(item, 'y', index)
+        x: xScale.parseObject(item, 'x', index),
+        y: yScale.parseObject(item, 'y', index)
       };
     }
     return parsed;
   }
-  _getParsed(index) {
+  getParsed(index) {
     return this._cachedMeta._parsed[index];
   }
-  _applyStack(scale, parsed) {
+  applyStack(scale, parsed) {
     var chart = this.chart;
     var meta = this._cachedMeta;
     var value = parsed[scale.axis];
@@ -2690,7 +2691,7 @@ class DatasetController {
     };
     return applyStack(stack, value, meta.index);
   }
-  _getMinMax(scale, canStack) {
+  getMinMax(scale, canStack) {
     var meta = this._cachedMeta;
     var {
       data,
@@ -2750,7 +2751,7 @@ class DatasetController {
       max
     };
   }
-  _getAllParsedValues(scale) {
+  getAllParsedValues(scale) {
     var parsed = this._cachedMeta._parsed;
     var values = [];
     var i, ilen, value;
@@ -2781,15 +2782,15 @@ class DatasetController {
     var cache = me._scaleStacked;
     return !cache || !iScale || !vScale || cache[iScale.id] !== iScale.options.stacked || cache[vScale.id] !== vScale.options.stacked;
   }
-  _getMaxOverflow() {
+  getMaxOverflow() {
     return false;
   }
-  _getLabelAndValue(index) {
+  getLabelAndValue(index) {
     var me = this;
     var meta = me._cachedMeta;
     var iScale = meta.iScale;
     var vScale = meta.vScale;
-    var parsed = me._getParsed(index);
+    var parsed = me.getParsed(index);
     return {
       label: iScale ? '' + iScale.getLabelForValue(parsed[iScale.axis]) : '',
       value: vScale ? '' + vScale.getLabelForValue(parsed[vScale.axis]) : ''
@@ -2798,11 +2799,11 @@ class DatasetController {
   _update(mode) {
     var me = this;
     var meta = me._cachedMeta;
-    me._configure();
+    me.configure();
     me._cachedAnimations = {};
     me._cachedDataOpts = {};
     me.update(mode);
-    meta._clip = toClip(helpers.valueOrDefault(me._config.clip, defaultClip(meta.xScale, meta.yScale, me._getMaxOverflow())));
+    meta._clip = toClip(helpers.valueOrDefault(me._config.clip, defaultClip(meta.xScale, meta.yScale, me.getMaxOverflow())));
     me._cacheScaleStackStatus();
   }
   update(mode) {}
@@ -2836,9 +2837,9 @@ class DatasetController {
     var meta = me._cachedMeta;
     var dataset = meta.dataset;
     if (!me._config) {
-      me._configure();
+      me.configure();
     }
-    var options = dataset && index === undefined ? me._resolveDatasetElementOptions(active) : me._resolveDataElementOptions(index || 0, active && 'active');
+    var options = dataset && index === undefined ? me.resolveDatasetElementOptions(active) : me.resolveDataElementOptions(index || 0, active && 'active');
     if (active) {
       me._addAutomaticHoverColors(index, options);
     }
@@ -2853,12 +2854,12 @@ class DatasetController {
       active
     };
   }
-  _resolveDatasetElementOptions(active) {
+  resolveDatasetElementOptions(active) {
     var me = this;
     var chart = me.chart;
     var datasetOpts = me._config;
     var options = chart.options.elements[me.datasetElementType._type] || {};
-    var elementOptions = me._datasetElementOptions;
+    var elementOptions = me.datasetElementOptions;
     var values = {};
     var context = me._getContext(undefined, active);
     var i, ilen, key, readKey, value;
@@ -2872,7 +2873,7 @@ class DatasetController {
     }
     return values;
   }
-  _resolveDataElementOptions(index, mode) {
+  resolveDataElementOptions(index, mode) {
     var me = this;
     var active = mode === 'active';
     var cached = me._cachedDataOpts;
@@ -2882,7 +2883,7 @@ class DatasetController {
     var chart = me.chart;
     var datasetOpts = me._config;
     var options = chart.options.elements[me.dataElementType._type] || {};
-    var elementOptions = me._dataElementOptions;
+    var elementOptions = me.dataElementOptions;
     var values = {};
     var context = me._getContext(index, active);
     var info = {
@@ -2939,7 +2940,7 @@ class DatasetController {
     }
     return animations;
   }
-  _getSharedOptions(mode, el, options) {
+  getSharedOptions(mode, el, options) {
     if (!mode) {
       this._sharedOptions = options && options.$shared;
     }
@@ -2950,20 +2951,20 @@ class DatasetController {
       };
     }
   }
-  _includeOptions(mode, sharedOptions) {
+  includeOptions(mode, sharedOptions) {
     if (mode === 'hide' || mode === 'show') {
       return true;
     }
     return mode !== 'resize' && !sharedOptions;
   }
-  _updateElement(element, index, properties, mode) {
+  updateElement(element, index, properties, mode) {
     if (mode === 'reset' || mode === 'none') {
       _extends(element, properties);
     } else {
       this._resolveAnimations(index, mode).update(element, properties);
     }
   }
-  _updateSharedOptions(sharedOptions, mode) {
+  updateSharedOptions(sharedOptions, mode) {
     if (sharedOptions) {
       this._resolveAnimations(undefined, mode).update(sharedOptions.target, sharedOptions.options);
     }
@@ -3000,14 +3001,14 @@ class DatasetController {
     if (numData > numMeta) {
       me._insertElements(numMeta, numData - numMeta);
       if (changed && numMeta) {
-        me._parse(0, numMeta);
+        me.parse(0, numMeta);
       }
     } else if (numData < numMeta) {
       meta.data.splice(numData, numMeta - numData);
       meta._parsed.splice(numData, numMeta - numData);
-      me._parse(0, numData);
+      me.parse(0, numData);
     } else if (changed) {
-      me._parse(0, numData);
+      me.parse(0, numData);
     }
   }
   _insertElements(start, count) {
@@ -3023,7 +3024,7 @@ class DatasetController {
     if (me._parsing) {
       meta._parsed.splice(start, 0, ...new Array(count));
     }
-    me._parse(start, count);
+    me.parse(start, count);
     me.updateElements(elements, start, 'reset');
   }
   updateElements(element, start, mode) {}
@@ -3055,8 +3056,8 @@ class DatasetController {
 _defineProperty(DatasetController, "extend", helpers.inherits);
 DatasetController.prototype.datasetElementType = null;
 DatasetController.prototype.dataElementType = null;
-DatasetController.prototype._datasetElementOptions = ['backgroundColor', 'borderCapStyle', 'borderColor', 'borderDash', 'borderDashOffset', 'borderJoinStyle', 'borderWidth'];
-DatasetController.prototype._dataElementOptions = ['backgroundColor', 'borderColor', 'borderWidth', 'pointStyle'];
+DatasetController.prototype.datasetElementOptions = ['backgroundColor', 'borderCapStyle', 'borderColor', 'borderDash', 'borderDashOffset', 'borderJoinStyle', 'borderWidth'];
+DatasetController.prototype.dataElementOptions = ['backgroundColor', 'borderColor', 'borderWidth', 'pointStyle'];
 
 class Element$1 {
   constructor(cfg) {
@@ -3322,8 +3323,8 @@ function computeFlexCategoryTraits(index, ruler, options) {
   };
 }
 function parseFloatBar(arr, item, vScale, i) {
-  var startValue = vScale._parse(arr[0], i);
-  var endValue = vScale._parse(arr[1], i);
+  var startValue = vScale.parse(arr[0], i);
+  var endValue = vScale.parse(arr[1], i);
   var min = Math.min(startValue, endValue);
   var max = Math.max(startValue, endValue);
   var barStart = min;
@@ -3345,18 +3346,18 @@ function parseFloatBar(arr, item, vScale, i) {
 function parseArrayOrPrimitive(meta, data, start, count) {
   var iScale = meta.iScale;
   var vScale = meta.vScale;
-  var labels = iScale._getLabels();
+  var labels = iScale.getLabels();
   var singleScale = iScale === vScale;
   var parsed = [];
   var i, ilen, item, entry;
   for (i = start, ilen = start + count; i < ilen; ++i) {
     entry = data[i];
     item = {};
-    item[iScale.axis] = singleScale || iScale._parse(labels[i], i);
+    item[iScale.axis] = singleScale || iScale.parse(labels[i], i);
     if (isArray(entry)) {
       parseFloatBar(entry, item, vScale, i);
     } else {
-      item[vScale.axis] = vScale._parse(entry, i);
+      item[vScale.axis] = vScale.parse(entry, i);
     }
     parsed.push(item);
   }
@@ -3366,13 +3367,13 @@ function isFloatBar(custom) {
   return custom && custom.barStart !== undefined && custom.barEnd !== undefined;
 }
 class BarController extends DatasetController {
-  _parsePrimitiveData(meta, data, start, count) {
+  parsePrimitiveData(meta, data, start, count) {
     return parseArrayOrPrimitive(meta, data, start, count);
   }
-  _parseArrayData(meta, data, start, count) {
+  parseArrayData(meta, data, start, count) {
     return parseArrayOrPrimitive(meta, data, start, count);
   }
-  _parseObjectData(meta, data, start, count) {
+  parseObjectData(meta, data, start, count) {
     var {
       iScale,
       vScale
@@ -3383,25 +3384,25 @@ class BarController extends DatasetController {
     for (i = start, ilen = start + count; i < ilen; ++i) {
       obj = data[i];
       item = {};
-      item[iScale.axis] = iScale._parseObject(obj, iScale.axis, i);
+      item[iScale.axis] = iScale.parseObject(obj, iScale.axis, i);
       value = obj[vProp];
       if (isArray(value)) {
         parseFloatBar(value, item, vScale, i);
       } else {
-        item[vScale.axis] = vScale._parseObject(obj, vProp, i);
+        item[vScale.axis] = vScale.parseObject(obj, vProp, i);
       }
       parsed.push(item);
     }
     return parsed;
   }
-  _getLabelAndValue(index) {
+  getLabelAndValue(index) {
     var me = this;
     var meta = me._cachedMeta;
     var {
       iScale,
       vScale
     } = meta;
-    var parsed = me._getParsed(index);
+    var parsed = me.getParsed(index);
     var custom = parsed._custom;
     var value = isFloatBar(custom) ? '[' + custom.start + ', ' + custom.end + ']' : '' + vScale.getLabelForValue(parsed[vScale.axis]);
     return {
@@ -3428,13 +3429,13 @@ class BarController extends DatasetController {
     var base = vscale.getBasePixel();
     var horizontal = vscale.isHorizontal();
     var ruler = me._getRuler();
-    var firstOpts = me._resolveDataElementOptions(start, mode);
-    var sharedOptions = me._getSharedOptions(mode, rectangles[start], firstOpts);
-    var includeOptions = me._includeOptions(mode, sharedOptions);
+    var firstOpts = me.resolveDataElementOptions(start, mode);
+    var sharedOptions = me.getSharedOptions(mode, rectangles[start], firstOpts);
+    var includeOptions = me.includeOptions(mode, sharedOptions);
     var i;
     for (i = 0; i < rectangles.length; i++) {
       var index = start + i;
-      var options = me._resolveDataElementOptions(index, mode);
+      var options = me.resolveDataElementOptions(index, mode);
       var vpixels = me._calculateBarValuePixels(index, options);
       var ipixels = me._calculateBarIndexPixels(index, ruler, options);
       var properties = {
@@ -3448,15 +3449,15 @@ class BarController extends DatasetController {
       if (includeOptions) {
         properties.options = options;
       }
-      me._updateElement(rectangles[i], index, properties, mode);
+      me.updateElement(rectangles[i], index, properties, mode);
     }
-    me._updateSharedOptions(sharedOptions, mode);
+    me.updateSharedOptions(sharedOptions, mode);
   }
   _getStacks(last) {
     var me = this;
     var meta = me._cachedMeta;
     var iScale = meta.iScale;
-    var metasets = iScale._getMatchingVisibleMetas(me._type);
+    var metasets = iScale.getMatchingVisibleMetas(me._type);
     var stacked = iScale.options.stacked;
     var ilen = metasets.length;
     var stacks = [];
@@ -3490,7 +3491,7 @@ class BarController extends DatasetController {
     var pixels = [];
     var i, ilen;
     for (i = 0, ilen = meta.data.length; i < ilen; ++i) {
-      pixels.push(iScale.getPixelForValue(me._getParsed(i)[iScale.axis]));
+      pixels.push(iScale.getPixelForValue(me.getParsed(i)[iScale.axis]));
     }
     return {
       pixels,
@@ -3505,11 +3506,11 @@ class BarController extends DatasetController {
     var meta = me._cachedMeta;
     var vScale = meta.vScale;
     var minBarLength = options.minBarLength;
-    var parsed = me._getParsed(index);
+    var parsed = me.getParsed(index);
     var custom = parsed._custom;
     var value = parsed[vScale.axis];
     var start = 0;
-    var length = meta._stacked ? me._applyStack(vScale, parsed) : value;
+    var length = meta._stacked ? me.applyStack(vScale, parsed) : value;
     var head, size;
     if (length !== value) {
       start = length - value;
@@ -3560,7 +3561,7 @@ class BarController extends DatasetController {
     var i = 0;
     clipArea(chart.ctx, chart.chartArea);
     for (; i < ilen; ++i) {
-      if (!isNaN(me._getParsed(i)[vScale.axis])) {
+      if (!isNaN(me.getParsed(i)[vScale.axis])) {
         rects[i].draw(me._ctx);
       }
     }
@@ -3568,7 +3569,7 @@ class BarController extends DatasetController {
   }
 }
 BarController.prototype.dataElementType = Rectangle;
-BarController.prototype._dataElementOptions = ['backgroundColor', 'borderColor', 'borderSkipped', 'borderWidth', 'barPercentage', 'barThickness', 'categoryPercentage', 'maxBarThickness', 'minBarLength'];
+BarController.prototype.dataElementOptions = ['backgroundColor', 'borderColor', 'borderSkipped', 'borderWidth', 'barPercentage', 'barThickness', 'categoryPercentage', 'maxBarThickness', 'minBarLength'];
 
 var defaultColor$1 = defaults.color;
 defaults.set('elements', {
@@ -3670,7 +3671,7 @@ defaults.set('bubble', {
   }
 });
 class BubbleController extends DatasetController {
-  _parseObjectData(meta, data, start, count) {
+  parseObjectData(meta, data, start, count) {
     var {
       xScale,
       yScale
@@ -3680,14 +3681,14 @@ class BubbleController extends DatasetController {
     for (i = start, ilen = start + count; i < ilen; ++i) {
       item = data[i];
       parsed.push({
-        x: xScale._parseObject(item, 'x', i),
-        y: yScale._parseObject(item, 'y', i),
+        x: xScale.parseObject(item, 'x', i),
+        y: yScale.parseObject(item, 'y', i),
         _custom: item && item.r && +item.r
       });
     }
     return parsed;
   }
-  _getMaxOverflow() {
+  getMaxOverflow() {
     var me = this;
     var meta = me._cachedMeta;
     var i = (meta.data || []).length - 1;
@@ -3697,14 +3698,14 @@ class BubbleController extends DatasetController {
     }
     return max > 0 && max;
   }
-  _getLabelAndValue(index) {
+  getLabelAndValue(index) {
     var me = this;
     var meta = me._cachedMeta;
     var {
       xScale,
       yScale
     } = meta;
-    var parsed = me._getParsed(index);
+    var parsed = me.getParsed(index);
     var x = xScale.getLabelForValue(parsed.x);
     var y = yScale.getLabelForValue(parsed.y);
     var r = parsed._custom;
@@ -3725,13 +3726,13 @@ class BubbleController extends DatasetController {
       xScale,
       yScale
     } = me._cachedMeta;
-    var firstOpts = me._resolveDataElementOptions(start, mode);
-    var sharedOptions = me._getSharedOptions(mode, points[start], firstOpts);
-    var includeOptions = me._includeOptions(mode, sharedOptions);
+    var firstOpts = me.resolveDataElementOptions(start, mode);
+    var sharedOptions = me.getSharedOptions(mode, points[start], firstOpts);
+    var includeOptions = me.includeOptions(mode, sharedOptions);
     for (var i = 0; i < points.length; i++) {
       var point = points[i];
       var index = start + i;
-      var parsed = !reset && me._getParsed(index);
+      var parsed = !reset && me.getParsed(index);
       var x = reset ? xScale.getPixelForDecimal(0.5) : xScale.getPixelForValue(parsed.x);
       var y = reset ? yScale.getBasePixel() : yScale.getPixelForValue(parsed.y);
       var properties = {
@@ -3740,21 +3741,21 @@ class BubbleController extends DatasetController {
         skip: isNaN(x) || isNaN(y)
       };
       if (includeOptions) {
-        properties.options = me._resolveDataElementOptions(i, mode);
+        properties.options = me.resolveDataElementOptions(i, mode);
         if (reset) {
           properties.options.radius = 0;
         }
       }
-      me._updateElement(point, index, properties, mode);
+      me.updateElement(point, index, properties, mode);
     }
-    me._updateSharedOptions(sharedOptions, mode);
+    me.updateSharedOptions(sharedOptions, mode);
   }
-  _resolveDataElementOptions(index, mode) {
+  resolveDataElementOptions(index, mode) {
     var me = this;
     var chart = me.chart;
     var dataset = me.getDataset();
-    var parsed = me._getParsed(index);
-    var values = super._resolveDataElementOptions(index, mode);
+    var parsed = me.getParsed(index);
+    var values = super.resolveDataElementOptions(index, mode);
     var context = {
       chart,
       dataIndex: index,
@@ -3774,7 +3775,7 @@ class BubbleController extends DatasetController {
   }
 }
 BubbleController.prototype.dataElementType = Point;
-BubbleController.prototype._dataElementOptions = ['backgroundColor', 'borderColor', 'borderWidth', 'hitRadius', 'radius', 'pointStyle', 'rotation'];
+BubbleController.prototype.dataElementOptions = ['backgroundColor', 'borderColor', 'borderWidth', 'hitRadius', 'radius', 'pointStyle', 'rotation'];
 
 var TAU$1 = Math.PI * 2;
 defaults.set('elements', {
@@ -4046,7 +4047,7 @@ class DoughnutController extends DatasetController {
     this.offsetY = undefined;
   }
   linkScales() {}
-  _parse(start, count) {
+  parse(start, count) {
     var data = this.getDataset().data;
     var meta = this._cachedMeta;
     var i, ilen;
@@ -4111,9 +4112,9 @@ class DoughnutController extends DatasetController {
     var animateScale = reset && animationOpts.animateScale;
     var innerRadius = animateScale ? 0 : me.innerRadius;
     var outerRadius = animateScale ? 0 : me.outerRadius;
-    var firstOpts = me._resolveDataElementOptions(start, mode);
-    var sharedOptions = me._getSharedOptions(mode, arcs[start], firstOpts);
-    var includeOptions = me._includeOptions(mode, sharedOptions);
+    var firstOpts = me.resolveDataElementOptions(start, mode);
+    var sharedOptions = me.getSharedOptions(mode, arcs[start], firstOpts);
+    var includeOptions = me.includeOptions(mode, sharedOptions);
     var startAngle = opts.rotation;
     var i;
     for (i = 0; i < start; ++i) {
@@ -4133,12 +4134,12 @@ class DoughnutController extends DatasetController {
         innerRadius
       };
       if (includeOptions) {
-        properties.options = me._resolveDataElementOptions(index, mode);
+        properties.options = me.resolveDataElementOptions(index, mode);
       }
       startAngle += circumference;
-      me._updateElement(arc, index, properties, mode);
+      me.updateElement(arc, index, properties, mode);
     }
-    me._updateSharedOptions(sharedOptions, mode);
+    me.updateSharedOptions(sharedOptions, mode);
   }
   calculateTotal() {
     var meta = this._cachedMeta;
@@ -4172,7 +4173,7 @@ class DoughnutController extends DatasetController {
           arcs = meta.data;
           controller = meta.controller;
           if (controller !== me) {
-            controller._configure();
+            controller.configure();
           }
           break;
         }
@@ -4182,7 +4183,7 @@ class DoughnutController extends DatasetController {
       return 0;
     }
     for (i = 0, ilen = arcs.length; i < ilen; ++i) {
-      options = controller._resolveDataElementOptions(i);
+      options = controller.resolveDataElementOptions(i);
       if (options.borderAlign !== 'inner') {
         max = Math.max(max, options.borderWidth || 0, options.hoverBorderWidth || 0);
       }
@@ -4206,7 +4207,7 @@ class DoughnutController extends DatasetController {
   }
 }
 DoughnutController.prototype.dataElementType = Arc;
-DoughnutController.prototype._dataElementOptions = ['backgroundColor', 'borderColor', 'borderWidth', 'borderAlign', 'hoverBackgroundColor', 'hoverBorderColor', 'hoverBorderWidth'];
+DoughnutController.prototype.dataElementOptions = ['backgroundColor', 'borderColor', 'borderWidth', 'borderAlign', 'hoverBackgroundColor', 'hoverBorderColor', 'hoverBorderWidth'];
 
 defaults.set('horizontalBar', {
   hover: {
@@ -4243,10 +4244,10 @@ defaults.set('horizontalBar', {
   }
 });
 class HorizontalBarController extends BarController {
-  _getValueScaleId() {
+  getValueScaleId() {
     return this._cachedMeta.xAxisID;
   }
-  _getIndexScaleId() {
+  getIndexScaleId() {
     return this._cachedMeta.yAxisID;
   }
 }
@@ -4755,9 +4756,9 @@ class LineController extends DatasetController {
     if (showLine && mode !== 'resize') {
       var properties = {
         points,
-        options: me._resolveDatasetElementOptions()
+        options: me.resolveDatasetElementOptions()
       };
-      me._updateElement(line, undefined, properties, mode);
+      me.updateElement(line, undefined, properties, mode);
     }
     me.updateElements(points, 0, mode);
   }
@@ -4769,18 +4770,18 @@ class LineController extends DatasetController {
       yScale,
       _stacked
     } = me._cachedMeta;
-    var firstOpts = me._resolveDataElementOptions(start, mode);
-    var sharedOptions = me._getSharedOptions(mode, points[start], firstOpts);
-    var includeOptions = me._includeOptions(mode, sharedOptions);
+    var firstOpts = me.resolveDataElementOptions(start, mode);
+    var sharedOptions = me.getSharedOptions(mode, points[start], firstOpts);
+    var includeOptions = me.includeOptions(mode, sharedOptions);
     var spanGaps = valueOrDefault(me._config.spanGaps, me.chart.options.spanGaps);
     var maxGapLength = isNumber(spanGaps) ? spanGaps : Number.POSITIVE_INFINITY;
     var prevParsed;
     for (var i = 0; i < points.length; ++i) {
       var index = start + i;
       var point = points[i];
-      var parsed = me._getParsed(index);
+      var parsed = me.getParsed(index);
       var x = xScale.getPixelForValue(parsed.x);
-      var y = reset ? yScale.getBasePixel() : yScale.getPixelForValue(_stacked ? me._applyStack(yScale, parsed) : parsed.y);
+      var y = reset ? yScale.getBasePixel() : yScale.getPixelForValue(_stacked ? me.applyStack(yScale, parsed) : parsed.y);
       var properties = {
         x,
         y,
@@ -4788,25 +4789,25 @@ class LineController extends DatasetController {
         stop: i > 0 && parsed.x - prevParsed.x > maxGapLength
       };
       if (includeOptions) {
-        properties.options = me._resolveDataElementOptions(index, mode);
+        properties.options = me.resolveDataElementOptions(index, mode);
       }
-      me._updateElement(point, index, properties, mode);
+      me.updateElement(point, index, properties, mode);
       prevParsed = parsed;
     }
-    me._updateSharedOptions(sharedOptions, mode);
+    me.updateSharedOptions(sharedOptions, mode);
   }
-  _resolveDatasetElementOptions(active) {
+  resolveDatasetElementOptions(active) {
     var me = this;
     var config = me._config;
     var options = me.chart.options;
     var lineOptions = options.elements.line;
-    var values = super._resolveDatasetElementOptions(active);
+    var values = super.resolveDatasetElementOptions(active);
     values.spanGaps = valueOrDefault(config.spanGaps, options.spanGaps);
     values.tension = valueOrDefault(config.lineTension, lineOptions.tension);
     values.stepped = resolve([config.stepped, lineOptions.stepped]);
     return values;
   }
-  _getMaxOverflow() {
+  getMaxOverflow() {
     var me = this;
     var meta = me._cachedMeta;
     var border = me._showLine && meta.dataset.options.borderWidth || 0;
@@ -4846,8 +4847,8 @@ class LineController extends DatasetController {
 }
 LineController.prototype.datasetElementType = Line;
 LineController.prototype.dataElementType = Point;
-LineController.prototype._datasetElementOptions = ['backgroundColor', 'borderCapStyle', 'borderColor', 'borderDash', 'borderDashOffset', 'borderJoinStyle', 'borderWidth', 'capBezierPoints', 'cubicInterpolationMode', 'fill'];
-LineController.prototype._dataElementOptions = {
+LineController.prototype.datasetElementOptions = ['backgroundColor', 'borderCapStyle', 'borderColor', 'borderDash', 'borderDashOffset', 'borderJoinStyle', 'borderWidth', 'capBezierPoints', 'cubicInterpolationMode', 'fill'];
+LineController.prototype.dataElementOptions = {
   backgroundColor: 'pointBackgroundColor',
   borderColor: 'pointBorderColor',
   borderWidth: 'pointBorderWidth',
@@ -4939,10 +4940,10 @@ class PolarAreaController extends DatasetController {
     this.innerRadius = undefined;
     this.outerRadius = undefined;
   }
-  _getIndexScaleId() {
+  getIndexScaleId() {
     return this._cachedMeta.rAxisID;
   }
-  _getValueScaleId() {
+  getValueScaleId() {
     return this._cachedMeta.rAxisID;
   }
   update(mode) {
@@ -5002,9 +5003,9 @@ class PolarAreaController extends DatasetController {
         outerRadius,
         startAngle,
         endAngle,
-        options: me._resolveDataElementOptions(index)
+        options: me.resolveDataElementOptions(index)
       };
-      me._updateElement(arc, index, properties, mode);
+      me.updateElement(arc, index, properties, mode);
     }
   }
   countVisibleElements() {
@@ -5036,7 +5037,7 @@ class PolarAreaController extends DatasetController {
   }
 }
 PolarAreaController.prototype.dataElementType = Arc;
-PolarAreaController.prototype._dataElementOptions = ['backgroundColor', 'borderColor', 'borderWidth', 'borderAlign', 'hoverBackgroundColor', 'hoverBorderColor', 'hoverBorderWidth'];
+PolarAreaController.prototype.dataElementOptions = ['backgroundColor', 'borderColor', 'borderWidth', 'borderAlign', 'hoverBackgroundColor', 'hoverBorderColor', 'hoverBorderWidth'];
 
 defaults.set('pie', clone(defaults.doughnut));
 defaults.set('pie', {
@@ -5057,18 +5058,18 @@ defaults.set('radar', {
   }
 });
 class RadarController extends DatasetController {
-  _getIndexScaleId() {
+  getIndexScaleId() {
     return this._cachedMeta.rAxisID;
   }
-  _getValueScaleId() {
+  getValueScaleId() {
     return this._cachedMeta.rAxisID;
   }
-  _getLabelAndValue(index) {
+  getLabelAndValue(index) {
     var me = this;
     var vScale = me._cachedMeta.vScale;
-    var parsed = me._getParsed(index);
+    var parsed = me.getParsed(index);
     return {
-      label: vScale._getLabels()[index],
+      label: vScale.getLabels()[index],
       value: '' + vScale.getLabelForValue(parsed[vScale.axis])
     };
   }
@@ -5077,14 +5078,14 @@ class RadarController extends DatasetController {
     var meta = me._cachedMeta;
     var line = meta.dataset;
     var points = meta.data || [];
-    var labels = meta.iScale._getLabels();
+    var labels = meta.iScale.getLabels();
     var properties = {
       points,
       _loop: true,
       _fullLoop: labels.length === points.length,
-      options: me._resolveDatasetElementOptions()
+      options: me.resolveDatasetElementOptions()
     };
-    me._updateElement(line, undefined, properties, mode);
+    me.updateElement(line, undefined, properties, mode);
     me.updateElements(points, 0, mode);
     line.updateControlPoints(me.chart.chartArea);
   }
@@ -5097,7 +5098,7 @@ class RadarController extends DatasetController {
     for (i = 0; i < points.length; i++) {
       var point = points[i];
       var index = start + i;
-      var options = me._resolveDataElementOptions(index);
+      var options = me.resolveDataElementOptions(index);
       var pointPosition = scale.getPointPositionForValue(index, dataset.data[index]);
       var x = reset ? scale.xCenter : pointPosition.x;
       var y = reset ? scale.yCenter : pointPosition.y;
@@ -5108,14 +5109,14 @@ class RadarController extends DatasetController {
         skip: isNaN(x) || isNaN(y),
         options
       };
-      me._updateElement(point, index, properties, mode);
+      me.updateElement(point, index, properties, mode);
     }
   }
-  _resolveDatasetElementOptions(active) {
+  resolveDatasetElementOptions(active) {
     var me = this;
     var config = me._config;
     var options = me.chart.options;
-    var values = super._resolveDatasetElementOptions(active);
+    var values = super.resolveDatasetElementOptions(active);
     values.spanGaps = valueOrDefault(config.spanGaps, options.spanGaps);
     values.tension = valueOrDefault(config.lineTension, options.elements.line.tension);
     return values;
@@ -5123,8 +5124,8 @@ class RadarController extends DatasetController {
 }
 RadarController.prototype.datasetElementType = Line;
 RadarController.prototype.dataElementType = Point;
-RadarController.prototype._datasetElementOptions = ['backgroundColor', 'borderColor', 'borderCapStyle', 'borderDash', 'borderDashOffset', 'borderJoinStyle', 'borderWidth', 'fill'];
-RadarController.prototype._dataElementOptions = {
+RadarController.prototype.datasetElementOptions = ['backgroundColor', 'borderColor', 'borderCapStyle', 'borderDash', 'borderDashOffset', 'borderJoinStyle', 'borderWidth', 'fill'];
+RadarController.prototype.dataElementOptions = {
   backgroundColor: 'pointBackgroundColor',
   borderColor: 'pointBorderColor',
   borderWidth: 'pointBorderWidth',
@@ -5238,7 +5239,7 @@ function getRelativePosition$1(e, chart) {
   return helpers.dom.getRelativePosition(e, chart);
 }
 function evaluateAllVisibleItems(chart, handler) {
-  var metasets = chart._getSortedVisibleDatasetMetas();
+  var metasets = chart.getSortedVisibleDatasetMetas();
   var index, data, element;
   for (var i = 0, ilen = metasets.length; i < ilen; ++i) {
     ({
@@ -5283,7 +5284,7 @@ function binarySearch(metaset, axis, value, intersect) {
   };
 }
 function optimizedEvaluateItems(chart, axis, position, handler, intersect) {
-  var metasets = chart._getSortedVisibleDatasetMetas();
+  var metasets = chart.getSortedVisibleDatasetMetas();
   var value = position[axis];
   for (var i = 0, ilen = metasets.length; i < ilen; ++i) {
     var {
@@ -5369,7 +5370,7 @@ var Interaction = {
       if (!items.length) {
         return [];
       }
-      chart._getSortedVisibleDatasetMetas().forEach(meta => {
+      chart.getSortedVisibleDatasetMetas().forEach(meta => {
         var index = items[0].index;
         var element = meta.data[index];
         if (element && !element.skip) {
@@ -6554,7 +6555,7 @@ class PluginService {
     cache.id = this._cacheId;
     return descriptors;
   }
-  _invalidate(chart) {
+  invalidate(chart) {
     delete chart.$plugins;
   }
 }
@@ -6881,8 +6882,8 @@ class Chart {
         scales[scale.id] = scale;
       }
       scale.axis = scale.options.position === 'chartArea' ? 'r' : scale.isHorizontal() ? 'x' : 'y';
-      scale._userMin = scale._parse(scale.options.min);
-      scale._userMax = scale._parse(scale.options.max);
+      scale._userMin = scale.parse(scale.options.min);
+      scale._userMax = scale.parse(scale.options.max);
       if (item.isDefault) {
         me.scale = scale;
       }
@@ -6965,7 +6966,7 @@ class Chart {
     var i, ilen;
     me._updating = true;
     updateConfig(me);
-    pluginsCore._invalidate(me);
+    pluginsCore.invalidate(me);
     if (pluginsCore.notify(me, 'beforeUpdate') === false) {
       return;
     }
@@ -6996,8 +6997,8 @@ class Chart {
     layouts.update(me, me.width, me.height);
     me._layers = [];
     helpers.each(me.boxes, box => {
-      if (box._configure) {
-        box._configure();
+      if (box.configure) {
+        box.configure();
       }
       me._layers.push(...box._layers());
     }, me);
@@ -7085,7 +7086,7 @@ class Chart {
     }
     return result;
   }
-  _getSortedVisibleDatasetMetas() {
+  getSortedVisibleDatasetMetas() {
     return this._getSortedDatasetMetas(true);
   }
   _drawDatasets() {
@@ -7093,7 +7094,7 @@ class Chart {
     if (pluginsCore.notify(me, 'beforeDatasetsDraw') === false) {
       return;
     }
-    var metasets = me._getSortedVisibleDatasetMetas();
+    var metasets = me.getSortedVisibleDatasetMetas();
     for (var i = metasets.length - 1; i >= 0; --i) {
       me._drawDataset(metasets[i]);
     }
@@ -7172,7 +7173,7 @@ class Chart {
     return meta;
   }
   getVisibleDatasetCount() {
-    return this._getSortedVisibleDatasetMetas().length;
+    return this.getSortedVisibleDatasetMetas().length;
   }
   isDatasetVisible(datasetIndex) {
     var meta = this.getDatasetMeta(datasetIndex);
@@ -7623,16 +7624,16 @@ class Scale extends Element$1 {
     this._ticksLength = 0;
     this._borderValue = 0;
   }
-  _parse(raw, index) {
+  parse(raw, index) {
     return raw;
   }
-  _parseObject(obj, axis, index) {
+  parseObject(obj, axis, index) {
     if (obj[axis] !== undefined) {
-      return this._parse(obj[axis], index);
+      return this.parse(obj[axis], index);
     }
     return null;
   }
-  _getUserBounds() {
+  getUserBounds() {
     var min = this._userMin;
     var max = this._userMax;
     if (isNullOrUndef(min) || isNaN(min)) {
@@ -7648,14 +7649,14 @@ class Scale extends Element$1 {
       maxDefined: isNumberFinite(max)
     };
   }
-  _getMinMax(canStack) {
+  getMinMax(canStack) {
     var me = this;
     var {
       min,
       max,
       minDefined,
       maxDefined
-    } = me._getUserBounds();
+    } = me.getUserBounds();
     var minmax;
     if (minDefined && maxDefined) {
       return {
@@ -7663,9 +7664,9 @@ class Scale extends Element$1 {
         max
       };
     }
-    var metas = me._getMatchingVisibleMetas();
+    var metas = me.getMatchingVisibleMetas();
     for (var i = 0, ilen = metas.length; i < ilen; ++i) {
-      minmax = metas[i].controller._getMinMax(me, canStack);
+      minmax = metas[i].controller.getMinMax(me, canStack);
       if (!minDefined) {
         min = Math.min(min, minmax.min);
       }
@@ -7678,7 +7679,7 @@ class Scale extends Element$1 {
       max
     };
   }
-  _invalidateCaches() {}
+  invalidateCaches() {}
   getPadding() {
     var me = this;
     return {
@@ -7691,7 +7692,7 @@ class Scale extends Element$1 {
   getTicks() {
     return this.ticks;
   }
-  _getLabels() {
+  getLabels() {
     var data = this.chart.data;
     return this.options.labels || (this.isHorizontal() ? data.xLabels : data.yLabels) || data.labels || [];
   }
@@ -7726,7 +7727,7 @@ class Scale extends Element$1 {
     me.afterBuildTicks();
     var samplingEnabled = sampleSize < me.ticks.length;
     me._convertTicksToLabels(samplingEnabled ? sample(me.ticks, sampleSize) : me.ticks);
-    me._configure();
+    me.configure();
     me.beforeCalculateLabelRotation();
     me.calculateLabelRotation();
     me.afterCalculateLabelRotation();
@@ -7739,7 +7740,7 @@ class Scale extends Element$1 {
     }
     me.afterUpdate();
   }
-  _configure() {
+  configure() {
     var me = this;
     var reversePixels = me.options.reverse;
     var startPixel, endPixel;
@@ -8089,7 +8090,7 @@ class Scale extends Element$1 {
     if (display !== 'auto') {
       return !!display;
     }
-    return this._getMatchingVisibleMetas().length > 0;
+    return this.getMatchingVisibleMetas().length > 0;
   }
   _computeGridLineItems(chartArea) {
     var me = this;
@@ -8284,7 +8285,7 @@ class Scale extends Element$1 {
     }
     return items;
   }
-  _drawGrid(chartArea) {
+  drawGrid(chartArea) {
     var me = this;
     var gridLines = me.options.gridLines;
     var ctx = me.ctx;
@@ -8349,7 +8350,7 @@ class Scale extends Element$1 {
       ctx.stroke();
     }
   }
-  _drawLabels(chartArea) {
+  drawLabels(chartArea) {
     var me = this;
     var optionTicks = me.options.ticks;
     if (!optionTicks.display) {
@@ -8392,7 +8393,7 @@ class Scale extends Element$1 {
       ctx.restore();
     }
   }
-  _drawTitle(chartArea) {
+  drawTitle(chartArea) {
     var me = this;
     var ctx = me.ctx;
     var options = me.options;
@@ -8458,9 +8459,9 @@ class Scale extends Element$1 {
     if (!me._isVisible()) {
       return;
     }
-    me._drawGrid(chartArea);
-    me._drawTitle();
-    me._drawLabels(chartArea);
+    me.drawGrid(chartArea);
+    me.drawTitle();
+    me.drawLabels(chartArea);
   }
   _layers() {
     var me = this;
@@ -8478,19 +8479,19 @@ class Scale extends Element$1 {
     return [{
       z: gz,
       draw(chartArea) {
-        me._drawGrid(chartArea);
-        me._drawTitle();
+        me.drawGrid(chartArea);
+        me.drawTitle();
       }
     }, {
       z: tz,
       draw(chartArea) {
-        me._drawLabels(chartArea);
+        me.drawLabels(chartArea);
       }
     }];
   }
-  _getMatchingVisibleMetas(type) {
+  getMatchingVisibleMetas(type) {
     var me = this;
-    var metas = me.chart._getSortedVisibleDatasetMetas();
+    var metas = me.chart.getSortedVisibleDatasetMetas();
     var axisID = me.axis + 'AxisID';
     var result = [];
     var i, ilen;
@@ -8533,8 +8534,8 @@ class CategoryScale extends Scale {
     this._startValue = undefined;
     this._valueRange = 0;
   }
-  _parse(raw, index) {
-    var labels = this._getLabels();
+  parse(raw, index) {
+    var labels = this.getLabels();
     if (labels[index] === raw) {
       return index;
     }
@@ -8544,7 +8545,7 @@ class CategoryScale extends Scale {
   }
   determineDataLimits() {
     var me = this;
-    var max = me._getLabels().length - 1;
+    var max = me.getLabels().length - 1;
     me.min = Math.max(me._userMin || 0, 0);
     me.max = Math.min(me._userMax || max, max);
   }
@@ -8553,7 +8554,7 @@ class CategoryScale extends Scale {
     var min = me.min;
     var max = me.max;
     var offset = me.options.offset;
-    var labels = me._getLabels();
+    var labels = me.getLabels();
     labels = min === 0 && max === labels.length - 1 ? labels : labels.slice(min, max + 1);
     me._numLabels = labels.length;
     me._valueRange = Math.max(labels.length - (offset ? 0 : 1), 1);
@@ -8564,15 +8565,15 @@ class CategoryScale extends Scale {
   }
   getLabelForValue(value) {
     var me = this;
-    var labels = me._getLabels();
+    var labels = me.getLabels();
     if (value >= 0 && value < labels.length) {
       return labels[value];
     }
     return value;
   }
-  _configure() {
+  configure() {
     var me = this;
-    Scale.prototype._configure.call(me);
+    super.configure();
     if (!me.isHorizontal()) {
       me._reversePixels = !me._reversePixels;
     }
@@ -8580,7 +8581,7 @@ class CategoryScale extends Scale {
   getPixelForValue(value) {
     var me = this;
     if (typeof value !== 'number') {
-      value = me._parse(value);
+      value = me.parse(value);
     }
     return me.getPixelForDecimal((value - me._startValue) / me._valueRange);
   }
@@ -8700,7 +8701,7 @@ class LinearScaleBase extends Scale {
     this._endValue = undefined;
     this._valueRange = 0;
   }
-  _parse(raw, index) {
+  parse(raw, index) {
     if (isNullOrUndef(raw)) {
       return NaN;
     }
@@ -8768,7 +8769,7 @@ class LinearScaleBase extends Scale {
     if (stepSize) {
       maxTicks = Math.ceil(me.max / stepSize) - Math.floor(me.min / stepSize) + 1;
     } else {
-      maxTicks = me._computeTickLimit();
+      maxTicks = me.computeTickLimit();
       maxTicksLimit = maxTicksLimit || 11;
     }
     if (maxTicksLimit) {
@@ -8776,10 +8777,10 @@ class LinearScaleBase extends Scale {
     }
     return maxTicks;
   }
-  _computeTickLimit() {
+  computeTickLimit() {
     return Number.POSITIVE_INFINITY;
   }
-  _handleDirectionalChanges(ticks) {
+  handleDirectionalChanges(ticks) {
     return ticks;
   }
   buildTicks() {
@@ -8796,7 +8797,7 @@ class LinearScaleBase extends Scale {
       stepSize: valueOrDefault(tickOpts.fixedStepSize, tickOpts.stepSize)
     };
     var ticks = generateTicks(numericGeneratorOptions, me);
-    ticks = me._handleDirectionalChanges(ticks);
+    ticks = me.handleDirectionalChanges(ticks);
     _setMinAndMaxByKey(ticks, me, 'value');
     if (opts.reverse) {
       ticks.reverse();
@@ -8808,12 +8809,12 @@ class LinearScaleBase extends Scale {
     }
     return ticks;
   }
-  _configure() {
+  configure() {
     var me = this;
     var ticks = me.ticks;
     var start = me.min;
     var end = me.max;
-    Scale.prototype._configure.call(me);
+    super.configure();
     if (me.options.offset && ticks.length) {
       var offset = (end - start) / Math.max(ticks.length - 1, 1) / 2;
       start -= offset;
@@ -8837,7 +8838,7 @@ class LinearScale extends LinearScaleBase {
   determineDataLimits() {
     var me = this;
     var options = me.options;
-    var minmax = me._getMinMax(true);
+    var minmax = me.getMinMax(true);
     var min = minmax.min;
     var max = minmax.max;
     me.min = isNumberFinite(min) ? min : valueOrDefault(options.suggestedMin, 0);
@@ -8847,7 +8848,7 @@ class LinearScale extends LinearScaleBase {
     }
     me.handleTickRangeOptions();
   }
-  _computeTickLimit() {
+  computeTickLimit() {
     var me = this;
     if (me.isHorizontal()) {
       return Math.ceil(me.width / 40);
@@ -8855,7 +8856,7 @@ class LinearScale extends LinearScaleBase {
     var tickFont = _parseFont(me.options.ticks);
     return Math.ceil(me.height / tickFont.lineHeight);
   }
-  _handleDirectionalChanges(ticks) {
+  handleDirectionalChanges(ticks) {
     return this.isHorizontal() ? ticks : ticks.reverse();
   }
   getPixelForValue(value) {
@@ -8926,8 +8927,8 @@ class LogarithmicScale extends Scale {
     this._startValue = undefined;
     this._valueRange = 0;
   }
-  _parse(raw, index) {
-    var value = LinearScaleBase.prototype._parse.apply(this, [raw, index]);
+  parse(raw, index) {
+    var value = LinearScaleBase.prototype.parse.apply(this, [raw, index]);
     if (value === 0) {
       return undefined;
     }
@@ -8935,7 +8936,7 @@ class LogarithmicScale extends Scale {
   }
   determineDataLimits() {
     var me = this;
-    var minmax = me._getMinMax(true);
+    var minmax = me.getMinMax(true);
     var min = minmax.min;
     var max = minmax.max;
     me.min = isNumberFinite(min) ? Math.max(0, min) : null;
@@ -8999,10 +9000,10 @@ class LogarithmicScale extends Scale {
     }
     return this.getPixelForValue(ticks[index].value);
   }
-  _configure() {
+  configure() {
     var me = this;
     var start = me.min;
-    Scale.prototype._configure.call(me);
+    super.configure();
     me._startValue = log10(start);
     me._valueRange = log10(me.max) - log10(start);
   }
@@ -9233,14 +9234,14 @@ class RadialLinearScale extends LinearScaleBase {
   }
   determineDataLimits() {
     var me = this;
-    var minmax = me._getMinMax(false);
+    var minmax = me.getMinMax(false);
     var min = minmax.min;
     var max = minmax.max;
     me.min = helpers.isFinite(min) && !isNaN(min) ? min : 0;
     me.max = helpers.isFinite(max) && !isNaN(max) ? max : 0;
     me.handleTickRangeOptions();
   }
-  _computeTickLimit() {
+  computeTickLimit() {
     return Math.ceil(this.drawingArea / getTickBackdropHeight(this.options));
   }
   generateTickLabels(ticks) {
@@ -9315,7 +9316,7 @@ class RadialLinearScale extends LinearScaleBase {
   getBasePosition(index) {
     return this.getPointPositionForValue(index || 0, this.getBaseValue());
   }
-  _drawGrid() {
+  drawGrid() {
     var me = this;
     var ctx = me.ctx;
     var opts = me.options;
@@ -9354,7 +9355,7 @@ class RadialLinearScale extends LinearScaleBase {
       ctx.restore();
     }
   }
-  _drawLabels() {
+  drawLabels() {
     var me = this;
     var ctx = me.ctx;
     var opts = me.options;
@@ -9387,7 +9388,7 @@ class RadialLinearScale extends LinearScaleBase {
     });
     ctx.restore();
   }
-  _drawTitle() {}
+  drawTitle() {}
 }
 _defineProperty(RadialLinearScale, "_defaults", defaultConfig$3);
 
@@ -9483,12 +9484,12 @@ function getDataTimestamps(scale) {
   if (timestamps.length) {
     return timestamps;
   }
-  var metas = scale._getMatchingVisibleMetas();
+  var metas = scale.getMatchingVisibleMetas();
   if (isSeries && metas.length) {
-    return metas[0].controller._getAllParsedValues(scale);
+    return metas[0].controller.getAllParsedValues(scale);
   }
   for (i = 0, ilen = metas.length; i < ilen; ++i) {
-    timestamps = timestamps.concat(metas[i].controller._getAllParsedValues(scale));
+    timestamps = timestamps.concat(metas[i].controller.getAllParsedValues(scale));
   }
   return scale._cache.data = arrayUnique(timestamps.sort(sorter));
 }
@@ -9499,7 +9500,7 @@ function getLabelTimestamps(scale) {
   if (timestamps.length) {
     return timestamps;
   }
-  var labels = scale._getLabels();
+  var labels = scale.getLabels();
   for (i = 0, ilen = labels.length; i < ilen; ++i) {
     timestamps.push(parse(scale, labels[i]));
   }
@@ -9763,22 +9764,22 @@ class TimeScale extends Scale {
     this._table = [];
     mergeIf(time.displayFormats, adapter.formats());
   }
-  _parse(raw, index) {
+  parse(raw, index) {
     if (raw === undefined) {
       return NaN;
     }
     return parse(this, raw);
   }
-  _parseObject(obj, axis, index) {
+  parseObject(obj, axis, index) {
     if (obj && obj.t) {
-      return this._parse(obj.t, index);
+      return this.parse(obj.t, index);
     }
     if (obj[axis] !== undefined) {
-      return this._parse(obj[axis], index);
+      return this.parse(obj[axis], index);
     }
     return null;
   }
-  _invalidateCaches() {
+  invalidateCaches() {
     this._cache = {
       data: [],
       labels: [],
@@ -9795,7 +9796,7 @@ class TimeScale extends Scale {
       max,
       minDefined,
       maxDefined
-    } = me._getUserBounds();
+    } = me.getUserBounds();
     function _applyBounds(bounds) {
       if (!minDefined && !isNaN(bounds.min)) {
         min = Math.min(min, bounds.min);
@@ -9807,7 +9808,7 @@ class TimeScale extends Scale {
     if (!minDefined || !maxDefined) {
       _applyBounds(getLabelBounds(me));
       if (options.bounds !== 'ticks' || options.ticks.source !== 'labels') {
-        _applyBounds(me._getMinMax(false));
+        _applyBounds(me.getMinMax(false));
       }
     }
     min = isNumberFinite(min) && !isNaN(min) ? min : +adapter.startOf(Date.now(), unit);
@@ -10074,7 +10075,7 @@ function computeCircularBoundary(source) {
     fill
   } = source;
   var options = scale.options;
-  var length = scale._getLabels().length;
+  var length = scale.getLabels().length;
   var target = [];
   var start = options.reverse ? scale.max : scale.min;
   var end = options.reverse ? scale.min : scale.max;
@@ -10402,7 +10403,7 @@ var filler = {
     }
   },
   beforeDatasetsDraw(chart) {
-    var metasets = chart._getSortedVisibleDatasetMetas();
+    var metasets = chart.getSortedVisibleDatasetMetas();
     var area = chart.chartArea;
     var i, meta;
     for (i = metasets.length - 1; i >= 0; --i) {
@@ -10686,7 +10687,7 @@ class Legend extends Element$1 {
     if (!opts.display) {
       return;
     }
-    me._drawTitle();
+    me.drawTitle();
     var rtlHelper = getRtlAdapter(opts.rtl, me.left, me._minSize.width);
     var ctx = me.ctx;
     var fontColor = valueOrDefault(labelOpts.fontColor, defaults.fontColor);
@@ -10804,7 +10805,7 @@ class Legend extends Element$1 {
     });
     restoreTextDirection(me.ctx, opts.textDirection);
   }
-  _drawTitle() {
+  drawTitle() {
     var me = this;
     var opts = me.options;
     var titleOpts = opts.title;
@@ -11329,7 +11330,7 @@ function createTooltipItem(chart, item) {
   var {
     label,
     value
-  } = chart.getDatasetMeta(datasetIndex).controller._getLabelAndValue(index);
+  } = chart.getDatasetMeta(datasetIndex).controller.getLabelAndValue(index);
   return {
     label,
     value,
