@@ -8964,7 +8964,7 @@ function (_Element) {
       var alignBorderValue = function alignBorderValue(pixel) {
         return _alignPixel(chart, pixel, axisWidth);
       };
-      var borderValue, i, tick, lineValue, alignedLineValue;
+      var borderValue, i, lineValue, alignedLineValue;
       var tx1, ty1, tx2, ty2, x1, y1, x2, y2;
       if (position === 'top') {
         borderValue = alignBorderValue(me.bottom);
@@ -9016,7 +9016,7 @@ function (_Element) {
         x2 = chartArea.right;
       }
       for (i = 0; i < ticksLength; ++i) {
-        tick = ticks[i] || {};
+        var tick = ticks[i] || {};
         context = {
           scale: me,
           tick: tick
