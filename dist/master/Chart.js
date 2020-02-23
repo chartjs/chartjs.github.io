@@ -435,6 +435,7 @@ function _longestText(ctx, font, arrayOfThings, cache) {
     gc = cache.garbageCollect = [];
     cache.font = font;
   }
+  ctx.save();
   ctx.font = font;
   var longest = 0;
   var ilen = arrayOfThings.length;
@@ -452,6 +453,7 @@ function _longestText(ctx, font, arrayOfThings, cache) {
       }
     }
   }
+  ctx.restore();
   var gcLen = gc.length / 2;
   if (gcLen > arrayOfThings.length) {
     for (i = 0; i < gcLen; i++) {
@@ -12166,8 +12168,6 @@ function (_Element) {
       var right = me.right;
       var maxWidth, titleX, titleY;
       var align;
-      ctx.fillStyle = helpers.valueOrDefault(opts.fontColor, defaults.fontColor);
-      ctx.font = fontOpts.string;
       if (me.isHorizontal()) {
         switch (opts.align) {
           case 'start':
@@ -12205,6 +12205,8 @@ function (_Element) {
         rotation = Math.PI * (opts.position === 'left' ? -0.5 : 0.5);
       }
       ctx.save();
+      ctx.fillStyle = helpers.valueOrDefault(opts.fontColor, defaults.fontColor);
+      ctx.font = fontOpts.string;
       ctx.translate(titleX, titleY);
       ctx.rotate(rotation);
       ctx.textAlign = align;
@@ -12474,6 +12476,7 @@ function getTooltipSize(tooltip) {
   var maxLineWidth = function maxLineWidth(line) {
     width = Math.max(width, ctx.measureText(line).width + widthPadding);
   };
+  ctx.save();
   ctx.font = helpers.fontString(titleFontSize, options.titleFontStyle, options.titleFontFamily);
   helpers.each(tooltip.title, maxLineWidth);
   ctx.font = helpers.fontString(bodyFontSize, options.bodyFontStyle, options.bodyFontFamily);
@@ -12487,6 +12490,7 @@ function getTooltipSize(tooltip) {
   widthPadding = 0;
   ctx.font = helpers.fontString(footerFontSize, options.footerFontStyle, options.footerFontFamily);
   helpers.each(tooltip.footer, maxLineWidth);
+  ctx.restore();
   width += 2 * options.xPadding;
   return {
     width: width,
