@@ -3428,23 +3428,43 @@ function () {
     _classCallCheck(this, Element);
     this.x = undefined;
     this.y = undefined;
-    this.hidden = undefined;
+    this.hidden = false;
+    this.active = false;
+    this.options = undefined;
+    this.$animations = undefined;
     if (cfg) {
       _extends(this, cfg);
     }
   }
   _createClass(Element, [{
     key: "tooltipPosition",
-    value: function tooltipPosition() {
+    value: function tooltipPosition(useFinalPosition) {
+      var _this$getProps = this.getProps(['x', 'y'], useFinalPosition),
+          x = _this$getProps.x,
+          y = _this$getProps.y;
       return {
-        x: this.x,
-        y: this.y
+        x: x,
+        y: y
       };
     }
   }, {
     key: "hasValue",
     value: function hasValue() {
       return isNumber(this.x) && isNumber(this.y);
+    }
+  }, {
+    key: "getProps",
+    value: function getProps(props, _final) {
+      var me = this;
+      var anims = this.$animations;
+      if (!_final || !anims) {
+        return me;
+      }
+      var ret = {};
+      props.forEach(function (prop) {
+        ret[prop] = anims[prop] && anims[prop].active ? anims[prop]._to : me[prop];
+      });
+      return ret;
     }
   }]);
   return Element;
@@ -3460,26 +3480,32 @@ defaults.set('elements', {
     borderWidth: 0
   }
 });
-function getBarBounds(bar) {
-  var x1, x2, y1, y2, half;
+function getBarBounds(bar, useFinalPosition) {
+  var _bar$getProps = bar.getProps(['x', 'y', 'base', 'width', 'height'], useFinalPosition),
+      x = _bar$getProps.x,
+      y = _bar$getProps.y,
+      base = _bar$getProps.base,
+      width = _bar$getProps.width,
+      height = _bar$getProps.height;
+  var left, right, top, bottom, half;
   if (bar.horizontal) {
-    half = bar.height / 2;
-    x1 = Math.min(bar.x, bar.base);
-    x2 = Math.max(bar.x, bar.base);
-    y1 = bar.y - half;
-    y2 = bar.y + half;
+    half = height / 2;
+    left = Math.min(x, base);
+    right = Math.max(x, base);
+    top = y - half;
+    bottom = y + half;
   } else {
-    half = bar.width / 2;
-    x1 = bar.x - half;
-    x2 = bar.x + half;
-    y1 = Math.min(bar.y, bar.base);
-    y2 = Math.max(bar.y, bar.base);
+    half = width / 2;
+    left = x - half;
+    right = x + half;
+    top = Math.min(y, base);
+    bottom = Math.max(y, base);
   }
   return {
-    left: x1,
-    top: y1,
-    right: x2,
-    bottom: y2
+    left: left,
+    top: top,
+    right: right,
+    bottom: bottom
   };
 }
 function swap(orig, v1, v2) {
@@ -3543,10 +3569,10 @@ function boundingRects(bar) {
     }
   };
 }
-function _inRange(bar, x, y) {
+function _inRange(bar, x, y, useFinalPosition) {
   var skipX = x === null;
   var skipY = y === null;
-  var bounds = !bar || skipX && skipY ? false : getBarBounds(bar);
+  var bounds = !bar || skipX && skipY ? false : getBarBounds(bar, useFinalPosition);
   return bounds && (skipX || x >= bounds.left && x <= bounds.right) && (skipY || y >= bounds.top && y <= bounds.bottom);
 }
 var Rectangle =
@@ -3588,37 +3614,30 @@ function (_Element) {
     }
   }, {
     key: "inRange",
-    value: function inRange(mouseX, mouseY) {
-      return _inRange(this, mouseX, mouseY);
+    value: function inRange(mouseX, mouseY, useFinalPosition) {
+      return _inRange(this, mouseX, mouseY, useFinalPosition);
     }
   }, {
     key: "inXRange",
-    value: function inXRange(mouseX) {
-      return _inRange(this, mouseX, null);
+    value: function inXRange(mouseX, useFinalPosition) {
+      return _inRange(this, mouseX, null, useFinalPosition);
     }
   }, {
     key: "inYRange",
-    value: function inYRange(mouseY) {
-      return _inRange(this, null, mouseY);
+    value: function inYRange(mouseY, useFinalPosition) {
+      return _inRange(this, null, mouseY, useFinalPosition);
     }
   }, {
     key: "getCenterPoint",
-    value: function getCenterPoint() {
-      var x = this.x,
-          y = this.y,
-          base = this.base,
-          horizontal = this.horizontal;
+    value: function getCenterPoint(useFinalPosition) {
+      var _this$getProps = this.getProps(['x', 'y', 'base', 'horizontal', useFinalPosition]),
+          x = _this$getProps.x,
+          y = _this$getProps.y,
+          base = _this$getProps.base,
+          horizontal = _this$getProps.horizontal;
       return {
         x: horizontal ? (x + base) / 2 : x,
         y: horizontal ? y : (y + base) / 2
-      };
-    }
-  }, {
-    key: "tooltipPosition",
-    value: function tooltipPosition() {
-      return {
-        x: this.x,
-        y: this.y
       };
     }
   }, {
@@ -4022,28 +4041,38 @@ function (_Element) {
   }
   _createClass(Point, [{
     key: "inRange",
-    value: function inRange(mouseX, mouseY) {
+    value: function inRange(mouseX, mouseY, useFinalPosition) {
       var options = this.options;
-      return Math.pow(mouseX - this.x, 2) + Math.pow(mouseY - this.y, 2) < Math.pow(options.hitRadius + options.radius, 2);
+      var _this$getProps = this.getProps(['x', 'y'], useFinalPosition),
+          x = _this$getProps.x,
+          y = _this$getProps.y;
+      return Math.pow(mouseX - x, 2) + Math.pow(mouseY - y, 2) < Math.pow(options.hitRadius + options.radius, 2);
     }
   }, {
     key: "inXRange",
-    value: function inXRange(mouseX) {
+    value: function inXRange(mouseX, useFinalPosition) {
       var options = this.options;
-      return Math.abs(mouseX - this.x) < options.radius + options.hitRadius;
+      var _this$getProps2 = this.getProps(['x'], useFinalPosition),
+          x = _this$getProps2.x;
+      return Math.abs(mouseX - x) < options.radius + options.hitRadius;
     }
   }, {
     key: "inYRange",
-    value: function inYRange(mouseY) {
+    value: function inYRange(mouseY, useFinalPosition) {
       var options = this.options;
-      return Math.abs(mouseY - this.y) < options.radius + options.hitRadius;
+      var _this$getProps3 = this.getProps(['x'], useFinalPosition),
+          y = _this$getProps3.y;
+      return Math.abs(mouseY - y) < options.radius + options.hitRadius;
     }
   }, {
     key: "getCenterPoint",
-    value: function getCenterPoint() {
+    value: function getCenterPoint(useFinalPosition) {
+      var _this$getProps4 = this.getProps(['x', 'y'], useFinalPosition),
+          x = _this$getProps4.x,
+          y = _this$getProps4.y;
       return {
-        x: this.x,
-        y: this.y
+        x: x,
+        y: y
       };
     }
   }, {
@@ -4053,16 +4082,6 @@ function (_Element) {
       var radius = Math.max(options.radius, options.hoverRadius) || 0;
       var borderWidth = radius && options.borderWidth || 0;
       return (radius + borderWidth) * 2;
-    }
-  }, {
-    key: "tooltipPosition",
-    value: function tooltipPosition() {
-      var options = this.options;
-      return {
-        x: this.x,
-        y: this.y,
-        padding: options.radius + options.borderWidth
-      };
     }
   }, {
     key: "draw",
@@ -4328,39 +4347,45 @@ function (_Element) {
   }
   _createClass(Arc, [{
     key: "inRange",
-    value: function inRange(chartX, chartY) {
-      var me = this;
-      var _getAngleFromPoint = getAngleFromPoint(me, {
+    value: function inRange(chartX, chartY, useFinalPosition) {
+      var point = this.getProps(['x', 'y'], useFinalPosition);
+      var _getAngleFromPoint = getAngleFromPoint(point, {
         x: chartX,
         y: chartY
       }),
           angle = _getAngleFromPoint.angle,
           distance = _getAngleFromPoint.distance;
-      var betweenAngles = _angleBetween(angle, me.startAngle, me.endAngle);
-      var withinRadius = distance >= me.innerRadius && distance <= me.outerRadius;
+      var _this$getProps = this.getProps(['startAngle', 'endAngle', 'innerRadius', 'outerRadius', 'circumference'], useFinalPosition),
+          startAngle = _this$getProps.startAngle,
+          endAngle = _this$getProps.endAngle,
+          innerRadius = _this$getProps.innerRadius,
+          outerRadius = _this$getProps.outerRadius,
+          circumference = _this$getProps.circumference;
+      var betweenAngles = circumference >= TAU$1 || _angleBetween(angle, startAngle, endAngle);
+      var withinRadius = distance >= innerRadius && distance <= outerRadius;
       return betweenAngles && withinRadius;
     }
   }, {
     key: "getCenterPoint",
-    value: function getCenterPoint() {
-      var me = this;
-      var halfAngle = (me.startAngle + me.endAngle) / 2;
-      var halfRadius = (me.innerRadius + me.outerRadius) / 2;
+    value: function getCenterPoint(useFinalPosition) {
+      var _this$getProps2 = this.getProps(['x', 'y', 'startAngle', 'endAngle', 'innerRadius', 'outerRadius'], useFinalPosition),
+          x = _this$getProps2.x,
+          y = _this$getProps2.y,
+          startAngle = _this$getProps2.startAngle,
+          endAngle = _this$getProps2.endAngle,
+          innerRadius = _this$getProps2.innerRadius,
+          outerRadius = _this$getProps2.outerRadius;
+      var halfAngle = (startAngle + endAngle) / 2;
+      var halfRadius = (innerRadius + outerRadius) / 2;
       return {
-        x: me.x + Math.cos(halfAngle) * halfRadius,
-        y: me.y + Math.sin(halfAngle) * halfRadius
+        x: x + Math.cos(halfAngle) * halfRadius,
+        y: y + Math.sin(halfAngle) * halfRadius
       };
     }
   }, {
     key: "tooltipPosition",
-    value: function tooltipPosition() {
-      var me = this;
-      var centreAngle = me.startAngle + (me.endAngle - me.startAngle) / 2;
-      var rangeFromCentre = (me.outerRadius - me.innerRadius) / 2 + me.innerRadius;
-      return {
-        x: me.x + Math.cos(centreAngle) * rangeFromCentre,
-        y: me.y + Math.sin(centreAngle) * rangeFromCentre
-      };
+    value: function tooltipPosition(useFinalPosition) {
+      return this.getCenterPoint(useFinalPosition);
     }
   }, {
     key: "draw",
@@ -5889,13 +5914,13 @@ function getDistanceMetricForAxis(axis) {
     return Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
   };
 }
-function getIntersectItems(chart, position, axis) {
+function getIntersectItems(chart, position, axis, useFinalPosition) {
   var items = [];
   if (!_isPointInArea(position, chart.chartArea)) {
     return items;
   }
   var evaluationFunc = function evaluationFunc(element, datasetIndex, index) {
-    if (element.inRange(position.x, position.y)) {
+    if (element.inRange(position.x, position.y, useFinalPosition)) {
       items.push({
         element: element,
         datasetIndex: datasetIndex,
@@ -5906,7 +5931,7 @@ function getIntersectItems(chart, position, axis) {
   optimizedEvaluateItems(chart, axis, position, evaluationFunc, true);
   return items;
 }
-function getNearestItems(chart, position, axis, intersect) {
+function getNearestItems(chart, position, axis, intersect, useFinalPosition) {
   var distanceMetric = getDistanceMetricForAxis(axis);
   var minDistance = Number.POSITIVE_INFINITY;
   var items = [];
@@ -5914,10 +5939,10 @@ function getNearestItems(chart, position, axis, intersect) {
     return items;
   }
   var evaluationFunc = function evaluationFunc(element, datasetIndex, index) {
-    if (intersect && !element.inRange(position.x, position.y)) {
+    if (intersect && !element.inRange(position.x, position.y, useFinalPosition)) {
       return;
     }
-    var center = element.getCenterPoint();
+    var center = element.getCenterPoint(useFinalPosition);
     var distance = distanceMetric(position, center);
     if (distance < minDistance) {
       items = [{
@@ -5939,10 +5964,10 @@ function getNearestItems(chart, position, axis, intersect) {
 }
 var Interaction = {
   modes: {
-    index: function index(chart, e, options) {
+    index: function index(chart, e, options, useFinalPosition) {
       var position = getRelativePosition$1(e, chart);
       var axis = options.axis || 'x';
-      var items = options.intersect ? getIntersectItems(chart, position, axis) : getNearestItems(chart, position, axis);
+      var items = options.intersect ? getIntersectItems(chart, position, axis, useFinalPosition) : getNearestItems(chart, position, axis, false, useFinalPosition);
       var elements = [];
       if (!items.length) {
         return [];
@@ -5960,10 +5985,10 @@ var Interaction = {
       });
       return elements;
     },
-    dataset: function dataset(chart, e, options) {
+    dataset: function dataset(chart, e, options, useFinalPosition) {
       var position = getRelativePosition$1(e, chart);
       var axis = options.axis || 'xy';
-      var items = options.intersect ? getIntersectItems(chart, position, axis) : getNearestItems(chart, position, axis);
+      var items = options.intersect ? getIntersectItems(chart, position, axis, useFinalPosition) : getNearestItems(chart, position, axis, false, useFinalPosition);
       if (items.length > 0) {
         var datasetIndex = items[0].datasetIndex;
         var data = chart.getDatasetMeta(datasetIndex).data;
@@ -5978,29 +6003,29 @@ var Interaction = {
       }
       return items;
     },
-    point: function point(chart, e, options) {
+    point: function point(chart, e, options, useFinalPosition) {
       var position = getRelativePosition$1(e, chart);
       var axis = options.axis || 'xy';
-      return getIntersectItems(chart, position, axis);
+      return getIntersectItems(chart, position, axis, useFinalPosition);
     },
-    nearest: function nearest(chart, e, options) {
+    nearest: function nearest(chart, e, options, useFinalPosition) {
       var position = getRelativePosition$1(e, chart);
       var axis = options.axis || 'xy';
-      return getNearestItems(chart, position, axis, options.intersect);
+      return getNearestItems(chart, position, axis, options.intersect, useFinalPosition);
     },
-    x: function x(chart, e, options) {
+    x: function x(chart, e, options, useFinalPosition) {
       var position = getRelativePosition$1(e, chart);
       var items = [];
       var intersectsItem = false;
       evaluateAllVisibleItems(chart, function (element, datasetIndex, index) {
-        if (element.inXRange(position.x)) {
+        if (element.inXRange(position.x, useFinalPosition)) {
           items.push({
             element: element,
             datasetIndex: datasetIndex,
             index: index
           });
         }
-        if (element.inRange(position.x, position.y)) {
+        if (element.inRange(position.x, position.y, useFinalPosition)) {
           intersectsItem = true;
         }
       });
@@ -6009,19 +6034,19 @@ var Interaction = {
       }
       return items;
     },
-    y: function y(chart, e, options) {
+    y: function y(chart, e, options, useFinalPosition) {
       var position = getRelativePosition$1(e, chart);
       var items = [];
       var intersectsItem = false;
       evaluateAllVisibleItems(chart, function (element, datasetIndex, index) {
-        if (element.inYRange(position.y)) {
+        if (element.inYRange(position.y, useFinalPosition)) {
           items.push({
             element: element,
             datasetIndex: datasetIndex,
             index: index
           });
         }
-        if (element.inRange(position.x, position.y)) {
+        if (element.inRange(position.x, position.y, useFinalPosition)) {
           intersectsItem = true;
         }
       });
@@ -7378,7 +7403,7 @@ function () {
     this.chartArea = undefined;
     this.data = undefined;
     this.active = undefined;
-    this.lastActive = undefined;
+    this.lastActive = [];
     this._lastEvent = undefined;
     this._listeners = {};
     this._sortedMetasets = [];
@@ -7659,7 +7684,7 @@ function () {
       pluginsCore.notify(me, 'afterUpdate');
       me._layers.sort(compare2Level('z', '_idx'));
       if (me._lastEvent) {
-        me._eventHandler(me._lastEvent);
+        me._eventHandler(me._lastEvent, true);
       }
       me.render();
       me._updating = false;
@@ -7839,10 +7864,10 @@ function () {
     }
   }, {
     key: "getElementsAtEventForMode",
-    value: function getElementsAtEventForMode(e, mode, options) {
+    value: function getElementsAtEventForMode(e, mode, options, useFinalPosition) {
       var method = Interaction.modes[mode];
       if (typeof method === 'function') {
-        return method(this, e, options);
+        return method(this, e, options, useFinalPosition);
       }
       return [];
     }
@@ -8033,29 +8058,29 @@ function () {
     }
   }, {
     key: "_eventHandler",
-    value: function _eventHandler(e) {
+    value: function _eventHandler(e, replay) {
       var me = this;
-      if (pluginsCore.notify(me, 'beforeEvent', [e]) === false) {
+      if (pluginsCore.notify(me, 'beforeEvent', [e, replay]) === false) {
         return;
       }
-      me._handleEvent(e);
-      pluginsCore.notify(me, 'afterEvent', [e]);
+      me._handleEvent(e, replay);
+      pluginsCore.notify(me, 'afterEvent', [e, replay]);
       me.render();
       return me;
     }
   }, {
     key: "_handleEvent",
-    value: function _handleEvent(e) {
+    value: function _handleEvent(e, replay) {
       var me = this;
-      var options = me.options || {};
+      var options = me.options;
       var hoverOptions = options.hover;
+      var useFinalPosition = replay;
       var changed = false;
-      me.lastActive = me.lastActive || [];
       if (e.type === 'mouseout') {
         me.active = [];
         me._lastEvent = null;
       } else {
-        me.active = me.getElementsAtEventForMode(e, hoverOptions.mode, hoverOptions);
+        me.active = me.getElementsAtEventForMode(e, hoverOptions.mode, hoverOptions, useFinalPosition);
         me._lastEvent = e.type === 'click' ? me._lastEvent : e;
       }
       helpers.callback(options.onHover || options.hover.onHover, [e["native"], me.active], me);
@@ -8065,7 +8090,7 @@ function () {
         }
       }
       changed = !helpers._elementsEqual(me.active, me.lastActive);
-      if (changed) {
+      if (changed || replay) {
         me._updateHoverStyles();
       }
       me.lastActive = me.active;
@@ -12644,6 +12669,7 @@ function (_Element) {
     _this.height = undefined;
     _this.width = undefined;
     _this.caretX = undefined;
+    _this.caretY = undefined;
     _this.labelColors = undefined;
     _this.labelTextColors = undefined;
     _this.initialize();
@@ -13027,15 +13053,22 @@ function (_Element) {
       var anims = me.$animations;
       var animX = anims && anims.x;
       var animY = anims && anims.y;
-      if (animX && animX.active() || animY && animY.active()) {
+      if (animX || animY) {
         var position = positioners[options.position].call(me, me._active, me._eventPosition);
         if (!position) {
           return;
         }
+        var size = me._size = getTooltipSize(me);
         var positionAndSize = _extends({}, position, me._size);
         var alignment = determineAlignment(chart, options, positionAndSize);
         var point = getBackgroundPoint(options, positionAndSize, alignment, chart);
         if (animX._to !== point.x || animY._to !== point.y) {
+          me.xAlign = alignment.xAlign;
+          me.yAlign = alignment.yAlign;
+          me.width = size.width;
+          me.height = size.height;
+          me.caretX = position.x;
+          me.caretY = position.y;
           me._resolveAnimations().update(me, point);
         }
       }
@@ -13075,19 +13108,19 @@ function (_Element) {
     }
   }, {
     key: "handleEvent",
-    value: function handleEvent(e) {
+    value: function handleEvent(e, replay) {
       var me = this;
       var options = me.options;
       var lastActive = me._active || [];
       var changed = false;
       var active = [];
       if (e.type !== 'mouseout') {
-        active = me._chart.getElementsAtEventForMode(e, options.mode, options);
+        active = me._chart.getElementsAtEventForMode(e, options.mode, options, replay);
         if (options.reverse) {
           active.reverse();
         }
       }
-      changed = !helpers._elementsEqual(active, lastActive);
+      changed = replay || !helpers._elementsEqual(active, lastActive);
       if (changed) {
         me._active = active;
         if (options.enabled || options.custom) {
@@ -13137,9 +13170,10 @@ var tooltip = {
     tooltip.draw(chart.ctx);
     pluginsCore.notify(chart, 'afterTooltipDraw', [args]);
   },
-  afterEvent: function afterEvent(chart, e) {
+  afterEvent: function afterEvent(chart, e, replay) {
     if (chart.tooltip) {
-      chart.tooltip.handleEvent(e);
+      var useFinalPosition = replay;
+      chart.tooltip.handleEvent(e, useFinalPosition);
     }
   }
 };

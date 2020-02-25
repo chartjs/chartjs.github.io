@@ -100,12 +100,13 @@
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_elements_element_rectangle_.rectangle.html#draw" class="tsd-kind-icon">draw</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_elements_element_rectangle_.rectangle.html#getcenterpoint" class="tsd-kind-icon">get<wbr>Center<wbr>Point</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="_elements_element_rectangle_.rectangle.html#getprops" class="tsd-kind-icon">get<wbr>Props</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_elements_element_rectangle_.rectangle.html#getrange" class="tsd-kind-icon">get<wbr>Range</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="_elements_element_rectangle_.rectangle.html#hasvalue" class="tsd-kind-icon">has<wbr>Value</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_elements_element_rectangle_.rectangle.html#inrange" class="tsd-kind-icon">in<wbr>Range</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_elements_element_rectangle_.rectangle.html#inxrange" class="tsd-kind-icon">inXRange</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_elements_element_rectangle_.rectangle.html#inyrange" class="tsd-kind-icon">inYRange</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="_elements_element_rectangle_.rectangle.html#tooltipposition" class="tsd-kind-icon">tooltip<wbr>Position</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="_elements_element_rectangle_.rectangle.html#tooltipposition" class="tsd-kind-icon">tooltip<wbr>Position</a></li>
 							</ul>
 						</section>
 					</div>
@@ -124,7 +125,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides <a href="_core_core_element_.element.html">Element</a>.<a href="_core_core_element_.element.html#constructor">constructor</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/a9ae64f/src/elements/element.rectangle.js#L131">elements/element.rectangle.js:131</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/5e489f1/src/elements/element.rectangle.js#L129">elements/element.rectangle.js:129</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -146,7 +147,7 @@
 					<div class="tsd-signature tsd-kind-icon">_type<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> = &quot;rectangle&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/a9ae64f/src/elements/element.rectangle.js#L131">elements/element.rectangle.js:131</a></li>
+							<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/5e489f1/src/elements/element.rectangle.js#L129">elements/element.rectangle.js:129</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -157,7 +158,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="_core_core_element_.element.html">Element</a>.<a href="_core_core_element_.element.html#extend">extend</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/a9ae64f/src/core/core.element.js#L6">core/core.element.js:6</a></li>
+							<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/5e489f1/src/core/core.element.js#L6">core/core.element.js:6</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -174,7 +175,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/a9ae64f/src/elements/element.rectangle.js#L147">elements/element.rectangle.js:147</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/5e489f1/src/elements/element.rectangle.js#L145">elements/element.rectangle.js:145</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -191,15 +192,21 @@
 					<a name="getcenterpoint" class="tsd-anchor"></a>
 					<h3>get<wbr>Center<wbr>Point</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>Center<wbr>Point<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>x<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>y<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> }</span></li>
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Center<wbr>Point<span class="tsd-signature-symbol">(</span>useFinalPosition<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>x<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>y<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> }</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/a9ae64f/src/elements/element.rectangle.js#L180">elements/element.rectangle.js:180</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/5e489f1/src/elements/element.rectangle.js#L178">elements/element.rectangle.js:178</a></li>
 								</ul>
 							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>useFinalPosition: <span class="tsd-signature-type">any</span></h5>
+								</li>
+							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{ </span>x<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>y<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> }</span></h4>
 							<ul class="tsd-parameters">
 								<li class="tsd-parameter">
@@ -209,6 +216,41 @@
 									<h5>y<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></h5>
 								</li>
 							</ul>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+					<a name="getprops" class="tsd-anchor"></a>
+					<h3>get<wbr>Props</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Props<span class="tsd-signature-symbol">(</span>props<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span>, final<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Inherited from <a href="_core_core_element_.element.html">Element</a>.<a href="_core_core_element_.element.html#getprops">getProps</a></p>
+								<ul>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/5e489f1/src/core/core.element.js#L39">core/core.element.js:39</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Gets the current or final value of each prop. Can return extra properties (whole object).</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>props: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>properties to get</p>
+									</div>
+								</li>
+								<li>
+									<h5>final: <span class="tsd-signature-type">boolean</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -222,7 +264,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/a9ae64f/src/elements/element.rectangle.js#L195">elements/element.rectangle.js:195</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/5e489f1/src/elements/element.rectangle.js#L186">elements/element.rectangle.js:186</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -246,7 +288,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_core_core_element_.element.html">Element</a>.<a href="_core_core_element_.element.html#hasvalue">hasValue</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/a9ae64f/src/core/core.element.js#L28">core/core.element.js:28</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/5e489f1/src/core/core.element.js#L29">core/core.element.js:29</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
@@ -257,13 +299,13 @@
 					<a name="inrange" class="tsd-anchor"></a>
 					<h3>in<wbr>Range</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">in<wbr>Range<span class="tsd-signature-symbol">(</span>mouseX<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, mouseY<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+						<li class="tsd-signature tsd-kind-icon">in<wbr>Range<span class="tsd-signature-symbol">(</span>mouseX<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, mouseY<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, useFinalPosition<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/a9ae64f/src/elements/element.rectangle.js#L168">elements/element.rectangle.js:168</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/5e489f1/src/elements/element.rectangle.js#L166">elements/element.rectangle.js:166</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -273,6 +315,9 @@
 								</li>
 								<li>
 									<h5>mouseY: <span class="tsd-signature-type">any</span></h5>
+								</li>
+								<li>
+									<h5>useFinalPosition: <span class="tsd-signature-type">any</span></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
@@ -283,19 +328,22 @@
 					<a name="inxrange" class="tsd-anchor"></a>
 					<h3>inXRange</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">inXRange<span class="tsd-signature-symbol">(</span>mouseX<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+						<li class="tsd-signature tsd-kind-icon">inXRange<span class="tsd-signature-symbol">(</span>mouseX<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, useFinalPosition<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/a9ae64f/src/elements/element.rectangle.js#L172">elements/element.rectangle.js:172</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/5e489f1/src/elements/element.rectangle.js#L170">elements/element.rectangle.js:170</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>mouseX: <span class="tsd-signature-type">any</span></h5>
+								</li>
+								<li>
+									<h5>useFinalPosition: <span class="tsd-signature-type">any</span></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
@@ -306,13 +354,13 @@
 					<a name="inyrange" class="tsd-anchor"></a>
 					<h3>inYRange</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">inYRange<span class="tsd-signature-symbol">(</span>mouseY<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+						<li class="tsd-signature tsd-kind-icon">inYRange<span class="tsd-signature-symbol">(</span>mouseY<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, useFinalPosition<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/a9ae64f/src/elements/element.rectangle.js#L176">elements/element.rectangle.js:176</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/5e489f1/src/elements/element.rectangle.js#L174">elements/element.rectangle.js:174</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -320,25 +368,36 @@
 								<li>
 									<h5>mouseY: <span class="tsd-signature-type">any</span></h5>
 								</li>
+								<li>
+									<h5>useFinalPosition: <span class="tsd-signature-type">any</span></h5>
+								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 					<a name="tooltipposition" class="tsd-anchor"></a>
 					<h3>tooltip<wbr>Position</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
-						<li class="tsd-signature tsd-kind-icon">tooltip<wbr>Position<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>x<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>y<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> }</span></li>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+						<li class="tsd-signature tsd-kind-icon">tooltip<wbr>Position<span class="tsd-signature-symbol">(</span>useFinalPosition<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>x<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>y<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> }</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Overrides <a href="_core_core_element_.element.html">Element</a>.<a href="_core_core_element_.element.html#tooltipposition">tooltipPosition</a></p>
+								<p>Inherited from <a href="_core_core_element_.element.html">Element</a>.<a href="_core_core_element_.element.html#tooltipposition">tooltipPosition</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/a9ae64f/src/elements/element.rectangle.js#L188">elements/element.rectangle.js:188</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/5e489f1/src/core/core.element.js#L24">core/core.element.js:24</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>useFinalPosition: <span class="tsd-signature-type">boolean</span></h5>
+								</li>
+							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{ </span>x<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>y<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> }</span></h4>
 							<ul class="tsd-parameters">
 								<li class="tsd-parameter">
@@ -386,6 +445,9 @@
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="_elements_element_rectangle_.rectangle.html#getcenterpoint" class="tsd-kind-icon">get<wbr>Center<wbr>Point</a>
 							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+								<a href="_elements_element_rectangle_.rectangle.html#getprops" class="tsd-kind-icon">get<wbr>Props</a>
+							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="_elements_element_rectangle_.rectangle.html#getrange" class="tsd-kind-icon">get<wbr>Range</a>
 							</li>
@@ -401,7 +463,7 @@
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="_elements_element_rectangle_.rectangle.html#inyrange" class="tsd-kind-icon">inYRange</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 								<a href="_elements_element_rectangle_.rectangle.html#tooltipposition" class="tsd-kind-icon">tooltip<wbr>Position</a>
 							</li>
 						</ul>
