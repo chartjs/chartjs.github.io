@@ -3107,11 +3107,733 @@ class Element$1 {
 }
 _defineProperty(Element$1, "extend", inherits);
 
+var TAU$1 = Math.PI * 2;
+defaults.set('elements', {
+  arc: {
+    backgroundColor: defaults.color,
+    borderColor: '#fff',
+    borderWidth: 2,
+    borderAlign: 'center'
+  }
+});
+function clipArc(ctx, arc) {
+  var {
+    startAngle,
+    endAngle,
+    pixelMargin,
+    x,
+    y
+  } = arc;
+  var angleMargin = pixelMargin / arc.outerRadius;
+  ctx.beginPath();
+  ctx.arc(x, y, arc.outerRadius, startAngle - angleMargin, endAngle + angleMargin);
+  if (arc.innerRadius > pixelMargin) {
+    angleMargin = pixelMargin / arc.innerRadius;
+    ctx.arc(x, y, arc.innerRadius - pixelMargin, endAngle + angleMargin, startAngle - angleMargin, true);
+  } else {
+    ctx.arc(x, y, pixelMargin, endAngle + Math.PI / 2, startAngle - Math.PI / 2);
+  }
+  ctx.closePath();
+  ctx.clip();
+}
+function drawFullCircleBorders(ctx, vm, arc, inner) {
+  var endAngle = arc.endAngle;
+  var i;
+  if (inner) {
+    arc.endAngle = arc.startAngle + TAU$1;
+    clipArc(ctx, arc);
+    arc.endAngle = endAngle;
+    if (arc.endAngle === arc.startAngle && arc.fullCircles) {
+      arc.endAngle += TAU$1;
+      arc.fullCircles--;
+    }
+  }
+  ctx.beginPath();
+  ctx.arc(arc.x, arc.y, arc.innerRadius, arc.startAngle + TAU$1, arc.startAngle, true);
+  for (i = 0; i < arc.fullCircles; ++i) {
+    ctx.stroke();
+  }
+  ctx.beginPath();
+  ctx.arc(arc.x, arc.y, vm.outerRadius, arc.startAngle, arc.startAngle + TAU$1);
+  for (i = 0; i < arc.fullCircles; ++i) {
+    ctx.stroke();
+  }
+}
+function drawBorder(ctx, vm, arc) {
+  var options = vm.options;
+  var inner = options.borderAlign === 'inner';
+  if (inner) {
+    ctx.lineWidth = options.borderWidth * 2;
+    ctx.lineJoin = 'round';
+  } else {
+    ctx.lineWidth = options.borderWidth;
+    ctx.lineJoin = 'bevel';
+  }
+  if (arc.fullCircles) {
+    drawFullCircleBorders(ctx, vm, arc, inner);
+  }
+  if (inner) {
+    clipArc(ctx, arc);
+  }
+  ctx.beginPath();
+  ctx.arc(arc.x, arc.y, vm.outerRadius, arc.startAngle, arc.endAngle);
+  ctx.arc(arc.x, arc.y, arc.innerRadius, arc.endAngle, arc.startAngle, true);
+  ctx.closePath();
+  ctx.stroke();
+}
+class Arc extends Element$1 {
+  constructor(cfg) {
+    super();
+    this.options = undefined;
+    this.circumference = undefined;
+    this.startAngle = undefined;
+    this.endAngle = undefined;
+    this.innerRadius = undefined;
+    this.outerRadius = undefined;
+    if (cfg) {
+      _extends(this, cfg);
+    }
+  }
+  inRange(chartX, chartY, useFinalPosition) {
+    var point = this.getProps(['x', 'y'], useFinalPosition);
+    var {
+      angle,
+      distance
+    } = getAngleFromPoint(point, {
+      x: chartX,
+      y: chartY
+    });
+    var {
+      startAngle,
+      endAngle,
+      innerRadius,
+      outerRadius,
+      circumference
+    } = this.getProps(['startAngle', 'endAngle', 'innerRadius', 'outerRadius', 'circumference'], useFinalPosition);
+    var betweenAngles = circumference >= TAU$1 || _angleBetween(angle, startAngle, endAngle);
+    var withinRadius = distance >= innerRadius && distance <= outerRadius;
+    return betweenAngles && withinRadius;
+  }
+  getCenterPoint(useFinalPosition) {
+    var {
+      x,
+      y,
+      startAngle,
+      endAngle,
+      innerRadius,
+      outerRadius
+    } = this.getProps(['x', 'y', 'startAngle', 'endAngle', 'innerRadius', 'outerRadius'], useFinalPosition);
+    var halfAngle = (startAngle + endAngle) / 2;
+    var halfRadius = (innerRadius + outerRadius) / 2;
+    return {
+      x: x + Math.cos(halfAngle) * halfRadius,
+      y: y + Math.sin(halfAngle) * halfRadius
+    };
+  }
+  tooltipPosition(useFinalPosition) {
+    return this.getCenterPoint(useFinalPosition);
+  }
+  draw(ctx) {
+    var me = this;
+    var options = me.options;
+    var pixelMargin = options.borderAlign === 'inner' ? 0.33 : 0;
+    var arc = {
+      x: me.x,
+      y: me.y,
+      innerRadius: me.innerRadius,
+      outerRadius: Math.max(me.outerRadius - pixelMargin, 0),
+      pixelMargin,
+      startAngle: me.startAngle,
+      endAngle: me.endAngle,
+      fullCircles: Math.floor(me.circumference / TAU$1)
+    };
+    var i;
+    ctx.save();
+    ctx.fillStyle = options.backgroundColor;
+    ctx.strokeStyle = options.borderColor;
+    if (arc.fullCircles) {
+      arc.endAngle = arc.startAngle + TAU$1;
+      ctx.beginPath();
+      ctx.arc(arc.x, arc.y, arc.outerRadius, arc.startAngle, arc.endAngle);
+      ctx.arc(arc.x, arc.y, arc.innerRadius, arc.endAngle, arc.startAngle, true);
+      ctx.closePath();
+      for (i = 0; i < arc.fullCircles; ++i) {
+        ctx.fill();
+      }
+      arc.endAngle = arc.startAngle + me.circumference % TAU$1;
+    }
+    ctx.beginPath();
+    ctx.arc(arc.x, arc.y, arc.outerRadius, arc.startAngle, arc.endAngle);
+    ctx.arc(arc.x, arc.y, arc.innerRadius, arc.endAngle, arc.startAngle, true);
+    ctx.closePath();
+    ctx.fill();
+    if (options.borderWidth) {
+      drawBorder(ctx, me, arc);
+    }
+    ctx.restore();
+  }
+}
+_defineProperty(Arc, "_type", 'arc');
+
+function _pointInLine(p1, p2, t, mode) {
+  return {
+    x: p1.x + t * (p2.x - p1.x),
+    y: p1.y + t * (p2.y - p1.y)
+  };
+}
+function _steppedInterpolation(p1, p2, t, mode) {
+  return {
+    x: p1.x + t * (p2.x - p1.x),
+    y: mode === 'middle' ? t < 0.5 ? p1.y : p2.y : mode === 'after' ? t < 1 ? p1.y : p2.y : t > 0 ? p2.y : p1.y
+  };
+}
+function _bezierInterpolation(p1, p2, t, mode) {
+  var cp1 = {
+    x: p1.controlPointNextX,
+    y: p1.controlPointNextY
+  };
+  var cp2 = {
+    x: p2.controlPointPreviousX,
+    y: p2.controlPointPreviousY
+  };
+  var a = _pointInLine(p1, cp1, t);
+  var b = _pointInLine(cp1, cp2, t);
+  var c = _pointInLine(cp2, p2, t);
+  var d = _pointInLine(a, b, t);
+  var e = _pointInLine(b, c, t);
+  return _pointInLine(d, e, t);
+}
+
+function propertyFn(property) {
+  if (property === 'angle') {
+    return {
+      between: _angleBetween,
+      compare: _angleDiff,
+      normalize: _normalizeAngle
+    };
+  }
+  return {
+    between: (n, s, e) => n >= s && n <= e,
+    compare: (a, b) => a - b,
+    normalize: x => x
+  };
+}
+function makeSubSegment(start, end, loop, count) {
+  return {
+    start: start % count,
+    end: end % count,
+    loop: loop && (end - start + 1) % count === 0
+  };
+}
+function getSegment(segment, points, bounds) {
+  var {
+    property,
+    start: startBound,
+    end: endBound
+  } = bounds;
+  var {
+    between,
+    normalize
+  } = propertyFn(property);
+  var count = points.length;
+  var {
+    start,
+    end,
+    loop
+  } = segment;
+  var i, ilen;
+  if (loop) {
+    start += count;
+    end += count;
+    for (i = 0, ilen = count; i < ilen; ++i) {
+      if (!between(normalize(points[start % count][property]), startBound, endBound)) {
+        break;
+      }
+      start--;
+      end--;
+    }
+    start %= count;
+    end %= count;
+  }
+  if (end < start) {
+    end += count;
+  }
+  return {
+    start,
+    end,
+    loop
+  };
+}
+function _boundSegment(segment, points, bounds) {
+  if (!bounds) {
+    return [segment];
+  }
+  var {
+    property,
+    start: startBound,
+    end: endBound
+  } = bounds;
+  var count = points.length;
+  var {
+    compare,
+    between,
+    normalize
+  } = propertyFn(property);
+  var {
+    start,
+    end,
+    loop
+  } = getSegment(segment, points, bounds);
+  var result = [];
+  var inside = false;
+  var subStart = null;
+  var i, value, point, prev;
+  for (i = start; i <= end; ++i) {
+    point = points[i % count];
+    if (point.skip) {
+      continue;
+    }
+    value = normalize(point[property]);
+    inside = between(value, startBound, endBound);
+    if (subStart === null && inside) {
+      subStart = i > start && compare(value, startBound) > 0 ? prev : i;
+    }
+    if (subStart !== null && (!inside || compare(value, endBound) === 0)) {
+      result.push(makeSubSegment(subStart, i, loop, count));
+      subStart = null;
+    }
+    prev = i;
+  }
+  if (subStart !== null) {
+    result.push(makeSubSegment(subStart, end, loop, count));
+  }
+  return result;
+}
+function _boundSegments(line, bounds) {
+  var result = [];
+  var segments = line.segments;
+  for (var i = 0; i < segments.length; i++) {
+    var sub = _boundSegment(segments[i], line.points, bounds);
+    if (sub.length) {
+      result.push(...sub);
+    }
+  }
+  return result;
+}
+function findStartAndEnd(points, count, loop, spanGaps) {
+  var start = 0;
+  var end = count - 1;
+  if (loop && !spanGaps) {
+    while (start < count && !points[start].skip) {
+      start++;
+    }
+  }
+  while (start < count && points[start].skip) {
+    start++;
+  }
+  start %= count;
+  if (loop) {
+    end += start;
+  }
+  while (end > start && points[end % count].skip) {
+    end--;
+  }
+  end %= count;
+  return {
+    start,
+    end
+  };
+}
+function solidSegments(points, start, max, loop) {
+  var count = points.length;
+  var result = [];
+  var last = start;
+  var prev = points[start];
+  var end;
+  for (end = start + 1; end <= max; ++end) {
+    var cur = points[end % count];
+    if (cur.skip || cur.stop) {
+      if (!prev.skip) {
+        loop = false;
+        result.push({
+          start: start % count,
+          end: (end - 1) % count,
+          loop
+        });
+        start = last = cur.stop ? end : null;
+      }
+    } else {
+      last = end;
+      if (prev.skip) {
+        start = end;
+      }
+    }
+    prev = cur;
+  }
+  if (last !== null) {
+    result.push({
+      start: start % count,
+      end: last % count,
+      loop
+    });
+  }
+  return result;
+}
+function _computeSegments(line) {
+  var points = line.points;
+  var spanGaps = line.options.spanGaps;
+  var count = points.length;
+  if (!count) {
+    return [];
+  }
+  var loop = !!line._loop;
+  var {
+    start,
+    end
+  } = findStartAndEnd(points, count, loop, spanGaps);
+  if (spanGaps === true) {
+    return [{
+      start,
+      end,
+      loop
+    }];
+  }
+  var max = end < start ? end + count : end;
+  var completeLoop = !!line._fullLoop && start === 0 && end === count - 1;
+  return solidSegments(points, start, max, completeLoop);
+}
+
 var defaultColor = defaults.color;
 defaults.set('elements', {
-  rectangle: {
+  line: {
+    tension: 0.4,
     backgroundColor: defaultColor,
+    borderWidth: 3,
     borderColor: defaultColor,
+    borderCapStyle: 'butt',
+    borderDash: [],
+    borderDashOffset: 0.0,
+    borderJoinStyle: 'miter',
+    capBezierPoints: true,
+    fill: true
+  }
+});
+function setStyle(ctx, vm) {
+  ctx.lineCap = vm.borderCapStyle;
+  ctx.setLineDash(vm.borderDash);
+  ctx.lineDashOffset = vm.borderDashOffset;
+  ctx.lineJoin = vm.borderJoinStyle;
+  ctx.lineWidth = vm.borderWidth;
+  ctx.strokeStyle = vm.borderColor;
+}
+function lineTo(ctx, previous, target) {
+  ctx.lineTo(target.x, target.y);
+}
+function getLineMethod(options) {
+  if (options.stepped) {
+    return _steppedLineTo;
+  }
+  if (options.tension) {
+    return _bezierCurveTo;
+  }
+  return lineTo;
+}
+function pathSegment(ctx, line, segment, params) {
+  var {
+    start,
+    end,
+    loop
+  } = segment;
+  var {
+    points,
+    options
+  } = line;
+  var lineMethod = getLineMethod(options);
+  var count = points.length;
+  var {
+    move = true,
+    reverse
+  } = params || {};
+  var ilen = end < start ? count + end - start : end - start;
+  var i, point, prev;
+  for (i = 0; i <= ilen; ++i) {
+    point = points[(start + (reverse ? ilen - i : i)) % count];
+    if (point.skip) {
+      continue;
+    } else if (move) {
+      ctx.moveTo(point.x, point.y);
+      move = false;
+    } else {
+      lineMethod(ctx, prev, point, reverse, options.stepped);
+    }
+    prev = point;
+  }
+  if (loop) {
+    point = points[(start + (reverse ? ilen : 0)) % count];
+    lineMethod(ctx, prev, point, reverse, options.stepped);
+  }
+  return !!loop;
+}
+function fastPathSegment(ctx, line, segment, params) {
+  var points = line.points;
+  var count = points.length;
+  var {
+    start,
+    end
+  } = segment;
+  var {
+    move = true,
+    reverse
+  } = params || {};
+  var ilen = end < start ? count + end - start : end - start;
+  var avgX = 0;
+  var countX = 0;
+  var i, point, prevX, minY, maxY, lastY;
+  if (move) {
+    point = points[(start + (reverse ? ilen : 0)) % count];
+    ctx.moveTo(point.x, point.y);
+  }
+  for (i = 0; i <= ilen; ++i) {
+    point = points[(start + (reverse ? ilen - i : i)) % count];
+    if (point.skip) {
+      continue;
+    }
+    var x = point.x;
+    var y = point.y;
+    var truncX = x | 0;
+    if (truncX === prevX) {
+      if (y < minY) {
+        minY = y;
+      } else if (y > maxY) {
+        maxY = y;
+      }
+      avgX = (countX * avgX + x) / ++countX;
+    } else {
+      if (minY !== maxY) {
+        ctx.lineTo(avgX, maxY);
+        ctx.lineTo(avgX, minY);
+        ctx.lineTo(avgX, lastY);
+      }
+      ctx.lineTo(x, y);
+      prevX = truncX;
+      countX = 0;
+      minY = maxY = y;
+    }
+    lastY = y;
+  }
+}
+function _getSegmentMethod(line) {
+  var opts = line.options;
+  var borderDash = opts.borderDash && opts.borderDash.length;
+  var useFastPath = !line._loop && !opts.tension && !opts.stepped && !borderDash;
+  return useFastPath ? fastPathSegment : pathSegment;
+}
+function _getInterpolationMethod(options) {
+  if (options.stepped) {
+    return _steppedInterpolation;
+  }
+  if (options.tension) {
+    return _bezierInterpolation;
+  }
+  return _pointInLine;
+}
+class Line extends Element$1 {
+  constructor(cfg) {
+    super();
+    this.options = undefined;
+    this._loop = undefined;
+    this._fullLoop = undefined;
+    this._controlPointsUpdated = undefined;
+    this._points = undefined;
+    this._segments = undefined;
+    if (cfg) {
+      _extends(this, cfg);
+    }
+  }
+  updateControlPoints(chartArea) {
+    var me = this;
+    if (me._controlPointsUpdated) {
+      return;
+    }
+    var options = me.options;
+    if (options.tension && !options.stepped) {
+      var loop = options.spanGaps ? me._loop : me._fullLoop;
+      _updateBezierControlPoints(me._points, options, chartArea, loop);
+    }
+  }
+  set points(points) {
+    this._points = points;
+    delete this._segments;
+  }
+  get points() {
+    return this._points;
+  }
+  get segments() {
+    return this._segments || (this._segments = _computeSegments(this));
+  }
+  first() {
+    var segments = this.segments;
+    var points = this.points;
+    return segments.length && points[segments[0].start];
+  }
+  last() {
+    var segments = this.segments;
+    var points = this.points;
+    var count = segments.length;
+    return count && points[segments[count - 1].end];
+  }
+  interpolate(point, property) {
+    var me = this;
+    var options = me.options;
+    var value = point[property];
+    var points = me.points;
+    var segments = _boundSegments(me, {
+      property,
+      start: value,
+      end: value
+    });
+    if (!segments.length) {
+      return;
+    }
+    var result = [];
+    var _interpolate = _getInterpolationMethod(options);
+    var i, ilen;
+    for (i = 0, ilen = segments.length; i < ilen; ++i) {
+      var {
+        start,
+        end
+      } = segments[i];
+      var p1 = points[start];
+      var p2 = points[end];
+      if (p1 === p2) {
+        result.push(p1);
+        continue;
+      }
+      var t = Math.abs((value - p1[property]) / (p2[property] - p1[property]));
+      var interpolated = _interpolate(p1, p2, t, options.stepped);
+      interpolated[property] = point[property];
+      result.push(interpolated);
+    }
+    return result.length === 1 ? result[0] : result;
+  }
+  pathSegment(ctx, segment, params) {
+    var segmentMethod = _getSegmentMethod(this);
+    return segmentMethod(ctx, this, segment, params);
+  }
+  path(ctx) {
+    var me = this;
+    var segments = me.segments;
+    var ilen = segments.length;
+    var segmentMethod = _getSegmentMethod(me);
+    var loop = me._loop;
+    for (var i = 0; i < ilen; ++i) {
+      loop &= segmentMethod(ctx, me, segments[i]);
+    }
+    return !!loop;
+  }
+  draw(ctx) {
+    var me = this;
+    if (!me.points.length) {
+      return;
+    }
+    ctx.save();
+    setStyle(ctx, me.options);
+    ctx.beginPath();
+    if (me.path(ctx)) {
+      ctx.closePath();
+    }
+    ctx.stroke();
+    ctx.restore();
+  }
+}
+_defineProperty(Line, "_type", 'line');
+
+var defaultColor$1 = defaults.color;
+defaults.set('elements', {
+  point: {
+    radius: 3,
+    pointStyle: 'circle',
+    backgroundColor: defaultColor$1,
+    borderColor: defaultColor$1,
+    borderWidth: 1,
+    hitRadius: 1,
+    hoverRadius: 4,
+    hoverBorderWidth: 1
+  }
+});
+class Point extends Element$1 {
+  constructor(cfg) {
+    super();
+    this.options = undefined;
+    this.skip = undefined;
+    this.stop = undefined;
+    if (cfg) {
+      _extends(this, cfg);
+    }
+  }
+  inRange(mouseX, mouseY, useFinalPosition) {
+    var options = this.options;
+    var {
+      x,
+      y
+    } = this.getProps(['x', 'y'], useFinalPosition);
+    return Math.pow(mouseX - x, 2) + Math.pow(mouseY - y, 2) < Math.pow(options.hitRadius + options.radius, 2);
+  }
+  inXRange(mouseX, useFinalPosition) {
+    var options = this.options;
+    var {
+      x
+    } = this.getProps(['x'], useFinalPosition);
+    return Math.abs(mouseX - x) < options.radius + options.hitRadius;
+  }
+  inYRange(mouseY, useFinalPosition) {
+    var options = this.options;
+    var {
+      y
+    } = this.getProps(['x'], useFinalPosition);
+    return Math.abs(mouseY - y) < options.radius + options.hitRadius;
+  }
+  getCenterPoint(useFinalPosition) {
+    var {
+      x,
+      y
+    } = this.getProps(['x', 'y'], useFinalPosition);
+    return {
+      x,
+      y
+    };
+  }
+  size() {
+    var options = this.options || {};
+    var radius = Math.max(options.radius, options.hoverRadius) || 0;
+    var borderWidth = radius && options.borderWidth || 0;
+    return (radius + borderWidth) * 2;
+  }
+  draw(ctx, chartArea) {
+    var me = this;
+    var options = me.options;
+    if (me.skip || options.radius <= 0) {
+      return;
+    }
+    if (chartArea === undefined || _isPointInArea(me, chartArea)) {
+      ctx.strokeStyle = options.borderColor;
+      ctx.lineWidth = options.borderWidth;
+      ctx.fillStyle = options.backgroundColor;
+      drawPoint(ctx, options, me.x, me.y);
+    }
+  }
+  getRange() {
+    var options = this.options || {};
+    return options.radius + options.hitRadius;
+  }
+}
+_defineProperty(Point, "_type", 'point');
+
+var defaultColor$2 = defaults.color;
+defaults.set('elements', {
+  rectangle: {
+    backgroundColor: defaultColor$2,
+    borderColor: defaultColor$2,
     borderSkipped: 'bottom',
     borderWidth: 0
   }
@@ -3269,6 +3991,16 @@ class Rectangle extends Element$1 {
   }
 }
 _defineProperty(Rectangle, "_type", 'rectangle');
+
+
+
+var elements = /*#__PURE__*/Object.freeze({
+__proto__: null,
+Arc: Arc,
+Line: Line,
+Point: Point,
+Rectangle: Rectangle
+});
 
 defaults.set('bar', {
   hover: {
@@ -3599,87 +4331,6 @@ class BarController extends DatasetController {
 BarController.prototype.dataElementType = Rectangle;
 BarController.prototype.dataElementOptions = ['backgroundColor', 'borderColor', 'borderSkipped', 'borderWidth', 'barPercentage', 'barThickness', 'categoryPercentage', 'maxBarThickness', 'minBarLength'];
 
-var defaultColor$1 = defaults.color;
-defaults.set('elements', {
-  point: {
-    radius: 3,
-    pointStyle: 'circle',
-    backgroundColor: defaultColor$1,
-    borderColor: defaultColor$1,
-    borderWidth: 1,
-    hitRadius: 1,
-    hoverRadius: 4,
-    hoverBorderWidth: 1
-  }
-});
-class Point extends Element$1 {
-  constructor(cfg) {
-    super();
-    this.options = undefined;
-    this.skip = undefined;
-    this.stop = undefined;
-    if (cfg) {
-      _extends(this, cfg);
-    }
-  }
-  inRange(mouseX, mouseY, useFinalPosition) {
-    var options = this.options;
-    var {
-      x,
-      y
-    } = this.getProps(['x', 'y'], useFinalPosition);
-    return Math.pow(mouseX - x, 2) + Math.pow(mouseY - y, 2) < Math.pow(options.hitRadius + options.radius, 2);
-  }
-  inXRange(mouseX, useFinalPosition) {
-    var options = this.options;
-    var {
-      x
-    } = this.getProps(['x'], useFinalPosition);
-    return Math.abs(mouseX - x) < options.radius + options.hitRadius;
-  }
-  inYRange(mouseY, useFinalPosition) {
-    var options = this.options;
-    var {
-      y
-    } = this.getProps(['x'], useFinalPosition);
-    return Math.abs(mouseY - y) < options.radius + options.hitRadius;
-  }
-  getCenterPoint(useFinalPosition) {
-    var {
-      x,
-      y
-    } = this.getProps(['x', 'y'], useFinalPosition);
-    return {
-      x,
-      y
-    };
-  }
-  size() {
-    var options = this.options || {};
-    var radius = Math.max(options.radius, options.hoverRadius) || 0;
-    var borderWidth = radius && options.borderWidth || 0;
-    return (radius + borderWidth) * 2;
-  }
-  draw(ctx, chartArea) {
-    var me = this;
-    var options = me.options;
-    if (me.skip || options.radius <= 0) {
-      return;
-    }
-    if (chartArea === undefined || _isPointInArea(me, chartArea)) {
-      ctx.strokeStyle = options.borderColor;
-      ctx.lineWidth = options.borderWidth;
-      ctx.fillStyle = options.backgroundColor;
-      drawPoint(ctx, options, me.x, me.y);
-    }
-  }
-  getRange() {
-    var options = this.options || {};
-    return options.radius + options.hitRadius;
-  }
-}
-_defineProperty(Point, "_type", 'point');
-
 defaults.set('bubble', {
   animation: {
     numbers: {
@@ -3810,174 +4461,6 @@ class BubbleController extends DatasetController {
 }
 BubbleController.prototype.dataElementType = Point;
 BubbleController.prototype.dataElementOptions = ['backgroundColor', 'borderColor', 'borderWidth', 'hitRadius', 'radius', 'pointStyle', 'rotation'];
-
-var TAU$1 = Math.PI * 2;
-defaults.set('elements', {
-  arc: {
-    backgroundColor: defaults.color,
-    borderColor: '#fff',
-    borderWidth: 2,
-    borderAlign: 'center'
-  }
-});
-function clipArc(ctx, arc) {
-  var {
-    startAngle,
-    endAngle,
-    pixelMargin,
-    x,
-    y
-  } = arc;
-  var angleMargin = pixelMargin / arc.outerRadius;
-  ctx.beginPath();
-  ctx.arc(x, y, arc.outerRadius, startAngle - angleMargin, endAngle + angleMargin);
-  if (arc.innerRadius > pixelMargin) {
-    angleMargin = pixelMargin / arc.innerRadius;
-    ctx.arc(x, y, arc.innerRadius - pixelMargin, endAngle + angleMargin, startAngle - angleMargin, true);
-  } else {
-    ctx.arc(x, y, pixelMargin, endAngle + Math.PI / 2, startAngle - Math.PI / 2);
-  }
-  ctx.closePath();
-  ctx.clip();
-}
-function drawFullCircleBorders(ctx, vm, arc, inner) {
-  var endAngle = arc.endAngle;
-  var i;
-  if (inner) {
-    arc.endAngle = arc.startAngle + TAU$1;
-    clipArc(ctx, arc);
-    arc.endAngle = endAngle;
-    if (arc.endAngle === arc.startAngle && arc.fullCircles) {
-      arc.endAngle += TAU$1;
-      arc.fullCircles--;
-    }
-  }
-  ctx.beginPath();
-  ctx.arc(arc.x, arc.y, arc.innerRadius, arc.startAngle + TAU$1, arc.startAngle, true);
-  for (i = 0; i < arc.fullCircles; ++i) {
-    ctx.stroke();
-  }
-  ctx.beginPath();
-  ctx.arc(arc.x, arc.y, vm.outerRadius, arc.startAngle, arc.startAngle + TAU$1);
-  for (i = 0; i < arc.fullCircles; ++i) {
-    ctx.stroke();
-  }
-}
-function drawBorder(ctx, vm, arc) {
-  var options = vm.options;
-  var inner = options.borderAlign === 'inner';
-  if (inner) {
-    ctx.lineWidth = options.borderWidth * 2;
-    ctx.lineJoin = 'round';
-  } else {
-    ctx.lineWidth = options.borderWidth;
-    ctx.lineJoin = 'bevel';
-  }
-  if (arc.fullCircles) {
-    drawFullCircleBorders(ctx, vm, arc, inner);
-  }
-  if (inner) {
-    clipArc(ctx, arc);
-  }
-  ctx.beginPath();
-  ctx.arc(arc.x, arc.y, vm.outerRadius, arc.startAngle, arc.endAngle);
-  ctx.arc(arc.x, arc.y, arc.innerRadius, arc.endAngle, arc.startAngle, true);
-  ctx.closePath();
-  ctx.stroke();
-}
-class Arc extends Element$1 {
-  constructor(cfg) {
-    super();
-    this.options = undefined;
-    this.circumference = undefined;
-    this.startAngle = undefined;
-    this.endAngle = undefined;
-    this.innerRadius = undefined;
-    this.outerRadius = undefined;
-    if (cfg) {
-      _extends(this, cfg);
-    }
-  }
-  inRange(chartX, chartY, useFinalPosition) {
-    var point = this.getProps(['x', 'y'], useFinalPosition);
-    var {
-      angle,
-      distance
-    } = getAngleFromPoint(point, {
-      x: chartX,
-      y: chartY
-    });
-    var {
-      startAngle,
-      endAngle,
-      innerRadius,
-      outerRadius,
-      circumference
-    } = this.getProps(['startAngle', 'endAngle', 'innerRadius', 'outerRadius', 'circumference'], useFinalPosition);
-    var betweenAngles = circumference >= TAU$1 || _angleBetween(angle, startAngle, endAngle);
-    var withinRadius = distance >= innerRadius && distance <= outerRadius;
-    return betweenAngles && withinRadius;
-  }
-  getCenterPoint(useFinalPosition) {
-    var {
-      x,
-      y,
-      startAngle,
-      endAngle,
-      innerRadius,
-      outerRadius
-    } = this.getProps(['x', 'y', 'startAngle', 'endAngle', 'innerRadius', 'outerRadius'], useFinalPosition);
-    var halfAngle = (startAngle + endAngle) / 2;
-    var halfRadius = (innerRadius + outerRadius) / 2;
-    return {
-      x: x + Math.cos(halfAngle) * halfRadius,
-      y: y + Math.sin(halfAngle) * halfRadius
-    };
-  }
-  tooltipPosition(useFinalPosition) {
-    return this.getCenterPoint(useFinalPosition);
-  }
-  draw(ctx) {
-    var me = this;
-    var options = me.options;
-    var pixelMargin = options.borderAlign === 'inner' ? 0.33 : 0;
-    var arc = {
-      x: me.x,
-      y: me.y,
-      innerRadius: me.innerRadius,
-      outerRadius: Math.max(me.outerRadius - pixelMargin, 0),
-      pixelMargin,
-      startAngle: me.startAngle,
-      endAngle: me.endAngle,
-      fullCircles: Math.floor(me.circumference / TAU$1)
-    };
-    var i;
-    ctx.save();
-    ctx.fillStyle = options.backgroundColor;
-    ctx.strokeStyle = options.borderColor;
-    if (arc.fullCircles) {
-      arc.endAngle = arc.startAngle + TAU$1;
-      ctx.beginPath();
-      ctx.arc(arc.x, arc.y, arc.outerRadius, arc.startAngle, arc.endAngle);
-      ctx.arc(arc.x, arc.y, arc.innerRadius, arc.endAngle, arc.startAngle, true);
-      ctx.closePath();
-      for (i = 0; i < arc.fullCircles; ++i) {
-        ctx.fill();
-      }
-      arc.endAngle = arc.startAngle + me.circumference % TAU$1;
-    }
-    ctx.beginPath();
-    ctx.arc(arc.x, arc.y, arc.outerRadius, arc.startAngle, arc.endAngle);
-    ctx.arc(arc.x, arc.y, arc.innerRadius, arc.endAngle, arc.startAngle, true);
-    ctx.closePath();
-    ctx.fill();
-    if (options.borderWidth) {
-      drawBorder(ctx, me, arc);
-    }
-    ctx.restore();
-  }
-}
-_defineProperty(Arc, "_type", 'arc');
 
 var PI$2 = Math.PI;
 var DOUBLE_PI$1 = PI$2 * 2;
@@ -4293,479 +4776,6 @@ class HorizontalBarController extends BarController {
     return this._cachedMeta.yAxisID;
   }
 }
-
-function _pointInLine(p1, p2, t, mode) {
-  return {
-    x: p1.x + t * (p2.x - p1.x),
-    y: p1.y + t * (p2.y - p1.y)
-  };
-}
-function _steppedInterpolation(p1, p2, t, mode) {
-  return {
-    x: p1.x + t * (p2.x - p1.x),
-    y: mode === 'middle' ? t < 0.5 ? p1.y : p2.y : mode === 'after' ? t < 1 ? p1.y : p2.y : t > 0 ? p2.y : p1.y
-  };
-}
-function _bezierInterpolation(p1, p2, t, mode) {
-  var cp1 = {
-    x: p1.controlPointNextX,
-    y: p1.controlPointNextY
-  };
-  var cp2 = {
-    x: p2.controlPointPreviousX,
-    y: p2.controlPointPreviousY
-  };
-  var a = _pointInLine(p1, cp1, t);
-  var b = _pointInLine(cp1, cp2, t);
-  var c = _pointInLine(cp2, p2, t);
-  var d = _pointInLine(a, b, t);
-  var e = _pointInLine(b, c, t);
-  return _pointInLine(d, e, t);
-}
-
-function propertyFn(property) {
-  if (property === 'angle') {
-    return {
-      between: _angleBetween,
-      compare: _angleDiff,
-      normalize: _normalizeAngle
-    };
-  }
-  return {
-    between: (n, s, e) => n >= s && n <= e,
-    compare: (a, b) => a - b,
-    normalize: x => x
-  };
-}
-function makeSubSegment(start, end, loop, count) {
-  return {
-    start: start % count,
-    end: end % count,
-    loop: loop && (end - start + 1) % count === 0
-  };
-}
-function getSegment(segment, points, bounds) {
-  var {
-    property,
-    start: startBound,
-    end: endBound
-  } = bounds;
-  var {
-    between,
-    normalize
-  } = propertyFn(property);
-  var count = points.length;
-  var {
-    start,
-    end,
-    loop
-  } = segment;
-  var i, ilen;
-  if (loop) {
-    start += count;
-    end += count;
-    for (i = 0, ilen = count; i < ilen; ++i) {
-      if (!between(normalize(points[start % count][property]), startBound, endBound)) {
-        break;
-      }
-      start--;
-      end--;
-    }
-    start %= count;
-    end %= count;
-  }
-  if (end < start) {
-    end += count;
-  }
-  return {
-    start,
-    end,
-    loop
-  };
-}
-function _boundSegment(segment, points, bounds) {
-  if (!bounds) {
-    return [segment];
-  }
-  var {
-    property,
-    start: startBound,
-    end: endBound
-  } = bounds;
-  var count = points.length;
-  var {
-    compare,
-    between,
-    normalize
-  } = propertyFn(property);
-  var {
-    start,
-    end,
-    loop
-  } = getSegment(segment, points, bounds);
-  var result = [];
-  var inside = false;
-  var subStart = null;
-  var i, value, point, prev;
-  for (i = start; i <= end; ++i) {
-    point = points[i % count];
-    if (point.skip) {
-      continue;
-    }
-    value = normalize(point[property]);
-    inside = between(value, startBound, endBound);
-    if (subStart === null && inside) {
-      subStart = i > start && compare(value, startBound) > 0 ? prev : i;
-    }
-    if (subStart !== null && (!inside || compare(value, endBound) === 0)) {
-      result.push(makeSubSegment(subStart, i, loop, count));
-      subStart = null;
-    }
-    prev = i;
-  }
-  if (subStart !== null) {
-    result.push(makeSubSegment(subStart, end, loop, count));
-  }
-  return result;
-}
-function _boundSegments(line, bounds) {
-  var result = [];
-  var segments = line.segments;
-  for (var i = 0; i < segments.length; i++) {
-    var sub = _boundSegment(segments[i], line.points, bounds);
-    if (sub.length) {
-      result.push(...sub);
-    }
-  }
-  return result;
-}
-function findStartAndEnd(points, count, loop, spanGaps) {
-  var start = 0;
-  var end = count - 1;
-  if (loop && !spanGaps) {
-    while (start < count && !points[start].skip) {
-      start++;
-    }
-  }
-  while (start < count && points[start].skip) {
-    start++;
-  }
-  start %= count;
-  if (loop) {
-    end += start;
-  }
-  while (end > start && points[end % count].skip) {
-    end--;
-  }
-  end %= count;
-  return {
-    start,
-    end
-  };
-}
-function solidSegments(points, start, max, loop) {
-  var count = points.length;
-  var result = [];
-  var last = start;
-  var prev = points[start];
-  var end;
-  for (end = start + 1; end <= max; ++end) {
-    var cur = points[end % count];
-    if (cur.skip || cur.stop) {
-      if (!prev.skip) {
-        loop = false;
-        result.push({
-          start: start % count,
-          end: (end - 1) % count,
-          loop
-        });
-        start = last = cur.stop ? end : null;
-      }
-    } else {
-      last = end;
-      if (prev.skip) {
-        start = end;
-      }
-    }
-    prev = cur;
-  }
-  if (last !== null) {
-    result.push({
-      start: start % count,
-      end: last % count,
-      loop
-    });
-  }
-  return result;
-}
-function _computeSegments(line) {
-  var points = line.points;
-  var spanGaps = line.options.spanGaps;
-  var count = points.length;
-  if (!count) {
-    return [];
-  }
-  var loop = !!line._loop;
-  var {
-    start,
-    end
-  } = findStartAndEnd(points, count, loop, spanGaps);
-  if (spanGaps === true) {
-    return [{
-      start,
-      end,
-      loop
-    }];
-  }
-  var max = end < start ? end + count : end;
-  var completeLoop = !!line._fullLoop && start === 0 && end === count - 1;
-  return solidSegments(points, start, max, completeLoop);
-}
-
-var defaultColor$2 = defaults.color;
-defaults.set('elements', {
-  line: {
-    tension: 0.4,
-    backgroundColor: defaultColor$2,
-    borderWidth: 3,
-    borderColor: defaultColor$2,
-    borderCapStyle: 'butt',
-    borderDash: [],
-    borderDashOffset: 0.0,
-    borderJoinStyle: 'miter',
-    capBezierPoints: true,
-    fill: true
-  }
-});
-function setStyle(ctx, vm) {
-  ctx.lineCap = vm.borderCapStyle;
-  ctx.setLineDash(vm.borderDash);
-  ctx.lineDashOffset = vm.borderDashOffset;
-  ctx.lineJoin = vm.borderJoinStyle;
-  ctx.lineWidth = vm.borderWidth;
-  ctx.strokeStyle = vm.borderColor;
-}
-function lineTo(ctx, previous, target) {
-  ctx.lineTo(target.x, target.y);
-}
-function getLineMethod(options) {
-  if (options.stepped) {
-    return _steppedLineTo;
-  }
-  if (options.tension) {
-    return _bezierCurveTo;
-  }
-  return lineTo;
-}
-function pathSegment(ctx, line, segment, params) {
-  var {
-    start,
-    end,
-    loop
-  } = segment;
-  var {
-    points,
-    options
-  } = line;
-  var lineMethod = getLineMethod(options);
-  var count = points.length;
-  var {
-    move = true,
-    reverse
-  } = params || {};
-  var ilen = end < start ? count + end - start : end - start;
-  var i, point, prev;
-  for (i = 0; i <= ilen; ++i) {
-    point = points[(start + (reverse ? ilen - i : i)) % count];
-    if (point.skip) {
-      continue;
-    } else if (move) {
-      ctx.moveTo(point.x, point.y);
-      move = false;
-    } else {
-      lineMethod(ctx, prev, point, reverse, options.stepped);
-    }
-    prev = point;
-  }
-  if (loop) {
-    point = points[(start + (reverse ? ilen : 0)) % count];
-    lineMethod(ctx, prev, point, reverse, options.stepped);
-  }
-  return !!loop;
-}
-function fastPathSegment(ctx, line, segment, params) {
-  var points = line.points;
-  var count = points.length;
-  var {
-    start,
-    end
-  } = segment;
-  var {
-    move = true,
-    reverse
-  } = params || {};
-  var ilen = end < start ? count + end - start : end - start;
-  var avgX = 0;
-  var countX = 0;
-  var i, point, prevX, minY, maxY, lastY;
-  if (move) {
-    point = points[(start + (reverse ? ilen : 0)) % count];
-    ctx.moveTo(point.x, point.y);
-  }
-  for (i = 0; i <= ilen; ++i) {
-    point = points[(start + (reverse ? ilen - i : i)) % count];
-    if (point.skip) {
-      continue;
-    }
-    var x = point.x;
-    var y = point.y;
-    var truncX = x | 0;
-    if (truncX === prevX) {
-      if (y < minY) {
-        minY = y;
-      } else if (y > maxY) {
-        maxY = y;
-      }
-      avgX = (countX * avgX + x) / ++countX;
-    } else {
-      if (minY !== maxY) {
-        ctx.lineTo(avgX, maxY);
-        ctx.lineTo(avgX, minY);
-        ctx.lineTo(avgX, lastY);
-      }
-      ctx.lineTo(x, y);
-      prevX = truncX;
-      countX = 0;
-      minY = maxY = y;
-    }
-    lastY = y;
-  }
-}
-function _getSegmentMethod(line) {
-  var opts = line.options;
-  var borderDash = opts.borderDash && opts.borderDash.length;
-  var useFastPath = !line._loop && !opts.tension && !opts.stepped && !borderDash;
-  return useFastPath ? fastPathSegment : pathSegment;
-}
-function _getInterpolationMethod(options) {
-  if (options.stepped) {
-    return _steppedInterpolation;
-  }
-  if (options.tension) {
-    return _bezierInterpolation;
-  }
-  return _pointInLine;
-}
-class Line extends Element$1 {
-  constructor(cfg) {
-    super();
-    this.options = undefined;
-    this._loop = undefined;
-    this._fullLoop = undefined;
-    this._controlPointsUpdated = undefined;
-    this._points = undefined;
-    this._segments = undefined;
-    if (cfg) {
-      _extends(this, cfg);
-    }
-  }
-  updateControlPoints(chartArea) {
-    var me = this;
-    if (me._controlPointsUpdated) {
-      return;
-    }
-    var options = me.options;
-    if (options.tension && !options.stepped) {
-      var loop = options.spanGaps ? me._loop : me._fullLoop;
-      _updateBezierControlPoints(me._points, options, chartArea, loop);
-    }
-  }
-  set points(points) {
-    this._points = points;
-    delete this._segments;
-  }
-  get points() {
-    return this._points;
-  }
-  get segments() {
-    return this._segments || (this._segments = _computeSegments(this));
-  }
-  first() {
-    var segments = this.segments;
-    var points = this.points;
-    return segments.length && points[segments[0].start];
-  }
-  last() {
-    var segments = this.segments;
-    var points = this.points;
-    var count = segments.length;
-    return count && points[segments[count - 1].end];
-  }
-  interpolate(point, property) {
-    var me = this;
-    var options = me.options;
-    var value = point[property];
-    var points = me.points;
-    var segments = _boundSegments(me, {
-      property,
-      start: value,
-      end: value
-    });
-    if (!segments.length) {
-      return;
-    }
-    var result = [];
-    var _interpolate = _getInterpolationMethod(options);
-    var i, ilen;
-    for (i = 0, ilen = segments.length; i < ilen; ++i) {
-      var {
-        start,
-        end
-      } = segments[i];
-      var p1 = points[start];
-      var p2 = points[end];
-      if (p1 === p2) {
-        result.push(p1);
-        continue;
-      }
-      var t = Math.abs((value - p1[property]) / (p2[property] - p1[property]));
-      var interpolated = _interpolate(p1, p2, t, options.stepped);
-      interpolated[property] = point[property];
-      result.push(interpolated);
-    }
-    return result.length === 1 ? result[0] : result;
-  }
-  pathSegment(ctx, segment, params) {
-    var segmentMethod = _getSegmentMethod(this);
-    return segmentMethod(ctx, this, segment, params);
-  }
-  path(ctx) {
-    var me = this;
-    var segments = me.segments;
-    var ilen = segments.length;
-    var segmentMethod = _getSegmentMethod(me);
-    var loop = me._loop;
-    for (var i = 0; i < ilen; ++i) {
-      loop &= segmentMethod(ctx, me, segments[i]);
-    }
-    return !!loop;
-  }
-  draw(ctx) {
-    var me = this;
-    if (!me.points.length) {
-      return;
-    }
-    ctx.save();
-    setStyle(ctx, me.options);
-    ctx.beginPath();
-    if (me.path(ctx)) {
-      ctx.closePath();
-    }
-    ctx.stroke();
-    ctx.restore();
-  }
-}
-_defineProperty(Line, "_type", 'line');
 
 defaults.set('line', {
   showLines: true,
@@ -7408,13 +7418,6 @@ DateAdapter.override = function (members) {
 };
 var _adapters = {
   _date: DateAdapter
-};
-
-var elements = {
-  Arc,
-  Line,
-  Point,
-  Rectangle
 };
 
 var Ticks = {
