@@ -4792,12 +4792,10 @@ defaults.set('bubble', {
   },
   scales: {
     x: {
-      type: 'linear',
-      position: 'bottom'
+      type: 'linear'
     },
     y: {
-      type: 'linear',
-      position: 'left'
+      type: 'linear'
     }
   },
   tooltips: {
@@ -5238,12 +5236,10 @@ defaults.set('horizontalBar', {
   scales: {
     x: {
       type: 'linear',
-      position: 'bottom',
       beginAtZero: true
     },
     y: {
       type: 'category',
-      position: 'left',
       offset: true,
       gridLines: {
         offsetGridLines: true
@@ -5759,12 +5755,10 @@ RadarController.prototype.dataElementOptions = {
 defaults.set('scatter', {
   scales: {
     x: {
-      type: 'linear',
-      position: 'bottom'
+      type: 'linear'
     },
     y: {
-      type: 'linear',
-      position: 'left'
+      type: 'linear'
     }
   },
   datasets: {
@@ -7246,9 +7240,11 @@ var pluginsCore = new PluginService();
 var scaleService = {
   constructors: {},
   defaults: {},
-  registerScaleType: function registerScaleType(type, scaleConstructor, scaleDefaults) {
-    this.constructors[type] = scaleConstructor;
-    this.defaults[type] = clone(scaleDefaults);
+  registerScale: function registerScale(scaleConstructor) {
+    var me = this;
+    var type = scaleConstructor.id;
+    me.constructors[type] = scaleConstructor;
+    me.defaults[type] = clone(scaleConstructor.defaults);
   },
   getScaleConstructor: function getScaleConstructor(type) {
     return Object.prototype.hasOwnProperty.call(this.constructors, type) ? this.constructors[type] : undefined;
@@ -9531,7 +9527,8 @@ function (_Scale) {
   }]);
   return CategoryScale;
 }(Scale);
-_defineProperty(CategoryScale, "_defaults", defaultConfig);
+_defineProperty(CategoryScale, "id", 'category');
+_defineProperty(CategoryScale, "defaults", defaultConfig);
 
 function niceNum(range, round) {
   var exponent = Math.floor(log10(range));
@@ -9840,7 +9837,8 @@ function (_LinearScaleBase) {
   }]);
   return LinearScale;
 }(LinearScaleBase);
-_defineProperty(LinearScale, "_defaults", defaultConfig$1);
+_defineProperty(LinearScale, "id", 'linear');
+_defineProperty(LinearScale, "defaults", defaultConfig$1);
 
 function isMajor(tickVal) {
   var remain = tickVal / Math.pow(10, Math.floor(log10(tickVal)));
@@ -10011,7 +10009,8 @@ function (_Scale) {
   }]);
   return LogarithmicScale;
 }(Scale);
-_defineProperty(LogarithmicScale, "_defaults", defaultConfig$2);
+_defineProperty(LogarithmicScale, "id", 'logarithmic');
+_defineProperty(LogarithmicScale, "defaults", defaultConfig$2);
 
 var valueOrDefault$2 = helpers.valueOrDefault;
 var valueAtIndexOrDefault$1 = helpers.valueAtIndexOrDefault;
@@ -10418,7 +10417,8 @@ function (_LinearScaleBase) {
   }]);
   return RadialLinearScale;
 }(LinearScaleBase);
-_defineProperty(RadialLinearScale, "_defaults", defaultConfig$3);
+_defineProperty(RadialLinearScale, "id", 'radialLinear');
+_defineProperty(RadialLinearScale, "defaults", defaultConfig$3);
 
 var MAX_INTEGER = Number.MAX_SAFE_INTEGER || 9007199254740991;
 var INTERVALS = {
@@ -10970,15 +10970,19 @@ function (_Scale) {
   }]);
   return TimeScale;
 }(Scale);
-_defineProperty(TimeScale, "_defaults", defaultConfig$4);
+_defineProperty(TimeScale, "id", 'time');
+_defineProperty(TimeScale, "defaults", defaultConfig$4);
 
-var scales = {
-  category: CategoryScale,
-  linear: LinearScale,
-  logarithmic: LogarithmicScale,
-  radialLinear: RadialLinearScale,
-  time: TimeScale
-};
+
+
+var scales = /*#__PURE__*/Object.freeze({
+__proto__: null,
+CategoryScale: CategoryScale,
+LinearScale: LinearScale,
+LogarithmicScale: LogarithmicScale,
+RadialLinearScale: RadialLinearScale,
+TimeScale: TimeScale
+});
 
 var FORMATS = {
   datetime: 'MMM D, YYYY, h:mm:ss a',
@@ -13205,9 +13209,8 @@ Chart.plugins = pluginsCore;
 Chart.Scale = Scale;
 Chart.scaleService = scaleService;
 Chart.Ticks = Ticks;
-Object.keys(scales).forEach(function (type) {
-  var scale = scales[type];
-  Chart.scaleService.registerScaleType(type, scale, scale._defaults);
+Object.keys(scales).forEach(function (key) {
+  return Chart.scaleService.registerScale(scales[key]);
 });
 for (var k in plugins) {
   if (Object.prototype.hasOwnProperty.call(plugins, k)) {
