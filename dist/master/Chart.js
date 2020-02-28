@@ -5,12 +5,10 @@
  * Released under the MIT License
  */
 (function (global, factory) {
-typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(function() { try { return require('moment'); } catch(e) { } }()) :
-typeof define === 'function' && define.amd ? define(['require'], function(require) { return factory(function() { try { return require('moment'); } catch(e) { } }()); }) :
-(global = global || self, global.Chart = factory(global.moment));
-}(this, (function (moment) { 'use strict';
-
-moment = moment && moment.hasOwnProperty('default') ? moment['default'] : moment;
+typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
+typeof define === 'function' && define.amd ? define(factory) :
+(global = global || self, global.Chart = factory());
+}(this, (function () { 'use strict';
 
 function _typeof(obj) {
   "@babel/helpers - typeof";
@@ -10983,52 +10981,6 @@ LogarithmicScale: LogarithmicScale,
 RadialLinearScale: RadialLinearScale,
 TimeScale: TimeScale
 });
-
-var FORMATS = {
-  datetime: 'MMM D, YYYY, h:mm:ss a',
-  millisecond: 'h:mm:ss.SSS a',
-  second: 'h:mm:ss a',
-  minute: 'h:mm a',
-  hour: 'hA',
-  day: 'MMM D',
-  week: 'll',
-  month: 'MMM YYYY',
-  quarter: '[Q]Q - YYYY',
-  year: 'YYYY'
-};
-_adapters._date.override(typeof moment === 'function' ? {
-  _id: 'moment',
-  formats: function formats() {
-    return FORMATS;
-  },
-  parse: function parse(value, format) {
-    if (typeof value === 'string' && typeof format === 'string') {
-      value = moment(value, format);
-    } else if (!(value instanceof moment)) {
-      value = moment(value);
-    }
-    return value.isValid() ? value.valueOf() : null;
-  },
-  format: function format(time, _format) {
-    return moment(time).format(_format);
-  },
-  add: function add(time, amount, unit) {
-    return moment(time).add(amount, unit).valueOf();
-  },
-  diff: function diff(max, min, unit) {
-    return moment(max).diff(moment(min), unit);
-  },
-  startOf: function startOf(time, unit, weekday) {
-    time = moment(time);
-    if (unit === 'isoWeek') {
-      return time.isoWeekday(weekday).valueOf();
-    }
-    return time.startOf(unit).valueOf();
-  },
-  endOf: function endOf(time, unit) {
-    return moment(time).endOf(unit).valueOf();
-  }
-} : {});
 
 defaults.set('plugins', {
   filler: {

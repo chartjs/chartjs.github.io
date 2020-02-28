@@ -978,27 +978,12 @@
     <span class="hljs-keyword">var</span> myChart = <span class="hljs-keyword">new</span> Chart(ctx, {...});
 });
 </code></pre>
-<p><strong>Note:</strong> in order to use the time scale, you need to make sure <a href="https://github.com/chartjs/awesome#adapters" target="_blank">one of the available date adapters</a> and corresponding date library are fully loaded <strong>before</strong> requiring Chart.js. The date adapter for Moment.js is included with Chart.js, but you still need to include Moment.js itself if this is the date adapter you choose to use. You can either use a shim:</p>
-<pre><code class="lang-javascript"><span class="hljs-built_in">require</span>.config({
-    shim: {
-        <span class="hljs-string">&apos;chartjs&apos;</span>: {
-            deps: [<span class="hljs-string">&apos;moment&apos;</span>]    <span class="hljs-comment">// enforce moment to be loaded before chartjs</span>
-        }
-    },
-    paths: {
-        <span class="hljs-string">&apos;chartjs&apos;</span>: <span class="hljs-string">&apos;path/to/chartjs/dist/Chart.min.js&apos;</span>,
-        <span class="hljs-string">&apos;moment&apos;</span>: <span class="hljs-string">&apos;path/to/moment&apos;</span>
-    }
-});
-
-<span class="hljs-built_in">require</span>([<span class="hljs-string">&apos;chartjs&apos;</span>], <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">Chart</span>) </span>{
-    <span class="hljs-keyword">new</span> Chart(ctx, {...});
-});
-</code></pre>
-<p>or simply use two nested <code>require()</code>:</p>
-<pre><code class="lang-javascript"><span class="hljs-built_in">require</span>([<span class="hljs-string">&apos;moment&apos;</span>], <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
-    <span class="hljs-built_in">require</span>([<span class="hljs-string">&apos;chartjs&apos;</span>], <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">Chart</span>) </span>{
-        <span class="hljs-keyword">new</span> Chart(ctx, {...});
+<p><strong>Note:</strong> in order to use the time scale, you need to make sure <a href="https://github.com/chartjs/awesome#adapters" target="_blank">one of the available date adapters</a> and corresponding date library are fully loaded <strong>after</strong> requiring Chart.js. For this you can use nested requires:</p>
+<pre><code class="lang-javascript"><span class="hljs-built_in">require</span>([<span class="hljs-string">&apos;chartjs&apos;</span>], <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">Chart</span>) </span>{
+    <span class="hljs-built_in">require</span>([<span class="hljs-string">&apos;moment&apos;</span>], <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        <span class="hljs-built_in">require</span>([<span class="hljs-string">&apos;chartjs-adapter-moment&apos;</span>], <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+            <span class="hljs-keyword">new</span> Chart(ctx, {...});
+        });
     });
 });
 </code></pre>
@@ -1045,7 +1030,7 @@
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Integration","level":"1.3.2","depth":2,"next":{"title":"Usage","level":"1.3.3","depth":2,"path":"getting-started/usage.md","ref":"getting-started/usage.md","articles":[]},"previous":{"title":"Installation","level":"1.3.1","depth":2,"path":"getting-started/installation.md","ref":"getting-started/installation.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga","redirect"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"chartjs":{"defaults":null},"fontsettings":{"theme":"white","family":"sans","size":2},"highlight":{},"ga":{"configuration":"auto","token":"UA-28909194-3"},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"redirect":{},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"anchorjs":{"icon":"#","placement":"left","visible":"always"},"search-plus":{}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"getting-started/integration.md","mtime":"2020-02-28T00:39:48.011Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2020-02-28T00:43:50.742Z"},"basePath":"..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Integration","level":"1.3.2","depth":2,"next":{"title":"Usage","level":"1.3.3","depth":2,"path":"getting-started/usage.md","ref":"getting-started/usage.md","articles":[]},"previous":{"title":"Installation","level":"1.3.1","depth":2,"path":"getting-started/installation.md","ref":"getting-started/installation.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga","redirect"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"chartjs":{"defaults":null},"fontsettings":{"theme":"white","family":"sans","size":2},"highlight":{},"ga":{"configuration":"auto","token":"UA-28909194-3"},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"redirect":{},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"anchorjs":{"icon":"#","placement":"left","visible":"always"},"search-plus":{}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"getting-started/integration.md","mtime":"2020-02-28T00:42:09.270Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2020-02-28T00:46:01.485Z"},"basePath":"..","book":{"language":""}});
         });
     </script>
 </div>
