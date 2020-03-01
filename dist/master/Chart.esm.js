@@ -2699,10 +2699,7 @@ class DatasetController {
   }
   getMinMax(scale, canStack) {
     var meta = this._cachedMeta;
-    var {
-      data,
-      _parsed
-    } = meta;
+    var _parsed = meta._parsed;
     var sorted = meta._sorted && scale === meta.iScale;
     var ilen = _parsed.length;
     var otherScale = this._getOtherScale(scale);
@@ -2716,7 +2713,7 @@ class DatasetController {
       min: otherMin,
       max: otherMax
     } = getUserBounds(otherScale);
-    var i, item, value, parsed, otherValue;
+    var i, value, parsed, otherValue;
     function _compute() {
       if (stack) {
         stack.values = parsed._stacks[scale.axis];
@@ -2728,11 +2725,10 @@ class DatasetController {
       max = Math.max(max, value);
     }
     function _skip() {
-      item = data[i];
       parsed = _parsed[i];
       value = parsed[scale.axis];
       otherValue = parsed[otherScale.axis];
-      return item && item.hidden || isNaN(value) || otherMin > otherValue || otherMax < otherValue;
+      return isNaN(value) || otherMin > otherValue || otherMax < otherValue;
     }
     for (i = 0; i < ilen; ++i) {
       if (_skip()) {
@@ -3069,7 +3065,6 @@ class Element$1 {
   constructor(cfg) {
     this.x = undefined;
     this.y = undefined;
-    this.hidden = false;
     this.active = false;
     this.options = undefined;
     this.$animations = undefined;
@@ -4483,7 +4478,7 @@ defaults.set('doughnut', {
               fillStyle: style.backgroundColor,
               strokeStyle: style.borderColor,
               lineWidth: style.borderWidth,
-              hidden: isNaN(data.datasets[0].data[i]) || meta.data[i].hidden,
+              hidden: !chart.getDataVisibility(i),
               index: i
             };
           });
@@ -4492,16 +4487,8 @@ defaults.set('doughnut', {
       }
     },
     onClick(e, legendItem) {
-      var index = legendItem.index;
-      var chart = this.chart;
-      var i, ilen, meta;
-      for (i = 0, ilen = (chart.data.datasets || []).length; i < ilen; ++i) {
-        meta = chart.getDatasetMeta(i);
-        if (meta.data[index]) {
-          meta.data[index].hidden = !meta.data[index].hidden;
-        }
-      }
-      chart.update();
+      this.chart.toggleDataVisibility(legendItem.index);
+      this.chart.update();
     }
   },
   cutoutPercentage: 50,
@@ -4619,7 +4606,7 @@ class DoughnutController extends DatasetController {
     var me = this;
     var opts = me.chart.options;
     var meta = me._cachedMeta;
-    return reset && opts.animation.animateRotate ? 0 : meta.data[i].hidden ? 0 : me.calculateCircumference(meta._parsed[i] * opts.circumference / DOUBLE_PI$1);
+    return reset && opts.animation.animateRotate ? 0 : this.chart.getDataVisibility(i) ? me.calculateCircumference(meta._parsed[i] * opts.circumference / DOUBLE_PI$1) : 0;
   }
   updateElements(arcs, start, mode) {
     var me = this;
@@ -4669,7 +4656,7 @@ class DoughnutController extends DatasetController {
     var i;
     for (i = 0; i < metaData.length; i++) {
       var value = meta._parsed[i];
-      if (!isNaN(value) && !metaData[i].hidden) {
+      if (!isNaN(value) && this.chart.getDataVisibility(i)) {
         total += Math.abs(value);
       }
     }
@@ -4947,7 +4934,7 @@ defaults.set('polarArea', {
               fillStyle: style.backgroundColor,
               strokeStyle: style.borderColor,
               lineWidth: style.borderWidth,
-              hidden: isNaN(data.datasets[0].data[i]) || meta.data[i].hidden,
+              hidden: !chart.getDataVisibility(i),
               index: i
             };
           });
@@ -4956,14 +4943,8 @@ defaults.set('polarArea', {
       }
     },
     onClick(e, legendItem) {
-      var index = legendItem.index;
-      var chart = this.chart;
-      var i, ilen, meta;
-      for (i = 0, ilen = (chart.data.datasets || []).length; i < ilen; ++i) {
-        meta = chart.getDatasetMeta(i);
-        meta.data[index].hidden = !meta.data[index].hidden;
-      }
-      chart.update();
+      this.chart.toggleDataVisibility(legendItem.index);
+      this.chart.update();
     }
   },
   tooltips: {
@@ -5031,7 +5012,7 @@ class PolarAreaController extends DatasetController {
       var index = start + i;
       var startAngle = angle;
       var endAngle = angle + me._computeAngle(index);
-      var outerRadius = arc.hidden ? 0 : scale.getDistanceFromCenterForValue(dataset.data[index]);
+      var outerRadius = this.chart.getDataVisibility(index) ? scale.getDistanceFromCenterForValue(dataset.data[index]) : 0;
       angle = endAngle;
       if (reset) {
         if (animationOpts.animateScale) {
@@ -5059,7 +5040,7 @@ class PolarAreaController extends DatasetController {
     var meta = this._cachedMeta;
     var count = 0;
     meta.data.forEach((element, index) => {
-      if (!isNaN(dataset.data[index]) && !element.hidden) {
+      if (!isNaN(dataset.data[index]) && this.chart.getDataVisibility(index)) {
         count++;
       }
     });
@@ -5070,7 +5051,7 @@ class PolarAreaController extends DatasetController {
     var meta = me._cachedMeta;
     var count = meta.count;
     var dataset = me.getDataset();
-    if (isNaN(dataset.data[index]) || meta.data[index].hidden) {
+    if (isNaN(dataset.data[index]) || !this.chart.getDataVisibility(index)) {
       return 0;
     }
     var context = {
@@ -6784,6 +6765,7 @@ class Chart {
     this.scale = undefined;
     this.$plugins = undefined;
     this.$proxies = {};
+    this._hiddenIndices = {};
     Chart.instances[me.id] = me;
     Object.defineProperty(me, 'data', {
       get() {
@@ -7229,11 +7211,11 @@ class Chart {
     var meta = this.getDatasetMeta(datasetIndex);
     meta.hidden = !visible;
   }
-  setDataVisibility(datasetIndex, index, visible) {
-    var meta = this.getDatasetMeta(datasetIndex);
-    if (meta.data[index]) {
-      meta.data[index].hidden = !visible;
-    }
+  toggleDataVisibility(index) {
+    this._hiddenIndices[index] = !this._hiddenIndices[index];
+  }
+  getDataVisibility(index) {
+    return !this._hiddenIndices[index];
   }
   _updateDatasetVisibility(datasetIndex, visible) {
     var me = this;
