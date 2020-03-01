@@ -3062,15 +3062,12 @@ DatasetController.prototype.datasetElementOptions = ['backgroundColor', 'borderC
 DatasetController.prototype.dataElementOptions = ['backgroundColor', 'borderColor', 'borderWidth', 'pointStyle'];
 
 class Element$1 {
-  constructor(cfg) {
+  constructor() {
     this.x = undefined;
     this.y = undefined;
     this.active = false;
     this.options = undefined;
     this.$animations = undefined;
-    if (cfg) {
-      _extends(this, cfg);
-    }
   }
   tooltipPosition(useFinalPosition) {
     var {
@@ -3104,9 +3101,9 @@ var TAU$1 = Math.PI * 2;
 defaults.set('elements', {
   arc: {
     backgroundColor: defaults.color,
+    borderAlign: 'center',
     borderColor: '#fff',
-    borderWidth: 2,
-    borderAlign: 'center'
+    borderWidth: 2
   }
 });
 function clipArc(ctx, arc) {
@@ -3499,16 +3496,16 @@ function _computeSegments(line) {
 var defaultColor = defaults.color;
 defaults.set('elements', {
   line: {
-    tension: 0.4,
     backgroundColor: defaultColor,
-    borderWidth: 3,
-    borderColor: defaultColor,
     borderCapStyle: 'butt',
+    borderColor: defaultColor,
     borderDash: [],
-    borderDashOffset: 0.0,
+    borderDashOffset: 0,
     borderJoinStyle: 'miter',
+    borderWidth: 3,
     capBezierPoints: true,
-    fill: true
+    fill: true,
+    tension: 0.4
   }
 });
 function setStyle(ctx, vm) {
@@ -3744,14 +3741,14 @@ _defineProperty(Line, "_type", 'line');
 var defaultColor$1 = defaults.color;
 defaults.set('elements', {
   point: {
-    radius: 3,
-    pointStyle: 'circle',
     backgroundColor: defaultColor$1,
     borderColor: defaultColor$1,
     borderWidth: 1,
     hitRadius: 1,
+    hoverBorderWidth: 1,
     hoverRadius: 4,
-    hoverBorderWidth: 1
+    pointStyle: 'circle',
+    radius: 3
   }
 });
 class Point extends Element$1 {
