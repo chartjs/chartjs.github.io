@@ -973,47 +973,12 @@
 <li>Chart.js is no longer providing the <code>Chart.bundle.js</code> and <code>Chart.bundle.min.js</code>. Please see the <a href="installation.html">installation</a> and <a href="integration.html">integration</a> docs for details on the recommended way to setup Chart.js if you were using these builds.</li>
 <li><code>moment</code> is no longer specified as an npm dependency. If you are using the time scale, you must include one of <a href="https://github.com/chartjs/awesome#adapters" target="_blank">the available adapters</a> and corresponding date library. You no longer need to exclude moment from your build.</li>
 </ul>
-<h3 id="ticks">Ticks</h3>
-<ul>
-<li><code>options.ticks.userCallback</code> was renamed to <code>options.ticks.callback</code></li>
-<li><code>options.ticks.major</code> and <code>options.ticks.minor</code> were replaced with scriptable options for tick fonts.</li>
-<li><code>Chart.Ticks.formatters.linear</code> and <code>Chart.Ticks.formatters.logarithmic</code> were replaced with <code>Chart.Ticks.formatters.numeric</code>.</li>
-</ul>
-<h3 id="tooltip">Tooltip</h3>
-<ul>
-<li><code>xLabel</code> and <code>yLabel</code> were removed. Please use <code>index</code> and <code>value</code></li>
-</ul>
-<h3 id="interactions">Interactions</h3>
-<ul>
-<li><code>interactions</code> are now limited to the chart area</li>
-<li><code>{mode: &apos;label&apos;}</code> was replaced with <code>{mode: &apos;index&apos;}</code></li>
-<li><code>{mode: &apos;single&apos;}</code> was replaced with <code>{mode: &apos;nearest&apos;, intersect: true}</code></li>
-<li><code>modes[&apos;X-axis&apos;]</code> was replaced with <code>{mode: &apos;index&apos;, intersect: false}</code></li>
-<li><code>options.onClick</code> is now limited to the chart area</li>
-</ul>
-<h3 id="customizability">Customizability</h3>
-<ul>
-<li><code>custom</code> attribute of elements was removed. Please use scriptable options</li>
-<li>The <code>hover</code> property of scriptable options <code>context</code> object was renamed to <code>active</code> to align it with the datalabels plugin.</li>
-<li>The <code>zeroLine*</code> options of axes were removed. Use scriptable scale options instead.</li>
-</ul>
-<h2 id="defaults">Defaults</h2>
-<ul>
-<li><code>global</code> namespace was removed from <code>defaults</code>. So <code>Chart.defaults.global</code> is now <code>Chart.defaults</code></li>
-<li><code>default</code> prefix was removed from defaults. For example <code>Chart.defaults.global.defaultColor</code> is now <code>Chart.defaults.color</code><ul>
-<li><code>defaultColor</code> was renamed to <code>color</code></li>
-<li><code>defaultFontColor</code> was renamed to <code>fontColor</code></li>
-<li><code>defaultFontFamily</code> was renamed to <code>fontFamily</code></li>
-<li><code>defaultFontSize</code> was renamed to <code>fontSize</code></li>
-<li><code>defaultFontStyle</code> was renamed to <code>fontStyle</code></li>
-<li><code>defaultLineHeight</code> was renamed to <code>lineHeight</code></li>
-</ul>
-</li>
-</ul>
 <h3 id="options">Options</h3>
+<p>A number of changes were made to the configuration options passed to the <code>Chart</code> constructor. Those changes are documented below.</p>
 <ul>
-<li>Dataset options are now configured as <code>options[type].datasets</code> rather than <code>options.datasets[type]</code></li>
-<li><code>Polar area</code> <code>startAngle</code> option is now consistent with <code>Radar</code>, 0 is at top and value is in degrees. Default is changed from <code>-&#xBD;&#x3C0;</code> to  <code>0</code>.</li>
+<li><code>hover.animationDuration</code> is now configured in <code>animation.active.duration</code></li>
+<li><code>responsiveAnimationDuration</code> is now configured in <code>animation.resize.duration</code></li>
+<li>Polar area <code>startAngle</code> option is now consistent with <code>Radar</code>, 0 is at top and value is in degrees. Default is changed from <code>-&#xBD;&#x3C0;</code> to  <code>0</code>.</li>
 <li><code>scales.[x/y]Axes</code> arrays were removed. Scales are now configured directly to <code>options.scales</code> object with the object key being the scale Id.</li>
 <li><code>scales.[x/y]Axes.barPercentage</code> was moved to dataset option <code>barPercentage</code></li>
 <li><code>scales.[x/y]Axes.barThickness</code> was moved to dataset option <code>barThickness</code></li>
@@ -1027,21 +992,123 @@
 <li><code>scales.[x/y]Axes.ticks.suggestedMax</code> was renamed to <code>scales[id].suggestedMax</code></li>
 <li><code>scales.[x/y]Axes.ticks.suggestedMin</code> was renamed to <code>scales[id].suggestedMin</code></li>
 <li><code>scales.[x/y]Axes.ticks.unitStepSize</code> was removed. Use <code>scales[id].ticks.stepSize</code></li>
+<li><code>scales.[x/y]Axes.ticks.userCallback</code> was renamed to <code>scales[id].ticks.callback</code></li>
 <li><code>scales.[x/y]Axes.time.format</code> was renamed to <code>scales[id].time.parser</code></li>
 <li><code>scales.[x/y]Axes.time.max</code> was renamed to <code>scales[id].max</code></li>
 <li><code>scales.[x/y]Axes.time.min</code> was renamed to <code>scales[id].min</code></li>
+<li><code>scales.[x/y]Axes.zeroLine*</code> options of axes were removed. Use scriptable scale options instead.</li>
 <li>The dataset option <code>steppedLine</code> was removed. Use <code>stepped</code></li>
 <li>The dataset option <code>tension</code> was removed. Use <code>lineTension</code></li>
+<li>Dataset options are now configured as <code>options[type].datasets</code> rather than <code>options.datasets[type]</code></li>
 <li>To override the platform class used in a chart instance, pass <code>platform: PlatformClass</code> in the config object. Note that the class should be passed, not an instance of the class.</li>
 </ul>
-<h3 id="animations">Animations</h3>
-<p>Animation system was completely rewritten in Chart.js v3. Each property can now be animated separately. Please see <a href="../configuration/animations.html">animations</a> docs for details.</p>
+<h4 id="defaults">Defaults</h4>
 <ul>
-<li><code>hover.animationDuration</code> is now configured in <code>animation.active.duration</code></li>
-<li><code>responsiveAnimationDuration</code> is now configured in <code>animation.resize.duration</code></li>
+<li><code>global</code> namespace was removed from <code>defaults</code>. So <code>Chart.defaults.global</code> is now <code>Chart.defaults</code></li>
+<li><code>default</code> prefix was removed from defaults. For example <code>Chart.defaults.global.defaultColor</code> is now <code>Chart.defaults.color</code></li>
+<li><code>defaultColor</code> was renamed to <code>color</code></li>
+<li><code>defaultFontColor</code> was renamed to <code>fontColor</code></li>
+<li><code>defaultFontFamily</code> was renamed to <code>fontFamily</code></li>
+<li><code>defaultFontSize</code> was renamed to <code>fontSize</code></li>
+<li><code>defaultFontStyle</code> was renamed to <code>fontStyle</code></li>
+<li><code>defaultLineHeight</code> was renamed to <code>lineHeight</code></li>
+</ul>
+<h4 id="scales">Scales</h4>
+<p>The configuration options for scales is the largest change in v3. The <code>xAxes</code> and <code>yAxes</code> arrays were removed and axis options are individual scales now keyed by scale ID.</p>
+<p>The v2 configuration below is shown with it&apos;s new v3 configuration</p>
+<pre><code class="lang-javascript">options: {
+  scales: {
+    xAxes: [{
+      id: <span class="hljs-string">&apos;x&apos;</span>,
+      type: <span class="hljs-string">&apos;time&apos;</span>,
+      display: <span class="hljs-literal">true</span>,
+      scaleLabel: {
+        display: <span class="hljs-literal">true</span>,
+        labelString: <span class="hljs-string">&apos;Date&apos;</span>
+      },
+      ticks: {
+        major: {
+          enabled: <span class="hljs-literal">true</span>
+        },
+        fontStyle: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">context</span>) </span>{
+          <span class="hljs-keyword">return</span> context.tick &amp;&amp; context.tick.major ? <span class="hljs-string">&apos;bold&apos;</span> : <span class="hljs-literal">undefined</span>;
+        },
+        fontColor: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">context</span>) </span>{
+          <span class="hljs-keyword">return</span> context.tick &amp;&amp; context.tick.major ? <span class="hljs-string">&apos;#FF0000&apos;</span> : <span class="hljs-literal">undefined</span>;
+        }
+      }
+    }],
+    yAxes: [{
+      id: <span class="hljs-string">&apos;y&apos;</span>,
+      display: <span class="hljs-literal">true</span>,
+      scaleLabel: {
+        display: <span class="hljs-literal">true</span>,
+        labelString: <span class="hljs-string">&apos;value&apos;</span>
+      }
+    }]
+  }
+}
+</code></pre>
+<p>And now, in v3:</p>
+<pre><code class="lang-javascript">options: {
+  scales: {
+    x: {
+      type: <span class="hljs-string">&apos;time&apos;</span>,
+      display: <span class="hljs-literal">true</span>,
+      scaleLabel: {
+        display: <span class="hljs-literal">true</span>,
+        labelString: <span class="hljs-string">&apos;Date&apos;</span>
+      },
+      ticks: {
+        major: {
+          enabled: <span class="hljs-literal">true</span>
+        },
+        fontStyle: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">context</span>) </span>{
+          <span class="hljs-keyword">return</span> context.tick &amp;&amp; context.tick.major ? <span class="hljs-string">&apos;bold&apos;</span> : <span class="hljs-literal">undefined</span>;
+        },
+        fontColor: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">context</span>) </span>{
+          <span class="hljs-keyword">return</span> context.tick &amp;&amp; context.tick.major ? <span class="hljs-string">&apos;#FF0000&apos;</span> : <span class="hljs-literal">undefined</span>;
+        }
+      }
+    },
+    y: {
+      display: <span class="hljs-literal">true</span>,
+      scaleLabel: {
+        display: <span class="hljs-literal">true</span>,
+        labelString: <span class="hljs-string">&apos;value&apos;</span>
+      }
+    }
+  }
+}
+</code></pre>
+<h4 id="animations">Animations</h4>
+<p>Animation system was completely rewritten in Chart.js v3. Each property can now be animated separately. Please see <a href="../configuration/animations.html">animations</a> docs for details.</p>
+<h4 id="customizability">Customizability</h4>
+<ul>
+<li><code>custom</code> attribute of elements was removed. Please use scriptable options</li>
+<li>The <code>hover</code> property of scriptable options <code>context</code> object was renamed to <code>active</code> to align it with the datalabels plugin.</li>
+</ul>
+<h4 id="interactions">Interactions</h4>
+<ul>
+<li><code>interactions</code> are now limited to the chart area</li>
+<li><code>{mode: &apos;label&apos;}</code> was replaced with <code>{mode: &apos;index&apos;}</code></li>
+<li><code>{mode: &apos;single&apos;}</code> was replaced with <code>{mode: &apos;nearest&apos;, intersect: true}</code></li>
+<li><code>modes[&apos;X-axis&apos;]</code> was replaced with <code>{mode: &apos;index&apos;, intersect: false}</code></li>
+<li><code>options.onClick</code> is now limited to the chart area</li>
+</ul>
+<h4 id="ticks">Ticks</h4>
+<ul>
+<li><code>options.ticks.major</code> and <code>options.ticks.minor</code> were replaced with scriptable options for tick fonts.</li>
+<li><code>Chart.Ticks.formatters.linear</code> and <code>Chart.Ticks.formatters.logarithmic</code> were replaced with <code>Chart.Ticks.formatters.numeric</code>.</li>
+</ul>
+<h4 id="tooltip">Tooltip</h4>
+<ul>
+<li><code>xLabel</code> and <code>yLabel</code> were removed. Please use <code>index</code> and <code>value</code></li>
 </ul>
 <h2 id="developer-migration">Developer migration</h2>
 <h3 id="removed">Removed</h3>
+<p>The following properties and methods were removed:</p>
+<h4 id="chart">Chart</h4>
 <ul>
 <li><code>Chart.borderWidth</code></li>
 <li><code>Chart.chart.chart</code></li>
@@ -1055,14 +1122,25 @@
 <li><code>Chart.radiusLength</code></li>
 <li><code>Chart.types</code></li>
 <li><code>Chart.Tooltip</code> is now provided by the tooltip plugin. The positioners can be accessed from <code>tooltipPlugin.positioners</code></li>
+<li><code>ILayoutItem.minSize</code></li>
+</ul>
+<h4 id="dataset-controller">Dataset Controller</h4>
+<ul>
 <li><code>DatasetController.addElementAndReset</code></li>
 <li><code>DatasetController.createMetaData</code></li>
 <li><code>DatasetController.createMetaDataset</code></li>
+</ul>
+<h4 id="elements">Elements</h4>
+<ul>
 <li><code>Element.getArea</code></li>
 <li><code>Element.height</code></li>
 <li><code>Element.hidden</code> was replaced by chart level status, usable with <code>getDataVisibility(index)</code> / <code>toggleDataVisibility(index)</code></li>
 <li><code>Element.initialize</code></li>
 <li><code>Element.inLabelRange</code></li>
+<li><code>Line.calculatePointY</code></li>
+</ul>
+<h4 id="helpers">Helpers</h4>
+<ul>
 <li><code>helpers.addEvent</code></li>
 <li><code>helpers.aliasPixel</code></li>
 <li><code>helpers.configMerge</code></li>
@@ -1084,10 +1162,9 @@
 <li><code>helpers.roundedRect</code></li>
 <li><code>helpers.scaleMerge</code></li>
 <li><code>helpers.where</code></li>
-<li><code>ILayoutItem.minSize</code></li>
-<li><code>IPlugin.afterScaleUpdate</code>. Use <code>afterLayout</code> instead</li>
-<li><code>Legend.margins</code> is now private</li>
-<li><code>Line.calculatePointY</code></li>
+</ul>
+<h4 id="scales">Scales</h4>
+<ul>
 <li><code>LogarithmicScale.minNotZero</code></li>
 <li><code>Scale.getRightValue</code></li>
 <li><code>Scale.longestLabelWidth</code></li>
@@ -1098,10 +1175,16 @@
 <li><code>Scale.tickValues</code> is now private</li>
 <li><code>TimeScale.getLabelCapacity</code> is now private</li>
 <li><code>TimeScale.tickFormatFunction</code> is now private</li>
+</ul>
+<h4 id="plugins-legend-title-and-tooltip">Plugins (Legend, Title, and Tooltip)</h4>
+<ul>
+<li><code>IPlugin.afterScaleUpdate</code>. Use <code>afterLayout</code> instead</li>
+<li><code>Legend.margins</code> is now private</li>
 <li><code>Title.margins</code> is now private</li>
 <li>The tooltip item&apos;s <code>x</code> and <code>y</code> attributes were removed. Use <code>datasetIndex</code> and <code>index</code> to get the element and any corresponding data from it</li>
 </ul>
 <h4 id="removal-of-private-apis">Removal of private APIs</h4>
+<p>The following private APIs were removed.</p>
 <ul>
 <li><code>Chart.data.datasets[datasetIndex]._meta</code></li>
 <li><code>Element._ctx</code></li>
@@ -1113,6 +1196,7 @@
 <li><code>Tooltip._lastActive</code></li>
 </ul>
 <h3 id="renamed">Renamed</h3>
+<p>The following properties were renamed during v3 development:</p>
 <ul>
 <li><code>Chart.Animation.animationObject</code> was renamed to <code>Chart.Animation</code></li>
 <li><code>Chart.Animation.chartInstance</code> was renamed to <code>Chart.Animation.chart</code></li>
@@ -1143,6 +1227,7 @@
 <li><code>Tooltip.options.legendColorBackgroupd</code> was renamed to <code>Tooltip.options.multiKeyBackground</code></li>
 </ul>
 <h4 id="renamed-private-apis">Renamed private APIs</h4>
+<p>The private APIs listed below were renamed:</p>
 <ul>
 <li><code>BarController.calculateBarIndexPixels</code> was renamed to <code>BarController._calculateBarIndexPixels</code></li>
 <li><code>BarController.calculateBarValuePixels</code> was renamed to <code>BarController._calculateBarValuePixels</code></li>
@@ -1175,6 +1260,7 @@
 <li><code>helpers._decimalPlaces</code> was renamed to <code>helpers.math._decimalPlaces</code></li>
 </ul>
 <h3 id="changed">Changed</h3>
+<p>The APIs listed in this section have changed in signature or behaviour from version 2.</p>
 <h4 id="scales">Scales</h4>
 <ul>
 <li><code>Scale.getLabelForIndex</code> was replaced by <code>scale.getLabelForValue</code></li>
@@ -1265,7 +1351,7 @@
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Migration Guide","level":"1.3.4","depth":2,"next":{"title":"General","level":"1.4","depth":1,"path":"general/README.md","ref":"general/README.md","articles":[{"title":"Data structures","level":"1.4.1","depth":2,"path":"general/data-structures.md","ref":"general/data-structures.md","articles":[]},{"title":"Accessibility","level":"1.4.2","depth":2,"path":"general/accessibility.md","ref":"general/accessibility.md","articles":[]},{"title":"Responsive","level":"1.4.3","depth":2,"path":"general/responsive.md","ref":"general/responsive.md","articles":[]},{"title":"Pixel Ratio","level":"1.4.4","depth":2,"path":"general/device-pixel-ratio.md","ref":"general/device-pixel-ratio.md","articles":[]},{"title":"Interactions","level":"1.4.5","depth":2,"path":"general/interactions/README.md","ref":"general/interactions/README.md","articles":[{"title":"Events","level":"1.4.5.1","depth":3,"path":"general/interactions/events.md","ref":"general/interactions/events.md","articles":[]},{"title":"Modes","level":"1.4.5.2","depth":3,"path":"general/interactions/modes.md","ref":"general/interactions/modes.md","articles":[]}]},{"title":"Options","level":"1.4.6","depth":2,"path":"general/options.md","ref":"general/options.md","articles":[]},{"title":"Colors","level":"1.4.7","depth":2,"path":"general/colors.md","ref":"general/colors.md","articles":[]},{"title":"Fonts","level":"1.4.8","depth":2,"path":"general/fonts.md","ref":"general/fonts.md","articles":[]},{"title":"Performance","level":"1.4.9","depth":2,"path":"general/performance.md","ref":"general/performance.md","articles":[]}]},"previous":{"title":"Usage","level":"1.3.3","depth":2,"path":"getting-started/usage.md","ref":"getting-started/usage.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga","redirect"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"chartjs":{"defaults":null},"fontsettings":{"theme":"white","family":"sans","size":2},"highlight":{},"ga":{"configuration":"auto","token":"UA-28909194-3"},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"redirect":{},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"anchorjs":{"icon":"#","placement":"left","visible":"always"},"search-plus":{}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"getting-started/v3-migration.md","mtime":"2020-03-08T15:12:06.584Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2020-03-08T15:16:10.605Z"},"basePath":"..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Migration Guide","level":"1.3.4","depth":2,"next":{"title":"General","level":"1.4","depth":1,"path":"general/README.md","ref":"general/README.md","articles":[{"title":"Data structures","level":"1.4.1","depth":2,"path":"general/data-structures.md","ref":"general/data-structures.md","articles":[]},{"title":"Accessibility","level":"1.4.2","depth":2,"path":"general/accessibility.md","ref":"general/accessibility.md","articles":[]},{"title":"Responsive","level":"1.4.3","depth":2,"path":"general/responsive.md","ref":"general/responsive.md","articles":[]},{"title":"Pixel Ratio","level":"1.4.4","depth":2,"path":"general/device-pixel-ratio.md","ref":"general/device-pixel-ratio.md","articles":[]},{"title":"Interactions","level":"1.4.5","depth":2,"path":"general/interactions/README.md","ref":"general/interactions/README.md","articles":[{"title":"Events","level":"1.4.5.1","depth":3,"path":"general/interactions/events.md","ref":"general/interactions/events.md","articles":[]},{"title":"Modes","level":"1.4.5.2","depth":3,"path":"general/interactions/modes.md","ref":"general/interactions/modes.md","articles":[]}]},{"title":"Options","level":"1.4.6","depth":2,"path":"general/options.md","ref":"general/options.md","articles":[]},{"title":"Colors","level":"1.4.7","depth":2,"path":"general/colors.md","ref":"general/colors.md","articles":[]},{"title":"Fonts","level":"1.4.8","depth":2,"path":"general/fonts.md","ref":"general/fonts.md","articles":[]},{"title":"Performance","level":"1.4.9","depth":2,"path":"general/performance.md","ref":"general/performance.md","articles":[]}]},"previous":{"title":"Usage","level":"1.3.3","depth":2,"path":"getting-started/usage.md","ref":"getting-started/usage.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga","redirect"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"chartjs":{"defaults":null},"fontsettings":{"theme":"white","family":"sans","size":2},"highlight":{},"ga":{"configuration":"auto","token":"UA-28909194-3"},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"redirect":{},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"anchorjs":{"icon":"#","placement":"left","visible":"always"},"search-plus":{}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"getting-started/v3-migration.md","mtime":"2020-03-11T23:51:50.892Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2020-03-11T23:56:15.199Z"},"basePath":"..","book":{"language":""}});
         });
     </script>
 </div>
