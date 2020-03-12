@@ -1,0 +1,1394 @@
+
+<!DOCTYPE HTML>
+<html lang="" >
+    <head>
+        <meta charset="UTF-8">
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <title>Migration Guide · Chart.js documentation</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="description" content="">
+        <meta name="generator" content="GitBook 3.2.2">
+        <meta name="author" content="chartjs">
+        
+        
+    
+    <link rel="stylesheet" href="../gitbook/style.css">
+
+    
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-search-plus/search.css">
+                
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-highlight/website.css">
+                
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-fontsettings/website.css">
+                
+            
+        
+
+    
+
+    
+        
+        <link rel="stylesheet" href="../style.css">
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+        
+    
+    
+    
+    <meta name="HandheldFriendly" content="true"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="../gitbook/images/apple-touch-icon-precomposed-152.png">
+    <link rel="shortcut icon" href="../gitbook/images/favicon.ico" type="image/x-icon">
+
+    
+    <link rel="next" href="../general/" />
+    
+    
+    <link rel="prev" href="usage.html" />
+    
+
+    <link rel="stylesheet" href="../gitbook/gitbook-plugin-chartjs/style.css">
+    <script src="../gitbook/gitbook-plugin-chartjs/Chart.bundle.js"></script>
+    <script src="../gitbook/gitbook-plugin-chartjs/chartjs-plugin-deferred.js"></script>
+    
+
+    </head>
+    <body>
+        
+<div class="book">
+    <div class="book-summary">
+        
+            
+<div id="book-search-input" role="search">
+    <input type="text" placeholder="Type to search" />
+</div>
+
+            
+                <nav role="navigation">
+                
+
+
+<ul class="summary">
+    
+    
+
+    
+
+    
+        
+        
+    
+        <li class="chapter " data-level="1.1" >
+            
+                <a target="_blank" href="https://www.chartjs.org">
+            
+                    
+                    Chart.js
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2" data-path="../">
+            
+                <a href="../">
+            
+                    
+                    Introduction
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3" data-path="./">
+            
+                <a href="./">
+            
+                    
+                    Getting Started
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.3.1" data-path="installation.html">
+            
+                <a href="installation.html">
+            
+                    
+                    Installation
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.2" data-path="integration.html">
+            
+                <a href="integration.html">
+            
+                    
+                    Integration
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.3" data-path="usage.html">
+            
+                <a href="usage.html">
+            
+                    
+                    Usage
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter active" data-level="1.3.4" data-path="v3-migration.html">
+            
+                <a href="v3-migration.html">
+            
+                    
+                    Migration Guide
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4" data-path="../general/">
+            
+                <a href="../general/">
+            
+                    
+                    General
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.4.1" data-path="../general/data-structures.html">
+            
+                <a href="../general/data-structures.html">
+            
+                    
+                    Data structures
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.2" data-path="../general/accessibility.html">
+            
+                <a href="../general/accessibility.html">
+            
+                    
+                    Accessibility
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.3" data-path="../general/responsive.html">
+            
+                <a href="../general/responsive.html">
+            
+                    
+                    Responsive
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.4" data-path="../general/device-pixel-ratio.html">
+            
+                <a href="../general/device-pixel-ratio.html">
+            
+                    
+                    Pixel Ratio
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.5" data-path="../general/interactions/">
+            
+                <a href="../general/interactions/">
+            
+                    
+                    Interactions
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.4.5.1" data-path="../general/interactions/events.html">
+            
+                <a href="../general/interactions/events.html">
+            
+                    
+                    Events
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.5.2" data-path="../general/interactions/modes.html">
+            
+                <a href="../general/interactions/modes.html">
+            
+                    
+                    Modes
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.6" data-path="../general/options.html">
+            
+                <a href="../general/options.html">
+            
+                    
+                    Options
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.7" data-path="../general/colors.html">
+            
+                <a href="../general/colors.html">
+            
+                    
+                    Colors
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.8" data-path="../general/fonts.html">
+            
+                <a href="../general/fonts.html">
+            
+                    
+                    Fonts
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.9" data-path="../general/performance.html">
+            
+                <a href="../general/performance.html">
+            
+                    
+                    Performance
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5" data-path="../configuration/">
+            
+                <a href="../configuration/">
+            
+                    
+                    Configuration
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.5.1" data-path="../configuration/animations.html">
+            
+                <a href="../configuration/animations.html">
+            
+                    
+                    Animations
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5.2" data-path="../configuration/layout.html">
+            
+                <a href="../configuration/layout.html">
+            
+                    
+                    Layout
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5.3" data-path="../configuration/legend.html">
+            
+                <a href="../configuration/legend.html">
+            
+                    
+                    Legend
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5.4" data-path="../configuration/title.html">
+            
+                <a href="../configuration/title.html">
+            
+                    
+                    Title
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5.5" data-path="../configuration/tooltip.html">
+            
+                <a href="../configuration/tooltip.html">
+            
+                    
+                    Tooltip
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5.6" data-path="../configuration/elements.html">
+            
+                <a href="../configuration/elements.html">
+            
+                    
+                    Elements
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6" data-path="../charts/">
+            
+                <a href="../charts/">
+            
+                    
+                    Charts
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.6.1" data-path="../charts/line.html">
+            
+                <a href="../charts/line.html">
+            
+                    
+                    Line
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6.2" data-path="../charts/bar.html">
+            
+                <a href="../charts/bar.html">
+            
+                    
+                    Bar
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6.3" data-path="../charts/radar.html">
+            
+                <a href="../charts/radar.html">
+            
+                    
+                    Radar
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6.4" data-path="../charts/doughnut.html">
+            
+                <a href="../charts/doughnut.html">
+            
+                    
+                    Doughnut & Pie
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6.5" data-path="../charts/polar.html">
+            
+                <a href="../charts/polar.html">
+            
+                    
+                    Polar Area
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6.6" data-path="../charts/bubble.html">
+            
+                <a href="../charts/bubble.html">
+            
+                    
+                    Bubble
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6.7" data-path="../charts/scatter.html">
+            
+                <a href="../charts/scatter.html">
+            
+                    
+                    Scatter
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6.8" data-path="../charts/area.html">
+            
+                <a href="../charts/area.html">
+            
+                    
+                    Area
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6.9" data-path="../charts/mixed.html">
+            
+                <a href="../charts/mixed.html">
+            
+                    
+                    Mixed
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7" data-path="../axes/">
+            
+                <a href="../axes/">
+            
+                    
+                    Axes
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.7.1" data-path="../axes/cartesian/">
+            
+                <a href="../axes/cartesian/">
+            
+                    
+                    Cartesian
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.7.1.1" data-path="../axes/cartesian/category.html">
+            
+                <a href="../axes/cartesian/category.html">
+            
+                    
+                    Category
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7.1.2" data-path="../axes/cartesian/linear.html">
+            
+                <a href="../axes/cartesian/linear.html">
+            
+                    
+                    Linear
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7.1.3" data-path="../axes/cartesian/logarithmic.html">
+            
+                <a href="../axes/cartesian/logarithmic.html">
+            
+                    
+                    Logarithmic
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7.1.4" data-path="../axes/cartesian/time.html">
+            
+                <a href="../axes/cartesian/time.html">
+            
+                    
+                    Time
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7.2" data-path="../axes/radial/">
+            
+                <a href="../axes/radial/">
+            
+                    
+                    Radial
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.7.2.1" data-path="../axes/radial/linear.html">
+            
+                <a href="../axes/radial/linear.html">
+            
+                    
+                    Linear
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7.3" data-path="../axes/labelling.html">
+            
+                <a href="../axes/labelling.html">
+            
+                    
+                    Labelling
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7.4" data-path="../axes/styling.html">
+            
+                <a href="../axes/styling.html">
+            
+                    
+                    Styling
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8" data-path="../developers/">
+            
+                <a href="../developers/">
+            
+                    
+                    Developers
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.8.1" data-path="../developers/api.html">
+            
+                <a href="../developers/api.html">
+            
+                    
+                    Chart.js API
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.2" data-path="../typedoc/index.html">
+            
+                <span>
+            
+                    
+                    TypeDoc
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.3" data-path="../developers/updates.html">
+            
+                <a href="../developers/updates.html">
+            
+                    
+                    Updating Charts
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.4" data-path="../developers/plugins.html">
+            
+                <a href="../developers/plugins.html">
+            
+                    
+                    Plugins
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.5" data-path="../developers/charts.html">
+            
+                <a href="../developers/charts.html">
+            
+                    
+                    New Charts
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.6" data-path="../developers/axes.html">
+            
+                <a href="../developers/axes.html">
+            
+                    
+                    New Axes
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.7" data-path="../developers/contributing.html">
+            
+                <a href="../developers/contributing.html">
+            
+                    
+                    Contributing
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.9" data-path="../notes/">
+            
+                <a href="../notes/">
+            
+                    
+                    Additional Notes
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.9.1" data-path="../notes/comparison.html">
+            
+                <a href="../notes/comparison.html">
+            
+                    
+                    Comparison Table
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.9.2" data-path="../notes/extensions.html">
+            
+                <a href="../notes/extensions.html">
+            
+                    
+                    Popular Extensions
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.9.3" data-path="../notes/license.html">
+            
+                <a href="../notes/license.html">
+            
+                    
+                    License
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+
+    
+
+    <li class="divider"></li>
+
+    <li>
+        <a href="https://www.gitbook.com" target="blank" class="gitbook-link">
+            Published with GitBook
+        </a>
+    </li>
+</ul>
+
+
+                </nav>
+            
+        
+    </div>
+
+    <div class="book-body">
+        
+            <div class="body-inner">
+                
+                    
+
+<div class="book-header" role="navigation">
+    
+
+    <!-- Title -->
+    <h1>
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+        <a href=".." >Migration Guide</a>
+    </h1>
+</div>
+
+
+
+
+                    <div class="page-wrapper" tabindex="-1" role="main">
+                        <div class="page-inner">
+                            
+<div class="search-plus" id="book-search-results">
+    <div class="search-noresults">
+    
+                                <section class="normal markdown-section">
+                                
+                                <h1 id="chartjs-3x-migration-guide">Chart.js 3.x Migration Guide</h1>
+<p>Chart.js 3.0 introduces a number of breaking changes. Chart.js 2.0 was released in April 2016. In the years since then, as Chart.js has grown in popularity and feature set, we&apos;ve learned some lessons about how to better create a charting library. In order to improve performance, offer new features, and improve maintainability, it was necessary to break backwards compatibility, but we aimed to do so only when worth the benefit. Some major highlights of v3 include:</p>
+<ul>
+<li>Large <a href="../general/performance.html">performance</a> improvements including the ability to skip data parsing and render charts in parallel via webworkers</li>
+<li>Additional configurability and scriptable options with better defaults</li>
+<li>Completely rewritten animation system</li>
+<li>Rewritten filler plugin with numerous bug fixes</li>
+<li>API Documentation generated and verified by TypeScript</li>
+<li>No more CSS injection</li>
+<li>Tons of bug fixes</li>
+</ul>
+<h2 id="end-user-migration">End user migration</h2>
+<h3 id="setup-and-installation">Setup and installation</h3>
+<ul>
+<li>Chart.js is no longer providing the <code>Chart.bundle.js</code> and <code>Chart.bundle.min.js</code>. Please see the <a href="installation.html">installation</a> and <a href="integration.html">integration</a> docs for details on the recommended way to setup Chart.js if you were using these builds.</li>
+<li><code>moment</code> is no longer specified as an npm dependency. If you are using the time scale, you must include one of <a href="https://github.com/chartjs/awesome#adapters" target="_blank">the available adapters</a> and corresponding date library. You no longer need to exclude moment from your build.</li>
+</ul>
+<h3 id="options">Options</h3>
+<p>A number of changes were made to the configuration options passed to the <code>Chart</code> constructor. Those changes are documented below.</p>
+<ul>
+<li><code>hover.animationDuration</code> is now configured in <code>animation.active.duration</code></li>
+<li><code>responsiveAnimationDuration</code> is now configured in <code>animation.resize.duration</code></li>
+<li>Polar area <code>startAngle</code> option is now consistent with <code>Radar</code>, 0 is at top and value is in degrees. Default is changed from <code>-&#xBD;&#x3C0;</code> to  <code>0</code>.</li>
+<li><code>scales.[x/y]Axes</code> arrays were removed. Scales are now configured directly to <code>options.scales</code> object with the object key being the scale Id.</li>
+<li><code>scales.[x/y]Axes.barPercentage</code> was moved to dataset option <code>barPercentage</code></li>
+<li><code>scales.[x/y]Axes.barThickness</code> was moved to dataset option <code>barThickness</code></li>
+<li><code>scales.[x/y]Axes.categoryPercentage</code> was moved to dataset option <code>categoryPercentage</code></li>
+<li><code>scales.[x/y]Axes.maxBarThickness</code> was moved to dataset option <code>maxBarThickness</code></li>
+<li><code>scales.[x/y]Axes.minBarLength</code> was moved to dataset option <code>minBarLength</code></li>
+<li><code>scales.[x/y]Axes.ticks.beginAtZero</code> was renamed to <code>scales[id].beginAtZero</code></li>
+<li><code>scales.[x/y]Axes.ticks.max</code> was renamed to <code>scales[id].max</code></li>
+<li><code>scales.[x/y]Axes.ticks.min</code> was renamed to <code>scales[id].min</code></li>
+<li><code>scales.[x/y]Axes.ticks.reverse</code> was renamed to <code>scales[id].reverse</code></li>
+<li><code>scales.[x/y]Axes.ticks.suggestedMax</code> was renamed to <code>scales[id].suggestedMax</code></li>
+<li><code>scales.[x/y]Axes.ticks.suggestedMin</code> was renamed to <code>scales[id].suggestedMin</code></li>
+<li><code>scales.[x/y]Axes.ticks.unitStepSize</code> was removed. Use <code>scales[id].ticks.stepSize</code></li>
+<li><code>scales.[x/y]Axes.ticks.userCallback</code> was renamed to <code>scales[id].ticks.callback</code></li>
+<li><code>scales.[x/y]Axes.time.format</code> was renamed to <code>scales[id].time.parser</code></li>
+<li><code>scales.[x/y]Axes.time.max</code> was renamed to <code>scales[id].max</code></li>
+<li><code>scales.[x/y]Axes.time.min</code> was renamed to <code>scales[id].min</code></li>
+<li><code>scales.[x/y]Axes.zeroLine*</code> options of axes were removed. Use scriptable scale options instead.</li>
+<li>The dataset option <code>steppedLine</code> was removed. Use <code>stepped</code></li>
+<li>The dataset option <code>tension</code> was removed. Use <code>lineTension</code></li>
+<li>Dataset options are now configured as <code>options[type].datasets</code> rather than <code>options.datasets[type]</code></li>
+<li>To override the platform class used in a chart instance, pass <code>platform: PlatformClass</code> in the config object. Note that the class should be passed, not an instance of the class.</li>
+</ul>
+<h4 id="defaults">Defaults</h4>
+<ul>
+<li><code>global</code> namespace was removed from <code>defaults</code>. So <code>Chart.defaults.global</code> is now <code>Chart.defaults</code></li>
+<li><code>default</code> prefix was removed from defaults. For example <code>Chart.defaults.global.defaultColor</code> is now <code>Chart.defaults.color</code></li>
+<li><code>defaultColor</code> was renamed to <code>color</code></li>
+<li><code>defaultFontColor</code> was renamed to <code>fontColor</code></li>
+<li><code>defaultFontFamily</code> was renamed to <code>fontFamily</code></li>
+<li><code>defaultFontSize</code> was renamed to <code>fontSize</code></li>
+<li><code>defaultFontStyle</code> was renamed to <code>fontStyle</code></li>
+<li><code>defaultLineHeight</code> was renamed to <code>lineHeight</code></li>
+</ul>
+<h4 id="scales">Scales</h4>
+<p>The configuration options for scales is the largest change in v3. The <code>xAxes</code> and <code>yAxes</code> arrays were removed and axis options are individual scales now keyed by scale ID.</p>
+<p>The v2 configuration below is shown with it&apos;s new v3 configuration</p>
+<pre><code class="lang-javascript">options: {
+  scales: {
+    xAxes: [{
+      id: <span class="hljs-string">&apos;x&apos;</span>,
+      type: <span class="hljs-string">&apos;time&apos;</span>,
+      display: <span class="hljs-literal">true</span>,
+      scaleLabel: {
+        display: <span class="hljs-literal">true</span>,
+        labelString: <span class="hljs-string">&apos;Date&apos;</span>
+      },
+      ticks: {
+        major: {
+          enabled: <span class="hljs-literal">true</span>
+        },
+        fontStyle: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">context</span>) </span>{
+          <span class="hljs-keyword">return</span> context.tick &amp;&amp; context.tick.major ? <span class="hljs-string">&apos;bold&apos;</span> : <span class="hljs-literal">undefined</span>;
+        },
+        fontColor: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">context</span>) </span>{
+          <span class="hljs-keyword">return</span> context.tick &amp;&amp; context.tick.major ? <span class="hljs-string">&apos;#FF0000&apos;</span> : <span class="hljs-literal">undefined</span>;
+        }
+      }
+    }],
+    yAxes: [{
+      id: <span class="hljs-string">&apos;y&apos;</span>,
+      display: <span class="hljs-literal">true</span>,
+      scaleLabel: {
+        display: <span class="hljs-literal">true</span>,
+        labelString: <span class="hljs-string">&apos;value&apos;</span>
+      }
+    }]
+  }
+}
+</code></pre>
+<p>And now, in v3:</p>
+<pre><code class="lang-javascript">options: {
+  scales: {
+    x: {
+      type: <span class="hljs-string">&apos;time&apos;</span>,
+      display: <span class="hljs-literal">true</span>,
+      scaleLabel: {
+        display: <span class="hljs-literal">true</span>,
+        labelString: <span class="hljs-string">&apos;Date&apos;</span>
+      },
+      ticks: {
+        major: {
+          enabled: <span class="hljs-literal">true</span>
+        },
+        fontStyle: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">context</span>) </span>{
+          <span class="hljs-keyword">return</span> context.tick &amp;&amp; context.tick.major ? <span class="hljs-string">&apos;bold&apos;</span> : <span class="hljs-literal">undefined</span>;
+        },
+        fontColor: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">context</span>) </span>{
+          <span class="hljs-keyword">return</span> context.tick &amp;&amp; context.tick.major ? <span class="hljs-string">&apos;#FF0000&apos;</span> : <span class="hljs-literal">undefined</span>;
+        }
+      }
+    },
+    y: {
+      display: <span class="hljs-literal">true</span>,
+      scaleLabel: {
+        display: <span class="hljs-literal">true</span>,
+        labelString: <span class="hljs-string">&apos;value&apos;</span>
+      }
+    }
+  }
+}
+</code></pre>
+<h4 id="animations">Animations</h4>
+<p>Animation system was completely rewritten in Chart.js v3. Each property can now be animated separately. Please see <a href="../configuration/animations.html">animations</a> docs for details.</p>
+<h4 id="customizability">Customizability</h4>
+<ul>
+<li><code>custom</code> attribute of elements was removed. Please use scriptable options</li>
+<li>The <code>hover</code> property of scriptable options <code>context</code> object was renamed to <code>active</code> to align it with the datalabels plugin.</li>
+</ul>
+<h4 id="interactions">Interactions</h4>
+<ul>
+<li><code>interactions</code> are now limited to the chart area</li>
+<li><code>{mode: &apos;label&apos;}</code> was replaced with <code>{mode: &apos;index&apos;}</code></li>
+<li><code>{mode: &apos;single&apos;}</code> was replaced with <code>{mode: &apos;nearest&apos;, intersect: true}</code></li>
+<li><code>modes[&apos;X-axis&apos;]</code> was replaced with <code>{mode: &apos;index&apos;, intersect: false}</code></li>
+<li><code>options.onClick</code> is now limited to the chart area</li>
+</ul>
+<h4 id="ticks">Ticks</h4>
+<ul>
+<li><code>options.ticks.major</code> and <code>options.ticks.minor</code> were replaced with scriptable options for tick fonts.</li>
+<li><code>Chart.Ticks.formatters.linear</code> and <code>Chart.Ticks.formatters.logarithmic</code> were replaced with <code>Chart.Ticks.formatters.numeric</code>.</li>
+</ul>
+<h4 id="tooltip">Tooltip</h4>
+<ul>
+<li><code>xLabel</code> and <code>yLabel</code> were removed. Please use <code>index</code> and <code>value</code></li>
+</ul>
+<h2 id="developer-migration">Developer migration</h2>
+<h3 id="removed">Removed</h3>
+<p>The following properties and methods were removed:</p>
+<h4 id="chart">Chart</h4>
+<ul>
+<li><code>Chart.borderWidth</code></li>
+<li><code>Chart.chart.chart</code></li>
+<li><code>Chart.Controller</code></li>
+<li><code>Chart.innerRadius</code></li>
+<li><code>Chart.offsetX</code></li>
+<li><code>Chart.offsetY</code></li>
+<li><code>Chart.outerRadius</code></li>
+<li><code>Chart.prototype.generateLegend</code></li>
+<li><code>Chart.platform</code>. It only contained <code>disableCSSInjection</code>. CSS is never injected in v3.</li>
+<li><code>Chart.radiusLength</code></li>
+<li><code>Chart.types</code></li>
+<li><code>Chart.Tooltip</code> is now provided by the tooltip plugin. The positioners can be accessed from <code>tooltipPlugin.positioners</code></li>
+<li><code>ILayoutItem.minSize</code></li>
+</ul>
+<h4 id="dataset-controller">Dataset Controller</h4>
+<ul>
+<li><code>DatasetController.addElementAndReset</code></li>
+<li><code>DatasetController.createMetaData</code></li>
+<li><code>DatasetController.createMetaDataset</code></li>
+</ul>
+<h4 id="elements">Elements</h4>
+<ul>
+<li><code>Element.getArea</code></li>
+<li><code>Element.height</code></li>
+<li><code>Element.hidden</code> was replaced by chart level status, usable with <code>getDataVisibility(index)</code> / <code>toggleDataVisibility(index)</code></li>
+<li><code>Element.initialize</code></li>
+<li><code>Element.inLabelRange</code></li>
+<li><code>Line.calculatePointY</code></li>
+</ul>
+<h4 id="helpers">Helpers</h4>
+<ul>
+<li><code>helpers.addEvent</code></li>
+<li><code>helpers.aliasPixel</code></li>
+<li><code>helpers.configMerge</code></li>
+<li><code>helpers.findIndex</code></li>
+<li><code>helpers.findNextWhere</code></li>
+<li><code>helpers.findPreviousWhere</code></li>
+<li><code>helpers.extend</code>. Use <code>Object.assign</code> instead</li>
+<li><code>helpers.indexOf</code></li>
+<li><code>helpers.lineTo</code></li>
+<li><code>helpers.longestText</code> was moved to the <code>helpers.canvas</code> namespace and made private</li>
+<li><code>helpers.max</code></li>
+<li><code>helpers.measureText</code> was moved to the <code>helpers.canvas</code> namespace and made private</li>
+<li><code>helpers.min</code></li>
+<li><code>helpers.nextItem</code></li>
+<li><code>helpers.niceNum</code></li>
+<li><code>helpers.numberOfLabelLines</code></li>
+<li><code>helpers.previousItem</code></li>
+<li><code>helpers.removeEvent</code></li>
+<li><code>helpers.roundedRect</code></li>
+<li><code>helpers.scaleMerge</code></li>
+<li><code>helpers.where</code></li>
+</ul>
+<h4 id="scales">Scales</h4>
+<ul>
+<li><code>LogarithmicScale.minNotZero</code></li>
+<li><code>Scale.getRightValue</code></li>
+<li><code>Scale.longestLabelWidth</code></li>
+<li><code>Scale.longestTextCache</code> is now private</li>
+<li><code>Scale.margins</code> is now private</li>
+<li><code>Scale.mergeTicksOptions</code></li>
+<li><code>Scale.ticksAsNumbers</code></li>
+<li><code>Scale.tickValues</code> is now private</li>
+<li><code>TimeScale.getLabelCapacity</code> is now private</li>
+<li><code>TimeScale.tickFormatFunction</code> is now private</li>
+</ul>
+<h4 id="plugins-legend-title-and-tooltip">Plugins (Legend, Title, and Tooltip)</h4>
+<ul>
+<li><code>IPlugin.afterScaleUpdate</code>. Use <code>afterLayout</code> instead</li>
+<li><code>Legend.margins</code> is now private</li>
+<li><code>Title.margins</code> is now private</li>
+<li>The tooltip item&apos;s <code>x</code> and <code>y</code> attributes were removed. Use <code>datasetIndex</code> and <code>index</code> to get the element and any corresponding data from it</li>
+</ul>
+<h4 id="removal-of-private-apis">Removal of private APIs</h4>
+<p>The following private APIs were removed.</p>
+<ul>
+<li><code>Chart.data.datasets[datasetIndex]._meta</code></li>
+<li><code>Element._ctx</code></li>
+<li><code>Element._model</code></li>
+<li><code>Element._view</code></li>
+<li><code>LogarithmicScale._valueOffset</code></li>
+<li><code>TimeScale.getPixelForOffset</code></li>
+<li><code>TimeScale.getLabelWidth</code></li>
+<li><code>Tooltip._lastActive</code></li>
+</ul>
+<h3 id="renamed">Renamed</h3>
+<p>The following properties were renamed during v3 development:</p>
+<ul>
+<li><code>Chart.Animation.animationObject</code> was renamed to <code>Chart.Animation</code></li>
+<li><code>Chart.Animation.chartInstance</code> was renamed to <code>Chart.Animation.chart</code></li>
+<li><code>helpers._decimalPlaces</code> was renamed to <code>helpers.math._decimalPlaces</code></li>
+<li><code>helpers.almostEquals</code> was renamed to <code>helpers.math.almostEquals</code></li>
+<li><code>helpers.almostWhole</code> was renamed to <code>helpers.math.almostWhole</code></li>
+<li><code>helpers.callCallback</code> was renamed to <code>helpers.callback</code></li>
+<li><code>helpers.clear</code> was renamed to <code>helpers.canvas.clear</code></li>
+<li><code>helpers.distanceBetweenPoints</code> was renamed to <code>helpers.math.distanceBetweenPoints</code></li>
+<li><code>helpers.drawRoundedRectangle</code> was renamed to <code>helpers.canvas.roundedRect</code></li>
+<li><code>helpers.getAngleFromPoint</code> was renamed to <code>helpers.math.getAngleFromPoint</code></li>
+<li><code>helpers.getMaximumHeight</code> was renamed to <code>helpers.dom.getMaximumHeight</code></li>
+<li><code>helpers.getMaximumWidth</code> was renamed to <code>helpers.dom.getMaximumWidth</code></li>
+<li><code>helpers.getRelativePosition</code> was renamed to <code>helpers.dom.getRelativePosition</code></li>
+<li><code>helpers.getStyle</code> was renamed to <code>helpers.dom.getStyle</code></li>
+<li><code>helpers.getValueAtIndexOrDefault</code> was renamed to <code>helpers.valueAtIndexOrDefault</code></li>
+<li><code>helpers.getValueOrDefault</code> was renamed to <code>helpers.valueOrDefault</code></li>
+<li><code>helpers.easingEffects</code> was renamed to <code>helpers.easing.effects</code></li>
+<li><code>helpers.log10</code> was renamed to <code>helpers.math.log10</code></li>
+<li><code>helpers.isNumber</code> was renamed to <code>helpers.math.isNumber</code></li>
+<li><code>helpers.sign</code> was renamed to <code>helpers.math.sign</code></li>
+<li><code>helpers.retinaScale</code> was renamed to <code>helpers.dom.retinaScale</code></li>
+<li><code>helpers.splineCurve</code> was renamed to <code>helpers.curve.splineCurve</code></li>
+<li><code>helpers.splineCurveMonotone</code> was renamed to <code>helpers.curve.splineCurveMonotone</code></li>
+<li><code>helpers.toDegrees</code> was renamed to <code>helpers.math.toDegrees</code></li>
+<li><code>helpers.toRadians</code> was renamed to <code>helpers.math.toRadians</code></li>
+<li><code>Scale.calculateTickRotation</code> was renamed to <code>Scale.calculateLabelRotation</code></li>
+<li><code>Tooltip.options.legendColorBackgroupd</code> was renamed to <code>Tooltip.options.multiKeyBackground</code></li>
+</ul>
+<h4 id="renamed-private-apis">Renamed private APIs</h4>
+<p>The private APIs listed below were renamed:</p>
+<ul>
+<li><code>BarController.calculateBarIndexPixels</code> was renamed to <code>BarController._calculateBarIndexPixels</code></li>
+<li><code>BarController.calculateBarValuePixels</code> was renamed to <code>BarController._calculateBarValuePixels</code></li>
+<li><code>BarController.getStackCount</code> was renamed to <code>BarController._getStackCount</code></li>
+<li><code>BarController.getStackIndex</code> was renamed to <code>BarController._getStackIndex</code></li>
+<li><code>BarController.getRuler</code> was renamed to <code>BarController._getRuler</code></li>
+<li><code>Chart.destroyDatasetMeta</code> was renamed to <code>Chart._destroyDatasetMeta</code></li>
+<li><code>Chart.drawDataset</code> was renamed to <code>Chart._drawDataset</code></li>
+<li><code>Chart.drawDatasets</code> was renamed to <code>Chart._drawDatasets</code></li>
+<li><code>Chart.eventHandler</code> was renamed to <code>Chart._eventHandler</code></li>
+<li><code>Chart.handleEvent</code> was renamed to <code>Chart._handleEvent</code></li>
+<li><code>Chart.initialize</code> was renamed to <code>Chart._initialize</code></li>
+<li><code>Chart.resetElements</code> was renamed to <code>Chart._resetElements</code></li>
+<li><code>Chart.unbindEvents</code> was renamed to <code>Chart._unbindEvents</code></li>
+<li><code>Chart.updateDataset</code> was renamed to <code>Chart._updateDataset</code></li>
+<li><code>Chart.updateDatasets</code> was renamed to <code>Chart._updateDatasets</code></li>
+<li><code>Chart.updateLayout</code> was renamed to <code>Chart._updateLayout</code></li>
+<li><code>DatasetController.destroy</code> was renamed to <code>DatasetController._destroy</code></li>
+<li><code>DatasetController.insertElements</code> was renamed to <code>DatasetController._insertElements</code></li>
+<li><code>DatasetController.onDataPop</code> was renamed to <code>DatasetController._onDataPop</code></li>
+<li><code>DatasetController.onDataPush</code> was renamed to <code>DatasetController._onDataPush</code></li>
+<li><code>DatasetController.onDataShift</code> was renamed to <code>DatasetController._onDataShift</code></li>
+<li><code>DatasetController.onDataSplice</code> was renamed to <code>DatasetController._onDataSplice</code></li>
+<li><code>DatasetController.onDataUnshift</code> was renamed to <code>DatasetController._onDataUnshift</code></li>
+<li><code>DatasetController.removeElements</code> was renamed to <code>DatasetController._removeElements</code></li>
+<li><code>DatasetController.resyncElements</code> was renamed to <code>DatasetController._resyncElements</code></li>
+<li><code>RadialLinearScale.setReductions</code> was renamed to <code>RadialLinearScale._setReductions</code></li>
+<li><code>Scale.handleMargins</code> was renamed to <code>Scale._handleMargins</code></li>
+<li><code>helpers._alignPixel</code> was renamed to <code>helpers.canvas._alignPixel</code></li>
+<li><code>helpers._decimalPlaces</code> was renamed to <code>helpers.math._decimalPlaces</code></li>
+</ul>
+<h3 id="changed">Changed</h3>
+<p>The APIs listed in this section have changed in signature or behaviour from version 2.</p>
+<h4 id="scales">Scales</h4>
+<ul>
+<li><code>Scale.getLabelForIndex</code> was replaced by <code>scale.getLabelForValue</code></li>
+<li><code>Scale.getPixelForValue</code> now has only one parameter. For the <code>TimeScale</code> that parameter must be millis since the epoch</li>
+<li><code>ScaleService.registerScaleType</code> was renamed to <code>ScaleService.registerScale</code> and now takes a scale constructors which is expected to have <code>id</code> and <code>defaults</code> properties.</li>
+</ul>
+<h5 id="ticks">Ticks</h5>
+<ul>
+<li><code>Scale.afterBuildTicks</code> now has no parameters like the other callbacks</li>
+<li><code>Scale.buildTicks</code> is now expected to return tick objects</li>
+<li><code>Scale.convertTicksToLabels</code> was renamed to <code>generateTickLabels</code>. It is now expected to set the label property on the ticks given as input</li>
+<li><code>Scale.ticks</code> now contains objects instead of strings</li>
+<li>When the <code>autoSkip</code> option is enabled, <code>Scale.ticks</code> now contains only the non-skipped ticks instead of all ticks.</li>
+</ul>
+<h5 id="time-scale">Time Scale</h5>
+<ul>
+<li><code>getValueForPixel</code> now returns milliseconds since the epoch</li>
+</ul>
+<h4 id="controllers">Controllers</h4>
+<h5 id="core-controller">Core Controller</h5>
+<ul>
+<li>The first parameter to <code>updateHoverStyle</code> is now an array of objects containing the <code>element</code>, <code>datasetIndex</code>, and <code>index</code></li>
+</ul>
+<h5 id="dataset-controllers">Dataset Controllers</h5>
+<ul>
+<li><code>updateElement</code> was replaced with <code>updateElements</code> now taking the elements to update, the <code>start</code> index, and <code>mode</code></li>
+<li><code>setHoverStyle</code> and <code>removeHoverStyle</code> now additionally take the <code>datasetIndex</code> and <code>index</code></li>
+</ul>
+<h4 id="interactions">Interactions</h4>
+<ul>
+<li>Interaction mode methods now return an array of objects containing the <code>element</code>, <code>datasetIndex</code>, and <code>index</code></li>
+</ul>
+<h4 id="layout">Layout</h4>
+<ul>
+<li><code>ILayoutItem.update</code> no longer has a return value</li>
+</ul>
+<h4 id="helpers">Helpers</h4>
+<h5 id="canvas-helper">Canvas Helper</h5>
+<ul>
+<li>The second parameter to <code>drawPoint</code> is now the full options object, so <code>style</code>, <code>rotation</code>, and <code>radius</code> are no longer passed explicitly</li>
+</ul>
+<h4 id="platform">Platform</h4>
+<ul>
+<li><code>Chart.platform</code> is no longer the platform object used by charts. Every chart instance now has a separate platform instance.</li>
+<li><code>Chart.platforms</code> is an object that contains two usable platform classes, <code>BasicPlatform</code> and <code>DomPlatform</code>. It also contains <code>BasePlatform</code>, a class that all platforms must extend from.</li>
+<li>If the canvas passed in is an instance of <code>OffscreenCanvas</code>, the <code>BasicPlatform</code> is automatically used.</li>
+</ul>
+
+                                
+                                </section>
+                            
+    </div>
+    <div class="search-results">
+        <div class="has-results">
+            
+            <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+            <ul class="search-results-list"></ul>
+            
+        </div>
+        <div class="no-results">
+            
+            <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+            
+        </div>
+    </div>
+</div>
+
+                        </div>
+                    </div>
+                
+            </div>
+
+            
+                
+                <a href="usage.html" class="navigation navigation-prev " aria-label="Previous page: Usage">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+                
+                
+                <a href="../general/" class="navigation navigation-next " aria-label="Next page: General">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+                
+            
+        
+    </div>
+
+    <script>
+        var gitbook = gitbook || [];
+        gitbook.push(function() {
+            gitbook.page.hasChanged({"page":{"title":"Migration Guide","level":"1.3.4","depth":2,"next":{"title":"General","level":"1.4","depth":1,"path":"general/README.md","ref":"general/README.md","articles":[{"title":"Data structures","level":"1.4.1","depth":2,"path":"general/data-structures.md","ref":"general/data-structures.md","articles":[]},{"title":"Accessibility","level":"1.4.2","depth":2,"path":"general/accessibility.md","ref":"general/accessibility.md","articles":[]},{"title":"Responsive","level":"1.4.3","depth":2,"path":"general/responsive.md","ref":"general/responsive.md","articles":[]},{"title":"Pixel Ratio","level":"1.4.4","depth":2,"path":"general/device-pixel-ratio.md","ref":"general/device-pixel-ratio.md","articles":[]},{"title":"Interactions","level":"1.4.5","depth":2,"path":"general/interactions/README.md","ref":"general/interactions/README.md","articles":[{"title":"Events","level":"1.4.5.1","depth":3,"path":"general/interactions/events.md","ref":"general/interactions/events.md","articles":[]},{"title":"Modes","level":"1.4.5.2","depth":3,"path":"general/interactions/modes.md","ref":"general/interactions/modes.md","articles":[]}]},{"title":"Options","level":"1.4.6","depth":2,"path":"general/options.md","ref":"general/options.md","articles":[]},{"title":"Colors","level":"1.4.7","depth":2,"path":"general/colors.md","ref":"general/colors.md","articles":[]},{"title":"Fonts","level":"1.4.8","depth":2,"path":"general/fonts.md","ref":"general/fonts.md","articles":[]},{"title":"Performance","level":"1.4.9","depth":2,"path":"general/performance.md","ref":"general/performance.md","articles":[]}]},"previous":{"title":"Usage","level":"1.3.3","depth":2,"path":"getting-started/usage.md","ref":"getting-started/usage.md","articles":[]},"dir":"ltr"},"config":{"plugins":["-lunr","-search","search-plus","anchorjs","chartjs","ga","redirect"],"root":"./docs","styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"chartjs":{"defaults":null},"fontsettings":{"theme":"white","family":"sans","size":2},"highlight":{},"ga":{"configuration":"auto","token":"UA-28909194-3"},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"redirect":{},"theme-default":{"styles":{"website":"style.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false},"anchorjs":{"icon":"#","placement":"left","visible":"always"},"search-plus":{}},"theme":"default","author":"chartjs","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"title":"Chart.js documentation","gitbook":"3.2.2"},"file":{"path":"getting-started/v3-migration.md","mtime":"2020-03-12T00:48:32.391Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2020-03-12T00:52:42.420Z"},"basePath":"..","book":{"language":""}});
+        });
+    </script>
+</div>
+
+        
+    <script src="../gitbook/gitbook.js"></script>
+    <script src="../gitbook/theme.js"></script>
+    
+        
+        <script src="../gitbook/gitbook-plugin-search-plus/jquery.mark.min.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-search-plus/search.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-anchorjs/anchor.min.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-anchorjs/anchor-style.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-ga/plugin.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-sharing/buttons.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-fontsettings/fontsettings.js"></script>
+        
+    
+
+    </body>
+</html>
+
