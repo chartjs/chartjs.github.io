@@ -10,6 +10,497 @@ typeof define === 'function' && define.amd ? define(factory) :
 (global = global || self, global.Chart = factory());
 }(this, (function () { 'use strict';
 
+var MapShim = function () {
+  if (typeof Map !== 'undefined') {
+    return Map;
+  }
+  function getIndex(arr, key) {
+    var result = -1;
+    arr.some(function (entry, index) {
+      if (entry[0] === key) {
+        result = index;
+        return true;
+      }
+      return false;
+    });
+    return result;
+  }
+  return (
+    function () {
+      function class_1() {
+        this.__entries__ = [];
+      }
+      Object.defineProperty(class_1.prototype, "size", {
+        get: function get() {
+          return this.__entries__.length;
+        },
+        enumerable: true,
+        configurable: true
+      });
+      class_1.prototype.get = function (key) {
+        var index = getIndex(this.__entries__, key);
+        var entry = this.__entries__[index];
+        return entry && entry[1];
+      };
+      class_1.prototype.set = function (key, value) {
+        var index = getIndex(this.__entries__, key);
+        if (~index) {
+          this.__entries__[index][1] = value;
+        } else {
+          this.__entries__.push([key, value]);
+        }
+      };
+      class_1.prototype["delete"] = function (key) {
+        var entries = this.__entries__;
+        var index = getIndex(entries, key);
+        if (~index) {
+          entries.splice(index, 1);
+        }
+      };
+      class_1.prototype.has = function (key) {
+        return !!~getIndex(this.__entries__, key);
+      };
+      class_1.prototype.clear = function () {
+        this.__entries__.splice(0);
+      };
+      class_1.prototype.forEach = function (callback, ctx) {
+        if (ctx === void 0) {
+          ctx = null;
+        }
+        for (var _i = 0, _a = this.__entries__; _i < _a.length; _i++) {
+          var entry = _a[_i];
+          callback.call(ctx, entry[1], entry[0]);
+        }
+      };
+      return class_1;
+    }()
+  );
+}();
+var isBrowser = typeof window !== 'undefined' && typeof document !== 'undefined' && window.document === document;
+var global$1 = function () {
+  if (typeof global !== 'undefined' && global.Math === Math) {
+    return global;
+  }
+  if (typeof self !== 'undefined' && self.Math === Math) {
+    return self;
+  }
+  if (typeof window !== 'undefined' && window.Math === Math) {
+    return window;
+  }
+  return Function('return this')();
+}();
+var requestAnimationFrame$1 = function () {
+  if (typeof requestAnimationFrame === 'function') {
+    return requestAnimationFrame.bind(global$1);
+  }
+  return function (callback) {
+    return setTimeout(function () {
+      return callback(Date.now());
+    }, 1000 / 60);
+  };
+}();
+var trailingTimeout = 2;
+function throttle(callback, delay) {
+  var leadingCall = false,
+      trailingCall = false,
+      lastCallTime = 0;
+  function resolvePending() {
+    if (leadingCall) {
+      leadingCall = false;
+      callback();
+    }
+    if (trailingCall) {
+      proxy();
+    }
+  }
+  function timeoutCallback() {
+    requestAnimationFrame$1(resolvePending);
+  }
+  function proxy() {
+    var timeStamp = Date.now();
+    if (leadingCall) {
+      if (timeStamp - lastCallTime < trailingTimeout) {
+        return;
+      }
+      trailingCall = true;
+    } else {
+      leadingCall = true;
+      trailingCall = false;
+      setTimeout(timeoutCallback, delay);
+    }
+    lastCallTime = timeStamp;
+  }
+  return proxy;
+}
+var REFRESH_DELAY = 20;
+var transitionKeys = ['top', 'right', 'bottom', 'left', 'width', 'height', 'size', 'weight'];
+var mutationObserverSupported = typeof MutationObserver !== 'undefined';
+var ResizeObserverController =
+function () {
+  function ResizeObserverController() {
+    this.connected_ = false;
+    this.mutationEventsAdded_ = false;
+    this.mutationsObserver_ = null;
+    this.observers_ = [];
+    this.onTransitionEnd_ = this.onTransitionEnd_.bind(this);
+    this.refresh = throttle(this.refresh.bind(this), REFRESH_DELAY);
+  }
+  ResizeObserverController.prototype.addObserver = function (observer) {
+    if (!~this.observers_.indexOf(observer)) {
+      this.observers_.push(observer);
+    }
+    if (!this.connected_) {
+      this.connect_();
+    }
+  };
+  ResizeObserverController.prototype.removeObserver = function (observer) {
+    var observers = this.observers_;
+    var index = observers.indexOf(observer);
+    if (~index) {
+      observers.splice(index, 1);
+    }
+    if (!observers.length && this.connected_) {
+      this.disconnect_();
+    }
+  };
+  ResizeObserverController.prototype.refresh = function () {
+    var changesDetected = this.updateObservers_();
+    if (changesDetected) {
+      this.refresh();
+    }
+  };
+  ResizeObserverController.prototype.updateObservers_ = function () {
+    var activeObservers = this.observers_.filter(function (observer) {
+      return observer.gatherActive(), observer.hasActive();
+    });
+    activeObservers.forEach(function (observer) {
+      return observer.broadcastActive();
+    });
+    return activeObservers.length > 0;
+  };
+  ResizeObserverController.prototype.connect_ = function () {
+    if (!isBrowser || this.connected_) {
+      return;
+    }
+    document.addEventListener('transitionend', this.onTransitionEnd_);
+    window.addEventListener('resize', this.refresh);
+    if (mutationObserverSupported) {
+      this.mutationsObserver_ = new MutationObserver(this.refresh);
+      this.mutationsObserver_.observe(document, {
+        attributes: true,
+        childList: true,
+        characterData: true,
+        subtree: true
+      });
+    } else {
+      document.addEventListener('DOMSubtreeModified', this.refresh);
+      this.mutationEventsAdded_ = true;
+    }
+    this.connected_ = true;
+  };
+  ResizeObserverController.prototype.disconnect_ = function () {
+    if (!isBrowser || !this.connected_) {
+      return;
+    }
+    document.removeEventListener('transitionend', this.onTransitionEnd_);
+    window.removeEventListener('resize', this.refresh);
+    if (this.mutationsObserver_) {
+      this.mutationsObserver_.disconnect();
+    }
+    if (this.mutationEventsAdded_) {
+      document.removeEventListener('DOMSubtreeModified', this.refresh);
+    }
+    this.mutationsObserver_ = null;
+    this.mutationEventsAdded_ = false;
+    this.connected_ = false;
+  };
+  ResizeObserverController.prototype.onTransitionEnd_ = function (_a) {
+    var _b = _a.propertyName,
+        propertyName = _b === void 0 ? '' : _b;
+    var isReflowProperty = transitionKeys.some(function (key) {
+      return !!~propertyName.indexOf(key);
+    });
+    if (isReflowProperty) {
+      this.refresh();
+    }
+  };
+  ResizeObserverController.getInstance = function () {
+    if (!this.instance_) {
+      this.instance_ = new ResizeObserverController();
+    }
+    return this.instance_;
+  };
+  ResizeObserverController.instance_ = null;
+  return ResizeObserverController;
+}();
+var defineConfigurable = function defineConfigurable(target, props) {
+  for (var _i = 0, _a = Object.keys(props); _i < _a.length; _i++) {
+    var key = _a[_i];
+    Object.defineProperty(target, key, {
+      value: props[key],
+      enumerable: false,
+      writable: false,
+      configurable: true
+    });
+  }
+  return target;
+};
+var getWindowOf = function getWindowOf(target) {
+  var ownerGlobal = target && target.ownerDocument && target.ownerDocument.defaultView;
+  return ownerGlobal || global$1;
+};
+var emptyRect = createRectInit(0, 0, 0, 0);
+function toFloat(value) {
+  return parseFloat(value) || 0;
+}
+function getBordersSize(styles) {
+  var positions = [];
+  for (var _i = 1; _i < arguments.length; _i++) {
+    positions[_i - 1] = arguments[_i];
+  }
+  return positions.reduce(function (size, position) {
+    var value = styles['border-' + position + '-width'];
+    return size + toFloat(value);
+  }, 0);
+}
+function getPaddings(styles) {
+  var positions = ['top', 'right', 'bottom', 'left'];
+  var paddings = {};
+  for (var _i = 0, positions_1 = positions; _i < positions_1.length; _i++) {
+    var position = positions_1[_i];
+    var value = styles['padding-' + position];
+    paddings[position] = toFloat(value);
+  }
+  return paddings;
+}
+function getSVGContentRect(target) {
+  var bbox = target.getBBox();
+  return createRectInit(0, 0, bbox.width, bbox.height);
+}
+function getHTMLElementContentRect(target) {
+  var clientWidth = target.clientWidth,
+      clientHeight = target.clientHeight;
+  if (!clientWidth && !clientHeight) {
+    return emptyRect;
+  }
+  var styles = getWindowOf(target).getComputedStyle(target);
+  var paddings = getPaddings(styles);
+  var horizPad = paddings.left + paddings.right;
+  var vertPad = paddings.top + paddings.bottom;
+  var width = toFloat(styles.width),
+      height = toFloat(styles.height);
+  if (styles.boxSizing === 'border-box') {
+    if (Math.round(width + horizPad) !== clientWidth) {
+      width -= getBordersSize(styles, 'left', 'right') + horizPad;
+    }
+    if (Math.round(height + vertPad) !== clientHeight) {
+      height -= getBordersSize(styles, 'top', 'bottom') + vertPad;
+    }
+  }
+  if (!isDocumentElement(target)) {
+    var vertScrollbar = Math.round(width + horizPad) - clientWidth;
+    var horizScrollbar = Math.round(height + vertPad) - clientHeight;
+    if (Math.abs(vertScrollbar) !== 1) {
+      width -= vertScrollbar;
+    }
+    if (Math.abs(horizScrollbar) !== 1) {
+      height -= horizScrollbar;
+    }
+  }
+  return createRectInit(paddings.left, paddings.top, width, height);
+}
+var isSVGGraphicsElement = function () {
+  if (typeof SVGGraphicsElement !== 'undefined') {
+    return function (target) {
+      return target instanceof getWindowOf(target).SVGGraphicsElement;
+    };
+  }
+  return function (target) {
+    return target instanceof getWindowOf(target).SVGElement && typeof target.getBBox === 'function';
+  };
+}();
+function isDocumentElement(target) {
+  return target === getWindowOf(target).document.documentElement;
+}
+function getContentRect(target) {
+  if (!isBrowser) {
+    return emptyRect;
+  }
+  if (isSVGGraphicsElement(target)) {
+    return getSVGContentRect(target);
+  }
+  return getHTMLElementContentRect(target);
+}
+function createReadOnlyRect(_a) {
+  var x = _a.x,
+      y = _a.y,
+      width = _a.width,
+      height = _a.height;
+  var Constr = typeof DOMRectReadOnly !== 'undefined' ? DOMRectReadOnly : Object;
+  var rect = Object.create(Constr.prototype);
+  defineConfigurable(rect, {
+    x: x,
+    y: y,
+    width: width,
+    height: height,
+    top: y,
+    right: x + width,
+    bottom: height + y,
+    left: x
+  });
+  return rect;
+}
+function createRectInit(x, y, width, height) {
+  return {
+    x: x,
+    y: y,
+    width: width,
+    height: height
+  };
+}
+var ResizeObservation =
+function () {
+  function ResizeObservation(target) {
+    this.broadcastWidth = 0;
+    this.broadcastHeight = 0;
+    this.contentRect_ = createRectInit(0, 0, 0, 0);
+    this.target = target;
+  }
+  ResizeObservation.prototype.isActive = function () {
+    var rect = getContentRect(this.target);
+    this.contentRect_ = rect;
+    return rect.width !== this.broadcastWidth || rect.height !== this.broadcastHeight;
+  };
+  ResizeObservation.prototype.broadcastRect = function () {
+    var rect = this.contentRect_;
+    this.broadcastWidth = rect.width;
+    this.broadcastHeight = rect.height;
+    return rect;
+  };
+  return ResizeObservation;
+}();
+var ResizeObserverEntry =
+function () {
+  function ResizeObserverEntry(target, rectInit) {
+    var contentRect = createReadOnlyRect(rectInit);
+    defineConfigurable(this, {
+      target: target,
+      contentRect: contentRect
+    });
+  }
+  return ResizeObserverEntry;
+}();
+var ResizeObserverSPI =
+function () {
+  function ResizeObserverSPI(callback, controller, callbackCtx) {
+    this.activeObservations_ = [];
+    this.observations_ = new MapShim();
+    if (typeof callback !== 'function') {
+      throw new TypeError('The callback provided as parameter 1 is not a function.');
+    }
+    this.callback_ = callback;
+    this.controller_ = controller;
+    this.callbackCtx_ = callbackCtx;
+  }
+  ResizeObserverSPI.prototype.observe = function (target) {
+    if (!arguments.length) {
+      throw new TypeError('1 argument required, but only 0 present.');
+    }
+    if (typeof Element === 'undefined' || !(Element instanceof Object)) {
+      return;
+    }
+    if (!(target instanceof getWindowOf(target).Element)) {
+      throw new TypeError('parameter 1 is not of type "Element".');
+    }
+    var observations = this.observations_;
+    if (observations.has(target)) {
+      return;
+    }
+    observations.set(target, new ResizeObservation(target));
+    this.controller_.addObserver(this);
+    this.controller_.refresh();
+  };
+  ResizeObserverSPI.prototype.unobserve = function (target) {
+    if (!arguments.length) {
+      throw new TypeError('1 argument required, but only 0 present.');
+    }
+    if (typeof Element === 'undefined' || !(Element instanceof Object)) {
+      return;
+    }
+    if (!(target instanceof getWindowOf(target).Element)) {
+      throw new TypeError('parameter 1 is not of type "Element".');
+    }
+    var observations = this.observations_;
+    if (!observations.has(target)) {
+      return;
+    }
+    observations["delete"](target);
+    if (!observations.size) {
+      this.controller_.removeObserver(this);
+    }
+  };
+  ResizeObserverSPI.prototype.disconnect = function () {
+    this.clearActive();
+    this.observations_.clear();
+    this.controller_.removeObserver(this);
+  };
+  ResizeObserverSPI.prototype.gatherActive = function () {
+    var _this = this;
+    this.clearActive();
+    this.observations_.forEach(function (observation) {
+      if (observation.isActive()) {
+        _this.activeObservations_.push(observation);
+      }
+    });
+  };
+  ResizeObserverSPI.prototype.broadcastActive = function () {
+    if (!this.hasActive()) {
+      return;
+    }
+    var ctx = this.callbackCtx_;
+    var entries = this.activeObservations_.map(function (observation) {
+      return new ResizeObserverEntry(observation.target, observation.broadcastRect());
+    });
+    this.callback_.call(ctx, entries, ctx);
+    this.clearActive();
+  };
+  ResizeObserverSPI.prototype.clearActive = function () {
+    this.activeObservations_.splice(0);
+  };
+  ResizeObserverSPI.prototype.hasActive = function () {
+    return this.activeObservations_.length > 0;
+  };
+  return ResizeObserverSPI;
+}();
+var observers = typeof WeakMap !== 'undefined' ? new WeakMap() : new MapShim();
+var ResizeObserver$1 =
+function () {
+  function ResizeObserver(callback) {
+    if (!(this instanceof ResizeObserver)) {
+      throw new TypeError('Cannot call a class as a function.');
+    }
+    if (!arguments.length) {
+      throw new TypeError('1 argument required, but only 0 present.');
+    }
+    var controller = ResizeObserverController.getInstance();
+    var observer = new ResizeObserverSPI(callback, controller, this);
+    observers.set(this, observer);
+  }
+  return ResizeObserver;
+}();
+['observe', 'unobserve', 'disconnect'].forEach(function (method) {
+  ResizeObserver$1.prototype[method] = function () {
+    var _a;
+    return (_a = observers.get(this))[method].apply(_a, arguments);
+  };
+});
+var index = function () {
+  if (typeof global$1.ResizeObserver !== 'undefined') {
+    return global$1.ResizeObserver;
+  }
+  return ResizeObserver$1;
+}();
+
 function _typeof(obj) {
   "@babel/helpers - typeof";
 
@@ -2029,7 +2520,7 @@ function () {
   }]);
   return Color;
 }();
-function index(input) {
+function index$1(input) {
   return new Color(input);
 }
 
@@ -2037,10 +2528,10 @@ var isPatternOrGradient = function isPatternOrGradient(value) {
   return value instanceof CanvasGradient || value instanceof CanvasPattern;
 };
 function color(value) {
-  return isPatternOrGradient(value) ? value : index(value);
+  return isPatternOrGradient(value) ? value : index$1(value);
 }
 function getHoverColor(value) {
-  return isPatternOrGradient(value) ? value : index(value).saturate(0.5).darken(0.1).hexString();
+  return isPatternOrGradient(value) ? value : index$1(value).saturate(0.5).darken(0.1).hexString();
 }
 
 var helpers = _objectSpread2({}, coreHelpers, {
@@ -2067,6 +2558,303 @@ var helpers = _objectSpread2({}, coreHelpers, {
   color: color,
   getHoverColor: getHoverColor
 });
+
+var BasePlatform =
+function () {
+  function BasePlatform() {
+    _classCallCheck(this, BasePlatform);
+  }
+  _createClass(BasePlatform, [{
+    key: "acquireContext",
+    value: function acquireContext(canvas, options) {}
+  }, {
+    key: "releaseContext",
+    value: function releaseContext(context) {
+      return false;
+    }
+  }, {
+    key: "addEventListener",
+    value: function addEventListener(chart, type, listener) {}
+  }, {
+    key: "removeEventListener",
+    value: function removeEventListener(chart, type, listener) {}
+  }, {
+    key: "getDevicePixelRatio",
+    value: function getDevicePixelRatio() {
+      return 1;
+    }
+  }]);
+  return BasePlatform;
+}();
+
+var EXPANDO_KEY = '$chartjs';
+var EVENT_TYPES = {
+  touchstart: 'mousedown',
+  touchmove: 'mousemove',
+  touchend: 'mouseup',
+  pointerenter: 'mouseenter',
+  pointerdown: 'mousedown',
+  pointermove: 'mousemove',
+  pointerup: 'mouseup',
+  pointerleave: 'mouseout',
+  pointerout: 'mouseout'
+};
+function readUsedSize(element, property) {
+  var value = helpers.dom.getStyle(element, property);
+  var matches = value && value.match(/^(\d+)(\.\d+)?px$/);
+  return matches ? +matches[1] : undefined;
+}
+function initCanvas(canvas, config) {
+  var style = canvas.style;
+  var renderHeight = canvas.getAttribute('height');
+  var renderWidth = canvas.getAttribute('width');
+  canvas[EXPANDO_KEY] = {
+    initial: {
+      height: renderHeight,
+      width: renderWidth,
+      style: {
+        display: style.display,
+        height: style.height,
+        width: style.width
+      }
+    }
+  };
+  style.display = style.display || 'block';
+  style.boxSizing = style.boxSizing || 'border-box';
+  if (renderWidth === null || renderWidth === '') {
+    var displayWidth = readUsedSize(canvas, 'width');
+    if (displayWidth !== undefined) {
+      canvas.width = displayWidth;
+    }
+  }
+  if (renderHeight === null || renderHeight === '') {
+    if (canvas.style.height === '') {
+      canvas.height = canvas.width / (config.options.aspectRatio || 2);
+    } else {
+      var displayHeight = readUsedSize(canvas, 'height');
+      if (displayHeight !== undefined) {
+        canvas.height = displayHeight;
+      }
+    }
+  }
+  return canvas;
+}
+var supportsEventListenerOptions = function () {
+  var passiveSupported = false;
+  try {
+    var options = {
+      get passive() {
+        passiveSupported = true;
+        return false;
+      }
+    };
+    window.addEventListener('test', null, options);
+    window.removeEventListener('test', null, options);
+  } catch (e) {
+  }
+  return passiveSupported;
+}();
+var eventListenerOptions = supportsEventListenerOptions ? {
+  passive: true
+} : false;
+function addListener(node, type, listener) {
+  node.addEventListener(type, listener, eventListenerOptions);
+}
+function removeListener(node, type, listener) {
+  node.removeEventListener(type, listener, eventListenerOptions);
+}
+function createEvent(type, chart, x, y, nativeEvent) {
+  return {
+    type: type,
+    chart: chart,
+    "native": nativeEvent || null,
+    x: x !== undefined ? x : null,
+    y: y !== undefined ? y : null
+  };
+}
+function fromNativeEvent(event, chart) {
+  var type = EVENT_TYPES[event.type] || event.type;
+  var pos = helpers.dom.getRelativePosition(event, chart);
+  return createEvent(type, chart, pos.x, pos.y, event);
+}
+function throttled(fn, thisArg) {
+  var ticking = false;
+  var args = [];
+  return function () {
+    for (var _len = arguments.length, rest = new Array(_len), _key = 0; _key < _len; _key++) {
+      rest[_key] = arguments[_key];
+    }
+    args = Array.prototype.slice.call(rest);
+    if (!ticking) {
+      ticking = true;
+      helpers.requestAnimFrame.call(window, function () {
+        ticking = false;
+        fn.apply(thisArg, args);
+      });
+    }
+  };
+}
+function watchForResize(element, fn) {
+  var resize = throttled(function (width, height) {
+    var w = element.clientWidth;
+    fn(width, height);
+    if (w < element.clientWidth) {
+      fn();
+    }
+  }, window);
+  var observer = new ResizeObserver(function (entries) {
+    var entry = entries[0];
+    resize(entry.contentRect.width, entry.contentRect.height);
+  });
+  observer.observe(element);
+  return observer;
+}
+function watchForAttachment(element, fn) {
+  var observer = new MutationObserver(function (entries) {
+    var parent = _getParentNode(element);
+    entries.forEach(function (entry) {
+      for (var i = 0; i < entry.addedNodes.length; i++) {
+        var added = entry.addedNodes[i];
+        if (added === element || added === parent) {
+          fn(entry.target);
+        }
+      }
+    });
+  });
+  observer.observe(document, {
+    childList: true,
+    subtree: true
+  });
+  return observer;
+}
+function watchForDetachment(element, fn) {
+  var parent = _getParentNode(element);
+  if (!parent) {
+    return;
+  }
+  var observer = new MutationObserver(function (entries) {
+    entries.forEach(function (entry) {
+      for (var i = 0; i < entry.removedNodes.length; i++) {
+        if (entry.removedNodes[i] === element) {
+          fn();
+          break;
+        }
+      }
+    });
+  });
+  observer.observe(parent, {
+    childList: true
+  });
+  return observer;
+}
+function removeObserver(proxies, type) {
+  var observer = proxies[type];
+  if (observer) {
+    observer.disconnect();
+    proxies[type] = undefined;
+  }
+}
+function unlistenForResize(proxies) {
+  removeObserver(proxies, 'attach');
+  removeObserver(proxies, 'detach');
+  removeObserver(proxies, 'resize');
+}
+function listenForResize(canvas, proxies, listener) {
+  var detached = function detached() {
+    return listenForResize(canvas, proxies, listener);
+  };
+  unlistenForResize(proxies);
+  var container = _getParentNode(canvas);
+  if (container) {
+    proxies.resize = watchForResize(container, listener);
+    proxies.detach = watchForDetachment(canvas, detached);
+  } else {
+    proxies.attach = watchForAttachment(canvas, function () {
+      removeObserver(proxies, 'attach');
+      var parent = _getParentNode(canvas);
+      proxies.resize = watchForResize(parent, listener);
+      proxies.detach = watchForDetachment(canvas, detached);
+    });
+  }
+}
+var DomPlatform =
+function (_BasePlatform) {
+  _inherits(DomPlatform, _BasePlatform);
+  function DomPlatform() {
+    _classCallCheck(this, DomPlatform);
+    return _possibleConstructorReturn(this, _getPrototypeOf(DomPlatform).apply(this, arguments));
+  }
+  _createClass(DomPlatform, [{
+    key: "acquireContext",
+    value: function acquireContext(canvas, config) {
+      var context = canvas && canvas.getContext && canvas.getContext('2d');
+      if (context && context.canvas === canvas) {
+        initCanvas(canvas, config);
+        return context;
+      }
+      return null;
+    }
+  }, {
+    key: "releaseContext",
+    value: function releaseContext(context) {
+      var canvas = context.canvas;
+      if (!canvas[EXPANDO_KEY]) {
+        return false;
+      }
+      var initial = canvas[EXPANDO_KEY].initial;
+      ['height', 'width'].forEach(function (prop) {
+        var value = initial[prop];
+        if (helpers.isNullOrUndef(value)) {
+          canvas.removeAttribute(prop);
+        } else {
+          canvas.setAttribute(prop, value);
+        }
+      });
+      var style = initial.style || {};
+      Object.keys(style).forEach(function (key) {
+        canvas.style[key] = style[key];
+      });
+      canvas.width = canvas.width;
+      delete canvas[EXPANDO_KEY];
+      return true;
+    }
+  }, {
+    key: "addEventListener",
+    value: function addEventListener(chart, type, listener) {
+      this.removeEventListener(chart, type);
+      var canvas = chart.canvas;
+      var proxies = chart.$proxies || (chart.$proxies = {});
+      if (type === 'resize') {
+        return listenForResize(canvas, proxies, listener);
+      }
+      var proxy = proxies[type] = throttled(function (event) {
+        listener(fromNativeEvent(event, chart));
+      }, chart);
+      addListener(canvas, type, proxy);
+    }
+  }, {
+    key: "removeEventListener",
+    value: function removeEventListener(chart, type) {
+      var canvas = chart.canvas;
+      var proxies = chart.$proxies || (chart.$proxies = {});
+      if (type === 'resize') {
+        return unlistenForResize(proxies);
+      }
+      var proxy = proxies[type];
+      if (!proxy) {
+        return;
+      }
+      removeListener(canvas, type, proxy);
+      proxies[type] = undefined;
+    }
+  }, {
+    key: "getDevicePixelRatio",
+    value: function getDevicePixelRatio() {
+      return window.devicePixelRatio;
+    }
+  }]);
+  return DomPlatform;
+}(BasePlatform);
 
 function drawFPS(chart, count, date, lastDate) {
   var fps = 1000 / (date - lastDate) | 0;
@@ -6315,34 +7103,6 @@ var layouts = {
   }
 };
 
-var BasePlatform =
-function () {
-  function BasePlatform() {
-    _classCallCheck(this, BasePlatform);
-  }
-  _createClass(BasePlatform, [{
-    key: "acquireContext",
-    value: function acquireContext(canvas, options) {}
-  }, {
-    key: "releaseContext",
-    value: function releaseContext(context) {
-      return false;
-    }
-  }, {
-    key: "addEventListener",
-    value: function addEventListener(chart, type, listener) {}
-  }, {
-    key: "removeEventListener",
-    value: function removeEventListener(chart, type, listener) {}
-  }, {
-    key: "getDevicePixelRatio",
-    value: function getDevicePixelRatio() {
-      return 1;
-    }
-  }]);
-  return BasePlatform;
-}();
-
 var BasicPlatform =
 function (_BasePlatform) {
   _inherits(BasicPlatform, _BasePlatform);
@@ -6357,766 +7117,6 @@ function (_BasePlatform) {
     }
   }]);
   return BasicPlatform;
-}(BasePlatform);
-
-var MapShim = function () {
-  if (typeof Map !== 'undefined') {
-    return Map;
-  }
-  function getIndex(arr, key) {
-    var result = -1;
-    arr.some(function (entry, index) {
-      if (entry[0] === key) {
-        result = index;
-        return true;
-      }
-      return false;
-    });
-    return result;
-  }
-  return (
-    function () {
-      function class_1() {
-        this.__entries__ = [];
-      }
-      Object.defineProperty(class_1.prototype, "size", {
-        get: function get() {
-          return this.__entries__.length;
-        },
-        enumerable: true,
-        configurable: true
-      });
-      class_1.prototype.get = function (key) {
-        var index = getIndex(this.__entries__, key);
-        var entry = this.__entries__[index];
-        return entry && entry[1];
-      };
-      class_1.prototype.set = function (key, value) {
-        var index = getIndex(this.__entries__, key);
-        if (~index) {
-          this.__entries__[index][1] = value;
-        } else {
-          this.__entries__.push([key, value]);
-        }
-      };
-      class_1.prototype["delete"] = function (key) {
-        var entries = this.__entries__;
-        var index = getIndex(entries, key);
-        if (~index) {
-          entries.splice(index, 1);
-        }
-      };
-      class_1.prototype.has = function (key) {
-        return !!~getIndex(this.__entries__, key);
-      };
-      class_1.prototype.clear = function () {
-        this.__entries__.splice(0);
-      };
-      class_1.prototype.forEach = function (callback, ctx) {
-        if (ctx === void 0) {
-          ctx = null;
-        }
-        for (var _i = 0, _a = this.__entries__; _i < _a.length; _i++) {
-          var entry = _a[_i];
-          callback.call(ctx, entry[1], entry[0]);
-        }
-      };
-      return class_1;
-    }()
-  );
-}();
-var isBrowser = typeof window !== 'undefined' && typeof document !== 'undefined' && window.document === document;
-var global$1 = function () {
-  if (typeof global !== 'undefined' && global.Math === Math) {
-    return global;
-  }
-  if (typeof self !== 'undefined' && self.Math === Math) {
-    return self;
-  }
-  if (typeof window !== 'undefined' && window.Math === Math) {
-    return window;
-  }
-  return Function('return this')();
-}();
-var requestAnimationFrame$1 = function () {
-  if (typeof requestAnimationFrame === 'function') {
-    return requestAnimationFrame.bind(global$1);
-  }
-  return function (callback) {
-    return setTimeout(function () {
-      return callback(Date.now());
-    }, 1000 / 60);
-  };
-}();
-var trailingTimeout = 2;
-function throttle(callback, delay) {
-  var leadingCall = false,
-      trailingCall = false,
-      lastCallTime = 0;
-  function resolvePending() {
-    if (leadingCall) {
-      leadingCall = false;
-      callback();
-    }
-    if (trailingCall) {
-      proxy();
-    }
-  }
-  function timeoutCallback() {
-    requestAnimationFrame$1(resolvePending);
-  }
-  function proxy() {
-    var timeStamp = Date.now();
-    if (leadingCall) {
-      if (timeStamp - lastCallTime < trailingTimeout) {
-        return;
-      }
-      trailingCall = true;
-    } else {
-      leadingCall = true;
-      trailingCall = false;
-      setTimeout(timeoutCallback, delay);
-    }
-    lastCallTime = timeStamp;
-  }
-  return proxy;
-}
-var REFRESH_DELAY = 20;
-var transitionKeys = ['top', 'right', 'bottom', 'left', 'width', 'height', 'size', 'weight'];
-var mutationObserverSupported = typeof MutationObserver !== 'undefined';
-var ResizeObserverController =
-function () {
-  function ResizeObserverController() {
-    this.connected_ = false;
-    this.mutationEventsAdded_ = false;
-    this.mutationsObserver_ = null;
-    this.observers_ = [];
-    this.onTransitionEnd_ = this.onTransitionEnd_.bind(this);
-    this.refresh = throttle(this.refresh.bind(this), REFRESH_DELAY);
-  }
-  ResizeObserverController.prototype.addObserver = function (observer) {
-    if (!~this.observers_.indexOf(observer)) {
-      this.observers_.push(observer);
-    }
-    if (!this.connected_) {
-      this.connect_();
-    }
-  };
-  ResizeObserverController.prototype.removeObserver = function (observer) {
-    var observers = this.observers_;
-    var index = observers.indexOf(observer);
-    if (~index) {
-      observers.splice(index, 1);
-    }
-    if (!observers.length && this.connected_) {
-      this.disconnect_();
-    }
-  };
-  ResizeObserverController.prototype.refresh = function () {
-    var changesDetected = this.updateObservers_();
-    if (changesDetected) {
-      this.refresh();
-    }
-  };
-  ResizeObserverController.prototype.updateObservers_ = function () {
-    var activeObservers = this.observers_.filter(function (observer) {
-      return observer.gatherActive(), observer.hasActive();
-    });
-    activeObservers.forEach(function (observer) {
-      return observer.broadcastActive();
-    });
-    return activeObservers.length > 0;
-  };
-  ResizeObserverController.prototype.connect_ = function () {
-    if (!isBrowser || this.connected_) {
-      return;
-    }
-    document.addEventListener('transitionend', this.onTransitionEnd_);
-    window.addEventListener('resize', this.refresh);
-    if (mutationObserverSupported) {
-      this.mutationsObserver_ = new MutationObserver(this.refresh);
-      this.mutationsObserver_.observe(document, {
-        attributes: true,
-        childList: true,
-        characterData: true,
-        subtree: true
-      });
-    } else {
-      document.addEventListener('DOMSubtreeModified', this.refresh);
-      this.mutationEventsAdded_ = true;
-    }
-    this.connected_ = true;
-  };
-  ResizeObserverController.prototype.disconnect_ = function () {
-    if (!isBrowser || !this.connected_) {
-      return;
-    }
-    document.removeEventListener('transitionend', this.onTransitionEnd_);
-    window.removeEventListener('resize', this.refresh);
-    if (this.mutationsObserver_) {
-      this.mutationsObserver_.disconnect();
-    }
-    if (this.mutationEventsAdded_) {
-      document.removeEventListener('DOMSubtreeModified', this.refresh);
-    }
-    this.mutationsObserver_ = null;
-    this.mutationEventsAdded_ = false;
-    this.connected_ = false;
-  };
-  ResizeObserverController.prototype.onTransitionEnd_ = function (_a) {
-    var _b = _a.propertyName,
-        propertyName = _b === void 0 ? '' : _b;
-    var isReflowProperty = transitionKeys.some(function (key) {
-      return !!~propertyName.indexOf(key);
-    });
-    if (isReflowProperty) {
-      this.refresh();
-    }
-  };
-  ResizeObserverController.getInstance = function () {
-    if (!this.instance_) {
-      this.instance_ = new ResizeObserverController();
-    }
-    return this.instance_;
-  };
-  ResizeObserverController.instance_ = null;
-  return ResizeObserverController;
-}();
-var defineConfigurable = function defineConfigurable(target, props) {
-  for (var _i = 0, _a = Object.keys(props); _i < _a.length; _i++) {
-    var key = _a[_i];
-    Object.defineProperty(target, key, {
-      value: props[key],
-      enumerable: false,
-      writable: false,
-      configurable: true
-    });
-  }
-  return target;
-};
-var getWindowOf = function getWindowOf(target) {
-  var ownerGlobal = target && target.ownerDocument && target.ownerDocument.defaultView;
-  return ownerGlobal || global$1;
-};
-var emptyRect = createRectInit(0, 0, 0, 0);
-function toFloat(value) {
-  return parseFloat(value) || 0;
-}
-function getBordersSize(styles) {
-  var positions = [];
-  for (var _i = 1; _i < arguments.length; _i++) {
-    positions[_i - 1] = arguments[_i];
-  }
-  return positions.reduce(function (size, position) {
-    var value = styles['border-' + position + '-width'];
-    return size + toFloat(value);
-  }, 0);
-}
-function getPaddings(styles) {
-  var positions = ['top', 'right', 'bottom', 'left'];
-  var paddings = {};
-  for (var _i = 0, positions_1 = positions; _i < positions_1.length; _i++) {
-    var position = positions_1[_i];
-    var value = styles['padding-' + position];
-    paddings[position] = toFloat(value);
-  }
-  return paddings;
-}
-function getSVGContentRect(target) {
-  var bbox = target.getBBox();
-  return createRectInit(0, 0, bbox.width, bbox.height);
-}
-function getHTMLElementContentRect(target) {
-  var clientWidth = target.clientWidth,
-      clientHeight = target.clientHeight;
-  if (!clientWidth && !clientHeight) {
-    return emptyRect;
-  }
-  var styles = getWindowOf(target).getComputedStyle(target);
-  var paddings = getPaddings(styles);
-  var horizPad = paddings.left + paddings.right;
-  var vertPad = paddings.top + paddings.bottom;
-  var width = toFloat(styles.width),
-      height = toFloat(styles.height);
-  if (styles.boxSizing === 'border-box') {
-    if (Math.round(width + horizPad) !== clientWidth) {
-      width -= getBordersSize(styles, 'left', 'right') + horizPad;
-    }
-    if (Math.round(height + vertPad) !== clientHeight) {
-      height -= getBordersSize(styles, 'top', 'bottom') + vertPad;
-    }
-  }
-  if (!isDocumentElement(target)) {
-    var vertScrollbar = Math.round(width + horizPad) - clientWidth;
-    var horizScrollbar = Math.round(height + vertPad) - clientHeight;
-    if (Math.abs(vertScrollbar) !== 1) {
-      width -= vertScrollbar;
-    }
-    if (Math.abs(horizScrollbar) !== 1) {
-      height -= horizScrollbar;
-    }
-  }
-  return createRectInit(paddings.left, paddings.top, width, height);
-}
-var isSVGGraphicsElement = function () {
-  if (typeof SVGGraphicsElement !== 'undefined') {
-    return function (target) {
-      return target instanceof getWindowOf(target).SVGGraphicsElement;
-    };
-  }
-  return function (target) {
-    return target instanceof getWindowOf(target).SVGElement && typeof target.getBBox === 'function';
-  };
-}();
-function isDocumentElement(target) {
-  return target === getWindowOf(target).document.documentElement;
-}
-function getContentRect(target) {
-  if (!isBrowser) {
-    return emptyRect;
-  }
-  if (isSVGGraphicsElement(target)) {
-    return getSVGContentRect(target);
-  }
-  return getHTMLElementContentRect(target);
-}
-function createReadOnlyRect(_a) {
-  var x = _a.x,
-      y = _a.y,
-      width = _a.width,
-      height = _a.height;
-  var Constr = typeof DOMRectReadOnly !== 'undefined' ? DOMRectReadOnly : Object;
-  var rect = Object.create(Constr.prototype);
-  defineConfigurable(rect, {
-    x: x,
-    y: y,
-    width: width,
-    height: height,
-    top: y,
-    right: x + width,
-    bottom: height + y,
-    left: x
-  });
-  return rect;
-}
-function createRectInit(x, y, width, height) {
-  return {
-    x: x,
-    y: y,
-    width: width,
-    height: height
-  };
-}
-var ResizeObservation =
-function () {
-  function ResizeObservation(target) {
-    this.broadcastWidth = 0;
-    this.broadcastHeight = 0;
-    this.contentRect_ = createRectInit(0, 0, 0, 0);
-    this.target = target;
-  }
-  ResizeObservation.prototype.isActive = function () {
-    var rect = getContentRect(this.target);
-    this.contentRect_ = rect;
-    return rect.width !== this.broadcastWidth || rect.height !== this.broadcastHeight;
-  };
-  ResizeObservation.prototype.broadcastRect = function () {
-    var rect = this.contentRect_;
-    this.broadcastWidth = rect.width;
-    this.broadcastHeight = rect.height;
-    return rect;
-  };
-  return ResizeObservation;
-}();
-var ResizeObserverEntry =
-function () {
-  function ResizeObserverEntry(target, rectInit) {
-    var contentRect = createReadOnlyRect(rectInit);
-    defineConfigurable(this, {
-      target: target,
-      contentRect: contentRect
-    });
-  }
-  return ResizeObserverEntry;
-}();
-var ResizeObserverSPI =
-function () {
-  function ResizeObserverSPI(callback, controller, callbackCtx) {
-    this.activeObservations_ = [];
-    this.observations_ = new MapShim();
-    if (typeof callback !== 'function') {
-      throw new TypeError('The callback provided as parameter 1 is not a function.');
-    }
-    this.callback_ = callback;
-    this.controller_ = controller;
-    this.callbackCtx_ = callbackCtx;
-  }
-  ResizeObserverSPI.prototype.observe = function (target) {
-    if (!arguments.length) {
-      throw new TypeError('1 argument required, but only 0 present.');
-    }
-    if (typeof Element === 'undefined' || !(Element instanceof Object)) {
-      return;
-    }
-    if (!(target instanceof getWindowOf(target).Element)) {
-      throw new TypeError('parameter 1 is not of type "Element".');
-    }
-    var observations = this.observations_;
-    if (observations.has(target)) {
-      return;
-    }
-    observations.set(target, new ResizeObservation(target));
-    this.controller_.addObserver(this);
-    this.controller_.refresh();
-  };
-  ResizeObserverSPI.prototype.unobserve = function (target) {
-    if (!arguments.length) {
-      throw new TypeError('1 argument required, but only 0 present.');
-    }
-    if (typeof Element === 'undefined' || !(Element instanceof Object)) {
-      return;
-    }
-    if (!(target instanceof getWindowOf(target).Element)) {
-      throw new TypeError('parameter 1 is not of type "Element".');
-    }
-    var observations = this.observations_;
-    if (!observations.has(target)) {
-      return;
-    }
-    observations["delete"](target);
-    if (!observations.size) {
-      this.controller_.removeObserver(this);
-    }
-  };
-  ResizeObserverSPI.prototype.disconnect = function () {
-    this.clearActive();
-    this.observations_.clear();
-    this.controller_.removeObserver(this);
-  };
-  ResizeObserverSPI.prototype.gatherActive = function () {
-    var _this = this;
-    this.clearActive();
-    this.observations_.forEach(function (observation) {
-      if (observation.isActive()) {
-        _this.activeObservations_.push(observation);
-      }
-    });
-  };
-  ResizeObserverSPI.prototype.broadcastActive = function () {
-    if (!this.hasActive()) {
-      return;
-    }
-    var ctx = this.callbackCtx_;
-    var entries = this.activeObservations_.map(function (observation) {
-      return new ResizeObserverEntry(observation.target, observation.broadcastRect());
-    });
-    this.callback_.call(ctx, entries, ctx);
-    this.clearActive();
-  };
-  ResizeObserverSPI.prototype.clearActive = function () {
-    this.activeObservations_.splice(0);
-  };
-  ResizeObserverSPI.prototype.hasActive = function () {
-    return this.activeObservations_.length > 0;
-  };
-  return ResizeObserverSPI;
-}();
-var observers = typeof WeakMap !== 'undefined' ? new WeakMap() : new MapShim();
-var ResizeObserver =
-function () {
-  function ResizeObserver(callback) {
-    if (!(this instanceof ResizeObserver)) {
-      throw new TypeError('Cannot call a class as a function.');
-    }
-    if (!arguments.length) {
-      throw new TypeError('1 argument required, but only 0 present.');
-    }
-    var controller = ResizeObserverController.getInstance();
-    var observer = new ResizeObserverSPI(callback, controller, this);
-    observers.set(this, observer);
-  }
-  return ResizeObserver;
-}();
-['observe', 'unobserve', 'disconnect'].forEach(function (method) {
-  ResizeObserver.prototype[method] = function () {
-    var _a;
-    return (_a = observers.get(this))[method].apply(_a, arguments);
-  };
-});
-var index$1 = function () {
-  if (typeof global$1.ResizeObserver !== 'undefined') {
-    return global$1.ResizeObserver;
-  }
-  return ResizeObserver;
-}();
-
-var EXPANDO_KEY = '$chartjs';
-var EVENT_TYPES = {
-  touchstart: 'mousedown',
-  touchmove: 'mousemove',
-  touchend: 'mouseup',
-  pointerenter: 'mouseenter',
-  pointerdown: 'mousedown',
-  pointermove: 'mousemove',
-  pointerup: 'mouseup',
-  pointerleave: 'mouseout',
-  pointerout: 'mouseout'
-};
-function readUsedSize(element, property) {
-  var value = helpers.dom.getStyle(element, property);
-  var matches = value && value.match(/^(\d+)(\.\d+)?px$/);
-  return matches ? +matches[1] : undefined;
-}
-function initCanvas(canvas, config) {
-  var style = canvas.style;
-  var renderHeight = canvas.getAttribute('height');
-  var renderWidth = canvas.getAttribute('width');
-  canvas[EXPANDO_KEY] = {
-    initial: {
-      height: renderHeight,
-      width: renderWidth,
-      style: {
-        display: style.display,
-        height: style.height,
-        width: style.width
-      }
-    }
-  };
-  style.display = style.display || 'block';
-  style.boxSizing = style.boxSizing || 'border-box';
-  if (renderWidth === null || renderWidth === '') {
-    var displayWidth = readUsedSize(canvas, 'width');
-    if (displayWidth !== undefined) {
-      canvas.width = displayWidth;
-    }
-  }
-  if (renderHeight === null || renderHeight === '') {
-    if (canvas.style.height === '') {
-      canvas.height = canvas.width / (config.options.aspectRatio || 2);
-    } else {
-      var displayHeight = readUsedSize(canvas, 'height');
-      if (displayHeight !== undefined) {
-        canvas.height = displayHeight;
-      }
-    }
-  }
-  return canvas;
-}
-var supportsEventListenerOptions = function () {
-  var passiveSupported = false;
-  try {
-    var options = {
-      get passive() {
-        passiveSupported = true;
-        return false;
-      }
-    };
-    window.addEventListener('test', null, options);
-    window.removeEventListener('test', null, options);
-  } catch (e) {
-  }
-  return passiveSupported;
-}();
-var eventListenerOptions = supportsEventListenerOptions ? {
-  passive: true
-} : false;
-function addListener(node, type, listener) {
-  node.addEventListener(type, listener, eventListenerOptions);
-}
-function removeListener(node, type, listener) {
-  node.removeEventListener(type, listener, eventListenerOptions);
-}
-function createEvent(type, chart, x, y, nativeEvent) {
-  return {
-    type: type,
-    chart: chart,
-    "native": nativeEvent || null,
-    x: x !== undefined ? x : null,
-    y: y !== undefined ? y : null
-  };
-}
-function fromNativeEvent(event, chart) {
-  var type = EVENT_TYPES[event.type] || event.type;
-  var pos = helpers.dom.getRelativePosition(event, chart);
-  return createEvent(type, chart, pos.x, pos.y, event);
-}
-function throttled(fn, thisArg) {
-  var ticking = false;
-  var args = [];
-  return function () {
-    for (var _len = arguments.length, rest = new Array(_len), _key = 0; _key < _len; _key++) {
-      rest[_key] = arguments[_key];
-    }
-    args = Array.prototype.slice.call(rest);
-    if (!ticking) {
-      ticking = true;
-      helpers.requestAnimFrame.call(window, function () {
-        ticking = false;
-        fn.apply(thisArg, args);
-      });
-    }
-  };
-}
-function watchForResize(element, fn) {
-  var resize = throttled(function (width, height) {
-    var w = element.clientWidth;
-    fn(width, height);
-    if (w < element.clientWidth) {
-      fn();
-    }
-  }, window);
-  var observer = new index$1(function (entries) {
-    var entry = entries[0];
-    resize(entry.contentRect.width, entry.contentRect.height);
-  });
-  observer.observe(element);
-  return observer;
-}
-function watchForAttachment(element, fn) {
-  var observer = new MutationObserver(function (entries) {
-    var parent = _getParentNode(element);
-    entries.forEach(function (entry) {
-      for (var i = 0; i < entry.addedNodes.length; i++) {
-        var added = entry.addedNodes[i];
-        if (added === element || added === parent) {
-          fn(entry.target);
-        }
-      }
-    });
-  });
-  observer.observe(document, {
-    childList: true,
-    subtree: true
-  });
-  return observer;
-}
-function watchForDetachment(element, fn) {
-  var parent = _getParentNode(element);
-  if (!parent) {
-    return;
-  }
-  var observer = new MutationObserver(function (entries) {
-    entries.forEach(function (entry) {
-      for (var i = 0; i < entry.removedNodes.length; i++) {
-        if (entry.removedNodes[i] === element) {
-          fn();
-          break;
-        }
-      }
-    });
-  });
-  observer.observe(parent, {
-    childList: true
-  });
-  return observer;
-}
-function removeObserver(proxies, type) {
-  var observer = proxies[type];
-  if (observer) {
-    observer.disconnect();
-    proxies[type] = undefined;
-  }
-}
-function unlistenForResize(proxies) {
-  removeObserver(proxies, 'attach');
-  removeObserver(proxies, 'detach');
-  removeObserver(proxies, 'resize');
-}
-function listenForResize(canvas, proxies, listener) {
-  var detached = function detached() {
-    return listenForResize(canvas, proxies, listener);
-  };
-  unlistenForResize(proxies);
-  var container = _getParentNode(canvas);
-  if (container) {
-    proxies.resize = watchForResize(container, listener);
-    proxies.detach = watchForDetachment(canvas, detached);
-  } else {
-    proxies.attach = watchForAttachment(canvas, function () {
-      removeObserver(proxies, 'attach');
-      var parent = _getParentNode(canvas);
-      proxies.resize = watchForResize(parent, listener);
-      proxies.detach = watchForDetachment(canvas, detached);
-    });
-  }
-}
-var DomPlatform =
-function (_BasePlatform) {
-  _inherits(DomPlatform, _BasePlatform);
-  function DomPlatform() {
-    _classCallCheck(this, DomPlatform);
-    return _possibleConstructorReturn(this, _getPrototypeOf(DomPlatform).apply(this, arguments));
-  }
-  _createClass(DomPlatform, [{
-    key: "acquireContext",
-    value: function acquireContext(canvas, config) {
-      var context = canvas && canvas.getContext && canvas.getContext('2d');
-      if (context && context.canvas === canvas) {
-        initCanvas(canvas, config);
-        return context;
-      }
-      return null;
-    }
-  }, {
-    key: "releaseContext",
-    value: function releaseContext(context) {
-      var canvas = context.canvas;
-      if (!canvas[EXPANDO_KEY]) {
-        return false;
-      }
-      var initial = canvas[EXPANDO_KEY].initial;
-      ['height', 'width'].forEach(function (prop) {
-        var value = initial[prop];
-        if (helpers.isNullOrUndef(value)) {
-          canvas.removeAttribute(prop);
-        } else {
-          canvas.setAttribute(prop, value);
-        }
-      });
-      var style = initial.style || {};
-      Object.keys(style).forEach(function (key) {
-        canvas.style[key] = style[key];
-      });
-      canvas.width = canvas.width;
-      delete canvas[EXPANDO_KEY];
-      return true;
-    }
-  }, {
-    key: "addEventListener",
-    value: function addEventListener(chart, type, listener) {
-      this.removeEventListener(chart, type);
-      var canvas = chart.canvas;
-      var proxies = chart.$proxies || (chart.$proxies = {});
-      if (type === 'resize') {
-        return listenForResize(canvas, proxies, listener);
-      }
-      var proxy = proxies[type] = throttled(function (event) {
-        listener(fromNativeEvent(event, chart));
-      }, chart);
-      addListener(canvas, type, proxy);
-    }
-  }, {
-    key: "removeEventListener",
-    value: function removeEventListener(chart, type) {
-      var canvas = chart.canvas;
-      var proxies = chart.$proxies || (chart.$proxies = {});
-      if (type === 'resize') {
-        return unlistenForResize(proxies);
-      }
-      var proxy = proxies[type];
-      if (!proxy) {
-        return;
-      }
-      removeListener(canvas, type, proxy);
-      proxies[type] = undefined;
-    }
-  }, {
-    key: "getDevicePixelRatio",
-    value: function getDevicePixelRatio() {
-      return window.devicePixelRatio;
-    }
-  }]);
-  return DomPlatform;
 }(BasePlatform);
 
 var platforms = {
@@ -8723,7 +8723,7 @@ function (_Element) {
       } else if (display) {
         minSize.height = getTickMarkLength(gridLineOpts) + getScaleLabelHeight(scaleLabelOpts);
       }
-      if (tickOpts.display && display) {
+      if (tickOpts.display && display && me.ticks.length) {
         var labelSizes = me._getLabelSizes();
         var firstLabelSize = labelSizes.first;
         var lastLabelSize = labelSizes.last;
