@@ -6626,6 +6626,17 @@ function _rlookupByKey(table, key, value) {
     hi: hi
   };
 }
+function _filterBetween(values, min, max) {
+  var start = 0;
+  var end = values.length;
+  while (start < end && values[start] < min) {
+    start++;
+  }
+  while (end > start && values[end - 1] > max) {
+    end--;
+  }
+  return start > 0 || end < values.length ? values.slice(start, end) : values;
+}
 
 function getRelativePosition$1(e, chart) {
   if ('native' in e) {
@@ -10742,18 +10753,6 @@ function getLabelBounds(scale) {
     max: max
   };
 }
-function filterBetween(timestamps, min, max) {
-  var start = 0;
-  var end = timestamps.length - 1;
-  while (start < end && timestamps[start] < min) {
-    start++;
-  }
-  while (end > start && timestamps[end] > max) {
-    end--;
-  }
-  end++;
-  return start > 0 || end < timestamps.length ? timestamps.slice(start, end) : timestamps;
-}
 var defaultConfig$4 = {
   distribution: 'linear',
   bounds: 'data',
@@ -10870,7 +10869,7 @@ function (_Scale) {
       }
       var min = me.min;
       var max = me.max;
-      var ticks = filterBetween(timestamps, min, max);
+      var ticks = _filterBetween(timestamps, min, max);
       me._unit = timeOpts.unit || (tickOpts.autoSkip ? determineUnitForAutoTicks(timeOpts.minUnit, me.min, me.max, me._getLabelCapacity(min)) : determineUnitForFormatting(me, ticks.length, timeOpts.minUnit, me.min, me.max));
       me._majorUnit = !tickOpts.major.enabled || me._unit === 'year' ? undefined : determineMajorUnit(me._unit);
       me._table = buildLookupTable(getTimestampsForTable(me), min, max, distribution);
