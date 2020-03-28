@@ -7494,8 +7494,8 @@ function () {
         width = getMaximumWidth(canvas);
         height = getMaximumHeight(canvas);
       }
-      var newWidth = Math.max(0, Math.round(width));
-      var newHeight = Math.max(0, Math.round(aspectRatio ? newWidth / aspectRatio : height));
+      var newWidth = Math.max(0, Math.floor(width));
+      var newHeight = Math.max(0, Math.floor(aspectRatio ? newWidth / aspectRatio : height));
       var oldRatio = me.currentDevicePixelRatio;
       var newRatio = options.devicePixelRatio || me.platform.getDevicePixelRatio();
       if (me.width === newWidth && me.height === newHeight && oldRatio === newRatio) {
