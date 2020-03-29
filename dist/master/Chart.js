@@ -637,6 +637,19 @@ function _setPrototypeOf(o, p) {
   return _setPrototypeOf(o, p);
 }
 
+function _isNativeReflectConstruct() {
+  if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+  if (Reflect.construct.sham) return false;
+  if (typeof Proxy === "function") return true;
+
+  try {
+    Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
 function _assertThisInitialized(self) {
   if (self === void 0) {
     throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -651,6 +664,23 @@ function _possibleConstructorReturn(self, call) {
   }
 
   return _assertThisInitialized(self);
+}
+
+function _createSuper(Derived) {
+  return function () {
+    var Super = _getPrototypeOf(Derived),
+        result;
+
+    if (_isNativeReflectConstruct()) {
+      var NewTarget = _getPrototypeOf(this).constructor;
+
+      result = Reflect.construct(Super, arguments, NewTarget);
+    } else {
+      result = Super.apply(this, arguments);
+    }
+
+    return _possibleConstructorReturn(this, result);
+  };
 }
 
 function _superPropBase(object, property) {
@@ -684,23 +714,36 @@ function _get(target, property, receiver) {
 }
 
 function _toConsumableArray(arr) {
-  return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread();
+  return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread();
 }
 
 function _arrayWithoutHoles(arr) {
-  if (Array.isArray(arr)) {
-    for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) arr2[i] = arr[i];
-
-    return arr2;
-  }
+  if (Array.isArray(arr)) return _arrayLikeToArray(arr);
 }
 
 function _iterableToArray(iter) {
-  if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter);
+  if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter);
+}
+
+function _unsupportedIterableToArray(o, minLen) {
+  if (!o) return;
+  if (typeof o === "string") return _arrayLikeToArray(o, minLen);
+  var n = Object.prototype.toString.call(o).slice(8, -1);
+  if (n === "Object" && o.constructor) n = o.constructor.name;
+  if (n === "Map" || n === "Set") return Array.from(n);
+  if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
+}
+
+function _arrayLikeToArray(arr, len) {
+  if (len == null || len > arr.length) len = arr.length;
+
+  for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
+
+  return arr2;
 }
 
 function _nonIterableSpread() {
-  throw new TypeError("Invalid attempt to spread non-iterable instance");
+  throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
 }
 
 function noop() {}
@@ -1706,8 +1749,7 @@ var effects = {
   }
 };
 
-var Defaults =
-function () {
+var Defaults = function () {
   function Defaults() {
     _classCallCheck(this, Defaults);
     this.color = 'rgba(0,0,0,0.1)';
@@ -1900,7 +1942,7 @@ restoreTextDirection: restoreTextDirection
 });
 
 /*!
- * @kurkle/color v0.1.6
+ * @kurkle/color v0.1.7
  * https://github.com/kurkle/color#readme
  * (c) 2020 Jukka Kurkela
  * Released under the MIT License
@@ -2375,8 +2417,7 @@ function functionParse(str) {
   }
   return hueParse(str);
 }
-var Color =
-function () {
+var Color = function () {
   function Color(input) {
     _classCallCheck(this, Color);
     if (input instanceof Color) {
@@ -2520,7 +2561,7 @@ function () {
   }]);
   return Color;
 }();
-function index$1(input) {
+function index_esm(input) {
   return new Color(input);
 }
 
@@ -2528,10 +2569,10 @@ var isPatternOrGradient = function isPatternOrGradient(value) {
   return value instanceof CanvasGradient || value instanceof CanvasPattern;
 };
 function color(value) {
-  return isPatternOrGradient(value) ? value : index$1(value);
+  return isPatternOrGradient(value) ? value : index_esm(value);
 }
 function getHoverColor(value) {
-  return isPatternOrGradient(value) ? value : index$1(value).saturate(0.5).darken(0.1).hexString();
+  return isPatternOrGradient(value) ? value : index_esm(value).saturate(0.5).darken(0.1).hexString();
 }
 
 var helpers = _objectSpread2({}, coreHelpers, {
@@ -2559,8 +2600,7 @@ var helpers = _objectSpread2({}, coreHelpers, {
   getHoverColor: getHoverColor
 });
 
-var BasePlatform =
-function () {
+var BasePlatform = function () {
   function BasePlatform() {
     _classCallCheck(this, BasePlatform);
   }
@@ -2777,12 +2817,12 @@ function listenForResize(canvas, proxies, listener) {
     });
   }
 }
-var DomPlatform =
-function (_BasePlatform) {
+var DomPlatform = function (_BasePlatform) {
   _inherits(DomPlatform, _BasePlatform);
+  var _super = _createSuper(DomPlatform);
   function DomPlatform() {
     _classCallCheck(this, DomPlatform);
-    return _possibleConstructorReturn(this, _getPrototypeOf(DomPlatform).apply(this, arguments));
+    return _super.apply(this, arguments);
   }
   _createClass(DomPlatform, [{
     key: "acquireContext",
@@ -2869,8 +2909,7 @@ function drawFPS(chart, count, date, lastDate) {
   }
   ctx.restore();
 }
-var Animator =
-function () {
+var Animator = function () {
   function Animator() {
     _classCallCheck(this, Animator);
     this._request = null;
@@ -3051,8 +3090,7 @@ var interpolators = {
     return from + (to - from) * factor;
   }
 };
-var Animation =
-function () {
+var Animation = function () {
   function Animation(cfg, target, prop, to) {
     _classCallCheck(this, Animation);
     var currentValue = target[prop];
@@ -3195,8 +3233,7 @@ function extensibleConfig(animations) {
   });
   return result;
 }
-var Animations =
-function () {
+var Animations = function () {
   function Animations(chart, animations) {
     _classCallCheck(this, Animations);
     this._chart = chart;
@@ -3485,8 +3522,7 @@ function getFirstScaleId(chart, axis) {
     return scales[key].axis === axis;
   }).shift();
 }
-var DatasetController =
-function () {
+var DatasetController = function () {
   function DatasetController(chart, datasetIndex) {
     _classCallCheck(this, DatasetController);
     this.chart = chart;
@@ -4226,8 +4262,7 @@ DatasetController.prototype.dataElementType = null;
 DatasetController.prototype.datasetElementOptions = ['backgroundColor', 'borderCapStyle', 'borderColor', 'borderDash', 'borderDashOffset', 'borderJoinStyle', 'borderWidth'];
 DatasetController.prototype.dataElementOptions = ['backgroundColor', 'borderColor', 'borderWidth', 'pointStyle'];
 
-var Element$1 =
-function () {
+var Element$1 = function () {
   function Element() {
     _classCallCheck(this, Element);
     this.x = undefined;
@@ -4343,13 +4378,13 @@ function drawBorder(ctx, vm, arc) {
   ctx.closePath();
   ctx.stroke();
 }
-var Arc =
-function (_Element) {
+var Arc = function (_Element) {
   _inherits(Arc, _Element);
+  var _super = _createSuper(Arc);
   function Arc(cfg) {
     var _this;
     _classCallCheck(this, Arc);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Arc).call(this));
+    _this = _super.call(this);
     _this.options = undefined;
     _this.circumference = undefined;
     _this.startAngle = undefined;
@@ -4801,13 +4836,13 @@ function _getInterpolationMethod(options) {
   }
   return _pointInLine;
 }
-var Line =
-function (_Element) {
+var Line = function (_Element) {
   _inherits(Line, _Element);
+  var _super = _createSuper(Line);
   function Line(cfg) {
     var _this;
     _classCallCheck(this, Line);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Line).call(this));
+    _this = _super.call(this);
     _this.options = undefined;
     _this._loop = undefined;
     _this._fullLoop = undefined;
@@ -4949,13 +4984,13 @@ defaults.set('elements', {
     radius: 3
   }
 });
-var Point =
-function (_Element) {
+var Point = function (_Element) {
   _inherits(Point, _Element);
+  var _super = _createSuper(Point);
   function Point(cfg) {
     var _this;
     _classCallCheck(this, Point);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Point).call(this));
+    _this = _super.call(this);
     _this.options = undefined;
     _this.skip = undefined;
     _this.stop = undefined;
@@ -5138,13 +5173,13 @@ function _inRange(bar, x, y, useFinalPosition) {
   var bounds = !bar || skipX && skipY ? false : getBarBounds(bar, useFinalPosition);
   return bounds && (skipX || x >= bounds.left && x <= bounds.right) && (skipY || y >= bounds.top && y <= bounds.bottom);
 }
-var Rectangle =
-function (_Element) {
+var Rectangle = function (_Element) {
   _inherits(Rectangle, _Element);
+  var _super = _createSuper(Rectangle);
   function Rectangle(cfg) {
     var _this;
     _classCallCheck(this, Rectangle);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Rectangle).call(this));
+    _this = _super.call(this);
     _this.options = undefined;
     _this.horizontal = undefined;
     _this.base = undefined;
@@ -5212,8 +5247,6 @@ function (_Element) {
   return Rectangle;
 }(Element$1);
 _defineProperty(Rectangle, "_type", 'rectangle');
-
-
 
 var elements = /*#__PURE__*/Object.freeze({
 __proto__: null,
@@ -5347,12 +5380,12 @@ function parseArrayOrPrimitive(meta, data, start, count) {
 function isFloatBar(custom) {
   return custom && custom.barStart !== undefined && custom.barEnd !== undefined;
 }
-var BarController =
-function (_DatasetController) {
+var BarController = function (_DatasetController) {
   _inherits(BarController, _DatasetController);
+  var _super = _createSuper(BarController);
   function BarController() {
     _classCallCheck(this, BarController);
-    return _possibleConstructorReturn(this, _getPrototypeOf(BarController).apply(this, arguments));
+    return _super.apply(this, arguments);
   }
   _createClass(BarController, [{
     key: "parsePrimitiveData",
@@ -5606,12 +5639,12 @@ defaults.set('bubble', {
     }
   }
 });
-var BubbleController =
-function (_DatasetController) {
+var BubbleController = function (_DatasetController) {
   _inherits(BubbleController, _DatasetController);
+  var _super = _createSuper(BubbleController);
   function BubbleController() {
     _classCallCheck(this, BubbleController);
-    return _possibleConstructorReturn(this, _getPrototypeOf(BubbleController).apply(this, arguments));
+    return _super.apply(this, arguments);
   }
   _createClass(BubbleController, [{
     key: "parseObjectData",
@@ -5821,13 +5854,13 @@ function getRatioAndOffset(rotation, circumference, cutout) {
     offsetY: offsetY
   };
 }
-var DoughnutController =
-function (_DatasetController) {
+var DoughnutController = function (_DatasetController) {
   _inherits(DoughnutController, _DatasetController);
+  var _super = _createSuper(DoughnutController);
   function DoughnutController(chart, datasetIndex) {
     var _this;
     _classCallCheck(this, DoughnutController);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(DoughnutController).call(this, chart, datasetIndex));
+    _this = _super.call(this, chart, datasetIndex);
     _this.innerRadius = undefined;
     _this.outerRadius = undefined;
     _this.offsetX = undefined;
@@ -6052,12 +6085,12 @@ defaults.set('horizontalBar', {
     axis: 'y'
   }
 });
-var HorizontalBarController =
-function (_BarController) {
+var HorizontalBarController = function (_BarController) {
   _inherits(HorizontalBarController, _BarController);
+  var _super = _createSuper(HorizontalBarController);
   function HorizontalBarController() {
     _classCallCheck(this, HorizontalBarController);
-    return _possibleConstructorReturn(this, _getPrototypeOf(HorizontalBarController).apply(this, arguments));
+    return _super.apply(this, arguments);
   }
   _createClass(HorizontalBarController, [{
     key: "getValueScaleId",
@@ -6088,13 +6121,13 @@ defaults.set('line', {
     }
   }
 });
-var LineController =
-function (_DatasetController) {
+var LineController = function (_DatasetController) {
   _inherits(LineController, _DatasetController);
+  var _super = _createSuper(LineController);
   function LineController(chart, datasetIndex) {
     var _this;
     _classCallCheck(this, LineController);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(LineController).call(this, chart, datasetIndex));
+    _this = _super.call(this, chart, datasetIndex);
     _this._showLine = false;
     return _this;
   }
@@ -6292,13 +6325,13 @@ defaults.set('polarArea', {
 function getStartAngleRadians(deg) {
   return toRadians(deg) - 0.5 * Math.PI;
 }
-var PolarAreaController =
-function (_DatasetController) {
+var PolarAreaController = function (_DatasetController) {
   _inherits(PolarAreaController, _DatasetController);
+  var _super = _createSuper(PolarAreaController);
   function PolarAreaController(chart, datasetIndex) {
     var _this;
     _classCallCheck(this, PolarAreaController);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(PolarAreaController).call(this, chart, datasetIndex));
+    _this = _super.call(this, chart, datasetIndex);
     _this.innerRadius = undefined;
     _this.outerRadius = undefined;
     return _this;
@@ -6437,12 +6470,12 @@ defaults.set('radar', {
     }
   }
 });
-var RadarController =
-function (_DatasetController) {
+var RadarController = function (_DatasetController) {
   _inherits(RadarController, _DatasetController);
+  var _super = _createSuper(RadarController);
   function RadarController() {
     _classCallCheck(this, RadarController);
-    return _possibleConstructorReturn(this, _getPrototypeOf(RadarController).apply(this, arguments));
+    return _super.apply(this, arguments);
   }
   _createClass(RadarController, [{
     key: "getIndexScaleId",
@@ -7114,12 +7147,12 @@ var layouts = {
   }
 };
 
-var BasicPlatform =
-function (_BasePlatform) {
+var BasicPlatform = function (_BasePlatform) {
   _inherits(BasicPlatform, _BasePlatform);
+  var _super = _createSuper(BasicPlatform);
   function BasicPlatform() {
     _classCallCheck(this, BasicPlatform);
-    return _possibleConstructorReturn(this, _getPrototypeOf(BasicPlatform).apply(this, arguments));
+    return _super.apply(this, arguments);
   }
   _createClass(BasicPlatform, [{
     key: "acquireContext",
@@ -7137,8 +7170,7 @@ var platforms = {
 };
 
 defaults.set('plugins', {});
-var PluginService =
-function () {
+var PluginService = function () {
   function PluginService() {
     _classCallCheck(this, PluginService);
     this._plugins = [];
@@ -7391,8 +7423,7 @@ function getCanvas(item) {
   }
   return item;
 }
-var Chart =
-function () {
+var Chart = function () {
   function Chart(item, config) {
     _classCallCheck(this, Chart);
     var me = this;
@@ -8123,8 +8154,7 @@ _defineProperty(Chart, "instances", {});
 function _abstract() {
   throw new Error('This method is not implemented: either no adapter can be found or an incomplete integration was provided.');
 }
-var DateAdapter =
-function () {
+var DateAdapter = function () {
   function DateAdapter(options) {
     _classCallCheck(this, DateAdapter);
     this.options = options || {};
@@ -8318,7 +8348,7 @@ function getEvenSpacing(arr) {
   }
   return diff;
 }
-function calculateSpacing(majorIndices, ticks, axisLength, ticksLimit) {
+function calculateSpacing(majorIndices, ticks, ticksLimit) {
   var evenMajorSpacing = getEvenSpacing(majorIndices);
   var spacing = ticks.length / ticksLimit;
   if (!evenMajorSpacing) {
@@ -8379,13 +8409,13 @@ function skip(ticks, newTicks, spacing, majorStart, majorEnd) {
     }
   }
 }
-var Scale =
-function (_Element) {
+var Scale = function (_Element) {
   _inherits(Scale, _Element);
+  var _super = _createSuper(Scale);
   function Scale(cfg) {
     var _this;
     _classCallCheck(this, Scale);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Scale).call(this));
+    _this = _super.call(this);
     _this.id = cfg.id;
     _this.type = cfg.type;
     _this.options = cfg.options;
@@ -8938,8 +8968,7 @@ function (_Element) {
     value: function _autoSkip(ticks) {
       var me = this;
       var tickOpts = me.options.ticks;
-      var axisLength = me._length;
-      var ticksLimit = tickOpts.maxTicksLimit || axisLength / me._tickSize();
+      var ticksLimit = tickOpts.maxTicksLimit || me._length / me._tickSize();
       var majorIndices = tickOpts.major.enabled ? getMajorIndices(ticks) : [];
       var numMajorIndices = majorIndices.length;
       var first = majorIndices[0];
@@ -8949,7 +8978,7 @@ function (_Element) {
         skipMajors(ticks, newTicks, majorIndices, numMajorIndices / ticksLimit);
         return newTicks;
       }
-      var spacing = calculateSpacing(majorIndices, ticks, axisLength, ticksLimit);
+      var spacing = calculateSpacing(majorIndices, ticks, ticksLimit);
       if (numMajorIndices > 0) {
         var i, ilen;
         var avgMajorSpacing = numMajorIndices > 1 ? Math.round((last - first) / (numMajorIndices - 1)) : null;
@@ -9437,13 +9466,13 @@ function (_Element) {
 Scale.prototype._draw = Scale.prototype.draw;
 
 var defaultConfig = {};
-var CategoryScale =
-function (_Scale) {
+var CategoryScale = function (_Scale) {
   _inherits(CategoryScale, _Scale);
+  var _super = _createSuper(CategoryScale);
   function CategoryScale(cfg) {
     var _this;
     _classCallCheck(this, CategoryScale);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(CategoryScale).call(this, cfg));
+    _this = _super.call(this, cfg);
     _this._numLabels = 0;
     _this._startValue = undefined;
     _this._valueRange = 0;
@@ -9626,13 +9655,13 @@ function generateTicks(generationOptions, dataRange) {
   });
   return ticks;
 }
-var LinearScaleBase =
-function (_Scale) {
+var LinearScaleBase = function (_Scale) {
   _inherits(LinearScaleBase, _Scale);
+  var _super = _createSuper(LinearScaleBase);
   function LinearScaleBase(cfg) {
     var _this;
     _classCallCheck(this, LinearScaleBase);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(LinearScaleBase).call(this, cfg));
+    _this = _super.call(this, cfg);
     _this.start = undefined;
     _this.end = undefined;
     _this._startValue = undefined;
@@ -9789,12 +9818,12 @@ var defaultConfig$1 = {
     callback: Ticks.formatters.numeric
   }
 };
-var LinearScale =
-function (_LinearScaleBase) {
+var LinearScale = function (_LinearScaleBase) {
   _inherits(LinearScale, _LinearScaleBase);
+  var _super = _createSuper(LinearScale);
   function LinearScale() {
     _classCallCheck(this, LinearScale);
-    return _possibleConstructorReturn(this, _getPrototypeOf(LinearScale).apply(this, arguments));
+    return _super.apply(this, arguments);
   }
   _createClass(LinearScale, [{
     key: "determineDataLimits",
@@ -9886,13 +9915,13 @@ var defaultConfig$2 = {
     }
   }
 };
-var LogarithmicScale =
-function (_Scale) {
+var LogarithmicScale = function (_Scale) {
   _inherits(LogarithmicScale, _Scale);
+  var _super = _createSuper(LogarithmicScale);
   function LogarithmicScale(cfg) {
     var _this;
     _classCallCheck(this, LogarithmicScale);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(LogarithmicScale).call(this, cfg));
+    _this = _super.call(this, cfg);
     _this.start = undefined;
     _this.end = undefined;
     _this._startValue = undefined;
@@ -10199,13 +10228,13 @@ function drawRadiusLine(scale, gridLineOpts, radius, index) {
 function numberOrZero(param) {
   return isNumber(param) ? param : 0;
 }
-var RadialLinearScale =
-function (_LinearScaleBase) {
+var RadialLinearScale = function (_LinearScaleBase) {
   _inherits(RadialLinearScale, _LinearScaleBase);
+  var _super = _createSuper(RadialLinearScale);
   function RadialLinearScale(cfg) {
     var _this;
     _classCallCheck(this, RadialLinearScale);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(RadialLinearScale).call(this, cfg));
+    _this = _super.call(this, cfg);
     _this.xCenter = undefined;
     _this.yCenter = undefined;
     _this.drawingArea = undefined;
@@ -10755,13 +10784,13 @@ var defaultConfig$4 = {
     }
   }
 };
-var TimeScale =
-function (_Scale) {
+var TimeScale = function (_Scale) {
   _inherits(TimeScale, _Scale);
+  var _super = _createSuper(TimeScale);
   function TimeScale(props) {
     var _this;
     _classCallCheck(this, TimeScale);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(TimeScale).call(this, props));
+    _this = _super.call(this, props);
     var options = _this.options;
     var time = options.time || (options.time = {});
     var adapter = _this._adapter = new _adapters._date(options.adapters.date);
@@ -10946,8 +10975,6 @@ function (_Scale) {
 _defineProperty(TimeScale, "id", 'time');
 _defineProperty(TimeScale, "defaults", defaultConfig$4);
 
-
-
 var scales = /*#__PURE__*/Object.freeze({
 __proto__: null,
 CategoryScale: CategoryScale,
@@ -11018,8 +11045,7 @@ function computeLinearBoundary(source) {
   }
   return null;
 }
-var simpleArc =
-function () {
+var simpleArc = function () {
   function simpleArc(opts) {
     _classCallCheck(this, simpleArc);
     this.x = opts.x;
@@ -11479,13 +11505,13 @@ defaults.set('legend', {
 function getBoxWidth(labelOpts, fontSize) {
   return labelOpts.usePointStyle && labelOpts.boxWidth > fontSize ? fontSize : labelOpts.boxWidth;
 }
-var Legend =
-function (_Element) {
+var Legend = function (_Element) {
   _inherits(Legend, _Element);
+  var _super = _createSuper(Legend);
   function Legend(config) {
     var _this;
     _classCallCheck(this, Legend);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Legend).call(this));
+    _this = _super.call(this);
     _extends(_assertThisInitialized(_this), config);
     _this.legendHitBoxes = [];
     _this._hoveredItem = null;
@@ -11998,13 +12024,13 @@ defaults.set('title', {
   text: '',
   weight: 2000
 });
-var Title =
-function (_Element) {
+var Title = function (_Element) {
   _inherits(Title, _Element);
+  var _super = _createSuper(Title);
   function Title(config) {
     var _this;
     _classCallCheck(this, Title);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Title).call(this));
+    _this = _super.call(this);
     _extends(_assertThisInitialized(_this), config);
     _this.chart = config.chart;
     _this.options = config.options;
@@ -12581,13 +12607,13 @@ function getAlignedX(tooltip, align) {
 function getBeforeAfterBodyLines(callback) {
   return pushOrConcat([], splitNewlines(callback));
 }
-var Tooltip =
-function (_Element) {
+var Tooltip = function (_Element) {
   _inherits(Tooltip, _Element);
+  var _super = _createSuper(Tooltip);
   function Tooltip(config) {
     var _this;
     _classCallCheck(this, Tooltip);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Tooltip).call(this));
+    _this = _super.call(this);
     _this.opacity = 0;
     _this._active = [];
     _this._chart = config._chart;

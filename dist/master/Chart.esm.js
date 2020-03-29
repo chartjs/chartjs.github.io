@@ -1256,7 +1256,7 @@ restoreTextDirection: restoreTextDirection
 });
 
 /*!
- * @kurkle/color v0.1.6
+ * @kurkle/color v0.1.7
  * https://github.com/kurkle/color#readme
  * (c) 2020 Jukka Kurkela
  * Released under the MIT License
@@ -1830,16 +1830,16 @@ class Color {
     return this;
   }
 }
-function index(input) {
+function index_esm(input) {
   return new Color(input);
 }
 
 var isPatternOrGradient = value => value instanceof CanvasGradient || value instanceof CanvasPattern;
 function color(value) {
-  return isPatternOrGradient(value) ? value : index(value);
+  return isPatternOrGradient(value) ? value : index_esm(value);
 }
 function getHoverColor(value) {
-  return isPatternOrGradient(value) ? value : index(value).saturate(0.5).darken(0.1).hexString();
+  return isPatternOrGradient(value) ? value : index_esm(value).saturate(0.5).darken(0.1).hexString();
 }
 
 var helpers = _objectSpread2({}, coreHelpers, {
@@ -3999,8 +3999,6 @@ class Rectangle extends Element {
   }
 }
 _defineProperty(Rectangle, "_type", 'rectangle');
-
-
 
 var elements = /*#__PURE__*/Object.freeze({
 __proto__: null,
@@ -7074,7 +7072,7 @@ function getEvenSpacing(arr) {
   }
   return diff;
 }
-function calculateSpacing(majorIndices, ticks, axisLength, ticksLimit) {
+function calculateSpacing(majorIndices, ticks, ticksLimit) {
   var evenMajorSpacing = getEvenSpacing(majorIndices);
   var spacing = ticks.length / ticksLimit;
   if (!evenMajorSpacing) {
@@ -7603,8 +7601,7 @@ class Scale extends Element {
   _autoSkip(ticks) {
     var me = this;
     var tickOpts = me.options.ticks;
-    var axisLength = me._length;
-    var ticksLimit = tickOpts.maxTicksLimit || axisLength / me._tickSize();
+    var ticksLimit = tickOpts.maxTicksLimit || me._length / me._tickSize();
     var majorIndices = tickOpts.major.enabled ? getMajorIndices(ticks) : [];
     var numMajorIndices = majorIndices.length;
     var first = majorIndices[0];
@@ -7614,7 +7611,7 @@ class Scale extends Element {
       skipMajors(ticks, newTicks, majorIndices, numMajorIndices / ticksLimit);
       return newTicks;
     }
-    var spacing = calculateSpacing(majorIndices, ticks, axisLength, ticksLimit);
+    var spacing = calculateSpacing(majorIndices, ticks, ticksLimit);
     if (numMajorIndices > 0) {
       var i, ilen;
       var avgMajorSpacing = numMajorIndices > 1 ? Math.round((last - first) / (numMajorIndices - 1)) : null;
@@ -9440,8 +9437,6 @@ class TimeScale extends Scale {
 }
 _defineProperty(TimeScale, "id", 'time');
 _defineProperty(TimeScale, "defaults", defaultConfig$4);
-
-
 
 var scales = /*#__PURE__*/Object.freeze({
 __proto__: null,
