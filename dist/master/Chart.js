@@ -5300,11 +5300,9 @@ function computeMinSampleSize(scale, pixels) {
 function computeFitCategoryTraits(index, ruler, options) {
   var thickness = options.barThickness;
   var count = ruler.stackCount;
-  var curr = ruler.pixels[index];
-  var min = isNullOrUndef(thickness) ? computeMinSampleSize(ruler.scale, ruler.pixels) : -1;
   var size, ratio;
   if (isNullOrUndef(thickness)) {
-    size = min * options.categoryPercentage;
+    size = ruler.min * options.categoryPercentage;
     ratio = options.barPercentage;
   } else {
     size = thickness * count;
@@ -5313,7 +5311,7 @@ function computeFitCategoryTraits(index, ruler, options) {
   return {
     chunk: size / count,
     ratio: ratio,
-    start: curr - size / 2
+    start: ruler.pixels[index] - size / 2
   };
 }
 function computeFlexCategoryTraits(index, ruler, options) {
@@ -5531,7 +5529,9 @@ var BarController = function (_DatasetController) {
       for (i = 0, ilen = meta.data.length; i < ilen; ++i) {
         pixels.push(iScale.getPixelForValue(me.getParsed(i)[iScale.axis]));
       }
+      var min = computeMinSampleSize(iScale, pixels);
       return {
+        min: min,
         pixels: pixels,
         start: iScale._startPixel,
         end: iScale._endPixel,
