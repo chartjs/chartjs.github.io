@@ -8204,37 +8204,48 @@ var _adapters = {
   _date: DateAdapter
 };
 
-var Ticks = {
-  formatters: {
-    values: function values(value) {
-      return isArray(value) ? value : '' + value;
-    },
-    numeric: function numeric(tickValue, index, ticks) {
-      if (tickValue === 0) {
-        return '0';
-      }
-      var delta = ticks.length > 3 ? ticks[2].value - ticks[1].value : ticks[1].value - ticks[0].value;
-      if (Math.abs(delta) > 1 && tickValue !== Math.floor(tickValue)) {
-        delta = tickValue - Math.floor(tickValue);
-      }
-      var logDelta = log10(Math.abs(delta));
-      var maxTick = Math.max(Math.abs(ticks[0].value), Math.abs(ticks[ticks.length - 1].value));
-      var minTick = Math.min(Math.abs(ticks[0].value), Math.abs(ticks[ticks.length - 1].value));
-      var locale = this.chart.options.locale;
-      if (maxTick < 1e-4 || minTick > 1e+7) {
-        var logTick = log10(Math.abs(tickValue));
-        var numExponential = Math.floor(logTick) - Math.floor(logDelta);
-        numExponential = Math.max(Math.min(numExponential, 20), 0);
-        return tickValue.toExponential(numExponential);
-      }
-      var numDecimal = -1 * Math.floor(logDelta);
-      numDecimal = Math.max(Math.min(numDecimal, 20), 0);
-      return new Intl.NumberFormat(locale, {
-        minimumFractionDigits: numDecimal,
-        maximumFractionDigits: numDecimal
-      }).format(tickValue);
+var formatters = {
+  values: function values(value) {
+    return isArray(value) ? value : '' + value;
+  },
+  numeric: function numeric(tickValue, index, ticks) {
+    if (tickValue === 0) {
+      return '0';
     }
+    var delta = ticks.length > 3 ? ticks[2].value - ticks[1].value : ticks[1].value - ticks[0].value;
+    if (Math.abs(delta) > 1 && tickValue !== Math.floor(tickValue)) {
+      delta = tickValue - Math.floor(tickValue);
+    }
+    var logDelta = log10(Math.abs(delta));
+    var maxTick = Math.max(Math.abs(ticks[0].value), Math.abs(ticks[ticks.length - 1].value));
+    var minTick = Math.min(Math.abs(ticks[0].value), Math.abs(ticks[ticks.length - 1].value));
+    var locale = this.chart.options.locale;
+    if (maxTick < 1e-4 || minTick > 1e+7) {
+      var logTick = log10(Math.abs(tickValue));
+      var numExponential = Math.floor(logTick) - Math.floor(logDelta);
+      numExponential = Math.max(Math.min(numExponential, 20), 0);
+      return tickValue.toExponential(numExponential);
+    }
+    var numDecimal = -1 * Math.floor(logDelta);
+    numDecimal = Math.max(Math.min(numDecimal, 20), 0);
+    return new Intl.NumberFormat(locale, {
+      minimumFractionDigits: numDecimal,
+      maximumFractionDigits: numDecimal
+    }).format(tickValue);
   }
+};
+formatters.logarithmic = function (tickValue, index, ticks) {
+  if (tickValue === 0) {
+    return '0';
+  }
+  var remain = tickValue / Math.pow(10, Math.floor(log10(tickValue)));
+  if (remain === 1 || remain === 2 || remain === 5) {
+    return formatters.numeric.call(this, tickValue, index, ticks);
+  }
+  return '';
+};
+var Ticks = {
+  formatters: formatters
 };
 
 defaults.set('scale', {
@@ -9909,7 +9920,7 @@ function generateTicks$1(generationOptions, dataRange) {
 }
 var defaultConfig$2 = {
   ticks: {
-    callback: Ticks.formatters.numeric,
+    callback: Ticks.formatters.logarithmic,
     major: {
       enabled: true
     }
