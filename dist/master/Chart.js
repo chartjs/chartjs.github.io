@@ -7059,7 +7059,6 @@ defaults.set('layout', {
   }
 });
 var layouts = {
-  defaults: {},
   addBox: function addBox(chart, item) {
     if (!chart.boxes) {
       chart.boxes = [];

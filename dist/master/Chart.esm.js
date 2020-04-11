@@ -5667,7 +5667,6 @@ defaults.set('layout', {
   }
 });
 var layouts = {
-  defaults: {},
   addBox(chart, item) {
     if (!chart.boxes) {
       chart.boxes = [];
