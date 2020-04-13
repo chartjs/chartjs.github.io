@@ -3988,7 +3988,7 @@ class Rectangle extends Element {
       y,
       base,
       horizontal
-    } = this.getProps(['x', 'y', 'base', 'horizontal', useFinalPosition]);
+    } = this.getProps(['x', 'y', 'base', 'horizontal'], useFinalPosition);
     return {
       x: horizontal ? (x + base) / 2 : x,
       y: horizontal ? y : (y + base) / 2
@@ -9013,7 +9013,11 @@ function parse(scale, input) {
   }
   var adapter = scale._adapter;
   var options = scale.options.time;
-  var parser = options.parser;
+  var {
+    parser,
+    round,
+    isoWeekday
+  } = options;
   var value = input;
   if (typeof parser === 'function') {
     value = parser(value);
@@ -9024,8 +9028,8 @@ function parse(scale, input) {
   if (value === null) {
     return value;
   }
-  if (options.round) {
-    value = scale._adapter.startOf(value, options.round);
+  if (round) {
+    value = round === 'week' && isoWeekday ? scale._adapter.startOf(value, 'isoWeek', isoWeekday) : scale._adapter.startOf(value, round);
   }
   return +value;
 }
@@ -10690,7 +10694,7 @@ defaults.set('tooltips', {
     easing: 'easeOutQuart',
     numbers: {
       type: 'number',
-      properties: ['x', 'y', 'width', 'height']
+      properties: ['x', 'y', 'width', 'height', 'caretX', 'caretY']
     },
     opacity: {
       easing: 'linear',
