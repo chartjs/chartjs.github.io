@@ -800,7 +800,7 @@ function _calculatePadding(container, padding, parentDimension) {
 function getRelativePosition(evt, chart) {
   var mouseX, mouseY;
   var e = evt.originalEvent || evt;
-  var canvasElement = evt.target || evt.srcElement;
+  var canvasElement = chart.canvas;
   var boundingRect = canvasElement.getBoundingClientRect();
   var touches = e.touches;
   if (touches && touches.length > 0) {
@@ -1256,7 +1256,7 @@ restoreTextDirection: restoreTextDirection
 });
 
 /*!
- * @kurkle/color v0.1.6
+ * @kurkle/color v0.1.7
  * https://github.com/kurkle/color#readme
  * (c) 2020 Jukka Kurkela
  * Released under the MIT License
@@ -1830,16 +1830,16 @@ class Color {
     return this;
   }
 }
-function index(input) {
+function index_esm(input) {
   return new Color(input);
 }
 
 var isPatternOrGradient = value => value instanceof CanvasGradient || value instanceof CanvasPattern;
 function color(value) {
-  return isPatternOrGradient(value) ? value : index(value);
+  return isPatternOrGradient(value) ? value : index_esm(value);
 }
 function getHoverColor(value) {
-  return isPatternOrGradient(value) ? value : index(value).saturate(0.5).darken(0.1).hexString();
+  return isPatternOrGradient(value) ? value : index_esm(value).saturate(0.5).darken(0.1).hexString();
 }
 
 var helpers = _objectSpread2({}, coreHelpers, {
@@ -2050,6 +2050,18 @@ class Animation {
   active() {
     return this._active;
   }
+  update(cfg, to, date) {
+    var me = this;
+    if (me._active) {
+      var currentValue = me._target[me._prop];
+      var elapsed = date - me._start;
+      var remain = me._duration - elapsed;
+      me._start = date;
+      me._duration = Math.floor(Math.max(remain, cfg.duration));
+      me._to = resolve([cfg.to, to, currentValue, cfg.from]);
+      me._from = resolve([cfg.from, currentValue, to]);
+    }
+  }
   cancel() {
     var me = this;
     if (me._active) {
@@ -2202,6 +2214,7 @@ class Animations {
     var animations = [];
     var running = target.$animations || (target.$animations = {});
     var props = Object.keys(values);
+    var date = Date.now();
     var i;
     for (i = props.length - 1; i >= 0; --i) {
       var prop = props[i];
@@ -2214,10 +2227,15 @@ class Animations {
       }
       var value = values[prop];
       var animation = running[prop];
-      if (animation) {
-        animation.cancel();
-      }
       var cfg = animatedProps.get(prop);
+      if (animation) {
+        if (cfg && animation.active()) {
+          animation.update(cfg, value, date);
+          continue;
+        } else {
+          animation.cancel();
+        }
+      }
       if (!cfg || !cfg.duration) {
         target[prop] = value;
         continue;
@@ -3061,7 +3079,7 @@ DatasetController.prototype.dataElementType = null;
 DatasetController.prototype.datasetElementOptions = ['backgroundColor', 'borderCapStyle', 'borderColor', 'borderDash', 'borderDashOffset', 'borderJoinStyle', 'borderWidth'];
 DatasetController.prototype.dataElementOptions = ['backgroundColor', 'borderColor', 'borderWidth', 'pointStyle'];
 
-class Element$1 {
+class Element {
   constructor() {
     this.x = undefined;
     this.y = undefined;
@@ -3095,7 +3113,7 @@ class Element$1 {
     return ret;
   }
 }
-_defineProperty(Element$1, "extend", inherits);
+_defineProperty(Element, "extend", inherits);
 
 var TAU$1 = Math.PI * 2;
 defaults.set('elements', {
@@ -3171,7 +3189,7 @@ function drawBorder(ctx, vm, arc) {
   ctx.closePath();
   ctx.stroke();
 }
-class Arc extends Element$1 {
+class Arc extends Element {
   constructor(cfg) {
     super();
     this.options = undefined;
@@ -3627,7 +3645,7 @@ function _getInterpolationMethod(options) {
   }
   return _pointInLine;
 }
-class Line extends Element$1 {
+class Line extends Element {
   constructor(cfg) {
     super();
     this.options = undefined;
@@ -3751,7 +3769,7 @@ defaults.set('elements', {
     radius: 3
   }
 });
-class Point extends Element$1 {
+class Point extends Element {
   constructor(cfg) {
     super();
     this.options = undefined;
@@ -3924,7 +3942,7 @@ function inRange(bar, x, y, useFinalPosition) {
   var bounds = !bar || skipX && skipY ? false : getBarBounds(bar, useFinalPosition);
   return bounds && (skipX || x >= bounds.left && x <= bounds.right) && (skipY || y >= bounds.top && y <= bounds.bottom);
 }
-class Rectangle extends Element$1 {
+class Rectangle extends Element {
   constructor(cfg) {
     super();
     this.options = undefined;
@@ -3970,7 +3988,7 @@ class Rectangle extends Element$1 {
       y,
       base,
       horizontal
-    } = this.getProps(['x', 'y', 'base', 'horizontal', useFinalPosition]);
+    } = this.getProps(['x', 'y', 'base', 'horizontal'], useFinalPosition);
     return {
       x: horizontal ? (x + base) / 2 : x,
       y: horizontal ? y : (y + base) / 2
@@ -3981,8 +3999,6 @@ class Rectangle extends Element$1 {
   }
 }
 _defineProperty(Rectangle, "_type", 'rectangle');
-
-
 
 var elements = /*#__PURE__*/Object.freeze({
 __proto__: null,
@@ -4036,11 +4052,9 @@ function computeMinSampleSize(scale, pixels) {
 function computeFitCategoryTraits(index, ruler, options) {
   var thickness = options.barThickness;
   var count = ruler.stackCount;
-  var curr = ruler.pixels[index];
-  var min = isNullOrUndef(thickness) ? computeMinSampleSize(ruler.scale, ruler.pixels) : -1;
   var size, ratio;
   if (isNullOrUndef(thickness)) {
-    size = min * options.categoryPercentage;
+    size = ruler.min * options.categoryPercentage;
     ratio = options.barPercentage;
   } else {
     size = thickness * count;
@@ -4049,7 +4063,7 @@ function computeFitCategoryTraits(index, ruler, options) {
   return {
     chunk: size / count,
     ratio,
-    start: curr - size / 2
+    start: ruler.pixels[index] - size / 2
   };
 }
 function computeFlexCategoryTraits(index, ruler, options) {
@@ -4243,7 +4257,9 @@ class BarController extends DatasetController {
     for (i = 0, ilen = meta.data.length; i < ilen; ++i) {
       pixels.push(iScale.getPixelForValue(me.getParsed(i)[iScale.axis]));
     }
+    var min = computeMinSampleSize(iScale, pixels);
     return {
+      min,
       pixels,
       start: iScale._startPixel,
       end: iScale._endPixel,
@@ -5250,6 +5266,17 @@ function _rlookupByKey(table, key, value) {
     hi
   };
 }
+function _filterBetween(values, min, max) {
+  var start = 0;
+  var end = values.length;
+  while (start < end && values[start] < min) {
+    start++;
+  }
+  while (end > start && values[end - 1] > max) {
+    end--;
+  }
+  return start > 0 || end < values.length ? values.slice(start, end) : values;
+}
 
 function getRelativePosition$1(e, chart) {
   if ('native' in e) {
@@ -5640,7 +5667,6 @@ defaults.set('layout', {
   }
 });
 var layouts = {
-  defaults: {},
   addBox(chart, item) {
     if (!chart.boxes) {
       chart.boxes = [];
@@ -5745,497 +5771,6 @@ class BasicPlatform extends BasePlatform {
     return item && item.getContext && item.getContext('2d') || null;
   }
 }
-
-var MapShim = function () {
-  if (typeof Map !== 'undefined') {
-    return Map;
-  }
-  function getIndex(arr, key) {
-    var result = -1;
-    arr.some(function (entry, index) {
-      if (entry[0] === key) {
-        result = index;
-        return true;
-      }
-      return false;
-    });
-    return result;
-  }
-  return (
-    function () {
-      function class_1() {
-        this.__entries__ = [];
-      }
-      Object.defineProperty(class_1.prototype, "size", {
-        get: function get() {
-          return this.__entries__.length;
-        },
-        enumerable: true,
-        configurable: true
-      });
-      class_1.prototype.get = function (key) {
-        var index = getIndex(this.__entries__, key);
-        var entry = this.__entries__[index];
-        return entry && entry[1];
-      };
-      class_1.prototype.set = function (key, value) {
-        var index = getIndex(this.__entries__, key);
-        if (~index) {
-          this.__entries__[index][1] = value;
-        } else {
-          this.__entries__.push([key, value]);
-        }
-      };
-      class_1.prototype.delete = function (key) {
-        var entries = this.__entries__;
-        var index = getIndex(entries, key);
-        if (~index) {
-          entries.splice(index, 1);
-        }
-      };
-      class_1.prototype.has = function (key) {
-        return !!~getIndex(this.__entries__, key);
-      };
-      class_1.prototype.clear = function () {
-        this.__entries__.splice(0);
-      };
-      class_1.prototype.forEach = function (callback, ctx) {
-        if (ctx === void 0) {
-          ctx = null;
-        }
-        for (var _i = 0, _a = this.__entries__; _i < _a.length; _i++) {
-          var entry = _a[_i];
-          callback.call(ctx, entry[1], entry[0]);
-        }
-      };
-      return class_1;
-    }()
-  );
-}();
-var isBrowser = typeof window !== 'undefined' && typeof document !== 'undefined' && window.document === document;
-var global$1 = function () {
-  if (typeof global !== 'undefined' && global.Math === Math) {
-    return global;
-  }
-  if (typeof self !== 'undefined' && self.Math === Math) {
-    return self;
-  }
-  if (typeof window !== 'undefined' && window.Math === Math) {
-    return window;
-  }
-  return Function('return this')();
-}();
-var requestAnimationFrame$1 = function () {
-  if (typeof requestAnimationFrame === 'function') {
-    return requestAnimationFrame.bind(global$1);
-  }
-  return function (callback) {
-    return setTimeout(function () {
-      return callback(Date.now());
-    }, 1000 / 60);
-  };
-}();
-var trailingTimeout = 2;
-function throttle(callback, delay) {
-  var leadingCall = false,
-      trailingCall = false,
-      lastCallTime = 0;
-  function resolvePending() {
-    if (leadingCall) {
-      leadingCall = false;
-      callback();
-    }
-    if (trailingCall) {
-      proxy();
-    }
-  }
-  function timeoutCallback() {
-    requestAnimationFrame$1(resolvePending);
-  }
-  function proxy() {
-    var timeStamp = Date.now();
-    if (leadingCall) {
-      if (timeStamp - lastCallTime < trailingTimeout) {
-        return;
-      }
-      trailingCall = true;
-    } else {
-      leadingCall = true;
-      trailingCall = false;
-      setTimeout(timeoutCallback, delay);
-    }
-    lastCallTime = timeStamp;
-  }
-  return proxy;
-}
-var REFRESH_DELAY = 20;
-var transitionKeys = ['top', 'right', 'bottom', 'left', 'width', 'height', 'size', 'weight'];
-var mutationObserverSupported = typeof MutationObserver !== 'undefined';
-var ResizeObserverController =
-function () {
-  function ResizeObserverController() {
-    this.connected_ = false;
-    this.mutationEventsAdded_ = false;
-    this.mutationsObserver_ = null;
-    this.observers_ = [];
-    this.onTransitionEnd_ = this.onTransitionEnd_.bind(this);
-    this.refresh = throttle(this.refresh.bind(this), REFRESH_DELAY);
-  }
-  ResizeObserverController.prototype.addObserver = function (observer) {
-    if (!~this.observers_.indexOf(observer)) {
-      this.observers_.push(observer);
-    }
-    if (!this.connected_) {
-      this.connect_();
-    }
-  };
-  ResizeObserverController.prototype.removeObserver = function (observer) {
-    var observers = this.observers_;
-    var index = observers.indexOf(observer);
-    if (~index) {
-      observers.splice(index, 1);
-    }
-    if (!observers.length && this.connected_) {
-      this.disconnect_();
-    }
-  };
-  ResizeObserverController.prototype.refresh = function () {
-    var changesDetected = this.updateObservers_();
-    if (changesDetected) {
-      this.refresh();
-    }
-  };
-  ResizeObserverController.prototype.updateObservers_ = function () {
-    var activeObservers = this.observers_.filter(function (observer) {
-      return observer.gatherActive(), observer.hasActive();
-    });
-    activeObservers.forEach(function (observer) {
-      return observer.broadcastActive();
-    });
-    return activeObservers.length > 0;
-  };
-  ResizeObserverController.prototype.connect_ = function () {
-    if (!isBrowser || this.connected_) {
-      return;
-    }
-    document.addEventListener('transitionend', this.onTransitionEnd_);
-    window.addEventListener('resize', this.refresh);
-    if (mutationObserverSupported) {
-      this.mutationsObserver_ = new MutationObserver(this.refresh);
-      this.mutationsObserver_.observe(document, {
-        attributes: true,
-        childList: true,
-        characterData: true,
-        subtree: true
-      });
-    } else {
-      document.addEventListener('DOMSubtreeModified', this.refresh);
-      this.mutationEventsAdded_ = true;
-    }
-    this.connected_ = true;
-  };
-  ResizeObserverController.prototype.disconnect_ = function () {
-    if (!isBrowser || !this.connected_) {
-      return;
-    }
-    document.removeEventListener('transitionend', this.onTransitionEnd_);
-    window.removeEventListener('resize', this.refresh);
-    if (this.mutationsObserver_) {
-      this.mutationsObserver_.disconnect();
-    }
-    if (this.mutationEventsAdded_) {
-      document.removeEventListener('DOMSubtreeModified', this.refresh);
-    }
-    this.mutationsObserver_ = null;
-    this.mutationEventsAdded_ = false;
-    this.connected_ = false;
-  };
-  ResizeObserverController.prototype.onTransitionEnd_ = function (_a) {
-    var _b = _a.propertyName,
-        propertyName = _b === void 0 ? '' : _b;
-    var isReflowProperty = transitionKeys.some(function (key) {
-      return !!~propertyName.indexOf(key);
-    });
-    if (isReflowProperty) {
-      this.refresh();
-    }
-  };
-  ResizeObserverController.getInstance = function () {
-    if (!this.instance_) {
-      this.instance_ = new ResizeObserverController();
-    }
-    return this.instance_;
-  };
-  ResizeObserverController.instance_ = null;
-  return ResizeObserverController;
-}();
-var defineConfigurable = function defineConfigurable(target, props) {
-  for (var _i = 0, _a = Object.keys(props); _i < _a.length; _i++) {
-    var key = _a[_i];
-    Object.defineProperty(target, key, {
-      value: props[key],
-      enumerable: false,
-      writable: false,
-      configurable: true
-    });
-  }
-  return target;
-};
-var getWindowOf = function getWindowOf(target) {
-  var ownerGlobal = target && target.ownerDocument && target.ownerDocument.defaultView;
-  return ownerGlobal || global$1;
-};
-var emptyRect = createRectInit(0, 0, 0, 0);
-function toFloat(value) {
-  return parseFloat(value) || 0;
-}
-function getBordersSize(styles) {
-  var positions = [];
-  for (var _i = 1; _i < arguments.length; _i++) {
-    positions[_i - 1] = arguments[_i];
-  }
-  return positions.reduce(function (size, position) {
-    var value = styles['border-' + position + '-width'];
-    return size + toFloat(value);
-  }, 0);
-}
-function getPaddings(styles) {
-  var positions = ['top', 'right', 'bottom', 'left'];
-  var paddings = {};
-  for (var _i = 0, positions_1 = positions; _i < positions_1.length; _i++) {
-    var position = positions_1[_i];
-    var value = styles['padding-' + position];
-    paddings[position] = toFloat(value);
-  }
-  return paddings;
-}
-function getSVGContentRect(target) {
-  var bbox = target.getBBox();
-  return createRectInit(0, 0, bbox.width, bbox.height);
-}
-function getHTMLElementContentRect(target) {
-  var clientWidth = target.clientWidth,
-      clientHeight = target.clientHeight;
-  if (!clientWidth && !clientHeight) {
-    return emptyRect;
-  }
-  var styles = getWindowOf(target).getComputedStyle(target);
-  var paddings = getPaddings(styles);
-  var horizPad = paddings.left + paddings.right;
-  var vertPad = paddings.top + paddings.bottom;
-  var width = toFloat(styles.width),
-      height = toFloat(styles.height);
-  if (styles.boxSizing === 'border-box') {
-    if (Math.round(width + horizPad) !== clientWidth) {
-      width -= getBordersSize(styles, 'left', 'right') + horizPad;
-    }
-    if (Math.round(height + vertPad) !== clientHeight) {
-      height -= getBordersSize(styles, 'top', 'bottom') + vertPad;
-    }
-  }
-  if (!isDocumentElement(target)) {
-    var vertScrollbar = Math.round(width + horizPad) - clientWidth;
-    var horizScrollbar = Math.round(height + vertPad) - clientHeight;
-    if (Math.abs(vertScrollbar) !== 1) {
-      width -= vertScrollbar;
-    }
-    if (Math.abs(horizScrollbar) !== 1) {
-      height -= horizScrollbar;
-    }
-  }
-  return createRectInit(paddings.left, paddings.top, width, height);
-}
-var isSVGGraphicsElement = function () {
-  if (typeof SVGGraphicsElement !== 'undefined') {
-    return function (target) {
-      return target instanceof getWindowOf(target).SVGGraphicsElement;
-    };
-  }
-  return function (target) {
-    return target instanceof getWindowOf(target).SVGElement && typeof target.getBBox === 'function';
-  };
-}();
-function isDocumentElement(target) {
-  return target === getWindowOf(target).document.documentElement;
-}
-function getContentRect(target) {
-  if (!isBrowser) {
-    return emptyRect;
-  }
-  if (isSVGGraphicsElement(target)) {
-    return getSVGContentRect(target);
-  }
-  return getHTMLElementContentRect(target);
-}
-function createReadOnlyRect(_a) {
-  var x = _a.x,
-      y = _a.y,
-      width = _a.width,
-      height = _a.height;
-  var Constr = typeof DOMRectReadOnly !== 'undefined' ? DOMRectReadOnly : Object;
-  var rect = Object.create(Constr.prototype);
-  defineConfigurable(rect, {
-    x: x,
-    y: y,
-    width: width,
-    height: height,
-    top: y,
-    right: x + width,
-    bottom: height + y,
-    left: x
-  });
-  return rect;
-}
-function createRectInit(x, y, width, height) {
-  return {
-    x: x,
-    y: y,
-    width: width,
-    height: height
-  };
-}
-var ResizeObservation =
-function () {
-  function ResizeObservation(target) {
-    this.broadcastWidth = 0;
-    this.broadcastHeight = 0;
-    this.contentRect_ = createRectInit(0, 0, 0, 0);
-    this.target = target;
-  }
-  ResizeObservation.prototype.isActive = function () {
-    var rect = getContentRect(this.target);
-    this.contentRect_ = rect;
-    return rect.width !== this.broadcastWidth || rect.height !== this.broadcastHeight;
-  };
-  ResizeObservation.prototype.broadcastRect = function () {
-    var rect = this.contentRect_;
-    this.broadcastWidth = rect.width;
-    this.broadcastHeight = rect.height;
-    return rect;
-  };
-  return ResizeObservation;
-}();
-var ResizeObserverEntry =
-function () {
-  function ResizeObserverEntry(target, rectInit) {
-    var contentRect = createReadOnlyRect(rectInit);
-    defineConfigurable(this, {
-      target: target,
-      contentRect: contentRect
-    });
-  }
-  return ResizeObserverEntry;
-}();
-var ResizeObserverSPI =
-function () {
-  function ResizeObserverSPI(callback, controller, callbackCtx) {
-    this.activeObservations_ = [];
-    this.observations_ = new MapShim();
-    if (typeof callback !== 'function') {
-      throw new TypeError('The callback provided as parameter 1 is not a function.');
-    }
-    this.callback_ = callback;
-    this.controller_ = controller;
-    this.callbackCtx_ = callbackCtx;
-  }
-  ResizeObserverSPI.prototype.observe = function (target) {
-    if (!arguments.length) {
-      throw new TypeError('1 argument required, but only 0 present.');
-    }
-    if (typeof Element === 'undefined' || !(Element instanceof Object)) {
-      return;
-    }
-    if (!(target instanceof getWindowOf(target).Element)) {
-      throw new TypeError('parameter 1 is not of type "Element".');
-    }
-    var observations = this.observations_;
-    if (observations.has(target)) {
-      return;
-    }
-    observations.set(target, new ResizeObservation(target));
-    this.controller_.addObserver(this);
-    this.controller_.refresh();
-  };
-  ResizeObserverSPI.prototype.unobserve = function (target) {
-    if (!arguments.length) {
-      throw new TypeError('1 argument required, but only 0 present.');
-    }
-    if (typeof Element === 'undefined' || !(Element instanceof Object)) {
-      return;
-    }
-    if (!(target instanceof getWindowOf(target).Element)) {
-      throw new TypeError('parameter 1 is not of type "Element".');
-    }
-    var observations = this.observations_;
-    if (!observations.has(target)) {
-      return;
-    }
-    observations.delete(target);
-    if (!observations.size) {
-      this.controller_.removeObserver(this);
-    }
-  };
-  ResizeObserverSPI.prototype.disconnect = function () {
-    this.clearActive();
-    this.observations_.clear();
-    this.controller_.removeObserver(this);
-  };
-  ResizeObserverSPI.prototype.gatherActive = function () {
-    var _this = this;
-    this.clearActive();
-    this.observations_.forEach(function (observation) {
-      if (observation.isActive()) {
-        _this.activeObservations_.push(observation);
-      }
-    });
-  };
-  ResizeObserverSPI.prototype.broadcastActive = function () {
-    if (!this.hasActive()) {
-      return;
-    }
-    var ctx = this.callbackCtx_;
-    var entries = this.activeObservations_.map(function (observation) {
-      return new ResizeObserverEntry(observation.target, observation.broadcastRect());
-    });
-    this.callback_.call(ctx, entries, ctx);
-    this.clearActive();
-  };
-  ResizeObserverSPI.prototype.clearActive = function () {
-    this.activeObservations_.splice(0);
-  };
-  ResizeObserverSPI.prototype.hasActive = function () {
-    return this.activeObservations_.length > 0;
-  };
-  return ResizeObserverSPI;
-}();
-var observers = typeof WeakMap !== 'undefined' ? new WeakMap() : new MapShim();
-var ResizeObserver =
-function () {
-  function ResizeObserver(callback) {
-    if (!(this instanceof ResizeObserver)) {
-      throw new TypeError('Cannot call a class as a function.');
-    }
-    if (!arguments.length) {
-      throw new TypeError('1 argument required, but only 0 present.');
-    }
-    var controller = ResizeObserverController.getInstance();
-    var observer = new ResizeObserverSPI(callback, controller, this);
-    observers.set(this, observer);
-  }
-  return ResizeObserver;
-}();
-['observe', 'unobserve', 'disconnect'].forEach(function (method) {
-  ResizeObserver.prototype[method] = function () {
-    var _a;
-    return (_a = observers.get(this))[method].apply(_a, arguments);
-  };
-});
-var index$1 = function () {
-  if (typeof global$1.ResizeObserver !== 'undefined') {
-    return global$1.ResizeObserver;
-  }
-  return ResizeObserver;
-}();
 
 var EXPANDO_KEY = '$chartjs';
 var EVENT_TYPES = {
@@ -6352,7 +5887,7 @@ function watchForResize(element, fn) {
       fn();
     }
   }, window);
-  var observer = new index$1(entries => {
+  var observer = new ResizeObserver(entries => {
     var entry = entries[0];
     resize(entry.contentRect.width, entry.contentRect.height);
   });
@@ -6464,7 +5999,9 @@ class DomPlatform extends BasePlatform {
       return listenForResize(canvas, proxies, listener);
     }
     var proxy = proxies[type] = throttled(event => {
-      listener(fromNativeEvent(event, chart));
+      if (chart.ctx !== null) {
+        listener(fromNativeEvent(event, chart));
+      }
     }, chart);
     addListener(canvas, type, proxy);
   }
@@ -6841,7 +6378,6 @@ class Chart {
       if (options.onResize) {
         options.onResize(me, newSize);
       }
-      me.stop();
       me.update('resize');
     }
   }
@@ -7393,37 +6929,48 @@ var _adapters = {
   _date: DateAdapter
 };
 
-var Ticks = {
-  formatters: {
-    values(value) {
-      return isArray(value) ? value : '' + value;
-    },
-    numeric(tickValue, index, ticks) {
-      if (tickValue === 0) {
-        return '0';
-      }
-      var delta = ticks.length > 3 ? ticks[2].value - ticks[1].value : ticks[1].value - ticks[0].value;
-      if (Math.abs(delta) > 1 && tickValue !== Math.floor(tickValue)) {
-        delta = tickValue - Math.floor(tickValue);
-      }
-      var logDelta = log10(Math.abs(delta));
-      var maxTick = Math.max(Math.abs(ticks[0].value), Math.abs(ticks[ticks.length - 1].value));
-      var minTick = Math.min(Math.abs(ticks[0].value), Math.abs(ticks[ticks.length - 1].value));
-      var locale = this.chart.options.locale;
-      if (maxTick < 1e-4 || minTick > 1e+7) {
-        var logTick = log10(Math.abs(tickValue));
-        var numExponential = Math.floor(logTick) - Math.floor(logDelta);
-        numExponential = Math.max(Math.min(numExponential, 20), 0);
-        return tickValue.toExponential(numExponential);
-      }
-      var numDecimal = -1 * Math.floor(logDelta);
-      numDecimal = Math.max(Math.min(numDecimal, 20), 0);
-      return new Intl.NumberFormat(locale, {
-        minimumFractionDigits: numDecimal,
-        maximumFractionDigits: numDecimal
-      }).format(tickValue);
+var formatters = {
+  values(value) {
+    return isArray(value) ? value : '' + value;
+  },
+  numeric(tickValue, index, ticks) {
+    if (tickValue === 0) {
+      return '0';
     }
+    var delta = ticks.length > 3 ? ticks[2].value - ticks[1].value : ticks[1].value - ticks[0].value;
+    if (Math.abs(delta) > 1 && tickValue !== Math.floor(tickValue)) {
+      delta = tickValue - Math.floor(tickValue);
+    }
+    var logDelta = log10(Math.abs(delta));
+    var maxTick = Math.max(Math.abs(ticks[0].value), Math.abs(ticks[ticks.length - 1].value));
+    var minTick = Math.min(Math.abs(ticks[0].value), Math.abs(ticks[ticks.length - 1].value));
+    var locale = this.chart.options.locale;
+    if (maxTick < 1e-4 || minTick > 1e+7) {
+      var logTick = log10(Math.abs(tickValue));
+      var numExponential = Math.floor(logTick) - Math.floor(logDelta);
+      numExponential = Math.max(Math.min(numExponential, 20), 0);
+      return tickValue.toExponential(numExponential);
+    }
+    var numDecimal = -1 * Math.floor(logDelta);
+    numDecimal = Math.max(Math.min(numDecimal, 20), 0);
+    return new Intl.NumberFormat(locale, {
+      minimumFractionDigits: numDecimal,
+      maximumFractionDigits: numDecimal
+    }).format(tickValue);
   }
+};
+formatters.logarithmic = function (tickValue, index, ticks) {
+  if (tickValue === 0) {
+    return '0';
+  }
+  var remain = tickValue / Math.pow(10, Math.floor(log10(tickValue)));
+  if (remain === 1 || remain === 2 || remain === 5) {
+    return formatters.numeric.call(this, tickValue, index, ticks);
+  }
+  return '';
+};
+var Ticks = {
+  formatters
 };
 
 defaults.set('scale', {
@@ -7537,7 +7084,7 @@ function getEvenSpacing(arr) {
   }
   return diff;
 }
-function calculateSpacing(majorIndices, ticks, axisLength, ticksLimit) {
+function calculateSpacing(majorIndices, ticks, ticksLimit) {
   var evenMajorSpacing = getEvenSpacing(majorIndices);
   var spacing = ticks.length / ticksLimit;
   if (!evenMajorSpacing) {
@@ -7598,7 +7145,7 @@ function skip(ticks, newTicks, spacing, majorStart, majorEnd) {
     }
   }
 }
-class Scale extends Element$1 {
+class Scale extends Element {
   constructor(cfg) {
     super();
     this.id = cfg.id;
@@ -7891,7 +7438,7 @@ class Scale extends Element$1 {
     } else if (display) {
       minSize.height = getTickMarkLength(gridLineOpts) + getScaleLabelHeight(scaleLabelOpts);
     }
-    if (tickOpts.display && display) {
+    if (tickOpts.display && display && me.ticks.length) {
       var labelSizes = me._getLabelSizes();
       var firstLabelSize = labelSizes.first;
       var lastLabelSize = labelSizes.last;
@@ -8036,11 +7583,11 @@ class Scale extends Element$1 {
   }
   getValueForPixel(pixel) {}
   getPixelForTick(index) {
-    var me = this;
-    var offset = me.options.offset;
-    var numTicks = me.ticks.length;
-    var tickWidth = 1 / Math.max(numTicks - (offset ? 0 : 1), 1);
-    return index < 0 || index > numTicks - 1 ? null : me.getPixelForDecimal(index * tickWidth + (offset ? tickWidth / 2 : 0));
+    var ticks = this.ticks;
+    if (index < 0 || index > ticks.length - 1) {
+      return null;
+    }
+    return this.getPixelForValue(ticks[index].value);
   }
   getPixelForDecimal(decimal) {
     var me = this;
@@ -8066,8 +7613,7 @@ class Scale extends Element$1 {
   _autoSkip(ticks) {
     var me = this;
     var tickOpts = me.options.ticks;
-    var axisLength = me._length;
-    var ticksLimit = tickOpts.maxTicksLimit || axisLength / me._tickSize();
+    var ticksLimit = tickOpts.maxTicksLimit || me._length / me._tickSize();
     var majorIndices = tickOpts.major.enabled ? getMajorIndices(ticks) : [];
     var numMajorIndices = majorIndices.length;
     var first = majorIndices[0];
@@ -8077,7 +7623,7 @@ class Scale extends Element$1 {
       skipMajors(ticks, newTicks, majorIndices, numMajorIndices / ticksLimit);
       return newTicks;
     }
-    var spacing = calculateSpacing(majorIndices, ticks, axisLength, ticksLimit);
+    var spacing = calculateSpacing(majorIndices, ticks, ticksLimit);
     if (numMajorIndices > 0) {
       var i, ilen;
       var avgMajorSpacing = numMajorIndices > 1 ? Math.round((last - first) / (numMajorIndices - 1)) : null;
@@ -8885,13 +8431,6 @@ class LinearScale extends LinearScaleBase {
   getValueForPixel(pixel) {
     return this._startValue + this.getDecimalForPixel(pixel) * this._valueRange;
   }
-  getPixelForTick(index) {
-    var ticks = this.ticks;
-    if (index < 0 || index > ticks.length - 1) {
-      return null;
-    }
-    return this.getPixelForValue(ticks[index].value);
-  }
 }
 _defineProperty(LinearScale, "id", 'linear');
 _defineProperty(LinearScale, "defaults", defaultConfig$1);
@@ -8933,7 +8472,7 @@ function generateTicks$1(generationOptions, dataRange) {
 }
 var defaultConfig$2 = {
   ticks: {
-    callback: Ticks.formatters.numeric,
+    callback: Ticks.formatters.logarithmic,
     major: {
       enabled: true
     }
@@ -9012,13 +8551,6 @@ class LogarithmicScale extends Scale {
   }
   getLabelForValue(value) {
     return value === undefined ? '0' : new Intl.NumberFormat(this.options.locale).format(value);
-  }
-  getPixelForTick(index) {
-    var ticks = this.ticks;
-    if (index < 0 || index > ticks.length - 1) {
-      return null;
-    }
-    return this.getPixelForValue(ticks[index].value);
   }
   configure() {
     var me = this;
@@ -9483,7 +9015,11 @@ function parse(scale, input) {
   }
   var adapter = scale._adapter;
   var options = scale.options.time;
-  var parser = options.parser;
+  var {
+    parser,
+    round,
+    isoWeekday
+  } = options;
   var value = input;
   if (typeof parser === 'function') {
     value = parser(value);
@@ -9494,8 +9030,8 @@ function parse(scale, input) {
   if (value === null) {
     return value;
   }
-  if (options.round) {
-    value = scale._adapter.startOf(value, options.round);
+  if (round) {
+    value = round === 'week' && isoWeekday ? scale._adapter.startOf(value, 'isoWeek', isoWeekday) : scale._adapter.startOf(value, round);
   }
   return +value;
 }
@@ -9737,18 +9273,6 @@ function getLabelBounds(scale) {
     max
   };
 }
-function filterBetween(timestamps, min, max) {
-  var start = 0;
-  var end = timestamps.length - 1;
-  while (start < end && timestamps[start] < min) {
-    start++;
-  }
-  while (end > start && timestamps[end] > max) {
-    end--;
-  }
-  end++;
-  return start > 0 || end < timestamps.length ? timestamps.slice(start, end) : timestamps;
-}
 var defaultConfig$4 = {
   distribution: 'linear',
   bounds: 'data',
@@ -9851,7 +9375,7 @@ class TimeScale extends Scale {
     }
     var min = me.min;
     var max = me.max;
-    var ticks = filterBetween(timestamps, min, max);
+    var ticks = _filterBetween(timestamps, min, max);
     me._unit = timeOpts.unit || (tickOpts.autoSkip ? determineUnitForAutoTicks(timeOpts.minUnit, me.min, me.max, me._getLabelCapacity(min)) : determineUnitForFormatting(me, ticks.length, timeOpts.minUnit, me.min, me.max));
     me._majorUnit = !tickOpts.major.enabled || me._unit === 'year' ? undefined : determineMajorUnit(me._unit);
     me._table = buildLookupTable(getTimestampsForTable(me), min, max, distribution);
@@ -9897,13 +9421,6 @@ class TimeScale extends Scale {
     var pos = interpolate(me._table, 'time', value, 'pos');
     return me.getPixelForDecimal((offsets.start + pos) * offsets.factor);
   }
-  getPixelForTick(index) {
-    var ticks = this.ticks;
-    if (index < 0 || index > ticks.length - 1) {
-      return null;
-    }
-    return this.getPixelForValue(ticks[index].value);
-  }
   getValueForPixel(pixel) {
     var me = this;
     var offsets = me._offsets;
@@ -9936,8 +9453,6 @@ class TimeScale extends Scale {
 }
 _defineProperty(TimeScale, "id", 'time');
 _defineProperty(TimeScale, "defaults", defaultConfig$4);
-
-
 
 var scales = /*#__PURE__*/Object.freeze({
 __proto__: null,
@@ -10482,7 +9997,7 @@ defaults.set('legend', {
 function getBoxWidth(labelOpts, fontSize) {
   return labelOpts.usePointStyle && labelOpts.boxWidth > fontSize ? fontSize : labelOpts.boxWidth;
 }
-class Legend extends Element$1 {
+class Legend extends Element {
   constructor(config) {
     super();
     _extends(this, config);
@@ -10956,7 +10471,7 @@ defaults.set('title', {
   text: '',
   weight: 2000
 });
-class Title extends Element$1 {
+class Title extends Element {
   constructor(config) {
     super();
     _extends(this, config);
@@ -11181,7 +10696,7 @@ defaults.set('tooltips', {
     easing: 'easeOutQuart',
     numbers: {
       type: 'number',
-      properties: ['x', 'y', 'width', 'height']
+      properties: ['x', 'y', 'width', 'height', 'caretX', 'caretY']
     },
     opacity: {
       easing: 'linear',
@@ -11505,7 +11020,7 @@ function getAlignedX(tooltip, align) {
 function getBeforeAfterBodyLines(callback) {
   return pushOrConcat([], splitNewlines(callback));
 }
-class Tooltip extends Element$1 {
+class Tooltip extends Element {
   constructor(config) {
     super();
     this.opacity = 0;
@@ -12038,7 +11553,7 @@ Chart.animationService = Animations;
 Chart.controllers = controllers;
 Chart.DatasetController = DatasetController;
 Chart.defaults = defaults;
-Chart.Element = Element$1;
+Chart.Element = Element;
 Chart.elements = elements;
 Chart.Interaction = Interaction;
 Chart.layouts = layouts;

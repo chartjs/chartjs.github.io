@@ -10,6 +10,497 @@ typeof define === 'function' && define.amd ? define(factory) :
 (global = global || self, global.Chart = factory());
 }(this, (function () { 'use strict';
 
+var MapShim = function () {
+  if (typeof Map !== 'undefined') {
+    return Map;
+  }
+  function getIndex(arr, key) {
+    var result = -1;
+    arr.some(function (entry, index) {
+      if (entry[0] === key) {
+        result = index;
+        return true;
+      }
+      return false;
+    });
+    return result;
+  }
+  return (
+    function () {
+      function class_1() {
+        this.__entries__ = [];
+      }
+      Object.defineProperty(class_1.prototype, "size", {
+        get: function get() {
+          return this.__entries__.length;
+        },
+        enumerable: true,
+        configurable: true
+      });
+      class_1.prototype.get = function (key) {
+        var index = getIndex(this.__entries__, key);
+        var entry = this.__entries__[index];
+        return entry && entry[1];
+      };
+      class_1.prototype.set = function (key, value) {
+        var index = getIndex(this.__entries__, key);
+        if (~index) {
+          this.__entries__[index][1] = value;
+        } else {
+          this.__entries__.push([key, value]);
+        }
+      };
+      class_1.prototype["delete"] = function (key) {
+        var entries = this.__entries__;
+        var index = getIndex(entries, key);
+        if (~index) {
+          entries.splice(index, 1);
+        }
+      };
+      class_1.prototype.has = function (key) {
+        return !!~getIndex(this.__entries__, key);
+      };
+      class_1.prototype.clear = function () {
+        this.__entries__.splice(0);
+      };
+      class_1.prototype.forEach = function (callback, ctx) {
+        if (ctx === void 0) {
+          ctx = null;
+        }
+        for (var _i = 0, _a = this.__entries__; _i < _a.length; _i++) {
+          var entry = _a[_i];
+          callback.call(ctx, entry[1], entry[0]);
+        }
+      };
+      return class_1;
+    }()
+  );
+}();
+var isBrowser = typeof window !== 'undefined' && typeof document !== 'undefined' && window.document === document;
+var global$1 = function () {
+  if (typeof global !== 'undefined' && global.Math === Math) {
+    return global;
+  }
+  if (typeof self !== 'undefined' && self.Math === Math) {
+    return self;
+  }
+  if (typeof window !== 'undefined' && window.Math === Math) {
+    return window;
+  }
+  return Function('return this')();
+}();
+var requestAnimationFrame$1 = function () {
+  if (typeof requestAnimationFrame === 'function') {
+    return requestAnimationFrame.bind(global$1);
+  }
+  return function (callback) {
+    return setTimeout(function () {
+      return callback(Date.now());
+    }, 1000 / 60);
+  };
+}();
+var trailingTimeout = 2;
+function throttle(callback, delay) {
+  var leadingCall = false,
+      trailingCall = false,
+      lastCallTime = 0;
+  function resolvePending() {
+    if (leadingCall) {
+      leadingCall = false;
+      callback();
+    }
+    if (trailingCall) {
+      proxy();
+    }
+  }
+  function timeoutCallback() {
+    requestAnimationFrame$1(resolvePending);
+  }
+  function proxy() {
+    var timeStamp = Date.now();
+    if (leadingCall) {
+      if (timeStamp - lastCallTime < trailingTimeout) {
+        return;
+      }
+      trailingCall = true;
+    } else {
+      leadingCall = true;
+      trailingCall = false;
+      setTimeout(timeoutCallback, delay);
+    }
+    lastCallTime = timeStamp;
+  }
+  return proxy;
+}
+var REFRESH_DELAY = 20;
+var transitionKeys = ['top', 'right', 'bottom', 'left', 'width', 'height', 'size', 'weight'];
+var mutationObserverSupported = typeof MutationObserver !== 'undefined';
+var ResizeObserverController =
+function () {
+  function ResizeObserverController() {
+    this.connected_ = false;
+    this.mutationEventsAdded_ = false;
+    this.mutationsObserver_ = null;
+    this.observers_ = [];
+    this.onTransitionEnd_ = this.onTransitionEnd_.bind(this);
+    this.refresh = throttle(this.refresh.bind(this), REFRESH_DELAY);
+  }
+  ResizeObserverController.prototype.addObserver = function (observer) {
+    if (!~this.observers_.indexOf(observer)) {
+      this.observers_.push(observer);
+    }
+    if (!this.connected_) {
+      this.connect_();
+    }
+  };
+  ResizeObserverController.prototype.removeObserver = function (observer) {
+    var observers = this.observers_;
+    var index = observers.indexOf(observer);
+    if (~index) {
+      observers.splice(index, 1);
+    }
+    if (!observers.length && this.connected_) {
+      this.disconnect_();
+    }
+  };
+  ResizeObserverController.prototype.refresh = function () {
+    var changesDetected = this.updateObservers_();
+    if (changesDetected) {
+      this.refresh();
+    }
+  };
+  ResizeObserverController.prototype.updateObservers_ = function () {
+    var activeObservers = this.observers_.filter(function (observer) {
+      return observer.gatherActive(), observer.hasActive();
+    });
+    activeObservers.forEach(function (observer) {
+      return observer.broadcastActive();
+    });
+    return activeObservers.length > 0;
+  };
+  ResizeObserverController.prototype.connect_ = function () {
+    if (!isBrowser || this.connected_) {
+      return;
+    }
+    document.addEventListener('transitionend', this.onTransitionEnd_);
+    window.addEventListener('resize', this.refresh);
+    if (mutationObserverSupported) {
+      this.mutationsObserver_ = new MutationObserver(this.refresh);
+      this.mutationsObserver_.observe(document, {
+        attributes: true,
+        childList: true,
+        characterData: true,
+        subtree: true
+      });
+    } else {
+      document.addEventListener('DOMSubtreeModified', this.refresh);
+      this.mutationEventsAdded_ = true;
+    }
+    this.connected_ = true;
+  };
+  ResizeObserverController.prototype.disconnect_ = function () {
+    if (!isBrowser || !this.connected_) {
+      return;
+    }
+    document.removeEventListener('transitionend', this.onTransitionEnd_);
+    window.removeEventListener('resize', this.refresh);
+    if (this.mutationsObserver_) {
+      this.mutationsObserver_.disconnect();
+    }
+    if (this.mutationEventsAdded_) {
+      document.removeEventListener('DOMSubtreeModified', this.refresh);
+    }
+    this.mutationsObserver_ = null;
+    this.mutationEventsAdded_ = false;
+    this.connected_ = false;
+  };
+  ResizeObserverController.prototype.onTransitionEnd_ = function (_a) {
+    var _b = _a.propertyName,
+        propertyName = _b === void 0 ? '' : _b;
+    var isReflowProperty = transitionKeys.some(function (key) {
+      return !!~propertyName.indexOf(key);
+    });
+    if (isReflowProperty) {
+      this.refresh();
+    }
+  };
+  ResizeObserverController.getInstance = function () {
+    if (!this.instance_) {
+      this.instance_ = new ResizeObserverController();
+    }
+    return this.instance_;
+  };
+  ResizeObserverController.instance_ = null;
+  return ResizeObserverController;
+}();
+var defineConfigurable = function defineConfigurable(target, props) {
+  for (var _i = 0, _a = Object.keys(props); _i < _a.length; _i++) {
+    var key = _a[_i];
+    Object.defineProperty(target, key, {
+      value: props[key],
+      enumerable: false,
+      writable: false,
+      configurable: true
+    });
+  }
+  return target;
+};
+var getWindowOf = function getWindowOf(target) {
+  var ownerGlobal = target && target.ownerDocument && target.ownerDocument.defaultView;
+  return ownerGlobal || global$1;
+};
+var emptyRect = createRectInit(0, 0, 0, 0);
+function toFloat(value) {
+  return parseFloat(value) || 0;
+}
+function getBordersSize(styles) {
+  var positions = [];
+  for (var _i = 1; _i < arguments.length; _i++) {
+    positions[_i - 1] = arguments[_i];
+  }
+  return positions.reduce(function (size, position) {
+    var value = styles['border-' + position + '-width'];
+    return size + toFloat(value);
+  }, 0);
+}
+function getPaddings(styles) {
+  var positions = ['top', 'right', 'bottom', 'left'];
+  var paddings = {};
+  for (var _i = 0, positions_1 = positions; _i < positions_1.length; _i++) {
+    var position = positions_1[_i];
+    var value = styles['padding-' + position];
+    paddings[position] = toFloat(value);
+  }
+  return paddings;
+}
+function getSVGContentRect(target) {
+  var bbox = target.getBBox();
+  return createRectInit(0, 0, bbox.width, bbox.height);
+}
+function getHTMLElementContentRect(target) {
+  var clientWidth = target.clientWidth,
+      clientHeight = target.clientHeight;
+  if (!clientWidth && !clientHeight) {
+    return emptyRect;
+  }
+  var styles = getWindowOf(target).getComputedStyle(target);
+  var paddings = getPaddings(styles);
+  var horizPad = paddings.left + paddings.right;
+  var vertPad = paddings.top + paddings.bottom;
+  var width = toFloat(styles.width),
+      height = toFloat(styles.height);
+  if (styles.boxSizing === 'border-box') {
+    if (Math.round(width + horizPad) !== clientWidth) {
+      width -= getBordersSize(styles, 'left', 'right') + horizPad;
+    }
+    if (Math.round(height + vertPad) !== clientHeight) {
+      height -= getBordersSize(styles, 'top', 'bottom') + vertPad;
+    }
+  }
+  if (!isDocumentElement(target)) {
+    var vertScrollbar = Math.round(width + horizPad) - clientWidth;
+    var horizScrollbar = Math.round(height + vertPad) - clientHeight;
+    if (Math.abs(vertScrollbar) !== 1) {
+      width -= vertScrollbar;
+    }
+    if (Math.abs(horizScrollbar) !== 1) {
+      height -= horizScrollbar;
+    }
+  }
+  return createRectInit(paddings.left, paddings.top, width, height);
+}
+var isSVGGraphicsElement = function () {
+  if (typeof SVGGraphicsElement !== 'undefined') {
+    return function (target) {
+      return target instanceof getWindowOf(target).SVGGraphicsElement;
+    };
+  }
+  return function (target) {
+    return target instanceof getWindowOf(target).SVGElement && typeof target.getBBox === 'function';
+  };
+}();
+function isDocumentElement(target) {
+  return target === getWindowOf(target).document.documentElement;
+}
+function getContentRect(target) {
+  if (!isBrowser) {
+    return emptyRect;
+  }
+  if (isSVGGraphicsElement(target)) {
+    return getSVGContentRect(target);
+  }
+  return getHTMLElementContentRect(target);
+}
+function createReadOnlyRect(_a) {
+  var x = _a.x,
+      y = _a.y,
+      width = _a.width,
+      height = _a.height;
+  var Constr = typeof DOMRectReadOnly !== 'undefined' ? DOMRectReadOnly : Object;
+  var rect = Object.create(Constr.prototype);
+  defineConfigurable(rect, {
+    x: x,
+    y: y,
+    width: width,
+    height: height,
+    top: y,
+    right: x + width,
+    bottom: height + y,
+    left: x
+  });
+  return rect;
+}
+function createRectInit(x, y, width, height) {
+  return {
+    x: x,
+    y: y,
+    width: width,
+    height: height
+  };
+}
+var ResizeObservation =
+function () {
+  function ResizeObservation(target) {
+    this.broadcastWidth = 0;
+    this.broadcastHeight = 0;
+    this.contentRect_ = createRectInit(0, 0, 0, 0);
+    this.target = target;
+  }
+  ResizeObservation.prototype.isActive = function () {
+    var rect = getContentRect(this.target);
+    this.contentRect_ = rect;
+    return rect.width !== this.broadcastWidth || rect.height !== this.broadcastHeight;
+  };
+  ResizeObservation.prototype.broadcastRect = function () {
+    var rect = this.contentRect_;
+    this.broadcastWidth = rect.width;
+    this.broadcastHeight = rect.height;
+    return rect;
+  };
+  return ResizeObservation;
+}();
+var ResizeObserverEntry =
+function () {
+  function ResizeObserverEntry(target, rectInit) {
+    var contentRect = createReadOnlyRect(rectInit);
+    defineConfigurable(this, {
+      target: target,
+      contentRect: contentRect
+    });
+  }
+  return ResizeObserverEntry;
+}();
+var ResizeObserverSPI =
+function () {
+  function ResizeObserverSPI(callback, controller, callbackCtx) {
+    this.activeObservations_ = [];
+    this.observations_ = new MapShim();
+    if (typeof callback !== 'function') {
+      throw new TypeError('The callback provided as parameter 1 is not a function.');
+    }
+    this.callback_ = callback;
+    this.controller_ = controller;
+    this.callbackCtx_ = callbackCtx;
+  }
+  ResizeObserverSPI.prototype.observe = function (target) {
+    if (!arguments.length) {
+      throw new TypeError('1 argument required, but only 0 present.');
+    }
+    if (typeof Element === 'undefined' || !(Element instanceof Object)) {
+      return;
+    }
+    if (!(target instanceof getWindowOf(target).Element)) {
+      throw new TypeError('parameter 1 is not of type "Element".');
+    }
+    var observations = this.observations_;
+    if (observations.has(target)) {
+      return;
+    }
+    observations.set(target, new ResizeObservation(target));
+    this.controller_.addObserver(this);
+    this.controller_.refresh();
+  };
+  ResizeObserverSPI.prototype.unobserve = function (target) {
+    if (!arguments.length) {
+      throw new TypeError('1 argument required, but only 0 present.');
+    }
+    if (typeof Element === 'undefined' || !(Element instanceof Object)) {
+      return;
+    }
+    if (!(target instanceof getWindowOf(target).Element)) {
+      throw new TypeError('parameter 1 is not of type "Element".');
+    }
+    var observations = this.observations_;
+    if (!observations.has(target)) {
+      return;
+    }
+    observations["delete"](target);
+    if (!observations.size) {
+      this.controller_.removeObserver(this);
+    }
+  };
+  ResizeObserverSPI.prototype.disconnect = function () {
+    this.clearActive();
+    this.observations_.clear();
+    this.controller_.removeObserver(this);
+  };
+  ResizeObserverSPI.prototype.gatherActive = function () {
+    var _this = this;
+    this.clearActive();
+    this.observations_.forEach(function (observation) {
+      if (observation.isActive()) {
+        _this.activeObservations_.push(observation);
+      }
+    });
+  };
+  ResizeObserverSPI.prototype.broadcastActive = function () {
+    if (!this.hasActive()) {
+      return;
+    }
+    var ctx = this.callbackCtx_;
+    var entries = this.activeObservations_.map(function (observation) {
+      return new ResizeObserverEntry(observation.target, observation.broadcastRect());
+    });
+    this.callback_.call(ctx, entries, ctx);
+    this.clearActive();
+  };
+  ResizeObserverSPI.prototype.clearActive = function () {
+    this.activeObservations_.splice(0);
+  };
+  ResizeObserverSPI.prototype.hasActive = function () {
+    return this.activeObservations_.length > 0;
+  };
+  return ResizeObserverSPI;
+}();
+var observers = typeof WeakMap !== 'undefined' ? new WeakMap() : new MapShim();
+var ResizeObserver$1 =
+function () {
+  function ResizeObserver(callback) {
+    if (!(this instanceof ResizeObserver)) {
+      throw new TypeError('Cannot call a class as a function.');
+    }
+    if (!arguments.length) {
+      throw new TypeError('1 argument required, but only 0 present.');
+    }
+    var controller = ResizeObserverController.getInstance();
+    var observer = new ResizeObserverSPI(callback, controller, this);
+    observers.set(this, observer);
+  }
+  return ResizeObserver;
+}();
+['observe', 'unobserve', 'disconnect'].forEach(function (method) {
+  ResizeObserver$1.prototype[method] = function () {
+    var _a;
+    return (_a = observers.get(this))[method].apply(_a, arguments);
+  };
+});
+var index = function () {
+  if (typeof global$1.ResizeObserver !== 'undefined') {
+    return global$1.ResizeObserver;
+  }
+  return ResizeObserver$1;
+}();
+
 function _typeof(obj) {
   "@babel/helpers - typeof";
 
@@ -146,6 +637,19 @@ function _setPrototypeOf(o, p) {
   return _setPrototypeOf(o, p);
 }
 
+function _isNativeReflectConstruct() {
+  if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+  if (Reflect.construct.sham) return false;
+  if (typeof Proxy === "function") return true;
+
+  try {
+    Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
 function _assertThisInitialized(self) {
   if (self === void 0) {
     throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -160,6 +664,23 @@ function _possibleConstructorReturn(self, call) {
   }
 
   return _assertThisInitialized(self);
+}
+
+function _createSuper(Derived) {
+  return function () {
+    var Super = _getPrototypeOf(Derived),
+        result;
+
+    if (_isNativeReflectConstruct()) {
+      var NewTarget = _getPrototypeOf(this).constructor;
+
+      result = Reflect.construct(Super, arguments, NewTarget);
+    } else {
+      result = Super.apply(this, arguments);
+    }
+
+    return _possibleConstructorReturn(this, result);
+  };
 }
 
 function _superPropBase(object, property) {
@@ -193,23 +714,36 @@ function _get(target, property, receiver) {
 }
 
 function _toConsumableArray(arr) {
-  return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread();
+  return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread();
 }
 
 function _arrayWithoutHoles(arr) {
-  if (Array.isArray(arr)) {
-    for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) arr2[i] = arr[i];
-
-    return arr2;
-  }
+  if (Array.isArray(arr)) return _arrayLikeToArray(arr);
 }
 
 function _iterableToArray(iter) {
-  if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter);
+  if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter);
+}
+
+function _unsupportedIterableToArray(o, minLen) {
+  if (!o) return;
+  if (typeof o === "string") return _arrayLikeToArray(o, minLen);
+  var n = Object.prototype.toString.call(o).slice(8, -1);
+  if (n === "Object" && o.constructor) n = o.constructor.name;
+  if (n === "Map" || n === "Set") return Array.from(n);
+  if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
+}
+
+function _arrayLikeToArray(arr, len) {
+  if (len == null || len > arr.length) len = arr.length;
+
+  for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
+
+  return arr2;
 }
 
 function _nonIterableSpread() {
-  throw new TypeError("Invalid attempt to spread non-iterable instance");
+  throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
 }
 
 function noop() {}
@@ -949,7 +1483,7 @@ function _calculatePadding(container, padding, parentDimension) {
 function getRelativePosition(evt, chart) {
   var mouseX, mouseY;
   var e = evt.originalEvent || evt;
-  var canvasElement = evt.target || evt.srcElement;
+  var canvasElement = chart.canvas;
   var boundingRect = canvasElement.getBoundingClientRect();
   var touches = e.touches;
   if (touches && touches.length > 0) {
@@ -1215,8 +1749,7 @@ var effects = {
   }
 };
 
-var Defaults =
-function () {
+var Defaults = function () {
   function Defaults() {
     _classCallCheck(this, Defaults);
     this.color = 'rgba(0,0,0,0.1)';
@@ -1409,7 +1942,7 @@ restoreTextDirection: restoreTextDirection
 });
 
 /*!
- * @kurkle/color v0.1.6
+ * @kurkle/color v0.1.7
  * https://github.com/kurkle/color#readme
  * (c) 2020 Jukka Kurkela
  * Released under the MIT License
@@ -1884,8 +2417,7 @@ function functionParse(str) {
   }
   return hueParse(str);
 }
-var Color =
-function () {
+var Color = function () {
   function Color(input) {
     _classCallCheck(this, Color);
     if (input instanceof Color) {
@@ -2029,7 +2561,7 @@ function () {
   }]);
   return Color;
 }();
-function index(input) {
+function index_esm(input) {
   return new Color(input);
 }
 
@@ -2037,10 +2569,10 @@ var isPatternOrGradient = function isPatternOrGradient(value) {
   return value instanceof CanvasGradient || value instanceof CanvasPattern;
 };
 function color(value) {
-  return isPatternOrGradient(value) ? value : index(value);
+  return isPatternOrGradient(value) ? value : index_esm(value);
 }
 function getHoverColor(value) {
-  return isPatternOrGradient(value) ? value : index(value).saturate(0.5).darken(0.1).hexString();
+  return isPatternOrGradient(value) ? value : index_esm(value).saturate(0.5).darken(0.1).hexString();
 }
 
 var helpers = _objectSpread2({}, coreHelpers, {
@@ -2068,6 +2600,304 @@ var helpers = _objectSpread2({}, coreHelpers, {
   getHoverColor: getHoverColor
 });
 
+var BasePlatform = function () {
+  function BasePlatform() {
+    _classCallCheck(this, BasePlatform);
+  }
+  _createClass(BasePlatform, [{
+    key: "acquireContext",
+    value: function acquireContext(canvas, options) {}
+  }, {
+    key: "releaseContext",
+    value: function releaseContext(context) {
+      return false;
+    }
+  }, {
+    key: "addEventListener",
+    value: function addEventListener(chart, type, listener) {}
+  }, {
+    key: "removeEventListener",
+    value: function removeEventListener(chart, type, listener) {}
+  }, {
+    key: "getDevicePixelRatio",
+    value: function getDevicePixelRatio() {
+      return 1;
+    }
+  }]);
+  return BasePlatform;
+}();
+
+var EXPANDO_KEY = '$chartjs';
+var EVENT_TYPES = {
+  touchstart: 'mousedown',
+  touchmove: 'mousemove',
+  touchend: 'mouseup',
+  pointerenter: 'mouseenter',
+  pointerdown: 'mousedown',
+  pointermove: 'mousemove',
+  pointerup: 'mouseup',
+  pointerleave: 'mouseout',
+  pointerout: 'mouseout'
+};
+function readUsedSize(element, property) {
+  var value = helpers.dom.getStyle(element, property);
+  var matches = value && value.match(/^(\d+)(\.\d+)?px$/);
+  return matches ? +matches[1] : undefined;
+}
+function initCanvas(canvas, config) {
+  var style = canvas.style;
+  var renderHeight = canvas.getAttribute('height');
+  var renderWidth = canvas.getAttribute('width');
+  canvas[EXPANDO_KEY] = {
+    initial: {
+      height: renderHeight,
+      width: renderWidth,
+      style: {
+        display: style.display,
+        height: style.height,
+        width: style.width
+      }
+    }
+  };
+  style.display = style.display || 'block';
+  style.boxSizing = style.boxSizing || 'border-box';
+  if (renderWidth === null || renderWidth === '') {
+    var displayWidth = readUsedSize(canvas, 'width');
+    if (displayWidth !== undefined) {
+      canvas.width = displayWidth;
+    }
+  }
+  if (renderHeight === null || renderHeight === '') {
+    if (canvas.style.height === '') {
+      canvas.height = canvas.width / (config.options.aspectRatio || 2);
+    } else {
+      var displayHeight = readUsedSize(canvas, 'height');
+      if (displayHeight !== undefined) {
+        canvas.height = displayHeight;
+      }
+    }
+  }
+  return canvas;
+}
+var supportsEventListenerOptions = function () {
+  var passiveSupported = false;
+  try {
+    var options = {
+      get passive() {
+        passiveSupported = true;
+        return false;
+      }
+    };
+    window.addEventListener('test', null, options);
+    window.removeEventListener('test', null, options);
+  } catch (e) {
+  }
+  return passiveSupported;
+}();
+var eventListenerOptions = supportsEventListenerOptions ? {
+  passive: true
+} : false;
+function addListener(node, type, listener) {
+  node.addEventListener(type, listener, eventListenerOptions);
+}
+function removeListener(node, type, listener) {
+  node.removeEventListener(type, listener, eventListenerOptions);
+}
+function createEvent(type, chart, x, y, nativeEvent) {
+  return {
+    type: type,
+    chart: chart,
+    "native": nativeEvent || null,
+    x: x !== undefined ? x : null,
+    y: y !== undefined ? y : null
+  };
+}
+function fromNativeEvent(event, chart) {
+  var type = EVENT_TYPES[event.type] || event.type;
+  var pos = helpers.dom.getRelativePosition(event, chart);
+  return createEvent(type, chart, pos.x, pos.y, event);
+}
+function throttled(fn, thisArg) {
+  var ticking = false;
+  var args = [];
+  return function () {
+    for (var _len = arguments.length, rest = new Array(_len), _key = 0; _key < _len; _key++) {
+      rest[_key] = arguments[_key];
+    }
+    args = Array.prototype.slice.call(rest);
+    if (!ticking) {
+      ticking = true;
+      helpers.requestAnimFrame.call(window, function () {
+        ticking = false;
+        fn.apply(thisArg, args);
+      });
+    }
+  };
+}
+function watchForResize(element, fn) {
+  var resize = throttled(function (width, height) {
+    var w = element.clientWidth;
+    fn(width, height);
+    if (w < element.clientWidth) {
+      fn();
+    }
+  }, window);
+  var observer = new ResizeObserver(function (entries) {
+    var entry = entries[0];
+    resize(entry.contentRect.width, entry.contentRect.height);
+  });
+  observer.observe(element);
+  return observer;
+}
+function watchForAttachment(element, fn) {
+  var observer = new MutationObserver(function (entries) {
+    var parent = _getParentNode(element);
+    entries.forEach(function (entry) {
+      for (var i = 0; i < entry.addedNodes.length; i++) {
+        var added = entry.addedNodes[i];
+        if (added === element || added === parent) {
+          fn(entry.target);
+        }
+      }
+    });
+  });
+  observer.observe(document, {
+    childList: true,
+    subtree: true
+  });
+  return observer;
+}
+function watchForDetachment(element, fn) {
+  var parent = _getParentNode(element);
+  if (!parent) {
+    return;
+  }
+  var observer = new MutationObserver(function (entries) {
+    entries.forEach(function (entry) {
+      for (var i = 0; i < entry.removedNodes.length; i++) {
+        if (entry.removedNodes[i] === element) {
+          fn();
+          break;
+        }
+      }
+    });
+  });
+  observer.observe(parent, {
+    childList: true
+  });
+  return observer;
+}
+function removeObserver(proxies, type) {
+  var observer = proxies[type];
+  if (observer) {
+    observer.disconnect();
+    proxies[type] = undefined;
+  }
+}
+function unlistenForResize(proxies) {
+  removeObserver(proxies, 'attach');
+  removeObserver(proxies, 'detach');
+  removeObserver(proxies, 'resize');
+}
+function listenForResize(canvas, proxies, listener) {
+  var detached = function detached() {
+    return listenForResize(canvas, proxies, listener);
+  };
+  unlistenForResize(proxies);
+  var container = _getParentNode(canvas);
+  if (container) {
+    proxies.resize = watchForResize(container, listener);
+    proxies.detach = watchForDetachment(canvas, detached);
+  } else {
+    proxies.attach = watchForAttachment(canvas, function () {
+      removeObserver(proxies, 'attach');
+      var parent = _getParentNode(canvas);
+      proxies.resize = watchForResize(parent, listener);
+      proxies.detach = watchForDetachment(canvas, detached);
+    });
+  }
+}
+var DomPlatform = function (_BasePlatform) {
+  _inherits(DomPlatform, _BasePlatform);
+  var _super = _createSuper(DomPlatform);
+  function DomPlatform() {
+    _classCallCheck(this, DomPlatform);
+    return _super.apply(this, arguments);
+  }
+  _createClass(DomPlatform, [{
+    key: "acquireContext",
+    value: function acquireContext(canvas, config) {
+      var context = canvas && canvas.getContext && canvas.getContext('2d');
+      if (context && context.canvas === canvas) {
+        initCanvas(canvas, config);
+        return context;
+      }
+      return null;
+    }
+  }, {
+    key: "releaseContext",
+    value: function releaseContext(context) {
+      var canvas = context.canvas;
+      if (!canvas[EXPANDO_KEY]) {
+        return false;
+      }
+      var initial = canvas[EXPANDO_KEY].initial;
+      ['height', 'width'].forEach(function (prop) {
+        var value = initial[prop];
+        if (helpers.isNullOrUndef(value)) {
+          canvas.removeAttribute(prop);
+        } else {
+          canvas.setAttribute(prop, value);
+        }
+      });
+      var style = initial.style || {};
+      Object.keys(style).forEach(function (key) {
+        canvas.style[key] = style[key];
+      });
+      canvas.width = canvas.width;
+      delete canvas[EXPANDO_KEY];
+      return true;
+    }
+  }, {
+    key: "addEventListener",
+    value: function addEventListener(chart, type, listener) {
+      this.removeEventListener(chart, type);
+      var canvas = chart.canvas;
+      var proxies = chart.$proxies || (chart.$proxies = {});
+      if (type === 'resize') {
+        return listenForResize(canvas, proxies, listener);
+      }
+      var proxy = proxies[type] = throttled(function (event) {
+        if (chart.ctx !== null) {
+          listener(fromNativeEvent(event, chart));
+        }
+      }, chart);
+      addListener(canvas, type, proxy);
+    }
+  }, {
+    key: "removeEventListener",
+    value: function removeEventListener(chart, type) {
+      var canvas = chart.canvas;
+      var proxies = chart.$proxies || (chart.$proxies = {});
+      if (type === 'resize') {
+        return unlistenForResize(proxies);
+      }
+      var proxy = proxies[type];
+      if (!proxy) {
+        return;
+      }
+      removeListener(canvas, type, proxy);
+      proxies[type] = undefined;
+    }
+  }, {
+    key: "getDevicePixelRatio",
+    value: function getDevicePixelRatio() {
+      return window.devicePixelRatio;
+    }
+  }]);
+  return DomPlatform;
+}(BasePlatform);
+
 function drawFPS(chart, count, date, lastDate) {
   var fps = 1000 / (date - lastDate) | 0;
   var ctx = chart.ctx;
@@ -2081,8 +2911,7 @@ function drawFPS(chart, count, date, lastDate) {
   }
   ctx.restore();
 }
-var Animator =
-function () {
+var Animator = function () {
   function Animator() {
     _classCallCheck(this, Animator);
     this._request = null;
@@ -2263,8 +3092,7 @@ var interpolators = {
     return from + (to - from) * factor;
   }
 };
-var Animation =
-function () {
+var Animation = function () {
   function Animation(cfg, target, prop, to) {
     _classCallCheck(this, Animation);
     var currentValue = target[prop];
@@ -2285,6 +3113,20 @@ function () {
     key: "active",
     value: function active() {
       return this._active;
+    }
+  }, {
+    key: "update",
+    value: function update(cfg, to, date) {
+      var me = this;
+      if (me._active) {
+        var currentValue = me._target[me._prop];
+        var elapsed = date - me._start;
+        var remain = me._duration - elapsed;
+        me._start = date;
+        me._duration = Math.floor(Math.max(remain, cfg.duration));
+        me._to = resolve([cfg.to, to, currentValue, cfg.from]);
+        me._from = resolve([cfg.from, currentValue, to]);
+      }
     }
   }, {
     key: "cancel",
@@ -2393,8 +3235,7 @@ function extensibleConfig(animations) {
   });
   return result;
 }
-var Animations =
-function () {
+var Animations = function () {
   function Animations(chart, animations) {
     _classCallCheck(this, Animations);
     this._chart = chart;
@@ -2452,6 +3293,7 @@ function () {
       var animations = [];
       var running = target.$animations || (target.$animations = {});
       var props = Object.keys(values);
+      var date = Date.now();
       var i;
       for (i = props.length - 1; i >= 0; --i) {
         var prop = props[i];
@@ -2464,10 +3306,15 @@ function () {
         }
         var value = values[prop];
         var animation = running[prop];
-        if (animation) {
-          animation.cancel();
-        }
         var cfg = animatedProps.get(prop);
+        if (animation) {
+          if (cfg && animation.active()) {
+            animation.update(cfg, value, date);
+            continue;
+          } else {
+            animation.cancel();
+          }
+        }
         if (!cfg || !cfg.duration) {
           target[prop] = value;
           continue;
@@ -2677,8 +3524,7 @@ function getFirstScaleId(chart, axis) {
     return scales[key].axis === axis;
   }).shift();
 }
-var DatasetController =
-function () {
+var DatasetController = function () {
   function DatasetController(chart, datasetIndex) {
     _classCallCheck(this, DatasetController);
     this.chart = chart;
@@ -3418,8 +4264,7 @@ DatasetController.prototype.dataElementType = null;
 DatasetController.prototype.datasetElementOptions = ['backgroundColor', 'borderCapStyle', 'borderColor', 'borderDash', 'borderDashOffset', 'borderJoinStyle', 'borderWidth'];
 DatasetController.prototype.dataElementOptions = ['backgroundColor', 'borderColor', 'borderWidth', 'pointStyle'];
 
-var Element$1 =
-function () {
+var Element$1 = function () {
   function Element() {
     _classCallCheck(this, Element);
     this.x = undefined;
@@ -3535,13 +4380,13 @@ function drawBorder(ctx, vm, arc) {
   ctx.closePath();
   ctx.stroke();
 }
-var Arc =
-function (_Element) {
+var Arc = function (_Element) {
   _inherits(Arc, _Element);
+  var _super = _createSuper(Arc);
   function Arc(cfg) {
     var _this;
     _classCallCheck(this, Arc);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Arc).call(this));
+    _this = _super.call(this);
     _this.options = undefined;
     _this.circumference = undefined;
     _this.startAngle = undefined;
@@ -3993,13 +4838,13 @@ function _getInterpolationMethod(options) {
   }
   return _pointInLine;
 }
-var Line =
-function (_Element) {
+var Line = function (_Element) {
   _inherits(Line, _Element);
+  var _super = _createSuper(Line);
   function Line(cfg) {
     var _this;
     _classCallCheck(this, Line);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Line).call(this));
+    _this = _super.call(this);
     _this.options = undefined;
     _this._loop = undefined;
     _this._fullLoop = undefined;
@@ -4141,13 +4986,13 @@ defaults.set('elements', {
     radius: 3
   }
 });
-var Point =
-function (_Element) {
+var Point = function (_Element) {
   _inherits(Point, _Element);
+  var _super = _createSuper(Point);
   function Point(cfg) {
     var _this;
     _classCallCheck(this, Point);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Point).call(this));
+    _this = _super.call(this);
     _this.options = undefined;
     _this.skip = undefined;
     _this.stop = undefined;
@@ -4330,13 +5175,13 @@ function _inRange(bar, x, y, useFinalPosition) {
   var bounds = !bar || skipX && skipY ? false : getBarBounds(bar, useFinalPosition);
   return bounds && (skipX || x >= bounds.left && x <= bounds.right) && (skipY || y >= bounds.top && y <= bounds.bottom);
 }
-var Rectangle =
-function (_Element) {
+var Rectangle = function (_Element) {
   _inherits(Rectangle, _Element);
+  var _super = _createSuper(Rectangle);
   function Rectangle(cfg) {
     var _this;
     _classCallCheck(this, Rectangle);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Rectangle).call(this));
+    _this = _super.call(this);
     _this.options = undefined;
     _this.horizontal = undefined;
     _this.base = undefined;
@@ -4385,7 +5230,7 @@ function (_Element) {
   }, {
     key: "getCenterPoint",
     value: function getCenterPoint(useFinalPosition) {
-      var _this$getProps = this.getProps(['x', 'y', 'base', 'horizontal', useFinalPosition]),
+      var _this$getProps = this.getProps(['x', 'y', 'base', 'horizontal'], useFinalPosition),
           x = _this$getProps.x,
           y = _this$getProps.y,
           base = _this$getProps.base,
@@ -4404,8 +5249,6 @@ function (_Element) {
   return Rectangle;
 }(Element$1);
 _defineProperty(Rectangle, "_type", 'rectangle');
-
-
 
 var elements = /*#__PURE__*/Object.freeze({
 __proto__: null,
@@ -4459,11 +5302,9 @@ function computeMinSampleSize(scale, pixels) {
 function computeFitCategoryTraits(index, ruler, options) {
   var thickness = options.barThickness;
   var count = ruler.stackCount;
-  var curr = ruler.pixels[index];
-  var min = isNullOrUndef(thickness) ? computeMinSampleSize(ruler.scale, ruler.pixels) : -1;
   var size, ratio;
   if (isNullOrUndef(thickness)) {
-    size = min * options.categoryPercentage;
+    size = ruler.min * options.categoryPercentage;
     ratio = options.barPercentage;
   } else {
     size = thickness * count;
@@ -4472,7 +5313,7 @@ function computeFitCategoryTraits(index, ruler, options) {
   return {
     chunk: size / count,
     ratio: ratio,
-    start: curr - size / 2
+    start: ruler.pixels[index] - size / 2
   };
 }
 function computeFlexCategoryTraits(index, ruler, options) {
@@ -4539,12 +5380,12 @@ function parseArrayOrPrimitive(meta, data, start, count) {
 function isFloatBar(custom) {
   return custom && custom.barStart !== undefined && custom.barEnd !== undefined;
 }
-var BarController =
-function (_DatasetController) {
+var BarController = function (_DatasetController) {
   _inherits(BarController, _DatasetController);
+  var _super = _createSuper(BarController);
   function BarController() {
     _classCallCheck(this, BarController);
-    return _possibleConstructorReturn(this, _getPrototypeOf(BarController).apply(this, arguments));
+    return _super.apply(this, arguments);
   }
   _createClass(BarController, [{
     key: "parsePrimitiveData",
@@ -4690,7 +5531,9 @@ function (_DatasetController) {
       for (i = 0, ilen = meta.data.length; i < ilen; ++i) {
         pixels.push(iScale.getPixelForValue(me.getParsed(i)[iScale.axis]));
       }
+      var min = computeMinSampleSize(iScale, pixels);
       return {
+        min: min,
         pixels: pixels,
         start: iScale._startPixel,
         end: iScale._endPixel,
@@ -4798,12 +5641,12 @@ defaults.set('bubble', {
     }
   }
 });
-var BubbleController =
-function (_DatasetController) {
+var BubbleController = function (_DatasetController) {
   _inherits(BubbleController, _DatasetController);
+  var _super = _createSuper(BubbleController);
   function BubbleController() {
     _classCallCheck(this, BubbleController);
-    return _possibleConstructorReturn(this, _getPrototypeOf(BubbleController).apply(this, arguments));
+    return _super.apply(this, arguments);
   }
   _createClass(BubbleController, [{
     key: "parseObjectData",
@@ -5013,13 +5856,13 @@ function getRatioAndOffset(rotation, circumference, cutout) {
     offsetY: offsetY
   };
 }
-var DoughnutController =
-function (_DatasetController) {
+var DoughnutController = function (_DatasetController) {
   _inherits(DoughnutController, _DatasetController);
+  var _super = _createSuper(DoughnutController);
   function DoughnutController(chart, datasetIndex) {
     var _this;
     _classCallCheck(this, DoughnutController);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(DoughnutController).call(this, chart, datasetIndex));
+    _this = _super.call(this, chart, datasetIndex);
     _this.innerRadius = undefined;
     _this.outerRadius = undefined;
     _this.offsetX = undefined;
@@ -5244,12 +6087,12 @@ defaults.set('horizontalBar', {
     axis: 'y'
   }
 });
-var HorizontalBarController =
-function (_BarController) {
+var HorizontalBarController = function (_BarController) {
   _inherits(HorizontalBarController, _BarController);
+  var _super = _createSuper(HorizontalBarController);
   function HorizontalBarController() {
     _classCallCheck(this, HorizontalBarController);
-    return _possibleConstructorReturn(this, _getPrototypeOf(HorizontalBarController).apply(this, arguments));
+    return _super.apply(this, arguments);
   }
   _createClass(HorizontalBarController, [{
     key: "getValueScaleId",
@@ -5280,13 +6123,13 @@ defaults.set('line', {
     }
   }
 });
-var LineController =
-function (_DatasetController) {
+var LineController = function (_DatasetController) {
   _inherits(LineController, _DatasetController);
+  var _super = _createSuper(LineController);
   function LineController(chart, datasetIndex) {
     var _this;
     _classCallCheck(this, LineController);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(LineController).call(this, chart, datasetIndex));
+    _this = _super.call(this, chart, datasetIndex);
     _this._showLine = false;
     return _this;
   }
@@ -5484,13 +6327,13 @@ defaults.set('polarArea', {
 function getStartAngleRadians(deg) {
   return toRadians(deg) - 0.5 * Math.PI;
 }
-var PolarAreaController =
-function (_DatasetController) {
+var PolarAreaController = function (_DatasetController) {
   _inherits(PolarAreaController, _DatasetController);
+  var _super = _createSuper(PolarAreaController);
   function PolarAreaController(chart, datasetIndex) {
     var _this;
     _classCallCheck(this, PolarAreaController);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(PolarAreaController).call(this, chart, datasetIndex));
+    _this = _super.call(this, chart, datasetIndex);
     _this.innerRadius = undefined;
     _this.outerRadius = undefined;
     return _this;
@@ -5629,12 +6472,12 @@ defaults.set('radar', {
     }
   }
 });
-var RadarController =
-function (_DatasetController) {
+var RadarController = function (_DatasetController) {
   _inherits(RadarController, _DatasetController);
+  var _super = _createSuper(RadarController);
   function RadarController() {
     _classCallCheck(this, RadarController);
-    return _possibleConstructorReturn(this, _getPrototypeOf(RadarController).apply(this, arguments));
+    return _super.apply(this, arguments);
   }
   _createClass(RadarController, [{
     key: "getIndexScaleId",
@@ -5817,6 +6660,17 @@ function _rlookupByKey(table, key, value) {
     lo: lo,
     hi: hi
   };
+}
+function _filterBetween(values, min, max) {
+  var start = 0;
+  var end = values.length;
+  while (start < end && values[start] < min) {
+    start++;
+  }
+  while (end > start && values[end - 1] > max) {
+    end--;
+  }
+  return start > 0 || end < values.length ? values.slice(start, end) : values;
 }
 
 function getRelativePosition$1(e, chart) {
@@ -6207,7 +7061,6 @@ defaults.set('layout', {
   }
 });
 var layouts = {
-  defaults: {},
   addBox: function addBox(chart, item) {
     if (!chart.boxes) {
       chart.boxes = [];
@@ -6295,40 +7148,12 @@ var layouts = {
   }
 };
 
-var BasePlatform =
-function () {
-  function BasePlatform() {
-    _classCallCheck(this, BasePlatform);
-  }
-  _createClass(BasePlatform, [{
-    key: "acquireContext",
-    value: function acquireContext(canvas, options) {}
-  }, {
-    key: "releaseContext",
-    value: function releaseContext(context) {
-      return false;
-    }
-  }, {
-    key: "addEventListener",
-    value: function addEventListener(chart, type, listener) {}
-  }, {
-    key: "removeEventListener",
-    value: function removeEventListener(chart, type, listener) {}
-  }, {
-    key: "getDevicePixelRatio",
-    value: function getDevicePixelRatio() {
-      return 1;
-    }
-  }]);
-  return BasePlatform;
-}();
-
-var BasicPlatform =
-function (_BasePlatform) {
+var BasicPlatform = function (_BasePlatform) {
   _inherits(BasicPlatform, _BasePlatform);
+  var _super = _createSuper(BasicPlatform);
   function BasicPlatform() {
     _classCallCheck(this, BasicPlatform);
-    return _possibleConstructorReturn(this, _getPrototypeOf(BasicPlatform).apply(this, arguments));
+    return _super.apply(this, arguments);
   }
   _createClass(BasicPlatform, [{
     key: "acquireContext",
@@ -6339,766 +7164,6 @@ function (_BasePlatform) {
   return BasicPlatform;
 }(BasePlatform);
 
-var MapShim = function () {
-  if (typeof Map !== 'undefined') {
-    return Map;
-  }
-  function getIndex(arr, key) {
-    var result = -1;
-    arr.some(function (entry, index) {
-      if (entry[0] === key) {
-        result = index;
-        return true;
-      }
-      return false;
-    });
-    return result;
-  }
-  return (
-    function () {
-      function class_1() {
-        this.__entries__ = [];
-      }
-      Object.defineProperty(class_1.prototype, "size", {
-        get: function get() {
-          return this.__entries__.length;
-        },
-        enumerable: true,
-        configurable: true
-      });
-      class_1.prototype.get = function (key) {
-        var index = getIndex(this.__entries__, key);
-        var entry = this.__entries__[index];
-        return entry && entry[1];
-      };
-      class_1.prototype.set = function (key, value) {
-        var index = getIndex(this.__entries__, key);
-        if (~index) {
-          this.__entries__[index][1] = value;
-        } else {
-          this.__entries__.push([key, value]);
-        }
-      };
-      class_1.prototype["delete"] = function (key) {
-        var entries = this.__entries__;
-        var index = getIndex(entries, key);
-        if (~index) {
-          entries.splice(index, 1);
-        }
-      };
-      class_1.prototype.has = function (key) {
-        return !!~getIndex(this.__entries__, key);
-      };
-      class_1.prototype.clear = function () {
-        this.__entries__.splice(0);
-      };
-      class_1.prototype.forEach = function (callback, ctx) {
-        if (ctx === void 0) {
-          ctx = null;
-        }
-        for (var _i = 0, _a = this.__entries__; _i < _a.length; _i++) {
-          var entry = _a[_i];
-          callback.call(ctx, entry[1], entry[0]);
-        }
-      };
-      return class_1;
-    }()
-  );
-}();
-var isBrowser = typeof window !== 'undefined' && typeof document !== 'undefined' && window.document === document;
-var global$1 = function () {
-  if (typeof global !== 'undefined' && global.Math === Math) {
-    return global;
-  }
-  if (typeof self !== 'undefined' && self.Math === Math) {
-    return self;
-  }
-  if (typeof window !== 'undefined' && window.Math === Math) {
-    return window;
-  }
-  return Function('return this')();
-}();
-var requestAnimationFrame$1 = function () {
-  if (typeof requestAnimationFrame === 'function') {
-    return requestAnimationFrame.bind(global$1);
-  }
-  return function (callback) {
-    return setTimeout(function () {
-      return callback(Date.now());
-    }, 1000 / 60);
-  };
-}();
-var trailingTimeout = 2;
-function throttle(callback, delay) {
-  var leadingCall = false,
-      trailingCall = false,
-      lastCallTime = 0;
-  function resolvePending() {
-    if (leadingCall) {
-      leadingCall = false;
-      callback();
-    }
-    if (trailingCall) {
-      proxy();
-    }
-  }
-  function timeoutCallback() {
-    requestAnimationFrame$1(resolvePending);
-  }
-  function proxy() {
-    var timeStamp = Date.now();
-    if (leadingCall) {
-      if (timeStamp - lastCallTime < trailingTimeout) {
-        return;
-      }
-      trailingCall = true;
-    } else {
-      leadingCall = true;
-      trailingCall = false;
-      setTimeout(timeoutCallback, delay);
-    }
-    lastCallTime = timeStamp;
-  }
-  return proxy;
-}
-var REFRESH_DELAY = 20;
-var transitionKeys = ['top', 'right', 'bottom', 'left', 'width', 'height', 'size', 'weight'];
-var mutationObserverSupported = typeof MutationObserver !== 'undefined';
-var ResizeObserverController =
-function () {
-  function ResizeObserverController() {
-    this.connected_ = false;
-    this.mutationEventsAdded_ = false;
-    this.mutationsObserver_ = null;
-    this.observers_ = [];
-    this.onTransitionEnd_ = this.onTransitionEnd_.bind(this);
-    this.refresh = throttle(this.refresh.bind(this), REFRESH_DELAY);
-  }
-  ResizeObserverController.prototype.addObserver = function (observer) {
-    if (!~this.observers_.indexOf(observer)) {
-      this.observers_.push(observer);
-    }
-    if (!this.connected_) {
-      this.connect_();
-    }
-  };
-  ResizeObserverController.prototype.removeObserver = function (observer) {
-    var observers = this.observers_;
-    var index = observers.indexOf(observer);
-    if (~index) {
-      observers.splice(index, 1);
-    }
-    if (!observers.length && this.connected_) {
-      this.disconnect_();
-    }
-  };
-  ResizeObserverController.prototype.refresh = function () {
-    var changesDetected = this.updateObservers_();
-    if (changesDetected) {
-      this.refresh();
-    }
-  };
-  ResizeObserverController.prototype.updateObservers_ = function () {
-    var activeObservers = this.observers_.filter(function (observer) {
-      return observer.gatherActive(), observer.hasActive();
-    });
-    activeObservers.forEach(function (observer) {
-      return observer.broadcastActive();
-    });
-    return activeObservers.length > 0;
-  };
-  ResizeObserverController.prototype.connect_ = function () {
-    if (!isBrowser || this.connected_) {
-      return;
-    }
-    document.addEventListener('transitionend', this.onTransitionEnd_);
-    window.addEventListener('resize', this.refresh);
-    if (mutationObserverSupported) {
-      this.mutationsObserver_ = new MutationObserver(this.refresh);
-      this.mutationsObserver_.observe(document, {
-        attributes: true,
-        childList: true,
-        characterData: true,
-        subtree: true
-      });
-    } else {
-      document.addEventListener('DOMSubtreeModified', this.refresh);
-      this.mutationEventsAdded_ = true;
-    }
-    this.connected_ = true;
-  };
-  ResizeObserverController.prototype.disconnect_ = function () {
-    if (!isBrowser || !this.connected_) {
-      return;
-    }
-    document.removeEventListener('transitionend', this.onTransitionEnd_);
-    window.removeEventListener('resize', this.refresh);
-    if (this.mutationsObserver_) {
-      this.mutationsObserver_.disconnect();
-    }
-    if (this.mutationEventsAdded_) {
-      document.removeEventListener('DOMSubtreeModified', this.refresh);
-    }
-    this.mutationsObserver_ = null;
-    this.mutationEventsAdded_ = false;
-    this.connected_ = false;
-  };
-  ResizeObserverController.prototype.onTransitionEnd_ = function (_a) {
-    var _b = _a.propertyName,
-        propertyName = _b === void 0 ? '' : _b;
-    var isReflowProperty = transitionKeys.some(function (key) {
-      return !!~propertyName.indexOf(key);
-    });
-    if (isReflowProperty) {
-      this.refresh();
-    }
-  };
-  ResizeObserverController.getInstance = function () {
-    if (!this.instance_) {
-      this.instance_ = new ResizeObserverController();
-    }
-    return this.instance_;
-  };
-  ResizeObserverController.instance_ = null;
-  return ResizeObserverController;
-}();
-var defineConfigurable = function defineConfigurable(target, props) {
-  for (var _i = 0, _a = Object.keys(props); _i < _a.length; _i++) {
-    var key = _a[_i];
-    Object.defineProperty(target, key, {
-      value: props[key],
-      enumerable: false,
-      writable: false,
-      configurable: true
-    });
-  }
-  return target;
-};
-var getWindowOf = function getWindowOf(target) {
-  var ownerGlobal = target && target.ownerDocument && target.ownerDocument.defaultView;
-  return ownerGlobal || global$1;
-};
-var emptyRect = createRectInit(0, 0, 0, 0);
-function toFloat(value) {
-  return parseFloat(value) || 0;
-}
-function getBordersSize(styles) {
-  var positions = [];
-  for (var _i = 1; _i < arguments.length; _i++) {
-    positions[_i - 1] = arguments[_i];
-  }
-  return positions.reduce(function (size, position) {
-    var value = styles['border-' + position + '-width'];
-    return size + toFloat(value);
-  }, 0);
-}
-function getPaddings(styles) {
-  var positions = ['top', 'right', 'bottom', 'left'];
-  var paddings = {};
-  for (var _i = 0, positions_1 = positions; _i < positions_1.length; _i++) {
-    var position = positions_1[_i];
-    var value = styles['padding-' + position];
-    paddings[position] = toFloat(value);
-  }
-  return paddings;
-}
-function getSVGContentRect(target) {
-  var bbox = target.getBBox();
-  return createRectInit(0, 0, bbox.width, bbox.height);
-}
-function getHTMLElementContentRect(target) {
-  var clientWidth = target.clientWidth,
-      clientHeight = target.clientHeight;
-  if (!clientWidth && !clientHeight) {
-    return emptyRect;
-  }
-  var styles = getWindowOf(target).getComputedStyle(target);
-  var paddings = getPaddings(styles);
-  var horizPad = paddings.left + paddings.right;
-  var vertPad = paddings.top + paddings.bottom;
-  var width = toFloat(styles.width),
-      height = toFloat(styles.height);
-  if (styles.boxSizing === 'border-box') {
-    if (Math.round(width + horizPad) !== clientWidth) {
-      width -= getBordersSize(styles, 'left', 'right') + horizPad;
-    }
-    if (Math.round(height + vertPad) !== clientHeight) {
-      height -= getBordersSize(styles, 'top', 'bottom') + vertPad;
-    }
-  }
-  if (!isDocumentElement(target)) {
-    var vertScrollbar = Math.round(width + horizPad) - clientWidth;
-    var horizScrollbar = Math.round(height + vertPad) - clientHeight;
-    if (Math.abs(vertScrollbar) !== 1) {
-      width -= vertScrollbar;
-    }
-    if (Math.abs(horizScrollbar) !== 1) {
-      height -= horizScrollbar;
-    }
-  }
-  return createRectInit(paddings.left, paddings.top, width, height);
-}
-var isSVGGraphicsElement = function () {
-  if (typeof SVGGraphicsElement !== 'undefined') {
-    return function (target) {
-      return target instanceof getWindowOf(target).SVGGraphicsElement;
-    };
-  }
-  return function (target) {
-    return target instanceof getWindowOf(target).SVGElement && typeof target.getBBox === 'function';
-  };
-}();
-function isDocumentElement(target) {
-  return target === getWindowOf(target).document.documentElement;
-}
-function getContentRect(target) {
-  if (!isBrowser) {
-    return emptyRect;
-  }
-  if (isSVGGraphicsElement(target)) {
-    return getSVGContentRect(target);
-  }
-  return getHTMLElementContentRect(target);
-}
-function createReadOnlyRect(_a) {
-  var x = _a.x,
-      y = _a.y,
-      width = _a.width,
-      height = _a.height;
-  var Constr = typeof DOMRectReadOnly !== 'undefined' ? DOMRectReadOnly : Object;
-  var rect = Object.create(Constr.prototype);
-  defineConfigurable(rect, {
-    x: x,
-    y: y,
-    width: width,
-    height: height,
-    top: y,
-    right: x + width,
-    bottom: height + y,
-    left: x
-  });
-  return rect;
-}
-function createRectInit(x, y, width, height) {
-  return {
-    x: x,
-    y: y,
-    width: width,
-    height: height
-  };
-}
-var ResizeObservation =
-function () {
-  function ResizeObservation(target) {
-    this.broadcastWidth = 0;
-    this.broadcastHeight = 0;
-    this.contentRect_ = createRectInit(0, 0, 0, 0);
-    this.target = target;
-  }
-  ResizeObservation.prototype.isActive = function () {
-    var rect = getContentRect(this.target);
-    this.contentRect_ = rect;
-    return rect.width !== this.broadcastWidth || rect.height !== this.broadcastHeight;
-  };
-  ResizeObservation.prototype.broadcastRect = function () {
-    var rect = this.contentRect_;
-    this.broadcastWidth = rect.width;
-    this.broadcastHeight = rect.height;
-    return rect;
-  };
-  return ResizeObservation;
-}();
-var ResizeObserverEntry =
-function () {
-  function ResizeObserverEntry(target, rectInit) {
-    var contentRect = createReadOnlyRect(rectInit);
-    defineConfigurable(this, {
-      target: target,
-      contentRect: contentRect
-    });
-  }
-  return ResizeObserverEntry;
-}();
-var ResizeObserverSPI =
-function () {
-  function ResizeObserverSPI(callback, controller, callbackCtx) {
-    this.activeObservations_ = [];
-    this.observations_ = new MapShim();
-    if (typeof callback !== 'function') {
-      throw new TypeError('The callback provided as parameter 1 is not a function.');
-    }
-    this.callback_ = callback;
-    this.controller_ = controller;
-    this.callbackCtx_ = callbackCtx;
-  }
-  ResizeObserverSPI.prototype.observe = function (target) {
-    if (!arguments.length) {
-      throw new TypeError('1 argument required, but only 0 present.');
-    }
-    if (typeof Element === 'undefined' || !(Element instanceof Object)) {
-      return;
-    }
-    if (!(target instanceof getWindowOf(target).Element)) {
-      throw new TypeError('parameter 1 is not of type "Element".');
-    }
-    var observations = this.observations_;
-    if (observations.has(target)) {
-      return;
-    }
-    observations.set(target, new ResizeObservation(target));
-    this.controller_.addObserver(this);
-    this.controller_.refresh();
-  };
-  ResizeObserverSPI.prototype.unobserve = function (target) {
-    if (!arguments.length) {
-      throw new TypeError('1 argument required, but only 0 present.');
-    }
-    if (typeof Element === 'undefined' || !(Element instanceof Object)) {
-      return;
-    }
-    if (!(target instanceof getWindowOf(target).Element)) {
-      throw new TypeError('parameter 1 is not of type "Element".');
-    }
-    var observations = this.observations_;
-    if (!observations.has(target)) {
-      return;
-    }
-    observations["delete"](target);
-    if (!observations.size) {
-      this.controller_.removeObserver(this);
-    }
-  };
-  ResizeObserverSPI.prototype.disconnect = function () {
-    this.clearActive();
-    this.observations_.clear();
-    this.controller_.removeObserver(this);
-  };
-  ResizeObserverSPI.prototype.gatherActive = function () {
-    var _this = this;
-    this.clearActive();
-    this.observations_.forEach(function (observation) {
-      if (observation.isActive()) {
-        _this.activeObservations_.push(observation);
-      }
-    });
-  };
-  ResizeObserverSPI.prototype.broadcastActive = function () {
-    if (!this.hasActive()) {
-      return;
-    }
-    var ctx = this.callbackCtx_;
-    var entries = this.activeObservations_.map(function (observation) {
-      return new ResizeObserverEntry(observation.target, observation.broadcastRect());
-    });
-    this.callback_.call(ctx, entries, ctx);
-    this.clearActive();
-  };
-  ResizeObserverSPI.prototype.clearActive = function () {
-    this.activeObservations_.splice(0);
-  };
-  ResizeObserverSPI.prototype.hasActive = function () {
-    return this.activeObservations_.length > 0;
-  };
-  return ResizeObserverSPI;
-}();
-var observers = typeof WeakMap !== 'undefined' ? new WeakMap() : new MapShim();
-var ResizeObserver =
-function () {
-  function ResizeObserver(callback) {
-    if (!(this instanceof ResizeObserver)) {
-      throw new TypeError('Cannot call a class as a function.');
-    }
-    if (!arguments.length) {
-      throw new TypeError('1 argument required, but only 0 present.');
-    }
-    var controller = ResizeObserverController.getInstance();
-    var observer = new ResizeObserverSPI(callback, controller, this);
-    observers.set(this, observer);
-  }
-  return ResizeObserver;
-}();
-['observe', 'unobserve', 'disconnect'].forEach(function (method) {
-  ResizeObserver.prototype[method] = function () {
-    var _a;
-    return (_a = observers.get(this))[method].apply(_a, arguments);
-  };
-});
-var index$1 = function () {
-  if (typeof global$1.ResizeObserver !== 'undefined') {
-    return global$1.ResizeObserver;
-  }
-  return ResizeObserver;
-}();
-
-var EXPANDO_KEY = '$chartjs';
-var EVENT_TYPES = {
-  touchstart: 'mousedown',
-  touchmove: 'mousemove',
-  touchend: 'mouseup',
-  pointerenter: 'mouseenter',
-  pointerdown: 'mousedown',
-  pointermove: 'mousemove',
-  pointerup: 'mouseup',
-  pointerleave: 'mouseout',
-  pointerout: 'mouseout'
-};
-function readUsedSize(element, property) {
-  var value = helpers.dom.getStyle(element, property);
-  var matches = value && value.match(/^(\d+)(\.\d+)?px$/);
-  return matches ? +matches[1] : undefined;
-}
-function initCanvas(canvas, config) {
-  var style = canvas.style;
-  var renderHeight = canvas.getAttribute('height');
-  var renderWidth = canvas.getAttribute('width');
-  canvas[EXPANDO_KEY] = {
-    initial: {
-      height: renderHeight,
-      width: renderWidth,
-      style: {
-        display: style.display,
-        height: style.height,
-        width: style.width
-      }
-    }
-  };
-  style.display = style.display || 'block';
-  style.boxSizing = style.boxSizing || 'border-box';
-  if (renderWidth === null || renderWidth === '') {
-    var displayWidth = readUsedSize(canvas, 'width');
-    if (displayWidth !== undefined) {
-      canvas.width = displayWidth;
-    }
-  }
-  if (renderHeight === null || renderHeight === '') {
-    if (canvas.style.height === '') {
-      canvas.height = canvas.width / (config.options.aspectRatio || 2);
-    } else {
-      var displayHeight = readUsedSize(canvas, 'height');
-      if (displayHeight !== undefined) {
-        canvas.height = displayHeight;
-      }
-    }
-  }
-  return canvas;
-}
-var supportsEventListenerOptions = function () {
-  var passiveSupported = false;
-  try {
-    var options = {
-      get passive() {
-        passiveSupported = true;
-        return false;
-      }
-    };
-    window.addEventListener('test', null, options);
-    window.removeEventListener('test', null, options);
-  } catch (e) {
-  }
-  return passiveSupported;
-}();
-var eventListenerOptions = supportsEventListenerOptions ? {
-  passive: true
-} : false;
-function addListener(node, type, listener) {
-  node.addEventListener(type, listener, eventListenerOptions);
-}
-function removeListener(node, type, listener) {
-  node.removeEventListener(type, listener, eventListenerOptions);
-}
-function createEvent(type, chart, x, y, nativeEvent) {
-  return {
-    type: type,
-    chart: chart,
-    "native": nativeEvent || null,
-    x: x !== undefined ? x : null,
-    y: y !== undefined ? y : null
-  };
-}
-function fromNativeEvent(event, chart) {
-  var type = EVENT_TYPES[event.type] || event.type;
-  var pos = helpers.dom.getRelativePosition(event, chart);
-  return createEvent(type, chart, pos.x, pos.y, event);
-}
-function throttled(fn, thisArg) {
-  var ticking = false;
-  var args = [];
-  return function () {
-    for (var _len = arguments.length, rest = new Array(_len), _key = 0; _key < _len; _key++) {
-      rest[_key] = arguments[_key];
-    }
-    args = Array.prototype.slice.call(rest);
-    if (!ticking) {
-      ticking = true;
-      helpers.requestAnimFrame.call(window, function () {
-        ticking = false;
-        fn.apply(thisArg, args);
-      });
-    }
-  };
-}
-function watchForResize(element, fn) {
-  var resize = throttled(function (width, height) {
-    var w = element.clientWidth;
-    fn(width, height);
-    if (w < element.clientWidth) {
-      fn();
-    }
-  }, window);
-  var observer = new index$1(function (entries) {
-    var entry = entries[0];
-    resize(entry.contentRect.width, entry.contentRect.height);
-  });
-  observer.observe(element);
-  return observer;
-}
-function watchForAttachment(element, fn) {
-  var observer = new MutationObserver(function (entries) {
-    var parent = _getParentNode(element);
-    entries.forEach(function (entry) {
-      for (var i = 0; i < entry.addedNodes.length; i++) {
-        var added = entry.addedNodes[i];
-        if (added === element || added === parent) {
-          fn(entry.target);
-        }
-      }
-    });
-  });
-  observer.observe(document, {
-    childList: true,
-    subtree: true
-  });
-  return observer;
-}
-function watchForDetachment(element, fn) {
-  var parent = _getParentNode(element);
-  if (!parent) {
-    return;
-  }
-  var observer = new MutationObserver(function (entries) {
-    entries.forEach(function (entry) {
-      for (var i = 0; i < entry.removedNodes.length; i++) {
-        if (entry.removedNodes[i] === element) {
-          fn();
-          break;
-        }
-      }
-    });
-  });
-  observer.observe(parent, {
-    childList: true
-  });
-  return observer;
-}
-function removeObserver(proxies, type) {
-  var observer = proxies[type];
-  if (observer) {
-    observer.disconnect();
-    proxies[type] = undefined;
-  }
-}
-function unlistenForResize(proxies) {
-  removeObserver(proxies, 'attach');
-  removeObserver(proxies, 'detach');
-  removeObserver(proxies, 'resize');
-}
-function listenForResize(canvas, proxies, listener) {
-  var detached = function detached() {
-    return listenForResize(canvas, proxies, listener);
-  };
-  unlistenForResize(proxies);
-  var container = _getParentNode(canvas);
-  if (container) {
-    proxies.resize = watchForResize(container, listener);
-    proxies.detach = watchForDetachment(canvas, detached);
-  } else {
-    proxies.attach = watchForAttachment(canvas, function () {
-      removeObserver(proxies, 'attach');
-      var parent = _getParentNode(canvas);
-      proxies.resize = watchForResize(parent, listener);
-      proxies.detach = watchForDetachment(canvas, detached);
-    });
-  }
-}
-var DomPlatform =
-function (_BasePlatform) {
-  _inherits(DomPlatform, _BasePlatform);
-  function DomPlatform() {
-    _classCallCheck(this, DomPlatform);
-    return _possibleConstructorReturn(this, _getPrototypeOf(DomPlatform).apply(this, arguments));
-  }
-  _createClass(DomPlatform, [{
-    key: "acquireContext",
-    value: function acquireContext(canvas, config) {
-      var context = canvas && canvas.getContext && canvas.getContext('2d');
-      if (context && context.canvas === canvas) {
-        initCanvas(canvas, config);
-        return context;
-      }
-      return null;
-    }
-  }, {
-    key: "releaseContext",
-    value: function releaseContext(context) {
-      var canvas = context.canvas;
-      if (!canvas[EXPANDO_KEY]) {
-        return false;
-      }
-      var initial = canvas[EXPANDO_KEY].initial;
-      ['height', 'width'].forEach(function (prop) {
-        var value = initial[prop];
-        if (helpers.isNullOrUndef(value)) {
-          canvas.removeAttribute(prop);
-        } else {
-          canvas.setAttribute(prop, value);
-        }
-      });
-      var style = initial.style || {};
-      Object.keys(style).forEach(function (key) {
-        canvas.style[key] = style[key];
-      });
-      canvas.width = canvas.width;
-      delete canvas[EXPANDO_KEY];
-      return true;
-    }
-  }, {
-    key: "addEventListener",
-    value: function addEventListener(chart, type, listener) {
-      this.removeEventListener(chart, type);
-      var canvas = chart.canvas;
-      var proxies = chart.$proxies || (chart.$proxies = {});
-      if (type === 'resize') {
-        return listenForResize(canvas, proxies, listener);
-      }
-      var proxy = proxies[type] = throttled(function (event) {
-        listener(fromNativeEvent(event, chart));
-      }, chart);
-      addListener(canvas, type, proxy);
-    }
-  }, {
-    key: "removeEventListener",
-    value: function removeEventListener(chart, type) {
-      var canvas = chart.canvas;
-      var proxies = chart.$proxies || (chart.$proxies = {});
-      if (type === 'resize') {
-        return unlistenForResize(proxies);
-      }
-      var proxy = proxies[type];
-      if (!proxy) {
-        return;
-      }
-      removeListener(canvas, type, proxy);
-      proxies[type] = undefined;
-    }
-  }, {
-    key: "getDevicePixelRatio",
-    value: function getDevicePixelRatio() {
-      return window.devicePixelRatio;
-    }
-  }]);
-  return DomPlatform;
-}(BasePlatform);
-
 var platforms = {
   BasicPlatform: BasicPlatform,
   DomPlatform: DomPlatform,
@@ -7106,8 +7171,7 @@ var platforms = {
 };
 
 defaults.set('plugins', {});
-var PluginService =
-function () {
+var PluginService = function () {
   function PluginService() {
     _classCallCheck(this, PluginService);
     this._plugins = [];
@@ -7360,8 +7424,7 @@ function getCanvas(item) {
   }
   return item;
 }
-var Chart =
-function () {
+var Chart = function () {
   function Chart(item, config) {
     _classCallCheck(this, Chart);
     var me = this;
@@ -7486,7 +7549,6 @@ function () {
         if (options.onResize) {
           options.onResize(me, newSize);
         }
-        me.stop();
         me.update('resize');
       }
     }
@@ -8093,8 +8155,7 @@ _defineProperty(Chart, "instances", {});
 function _abstract() {
   throw new Error('This method is not implemented: either no adapter can be found or an incomplete integration was provided.');
 }
-var DateAdapter =
-function () {
+var DateAdapter = function () {
   function DateAdapter(options) {
     _classCallCheck(this, DateAdapter);
     this.options = options || {};
@@ -8144,37 +8205,48 @@ var _adapters = {
   _date: DateAdapter
 };
 
-var Ticks = {
-  formatters: {
-    values: function values(value) {
-      return isArray(value) ? value : '' + value;
-    },
-    numeric: function numeric(tickValue, index, ticks) {
-      if (tickValue === 0) {
-        return '0';
-      }
-      var delta = ticks.length > 3 ? ticks[2].value - ticks[1].value : ticks[1].value - ticks[0].value;
-      if (Math.abs(delta) > 1 && tickValue !== Math.floor(tickValue)) {
-        delta = tickValue - Math.floor(tickValue);
-      }
-      var logDelta = log10(Math.abs(delta));
-      var maxTick = Math.max(Math.abs(ticks[0].value), Math.abs(ticks[ticks.length - 1].value));
-      var minTick = Math.min(Math.abs(ticks[0].value), Math.abs(ticks[ticks.length - 1].value));
-      var locale = this.chart.options.locale;
-      if (maxTick < 1e-4 || minTick > 1e+7) {
-        var logTick = log10(Math.abs(tickValue));
-        var numExponential = Math.floor(logTick) - Math.floor(logDelta);
-        numExponential = Math.max(Math.min(numExponential, 20), 0);
-        return tickValue.toExponential(numExponential);
-      }
-      var numDecimal = -1 * Math.floor(logDelta);
-      numDecimal = Math.max(Math.min(numDecimal, 20), 0);
-      return new Intl.NumberFormat(locale, {
-        minimumFractionDigits: numDecimal,
-        maximumFractionDigits: numDecimal
-      }).format(tickValue);
+var formatters = {
+  values: function values(value) {
+    return isArray(value) ? value : '' + value;
+  },
+  numeric: function numeric(tickValue, index, ticks) {
+    if (tickValue === 0) {
+      return '0';
     }
+    var delta = ticks.length > 3 ? ticks[2].value - ticks[1].value : ticks[1].value - ticks[0].value;
+    if (Math.abs(delta) > 1 && tickValue !== Math.floor(tickValue)) {
+      delta = tickValue - Math.floor(tickValue);
+    }
+    var logDelta = log10(Math.abs(delta));
+    var maxTick = Math.max(Math.abs(ticks[0].value), Math.abs(ticks[ticks.length - 1].value));
+    var minTick = Math.min(Math.abs(ticks[0].value), Math.abs(ticks[ticks.length - 1].value));
+    var locale = this.chart.options.locale;
+    if (maxTick < 1e-4 || minTick > 1e+7) {
+      var logTick = log10(Math.abs(tickValue));
+      var numExponential = Math.floor(logTick) - Math.floor(logDelta);
+      numExponential = Math.max(Math.min(numExponential, 20), 0);
+      return tickValue.toExponential(numExponential);
+    }
+    var numDecimal = -1 * Math.floor(logDelta);
+    numDecimal = Math.max(Math.min(numDecimal, 20), 0);
+    return new Intl.NumberFormat(locale, {
+      minimumFractionDigits: numDecimal,
+      maximumFractionDigits: numDecimal
+    }).format(tickValue);
   }
+};
+formatters.logarithmic = function (tickValue, index, ticks) {
+  if (tickValue === 0) {
+    return '0';
+  }
+  var remain = tickValue / Math.pow(10, Math.floor(log10(tickValue)));
+  if (remain === 1 || remain === 2 || remain === 5) {
+    return formatters.numeric.call(this, tickValue, index, ticks);
+  }
+  return '';
+};
+var Ticks = {
+  formatters: formatters
 };
 
 defaults.set('scale', {
@@ -8288,7 +8360,7 @@ function getEvenSpacing(arr) {
   }
   return diff;
 }
-function calculateSpacing(majorIndices, ticks, axisLength, ticksLimit) {
+function calculateSpacing(majorIndices, ticks, ticksLimit) {
   var evenMajorSpacing = getEvenSpacing(majorIndices);
   var spacing = ticks.length / ticksLimit;
   if (!evenMajorSpacing) {
@@ -8349,13 +8421,13 @@ function skip(ticks, newTicks, spacing, majorStart, majorEnd) {
     }
   }
 }
-var Scale =
-function (_Element) {
+var Scale = function (_Element) {
   _inherits(Scale, _Element);
+  var _super = _createSuper(Scale);
   function Scale(cfg) {
     var _this;
     _classCallCheck(this, Scale);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Scale).call(this));
+    _this = _super.call(this);
     _this.id = cfg.id;
     _this.type = cfg.type;
     _this.options = cfg.options;
@@ -8704,7 +8776,7 @@ function (_Element) {
       } else if (display) {
         minSize.height = getTickMarkLength(gridLineOpts) + getScaleLabelHeight(scaleLabelOpts);
       }
-      if (tickOpts.display && display) {
+      if (tickOpts.display && display && me.ticks.length) {
         var labelSizes = me._getLabelSizes();
         var firstLabelSize = labelSizes.first;
         var lastLabelSize = labelSizes.last;
@@ -8870,11 +8942,11 @@ function (_Element) {
   }, {
     key: "getPixelForTick",
     value: function getPixelForTick(index) {
-      var me = this;
-      var offset = me.options.offset;
-      var numTicks = me.ticks.length;
-      var tickWidth = 1 / Math.max(numTicks - (offset ? 0 : 1), 1);
-      return index < 0 || index > numTicks - 1 ? null : me.getPixelForDecimal(index * tickWidth + (offset ? tickWidth / 2 : 0));
+      var ticks = this.ticks;
+      if (index < 0 || index > ticks.length - 1) {
+        return null;
+      }
+      return this.getPixelForValue(ticks[index].value);
     }
   }, {
     key: "getPixelForDecimal",
@@ -8908,8 +8980,7 @@ function (_Element) {
     value: function _autoSkip(ticks) {
       var me = this;
       var tickOpts = me.options.ticks;
-      var axisLength = me._length;
-      var ticksLimit = tickOpts.maxTicksLimit || axisLength / me._tickSize();
+      var ticksLimit = tickOpts.maxTicksLimit || me._length / me._tickSize();
       var majorIndices = tickOpts.major.enabled ? getMajorIndices(ticks) : [];
       var numMajorIndices = majorIndices.length;
       var first = majorIndices[0];
@@ -8919,7 +8990,7 @@ function (_Element) {
         skipMajors(ticks, newTicks, majorIndices, numMajorIndices / ticksLimit);
         return newTicks;
       }
-      var spacing = calculateSpacing(majorIndices, ticks, axisLength, ticksLimit);
+      var spacing = calculateSpacing(majorIndices, ticks, ticksLimit);
       if (numMajorIndices > 0) {
         var i, ilen;
         var avgMajorSpacing = numMajorIndices > 1 ? Math.round((last - first) / (numMajorIndices - 1)) : null;
@@ -9407,13 +9478,13 @@ function (_Element) {
 Scale.prototype._draw = Scale.prototype.draw;
 
 var defaultConfig = {};
-var CategoryScale =
-function (_Scale) {
+var CategoryScale = function (_Scale) {
   _inherits(CategoryScale, _Scale);
+  var _super = _createSuper(CategoryScale);
   function CategoryScale(cfg) {
     var _this;
     _classCallCheck(this, CategoryScale);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(CategoryScale).call(this, cfg));
+    _this = _super.call(this, cfg);
     _this._numLabels = 0;
     _this._startValue = undefined;
     _this._valueRange = 0;
@@ -9596,13 +9667,13 @@ function generateTicks(generationOptions, dataRange) {
   });
   return ticks;
 }
-var LinearScaleBase =
-function (_Scale) {
+var LinearScaleBase = function (_Scale) {
   _inherits(LinearScaleBase, _Scale);
+  var _super = _createSuper(LinearScaleBase);
   function LinearScaleBase(cfg) {
     var _this;
     _classCallCheck(this, LinearScaleBase);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(LinearScaleBase).call(this, cfg));
+    _this = _super.call(this, cfg);
     _this.start = undefined;
     _this.end = undefined;
     _this._startValue = undefined;
@@ -9759,12 +9830,12 @@ var defaultConfig$1 = {
     callback: Ticks.formatters.numeric
   }
 };
-var LinearScale =
-function (_LinearScaleBase) {
+var LinearScale = function (_LinearScaleBase) {
   _inherits(LinearScale, _LinearScaleBase);
+  var _super = _createSuper(LinearScale);
   function LinearScale() {
     _classCallCheck(this, LinearScale);
-    return _possibleConstructorReturn(this, _getPrototypeOf(LinearScale).apply(this, arguments));
+    return _super.apply(this, arguments);
   }
   _createClass(LinearScale, [{
     key: "determineDataLimits",
@@ -9806,15 +9877,6 @@ function (_LinearScaleBase) {
     key: "getValueForPixel",
     value: function getValueForPixel(pixel) {
       return this._startValue + this.getDecimalForPixel(pixel) * this._valueRange;
-    }
-  }, {
-    key: "getPixelForTick",
-    value: function getPixelForTick(index) {
-      var ticks = this.ticks;
-      if (index < 0 || index > ticks.length - 1) {
-        return null;
-      }
-      return this.getPixelForValue(ticks[index].value);
     }
   }]);
   return LinearScale;
@@ -9859,19 +9921,19 @@ function generateTicks$1(generationOptions, dataRange) {
 }
 var defaultConfig$2 = {
   ticks: {
-    callback: Ticks.formatters.numeric,
+    callback: Ticks.formatters.logarithmic,
     major: {
       enabled: true
     }
   }
 };
-var LogarithmicScale =
-function (_Scale) {
+var LogarithmicScale = function (_Scale) {
   _inherits(LogarithmicScale, _Scale);
+  var _super = _createSuper(LogarithmicScale);
   function LogarithmicScale(cfg) {
     var _this;
     _classCallCheck(this, LogarithmicScale);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(LogarithmicScale).call(this, cfg));
+    _this = _super.call(this, cfg);
     _this.start = undefined;
     _this.end = undefined;
     _this._startValue = undefined;
@@ -9953,15 +10015,6 @@ function (_Scale) {
     key: "getLabelForValue",
     value: function getLabelForValue(value) {
       return value === undefined ? '0' : new Intl.NumberFormat(this.options.locale).format(value);
-    }
-  }, {
-    key: "getPixelForTick",
-    value: function getPixelForTick(index) {
-      var ticks = this.ticks;
-      if (index < 0 || index > ticks.length - 1) {
-        return null;
-      }
-      return this.getPixelForValue(ticks[index].value);
     }
   }, {
     key: "configure",
@@ -10187,13 +10240,13 @@ function drawRadiusLine(scale, gridLineOpts, radius, index) {
 function numberOrZero(param) {
   return isNumber(param) ? param : 0;
 }
-var RadialLinearScale =
-function (_LinearScaleBase) {
+var RadialLinearScale = function (_LinearScaleBase) {
   _inherits(RadialLinearScale, _LinearScaleBase);
+  var _super = _createSuper(RadialLinearScale);
   function RadialLinearScale(cfg) {
     var _this;
     _classCallCheck(this, RadialLinearScale);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(RadialLinearScale).call(this, cfg));
+    _this = _super.call(this, cfg);
     _this.xCenter = undefined;
     _this.yCenter = undefined;
     _this.drawingArea = undefined;
@@ -10471,7 +10524,9 @@ function _parse(scale, input) {
   }
   var adapter = scale._adapter;
   var options = scale.options.time;
-  var parser = options.parser;
+  var parser = options.parser,
+      round = options.round,
+      isoWeekday = options.isoWeekday;
   var value = input;
   if (typeof parser === 'function') {
     value = parser(value);
@@ -10482,8 +10537,8 @@ function _parse(scale, input) {
   if (value === null) {
     return value;
   }
-  if (options.round) {
-    value = scale._adapter.startOf(value, options.round);
+  if (round) {
+    value = round === 'week' && isoWeekday ? scale._adapter.startOf(value, 'isoWeek', isoWeekday) : scale._adapter.startOf(value, round);
   }
   return +value;
 }
@@ -10723,18 +10778,6 @@ function getLabelBounds(scale) {
     max: max
   };
 }
-function filterBetween(timestamps, min, max) {
-  var start = 0;
-  var end = timestamps.length - 1;
-  while (start < end && timestamps[start] < min) {
-    start++;
-  }
-  while (end > start && timestamps[end] > max) {
-    end--;
-  }
-  end++;
-  return start > 0 || end < timestamps.length ? timestamps.slice(start, end) : timestamps;
-}
 var defaultConfig$4 = {
   distribution: 'linear',
   bounds: 'data',
@@ -10755,13 +10798,13 @@ var defaultConfig$4 = {
     }
   }
 };
-var TimeScale =
-function (_Scale) {
+var TimeScale = function (_Scale) {
   _inherits(TimeScale, _Scale);
+  var _super = _createSuper(TimeScale);
   function TimeScale(props) {
     var _this;
     _classCallCheck(this, TimeScale);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(TimeScale).call(this, props));
+    _this = _super.call(this, props);
     var options = _this.options;
     var time = options.time || (options.time = {});
     var adapter = _this._adapter = new _adapters._date(options.adapters.date);
@@ -10851,7 +10894,7 @@ function (_Scale) {
       }
       var min = me.min;
       var max = me.max;
-      var ticks = filterBetween(timestamps, min, max);
+      var ticks = _filterBetween(timestamps, min, max);
       me._unit = timeOpts.unit || (tickOpts.autoSkip ? determineUnitForAutoTicks(timeOpts.minUnit, me.min, me.max, me._getLabelCapacity(min)) : determineUnitForFormatting(me, ticks.length, timeOpts.minUnit, me.min, me.max));
       me._majorUnit = !tickOpts.major.enabled || me._unit === 'year' ? undefined : determineMajorUnit(me._unit);
       me._table = buildLookupTable(getTimestampsForTable(me), min, max, distribution);
@@ -10906,15 +10949,6 @@ function (_Scale) {
       return me.getPixelForDecimal((offsets.start + pos) * offsets.factor);
     }
   }, {
-    key: "getPixelForTick",
-    value: function getPixelForTick(index) {
-      var ticks = this.ticks;
-      if (index < 0 || index > ticks.length - 1) {
-        return null;
-      }
-      return this.getPixelForValue(ticks[index].value);
-    }
-  }, {
     key: "getValueForPixel",
     value: function getValueForPixel(pixel) {
       var me = this;
@@ -10954,8 +10988,6 @@ function (_Scale) {
 }(Scale);
 _defineProperty(TimeScale, "id", 'time');
 _defineProperty(TimeScale, "defaults", defaultConfig$4);
-
-
 
 var scales = /*#__PURE__*/Object.freeze({
 __proto__: null,
@@ -11027,8 +11059,7 @@ function computeLinearBoundary(source) {
   }
   return null;
 }
-var simpleArc =
-function () {
+var simpleArc = function () {
   function simpleArc(opts) {
     _classCallCheck(this, simpleArc);
     this.x = opts.x;
@@ -11488,13 +11519,13 @@ defaults.set('legend', {
 function getBoxWidth(labelOpts, fontSize) {
   return labelOpts.usePointStyle && labelOpts.boxWidth > fontSize ? fontSize : labelOpts.boxWidth;
 }
-var Legend =
-function (_Element) {
+var Legend = function (_Element) {
   _inherits(Legend, _Element);
+  var _super = _createSuper(Legend);
   function Legend(config) {
     var _this;
     _classCallCheck(this, Legend);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Legend).call(this));
+    _this = _super.call(this);
     _extends(_assertThisInitialized(_this), config);
     _this.legendHitBoxes = [];
     _this._hoveredItem = null;
@@ -12007,13 +12038,13 @@ defaults.set('title', {
   text: '',
   weight: 2000
 });
-var Title =
-function (_Element) {
+var Title = function (_Element) {
   _inherits(Title, _Element);
+  var _super = _createSuper(Title);
   function Title(config) {
     var _this;
     _classCallCheck(this, Title);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Title).call(this));
+    _this = _super.call(this);
     _extends(_assertThisInitialized(_this), config);
     _this.chart = config.chart;
     _this.options = config.options;
@@ -12267,7 +12298,7 @@ defaults.set('tooltips', {
     easing: 'easeOutQuart',
     numbers: {
       type: 'number',
-      properties: ['x', 'y', 'width', 'height']
+      properties: ['x', 'y', 'width', 'height', 'caretX', 'caretY']
     },
     opacity: {
       easing: 'linear',
@@ -12590,13 +12621,13 @@ function getAlignedX(tooltip, align) {
 function getBeforeAfterBodyLines(callback) {
   return pushOrConcat([], splitNewlines(callback));
 }
-var Tooltip =
-function (_Element) {
+var Tooltip = function (_Element) {
   _inherits(Tooltip, _Element);
+  var _super = _createSuper(Tooltip);
   function Tooltip(config) {
     var _this;
     _classCallCheck(this, Tooltip);
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Tooltip).call(this));
+    _this = _super.call(this);
     _this.opacity = 0;
     _this._active = [];
     _this._chart = config._chart;
