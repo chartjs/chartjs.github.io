@@ -1842,7 +1842,7 @@ function getHoverColor(value) {
   return isPatternOrGradient(value) ? value : index_esm(value).saturate(0.5).darken(0.1).hexString();
 }
 
-var helpers = _objectSpread2({}, coreHelpers, {
+var helpers = _objectSpread2(_objectSpread2({}, coreHelpers), {}, {
   canvas,
   curve,
   dom,
