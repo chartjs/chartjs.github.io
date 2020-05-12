@@ -7601,9 +7601,6 @@ var Chart = function () {
         var scale = null;
         if (id in scales && scales[id].type === scaleType) {
           scale = scales[id];
-          scale.options = scaleOptions;
-          scale.ctx = me.ctx;
-          scale.chart = me;
         } else {
           var scaleClass = scaleService.getScaleConstructor(scaleType);
           if (!scaleClass) {
@@ -7612,15 +7609,12 @@ var Chart = function () {
           scale = new scaleClass({
             id: id,
             type: scaleType,
-            options: scaleOptions,
             ctx: me.ctx,
             chart: me
           });
           scales[scale.id] = scale;
         }
-        scale.axis = scale.options.position === 'chartArea' ? 'r' : scale.isHorizontal() ? 'x' : 'y';
-        scale._userMin = scale.parse(scale.options.min);
-        scale._userMax = scale.parse(scale.options.max);
+        scale.init(scaleOptions);
         if (item.isDefault) {
           me.scale = scale;
         }
@@ -8431,7 +8425,7 @@ var Scale = function (_Element) {
     _this = _super.call(this);
     _this.id = cfg.id;
     _this.type = cfg.type;
-    _this.options = cfg.options;
+    _this.options = undefined;
     _this.ctx = cfg.ctx;
     _this.chart = cfg.chart;
     _this.top = undefined;
@@ -8472,6 +8466,15 @@ var Scale = function (_Element) {
     return _this;
   }
   _createClass(Scale, [{
+    key: "init",
+    value: function init(options) {
+      var me = this;
+      me.options = options;
+      me.axis = me.isHorizontal() ? 'x' : 'y';
+      me._userMin = me.parse(options.min);
+      me._userMax = me.parse(options.max);
+    }
+  }, {
     key: "parse",
     value: function parse(raw, index) {
       return raw;
@@ -10255,6 +10258,12 @@ var RadialLinearScale = function (_LinearScaleBase) {
     return _this;
   }
   _createClass(RadialLinearScale, [{
+    key: "init",
+    value: function init(options) {
+      _get(_getPrototypeOf(RadialLinearScale.prototype), "init", this).call(this, options);
+      this.axis = 'r';
+    }
+  }, {
     key: "setDimensions",
     value: function setDimensions() {
       var me = this;
@@ -10806,9 +10815,6 @@ var TimeScale = function (_Scale) {
     var _this;
     _classCallCheck(this, TimeScale);
     _this = _super.call(this, props);
-    var options = _this.options;
-    var time = options.time || (options.time = {});
-    var adapter = _this._adapter = new _adapters._date(options.adapters.date);
     _this._cache = {
       data: [],
       labels: [],
@@ -10818,10 +10824,17 @@ var TimeScale = function (_Scale) {
     _this._majorUnit = undefined;
     _this._offsets = {};
     _this._table = [];
-    mergeIf(time.displayFormats, adapter.formats());
     return _this;
   }
   _createClass(TimeScale, [{
+    key: "init",
+    value: function init(options) {
+      var time = options.time || (options.time = {});
+      var adapter = this._adapter = new _adapters._date(options.adapters.date);
+      mergeIf(time.displayFormats, adapter.formats());
+      _get(_getPrototypeOf(TimeScale.prototype), "init", this).call(this, options);
+    }
+  }, {
     key: "parse",
     value: function parse(raw, index) {
       if (raw === undefined) {

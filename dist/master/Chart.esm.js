@@ -6424,9 +6424,6 @@ class Chart {
       var scale = null;
       if (id in scales && scales[id].type === scaleType) {
         scale = scales[id];
-        scale.options = scaleOptions;
-        scale.ctx = me.ctx;
-        scale.chart = me;
       } else {
         var scaleClass = scaleService.getScaleConstructor(scaleType);
         if (!scaleClass) {
@@ -6435,15 +6432,12 @@ class Chart {
         scale = new scaleClass({
           id,
           type: scaleType,
-          options: scaleOptions,
           ctx: me.ctx,
           chart: me
         });
         scales[scale.id] = scale;
       }
-      scale.axis = scale.options.position === 'chartArea' ? 'r' : scale.isHorizontal() ? 'x' : 'y';
-      scale._userMin = scale.parse(scale.options.min);
-      scale._userMax = scale.parse(scale.options.max);
+      scale.init(scaleOptions);
       if (item.isDefault) {
         me.scale = scale;
       }
@@ -7149,7 +7143,7 @@ class Scale extends Element {
     super();
     this.id = cfg.id;
     this.type = cfg.type;
-    this.options = cfg.options;
+    this.options = undefined;
     this.ctx = cfg.ctx;
     this.chart = cfg.chart;
     this.top = undefined;
@@ -7187,6 +7181,13 @@ class Scale extends Element {
     this._userMin = undefined;
     this._ticksLength = 0;
     this._borderValue = 0;
+  }
+  init(options) {
+    var me = this;
+    me.options = options;
+    me.axis = me.isHorizontal() ? 'x' : 'y';
+    me._userMin = me.parse(options.min);
+    me._userMax = me.parse(options.max);
   }
   parse(raw, index) {
     return raw;
@@ -8775,6 +8776,10 @@ class RadialLinearScale extends LinearScaleBase {
     this.drawingArea = undefined;
     this.pointLabels = [];
   }
+  init(options) {
+    super.init(options);
+    this.axis = 'r';
+  }
   setDimensions() {
     var me = this;
     me.width = me.maxWidth;
@@ -9295,9 +9300,6 @@ var defaultConfig$4 = {
 class TimeScale extends Scale {
   constructor(props) {
     super(props);
-    var options = this.options;
-    var time = options.time || (options.time = {});
-    var adapter = this._adapter = new _adapters._date(options.adapters.date);
     this._cache = {
       data: [],
       labels: [],
@@ -9307,7 +9309,12 @@ class TimeScale extends Scale {
     this._majorUnit = undefined;
     this._offsets = {};
     this._table = [];
+  }
+  init(options) {
+    var time = options.time || (options.time = {});
+    var adapter = this._adapter = new _adapters._date(options.adapters.date);
     mergeIf(time.displayFormats, adapter.formats());
+    super.init(options);
   }
   parse(raw, index) {
     if (raw === undefined) {
