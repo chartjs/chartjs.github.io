@@ -5443,7 +5443,6 @@ var BarController = function (_DatasetController) {
       _get(_getPrototypeOf(BarController.prototype), "initialize", this).call(this);
       var meta = me._cachedMeta;
       meta.stack = me.getDataset().stack;
-      meta.bar = true;
     }
   }, {
     key: "update",

@@ -4179,7 +4179,6 @@ class BarController extends DatasetController {
     super.initialize();
     var meta = me._cachedMeta;
     meta.stack = me.getDataset().stack;
-    meta.bar = true;
   }
   update(mode) {
     var me = this;
