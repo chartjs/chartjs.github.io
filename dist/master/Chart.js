@@ -1480,6 +1480,9 @@ function getConstraintHeight(domNode) {
 }
 function _calculatePadding(container, padding, parentDimension) {
   padding = getStyle(container, padding);
+  if (padding === '') {
+    return 0;
+  }
   return padding.indexOf('%') > -1 ? parentDimension * parseInt(padding, 10) / 100 : parseInt(padding, 10);
 }
 function getRelativePosition(evt, chart) {
