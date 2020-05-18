@@ -2102,7 +2102,7 @@ var helpers = _objectSpread2(_objectSpread2({}, coreHelpers), {}, {
   requestAnimFrame: function () {
     if (typeof window === 'undefined') {
       return function (callback) {
-        callback();
+        return callback();
       };
     }
     return window.requestAnimationFrame;
@@ -5626,7 +5626,7 @@ var PolarAreaController = function (_DatasetController) {
           outerRadius: outerRadius,
           startAngle: startAngle,
           endAngle: endAngle,
-          options: me.resolveDataElementOptions(index)
+          options: me.resolveDataElementOptions(index, mode)
         };
         me.updateElement(arc, index, properties, mode);
       }
@@ -5744,7 +5744,7 @@ var RadarController = function (_DatasetController) {
       for (i = 0; i < points.length; i++) {
         var point = points[i];
         var index = start + i;
-        var options = me.resolveDataElementOptions(index);
+        var options = me.resolveDataElementOptions(index, mode);
         var pointPosition = scale.getPointPositionForValue(index, dataset.data[index]);
         var x = reset ? scale.xCenter : pointPosition.x;
         var y = reset ? scale.yCenter : pointPosition.y;
@@ -7391,8 +7391,6 @@ function updateConfig(chart) {
   chart.options = chart.config.options = newOptions;
   chart.options.scales = scaleConfig;
   chart._animationsDisabled = isAnimationDisabled(newOptions);
-  chart.ensureScalesHaveIDs();
-  chart.buildOrUpdateScales();
 }
 var KNOWN_POSITIONS = new Set(['top', 'bottom', 'left', 'right', 'chartArea']);
 function positionIsHorizontal(position, axis) {
@@ -7712,6 +7710,8 @@ var Chart = function () {
       var i, ilen;
       me._updating = true;
       updateConfig(me);
+      me.ensureScalesHaveIDs();
+      me.buildOrUpdateScales();
       pluginsCore.invalidate(me);
       if (pluginsCore.notify(me, 'beforeUpdate') === false) {
         return;
