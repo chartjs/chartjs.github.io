@@ -4938,7 +4938,7 @@ var BubbleController = function (_DatasetController) {
           skip: isNaN(x) || isNaN(y)
         };
         if (includeOptions) {
-          properties.options = me.resolveDataElementOptions(i, mode);
+          properties.options = me.resolveDataElementOptions(index, mode);
           if (reset) {
             properties.options.radius = 0;
           }
