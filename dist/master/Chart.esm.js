@@ -164,7 +164,7 @@ function clone(source) {
     return source.map(clone);
   }
   if (isObject(source)) {
-    var target = {};
+    var target = Object.create(source);
     var keys = Object.keys(source);
     var klen = keys.length;
     var k = 0;
@@ -826,13 +826,13 @@ function getRelativePosition(evt, chart) {
     y: mouseY
   };
 }
+function fallbackIfNotValid(measure, fallback) {
+  return typeof measure === 'number' ? measure : fallback;
+}
 function getMaximumWidth(domNode) {
   var container = _getParentNode(domNode);
   if (!container) {
-    if (typeof domNode.clientWidth === 'number') {
-      return domNode.clientWidth;
-    }
-    return domNode.width;
+    return fallbackIfNotValid(domNode.clientWidth, domNode.width);
   }
   var clientWidth = container.clientWidth;
   var paddingLeft = _calculatePadding(container, 'padding-left', clientWidth);
@@ -844,10 +844,7 @@ function getMaximumWidth(domNode) {
 function getMaximumHeight(domNode) {
   var container = _getParentNode(domNode);
   if (!container) {
-    if (typeof domNode.clientHeight === 'number') {
-      return domNode.clientHeight;
-    }
-    return domNode.height;
+    return fallbackIfNotValid(domNode.clientHeight, domNode.height);
   }
   var clientHeight = container.clientHeight;
   var paddingTop = _calculatePadding(container, 'padding-top', clientHeight);
@@ -5773,6 +5770,9 @@ class BasePlatform {
   getDevicePixelRatio() {
     return 1;
   }
+  isAttached(canvas) {
+    return true;
+  }
 }
 
 class BasicPlatform extends BasePlatform {
@@ -5888,29 +5888,17 @@ function throttled(fn, thisArg) {
     }
   };
 }
-function watchForResize(element, fn) {
-  var resize = throttled((width, height) => {
-    var w = element.clientWidth;
-    fn(width, height);
-    if (w < element.clientWidth) {
-      fn();
-    }
-  }, window);
-  var observer = new ResizeObserver(entries => {
-    var entry = entries[0];
-    resize(entry.contentRect.width, entry.contentRect.height);
-  });
-  observer.observe(element);
-  return observer;
-}
-function watchForAttachment(element, fn) {
+function createAttachObserver(chart, type, listener) {
+  var canvas = chart.canvas;
+  var container = canvas && _getParentNode(canvas);
+  var element = container || canvas;
   var observer = new MutationObserver(entries => {
     var parent = _getParentNode(element);
     entries.forEach(entry => {
       for (var i = 0; i < entry.addedNodes.length; i++) {
         var added = entry.addedNodes[i];
         if (added === element || added === parent) {
-          fn(entry.target);
+          listener(entry.target);
         }
       }
     });
@@ -5921,53 +5909,61 @@ function watchForAttachment(element, fn) {
   });
   return observer;
 }
-function watchForDetachment(element, fn) {
-  var parent = _getParentNode(element);
-  if (!parent) {
+function createDetachObserver(chart, type, listener) {
+  var canvas = chart.canvas;
+  var container = canvas && _getParentNode(canvas);
+  if (!container) {
     return;
   }
   var observer = new MutationObserver(entries => {
     entries.forEach(entry => {
       for (var i = 0; i < entry.removedNodes.length; i++) {
-        if (entry.removedNodes[i] === element) {
-          fn();
+        if (entry.removedNodes[i] === canvas) {
+          listener();
           break;
         }
       }
     });
   });
-  observer.observe(parent, {
+  observer.observe(container, {
     childList: true
   });
   return observer;
 }
-function removeObserver(proxies, type) {
-  var observer = proxies[type];
+function createResizeObserver(chart, type, listener) {
+  var canvas = chart.canvas;
+  var container = canvas && _getParentNode(canvas);
+  if (!container) {
+    return;
+  }
+  var resize = throttled((width, height) => {
+    var w = container.clientWidth;
+    listener(width, height);
+    if (w < container.clientWidth) {
+      listener();
+    }
+  }, window);
+  var observer = new ResizeObserver(entries => {
+    var entry = entries[0];
+    resize(entry.contentRect.width, entry.contentRect.height);
+  });
+  observer.observe(container);
+  return observer;
+}
+function releaseObserver(canvas, type, observer) {
   if (observer) {
     observer.disconnect();
-    proxies[type] = undefined;
   }
 }
-function unlistenForResize(proxies) {
-  removeObserver(proxies, 'attach');
-  removeObserver(proxies, 'detach');
-  removeObserver(proxies, 'resize');
-}
-function listenForResize(canvas, proxies, listener) {
-  var detached = () => listenForResize(canvas, proxies, listener);
-  unlistenForResize(proxies);
-  var container = _getParentNode(canvas);
-  if (container) {
-    proxies.resize = watchForResize(container, listener);
-    proxies.detach = watchForDetachment(canvas, detached);
-  } else {
-    proxies.attach = watchForAttachment(canvas, () => {
-      removeObserver(proxies, 'attach');
-      var parent = _getParentNode(canvas);
-      proxies.resize = watchForResize(parent, listener);
-      proxies.detach = watchForDetachment(canvas, detached);
-    });
-  }
+function createProxyAndListen(chart, type, listener) {
+  var canvas = chart.canvas;
+  var proxy = throttled(event => {
+    if (chart.ctx !== null) {
+      listener(fromNativeEvent(event, chart));
+    }
+  }, chart);
+  addListener(canvas, type, proxy);
+  return proxy;
 }
 class DomPlatform extends BasePlatform {
   acquireContext(canvas, config) {
@@ -6002,33 +5998,37 @@ class DomPlatform extends BasePlatform {
   }
   addEventListener(chart, type, listener) {
     this.removeEventListener(chart, type);
-    var canvas = chart.canvas;
     var proxies = chart.$proxies || (chart.$proxies = {});
-    if (type === 'resize') {
-      return listenForResize(canvas, proxies, listener);
-    }
-    var proxy = proxies[type] = throttled(event => {
-      if (chart.ctx !== null) {
-        listener(fromNativeEvent(event, chart));
-      }
-    }, chart);
-    addListener(canvas, type, proxy);
+    var handlers = {
+      attach: createAttachObserver,
+      detach: createDetachObserver,
+      resize: createResizeObserver
+    };
+    var handler = handlers[type] || createProxyAndListen;
+    proxies[type] = handler(chart, type, listener);
   }
   removeEventListener(chart, type) {
     var canvas = chart.canvas;
     var proxies = chart.$proxies || (chart.$proxies = {});
-    if (type === 'resize') {
-      return unlistenForResize(proxies);
-    }
     var proxy = proxies[type];
     if (!proxy) {
       return;
     }
-    removeListener(canvas, type, proxy);
+    var handlers = {
+      attach: releaseObserver,
+      detach: releaseObserver,
+      resize: releaseObserver
+    };
+    var handler = handlers[type] || removeListener;
+    handler(canvas, type, proxy);
     proxies[type] = undefined;
   }
   getDevicePixelRatio() {
     return window.devicePixelRatio;
+  }
+  isAttached(canvas) {
+    var container = _getParentNode(canvas);
+    return !!(container && _getParentNode(container));
   }
 }
 
@@ -6307,6 +6307,7 @@ class Chart {
     this.$plugins = undefined;
     this.$proxies = {};
     this._hiddenIndices = {};
+    this.attached = true;
     Chart.instances[me.id] = me;
     Object.defineProperty(me, 'data', {
       get() {
@@ -6323,7 +6324,9 @@ class Chart {
     Animator$1.listen(me, 'complete', onAnimationsComplete);
     Animator$1.listen(me, 'progress', onAnimationProgress);
     me._initialize();
-    me.update();
+    if (me.attached) {
+      me.update();
+    }
   }
   _initialize() {
     var me = this;
@@ -6385,7 +6388,7 @@ class Chart {
       if (options.onResize) {
         options.onResize(me, newSize);
       }
-      me.update('resize');
+      me.update(me.attached && 'resize');
     }
   }
   ensureScalesHaveIDs() {
@@ -6609,7 +6612,7 @@ class Chart {
       helpers.callback(animationOptions && animationOptions.onComplete, [], me);
     };
     if (Animator$1.has(me)) {
-      if (!Animator$1.running(me)) {
+      if (me.attached && !Animator$1.running(me)) {
         Animator$1.start(me);
       }
     } else {
@@ -6803,21 +6806,47 @@ class Chart {
   bindEvents() {
     var me = this;
     var listeners = me._listeners;
+    var platform = me.platform;
+    var _add = (type, listener) => {
+      platform.addEventListener(me, type, listener);
+      listeners[type] = listener;
+    };
+    var _remove = (type, listener) => {
+      if (listeners[type]) {
+        platform.removeEventListener(me, type, listener);
+        delete listeners[type];
+      }
+    };
     var listener = function listener(e) {
       me._eventHandler(e);
     };
-    helpers.each(me.options.events, type => {
-      me.platform.addEventListener(me, type, listener);
-      listeners[type] = listener;
-    });
+    helpers.each(me.options.events, type => _add(type, listener));
     if (me.options.responsive) {
-      listener = function listener(width, height) {
+      listener = (width, height) => {
         if (me.canvas) {
           me.resize(false, width, height);
         }
       };
-      me.platform.addEventListener(me, 'resize', listener);
-      listeners.resize = listener;
+      var detached;
+      var attached = () => {
+        _remove('attach', attached);
+        me.resize();
+        me.attached = true;
+        _add('resize', listener);
+        _add('detach', detached);
+      };
+      detached = () => {
+        me.attached = false;
+        _remove('resize', listener);
+        _add('attach', attached);
+      };
+      if (platform.isAttached(me.canvas)) {
+        attached();
+      } else {
+        detached();
+      }
+    } else {
+      me.attached = true;
     }
   }
   unbindEvents() {
