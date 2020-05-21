@@ -5609,17 +5609,18 @@ defaults.set('scatter', {
   }
 });
 
-var controllers = {
-  bar: BarController,
-  bubble: BubbleController,
-  doughnut: DoughnutController,
-  horizontalBar: HorizontalBarController,
-  line: LineController,
-  polarArea: PolarAreaController,
-  pie: DoughnutController,
-  radar: RadarController,
-  scatter: LineController
-};
+var controllers = /*#__PURE__*/Object.freeze({
+__proto__: null,
+bar: BarController,
+bubble: BubbleController,
+doughnut: DoughnutController,
+horizontalBar: HorizontalBarController,
+line: LineController,
+polarArea: PolarAreaController,
+pie: DoughnutController,
+radar: RadarController,
+scatter: LineController
+});
 
 function _lookup(table, value) {
   var hi = table.length - 1;
