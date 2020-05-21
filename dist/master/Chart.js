@@ -11445,7 +11445,7 @@ function doFill(ctx, cfg) {
   });
   ctx.restore();
 }
-var filler = {
+var plugin_filler = {
   id: 'filler',
   afterDatasetsUpdate: function afterDatasetsUpdate(chart, options) {
     var count = (chart.data.datasets || []).length;
@@ -12052,7 +12052,7 @@ function createNewLegendAndAttach(chart, legendOpts) {
   layouts.addBox(chart, legend);
   chart.legend = legend;
 }
-var legend = {
+var plugin_legend = {
   id: 'legend',
   _element: Legend,
   beforeInit: function beforeInit(chart) {
@@ -12293,7 +12293,7 @@ function createNewTitleBlockAndAttach(chart, titleOpts) {
   layouts.addBox(chart, title);
   chart.titleBlock = title;
 }
-var title = {
+var plugin_title = {
   id: 'title',
   _element: Title,
   beforeInit: function beforeInit(chart) {
@@ -13185,7 +13185,7 @@ var Tooltip = function (_Element) {
   return Tooltip;
 }(Element$1);
 Tooltip.positioners = positioners;
-var tooltip = {
+var plugin_tooltip = {
   id: 'tooltip',
   _element: Tooltip,
   positioners: positioners,
@@ -13226,12 +13226,13 @@ var tooltip = {
   }
 };
 
-var plugins = {
-  filler: filler,
-  legend: legend,
-  title: title,
-  tooltip: tooltip
-};
+var plugins = /*#__PURE__*/Object.freeze({
+__proto__: null,
+filler: plugin_filler,
+legend: plugin_legend,
+title: plugin_title,
+tooltip: plugin_tooltip
+});
 
 Chart.helpers = helpers;
 Chart._adapters = _adapters;
