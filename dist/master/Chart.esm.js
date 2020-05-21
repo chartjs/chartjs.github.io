@@ -620,11 +620,16 @@ class Defaults {
     this.color = 'rgba(0,0,0,0.1)';
     this.elements = {};
     this.events = ['mousemove', 'mouseout', 'click', 'touchstart', 'touchmove'];
-    this.fontColor = '#666';
-    this.fontFamily = "'Helvetica Neue', 'Helvetica', 'Arial', sans-serif";
-    this.fontSize = 12;
-    this.fontStyle = 'normal';
-    this.lineHeight = 1.2;
+    this.font = {
+      color: '#666',
+      family: "'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
+      size: 12,
+      style: 'normal',
+      lineHeight: 1.2,
+      weight: null,
+      lineWidth: 0,
+      strokeStyle: undefined
+    };
     this.hover = {
       onHover: null,
       mode: 'nearest',
@@ -647,12 +652,226 @@ class Defaults {
 }
 var defaults = new Defaults();
 
+var PI = Math.PI;
+var RAD_PER_DEG = PI / 180;
+var DOUBLE_PI = PI * 2;
+var HALF_PI = PI / 2;
+var QUARTER_PI = PI / 4;
+var TWO_THIRDS_PI = PI * 2 / 3;
 function toFontString(font) {
   if (!font || isNullOrUndef(font.size) || isNullOrUndef(font.family)) {
     return null;
   }
   return (font.style ? font.style + ' ' : '') + (font.weight ? font.weight + ' ' : '') + font.size + 'px ' + font.family;
 }
+function _measureText(ctx, data, gc, longest, string) {
+  var textWidth = data[string];
+  if (!textWidth) {
+    textWidth = data[string] = ctx.measureText(string).width;
+    gc.push(string);
+  }
+  if (textWidth > longest) {
+    longest = textWidth;
+  }
+  return longest;
+}
+function _longestText(ctx, font, arrayOfThings, cache) {
+  cache = cache || {};
+  var data = cache.data = cache.data || {};
+  var gc = cache.garbageCollect = cache.garbageCollect || [];
+  if (cache.font !== font) {
+    data = cache.data = {};
+    gc = cache.garbageCollect = [];
+    cache.font = font;
+  }
+  ctx.save();
+  ctx.font = font;
+  var longest = 0;
+  var ilen = arrayOfThings.length;
+  var i, j, jlen, thing, nestedThing;
+  for (i = 0; i < ilen; i++) {
+    thing = arrayOfThings[i];
+    if (thing !== undefined && thing !== null && isArray(thing) !== true) {
+      longest = _measureText(ctx, data, gc, longest, thing);
+    } else if (isArray(thing)) {
+      for (j = 0, jlen = thing.length; j < jlen; j++) {
+        nestedThing = thing[j];
+        if (nestedThing !== undefined && nestedThing !== null && !isArray(nestedThing)) {
+          longest = _measureText(ctx, data, gc, longest, nestedThing);
+        }
+      }
+    }
+  }
+  ctx.restore();
+  var gcLen = gc.length / 2;
+  if (gcLen > arrayOfThings.length) {
+    for (i = 0; i < gcLen; i++) {
+      delete data[gc[i]];
+    }
+    gc.splice(0, gcLen);
+  }
+  return longest;
+}
+function _alignPixel(chart, pixel, width) {
+  var devicePixelRatio = chart.currentDevicePixelRatio;
+  var halfWidth = width / 2;
+  return Math.round((pixel - halfWidth) * devicePixelRatio) / devicePixelRatio + halfWidth;
+}
+function clear(chart) {
+  chart.ctx.clearRect(0, 0, chart.width, chart.height);
+}
+function drawPoint(ctx, options, x, y) {
+  var type, xOffset, yOffset, size, cornerRadius;
+  var style = options.pointStyle;
+  var rotation = options.rotation;
+  var radius = options.radius;
+  var rad = (rotation || 0) * RAD_PER_DEG;
+  if (style && typeof style === 'object') {
+    type = style.toString();
+    if (type === '[object HTMLImageElement]' || type === '[object HTMLCanvasElement]') {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(rad);
+      ctx.drawImage(style, -style.width / 2, -style.height / 2, style.width, style.height);
+      ctx.restore();
+      return;
+    }
+  }
+  if (isNaN(radius) || radius <= 0) {
+    return;
+  }
+  ctx.beginPath();
+  switch (style) {
+    default:
+      ctx.arc(x, y, radius, 0, DOUBLE_PI);
+      ctx.closePath();
+      break;
+    case 'triangle':
+      ctx.moveTo(x + Math.sin(rad) * radius, y - Math.cos(rad) * radius);
+      rad += TWO_THIRDS_PI;
+      ctx.lineTo(x + Math.sin(rad) * radius, y - Math.cos(rad) * radius);
+      rad += TWO_THIRDS_PI;
+      ctx.lineTo(x + Math.sin(rad) * radius, y - Math.cos(rad) * radius);
+      ctx.closePath();
+      break;
+    case 'rectRounded':
+      cornerRadius = radius * 0.516;
+      size = radius - cornerRadius;
+      xOffset = Math.cos(rad + QUARTER_PI) * size;
+      yOffset = Math.sin(rad + QUARTER_PI) * size;
+      ctx.arc(x - xOffset, y - yOffset, cornerRadius, rad - PI, rad - HALF_PI);
+      ctx.arc(x + yOffset, y - xOffset, cornerRadius, rad - HALF_PI, rad);
+      ctx.arc(x + xOffset, y + yOffset, cornerRadius, rad, rad + HALF_PI);
+      ctx.arc(x - yOffset, y + xOffset, cornerRadius, rad + HALF_PI, rad + PI);
+      ctx.closePath();
+      break;
+    case 'rect':
+      if (!rotation) {
+        size = Math.SQRT1_2 * radius;
+        ctx.rect(x - size, y - size, 2 * size, 2 * size);
+        break;
+      }
+      rad += QUARTER_PI;
+    case 'rectRot':
+      xOffset = Math.cos(rad) * radius;
+      yOffset = Math.sin(rad) * radius;
+      ctx.moveTo(x - xOffset, y - yOffset);
+      ctx.lineTo(x + yOffset, y - xOffset);
+      ctx.lineTo(x + xOffset, y + yOffset);
+      ctx.lineTo(x - yOffset, y + xOffset);
+      ctx.closePath();
+      break;
+    case 'crossRot':
+      rad += QUARTER_PI;
+    case 'cross':
+      xOffset = Math.cos(rad) * radius;
+      yOffset = Math.sin(rad) * radius;
+      ctx.moveTo(x - xOffset, y - yOffset);
+      ctx.lineTo(x + xOffset, y + yOffset);
+      ctx.moveTo(x + yOffset, y - xOffset);
+      ctx.lineTo(x - yOffset, y + xOffset);
+      break;
+    case 'star':
+      xOffset = Math.cos(rad) * radius;
+      yOffset = Math.sin(rad) * radius;
+      ctx.moveTo(x - xOffset, y - yOffset);
+      ctx.lineTo(x + xOffset, y + yOffset);
+      ctx.moveTo(x + yOffset, y - xOffset);
+      ctx.lineTo(x - yOffset, y + xOffset);
+      rad += QUARTER_PI;
+      xOffset = Math.cos(rad) * radius;
+      yOffset = Math.sin(rad) * radius;
+      ctx.moveTo(x - xOffset, y - yOffset);
+      ctx.lineTo(x + xOffset, y + yOffset);
+      ctx.moveTo(x + yOffset, y - xOffset);
+      ctx.lineTo(x - yOffset, y + xOffset);
+      break;
+    case 'line':
+      xOffset = Math.cos(rad) * radius;
+      yOffset = Math.sin(rad) * radius;
+      ctx.moveTo(x - xOffset, y - yOffset);
+      ctx.lineTo(x + xOffset, y + yOffset);
+      break;
+    case 'dash':
+      ctx.moveTo(x, y);
+      ctx.lineTo(x + Math.cos(rad) * radius, y + Math.sin(rad) * radius);
+      break;
+  }
+  ctx.fill();
+  if (options.borderWidth > 0) {
+    ctx.stroke();
+  }
+}
+function _isPointInArea(point, area) {
+  var epsilon = 0.5;
+  return point.x > area.left - epsilon && point.x < area.right + epsilon && point.y > area.top - epsilon && point.y < area.bottom + epsilon;
+}
+function clipArea(ctx, area) {
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(area.left, area.top, area.right - area.left, area.bottom - area.top);
+  ctx.clip();
+}
+function unclipArea(ctx) {
+  ctx.restore();
+}
+function _steppedLineTo(ctx, previous, target, flip, mode) {
+  if (!previous) {
+    return ctx.lineTo(target.x, target.y);
+  }
+  if (mode === 'middle') {
+    var midpoint = (previous.x + target.x) / 2.0;
+    ctx.lineTo(midpoint, previous.y);
+    ctx.lineTo(midpoint, target.y);
+  } else if (mode === 'after' !== !!flip) {
+    ctx.lineTo(previous.x, target.y);
+  } else {
+    ctx.lineTo(target.x, previous.y);
+  }
+  ctx.lineTo(target.x, target.y);
+}
+function _bezierCurveTo(ctx, previous, target, flip) {
+  if (!previous) {
+    return ctx.lineTo(target.x, target.y);
+  }
+  ctx.bezierCurveTo(flip ? previous.controlPointPreviousX : previous.controlPointNextX, flip ? previous.controlPointPreviousY : previous.controlPointNextY, flip ? target.controlPointNextX : target.controlPointPreviousX, flip ? target.controlPointNextY : target.controlPointPreviousY, target.x, target.y);
+}
+
+var canvas = /*#__PURE__*/Object.freeze({
+__proto__: null,
+toFontString: toFontString,
+_measureText: _measureText,
+_longestText: _longestText,
+_alignPixel: _alignPixel,
+clear: clear,
+drawPoint: drawPoint,
+_isPointInArea: _isPointInArea,
+clipArea: clipArea,
+unclipArea: unclipArea,
+_steppedLineTo: _steppedLineTo,
+_bezierCurveTo: _bezierCurveTo
+});
+
 function toLineHeight(value, size) {
   var matches = ('' + value).match(/^(normal|(\d+(?:\.\d+)?)(px|em|%)?)$/);
   if (!matches || matches[1] === 'normal') {
@@ -687,17 +906,22 @@ function toPadding(value) {
     width: l + r
   };
 }
-function _parseFont(options) {
-  var size = valueOrDefault(options.fontSize, defaults.fontSize);
+function toFont(options) {
+  var defaultFont = defaults.font;
+  options = options || {};
+  var size = valueOrDefault(options.size, defaultFont.size);
   if (typeof size === 'string') {
     size = parseInt(size, 10);
   }
   var font = {
-    family: valueOrDefault(options.fontFamily, defaults.fontFamily),
-    lineHeight: toLineHeight(valueOrDefault(options.lineHeight, defaults.lineHeight), size),
+    color: valueOrDefault(options.color, defaultFont.color),
+    family: valueOrDefault(options.family, defaultFont.family),
+    lineHeight: toLineHeight(valueOrDefault(options.lineHeight, defaultFont.lineHeight), size),
+    lineWidth: valueOrDefault(options.lineWidth, defaultFont.lineWidth),
     size,
-    style: valueOrDefault(options.fontStyle, defaults.fontStyle),
-    weight: null,
+    style: valueOrDefault(options.style, defaultFont.style),
+    weight: valueOrDefault(options.weight, defaultFont.weight),
+    strokeStyle: valueOrDefault(options.strokeStyle, defaultFont.strokeStyle),
     string: ''
   };
   font.string = toFontString(font);
@@ -732,7 +956,7 @@ var options = /*#__PURE__*/Object.freeze({
 __proto__: null,
 toLineHeight: toLineHeight,
 toPadding: toPadding,
-_parseFont: _parseFont,
+toFont: toFont,
 resolve: resolve
 });
 
@@ -1565,9 +1789,9 @@ class Animations {
   }
 }
 
-var PI = Math.PI;
-var TAU = 2 * PI;
-var PITAU = TAU + PI;
+var PI$1 = Math.PI;
+var TAU = 2 * PI$1;
+var PITAU = TAU + PI$1;
 function _factorize(value) {
   var result = [];
   var sqrt = Math.sqrt(value);
@@ -1620,10 +1844,10 @@ var sign = Math.sign ? function (x) {
   return x > 0 ? 1 : -1;
 };
 function toRadians(degrees) {
-  return degrees * (PI / 180);
+  return degrees * (PI$1 / 180);
 }
 function toDegrees(radians) {
-  return radians * (180 / PI);
+  return radians * (180 / PI$1);
 }
 function _decimalPlaces(x) {
   if (!isNumberFinite(x)) {
@@ -1642,7 +1866,7 @@ function getAngleFromPoint(centrePoint, anglePoint) {
   var distanceFromYCenter = anglePoint.y - centrePoint.y;
   var radialDistanceFromCenter = Math.sqrt(distanceFromXCenter * distanceFromXCenter + distanceFromYCenter * distanceFromYCenter);
   var angle = Math.atan2(distanceFromYCenter, distanceFromXCenter);
-  if (angle < -0.5 * PI) {
+  if (angle < -0.5 * PI$1) {
     angle += TAU;
   }
   return {
@@ -1654,7 +1878,7 @@ function distanceBetweenPoints(pt1, pt2) {
   return Math.sqrt(Math.pow(pt2.x - pt1.x, 2) + Math.pow(pt2.y - pt1.y, 2));
 }
 function _angleDiff(a, b) {
-  return (a - b + PITAU) % TAU - PI;
+  return (a - b + PITAU) % TAU - PI$1;
 }
 function _normalizeAngle(a) {
   return (a % TAU + TAU) % TAU;
@@ -2949,219 +3173,6 @@ function _computeSegments(line) {
   var completeLoop = !!line._fullLoop && start === 0 && end === count - 1;
   return solidSegments(points, start, max, completeLoop);
 }
-
-var PI$1 = Math.PI;
-var RAD_PER_DEG = PI$1 / 180;
-var DOUBLE_PI = PI$1 * 2;
-var HALF_PI = PI$1 / 2;
-var QUARTER_PI = PI$1 / 4;
-var TWO_THIRDS_PI = PI$1 * 2 / 3;
-function _measureText(ctx, data, gc, longest, string) {
-  var textWidth = data[string];
-  if (!textWidth) {
-    textWidth = data[string] = ctx.measureText(string).width;
-    gc.push(string);
-  }
-  if (textWidth > longest) {
-    longest = textWidth;
-  }
-  return longest;
-}
-function _longestText(ctx, font, arrayOfThings, cache) {
-  cache = cache || {};
-  var data = cache.data = cache.data || {};
-  var gc = cache.garbageCollect = cache.garbageCollect || [];
-  if (cache.font !== font) {
-    data = cache.data = {};
-    gc = cache.garbageCollect = [];
-    cache.font = font;
-  }
-  ctx.save();
-  ctx.font = font;
-  var longest = 0;
-  var ilen = arrayOfThings.length;
-  var i, j, jlen, thing, nestedThing;
-  for (i = 0; i < ilen; i++) {
-    thing = arrayOfThings[i];
-    if (thing !== undefined && thing !== null && isArray(thing) !== true) {
-      longest = _measureText(ctx, data, gc, longest, thing);
-    } else if (isArray(thing)) {
-      for (j = 0, jlen = thing.length; j < jlen; j++) {
-        nestedThing = thing[j];
-        if (nestedThing !== undefined && nestedThing !== null && !isArray(nestedThing)) {
-          longest = _measureText(ctx, data, gc, longest, nestedThing);
-        }
-      }
-    }
-  }
-  ctx.restore();
-  var gcLen = gc.length / 2;
-  if (gcLen > arrayOfThings.length) {
-    for (i = 0; i < gcLen; i++) {
-      delete data[gc[i]];
-    }
-    gc.splice(0, gcLen);
-  }
-  return longest;
-}
-function _alignPixel(chart, pixel, width) {
-  var devicePixelRatio = chart.currentDevicePixelRatio;
-  var halfWidth = width / 2;
-  return Math.round((pixel - halfWidth) * devicePixelRatio) / devicePixelRatio + halfWidth;
-}
-function clear(chart) {
-  chart.ctx.clearRect(0, 0, chart.width, chart.height);
-}
-function drawPoint(ctx, options, x, y) {
-  var type, xOffset, yOffset, size, cornerRadius;
-  var style = options.pointStyle;
-  var rotation = options.rotation;
-  var radius = options.radius;
-  var rad = (rotation || 0) * RAD_PER_DEG;
-  if (style && typeof style === 'object') {
-    type = style.toString();
-    if (type === '[object HTMLImageElement]' || type === '[object HTMLCanvasElement]') {
-      ctx.save();
-      ctx.translate(x, y);
-      ctx.rotate(rad);
-      ctx.drawImage(style, -style.width / 2, -style.height / 2, style.width, style.height);
-      ctx.restore();
-      return;
-    }
-  }
-  if (isNaN(radius) || radius <= 0) {
-    return;
-  }
-  ctx.beginPath();
-  switch (style) {
-    default:
-      ctx.arc(x, y, radius, 0, DOUBLE_PI);
-      ctx.closePath();
-      break;
-    case 'triangle':
-      ctx.moveTo(x + Math.sin(rad) * radius, y - Math.cos(rad) * radius);
-      rad += TWO_THIRDS_PI;
-      ctx.lineTo(x + Math.sin(rad) * radius, y - Math.cos(rad) * radius);
-      rad += TWO_THIRDS_PI;
-      ctx.lineTo(x + Math.sin(rad) * radius, y - Math.cos(rad) * radius);
-      ctx.closePath();
-      break;
-    case 'rectRounded':
-      cornerRadius = radius * 0.516;
-      size = radius - cornerRadius;
-      xOffset = Math.cos(rad + QUARTER_PI) * size;
-      yOffset = Math.sin(rad + QUARTER_PI) * size;
-      ctx.arc(x - xOffset, y - yOffset, cornerRadius, rad - PI$1, rad - HALF_PI);
-      ctx.arc(x + yOffset, y - xOffset, cornerRadius, rad - HALF_PI, rad);
-      ctx.arc(x + xOffset, y + yOffset, cornerRadius, rad, rad + HALF_PI);
-      ctx.arc(x - yOffset, y + xOffset, cornerRadius, rad + HALF_PI, rad + PI$1);
-      ctx.closePath();
-      break;
-    case 'rect':
-      if (!rotation) {
-        size = Math.SQRT1_2 * radius;
-        ctx.rect(x - size, y - size, 2 * size, 2 * size);
-        break;
-      }
-      rad += QUARTER_PI;
-    case 'rectRot':
-      xOffset = Math.cos(rad) * radius;
-      yOffset = Math.sin(rad) * radius;
-      ctx.moveTo(x - xOffset, y - yOffset);
-      ctx.lineTo(x + yOffset, y - xOffset);
-      ctx.lineTo(x + xOffset, y + yOffset);
-      ctx.lineTo(x - yOffset, y + xOffset);
-      ctx.closePath();
-      break;
-    case 'crossRot':
-      rad += QUARTER_PI;
-    case 'cross':
-      xOffset = Math.cos(rad) * radius;
-      yOffset = Math.sin(rad) * radius;
-      ctx.moveTo(x - xOffset, y - yOffset);
-      ctx.lineTo(x + xOffset, y + yOffset);
-      ctx.moveTo(x + yOffset, y - xOffset);
-      ctx.lineTo(x - yOffset, y + xOffset);
-      break;
-    case 'star':
-      xOffset = Math.cos(rad) * radius;
-      yOffset = Math.sin(rad) * radius;
-      ctx.moveTo(x - xOffset, y - yOffset);
-      ctx.lineTo(x + xOffset, y + yOffset);
-      ctx.moveTo(x + yOffset, y - xOffset);
-      ctx.lineTo(x - yOffset, y + xOffset);
-      rad += QUARTER_PI;
-      xOffset = Math.cos(rad) * radius;
-      yOffset = Math.sin(rad) * radius;
-      ctx.moveTo(x - xOffset, y - yOffset);
-      ctx.lineTo(x + xOffset, y + yOffset);
-      ctx.moveTo(x + yOffset, y - xOffset);
-      ctx.lineTo(x - yOffset, y + xOffset);
-      break;
-    case 'line':
-      xOffset = Math.cos(rad) * radius;
-      yOffset = Math.sin(rad) * radius;
-      ctx.moveTo(x - xOffset, y - yOffset);
-      ctx.lineTo(x + xOffset, y + yOffset);
-      break;
-    case 'dash':
-      ctx.moveTo(x, y);
-      ctx.lineTo(x + Math.cos(rad) * radius, y + Math.sin(rad) * radius);
-      break;
-  }
-  ctx.fill();
-  if (options.borderWidth > 0) {
-    ctx.stroke();
-  }
-}
-function _isPointInArea(point, area) {
-  var epsilon = 0.5;
-  return point.x > area.left - epsilon && point.x < area.right + epsilon && point.y > area.top - epsilon && point.y < area.bottom + epsilon;
-}
-function clipArea(ctx, area) {
-  ctx.save();
-  ctx.beginPath();
-  ctx.rect(area.left, area.top, area.right - area.left, area.bottom - area.top);
-  ctx.clip();
-}
-function unclipArea(ctx) {
-  ctx.restore();
-}
-function _steppedLineTo(ctx, previous, target, flip, mode) {
-  if (!previous) {
-    return ctx.lineTo(target.x, target.y);
-  }
-  if (mode === 'middle') {
-    var midpoint = (previous.x + target.x) / 2.0;
-    ctx.lineTo(midpoint, previous.y);
-    ctx.lineTo(midpoint, target.y);
-  } else if (mode === 'after' !== !!flip) {
-    ctx.lineTo(previous.x, target.y);
-  } else {
-    ctx.lineTo(target.x, previous.y);
-  }
-  ctx.lineTo(target.x, target.y);
-}
-function _bezierCurveTo(ctx, previous, target, flip) {
-  if (!previous) {
-    return ctx.lineTo(target.x, target.y);
-  }
-  ctx.bezierCurveTo(flip ? previous.controlPointPreviousX : previous.controlPointNextX, flip ? previous.controlPointPreviousY : previous.controlPointNextY, flip ? target.controlPointNextX : target.controlPointPreviousX, flip ? target.controlPointNextY : target.controlPointPreviousY, target.x, target.y);
-}
-
-var canvas = /*#__PURE__*/Object.freeze({
-__proto__: null,
-_measureText: _measureText,
-_longestText: _longestText,
-_alignPixel: _alignPixel,
-clear: clear,
-drawPoint: drawPoint,
-_isPointInArea: _isPointInArea,
-clipArea: clipArea,
-unclipArea: unclipArea,
-_steppedLineTo: _steppedLineTo,
-_bezierCurveTo: _bezierCurveTo
-});
 
 var EPSILON = Number.EPSILON || 1e-14;
 function splineCurve(firstPoint, middlePoint, afterPoint, t) {
@@ -7101,7 +7112,7 @@ function getScaleLabelHeight(options) {
   if (!options.display) {
     return 0;
   }
-  var font = _parseFont(options);
+  var font = toFont(options.font);
   var padding = toPadding(options.padding);
   return font.lineHeight + padding.height;
 }
@@ -8006,8 +8017,7 @@ class Scale extends Element {
     if (!scaleLabel.display) {
       return;
     }
-    var scaleLabelFontColor = valueOrDefault(scaleLabel.fontColor, defaults.fontColor);
-    var scaleLabelFont = _parseFont(scaleLabel);
+    var scaleLabelFont = toFont(scaleLabel.font);
     var scaleLabelPadding = toPadding(scaleLabel.padding);
     var halfLineHeight = scaleLabelFont.lineHeight / 2;
     var scaleLabelAlign = scaleLabel.align;
@@ -8054,7 +8064,7 @@ class Scale extends Element {
     ctx.rotate(rotation);
     ctx.textAlign = textAlign;
     ctx.textBaseline = 'middle';
-    ctx.fillStyle = scaleLabelFontColor;
+    ctx.fillStyle = scaleLabelFont.color;
     ctx.font = scaleLabelFont.string;
     ctx.fillText(scaleLabel.labelString, 0, 0);
     ctx.restore();
@@ -8111,22 +8121,14 @@ class Scale extends Element {
   _resolveTickFontOptions(index) {
     var me = this;
     var options = me.options.ticks;
+    var ticks = me.ticks || [];
     var context = {
       chart: me.chart,
       scale: me,
-      tick: me.ticks[index],
+      tick: ticks[index],
       index
     };
-    return _extends(_parseFont({
-      fontFamily: resolve([options.fontFamily], context),
-      fontSize: resolve([options.fontSize], context),
-      fontStyle: resolve([options.fontStyle], context),
-      lineHeight: resolve([options.lineHeight], context)
-    }), {
-      color: resolve([options.fontColor, defaults.fontColor], context),
-      lineWidth: resolve([options.lineWidth], context),
-      strokeStyle: resolve([options.strokeStyle], context)
-    });
+    return toFont(resolve([options.font], context));
   }
 }
 Scale.prototype._draw = Scale.prototype.draw;
@@ -8459,7 +8461,7 @@ class LinearScale extends LinearScaleBase {
     if (me.isHorizontal()) {
       return Math.ceil(me.width / 40);
     }
-    var tickFont = _parseFont(me.options.ticks);
+    var tickFont = me._resolveTickFontOptions(0);
     return Math.ceil(me.height / tickFont.lineHeight);
   }
   handleDirectionalChanges(ticks) {
@@ -8639,7 +8641,9 @@ var defaultConfig$3 = {
   },
   pointLabels: {
     display: true,
-    fontSize: 10,
+    font: {
+      size: 10
+    },
     callback(label) {
       return label;
     }
@@ -8648,7 +8652,7 @@ var defaultConfig$3 = {
 function getTickBackdropHeight(opts) {
   var tickOpts = opts.ticks;
   if (tickOpts.display && opts.display) {
-    return valueOrDefault(tickOpts.fontSize, defaults.fontSize) + tickOpts.backdropPaddingY * 2;
+    return valueOrDefault(tickOpts.font && tickOpts.font.size, defaults.font.size) + tickOpts.backdropPaddingY * 2;
   }
   return 0;
 }
@@ -8682,7 +8686,7 @@ function determineLimits(angle, pos, size, min, max) {
   };
 }
 function fitWithPointLabels(scale) {
-  var plFont = _parseFont(scale.options.pointLabels);
+  var plFont = toFont(scale.options.pointLabels.font);
   var furthestLimits = {
     l: 0,
     r: scale.width,
@@ -8754,15 +8758,14 @@ function drawPointLabels(scale) {
   var pointLabelOpts = opts.pointLabels;
   var tickBackdropHeight = getTickBackdropHeight(opts);
   var outerDistance = scale.getDistanceFromCenterForValue(opts.ticks.reverse ? scale.min : scale.max);
-  var plFont = _parseFont(pointLabelOpts);
+  var plFont = toFont(pointLabelOpts.font);
   ctx.save();
-  ctx.font = plFont.string;
   ctx.textBaseline = 'middle';
   for (var i = scale.chart.data.labels.length - 1; i >= 0; i--) {
     var extra = i === 0 ? tickBackdropHeight / 2 : 0;
     var pointLabelPosition = scale.getPointPosition(i, outerDistance + extra + 5);
-    var pointLabelFontColor = valueAtIndexOrDefault(pointLabelOpts.fontColor, i, defaults.fontColor);
-    ctx.fillStyle = pointLabelFontColor;
+    ctx.font = plFont.string;
+    ctx.fillStyle = plFont.color;
     var angleRadians = scale.getIndexAngle(i);
     var angle = toDegrees(angleRadians);
     ctx.textAlign = getTextAlignForAngle(angle);
@@ -8959,8 +8962,7 @@ class RadialLinearScale extends LinearScaleBase {
       return;
     }
     var startAngle = me.getIndexAngle(0);
-    var tickFont = _parseFont(tickOpts);
-    var tickFontColor = valueOrDefault(tickOpts.fontColor, defaults.fontColor);
+    var tickFont = toFont(tickOpts.font);
     var offset, width;
     ctx.save();
     ctx.font = tickFont.string;
@@ -8978,7 +8980,7 @@ class RadialLinearScale extends LinearScaleBase {
         ctx.fillStyle = tickOpts.backdropColor;
         ctx.fillRect(-width / 2 - tickOpts.backdropPaddingX, -offset - tickFont.size / 2 - tickOpts.backdropPaddingY, width + tickOpts.backdropPaddingX * 2, tickFont.size + tickOpts.backdropPaddingY * 2);
       }
-      ctx.fillStyle = tickFontColor;
+      ctx.fillStyle = tickFont.color;
       ctx.fillText(tick.label, 0, -offset);
     });
     ctx.restore();
@@ -9478,7 +9480,7 @@ class TimeScale extends Scale {
     var angle = toRadians(me.isHorizontal() ? ticksOpts.maxRotation : ticksOpts.minRotation);
     var cosRotation = Math.cos(angle);
     var sinRotation = Math.sin(angle);
-    var tickFontSize = valueOrDefault(ticksOpts.fontSize, defaults.fontSize);
+    var tickFontSize = me._resolveTickFontOptions(0).size;
     return {
       w: tickLabelWidth * cosRotation + tickFontSize * sinRotation,
       h: tickLabelWidth * sinRotation + tickFontSize * cosRotation
@@ -10135,7 +10137,7 @@ class Legend extends Element {
     var labelOpts = opts.labels;
     var display = opts.display;
     var ctx = me.ctx;
-    var labelFont = _parseFont(labelOpts);
+    var labelFont = toFont(labelOpts.font);
     var fontSize = labelFont.size;
     var hitboxes = me.legendHitBoxes = [];
     var minSize = me._minSize;
@@ -10229,8 +10231,8 @@ class Legend extends Element {
     me.drawTitle();
     var rtlHelper = getRtlAdapter(opts.rtl, me.left, me._minSize.width);
     var ctx = me.ctx;
-    var fontColor = valueOrDefault(labelOpts.fontColor, defaults.fontColor);
-    var labelFont = _parseFont(labelOpts);
+    var labelFont = toFont(labelOpts.font);
+    var fontColor = labelFont.color;
     var fontSize = labelFont.size;
     var cursor;
     ctx.textAlign = rtlHelper.textAlign('left');
@@ -10348,14 +10350,13 @@ class Legend extends Element {
     var me = this;
     var opts = me.options;
     var titleOpts = opts.title;
-    var titleFont = _parseFont(titleOpts);
+    var titleFont = toFont(titleOpts.font);
     var titlePadding = toPadding(titleOpts.padding);
     if (!titleOpts.display) {
       return;
     }
     var rtlHelper = getRtlAdapter(opts.rtl, me.left, me._minSize.width);
     var ctx = me.ctx;
-    var fontColor = valueOrDefault(titleOpts.fontColor, defaults.fontColor);
     var position = titleOpts.position;
     var x, textAlign;
     var halfFontSize = titleFont.size / 2;
@@ -10403,14 +10404,14 @@ class Legend extends Element {
     }
     ctx.textAlign = rtlHelper.textAlign(textAlign);
     ctx.textBaseline = 'middle';
-    ctx.strokeStyle = fontColor;
-    ctx.fillStyle = fontColor;
+    ctx.strokeStyle = titleFont.color;
+    ctx.fillStyle = titleFont.color;
     ctx.font = titleFont.string;
     ctx.fillText(titleOpts.text, x, y);
   }
   _computeTitleHeight() {
     var titleOpts = this.options.title;
-    var titleFont = _parseFont(titleOpts);
+    var titleFont = toFont(titleOpts.font);
     var titlePadding = toPadding(titleOpts.padding);
     return titleOpts.display ? titleFont.lineHeight + titlePadding.height : 0;
   }
@@ -10508,7 +10509,9 @@ var plugin_legend = {
 defaults.set('title', {
   align: 'center',
   display: false,
-  fontStyle: 'bold',
+  font: {
+    style: 'bold'
+  },
   fullWidth: true,
   padding: 10,
   position: 'top',
@@ -10585,7 +10588,7 @@ class Title extends Element {
     }
     var lineCount = isArray(opts.text) ? opts.text.length : 1;
     me._padding = toPadding(opts.padding);
-    var textSize = lineCount * _parseFont(opts).lineHeight + me._padding.height;
+    var textSize = lineCount * toFont(opts.font).lineHeight + me._padding.height;
     me.width = minSize.width = isHorizontal ? me.maxWidth : textSize;
     me.height = minSize.height = isHorizontal ? textSize : me.maxHeight;
   }
@@ -10601,7 +10604,7 @@ class Title extends Element {
     if (!opts.display) {
       return;
     }
-    var fontOpts = _parseFont(opts);
+    var fontOpts = toFont(opts);
     var lineHeight = fontOpts.lineHeight;
     var offset = lineHeight / 2 + me._padding.top;
     var rotation = 0;
@@ -10648,7 +10651,7 @@ class Title extends Element {
       rotation = Math.PI * (opts.position === 'left' ? -0.5 : 0.5);
     }
     ctx.save();
-    ctx.fillStyle = valueOrDefault(opts.fontColor, defaults.fontColor);
+    ctx.fillStyle = fontOpts.color;
     ctx.font = fontOpts.string;
     ctx.translate(titleX, titleY);
     ctx.rotate(rotation);
@@ -10711,18 +10714,24 @@ defaults.set('tooltips', {
   position: 'average',
   intersect: true,
   backgroundColor: 'rgba(0,0,0,0.8)',
-  titleFontStyle: 'bold',
+  titleFont: {
+    style: 'bold',
+    color: '#fff'
+  },
   titleSpacing: 2,
   titleMarginBottom: 6,
-  titleFontColor: '#fff',
   titleAlign: 'left',
   bodySpacing: 2,
-  bodyFontColor: '#fff',
+  bodyFont: {
+    color: '#fff'
+  },
   bodyAlign: 'left',
-  footerFontStyle: 'bold',
   footerSpacing: 2,
   footerMarginTop: 6,
-  footerFontColor: '#fff',
+  footerFont: {
+    color: '#fff',
+    style: 'bold'
+  },
   footerAlign: 'left',
   yPadding: 6,
   xPadding: 6,
@@ -10784,7 +10793,7 @@ defaults.set('tooltips', {
       };
     },
     labelTextColor() {
-      return this.options.bodyFontColor;
+      return this.options.bodyFont.color;
     },
     afterLabel: noop,
     afterBody: noop,
@@ -10877,17 +10886,11 @@ function createTooltipItem(chart, item) {
 }
 function resolveOptions(options) {
   options = _extends({}, defaults.tooltips, options);
-  options.bodyFontFamily = valueOrDefault(options.bodyFontFamily, defaults.fontFamily);
-  options.bodyFontStyle = valueOrDefault(options.bodyFontStyle, defaults.fontStyle);
-  options.bodyFontSize = valueOrDefault(options.bodyFontSize, defaults.fontSize);
-  options.boxHeight = valueOrDefault(options.boxHeight, options.bodyFontSize);
-  options.boxWidth = valueOrDefault(options.boxWidth, options.bodyFontSize);
-  options.titleFontFamily = valueOrDefault(options.titleFontFamily, defaults.fontFamily);
-  options.titleFontStyle = valueOrDefault(options.titleFontStyle, defaults.fontStyle);
-  options.titleFontSize = valueOrDefault(options.titleFontSize, defaults.fontSize);
-  options.footerFontFamily = valueOrDefault(options.footerFontFamily, defaults.fontFamily);
-  options.footerFontStyle = valueOrDefault(options.footerFontStyle, defaults.fontStyle);
-  options.footerFontSize = valueOrDefault(options.footerFontSize, defaults.fontSize);
+  options.bodyFont = toFont(options.bodyFont);
+  options.titleFont = toFont(options.titleFont);
+  options.footerFont = toFont(options.footerFont);
+  options.boxHeight = valueOrDefault(options.boxHeight, options.bodyFont.size);
+  options.boxWidth = valueOrDefault(options.boxWidth, options.bodyFont.size);
   return options;
 }
 function getTooltipSize(tooltip) {
@@ -10899,9 +10902,9 @@ function getTooltipSize(tooltip) {
     title
   } = tooltip;
   var {
-    bodyFontSize,
-    footerFontSize,
-    titleFontSize,
+    bodyFont,
+    footerFont,
+    titleFont,
     boxWidth,
     boxHeight
   } = options;
@@ -10913,23 +10916,23 @@ function getTooltipSize(tooltip) {
   var combinedBodyLength = body.reduce((count, bodyItem) => count + bodyItem.before.length + bodyItem.lines.length + bodyItem.after.length, 0);
   combinedBodyLength += tooltip.beforeBody.length + tooltip.afterBody.length;
   if (titleLineCount) {
-    height += titleLineCount * titleFontSize + (titleLineCount - 1) * options.titleSpacing + options.titleMarginBottom;
+    height += titleLineCount * titleFont.size + (titleLineCount - 1) * options.titleSpacing + options.titleMarginBottom;
   }
   if (combinedBodyLength) {
-    var bodyLineHeight = options.displayColors ? Math.max(boxHeight, bodyFontSize) : bodyFontSize;
-    height += bodyLineItemCount * bodyLineHeight + (combinedBodyLength - bodyLineItemCount) * bodyFontSize + (combinedBodyLength - 1) * options.bodySpacing;
+    var bodyLineHeight = options.displayColors ? Math.max(boxHeight, bodyFont.size) : bodyFont.size;
+    height += bodyLineItemCount * bodyLineHeight + (combinedBodyLength - bodyLineItemCount) * bodyFont.size + (combinedBodyLength - 1) * options.bodySpacing;
   }
   if (footerLineCount) {
-    height += options.footerMarginTop + footerLineCount * footerFontSize + (footerLineCount - 1) * options.footerSpacing;
+    height += options.footerMarginTop + footerLineCount * footerFont.size + (footerLineCount - 1) * options.footerSpacing;
   }
   var widthPadding = 0;
   var maxLineWidth = function maxLineWidth(line) {
     width = Math.max(width, ctx.measureText(line).width + widthPadding);
   };
   ctx.save();
-  ctx.font = fontString(titleFontSize, options.titleFontStyle, options.titleFontFamily);
+  ctx.font = titleFont.string;
   each(tooltip.title, maxLineWidth);
-  ctx.font = fontString(bodyFontSize, options.bodyFontStyle, options.bodyFontFamily);
+  ctx.font = bodyFont.string;
   each(tooltip.beforeBody.concat(tooltip.afterBody), maxLineWidth);
   widthPadding = options.displayColors ? boxWidth + 2 : 0;
   each(body, bodyItem => {
@@ -10938,7 +10941,7 @@ function getTooltipSize(tooltip) {
     each(bodyItem.after, maxLineWidth);
   });
   widthPadding = 0;
-  ctx.font = fontString(footerFontSize, options.footerFontStyle, options.footerFontFamily);
+  ctx.font = footerFont.string;
   each(tooltip.footer, maxLineWidth);
   ctx.restore();
   width += 2 * options.xPadding;
@@ -11295,19 +11298,19 @@ class Tooltip extends Element {
     var options = me.options;
     var title = me.title;
     var length = title.length;
-    var titleFontSize, titleSpacing, i;
+    var titleFont, titleSpacing, i;
     if (length) {
       var rtlHelper = getRtlAdapter(options.rtl, me.x, me.width);
       pt.x = getAlignedX(me, options.titleAlign);
       ctx.textAlign = rtlHelper.textAlign(options.titleAlign);
       ctx.textBaseline = 'middle';
-      titleFontSize = options.titleFontSize;
+      titleFont = options.titleFont;
       titleSpacing = options.titleSpacing;
-      ctx.fillStyle = options.titleFontColor;
-      ctx.font = fontString(titleFontSize, options.titleFontStyle, options.titleFontFamily);
+      ctx.fillStyle = options.titleFont.color;
+      ctx.font = titleFont.string;
       for (i = 0; i < length; ++i) {
-        ctx.fillText(title[i], rtlHelper.x(pt.x), pt.y + titleFontSize / 2);
-        pt.y += titleFontSize + titleSpacing;
+        ctx.fillText(title[i], rtlHelper.x(pt.x), pt.y + titleFont.size / 2);
+        pt.y += titleFont.size + titleSpacing;
         if (i + 1 === length) {
           pt.y += options.titleMarginBottom - titleSpacing;
         }
@@ -11321,11 +11324,11 @@ class Tooltip extends Element {
     var {
       boxHeight,
       boxWidth,
-      bodyFontSize
+      bodyFont
     } = options;
     var colorX = getAlignedX(me, 'left');
     var rtlColorX = rtlHelper.x(colorX);
-    var yOffSet = boxHeight < bodyFontSize ? (bodyFontSize - boxHeight) / 2 : 0;
+    var yOffSet = boxHeight < bodyFont.size ? (bodyFont.size - boxHeight) / 2 : 0;
     var colorY = pt.y + yOffSet;
     ctx.fillStyle = options.multiKeyBackground;
     ctx.fillRect(rtlHelper.leftForLtr(rtlColorX, boxWidth), colorY, boxWidth, boxHeight);
@@ -11343,14 +11346,14 @@ class Tooltip extends Element {
       options
     } = me;
     var {
-      bodyFontSize,
+      bodyFont,
       bodySpacing,
       bodyAlign,
       displayColors,
       boxHeight,
       boxWidth
     } = options;
-    var bodyLineHeight = bodyFontSize;
+    var bodyLineHeight = bodyFont.size;
     var xLinePadding = 0;
     var rtlHelper = getRtlAdapter(options.rtl, me.x, me.width);
     var fillLineOfText = function fillLineOfText(line) {
@@ -11361,9 +11364,9 @@ class Tooltip extends Element {
     var bodyItem, textColor, lines, i, j, ilen, jlen;
     ctx.textAlign = bodyAlign;
     ctx.textBaseline = 'middle';
-    ctx.font = fontString(bodyFontSize, options.bodyFontStyle, options.bodyFontFamily);
+    ctx.font = bodyFont.string;
     pt.x = getAlignedX(me, bodyAlignForCalculation);
-    ctx.fillStyle = options.bodyFontColor;
+    ctx.fillStyle = bodyFont.color;
     each(me.beforeBody, fillLineOfText);
     xLinePadding = displayColors && bodyAlignForCalculation !== 'right' ? bodyAlign === 'center' ? boxWidth / 2 + 1 : boxWidth + 2 : 0;
     for (i = 0, ilen = body.length; i < ilen; ++i) {
@@ -11374,16 +11377,16 @@ class Tooltip extends Element {
       lines = bodyItem.lines;
       if (displayColors && lines.length) {
         me._drawColorBox(ctx, pt, i, rtlHelper);
-        bodyLineHeight = Math.max(bodyFontSize, boxHeight);
+        bodyLineHeight = Math.max(bodyFont.size, boxHeight);
       }
       for (j = 0, jlen = lines.length; j < jlen; ++j) {
         fillLineOfText(lines[j]);
-        bodyLineHeight = bodyFontSize;
+        bodyLineHeight = bodyFont.size;
       }
       each(bodyItem.after, fillLineOfText);
     }
     xLinePadding = 0;
-    bodyLineHeight = bodyFontSize;
+    bodyLineHeight = bodyFont.size;
     each(me.afterBody, fillLineOfText);
     pt.y -= bodySpacing;
   }
@@ -11392,19 +11395,19 @@ class Tooltip extends Element {
     var options = me.options;
     var footer = me.footer;
     var length = footer.length;
-    var footerFontSize, i;
+    var footerFont, i;
     if (length) {
       var rtlHelper = getRtlAdapter(options.rtl, me.x, me.width);
       pt.x = getAlignedX(me, options.footerAlign);
       pt.y += options.footerMarginTop;
       ctx.textAlign = rtlHelper.textAlign(options.footerAlign);
       ctx.textBaseline = 'middle';
-      footerFontSize = options.footerFontSize;
-      ctx.fillStyle = options.footerFontColor;
-      ctx.font = fontString(footerFontSize, options.footerFontStyle, options.footerFontFamily);
+      footerFont = options.footerFont;
+      ctx.fillStyle = options.footerFont.color;
+      ctx.font = footerFont.string;
       for (i = 0; i < length; ++i) {
-        ctx.fillText(footer[i], rtlHelper.x(pt.x), pt.y + footerFontSize / 2);
-        pt.y += footerFontSize + options.footerSpacing;
+        ctx.fillText(footer[i], rtlHelper.x(pt.x), pt.y + footerFont.size / 2);
+        pt.y += footerFont.size + options.footerSpacing;
       }
     }
   }

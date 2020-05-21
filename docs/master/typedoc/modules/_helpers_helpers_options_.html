@@ -69,8 +69,8 @@
 						<section class="tsd-index-section ">
 							<h3>Functions</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-function tsd-parent-kind-module tsd-is-private"><a href="_helpers_helpers_options_.html#_parsefont" class="tsd-kind-icon">_parse<wbr>Font</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_helpers_helpers_options_.html#resolve" class="tsd-kind-icon">resolve</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module tsd-is-private"><a href="_helpers_helpers_options_.html#tofont" class="tsd-kind-icon">to<wbr>Font</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_helpers_helpers_options_.html#tolineheight" class="tsd-kind-icon">to<wbr>Line<wbr>Height</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_helpers_helpers_options_.html#topadding" class="tsd-kind-icon">to<wbr>Padding</a></li>
 							</ul>
@@ -80,43 +80,6 @@
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Functions</h2>
-				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module tsd-is-private">
-					<a name="_parsefont" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _parse<wbr>Font</h3>
-					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module tsd-is-private">
-						<li class="tsd-signature tsd-kind-icon">_parse<wbr>Font<span class="tsd-signature-symbol">(</span>options<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/37633c2/src/helpers/helpers.options.js#L90">helpers/helpers.options.js:90</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Parses font options and returns the font object.</p>
-								</div>
-								<dl class="tsd-comment-tags">
-									<dt>todo</dt>
-									<dd><p>Support font.* options and renamed to toFont().</p>
-									</dd>
-								</dl>
-							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>options: <span class="tsd-signature-type">any</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>A object that contains font options to be parsed.</p>
-									</div>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
-							<p>The font object.</p>
-						</li>
-					</ul>
-				</section>
 				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
 					<a name="resolve" class="tsd-anchor"></a>
 					<h3>resolve</h3>
@@ -127,7 +90,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/37633c2/src/helpers/helpers.options.js#L121">helpers/helpers.options.js:121</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/5a83a80/src/helpers/helpers.options.js#L109">helpers/helpers.options.js:109</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -164,6 +127,38 @@
 						</li>
 					</ul>
 				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module tsd-is-private">
+					<a name="tofont" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> to<wbr>Font</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module tsd-is-private">
+						<li class="tsd-signature tsd-kind-icon">to<wbr>Font<span class="tsd-signature-symbol">(</span>options<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/5a83a80/src/helpers/helpers.options.js#L73">helpers/helpers.options.js:73</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Parses font options and returns the font object.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>options: <span class="tsd-signature-type">any</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>A object that contains font options to be parsed.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
+							<p>The font object.</p>
+						</li>
+					</ul>
+				</section>
 				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
 					<a name="tolineheight" class="tsd-anchor"></a>
 					<h3>to<wbr>Line<wbr>Height</h3>
@@ -174,7 +169,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/37633c2/src/helpers/helpers.options.js#L33">helpers/helpers.options.js:33</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/5a83a80/src/helpers/helpers.options.js#L17">helpers/helpers.options.js:17</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -220,7 +215,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/37633c2/src/helpers/helpers.options.js#L61">helpers/helpers.options.js:61</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/5a83a80/src/helpers/helpers.options.js#L45">helpers/helpers.options.js:45</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -263,11 +258,11 @@
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
-					<li class=" tsd-kind-function tsd-parent-kind-module tsd-is-private">
-						<a href="_helpers_helpers_options_.html#_parsefont" class="tsd-kind-icon">_parse<wbr>Font</a>
-					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-module">
 						<a href="_helpers_helpers_options_.html#resolve" class="tsd-kind-icon">resolve</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module tsd-is-private">
+						<a href="_helpers_helpers_options_.html#tofont" class="tsd-kind-icon">to<wbr>Font</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-module">
 						<a href="_helpers_helpers_options_.html#tolineheight" class="tsd-kind-icon">to<wbr>Line<wbr>Height</a>
