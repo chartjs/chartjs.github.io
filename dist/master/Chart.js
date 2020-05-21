@@ -7177,11 +7177,12 @@ var DomPlatform = function (_BasePlatform) {
   return DomPlatform;
 }(BasePlatform);
 
-var platforms = {
-  BasicPlatform: BasicPlatform,
-  DomPlatform: DomPlatform,
-  BasePlatform: BasePlatform
-};
+var platforms = /*#__PURE__*/Object.freeze({
+__proto__: null,
+BasePlatform: BasePlatform,
+BasicPlatform: BasicPlatform,
+DomPlatform: DomPlatform
+});
 
 defaults.set('plugins', {});
 var PluginService = function () {

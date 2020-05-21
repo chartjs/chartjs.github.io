@@ -6032,11 +6032,12 @@ class DomPlatform extends BasePlatform {
   }
 }
 
-var platforms = {
-  BasicPlatform,
-  DomPlatform,
-  BasePlatform
-};
+var platforms = /*#__PURE__*/Object.freeze({
+__proto__: null,
+BasePlatform: BasePlatform,
+BasicPlatform: BasicPlatform,
+DomPlatform: DomPlatform
+});
 
 defaults.set('plugins', {});
 class PluginService {
