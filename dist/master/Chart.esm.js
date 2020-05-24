@@ -4306,9 +4306,9 @@ defaults.set('doughnut', {
         return [];
       }
     },
-    onClick(e, legendItem) {
-      this.chart.toggleDataVisibility(legendItem.index);
-      this.chart.update();
+    onClick(e, legendItem, legend) {
+      legend.chart.toggleDataVisibility(legendItem.index);
+      legend.chart.update();
     }
   },
   cutoutPercentage: 50,
@@ -4762,9 +4762,9 @@ defaults.set('polarArea', {
         return [];
       }
     },
-    onClick(e, legendItem) {
-      this.chart.toggleDataVisibility(legendItem.index);
-      this.chart.update();
+    onClick(e, legendItem, legend) {
+      legend.chart.toggleDataVisibility(legendItem.index);
+      legend.chart.update();
     }
   },
   tooltips: {
@@ -6839,10 +6839,10 @@ class Chart {
       me.active = me.getElementsAtEventForMode(e, hoverOptions.mode, hoverOptions, useFinalPosition);
       me._lastEvent = e.type === 'click' ? me._lastEvent : e;
     }
-    callback(options.onHover || options.hover.onHover, [e.native, me.active], me);
+    callback(options.onHover || options.hover.onHover, [e.native, me.active, me], me);
     if (e.type === 'mouseup' || e.type === 'click') {
-      if (options.onClick && _isPointInArea(e, me.chartArea)) {
-        options.onClick.call(me, e.native, me.active);
+      if (_isPointInArea(e, me.chartArea)) {
+        callback(options.onClick, [e, me.active, me], me);
       }
     }
     changed = !_elementsEqual(me.active, me.lastActive);
@@ -9995,9 +9995,9 @@ defaults.set('legend', {
   fullWidth: true,
   reverse: false,
   weight: 1000,
-  onClick(e, legendItem) {
+  onClick(e, legendItem, legend) {
     var index = legendItem.datasetIndex;
-    var ci = this.chart;
+    var ci = legend.chart;
     if (ci.isDatasetVisible(index)) {
       ci.hide(index);
       legendItem.hidden = true;
@@ -10446,18 +10446,18 @@ class Legend extends Element {
     }
     var hoveredItem = me._getLegendItemAt(e.x, e.y);
     if (type === 'click') {
-      if (hoveredItem && opts.onClick) {
-        opts.onClick.call(me, e.native, hoveredItem);
+      if (hoveredItem) {
+        callback(opts.onClick, [e, hoveredItem, me], me);
       }
     } else {
       if (opts.onLeave && hoveredItem !== me._hoveredItem) {
         if (me._hoveredItem) {
-          opts.onLeave.call(me, e.native, me._hoveredItem);
+          callback(opts.onLeave, [e, me._hoveredItem, me], me);
         }
         me._hoveredItem = hoveredItem;
       }
-      if (opts.onHover && hoveredItem) {
-        opts.onHover.call(me, e.native, hoveredItem);
+      if (hoveredItem) {
+        callback(opts.onHover, [e, hoveredItem, me], me);
       }
     }
   }
