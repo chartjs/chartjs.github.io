@@ -4285,6 +4285,7 @@ defaults.set('doughnut', {
     animateRotate: true,
     animateScale: false
   },
+  aspectRatio: 1,
   legend: {
     labels: {
       generateLabels(chart) {
@@ -4725,6 +4726,7 @@ defaults.set('polarArea', {
     animateRotate: true,
     animateScale: true
   },
+  aspectRatio: 1,
   scales: {
     r: {
       type: 'radialLinear',
@@ -4892,6 +4894,7 @@ defaults.set('pie', {
 });
 
 defaults.set('radar', {
+  aspectRatio: 1,
   spanGaps: false,
   scales: {
     r: {
@@ -5876,7 +5879,12 @@ function createResizeObserver(chart, type, listener) {
   }, window);
   var observer = new ResizeObserver(entries => {
     var entry = entries[0];
-    resize(entry.contentRect.width, entry.contentRect.height);
+    var width = entry.contentRect.width;
+    var height = entry.contentRect.height;
+    if (width === 0 && height === 0) {
+      return;
+    }
+    resize(width, height);
   });
   observer.observe(container);
   return observer;
