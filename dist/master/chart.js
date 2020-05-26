@@ -787,23 +787,6 @@ function _mergerIf(key, target, source) {
     target[key] = clone(sval);
   }
 }
-function inherits(extensions) {
-  var me = this;
-  var ChartElement = extensions && Object.prototype.hasOwnProperty.call(extensions, 'constructor') ? extensions.constructor : function () {
-    return me.apply(this, arguments);
-  };
-  var Surrogate = function Surrogate() {
-    this.constructor = ChartElement;
-  };
-  Surrogate.prototype = me.prototype;
-  ChartElement.prototype = new Surrogate();
-  ChartElement.extend = inherits;
-  if (extensions) {
-    _extends(ChartElement.prototype, extensions);
-  }
-  ChartElement.__super__ = me.prototype;
-  return ChartElement;
-}
 function _deprecated(scope, value, previous, current) {
   if (value !== undefined) {
     console.warn(scope + ': "' + previous + '" is deprecated. Please use "' + current + '" instead');
@@ -829,7 +812,6 @@ _merger: _merger,
 merge: merge,
 mergeIf: mergeIf,
 _mergerIf: _mergerIf,
-inherits: inherits,
 _deprecated: _deprecated
 });
 
@@ -3132,7 +3114,6 @@ var DatasetController = function () {
   }]);
   return DatasetController;
 }();
-_defineProperty(DatasetController, "extend", inherits);
 DatasetController.prototype.datasetElementType = null;
 DatasetController.prototype.dataElementType = null;
 DatasetController.prototype.datasetElementOptions = ['backgroundColor', 'borderCapStyle', 'borderColor', 'borderDash', 'borderDashOffset', 'borderJoinStyle', 'borderWidth'];
@@ -3180,7 +3161,6 @@ var Element$1 = function () {
   }]);
   return Element;
 }();
-_defineProperty(Element$1, "extend", inherits);
 
 var TAU$1 = Math.PI * 2;
 defaults.set('elements', {
@@ -3358,7 +3338,7 @@ var Arc = function (_Element) {
   }]);
   return Arc;
 }(Element$1);
-_defineProperty(Arc, "_type", 'arc');
+Arc._type = 'arc';
 
 function _pointInLine(p1, p2, t, mode) {
   return {
@@ -3994,7 +3974,7 @@ var Line = function (_Element) {
   }]);
   return Line;
 }(Element$1);
-_defineProperty(Line, "_type", 'line');
+Line._type = 'line';
 
 var defaultColor$1 = defaults.color;
 defaults.set('elements', {
@@ -4092,7 +4072,7 @@ var Point = function (_Element) {
   }]);
   return Point;
 }(Element$1);
-_defineProperty(Point, "_type", 'point');
+Point._type = 'point';
 
 var defaultColor$2 = defaults.color;
 defaults.set('elements', {
@@ -4271,7 +4251,7 @@ var Rectangle = function (_Element) {
   }]);
   return Rectangle;
 }(Element$1);
-_defineProperty(Rectangle, "_type", 'rectangle');
+Rectangle._type = 'rectangle';
 
 var elements = /*#__PURE__*/Object.freeze({
 __proto__: null,
@@ -8126,8 +8106,8 @@ var Chart = function () {
   }]);
   return Chart;
 }();
-_defineProperty(Chart, "version", version);
-_defineProperty(Chart, "instances", {});
+Chart.version = version;
+Chart.instances = {};
 
 var getRightToLeftAdapter = function getRightToLeftAdapter(rectX, width) {
   return {
@@ -9639,8 +9619,8 @@ var CategoryScale = function (_Scale) {
   }]);
   return CategoryScale;
 }(Scale);
-_defineProperty(CategoryScale, "id", 'category');
-_defineProperty(CategoryScale, "defaults", defaultConfig);
+CategoryScale.id = 'category';
+CategoryScale.defaults = defaultConfig;
 
 function niceNum(range, round) {
   var exponent = Math.floor(log10(range));
@@ -9940,8 +9920,8 @@ var LinearScale = function (_LinearScaleBase) {
   }]);
   return LinearScale;
 }(LinearScaleBase);
-_defineProperty(LinearScale, "id", 'linear');
-_defineProperty(LinearScale, "defaults", defaultConfig$1);
+LinearScale.id = 'linear';
+LinearScale.defaults = defaultConfig$1;
 
 function isMajor(tickVal) {
   var remain = tickVal / Math.pow(10, Math.floor(log10(tickVal)));
@@ -10103,8 +10083,8 @@ var LogarithmicScale = function (_Scale) {
   }]);
   return LogarithmicScale;
 }(Scale);
-_defineProperty(LogarithmicScale, "id", 'logarithmic');
-_defineProperty(LogarithmicScale, "defaults", defaultConfig$2);
+LogarithmicScale.id = 'logarithmic';
+LogarithmicScale.defaults = defaultConfig$2;
 
 var defaultConfig$3 = {
   display: true,
@@ -10514,8 +10494,8 @@ var RadialLinearScale = function (_LinearScaleBase) {
   }]);
   return RadialLinearScale;
 }(LinearScaleBase);
-_defineProperty(RadialLinearScale, "id", 'radialLinear');
-_defineProperty(RadialLinearScale, "defaults", defaultConfig$3);
+RadialLinearScale.id = 'radialLinear';
+RadialLinearScale.defaults = defaultConfig$3;
 
 var MAX_INTEGER = Number.MAX_SAFE_INTEGER || 9007199254740991;
 var INTERVALS = {
@@ -11052,8 +11032,8 @@ var TimeScale = function (_Scale) {
   }]);
   return TimeScale;
 }(Scale);
-_defineProperty(TimeScale, "id", 'time');
-_defineProperty(TimeScale, "defaults", defaultConfig$4);
+TimeScale.id = 'time';
+TimeScale.defaults = defaultConfig$4;
 
 var scales = /*#__PURE__*/Object.freeze({
 __proto__: null,
