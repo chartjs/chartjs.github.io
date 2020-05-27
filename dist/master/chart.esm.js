@@ -11049,7 +11049,9 @@ var plugin_tooltip = {
 		if (pluginsCore.notify(chart, 'beforeTooltipDraw', [args]) === false) {
 			return;
 		}
-		tooltip.draw(chart.ctx);
+		if (tooltip) {
+			tooltip.draw(chart.ctx);
+		}
 		pluginsCore.notify(chart, 'afterTooltipDraw', [args]);
 	},
 	afterEvent(chart, e, replay) {
