@@ -10944,7 +10944,7 @@ var TimeScale = function (_Scale) {
       me._unit = timeOpts.unit || (tickOpts.autoSkip ? determineUnitForAutoTicks(timeOpts.minUnit, me.min, me.max, me._getLabelCapacity(min)) : determineUnitForFormatting(me, ticks.length, timeOpts.minUnit, me.min, me.max));
       me._majorUnit = !tickOpts.major.enabled || me._unit === 'year' ? undefined : determineMajorUnit(me._unit);
       me._table = buildLookupTable(getTimestampsForTable(me), min, max, distribution);
-      me._offsets = computeOffsets(me._table, getDataTimestamps(me), min, max, options);
+      me._offsets = computeOffsets(me._table, timestamps, min, max, options);
       if (options.reverse) {
         ticks.reverse();
       }
