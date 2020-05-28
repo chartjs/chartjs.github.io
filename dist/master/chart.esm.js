@@ -164,7 +164,7 @@ class Animator {
 		return this._charts.delete(chart);
 	}
 }
-var Animator$1 = new Animator();
+var animator = new Animator();
 
 const effects = {
 	linear(t) {
@@ -1684,7 +1684,7 @@ class Animations {
 		}
 		const animations = this._createAnimations(target, values);
 		if (animations.length) {
-			Animator$1.add(this._chart, animations);
+			animator.add(this._chart, animations);
 			return true;
 		}
 	}
@@ -6029,8 +6029,8 @@ class Chart {
 			console.error("Failed to create chart: can't acquire context from the given item");
 			return;
 		}
-		Animator$1.listen(me, 'complete', onAnimationsComplete);
-		Animator$1.listen(me, 'progress', onAnimationProgress);
+		animator.listen(me, 'complete', onAnimationsComplete);
+		animator.listen(me, 'progress', onAnimationProgress);
 		me._initialize();
 		if (me.attached) {
 			me.update();
@@ -6061,7 +6061,7 @@ class Chart {
 		return this;
 	}
 	stop() {
-		Animator$1.stop(this);
+		animator.stop(this);
 		return this;
 	}
 	resize(silent, width, height) {
@@ -6306,9 +6306,9 @@ class Chart {
 			pluginsCore.notify(me, 'afterRender');
 			callback(animationOptions && animationOptions.onComplete, [], me);
 		};
-		if (Animator$1.has(me)) {
-			if (me.attached && !Animator$1.running(me)) {
-				Animator$1.start(me);
+		if (animator.has(me)) {
+			if (me.attached && !animator.running(me)) {
+				animator.start(me);
 			}
 		} else {
 			me.draw();
@@ -6471,7 +6471,7 @@ class Chart {
 		const canvas = me.canvas;
 		let i, ilen;
 		me.stop();
-		Animator$1.remove(me);
+		animator.remove(me);
 		for (i = 0, ilen = me.data.datasets.length; i < ilen; ++i) {
 			me._destroyDatasetMeta(i);
 		}
@@ -11083,7 +11083,7 @@ tooltip: plugin_tooltip
 Chart.helpers = helpers;
 Chart._adapters = _adapters;
 Chart.Animation = Animation;
-Chart.Animator = Animator$1;
+Chart.animator = animator;
 Chart.animationService = Animations;
 Chart.controllers = controllers;
 Chart.DatasetController = DatasetController;

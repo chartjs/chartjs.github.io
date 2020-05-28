@@ -447,7 +447,7 @@ var Animator = function () {
   }]);
   return Animator;
 }();
-var Animator$1 = new Animator();
+var animator = new Animator();
 
 var effects = {
   linear: function linear(t) {
@@ -2055,7 +2055,7 @@ var Animations = function () {
       }
       var animations = this._createAnimations(target, values);
       if (animations.length) {
-        Animator$1.add(this._chart, animations);
+        animator.add(this._chart, animations);
         return true;
       }
     }
@@ -7421,8 +7421,8 @@ var Chart = function () {
       console.error("Failed to create chart: can't acquire context from the given item");
       return;
     }
-    Animator$1.listen(me, 'complete', onAnimationsComplete);
-    Animator$1.listen(me, 'progress', onAnimationProgress);
+    animator.listen(me, 'complete', onAnimationsComplete);
+    animator.listen(me, 'progress', onAnimationProgress);
     me._initialize();
     if (me.attached) {
       me.update();
@@ -7461,7 +7461,7 @@ var Chart = function () {
   }, {
     key: "stop",
     value: function stop() {
-      Animator$1.stop(this);
+      animator.stop(this);
       return this;
     }
   }, {
@@ -7737,9 +7737,9 @@ var Chart = function () {
         pluginsCore.notify(me, 'afterRender');
         callback(animationOptions && animationOptions.onComplete, [], me);
       };
-      if (Animator$1.has(me)) {
-        if (me.attached && !Animator$1.running(me)) {
-          Animator$1.start(me);
+      if (animator.has(me)) {
+        if (me.attached && !animator.running(me)) {
+          animator.start(me);
         }
       } else {
         me.draw();
@@ -7958,7 +7958,7 @@ var Chart = function () {
       var canvas = me.canvas;
       var i, ilen;
       me.stop();
-      Animator$1.remove(me);
+      animator.remove(me);
       for (i = 0, ilen = me.data.datasets.length; i < ilen; ++i) {
         me._destroyDatasetMeta(i);
       }
@@ -13233,7 +13233,7 @@ tooltip: plugin_tooltip
 Chart.helpers = helpers;
 Chart._adapters = _adapters;
 Chart.Animation = Animation;
-Chart.Animator = Animator$1;
+Chart.animator = animator;
 Chart.animationService = Animations;
 Chart.controllers = controllers;
 Chart.DatasetController = DatasetController;
