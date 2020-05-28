@@ -7354,6 +7354,17 @@ function getCanvas(item) {
   }
   return item;
 }
+function computeNewSize(canvas, width, height, aspectRatio) {
+  if (width === undefined || height === undefined) {
+    width = getMaximumWidth(canvas);
+    height = getMaximumHeight(canvas);
+  }
+  width = Math.max(0, Math.floor(width));
+  return {
+    width: width,
+    height: Math.max(0, Math.floor(aspectRatio ? width / aspectRatio : height))
+  };
+}
 var Chart = function () {
   function Chart(item, config) {
     _classCallCheck(this, Chart);
@@ -7455,29 +7466,20 @@ var Chart = function () {
       var options = me.options;
       var canvas = me.canvas;
       var aspectRatio = options.maintainAspectRatio && me.aspectRatio;
-      if (width === undefined || height === undefined) {
-        width = getMaximumWidth(canvas);
-        height = getMaximumHeight(canvas);
-      }
-      var newWidth = Math.max(0, Math.floor(width));
-      var newHeight = Math.max(0, Math.floor(aspectRatio ? newWidth / aspectRatio : height));
+      var newSize = computeNewSize(canvas, width, height, aspectRatio);
       var oldRatio = me.currentDevicePixelRatio;
       var newRatio = options.devicePixelRatio || me.platform.getDevicePixelRatio();
-      if (me.width === newWidth && me.height === newHeight && oldRatio === newRatio) {
+      if (me.width === newSize.width && me.height === newSize.height && oldRatio === newRatio) {
         return;
       }
-      canvas.width = me.width = newWidth;
-      canvas.height = me.height = newHeight;
+      canvas.width = me.width = newSize.width;
+      canvas.height = me.height = newSize.height;
       if (canvas.style) {
-        canvas.style.width = newWidth + 'px';
-        canvas.style.height = newHeight + 'px';
+        canvas.style.width = newSize.width + 'px';
+        canvas.style.height = newSize.height + 'px';
       }
       retinaScale(me, newRatio);
       if (!silent) {
-        var newSize = {
-          width: newWidth,
-          height: newHeight
-        };
         pluginsCore.notify(me, 'resize', [newSize]);
         if (options.onResize) {
           options.onResize(me, newSize);
