@@ -4707,6 +4707,7 @@ defaults.set('radar', {
 	},
 	elements: {
 		line: {
+			fill: 'start',
 			tension: 0
 		}
 	}
