@@ -10401,6 +10401,16 @@ var RadialLinearScale = function (_LinearScaleBase) {
       return (value - me.min) * scalingFactor;
     }
   }, {
+    key: "getValueForDistanceFromCenter",
+    value: function getValueForDistanceFromCenter(distance) {
+      if (isNullOrUndef(distance)) {
+        return NaN;
+      }
+      var me = this;
+      var scaledDistance = distance / (me.drawingArea / (me.max - me.min));
+      return me.options.reverse ? me.max - scaledDistance : me.min + scaledDistance;
+    }
+  }, {
     key: "getPointPosition",
     value: function getPointPosition(index, distanceFromCenter) {
       var me = this;

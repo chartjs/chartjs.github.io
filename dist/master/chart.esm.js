@@ -8614,6 +8614,14 @@ class RadialLinearScale extends LinearScaleBase {
 		}
 		return (value - me.min) * scalingFactor;
 	}
+	getValueForDistanceFromCenter(distance) {
+		if (isNullOrUndef(distance)) {
+			return NaN;
+		}
+		const me = this;
+		const scaledDistance = distance / (me.drawingArea / (me.max - me.min));
+		return me.options.reverse ? me.max - scaledDistance : me.min + scaledDistance;
+	}
 	getPointPosition(index, distanceFromCenter) {
 		const me = this;
 		const angle = me.getIndexAngle(index) - (Math.PI / 2);
