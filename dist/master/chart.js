@@ -11581,7 +11581,12 @@ defaults.set('legend', {
   }
 });
 function getBoxWidth(labelOpts, fontSize) {
-  return labelOpts.usePointStyle && labelOpts.boxWidth > fontSize ? fontSize : labelOpts.boxWidth;
+  var boxWidth = labelOpts.boxWidth;
+  return labelOpts.usePointStyle && boxWidth > fontSize || isNullOrUndef(boxWidth) ? fontSize : boxWidth;
+}
+function getBoxHeight(labelOpts, fontSize) {
+  var boxHeight = labelOpts.boxHeight;
+  return labelOpts.usePointStyle && boxHeight > fontSize || isNullOrUndef(boxHeight) ? fontSize : boxHeight;
 }
 var Legend = function (_Element) {
   _inherits(Legend, _Element);
@@ -11708,6 +11713,9 @@ var Legend = function (_Element) {
       var ctx = me.ctx;
       var labelFont = toFont(labelOpts.font);
       var fontSize = labelFont.size;
+      var boxWidth = getBoxWidth(labelOpts, fontSize);
+      var boxHeight = getBoxHeight(labelOpts, fontSize);
+      var itemHeight = Math.max(boxHeight, fontSize);
       var hitboxes = me.legendHitBoxes = [];
       var minSize = me._minSize;
       var isHorizontal = me.isHorizontal();
@@ -11730,17 +11738,16 @@ var Legend = function (_Element) {
         ctx.textAlign = 'left';
         ctx.textBaseline = 'middle';
         me.legendItems.forEach(function (legendItem, i) {
-          var boxWidth = getBoxWidth(labelOpts, fontSize);
           var width = boxWidth + fontSize / 2 + ctx.measureText(legendItem.text).width;
           if (i === 0 || lineWidths[lineWidths.length - 1] + width + 2 * labelOpts.padding > minSize.width) {
-            totalHeight += fontSize + labelOpts.padding;
+            totalHeight += itemHeight + labelOpts.padding;
             lineWidths[lineWidths.length - (i > 0 ? 0 : 1)] = 0;
           }
           hitboxes[i] = {
             left: 0,
             top: 0,
             width: width,
-            height: fontSize
+            height: itemHeight
           };
           lineWidths[lineWidths.length - 1] += width + labelOpts.padding;
         });
@@ -11754,7 +11761,6 @@ var Legend = function (_Element) {
         var currentColHeight = 0;
         var heightLimit = minSize.height - titleHeight;
         me.legendItems.forEach(function (legendItem, i) {
-          var boxWidth = getBoxWidth(labelOpts, fontSize);
           var itemWidth = boxWidth + fontSize / 2 + ctx.measureText(legendItem.text).width;
           if (i > 0 && currentColHeight + fontSize + 2 * vPadding > heightLimit) {
             totalWidth += currentColWidth + labelOpts.padding;
@@ -11769,7 +11775,7 @@ var Legend = function (_Element) {
             left: 0,
             top: 0,
             width: itemWidth,
-            height: fontSize
+            height: itemHeight
           };
         });
         totalWidth += currentColWidth;
@@ -11817,9 +11823,11 @@ var Legend = function (_Element) {
       ctx.fillStyle = fontColor;
       ctx.font = labelFont.string;
       var boxWidth = getBoxWidth(labelOpts, fontSize);
+      var boxHeight = getBoxHeight(labelOpts, fontSize);
+      var height = Math.max(fontSize, boxHeight);
       var hitboxes = me.legendHitBoxes;
       var drawLegendBox = function drawLegendBox(x, y, legendItem) {
-        if (isNaN(boxWidth) || boxWidth <= 0) {
+        if (isNaN(boxWidth) || boxWidth <= 0 || isNaN(boxHeight) || boxHeight < 0) {
           return;
         }
         ctx.save();
@@ -11844,9 +11852,10 @@ var Legend = function (_Element) {
           var centerY = y + fontSize / 2;
           drawPoint(ctx, drawOptions, centerX, centerY);
         } else {
-          ctx.fillRect(rtlHelper.leftForLtr(x, boxWidth), y, boxWidth, fontSize);
+          var yBoxTop = y + Math.max((fontSize - boxHeight) / 2, 0);
+          ctx.fillRect(rtlHelper.leftForLtr(x, boxWidth), yBoxTop, boxWidth, boxHeight);
           if (lineWidth !== 0) {
-            ctx.strokeRect(rtlHelper.leftForLtr(x, boxWidth), y, boxWidth, fontSize);
+            ctx.strokeRect(rtlHelper.leftForLtr(x, boxWidth), yBoxTop, boxWidth, boxHeight);
           }
         }
         ctx.restore();
@@ -11854,7 +11863,7 @@ var Legend = function (_Element) {
       var fillText = function fillText(x, y, legendItem, textWidth) {
         var halfFontSize = fontSize / 2;
         var xLeft = rtlHelper.xPlus(x, boxWidth + halfFontSize);
-        var yMiddle = y + halfFontSize;
+        var yMiddle = y + height / 2;
         ctx.fillText(legendItem.text, xLeft, yMiddle);
         if (legendItem.hidden) {
           ctx.beginPath();
@@ -11890,7 +11899,7 @@ var Legend = function (_Element) {
         };
       }
       overrideTextDirection(me.ctx, opts.textDirection);
-      var itemHeight = fontSize + labelOpts.padding;
+      var itemHeight = height + labelOpts.padding;
       me.legendItems.forEach(function (legendItem, i) {
         var textWidth = ctx.measureText(legendItem.text).width;
         var width = boxWidth + fontSize / 2 + textWidth;

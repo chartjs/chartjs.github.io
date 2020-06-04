@@ -9610,9 +9610,16 @@ defaults.set('legend', {
 	}
 });
 function getBoxWidth(labelOpts, fontSize) {
-	return labelOpts.usePointStyle && labelOpts.boxWidth > fontSize ?
+	const {boxWidth} = labelOpts;
+	return (labelOpts.usePointStyle && boxWidth > fontSize) || isNullOrUndef(boxWidth) ?
 		fontSize :
-		labelOpts.boxWidth;
+		boxWidth;
+}
+function getBoxHeight(labelOpts, fontSize) {
+	const {boxHeight} = labelOpts;
+	return (labelOpts.usePointStyle && boxHeight > fontSize) || isNullOrUndef(boxHeight) ?
+		fontSize :
+		boxHeight;
 }
 class Legend extends Element {
 	constructor(config) {
@@ -9710,6 +9717,9 @@ class Legend extends Element {
 		const ctx = me.ctx;
 		const labelFont = toFont(labelOpts.font);
 		const fontSize = labelFont.size;
+		const boxWidth = getBoxWidth(labelOpts, fontSize);
+		const boxHeight = getBoxHeight(labelOpts, fontSize);
+		const itemHeight = Math.max(boxHeight, fontSize);
 		const hitboxes = me.legendHitBoxes = [];
 		const minSize = me._minSize;
 		const isHorizontal = me.isHorizontal();
@@ -9732,17 +9742,16 @@ class Legend extends Element {
 			ctx.textAlign = 'left';
 			ctx.textBaseline = 'middle';
 			me.legendItems.forEach((legendItem, i) => {
-				const boxWidth = getBoxWidth(labelOpts, fontSize);
 				const width = boxWidth + (fontSize / 2) + ctx.measureText(legendItem.text).width;
 				if (i === 0 || lineWidths[lineWidths.length - 1] + width + 2 * labelOpts.padding > minSize.width) {
-					totalHeight += fontSize + labelOpts.padding;
+					totalHeight += itemHeight + labelOpts.padding;
 					lineWidths[lineWidths.length - (i > 0 ? 0 : 1)] = 0;
 				}
 				hitboxes[i] = {
 					left: 0,
 					top: 0,
 					width,
-					height: fontSize
+					height: itemHeight
 				};
 				lineWidths[lineWidths.length - 1] += width + labelOpts.padding;
 			});
@@ -9756,7 +9765,6 @@ class Legend extends Element {
 			let currentColHeight = 0;
 			const heightLimit = minSize.height - titleHeight;
 			me.legendItems.forEach((legendItem, i) => {
-				const boxWidth = getBoxWidth(labelOpts, fontSize);
 				const itemWidth = boxWidth + (fontSize / 2) + ctx.measureText(legendItem.text).width;
 				if (i > 0 && currentColHeight + fontSize + 2 * vPadding > heightLimit) {
 					totalWidth += currentColWidth + labelOpts.padding;
@@ -9771,7 +9779,7 @@ class Legend extends Element {
 					left: 0,
 					top: 0,
 					width: itemWidth,
-					height: fontSize
+					height: itemHeight,
 				};
 			});
 			totalWidth += currentColWidth;
@@ -9813,9 +9821,11 @@ class Legend extends Element {
 		ctx.fillStyle = fontColor;
 		ctx.font = labelFont.string;
 		const boxWidth = getBoxWidth(labelOpts, fontSize);
+		const boxHeight = getBoxHeight(labelOpts, fontSize);
+		const height = Math.max(fontSize, boxHeight);
 		const hitboxes = me.legendHitBoxes;
 		const drawLegendBox = function(x, y, legendItem) {
-			if (isNaN(boxWidth) || boxWidth <= 0) {
+			if (isNaN(boxWidth) || boxWidth <= 0 || isNaN(boxHeight) || boxHeight < 0) {
 				return;
 			}
 			ctx.save();
@@ -9840,9 +9850,10 @@ class Legend extends Element {
 				const centerY = y + fontSize / 2;
 				drawPoint(ctx, drawOptions, centerX, centerY);
 			} else {
-				ctx.fillRect(rtlHelper.leftForLtr(x, boxWidth), y, boxWidth, fontSize);
+				const yBoxTop = y + Math.max((fontSize - boxHeight) / 2, 0);
+				ctx.fillRect(rtlHelper.leftForLtr(x, boxWidth), yBoxTop, boxWidth, boxHeight);
 				if (lineWidth !== 0) {
-					ctx.strokeRect(rtlHelper.leftForLtr(x, boxWidth), y, boxWidth, fontSize);
+					ctx.strokeRect(rtlHelper.leftForLtr(x, boxWidth), yBoxTop, boxWidth, boxHeight);
 				}
 			}
 			ctx.restore();
@@ -9850,7 +9861,7 @@ class Legend extends Element {
 		const fillText = function(x, y, legendItem, textWidth) {
 			const halfFontSize = fontSize / 2;
 			const xLeft = rtlHelper.xPlus(x, boxWidth + halfFontSize);
-			const yMiddle = y + halfFontSize;
+			const yMiddle = y + (height / 2);
 			ctx.fillText(legendItem.text, xLeft, yMiddle);
 			if (legendItem.hidden) {
 				ctx.beginPath();
@@ -9886,7 +9897,7 @@ class Legend extends Element {
 			};
 		}
 		overrideTextDirection(me.ctx, opts.textDirection);
-		const itemHeight = fontSize + labelOpts.padding;
+		const itemHeight = height + labelOpts.padding;
 		me.legendItems.forEach((legendItem, i) => {
 			const textWidth = ctx.measureText(legendItem.text).width;
 			const width = boxWidth + (fontSize / 2) + textWidth;
