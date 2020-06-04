@@ -1166,7 +1166,7 @@ resolve: resolve
 });
 
 /*!
- * @kurkle/color v0.1.7
+ * @kurkle/color v0.1.8
  * https://github.com/kurkle/color#readme
  * (c) 2020 Jukka Kurkela
  * Released under the MIT License
@@ -1584,7 +1584,7 @@ var names = unpack({
 });
 names.transparent = [0, 0, 0, 0];
 function nameParse(str) {
-  var a = names[str];
+  var a = names[str.toLowerCase()];
   return a && {
     r: a[0],
     g: a[1],
@@ -1660,17 +1660,17 @@ var Color = function () {
   _createClass(Color, [{
     key: "rgbString",
     value: function rgbString() {
-      return _rgbString(this._rgb);
+      return this._valid ? _rgbString(this._rgb) : this._rgb;
     }
   }, {
     key: "hexString",
     value: function hexString() {
-      return _hexString(this._rgb);
+      return this._valid ? _hexString(this._rgb) : this._rgb;
     }
   }, {
     key: "hslString",
     value: function hslString() {
-      return _hslString(this._rgb);
+      return this._valid ? _hslString(this._rgb) : this._rgb;
     }
   }, {
     key: "mix",
