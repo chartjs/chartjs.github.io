@@ -10,253 +10,6 @@ typeof define === 'function' && define.amd ? define(factory) :
 (global = global || self, global.Chart = factory());
 }(this, (function () { 'use strict';
 
-function _typeof(obj) {
-  "@babel/helpers - typeof";
-
-  if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
-    _typeof = function (obj) {
-      return typeof obj;
-    };
-  } else {
-    _typeof = function (obj) {
-      return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
-    };
-  }
-
-  return _typeof(obj);
-}
-
-function _classCallCheck(instance, Constructor) {
-  if (!(instance instanceof Constructor)) {
-    throw new TypeError("Cannot call a class as a function");
-  }
-}
-
-function _defineProperties(target, props) {
-  for (var i = 0; i < props.length; i++) {
-    var descriptor = props[i];
-    descriptor.enumerable = descriptor.enumerable || false;
-    descriptor.configurable = true;
-    if ("value" in descriptor) descriptor.writable = true;
-    Object.defineProperty(target, descriptor.key, descriptor);
-  }
-}
-
-function _createClass(Constructor, protoProps, staticProps) {
-  if (protoProps) _defineProperties(Constructor.prototype, protoProps);
-  if (staticProps) _defineProperties(Constructor, staticProps);
-  return Constructor;
-}
-
-function _defineProperty(obj, key, value) {
-  if (key in obj) {
-    Object.defineProperty(obj, key, {
-      value: value,
-      enumerable: true,
-      configurable: true,
-      writable: true
-    });
-  } else {
-    obj[key] = value;
-  }
-
-  return obj;
-}
-
-function _extends() {
-  _extends = Object.assign || function (target) {
-    for (var i = 1; i < arguments.length; i++) {
-      var source = arguments[i];
-
-      for (var key in source) {
-        if (Object.prototype.hasOwnProperty.call(source, key)) {
-          target[key] = source[key];
-        }
-      }
-    }
-
-    return target;
-  };
-
-  return _extends.apply(this, arguments);
-}
-
-function ownKeys(object, enumerableOnly) {
-  var keys = Object.keys(object);
-
-  if (Object.getOwnPropertySymbols) {
-    var symbols = Object.getOwnPropertySymbols(object);
-    if (enumerableOnly) symbols = symbols.filter(function (sym) {
-      return Object.getOwnPropertyDescriptor(object, sym).enumerable;
-    });
-    keys.push.apply(keys, symbols);
-  }
-
-  return keys;
-}
-
-function _objectSpread2(target) {
-  for (var i = 1; i < arguments.length; i++) {
-    var source = arguments[i] != null ? arguments[i] : {};
-
-    if (i % 2) {
-      ownKeys(Object(source), true).forEach(function (key) {
-        _defineProperty(target, key, source[key]);
-      });
-    } else if (Object.getOwnPropertyDescriptors) {
-      Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
-    } else {
-      ownKeys(Object(source)).forEach(function (key) {
-        Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
-      });
-    }
-  }
-
-  return target;
-}
-
-function _inherits(subClass, superClass) {
-  if (typeof superClass !== "function" && superClass !== null) {
-    throw new TypeError("Super expression must either be null or a function");
-  }
-
-  subClass.prototype = Object.create(superClass && superClass.prototype, {
-    constructor: {
-      value: subClass,
-      writable: true,
-      configurable: true
-    }
-  });
-  if (superClass) _setPrototypeOf(subClass, superClass);
-}
-
-function _getPrototypeOf(o) {
-  _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) {
-    return o.__proto__ || Object.getPrototypeOf(o);
-  };
-  return _getPrototypeOf(o);
-}
-
-function _setPrototypeOf(o, p) {
-  _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
-    o.__proto__ = p;
-    return o;
-  };
-
-  return _setPrototypeOf(o, p);
-}
-
-function _isNativeReflectConstruct() {
-  if (typeof Reflect === "undefined" || !Reflect.construct) return false;
-  if (Reflect.construct.sham) return false;
-  if (typeof Proxy === "function") return true;
-
-  try {
-    Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
-    return true;
-  } catch (e) {
-    return false;
-  }
-}
-
-function _assertThisInitialized(self) {
-  if (self === void 0) {
-    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-  }
-
-  return self;
-}
-
-function _possibleConstructorReturn(self, call) {
-  if (call && (typeof call === "object" || typeof call === "function")) {
-    return call;
-  }
-
-  return _assertThisInitialized(self);
-}
-
-function _createSuper(Derived) {
-  var hasNativeReflectConstruct = _isNativeReflectConstruct();
-
-  return function _createSuperInternal() {
-    var Super = _getPrototypeOf(Derived),
-        result;
-
-    if (hasNativeReflectConstruct) {
-      var NewTarget = _getPrototypeOf(this).constructor;
-
-      result = Reflect.construct(Super, arguments, NewTarget);
-    } else {
-      result = Super.apply(this, arguments);
-    }
-
-    return _possibleConstructorReturn(this, result);
-  };
-}
-
-function _superPropBase(object, property) {
-  while (!Object.prototype.hasOwnProperty.call(object, property)) {
-    object = _getPrototypeOf(object);
-    if (object === null) break;
-  }
-
-  return object;
-}
-
-function _get(target, property, receiver) {
-  if (typeof Reflect !== "undefined" && Reflect.get) {
-    _get = Reflect.get;
-  } else {
-    _get = function _get(target, property, receiver) {
-      var base = _superPropBase(target, property);
-
-      if (!base) return;
-      var desc = Object.getOwnPropertyDescriptor(base, property);
-
-      if (desc.get) {
-        return desc.get.call(receiver);
-      }
-
-      return desc.value;
-    };
-  }
-
-  return _get(target, property, receiver || target);
-}
-
-function _toConsumableArray(arr) {
-  return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread();
-}
-
-function _arrayWithoutHoles(arr) {
-  if (Array.isArray(arr)) return _arrayLikeToArray(arr);
-}
-
-function _iterableToArray(iter) {
-  if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter);
-}
-
-function _unsupportedIterableToArray(o, minLen) {
-  if (!o) return;
-  if (typeof o === "string") return _arrayLikeToArray(o, minLen);
-  var n = Object.prototype.toString.call(o).slice(8, -1);
-  if (n === "Object" && o.constructor) n = o.constructor.name;
-  if (n === "Map" || n === "Set") return Array.from(o);
-  if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
-}
-
-function _arrayLikeToArray(arr, len) {
-  if (len == null || len > arr.length) len = arr.length;
-
-  for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
-
-  return arr2;
-}
-
-function _nonIterableSpread() {
-  throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
-}
-
 function fontString(pixelSize, fontStyle, fontFamily) {
   return fontStyle + ' ' + pixelSize + 'px ' + fontFamily;
 }
@@ -284,170 +37,204 @@ function drawFPS(chart, count, date, lastDate) {
 }
 var Animator = function () {
   function Animator() {
-    _classCallCheck(this, Animator);
     this._request = null;
     this._charts = new Map();
     this._running = false;
     this._lastDate = undefined;
   }
-  _createClass(Animator, [{
-    key: "_notify",
-    value: function _notify(chart, anims, date, type) {
-      var callbacks = anims.listeners[type] || [];
-      var numSteps = anims.duration;
-      callbacks.forEach(function (fn) {
-        return fn({
-          chart: chart,
-          numSteps: numSteps,
-          currentStep: date - anims.start
-        });
+  var _proto = Animator.prototype;
+  _proto._notify = function _notify(chart, anims, date, type) {
+    var callbacks = anims.listeners[type] || [];
+    var numSteps = anims.duration;
+    callbacks.forEach(function (fn) {
+      return fn({
+        chart: chart,
+        numSteps: numSteps,
+        currentStep: date - anims.start
       });
+    });
+  }
+  ;
+  _proto._refresh = function _refresh() {
+    var me = this;
+    if (me._request) {
+      return;
     }
-  }, {
-    key: "_refresh",
-    value: function _refresh() {
-      var me = this;
-      if (me._request) {
-        return;
+    me._running = true;
+    me._request = requestAnimFrame.call(window, function () {
+      me._update();
+      me._request = null;
+      if (me._running) {
+        me._refresh();
       }
-      me._running = true;
-      me._request = requestAnimFrame.call(window, function () {
-        me._update();
-        me._request = null;
-        if (me._running) {
-          me._refresh();
-        }
-      });
-    }
-  }, {
-    key: "_update",
-    value: function _update() {
-      var me = this;
-      var date = Date.now();
-      var remaining = 0;
-      me._charts.forEach(function (anims, chart) {
-        if (!anims.running || !anims.items.length) {
-          return;
-        }
-        var items = anims.items;
-        var i = items.length - 1;
-        var draw = false;
-        var item;
-        for (; i >= 0; --i) {
-          item = items[i];
-          if (item._active) {
-            item.tick(date);
-            draw = true;
-          } else {
-            items[i] = items[items.length - 1];
-            items.pop();
-          }
-        }
-        if (draw) {
-          chart.draw();
-        }
-        if (chart.options.animation.debug) {
-          drawFPS(chart, items.length, date, me._lastDate);
-        }
-        me._notify(chart, anims, date, 'progress');
-        if (!items.length) {
-          anims.running = false;
-          me._notify(chart, anims, date, 'complete');
-        }
-        remaining += items.length;
-      });
-      me._lastDate = date;
-      if (remaining === 0) {
-        me._running = false;
-      }
-    }
-  }, {
-    key: "_getAnims",
-    value: function _getAnims(chart) {
-      var charts = this._charts;
-      var anims = charts.get(chart);
-      if (!anims) {
-        anims = {
-          running: false,
-          items: [],
-          listeners: {
-            complete: [],
-            progress: []
-          }
-        };
-        charts.set(chart, anims);
-      }
-      return anims;
-    }
-  }, {
-    key: "listen",
-    value: function listen(chart, event, cb) {
-      this._getAnims(chart).listeners[event].push(cb);
-    }
-  }, {
-    key: "add",
-    value: function add(chart, items) {
-      var _this$_getAnims$items;
-      if (!items || !items.length) {
-        return;
-      }
-      (_this$_getAnims$items = this._getAnims(chart).items).push.apply(_this$_getAnims$items, _toConsumableArray(items));
-    }
-  }, {
-    key: "has",
-    value: function has(chart) {
-      return this._getAnims(chart).items.length > 0;
-    }
-  }, {
-    key: "start",
-    value: function start(chart) {
-      var anims = this._charts.get(chart);
-      if (!anims) {
-        return;
-      }
-      anims.running = true;
-      anims.start = Date.now();
-      anims.duration = anims.items.reduce(function (acc, cur) {
-        return Math.max(acc, cur._duration);
-      }, 0);
-      this._refresh();
-    }
-  }, {
-    key: "running",
-    value: function running(chart) {
-      if (!this._running) {
-        return false;
-      }
-      var anims = this._charts.get(chart);
-      if (!anims || !anims.running || !anims.items.length) {
-        return false;
-      }
-      return true;
-    }
-  }, {
-    key: "stop",
-    value: function stop(chart) {
-      var anims = this._charts.get(chart);
-      if (!anims || !anims.items.length) {
+    });
+  }
+  ;
+  _proto._update = function _update() {
+    var me = this;
+    var date = Date.now();
+    var remaining = 0;
+    me._charts.forEach(function (anims, chart) {
+      if (!anims.running || !anims.items.length) {
         return;
       }
       var items = anims.items;
       var i = items.length - 1;
+      var draw = false;
+      var item;
       for (; i >= 0; --i) {
-        items[i].cancel();
+        item = items[i];
+        if (item._active) {
+          item.tick(date);
+          draw = true;
+        } else {
+          items[i] = items[items.length - 1];
+          items.pop();
+        }
       }
-      anims.items = [];
-      this._notify(chart, anims, Date.now(), 'complete');
+      if (draw) {
+        chart.draw();
+      }
+      if (chart.options.animation.debug) {
+        drawFPS(chart, items.length, date, me._lastDate);
+      }
+      me._notify(chart, anims, date, 'progress');
+      if (!items.length) {
+        anims.running = false;
+        me._notify(chart, anims, date, 'complete');
+      }
+      remaining += items.length;
+    });
+    me._lastDate = date;
+    if (remaining === 0) {
+      me._running = false;
     }
-  }, {
-    key: "remove",
-    value: function remove(chart) {
-      return this._charts["delete"](chart);
+  }
+  ;
+  _proto._getAnims = function _getAnims(chart) {
+    var charts = this._charts;
+    var anims = charts.get(chart);
+    if (!anims) {
+      anims = {
+        running: false,
+        items: [],
+        listeners: {
+          complete: [],
+          progress: []
+        }
+      };
+      charts.set(chart, anims);
     }
-  }]);
+    return anims;
+  }
+  ;
+  _proto.listen = function listen(chart, event, cb) {
+    this._getAnims(chart).listeners[event].push(cb);
+  }
+  ;
+  _proto.add = function add(chart, items) {
+    var _this$_getAnims$items;
+    if (!items || !items.length) {
+      return;
+    }
+    (_this$_getAnims$items = this._getAnims(chart).items).push.apply(_this$_getAnims$items, items);
+  }
+  ;
+  _proto.has = function has(chart) {
+    return this._getAnims(chart).items.length > 0;
+  }
+  ;
+  _proto.start = function start(chart) {
+    var anims = this._charts.get(chart);
+    if (!anims) {
+      return;
+    }
+    anims.running = true;
+    anims.start = Date.now();
+    anims.duration = anims.items.reduce(function (acc, cur) {
+      return Math.max(acc, cur._duration);
+    }, 0);
+    this._refresh();
+  };
+  _proto.running = function running(chart) {
+    if (!this._running) {
+      return false;
+    }
+    var anims = this._charts.get(chart);
+    if (!anims || !anims.running || !anims.items.length) {
+      return false;
+    }
+    return true;
+  }
+  ;
+  _proto.stop = function stop(chart) {
+    var anims = this._charts.get(chart);
+    if (!anims || !anims.items.length) {
+      return;
+    }
+    var items = anims.items;
+    var i = items.length - 1;
+    for (; i >= 0; --i) {
+      items[i].cancel();
+    }
+    anims.items = [];
+    this._notify(chart, anims, Date.now(), 'complete');
+  }
+  ;
+  _proto.remove = function remove(chart) {
+    return this._charts["delete"](chart);
+  };
   return Animator;
 }();
 var animator = new Animator();
+
+function _defineProperties(target, props) {
+  for (var i = 0; i < props.length; i++) {
+    var descriptor = props[i];
+    descriptor.enumerable = descriptor.enumerable || false;
+    descriptor.configurable = true;
+    if ("value" in descriptor) descriptor.writable = true;
+    Object.defineProperty(target, descriptor.key, descriptor);
+  }
+}
+
+function _createClass(Constructor, protoProps, staticProps) {
+  if (protoProps) _defineProperties(Constructor.prototype, protoProps);
+  if (staticProps) _defineProperties(Constructor, staticProps);
+  return Constructor;
+}
+
+function _extends() {
+  _extends = Object.assign || function (target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i];
+
+      for (var key in source) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+          target[key] = source[key];
+        }
+      }
+    }
+
+    return target;
+  };
+
+  return _extends.apply(this, arguments);
+}
+
+function _inheritsLoose(subClass, superClass) {
+  subClass.prototype = Object.create(superClass.prototype);
+  subClass.prototype.constructor = subClass;
+  subClass.__proto__ = superClass;
+}
+
+function _assertThisInitialized(self) {
+  if (self === void 0) {
+    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+  }
+
+  return self;
+}
 
 var effects = {
   linear: function linear(t) {
@@ -817,7 +604,6 @@ _deprecated: _deprecated
 
 var Defaults = function () {
   function Defaults() {
-    _classCallCheck(this, Defaults);
     this.color = 'rgba(0,0,0,0.1)';
     this.elements = {};
     this.events = ['mousemove', 'mouseout', 'click', 'touchstart', 'touchmove'];
@@ -847,12 +633,10 @@ var Defaults = function () {
     this.tooltips = undefined;
     this.doughnut = undefined;
   }
-  _createClass(Defaults, [{
-    key: "set",
-    value: function set(scope, values) {
-      return merge(this[scope] || (this[scope] = {}), values);
-    }
-  }]);
+  var _proto = Defaults.prototype;
+  _proto.set = function set(scope, values) {
+    return merge(this[scope] || (this[scope] = {}), values);
+  };
   return Defaults;
 }();
 var defaults = new Defaults();
@@ -931,7 +715,7 @@ function drawPoint(ctx, options, x, y) {
   var rotation = options.rotation;
   var radius = options.radius;
   var rad = (rotation || 0) * RAD_PER_DEG;
-  if (style && _typeof(style) === 'object') {
+  if (style && typeof style === 'object') {
     type = style.toString();
     if (type === '[object HTMLImageElement]' || type === '[object HTMLCanvasElement]') {
       ctx.save();
@@ -1278,20 +1062,24 @@ function rgbParse(str) {
   };
 }
 function _rgbString(v) {
-  return v && (v.a < 255 ? "rgba(".concat(v.r, ", ").concat(v.g, ", ").concat(v.b, ", ").concat(b2n(v.a), ")") : "rgb(".concat(v.r, ", ").concat(v.g, ", ").concat(v.b, ")"));
+  return v && (v.a < 255 ? "rgba(" + v.r + ", " + v.g + ", " + v.b + ", " + b2n(v.a) + ")" : "rgb(" + v.r + ", " + v.g + ", " + v.b + ")");
 }
 var HUE_RE = /^(hsla?|hwb|hsv)\(\s*([-+.e\d]+)(?:deg)?[\s,]+([-+.e\d]+)%[\s,]+([-+.e\d]+)%(?:[\s,]+([-+.e\d]+)(%)?)?\s*\)$/;
 function hsl2rgbn(h, s, l) {
   var a = s * Math.min(l, 1 - l);
-  var f = function f(n) {
-    var k = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : (n + h / 30) % 12;
+  var f = function f(n, k) {
+    if (k === void 0) {
+      k = (n + h / 30) % 12;
+    }
     return l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
   };
   return [f(0), f(8), f(4)];
 }
 function hsv2rgbn(h, s, v) {
-  var f = function f(n) {
-    var k = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : (n + h / 60) % 6;
+  var f = function f(n, k) {
+    if (k === void 0) {
+      k = (n + h / 60) % 6;
+    }
     return v - v * s * Math.max(Math.min(k, 4 - k, 1), 0);
   };
   return [f(5), f(3), f(1)];
@@ -1385,7 +1173,7 @@ function _hslString(v) {
   var h = a[0];
   var s = n2p(a[1]);
   var l = n2p(a[2]);
-  return v.a < 255 ? "hsla(".concat(h, ", ").concat(s, "%, ").concat(l, "%, ").concat(b2n(v.a), ")") : "hsl(".concat(h, ", ").concat(s, "%, ").concat(l, "%)");
+  return v.a < 255 ? "hsla(" + h + ", " + s + "%, " + l + "%, " + b2n(v.a) + ")" : "hsl(" + h + ", " + s + "%, " + l + "%)";
 }
 var map$1 = {
   x: 'dark',
@@ -1643,11 +1431,10 @@ function functionParse(str) {
 }
 var Color = function () {
   function Color(input) {
-    _classCallCheck(this, Color);
     if (input instanceof Color) {
       return input;
     }
-    var type = _typeof(input);
+    var type = typeof input;
     var v;
     if (type === 'object') {
       v = fromObject(input);
@@ -1657,115 +1444,86 @@ var Color = function () {
     this._rgb = v;
     this._valid = !!v;
   }
+  var _proto = Color.prototype;
+  _proto.rgbString = function rgbString() {
+    return this._valid ? _rgbString(this._rgb) : this._rgb;
+  };
+  _proto.hexString = function hexString() {
+    return this._valid ? _hexString(this._rgb) : this._rgb;
+  };
+  _proto.hslString = function hslString() {
+    return this._valid ? _hslString(this._rgb) : this._rgb;
+  };
+  _proto.mix = function mix(color, weight) {
+    var me = this;
+    if (color) {
+      var c1 = me.rgb;
+      var c2 = color.rgb;
+      var w2;
+      var p = weight === w2 ? 0.5 : weight;
+      var w = 2 * p - 1;
+      var a = c1.a - c2.a;
+      var w1 = ((w * a === -1 ? w : (w + a) / (1 + w * a)) + 1) / 2.0;
+      w2 = 1 - w1;
+      c1.r = 0xFF & w1 * c1.r + w2 * c2.r + 0.5;
+      c1.g = 0xFF & w1 * c1.g + w2 * c2.g + 0.5;
+      c1.b = 0xFF & w1 * c1.b + w2 * c2.b + 0.5;
+      c1.a = p * c1.a + (1 - p) * c2.a;
+      me.rgb = c1;
+    }
+    return me;
+  };
+  _proto.clone = function clone() {
+    return new Color(this.rgb);
+  };
+  _proto.alpha = function alpha(a) {
+    this._rgb.a = n2b(a);
+    return this;
+  };
+  _proto.clearer = function clearer(ratio) {
+    var rgb = this._rgb;
+    rgb.a *= 1 - ratio;
+    return this;
+  };
+  _proto.greyscale = function greyscale() {
+    var rgb = this._rgb;
+    var val = round(rgb.r * 0.3 + rgb.g * 0.59 + rgb.b * 0.11);
+    rgb.r = rgb.g = rgb.b = val;
+    return this;
+  };
+  _proto.opaquer = function opaquer(ratio) {
+    var rgb = this._rgb;
+    rgb.a *= 1 + ratio;
+    return this;
+  };
+  _proto.negate = function negate() {
+    var v = this._rgb;
+    v.r = 255 - v.r;
+    v.g = 255 - v.g;
+    v.b = 255 - v.b;
+    return this;
+  };
+  _proto.lighten = function lighten(ratio) {
+    modHSL(this._rgb, 2, ratio);
+    return this;
+  };
+  _proto.darken = function darken(ratio) {
+    modHSL(this._rgb, 2, -ratio);
+    return this;
+  };
+  _proto.saturate = function saturate(ratio) {
+    modHSL(this._rgb, 1, ratio);
+    return this;
+  };
+  _proto.desaturate = function desaturate(ratio) {
+    modHSL(this._rgb, 1, -ratio);
+    return this;
+  };
+  _proto.rotate = function rotate(deg) {
+    _rotate(this._rgb, deg);
+    return this;
+  };
   _createClass(Color, [{
-    key: "rgbString",
-    value: function rgbString() {
-      return this._valid ? _rgbString(this._rgb) : this._rgb;
-    }
-  }, {
-    key: "hexString",
-    value: function hexString() {
-      return this._valid ? _hexString(this._rgb) : this._rgb;
-    }
-  }, {
-    key: "hslString",
-    value: function hslString() {
-      return this._valid ? _hslString(this._rgb) : this._rgb;
-    }
-  }, {
-    key: "mix",
-    value: function mix(color, weight) {
-      var me = this;
-      if (color) {
-        var c1 = me.rgb;
-        var c2 = color.rgb;
-        var w2;
-        var p = weight === w2 ? 0.5 : weight;
-        var w = 2 * p - 1;
-        var a = c1.a - c2.a;
-        var w1 = ((w * a === -1 ? w : (w + a) / (1 + w * a)) + 1) / 2.0;
-        w2 = 1 - w1;
-        c1.r = 0xFF & w1 * c1.r + w2 * c2.r + 0.5;
-        c1.g = 0xFF & w1 * c1.g + w2 * c2.g + 0.5;
-        c1.b = 0xFF & w1 * c1.b + w2 * c2.b + 0.5;
-        c1.a = p * c1.a + (1 - p) * c2.a;
-        me.rgb = c1;
-      }
-      return me;
-    }
-  }, {
-    key: "clone",
-    value: function clone() {
-      return new Color(this.rgb);
-    }
-  }, {
-    key: "alpha",
-    value: function alpha(a) {
-      this._rgb.a = n2b(a);
-      return this;
-    }
-  }, {
-    key: "clearer",
-    value: function clearer(ratio) {
-      var rgb = this._rgb;
-      rgb.a *= 1 - ratio;
-      return this;
-    }
-  }, {
-    key: "greyscale",
-    value: function greyscale() {
-      var rgb = this._rgb;
-      var val = round(rgb.r * 0.3 + rgb.g * 0.59 + rgb.b * 0.11);
-      rgb.r = rgb.g = rgb.b = val;
-      return this;
-    }
-  }, {
-    key: "opaquer",
-    value: function opaquer(ratio) {
-      var rgb = this._rgb;
-      rgb.a *= 1 + ratio;
-      return this;
-    }
-  }, {
-    key: "negate",
-    value: function negate() {
-      var v = this._rgb;
-      v.r = 255 - v.r;
-      v.g = 255 - v.g;
-      v.b = 255 - v.b;
-      return this;
-    }
-  }, {
-    key: "lighten",
-    value: function lighten(ratio) {
-      modHSL(this._rgb, 2, ratio);
-      return this;
-    }
-  }, {
-    key: "darken",
-    value: function darken(ratio) {
-      modHSL(this._rgb, 2, -ratio);
-      return this;
-    }
-  }, {
-    key: "saturate",
-    value: function saturate(ratio) {
-      modHSL(this._rgb, 1, ratio);
-      return this;
-    }
-  }, {
-    key: "desaturate",
-    value: function desaturate(ratio) {
-      modHSL(this._rgb, 1, -ratio);
-      return this;
-    }
-  }, {
-    key: "rotate",
-    value: function rotate(deg) {
-      _rotate(this._rgb, deg);
-      return this;
-    }
-  }, {
     key: "valid",
     get: function get() {
       return this._valid;
@@ -1815,12 +1573,11 @@ var interpolators = {
 };
 var Animation = function () {
   function Animation(cfg, target, prop, to) {
-    _classCallCheck(this, Animation);
     var currentValue = target[prop];
     to = resolve([cfg.to, to, currentValue, cfg.from]);
     var from = resolve([cfg.from, currentValue, to]);
     this._active = true;
-    this._fn = cfg.fn || interpolators[cfg.type || _typeof(from)];
+    this._fn = cfg.fn || interpolators[cfg.type || typeof from];
     this._easing = effects[cfg.easing || 'linear'];
     this._start = Math.floor(Date.now() + (cfg.delay || 0));
     this._duration = Math.floor(cfg.duration);
@@ -1830,60 +1587,52 @@ var Animation = function () {
     this._from = from;
     this._to = to;
   }
-  _createClass(Animation, [{
-    key: "active",
-    value: function active() {
-      return this._active;
-    }
-  }, {
-    key: "update",
-    value: function update(cfg, to, date) {
-      var me = this;
-      if (me._active) {
-        var currentValue = me._target[me._prop];
-        var elapsed = date - me._start;
-        var remain = me._duration - elapsed;
-        me._start = date;
-        me._duration = Math.floor(Math.max(remain, cfg.duration));
-        me._to = resolve([cfg.to, to, currentValue, cfg.from]);
-        me._from = resolve([cfg.from, currentValue, to]);
-      }
-    }
-  }, {
-    key: "cancel",
-    value: function cancel() {
-      var me = this;
-      if (me._active) {
-        me.tick(Date.now());
-        me._active = false;
-      }
-    }
-  }, {
-    key: "tick",
-    value: function tick(date) {
-      var me = this;
+  var _proto = Animation.prototype;
+  _proto.active = function active() {
+    return this._active;
+  };
+  _proto.update = function update(cfg, to, date) {
+    var me = this;
+    if (me._active) {
+      var currentValue = me._target[me._prop];
       var elapsed = date - me._start;
-      var duration = me._duration;
-      var prop = me._prop;
-      var from = me._from;
-      var loop = me._loop;
-      var to = me._to;
-      var factor;
-      me._active = from !== to && (loop || elapsed < duration);
-      if (!me._active) {
-        me._target[prop] = to;
-        return;
-      }
-      if (elapsed < 0) {
-        me._target[prop] = from;
-        return;
-      }
-      factor = elapsed / duration % 2;
-      factor = loop && factor > 1 ? 2 - factor : factor;
-      factor = me._easing(Math.min(1, Math.max(0, factor)));
-      me._target[prop] = me._fn(from, to, factor);
+      var remain = me._duration - elapsed;
+      me._start = date;
+      me._duration = Math.floor(Math.max(remain, cfg.duration));
+      me._to = resolve([cfg.to, to, currentValue, cfg.from]);
+      me._from = resolve([cfg.from, currentValue, to]);
     }
-  }]);
+  };
+  _proto.cancel = function cancel() {
+    var me = this;
+    if (me._active) {
+      me.tick(Date.now());
+      me._active = false;
+    }
+  };
+  _proto.tick = function tick(date) {
+    var me = this;
+    var elapsed = date - me._start;
+    var duration = me._duration;
+    var prop = me._prop;
+    var from = me._from;
+    var loop = me._loop;
+    var to = me._to;
+    var factor;
+    me._active = from !== to && (loop || elapsed < duration);
+    if (!me._active) {
+      me._target[prop] = to;
+      return;
+    }
+    if (elapsed < 0) {
+      me._target[prop] = from;
+      return;
+    }
+    factor = elapsed / duration % 2;
+    factor = loop && factor > 1 ? 2 - factor : factor;
+    factor = me._easing(Math.min(1, Math.max(0, factor)));
+    me._target[prop] = me._fn(from, to, factor);
+  };
   return Animation;
 }();
 
@@ -1958,108 +1707,102 @@ function extensibleConfig(animations) {
 }
 var Animations = function () {
   function Animations(chart, animations) {
-    _classCallCheck(this, Animations);
     this._chart = chart;
     this._properties = new Map();
     this.configure(animations);
   }
-  _createClass(Animations, [{
-    key: "configure",
-    value: function configure(animations) {
-      if (!isObject(animations)) {
+  var _proto = Animations.prototype;
+  _proto.configure = function configure(animations) {
+    if (!isObject(animations)) {
+      return;
+    }
+    var animatedProps = this._properties;
+    var animDefaults = extensibleConfig(animations);
+    Object.keys(animations).forEach(function (key) {
+      var cfg = animations[key];
+      if (!isObject(cfg)) {
         return;
       }
-      var animatedProps = this._properties;
-      var animDefaults = extensibleConfig(animations);
-      Object.keys(animations).forEach(function (key) {
-        var cfg = animations[key];
-        if (!isObject(cfg)) {
-          return;
+      (cfg.properties || [key]).forEach(function (prop) {
+        if (!animatedProps.has(prop)) {
+          animatedProps.set(prop, _extends({}, animDefaults, cfg));
+        } else if (prop === key) {
+          animatedProps.set(prop, _extends({}, animatedProps.get(prop), cfg));
         }
-        (cfg.properties || [key]).forEach(function (prop) {
-          if (!animatedProps.has(prop)) {
-            animatedProps.set(prop, _extends({}, animDefaults, cfg));
-          } else if (prop === key) {
-            animatedProps.set(prop, _extends({}, animatedProps.get(prop), cfg));
-          }
-        });
       });
-    }
-  }, {
-    key: "_animateOptions",
-    value: function _animateOptions(target, values) {
-      var newOptions = values.options;
-      var animations = [];
-      if (!newOptions) {
-        return animations;
-      }
-      var options = target.options;
-      if (options) {
-        if (options.$shared) {
-          target.options = options = _extends({}, options, {
-            $shared: false,
-            $animations: {}
-          });
-        }
-        animations = this._createAnimations(options, newOptions);
-      } else {
-        target.options = newOptions;
-      }
+    });
+  }
+  ;
+  _proto._animateOptions = function _animateOptions(target, values) {
+    var newOptions = values.options;
+    var animations = [];
+    if (!newOptions) {
       return animations;
     }
-  }, {
-    key: "_createAnimations",
-    value: function _createAnimations(target, values) {
-      var animatedProps = this._properties;
-      var animations = [];
-      var running = target.$animations || (target.$animations = {});
-      var props = Object.keys(values);
-      var date = Date.now();
-      var i;
-      for (i = props.length - 1; i >= 0; --i) {
-        var prop = props[i];
-        if (prop.charAt(0) === '$') {
-          continue;
-        }
-        if (prop === 'options') {
-          animations.push.apply(animations, _toConsumableArray(this._animateOptions(target, values)));
-          continue;
-        }
-        var value = values[prop];
-        var animation = running[prop];
-        var cfg = animatedProps.get(prop);
-        if (animation) {
-          if (cfg && animation.active()) {
-            animation.update(cfg, value, date);
-            continue;
-          } else {
-            animation.cancel();
-          }
-        }
-        if (!cfg || !cfg.duration) {
-          target[prop] = value;
-          continue;
-        }
-        running[prop] = animation = new Animation(cfg, target, prop, value);
-        animations.push(animation);
+    var options = target.options;
+    if (options) {
+      if (options.$shared) {
+        target.options = options = _extends({}, options, {
+          $shared: false,
+          $animations: {}
+        });
       }
-      return animations;
+      animations = this._createAnimations(options, newOptions);
+    } else {
+      target.options = newOptions;
     }
-  }, {
-    key: "update",
-    value: function update(target, values) {
-      if (this._properties.size === 0) {
-        copyOptions(target, values);
-        _extends(target, values);
-        return;
+    return animations;
+  }
+  ;
+  _proto._createAnimations = function _createAnimations(target, values) {
+    var animatedProps = this._properties;
+    var animations = [];
+    var running = target.$animations || (target.$animations = {});
+    var props = Object.keys(values);
+    var date = Date.now();
+    var i;
+    for (i = props.length - 1; i >= 0; --i) {
+      var prop = props[i];
+      if (prop.charAt(0) === '$') {
+        continue;
       }
-      var animations = this._createAnimations(target, values);
-      if (animations.length) {
-        animator.add(this._chart, animations);
-        return true;
+      if (prop === 'options') {
+        animations.push.apply(animations, this._animateOptions(target, values));
+        continue;
       }
+      var value = values[prop];
+      var animation = running[prop];
+      var cfg = animatedProps.get(prop);
+      if (animation) {
+        if (cfg && animation.active()) {
+          animation.update(cfg, value, date);
+          continue;
+        } else {
+          animation.cancel();
+        }
+      }
+      if (!cfg || !cfg.duration) {
+        target[prop] = value;
+        continue;
+      }
+      running[prop] = animation = new Animation(cfg, target, prop, value);
+      animations.push(animation);
     }
-  }]);
+    return animations;
+  }
+  ;
+  _proto.update = function update(target, values) {
+    if (this._properties.size === 0) {
+      copyOptions(target, values);
+      _extends(target, values);
+      return;
+    }
+    var animations = this._createAnimations(target, values);
+    if (animations.length) {
+      animator.add(this._chart, animations);
+      return true;
+    }
+  };
   return Animations;
 }();
 
@@ -2376,7 +2119,6 @@ function getFirstScaleId(chart, axis) {
 }
 var DatasetController = function () {
   function DatasetController(chart, datasetIndex) {
-    _classCallCheck(this, DatasetController);
     this.chart = chart;
     this._ctx = chart.ctx;
     this.index = datasetIndex;
@@ -2394,724 +2136,655 @@ var DatasetController = function () {
     this._scaleStacked = {};
     this.initialize();
   }
-  _createClass(DatasetController, [{
-    key: "initialize",
-    value: function initialize() {
-      var me = this;
-      var meta = me._cachedMeta;
-      me.configure();
-      me.linkScales();
-      meta._stacked = isStacked(meta.vScale, meta);
-      me.addElements();
+  var _proto = DatasetController.prototype;
+  _proto.initialize = function initialize() {
+    var me = this;
+    var meta = me._cachedMeta;
+    me.configure();
+    me.linkScales();
+    meta._stacked = isStacked(meta.vScale, meta);
+    me.addElements();
+  };
+  _proto.updateIndex = function updateIndex(datasetIndex) {
+    this.index = datasetIndex;
+  };
+  _proto.linkScales = function linkScales() {
+    var me = this;
+    var chart = me.chart;
+    var meta = me._cachedMeta;
+    var dataset = me.getDataset();
+    var xid = meta.xAxisID = dataset.xAxisID || getFirstScaleId(chart, 'x');
+    var yid = meta.yAxisID = dataset.yAxisID || getFirstScaleId(chart, 'y');
+    var rid = meta.rAxisID = dataset.rAxisID || getFirstScaleId(chart, 'r');
+    meta.xScale = me.getScaleForId(xid);
+    meta.yScale = me.getScaleForId(yid);
+    meta.rScale = me.getScaleForId(rid);
+    meta.iScale = me._getIndexScale();
+    meta.vScale = me._getValueScale();
+  };
+  _proto.getDataset = function getDataset() {
+    return this.chart.data.datasets[this.index];
+  };
+  _proto.getMeta = function getMeta() {
+    return this.chart.getDatasetMeta(this.index);
+  }
+  ;
+  _proto.getScaleForId = function getScaleForId(scaleID) {
+    return this.chart.scales[scaleID];
+  }
+  ;
+  _proto.getValueScaleId = function getValueScaleId() {
+    return this._cachedMeta.yAxisID;
+  }
+  ;
+  _proto.getIndexScaleId = function getIndexScaleId() {
+    return this._cachedMeta.xAxisID;
+  }
+  ;
+  _proto._getValueScale = function _getValueScale() {
+    return this.getScaleForId(this.getValueScaleId());
+  }
+  ;
+  _proto._getIndexScale = function _getIndexScale() {
+    return this.getScaleForId(this.getIndexScaleId());
+  }
+  ;
+  _proto._getOtherScale = function _getOtherScale(scale) {
+    var meta = this._cachedMeta;
+    return scale === meta.iScale ? meta.vScale : meta.iScale;
+  };
+  _proto.reset = function reset() {
+    this._update('reset');
+  }
+  ;
+  _proto._destroy = function _destroy() {
+    if (this._data) {
+      unlistenArrayEvents(this._data, this);
     }
-  }, {
-    key: "updateIndex",
-    value: function updateIndex(datasetIndex) {
-      this.index = datasetIndex;
-    }
-  }, {
-    key: "linkScales",
-    value: function linkScales() {
-      var me = this;
-      var chart = me.chart;
-      var meta = me._cachedMeta;
-      var dataset = me.getDataset();
-      var xid = meta.xAxisID = dataset.xAxisID || getFirstScaleId(chart, 'x');
-      var yid = meta.yAxisID = dataset.yAxisID || getFirstScaleId(chart, 'y');
-      var rid = meta.rAxisID = dataset.rAxisID || getFirstScaleId(chart, 'r');
-      meta.xScale = me.getScaleForId(xid);
-      meta.yScale = me.getScaleForId(yid);
-      meta.rScale = me.getScaleForId(rid);
-      meta.iScale = me._getIndexScale();
-      meta.vScale = me._getValueScale();
-    }
-  }, {
-    key: "getDataset",
-    value: function getDataset() {
-      return this.chart.data.datasets[this.index];
-    }
-  }, {
-    key: "getMeta",
-    value: function getMeta() {
-      return this.chart.getDatasetMeta(this.index);
-    }
-  }, {
-    key: "getScaleForId",
-    value: function getScaleForId(scaleID) {
-      return this.chart.scales[scaleID];
-    }
-  }, {
-    key: "getValueScaleId",
-    value: function getValueScaleId() {
-      return this._cachedMeta.yAxisID;
-    }
-  }, {
-    key: "getIndexScaleId",
-    value: function getIndexScaleId() {
-      return this._cachedMeta.xAxisID;
-    }
-  }, {
-    key: "_getValueScale",
-    value: function _getValueScale() {
-      return this.getScaleForId(this.getValueScaleId());
-    }
-  }, {
-    key: "_getIndexScale",
-    value: function _getIndexScale() {
-      return this.getScaleForId(this.getIndexScaleId());
-    }
-  }, {
-    key: "_getOtherScale",
-    value: function _getOtherScale(scale) {
-      var meta = this._cachedMeta;
-      return scale === meta.iScale ? meta.vScale : meta.iScale;
-    }
-  }, {
-    key: "reset",
-    value: function reset() {
-      this._update('reset');
-    }
-  }, {
-    key: "_destroy",
-    value: function _destroy() {
-      if (this._data) {
-        unlistenArrayEvents(this._data, this);
-      }
-    }
-  }, {
-    key: "_dataCheck",
-    value: function _dataCheck() {
-      var me = this;
-      var dataset = me.getDataset();
-      var data = dataset.data || (dataset.data = []);
-      if (isObject(data)) {
-        if (me._objectData === data) {
-          return false;
-        }
-        me._data = convertObjectDataToArray(data);
-        me._objectData = data;
-      } else {
-        if (me._data === data && !me._dataModified && arrayEquals(data, me._dataCopy)) {
-          return false;
-        }
-        if (me._data) {
-          unlistenArrayEvents(me._data, me);
-        }
-        me._dataCopy = data.slice(0);
-        me._dataModified = false;
-        if (data && Object.isExtensible(data)) {
-          listenArrayEvents(data, me);
-        }
-        me._data = data;
-      }
-      return true;
-    }
-  }, {
-    key: "_labelCheck",
-    value: function _labelCheck() {
-      var me = this;
-      var iScale = me._cachedMeta.iScale;
-      var labels = iScale ? iScale.getLabels() : me.chart.data.labels;
-      if (me._labels === labels) {
+  }
+  ;
+  _proto._dataCheck = function _dataCheck() {
+    var me = this;
+    var dataset = me.getDataset();
+    var data = dataset.data || (dataset.data = []);
+    if (isObject(data)) {
+      if (me._objectData === data) {
         return false;
       }
-      me._labels = labels;
-      return true;
+      me._data = convertObjectDataToArray(data);
+      me._objectData = data;
+    } else {
+      if (me._data === data && !me._dataModified && arrayEquals(data, me._dataCopy)) {
+        return false;
+      }
+      if (me._data) {
+        unlistenArrayEvents(me._data, me);
+      }
+      me._dataCopy = data.slice(0);
+      me._dataModified = false;
+      if (data && Object.isExtensible(data)) {
+        listenArrayEvents(data, me);
+      }
+      me._data = data;
     }
-  }, {
-    key: "addElements",
-    value: function addElements() {
-      var me = this;
-      var meta = me._cachedMeta;
-      me._dataCheck();
-      var data = me._data;
-      var metaData = meta.data = new Array(data.length);
-      for (var i = 0, ilen = data.length; i < ilen; ++i) {
-        metaData[i] = new me.dataElementType();
-      }
-      if (me.datasetElementType) {
-        meta.dataset = new me.datasetElementType();
-      }
+    return true;
+  }
+  ;
+  _proto._labelCheck = function _labelCheck() {
+    var me = this;
+    var iScale = me._cachedMeta.iScale;
+    var labels = iScale ? iScale.getLabels() : me.chart.data.labels;
+    if (me._labels === labels) {
+      return false;
     }
-  }, {
-    key: "buildOrUpdateElements",
-    value: function buildOrUpdateElements() {
-      var me = this;
-      var dataChanged = me._dataCheck();
-      var labelsChanged = me._labelCheck();
-      var scaleChanged = me._scaleCheck();
-      var meta = me._cachedMeta;
-      var dataset = me.getDataset();
-      var stackChanged = false;
-      meta._stacked = isStacked(meta.vScale, meta);
-      if (meta.stack !== dataset.stack) {
-        stackChanged = true;
-        meta._parsed.forEach(function (parsed) {
-          delete parsed._stacks[meta.vScale.id][meta.index];
-        });
-        meta.stack = dataset.stack;
-      }
-      me._resyncElements(dataChanged || labelsChanged || scaleChanged || stackChanged);
-      if (stackChanged) {
-        updateStacks(me, meta._parsed);
-      }
+    me._labels = labels;
+    return true;
+  };
+  _proto.addElements = function addElements() {
+    var me = this;
+    var meta = me._cachedMeta;
+    me._dataCheck();
+    var data = me._data;
+    var metaData = meta.data = new Array(data.length);
+    for (var i = 0, ilen = data.length; i < ilen; ++i) {
+      metaData[i] = new me.dataElementType();
     }
-  }, {
-    key: "configure",
-    value: function configure() {
-      var me = this;
-      me._config = merge({}, [me.chart.options[me._type].datasets, me.getDataset()], {
-        merger: function merger(key, target, source) {
-          if (key !== 'data') {
-            _merger(key, target, source);
-          }
-        }
+    if (me.datasetElementType) {
+      meta.dataset = new me.datasetElementType();
+    }
+  };
+  _proto.buildOrUpdateElements = function buildOrUpdateElements() {
+    var me = this;
+    var dataChanged = me._dataCheck();
+    var labelsChanged = me._labelCheck();
+    var scaleChanged = me._scaleCheck();
+    var meta = me._cachedMeta;
+    var dataset = me.getDataset();
+    var stackChanged = false;
+    meta._stacked = isStacked(meta.vScale, meta);
+    if (meta.stack !== dataset.stack) {
+      stackChanged = true;
+      meta._parsed.forEach(function (parsed) {
+        delete parsed._stacks[meta.vScale.id][meta.index];
       });
-      me._parsing = resolve([me._config.parsing, me.chart.options.parsing, true]);
+      meta.stack = dataset.stack;
     }
-  }, {
-    key: "parse",
-    value: function parse(start, count) {
-      var me = this;
-      var meta = me._cachedMeta,
-          data = me._data;
-      var iScale = meta.iScale,
-          vScale = meta.vScale,
-          _stacked = meta._stacked;
-      var iAxis = iScale.axis;
-      var sorted = true;
-      var i, parsed, cur, prev;
-      if (start > 0) {
-        sorted = meta._sorted;
-        prev = meta._parsed[start - 1];
+    me._resyncElements(dataChanged || labelsChanged || scaleChanged || stackChanged);
+    if (stackChanged) {
+      updateStacks(me, meta._parsed);
+    }
+  }
+  ;
+  _proto.configure = function configure() {
+    var me = this;
+    me._config = merge({}, [me.chart.options[me._type].datasets, me.getDataset()], {
+      merger: function merger(key, target, source) {
+        if (key !== 'data') {
+          _merger(key, target, source);
+        }
       }
-      if (me._parsing === false) {
-        meta._parsed = data;
-        meta._sorted = true;
+    });
+    me._parsing = resolve([me._config.parsing, me.chart.options.parsing, true]);
+  }
+  ;
+  _proto.parse = function parse(start, count) {
+    var me = this;
+    var meta = me._cachedMeta,
+        data = me._data;
+    var iScale = meta.iScale,
+        vScale = meta.vScale,
+        _stacked = meta._stacked;
+    var iAxis = iScale.axis;
+    var sorted = true;
+    var i, parsed, cur, prev;
+    if (start > 0) {
+      sorted = meta._sorted;
+      prev = meta._parsed[start - 1];
+    }
+    if (me._parsing === false) {
+      meta._parsed = data;
+      meta._sorted = true;
+    } else {
+      if (isArray(data[start])) {
+        parsed = me.parseArrayData(meta, data, start, count);
+      } else if (isObject(data[start])) {
+        parsed = me.parseObjectData(meta, data, start, count);
       } else {
-        if (isArray(data[start])) {
-          parsed = me.parseArrayData(meta, data, start, count);
-        } else if (isObject(data[start])) {
-          parsed = me.parseObjectData(meta, data, start, count);
-        } else {
-          parsed = me.parsePrimitiveData(meta, data, start, count);
-        }
-        for (i = 0; i < count; ++i) {
-          meta._parsed[i + start] = cur = parsed[i];
-          if (sorted) {
-            if (prev && cur[iAxis] < prev[iAxis]) {
-              sorted = false;
-            }
-            prev = cur;
+        parsed = me.parsePrimitiveData(meta, data, start, count);
+      }
+      for (i = 0; i < count; ++i) {
+        meta._parsed[i + start] = cur = parsed[i];
+        if (sorted) {
+          if (prev && cur[iAxis] < prev[iAxis]) {
+            sorted = false;
           }
+          prev = cur;
         }
-        meta._sorted = sorted;
       }
-      if (_stacked) {
-        updateStacks(me, parsed);
-      }
-      iScale.invalidateCaches();
-      vScale.invalidateCaches();
+      meta._sorted = sorted;
     }
-  }, {
-    key: "parsePrimitiveData",
-    value: function parsePrimitiveData(meta, data, start, count) {
-      var iScale = meta.iScale,
-          vScale = meta.vScale;
-      var iAxis = iScale.axis;
-      var vAxis = vScale.axis;
-      var labels = iScale.getLabels();
-      var singleScale = iScale === vScale;
-      var parsed = new Array(count);
-      var i, ilen, index;
-      for (i = 0, ilen = count; i < ilen; ++i) {
-        var _parsed$i;
-        index = i + start;
-        parsed[i] = (_parsed$i = {}, _defineProperty(_parsed$i, iAxis, singleScale || iScale.parse(labels[index], index)), _defineProperty(_parsed$i, vAxis, vScale.parse(data[index], index)), _parsed$i);
-      }
-      return parsed;
+    if (_stacked) {
+      updateStacks(me, parsed);
     }
-  }, {
-    key: "parseArrayData",
-    value: function parseArrayData(meta, data, start, count) {
-      var xScale = meta.xScale,
-          yScale = meta.yScale;
-      var parsed = new Array(count);
-      var i, ilen, index, item;
-      for (i = 0, ilen = count; i < ilen; ++i) {
-        index = i + start;
-        item = data[index];
-        parsed[i] = {
-          x: xScale.parse(item[0], index),
-          y: yScale.parse(item[1], index)
-        };
-      }
-      return parsed;
+    iScale.invalidateCaches();
+    vScale.invalidateCaches();
+  }
+  ;
+  _proto.parsePrimitiveData = function parsePrimitiveData(meta, data, start, count) {
+    var iScale = meta.iScale,
+        vScale = meta.vScale;
+    var iAxis = iScale.axis;
+    var vAxis = vScale.axis;
+    var labels = iScale.getLabels();
+    var singleScale = iScale === vScale;
+    var parsed = new Array(count);
+    var i, ilen, index;
+    for (i = 0, ilen = count; i < ilen; ++i) {
+      var _parsed$i;
+      index = i + start;
+      parsed[i] = (_parsed$i = {}, _parsed$i[iAxis] = singleScale || iScale.parse(labels[index], index), _parsed$i[vAxis] = vScale.parse(data[index], index), _parsed$i);
     }
-  }, {
-    key: "parseObjectData",
-    value: function parseObjectData(meta, data, start, count) {
-      var xScale = meta.xScale,
-          yScale = meta.yScale;
-      var parsed = new Array(count);
-      var i, ilen, index, item;
-      for (i = 0, ilen = count; i < ilen; ++i) {
-        index = i + start;
-        item = data[index];
-        parsed[i] = {
-          x: xScale.parseObject(item, 'x', index),
-          y: yScale.parseObject(item, 'y', index)
-        };
-      }
-      return parsed;
-    }
-  }, {
-    key: "getParsed",
-    value: function getParsed(index) {
-      return this._cachedMeta._parsed[index];
-    }
-  }, {
-    key: "applyStack",
-    value: function applyStack(scale, parsed) {
-      var chart = this.chart;
-      var meta = this._cachedMeta;
-      var value = parsed[scale.axis];
-      var stack = {
-        keys: getSortedDatasetIndices(chart, true),
-        values: parsed._stacks[scale.axis]
+    return parsed;
+  }
+  ;
+  _proto.parseArrayData = function parseArrayData(meta, data, start, count) {
+    var xScale = meta.xScale,
+        yScale = meta.yScale;
+    var parsed = new Array(count);
+    var i, ilen, index, item;
+    for (i = 0, ilen = count; i < ilen; ++i) {
+      index = i + start;
+      item = data[index];
+      parsed[i] = {
+        x: xScale.parse(item[0], index),
+        y: yScale.parse(item[1], index)
       };
-      return _applyStack(stack, value, meta.index);
     }
-  }, {
-    key: "getMinMax",
-    value: function getMinMax(scale, canStack) {
-      var meta = this._cachedMeta;
-      var _parsed = meta._parsed;
-      var sorted = meta._sorted && scale === meta.iScale;
-      var ilen = _parsed.length;
-      var otherScale = this._getOtherScale(scale);
-      var stack = canStack && meta._stacked && {
-        keys: getSortedDatasetIndices(this.chart, true),
-        values: null
+    return parsed;
+  }
+  ;
+  _proto.parseObjectData = function parseObjectData(meta, data, start, count) {
+    var xScale = meta.xScale,
+        yScale = meta.yScale;
+    var parsed = new Array(count);
+    var i, ilen, index, item;
+    for (i = 0, ilen = count; i < ilen; ++i) {
+      index = i + start;
+      item = data[index];
+      parsed[i] = {
+        x: xScale.parseObject(item, 'x', index),
+        y: yScale.parseObject(item, 'y', index)
       };
-      var min = Number.POSITIVE_INFINITY;
-      var max = Number.NEGATIVE_INFINITY;
-      var _getUserBounds = getUserBounds(otherScale),
-          otherMin = _getUserBounds.min,
-          otherMax = _getUserBounds.max;
-      var i, value, parsed, otherValue;
-      function _compute() {
-        if (stack) {
-          stack.values = parsed._stacks[scale.axis];
-          min = Math.min(min, value);
-          max = Math.max(max, value);
-          value = _applyStack(stack, value, meta.index, true);
-        }
+    }
+    return parsed;
+  }
+  ;
+  _proto.getParsed = function getParsed(index) {
+    return this._cachedMeta._parsed[index];
+  }
+  ;
+  _proto.applyStack = function applyStack(scale, parsed) {
+    var chart = this.chart;
+    var meta = this._cachedMeta;
+    var value = parsed[scale.axis];
+    var stack = {
+      keys: getSortedDatasetIndices(chart, true),
+      values: parsed._stacks[scale.axis]
+    };
+    return _applyStack(stack, value, meta.index);
+  }
+  ;
+  _proto.getMinMax = function getMinMax(scale, canStack) {
+    var meta = this._cachedMeta;
+    var _parsed = meta._parsed;
+    var sorted = meta._sorted && scale === meta.iScale;
+    var ilen = _parsed.length;
+    var otherScale = this._getOtherScale(scale);
+    var stack = canStack && meta._stacked && {
+      keys: getSortedDatasetIndices(this.chart, true),
+      values: null
+    };
+    var min = Number.POSITIVE_INFINITY;
+    var max = Number.NEGATIVE_INFINITY;
+    var _getUserBounds = getUserBounds(otherScale),
+        otherMin = _getUserBounds.min,
+        otherMax = _getUserBounds.max;
+    var i, value, parsed, otherValue;
+    function _compute() {
+      if (stack) {
+        stack.values = parsed._stacks[scale.axis];
         min = Math.min(min, value);
         max = Math.max(max, value);
+        value = _applyStack(stack, value, meta.index, true);
       }
-      function _skip() {
-        parsed = _parsed[i];
-        value = parsed[scale.axis];
-        otherValue = parsed[otherScale.axis];
-        return isNaN(value) || otherMin > otherValue || otherMax < otherValue;
+      min = Math.min(min, value);
+      max = Math.max(max, value);
+    }
+    function _skip() {
+      parsed = _parsed[i];
+      value = parsed[scale.axis];
+      otherValue = parsed[otherScale.axis];
+      return isNaN(value) || otherMin > otherValue || otherMax < otherValue;
+    }
+    for (i = 0; i < ilen; ++i) {
+      if (_skip()) {
+        continue;
       }
-      for (i = 0; i < ilen; ++i) {
+      _compute();
+      if (sorted) {
+        break;
+      }
+    }
+    if (sorted) {
+      for (i = ilen - 1; i >= 0; --i) {
         if (_skip()) {
           continue;
         }
         _compute();
-        if (sorted) {
-          break;
-        }
-      }
-      if (sorted) {
-        for (i = ilen - 1; i >= 0; --i) {
-          if (_skip()) {
-            continue;
-          }
-          _compute();
-          break;
-        }
-      }
-      return {
-        min: min,
-        max: max
-      };
-    }
-  }, {
-    key: "getAllParsedValues",
-    value: function getAllParsedValues(scale) {
-      var parsed = this._cachedMeta._parsed;
-      var values = [];
-      var i, ilen, value;
-      for (i = 0, ilen = parsed.length; i < ilen; ++i) {
-        value = parsed[i][scale.axis];
-        if (!isNaN(value)) {
-          values.push(value);
-        }
-      }
-      return values;
-    }
-  }, {
-    key: "_cacheScaleStackStatus",
-    value: function _cacheScaleStackStatus() {
-      var me = this;
-      var meta = me._cachedMeta;
-      var iScale = meta.iScale;
-      var vScale = meta.vScale;
-      var cache = me._scaleStacked = {};
-      if (iScale && vScale) {
-        cache[iScale.id] = iScale.options.stacked;
-        cache[vScale.id] = vScale.options.stacked;
+        break;
       }
     }
-  }, {
-    key: "_scaleCheck",
-    value: function _scaleCheck() {
-      var me = this;
-      var meta = me._cachedMeta;
-      var iScale = meta.iScale;
-      var vScale = meta.vScale;
-      var cache = me._scaleStacked;
-      return !cache || !iScale || !vScale || cache[iScale.id] !== iScale.options.stacked || cache[vScale.id] !== vScale.options.stacked;
+    return {
+      min: min,
+      max: max
+    };
+  };
+  _proto.getAllParsedValues = function getAllParsedValues(scale) {
+    var parsed = this._cachedMeta._parsed;
+    var values = [];
+    var i, ilen, value;
+    for (i = 0, ilen = parsed.length; i < ilen; ++i) {
+      value = parsed[i][scale.axis];
+      if (!isNaN(value)) {
+        values.push(value);
+      }
     }
-  }, {
-    key: "getMaxOverflow",
-    value: function getMaxOverflow() {
-      return false;
+    return values;
+  }
+  ;
+  _proto._cacheScaleStackStatus = function _cacheScaleStackStatus() {
+    var me = this;
+    var meta = me._cachedMeta;
+    var iScale = meta.iScale;
+    var vScale = meta.vScale;
+    var cache = me._scaleStacked = {};
+    if (iScale && vScale) {
+      cache[iScale.id] = iScale.options.stacked;
+      cache[vScale.id] = vScale.options.stacked;
     }
-  }, {
-    key: "getLabelAndValue",
-    value: function getLabelAndValue(index) {
-      var me = this;
-      var meta = me._cachedMeta;
-      var iScale = meta.iScale;
-      var vScale = meta.vScale;
-      var parsed = me.getParsed(index);
-      return {
-        label: iScale ? '' + iScale.getLabelForValue(parsed[iScale.axis]) : '',
-        value: vScale ? '' + vScale.getLabelForValue(parsed[vScale.axis]) : ''
-      };
+  }
+  ;
+  _proto._scaleCheck = function _scaleCheck() {
+    var me = this;
+    var meta = me._cachedMeta;
+    var iScale = meta.iScale;
+    var vScale = meta.vScale;
+    var cache = me._scaleStacked;
+    return !cache || !iScale || !vScale || cache[iScale.id] !== iScale.options.stacked || cache[vScale.id] !== vScale.options.stacked;
+  }
+  ;
+  _proto.getMaxOverflow = function getMaxOverflow() {
+    return false;
+  }
+  ;
+  _proto.getLabelAndValue = function getLabelAndValue(index) {
+    var me = this;
+    var meta = me._cachedMeta;
+    var iScale = meta.iScale;
+    var vScale = meta.vScale;
+    var parsed = me.getParsed(index);
+    return {
+      label: iScale ? '' + iScale.getLabelForValue(parsed[iScale.axis]) : '',
+      value: vScale ? '' + vScale.getLabelForValue(parsed[vScale.axis]) : ''
+    };
+  }
+  ;
+  _proto._update = function _update(mode) {
+    var me = this;
+    var meta = me._cachedMeta;
+    me.configure();
+    me._cachedAnimations = {};
+    me._cachedDataOpts = {};
+    me.update(mode);
+    meta._clip = toClip(valueOrDefault(me._config.clip, defaultClip(meta.xScale, meta.yScale, me.getMaxOverflow())));
+    me._cacheScaleStackStatus();
+  }
+  ;
+  _proto.update = function update(mode) {}
+  ;
+  _proto.draw = function draw() {
+    var ctx = this._ctx;
+    var meta = this._cachedMeta;
+    var elements = meta.data || [];
+    var ilen = elements.length;
+    var i = 0;
+    if (meta.dataset) {
+      meta.dataset.draw(ctx);
     }
-  }, {
-    key: "_update",
-    value: function _update(mode) {
-      var me = this;
-      var meta = me._cachedMeta;
+    for (; i < ilen; ++i) {
+      elements[i].draw(ctx);
+    }
+  }
+  ;
+  _proto._addAutomaticHoverColors = function _addAutomaticHoverColors(index, options) {
+    var me = this;
+    var normalOptions = me.getStyle(index);
+    var missingColors = Object.keys(normalOptions).filter(function (key) {
+      return key.indexOf('Color') !== -1 && !(key in options);
+    });
+    var i = missingColors.length - 1;
+    var color;
+    for (; i >= 0; i--) {
+      color = missingColors[i];
+      options[color] = getHoverColor(normalOptions[color]);
+    }
+  }
+  ;
+  _proto.getStyle = function getStyle(index, active) {
+    var me = this;
+    var meta = me._cachedMeta;
+    var dataset = meta.dataset;
+    if (!me._config) {
       me.configure();
-      me._cachedAnimations = {};
-      me._cachedDataOpts = {};
-      me.update(mode);
-      meta._clip = toClip(valueOrDefault(me._config.clip, defaultClip(meta.xScale, meta.yScale, me.getMaxOverflow())));
-      me._cacheScaleStackStatus();
     }
-  }, {
-    key: "update",
-    value: function update(mode) {}
-  }, {
-    key: "draw",
-    value: function draw() {
-      var ctx = this._ctx;
-      var meta = this._cachedMeta;
-      var elements = meta.data || [];
-      var ilen = elements.length;
-      var i = 0;
-      if (meta.dataset) {
-        meta.dataset.draw(ctx);
-      }
-      for (; i < ilen; ++i) {
-        elements[i].draw(ctx);
-      }
+    var options = dataset && index === undefined ? me.resolveDatasetElementOptions(active) : me.resolveDataElementOptions(index || 0, active && 'active');
+    if (active) {
+      me._addAutomaticHoverColors(index, options);
     }
-  }, {
-    key: "_addAutomaticHoverColors",
-    value: function _addAutomaticHoverColors(index, options) {
-      var me = this;
-      var normalOptions = me.getStyle(index);
-      var missingColors = Object.keys(normalOptions).filter(function (key) {
-        return key.indexOf('Color') !== -1 && !(key in options);
-      });
-      var i = missingColors.length - 1;
-      var color;
-      for (; i >= 0; i--) {
-        color = missingColors[i];
-        options[color] = getHoverColor(normalOptions[color]);
+    return options;
+  }
+  ;
+  _proto._getContext = function _getContext(index, active) {
+    return {
+      chart: this.chart,
+      dataIndex: index,
+      dataset: this.getDataset(),
+      datasetIndex: this.index,
+      active: active
+    };
+  }
+  ;
+  _proto.resolveDatasetElementOptions = function resolveDatasetElementOptions(active) {
+    var me = this;
+    var chart = me.chart;
+    var datasetOpts = me._config;
+    var options = chart.options.elements[me.datasetElementType._type] || {};
+    var elementOptions = me.datasetElementOptions;
+    var values = {};
+    var context = me._getContext(undefined, active);
+    var i, ilen, key, readKey, value;
+    for (i = 0, ilen = elementOptions.length; i < ilen; ++i) {
+      key = elementOptions[i];
+      readKey = active ? 'hover' + key.charAt(0).toUpperCase() + key.slice(1) : key;
+      value = resolve([datasetOpts[readKey], options[readKey]], context);
+      if (value !== undefined) {
+        values[key] = value;
       }
     }
-  }, {
-    key: "getStyle",
-    value: function getStyle(index, active) {
-      var me = this;
-      var meta = me._cachedMeta;
-      var dataset = meta.dataset;
-      if (!me._config) {
-        me.configure();
-      }
-      var options = dataset && index === undefined ? me.resolveDatasetElementOptions(active) : me.resolveDataElementOptions(index || 0, active && 'active');
-      if (active) {
-        me._addAutomaticHoverColors(index, options);
-      }
-      return options;
+    return values;
+  }
+  ;
+  _proto.resolveDataElementOptions = function resolveDataElementOptions(index, mode) {
+    var me = this;
+    var active = mode === 'active';
+    var cached = me._cachedDataOpts;
+    if (cached[mode]) {
+      return cached[mode];
     }
-  }, {
-    key: "_getContext",
-    value: function _getContext(index, active) {
-      return {
-        chart: this.chart,
-        dataIndex: index,
-        dataset: this.getDataset(),
-        datasetIndex: this.index,
-        active: active
-      };
-    }
-  }, {
-    key: "resolveDatasetElementOptions",
-    value: function resolveDatasetElementOptions(active) {
-      var me = this;
-      var chart = me.chart;
-      var datasetOpts = me._config;
-      var options = chart.options.elements[me.datasetElementType._type] || {};
-      var elementOptions = me.datasetElementOptions;
-      var values = {};
-      var context = me._getContext(undefined, active);
-      var i, ilen, key, readKey, value;
+    var chart = me.chart;
+    var datasetOpts = me._config;
+    var options = chart.options.elements[me.dataElementType._type] || {};
+    var elementOptions = me.dataElementOptions;
+    var values = {};
+    var context = me._getContext(index, active);
+    var info = {
+      cacheable: !active
+    };
+    var keys, i, ilen, key, value, readKey;
+    if (isArray(elementOptions)) {
       for (i = 0, ilen = elementOptions.length; i < ilen; ++i) {
         key = elementOptions[i];
         readKey = active ? 'hover' + key.charAt(0).toUpperCase() + key.slice(1) : key;
-        value = resolve([datasetOpts[readKey], options[readKey]], context);
+        value = resolve([datasetOpts[readKey], options[readKey]], context, index, info);
         if (value !== undefined) {
           values[key] = value;
         }
       }
-      return values;
-    }
-  }, {
-    key: "resolveDataElementOptions",
-    value: function resolveDataElementOptions(index, mode) {
-      var me = this;
-      var active = mode === 'active';
-      var cached = me._cachedDataOpts;
-      if (cached[mode]) {
-        return cached[mode];
+    } else {
+      keys = Object.keys(elementOptions);
+      for (i = 0, ilen = keys.length; i < ilen; ++i) {
+        key = keys[i];
+        readKey = active ? 'hover' + key.charAt(0).toUpperCase() + key.slice(1) : key;
+        value = resolve([datasetOpts[elementOptions[readKey]], datasetOpts[readKey], options[readKey]], context, index, info);
+        if (value !== undefined) {
+          values[key] = value;
+        }
       }
-      var chart = me.chart;
-      var datasetOpts = me._config;
-      var options = chart.options.elements[me.dataElementType._type] || {};
-      var elementOptions = me.dataElementOptions;
-      var values = {};
-      var context = me._getContext(index, active);
-      var info = {
-        cacheable: !active
+    }
+    if (info.cacheable) {
+      values.$shared = true;
+      cached[mode] = values;
+    }
+    return values;
+  }
+  ;
+  _proto._resolveAnimations = function _resolveAnimations(index, mode, active) {
+    var me = this;
+    var chart = me.chart;
+    var cached = me._cachedAnimations;
+    mode = mode || 'default';
+    if (cached[mode]) {
+      return cached[mode];
+    }
+    var info = {
+      cacheable: true
+    };
+    var context = me._getContext(index, active);
+    var datasetAnim = resolve([me._config.animation], context, index, info);
+    var chartAnim = resolve([chart.options.animation], context, index, info);
+    var config = mergeIf({}, [datasetAnim, chartAnim]);
+    if (config[mode]) {
+      config = _extends({}, config, config[mode]);
+    }
+    var animations = new Animations(chart, config);
+    if (info.cacheable) {
+      cached[mode] = animations && Object.freeze(animations);
+    }
+    return animations;
+  }
+  ;
+  _proto.getSharedOptions = function getSharedOptions(mode, el, options) {
+    if (!mode) {
+      this._sharedOptions = options && options.$shared;
+    }
+    if (mode !== 'reset' && options && options.$shared && el && el.options && el.options.$shared) {
+      return {
+        target: el.options,
+        options: options
       };
-      var keys, i, ilen, key, value, readKey;
-      if (isArray(elementOptions)) {
-        for (i = 0, ilen = elementOptions.length; i < ilen; ++i) {
-          key = elementOptions[i];
-          readKey = active ? 'hover' + key.charAt(0).toUpperCase() + key.slice(1) : key;
-          value = resolve([datasetOpts[readKey], options[readKey]], context, index, info);
-          if (value !== undefined) {
-            values[key] = value;
-          }
-        }
-      } else {
-        keys = Object.keys(elementOptions);
-        for (i = 0, ilen = keys.length; i < ilen; ++i) {
-          key = keys[i];
-          readKey = active ? 'hover' + key.charAt(0).toUpperCase() + key.slice(1) : key;
-          value = resolve([datasetOpts[elementOptions[readKey]], datasetOpts[readKey], options[readKey]], context, index, info);
-          if (value !== undefined) {
-            values[key] = value;
-          }
-        }
+    }
+  }
+  ;
+  _proto.includeOptions = function includeOptions(mode, sharedOptions) {
+    if (mode === 'hide' || mode === 'show') {
+      return true;
+    }
+    return mode !== 'resize' && !sharedOptions;
+  }
+  ;
+  _proto.updateElement = function updateElement(element, index, properties, mode) {
+    if (mode === 'reset' || mode === 'none') {
+      _extends(element, properties);
+    } else {
+      this._resolveAnimations(index, mode).update(element, properties);
+    }
+  }
+  ;
+  _proto.updateSharedOptions = function updateSharedOptions(sharedOptions, mode) {
+    if (sharedOptions) {
+      this._resolveAnimations(undefined, mode).update(sharedOptions.target, sharedOptions.options);
+    }
+  }
+  ;
+  _proto._setStyle = function _setStyle(element, index, mode, active) {
+    element.active = active;
+    this._resolveAnimations(index, mode, active).update(element, {
+      options: this.getStyle(index, active)
+    });
+  };
+  _proto.removeHoverStyle = function removeHoverStyle(element, datasetIndex, index) {
+    this._setStyle(element, index, 'active', false);
+  };
+  _proto.setHoverStyle = function setHoverStyle(element, datasetIndex, index) {
+    this._setStyle(element, index, 'active', true);
+  }
+  ;
+  _proto._removeDatasetHoverStyle = function _removeDatasetHoverStyle() {
+    var element = this._cachedMeta.dataset;
+    if (element) {
+      this._setStyle(element, undefined, 'active', false);
+    }
+  }
+  ;
+  _proto._setDatasetHoverStyle = function _setDatasetHoverStyle() {
+    var element = this._cachedMeta.dataset;
+    if (element) {
+      this._setStyle(element, undefined, 'active', true);
+    }
+  }
+  ;
+  _proto._resyncElements = function _resyncElements(changed) {
+    var me = this;
+    var meta = me._cachedMeta;
+    var numMeta = meta.data.length;
+    var numData = me._data.length;
+    if (numData > numMeta) {
+      me._insertElements(numMeta, numData - numMeta);
+      if (changed && numMeta) {
+        me.parse(0, numMeta);
       }
-      if (info.cacheable) {
-        values.$shared = true;
-        cached[mode] = values;
-      }
-      return values;
+    } else if (numData < numMeta) {
+      meta.data.splice(numData, numMeta - numData);
+      meta._parsed.splice(numData, numMeta - numData);
+      me.parse(0, numData);
+    } else if (changed) {
+      me.parse(0, numData);
     }
-  }, {
-    key: "_resolveAnimations",
-    value: function _resolveAnimations(index, mode, active) {
-      var me = this;
-      var chart = me.chart;
-      var cached = me._cachedAnimations;
-      mode = mode || 'default';
-      if (cached[mode]) {
-        return cached[mode];
-      }
-      var info = {
-        cacheable: true
-      };
-      var context = me._getContext(index, active);
-      var datasetAnim = resolve([me._config.animation], context, index, info);
-      var chartAnim = resolve([chart.options.animation], context, index, info);
-      var config = mergeIf({}, [datasetAnim, chartAnim]);
-      if (config[mode]) {
-        config = _extends({}, config, config[mode]);
-      }
-      var animations = new Animations(chart, config);
-      if (info.cacheable) {
-        cached[mode] = animations && Object.freeze(animations);
-      }
-      return animations;
+  }
+  ;
+  _proto._insertElements = function _insertElements(start, count) {
+    var me = this;
+    var elements = new Array(count);
+    var meta = me._cachedMeta;
+    var data = meta.data;
+    var i;
+    for (i = 0; i < count; ++i) {
+      elements[i] = new me.dataElementType();
     }
-  }, {
-    key: "getSharedOptions",
-    value: function getSharedOptions(mode, el, options) {
-      if (!mode) {
-        this._sharedOptions = options && options.$shared;
-      }
-      if (mode !== 'reset' && options && options.$shared && el && el.options && el.options.$shared) {
-        return {
-          target: el.options,
-          options: options
-        };
-      }
+    data.splice.apply(data, [start, 0].concat(elements));
+    if (me._parsing) {
+      var _meta$_parsed;
+      (_meta$_parsed = meta._parsed).splice.apply(_meta$_parsed, [start, 0].concat(new Array(count)));
     }
-  }, {
-    key: "includeOptions",
-    value: function includeOptions(mode, sharedOptions) {
-      if (mode === 'hide' || mode === 'show') {
-        return true;
-      }
-      return mode !== 'resize' && !sharedOptions;
+    me.parse(start, count);
+    me.updateElements(elements, start, 'reset');
+  };
+  _proto.updateElements = function updateElements(element, start, mode) {}
+  ;
+  _proto._removeElements = function _removeElements(start, count) {
+    var me = this;
+    if (me._parsing) {
+      me._cachedMeta._parsed.splice(start, count);
     }
-  }, {
-    key: "updateElement",
-    value: function updateElement(element, index, properties, mode) {
-      if (mode === 'reset' || mode === 'none') {
-        _extends(element, properties);
-      } else {
-        this._resolveAnimations(index, mode).update(element, properties);
-      }
-    }
-  }, {
-    key: "updateSharedOptions",
-    value: function updateSharedOptions(sharedOptions, mode) {
-      if (sharedOptions) {
-        this._resolveAnimations(undefined, mode).update(sharedOptions.target, sharedOptions.options);
-      }
-    }
-  }, {
-    key: "_setStyle",
-    value: function _setStyle(element, index, mode, active) {
-      element.active = active;
-      this._resolveAnimations(index, mode, active).update(element, {
-        options: this.getStyle(index, active)
-      });
-    }
-  }, {
-    key: "removeHoverStyle",
-    value: function removeHoverStyle(element, datasetIndex, index) {
-      this._setStyle(element, index, 'active', false);
-    }
-  }, {
-    key: "setHoverStyle",
-    value: function setHoverStyle(element, datasetIndex, index) {
-      this._setStyle(element, index, 'active', true);
-    }
-  }, {
-    key: "_removeDatasetHoverStyle",
-    value: function _removeDatasetHoverStyle() {
-      var element = this._cachedMeta.dataset;
-      if (element) {
-        this._setStyle(element, undefined, 'active', false);
-      }
-    }
-  }, {
-    key: "_setDatasetHoverStyle",
-    value: function _setDatasetHoverStyle() {
-      var element = this._cachedMeta.dataset;
-      if (element) {
-        this._setStyle(element, undefined, 'active', true);
-      }
-    }
-  }, {
-    key: "_resyncElements",
-    value: function _resyncElements(changed) {
-      var me = this;
-      var meta = me._cachedMeta;
-      var numMeta = meta.data.length;
-      var numData = me._data.length;
-      if (numData > numMeta) {
-        me._insertElements(numMeta, numData - numMeta);
-        if (changed && numMeta) {
-          me.parse(0, numMeta);
-        }
-      } else if (numData < numMeta) {
-        meta.data.splice(numData, numMeta - numData);
-        meta._parsed.splice(numData, numMeta - numData);
-        me.parse(0, numData);
-      } else if (changed) {
-        me.parse(0, numData);
-      }
-    }
-  }, {
-    key: "_insertElements",
-    value: function _insertElements(start, count) {
-      var me = this;
-      var elements = new Array(count);
-      var meta = me._cachedMeta;
-      var data = meta.data;
-      var i;
-      for (i = 0; i < count; ++i) {
-        elements[i] = new me.dataElementType();
-      }
-      data.splice.apply(data, [start, 0].concat(elements));
-      if (me._parsing) {
-        var _meta$_parsed;
-        (_meta$_parsed = meta._parsed).splice.apply(_meta$_parsed, [start, 0].concat(_toConsumableArray(new Array(count))));
-      }
-      me.parse(start, count);
-      me.updateElements(elements, start, 'reset');
-    }
-  }, {
-    key: "updateElements",
-    value: function updateElements(element, start, mode) {}
-  }, {
-    key: "_removeElements",
-    value: function _removeElements(start, count) {
-      var me = this;
-      if (me._parsing) {
-        me._cachedMeta._parsed.splice(start, count);
-      }
-      me._cachedMeta.data.splice(start, count);
-    }
-  }, {
-    key: "_onDataPush",
-    value: function _onDataPush() {
-      var count = arguments.length;
-      this._insertElements(this.getDataset().data.length - count, count);
-      this._dataModified = true;
-    }
-  }, {
-    key: "_onDataPop",
-    value: function _onDataPop() {
-      this._removeElements(this._cachedMeta.data.length - 1, 1);
-      this._dataModified = true;
-    }
-  }, {
-    key: "_onDataShift",
-    value: function _onDataShift() {
-      this._removeElements(0, 1);
-      this._dataModified = true;
-    }
-  }, {
-    key: "_onDataSplice",
-    value: function _onDataSplice(start, count) {
-      this._removeElements(start, count);
-      this._insertElements(start, arguments.length - 2);
-      this._dataModified = true;
-    }
-  }, {
-    key: "_onDataUnshift",
-    value: function _onDataUnshift() {
-      this._insertElements(0, arguments.length);
-      this._dataModified = true;
-    }
-  }]);
+    me._cachedMeta.data.splice(start, count);
+  }
+  ;
+  _proto._onDataPush = function _onDataPush() {
+    var count = arguments.length;
+    this._insertElements(this.getDataset().data.length - count, count);
+    this._dataModified = true;
+  }
+  ;
+  _proto._onDataPop = function _onDataPop() {
+    this._removeElements(this._cachedMeta.data.length - 1, 1);
+    this._dataModified = true;
+  }
+  ;
+  _proto._onDataShift = function _onDataShift() {
+    this._removeElements(0, 1);
+    this._dataModified = true;
+  }
+  ;
+  _proto._onDataSplice = function _onDataSplice(start, count) {
+    this._removeElements(start, count);
+    this._insertElements(start, arguments.length - 2);
+    this._dataModified = true;
+  }
+  ;
+  _proto._onDataUnshift = function _onDataUnshift() {
+    this._insertElements(0, arguments.length);
+    this._dataModified = true;
+  };
   return DatasetController;
 }();
 DatasetController.prototype.datasetElementType = null;
@@ -3121,44 +2794,38 @@ DatasetController.prototype.dataElementOptions = ['backgroundColor', 'borderColo
 
 var Element$1 = function () {
   function Element() {
-    _classCallCheck(this, Element);
     this.x = undefined;
     this.y = undefined;
     this.active = false;
     this.options = undefined;
     this.$animations = undefined;
   }
-  _createClass(Element, [{
-    key: "tooltipPosition",
-    value: function tooltipPosition(useFinalPosition) {
-      var _this$getProps = this.getProps(['x', 'y'], useFinalPosition),
-          x = _this$getProps.x,
-          y = _this$getProps.y;
-      return {
-        x: x,
-        y: y
-      };
+  var _proto = Element.prototype;
+  _proto.tooltipPosition = function tooltipPosition(useFinalPosition) {
+    var _this$getProps = this.getProps(['x', 'y'], useFinalPosition),
+        x = _this$getProps.x,
+        y = _this$getProps.y;
+    return {
+      x: x,
+      y: y
+    };
+  };
+  _proto.hasValue = function hasValue() {
+    return isNumber(this.x) && isNumber(this.y);
+  }
+  ;
+  _proto.getProps = function getProps(props, _final) {
+    var me = this;
+    var anims = this.$animations;
+    if (!_final || !anims) {
+      return me;
     }
-  }, {
-    key: "hasValue",
-    value: function hasValue() {
-      return isNumber(this.x) && isNumber(this.y);
-    }
-  }, {
-    key: "getProps",
-    value: function getProps(props, _final) {
-      var me = this;
-      var anims = this.$animations;
-      if (!_final || !anims) {
-        return me;
-      }
-      var ret = {};
-      props.forEach(function (prop) {
-        ret[prop] = anims[prop] && anims[prop].active ? anims[prop]._to : me[prop];
-      });
-      return ret;
-    }
-  }]);
+    var ret = {};
+    props.forEach(function (prop) {
+      ret[prop] = anims[prop] && anims[prop].active ? anims[prop]._to : me[prop];
+    });
+    return ret;
+  };
   return Element;
 }();
 
@@ -3253,12 +2920,10 @@ function drawBorder(ctx, element, model) {
   ctx.stroke();
 }
 var Arc = function (_Element) {
-  _inherits(Arc, _Element);
-  var _super = _createSuper(Arc);
+  _inheritsLoose(Arc, _Element);
   function Arc(cfg) {
     var _this;
-    _classCallCheck(this, Arc);
-    _this = _super.call(this);
+    _this = _Element.call(this) || this;
     _this.options = undefined;
     _this.circumference = undefined;
     _this.startAngle = undefined;
@@ -3270,77 +2935,71 @@ var Arc = function (_Element) {
     }
     return _this;
   }
-  _createClass(Arc, [{
-    key: "inRange",
-    value: function inRange(chartX, chartY, useFinalPosition) {
-      var point = this.getProps(['x', 'y'], useFinalPosition);
-      var _getAngleFromPoint = getAngleFromPoint(point, {
-        x: chartX,
-        y: chartY
-      }),
-          angle = _getAngleFromPoint.angle,
-          distance = _getAngleFromPoint.distance;
-      var _this$getProps = this.getProps(['startAngle', 'endAngle', 'innerRadius', 'outerRadius', 'circumference'], useFinalPosition),
-          startAngle = _this$getProps.startAngle,
-          endAngle = _this$getProps.endAngle,
-          innerRadius = _this$getProps.innerRadius,
-          outerRadius = _this$getProps.outerRadius,
-          circumference = _this$getProps.circumference;
-      var betweenAngles = circumference >= TAU$1 || _angleBetween(angle, startAngle, endAngle);
-      var withinRadius = distance >= innerRadius && distance <= outerRadius;
-      return betweenAngles && withinRadius;
+  var _proto = Arc.prototype;
+  _proto.inRange = function inRange(chartX, chartY, useFinalPosition) {
+    var point = this.getProps(['x', 'y'], useFinalPosition);
+    var _getAngleFromPoint = getAngleFromPoint(point, {
+      x: chartX,
+      y: chartY
+    }),
+        angle = _getAngleFromPoint.angle,
+        distance = _getAngleFromPoint.distance;
+    var _this$getProps = this.getProps(['startAngle', 'endAngle', 'innerRadius', 'outerRadius', 'circumference'], useFinalPosition),
+        startAngle = _this$getProps.startAngle,
+        endAngle = _this$getProps.endAngle,
+        innerRadius = _this$getProps.innerRadius,
+        outerRadius = _this$getProps.outerRadius,
+        circumference = _this$getProps.circumference;
+    var betweenAngles = circumference >= TAU$1 || _angleBetween(angle, startAngle, endAngle);
+    var withinRadius = distance >= innerRadius && distance <= outerRadius;
+    return betweenAngles && withinRadius;
+  }
+  ;
+  _proto.getCenterPoint = function getCenterPoint(useFinalPosition) {
+    var _this$getProps2 = this.getProps(['x', 'y', 'startAngle', 'endAngle', 'innerRadius', 'outerRadius'], useFinalPosition),
+        x = _this$getProps2.x,
+        y = _this$getProps2.y,
+        startAngle = _this$getProps2.startAngle,
+        endAngle = _this$getProps2.endAngle,
+        innerRadius = _this$getProps2.innerRadius,
+        outerRadius = _this$getProps2.outerRadius;
+    var halfAngle = (startAngle + endAngle) / 2;
+    var halfRadius = (innerRadius + outerRadius) / 2;
+    return {
+      x: x + Math.cos(halfAngle) * halfRadius,
+      y: y + Math.sin(halfAngle) * halfRadius
+    };
+  }
+  ;
+  _proto.tooltipPosition = function tooltipPosition(useFinalPosition) {
+    return this.getCenterPoint(useFinalPosition);
+  };
+  _proto.draw = function draw(ctx) {
+    var me = this;
+    var options = me.options;
+    var pixelMargin = options.borderAlign === 'inner' ? 0.33 : 0;
+    var model = {
+      x: me.x,
+      y: me.y,
+      innerRadius: me.innerRadius,
+      outerRadius: Math.max(me.outerRadius - pixelMargin, 0),
+      pixelMargin: pixelMargin,
+      startAngle: me.startAngle,
+      endAngle: me.endAngle,
+      fullCircles: Math.floor(me.circumference / TAU$1)
+    };
+    if (me.circumference === 0) {
+      return;
     }
-  }, {
-    key: "getCenterPoint",
-    value: function getCenterPoint(useFinalPosition) {
-      var _this$getProps2 = this.getProps(['x', 'y', 'startAngle', 'endAngle', 'innerRadius', 'outerRadius'], useFinalPosition),
-          x = _this$getProps2.x,
-          y = _this$getProps2.y,
-          startAngle = _this$getProps2.startAngle,
-          endAngle = _this$getProps2.endAngle,
-          innerRadius = _this$getProps2.innerRadius,
-          outerRadius = _this$getProps2.outerRadius;
-      var halfAngle = (startAngle + endAngle) / 2;
-      var halfRadius = (innerRadius + outerRadius) / 2;
-      return {
-        x: x + Math.cos(halfAngle) * halfRadius,
-        y: y + Math.sin(halfAngle) * halfRadius
-      };
+    ctx.save();
+    ctx.fillStyle = options.backgroundColor;
+    ctx.strokeStyle = options.borderColor;
+    drawArc(ctx, model, me.circumference);
+    if (options.borderWidth) {
+      drawBorder(ctx, me, model);
     }
-  }, {
-    key: "tooltipPosition",
-    value: function tooltipPosition(useFinalPosition) {
-      return this.getCenterPoint(useFinalPosition);
-    }
-  }, {
-    key: "draw",
-    value: function draw(ctx) {
-      var me = this;
-      var options = me.options;
-      var pixelMargin = options.borderAlign === 'inner' ? 0.33 : 0;
-      var model = {
-        x: me.x,
-        y: me.y,
-        innerRadius: me.innerRadius,
-        outerRadius: Math.max(me.outerRadius - pixelMargin, 0),
-        pixelMargin: pixelMargin,
-        startAngle: me.startAngle,
-        endAngle: me.endAngle,
-        fullCircles: Math.floor(me.circumference / TAU$1)
-      };
-      if (me.circumference === 0) {
-        return;
-      }
-      ctx.save();
-      ctx.fillStyle = options.backgroundColor;
-      ctx.strokeStyle = options.borderColor;
-      drawArc(ctx, model, me.circumference);
-      if (options.borderWidth) {
-        drawBorder(ctx, me, model);
-      }
-      ctx.restore();
-    }
-  }]);
+    ctx.restore();
+  };
   return Arc;
 }(Element$1);
 Arc._type = 'arc';
@@ -3482,7 +3141,7 @@ function _boundSegments(line, bounds) {
   for (var i = 0; i < segments.length; i++) {
     var sub = _boundSegment(segments[i], line.points, bounds);
     if (sub.length) {
-      result.push.apply(result, _toConsumableArray(sub));
+      result.push.apply(result, sub);
     }
   }
   return result;
@@ -3847,12 +3506,10 @@ function _getInterpolationMethod(options) {
   return _pointInLine;
 }
 var Line = function (_Element) {
-  _inherits(Line, _Element);
-  var _super = _createSuper(Line);
+  _inheritsLoose(Line, _Element);
   function Line(cfg) {
     var _this;
-    _classCallCheck(this, Line);
-    _this = _super.call(this);
+    _this = _Element.call(this) || this;
     _this.options = undefined;
     _this._loop = undefined;
     _this._fullLoop = undefined;
@@ -3864,105 +3521,97 @@ var Line = function (_Element) {
     }
     return _this;
   }
+  var _proto = Line.prototype;
+  _proto.updateControlPoints = function updateControlPoints(chartArea) {
+    var me = this;
+    if (me._controlPointsUpdated) {
+      return;
+    }
+    var options = me.options;
+    if (options.tension && !options.stepped) {
+      var loop = options.spanGaps ? me._loop : me._fullLoop;
+      _updateBezierControlPoints(me._points, options, chartArea, loop);
+    }
+  };
+  _proto.first = function first() {
+    var segments = this.segments;
+    var points = this.points;
+    return segments.length && points[segments[0].start];
+  }
+  ;
+  _proto.last = function last() {
+    var segments = this.segments;
+    var points = this.points;
+    var count = segments.length;
+    return count && points[segments[count - 1].end];
+  }
+  ;
+  _proto.interpolate = function interpolate(point, property) {
+    var me = this;
+    var options = me.options;
+    var value = point[property];
+    var points = me.points;
+    var segments = _boundSegments(me, {
+      property: property,
+      start: value,
+      end: value
+    });
+    if (!segments.length) {
+      return;
+    }
+    var result = [];
+    var _interpolate = _getInterpolationMethod(options);
+    var i, ilen;
+    for (i = 0, ilen = segments.length; i < ilen; ++i) {
+      var _segments$i = segments[i],
+          start = _segments$i.start,
+          end = _segments$i.end;
+      var p1 = points[start];
+      var p2 = points[end];
+      if (p1 === p2) {
+        result.push(p1);
+        continue;
+      }
+      var t = Math.abs((value - p1[property]) / (p2[property] - p1[property]));
+      var interpolated = _interpolate(p1, p2, t, options.stepped);
+      interpolated[property] = point[property];
+      result.push(interpolated);
+    }
+    return result.length === 1 ? result[0] : result;
+  }
+  ;
+  _proto.pathSegment = function pathSegment(ctx, segment, params) {
+    var segmentMethod = _getSegmentMethod(this);
+    return segmentMethod(ctx, this, segment, params);
+  }
+  ;
+  _proto.path = function path(ctx) {
+    var me = this;
+    var segments = me.segments;
+    var ilen = segments.length;
+    var segmentMethod = _getSegmentMethod(me);
+    var loop = me._loop;
+    for (var i = 0; i < ilen; ++i) {
+      loop &= segmentMethod(ctx, me, segments[i]);
+    }
+    return !!loop;
+  }
+  ;
+  _proto.draw = function draw(ctx) {
+    var me = this;
+    if (!me.points.length) {
+      return;
+    }
+    ctx.save();
+    setStyle(ctx, me.options);
+    ctx.beginPath();
+    if (me.path(ctx)) {
+      ctx.closePath();
+    }
+    ctx.stroke();
+    ctx.restore();
+  };
   _createClass(Line, [{
-    key: "updateControlPoints",
-    value: function updateControlPoints(chartArea) {
-      var me = this;
-      if (me._controlPointsUpdated) {
-        return;
-      }
-      var options = me.options;
-      if (options.tension && !options.stepped) {
-        var loop = options.spanGaps ? me._loop : me._fullLoop;
-        _updateBezierControlPoints(me._points, options, chartArea, loop);
-      }
-    }
-  }, {
-    key: "first",
-    value: function first() {
-      var segments = this.segments;
-      var points = this.points;
-      return segments.length && points[segments[0].start];
-    }
-  }, {
-    key: "last",
-    value: function last() {
-      var segments = this.segments;
-      var points = this.points;
-      var count = segments.length;
-      return count && points[segments[count - 1].end];
-    }
-  }, {
-    key: "interpolate",
-    value: function interpolate(point, property) {
-      var me = this;
-      var options = me.options;
-      var value = point[property];
-      var points = me.points;
-      var segments = _boundSegments(me, {
-        property: property,
-        start: value,
-        end: value
-      });
-      if (!segments.length) {
-        return;
-      }
-      var result = [];
-      var _interpolate = _getInterpolationMethod(options);
-      var i, ilen;
-      for (i = 0, ilen = segments.length; i < ilen; ++i) {
-        var _segments$i = segments[i],
-            start = _segments$i.start,
-            end = _segments$i.end;
-        var p1 = points[start];
-        var p2 = points[end];
-        if (p1 === p2) {
-          result.push(p1);
-          continue;
-        }
-        var t = Math.abs((value - p1[property]) / (p2[property] - p1[property]));
-        var interpolated = _interpolate(p1, p2, t, options.stepped);
-        interpolated[property] = point[property];
-        result.push(interpolated);
-      }
-      return result.length === 1 ? result[0] : result;
-    }
-  }, {
-    key: "pathSegment",
-    value: function pathSegment(ctx, segment, params) {
-      var segmentMethod = _getSegmentMethod(this);
-      return segmentMethod(ctx, this, segment, params);
-    }
-  }, {
-    key: "path",
-    value: function path(ctx) {
-      var me = this;
-      var segments = me.segments;
-      var ilen = segments.length;
-      var segmentMethod = _getSegmentMethod(me);
-      var loop = me._loop;
-      for (var i = 0; i < ilen; ++i) {
-        loop &= segmentMethod(ctx, me, segments[i]);
-      }
-      return !!loop;
-    }
-  }, {
-    key: "draw",
-    value: function draw(ctx) {
-      var me = this;
-      if (!me.points.length) {
-        return;
-      }
-      ctx.save();
-      setStyle(ctx, me.options);
-      ctx.beginPath();
-      if (me.path(ctx)) {
-        ctx.closePath();
-      }
-      ctx.stroke();
-      ctx.restore();
-    }
-  }, {
     key: "points",
     set: function set(points) {
       this._points = points;
@@ -3995,12 +3644,10 @@ defaults.set('elements', {
   }
 });
 var Point = function (_Element) {
-  _inherits(Point, _Element);
-  var _super = _createSuper(Point);
+  _inheritsLoose(Point, _Element);
   function Point(cfg) {
     var _this;
-    _classCallCheck(this, Point);
-    _this = _super.call(this);
+    _this = _Element.call(this) || this;
     _this.options = undefined;
     _this.skip = undefined;
     _this.stop = undefined;
@@ -4009,72 +3656,58 @@ var Point = function (_Element) {
     }
     return _this;
   }
-  _createClass(Point, [{
-    key: "inRange",
-    value: function inRange(mouseX, mouseY, useFinalPosition) {
-      var options = this.options;
-      var _this$getProps = this.getProps(['x', 'y'], useFinalPosition),
-          x = _this$getProps.x,
-          y = _this$getProps.y;
-      return Math.pow(mouseX - x, 2) + Math.pow(mouseY - y, 2) < Math.pow(options.hitRadius + options.radius, 2);
+  var _proto = Point.prototype;
+  _proto.inRange = function inRange(mouseX, mouseY, useFinalPosition) {
+    var options = this.options;
+    var _this$getProps = this.getProps(['x', 'y'], useFinalPosition),
+        x = _this$getProps.x,
+        y = _this$getProps.y;
+    return Math.pow(mouseX - x, 2) + Math.pow(mouseY - y, 2) < Math.pow(options.hitRadius + options.radius, 2);
+  };
+  _proto.inXRange = function inXRange(mouseX, useFinalPosition) {
+    var options = this.options;
+    var _this$getProps2 = this.getProps(['x'], useFinalPosition),
+        x = _this$getProps2.x;
+    return Math.abs(mouseX - x) < options.radius + options.hitRadius;
+  };
+  _proto.inYRange = function inYRange(mouseY, useFinalPosition) {
+    var options = this.options;
+    var _this$getProps3 = this.getProps(['x'], useFinalPosition),
+        y = _this$getProps3.y;
+    return Math.abs(mouseY - y) < options.radius + options.hitRadius;
+  };
+  _proto.getCenterPoint = function getCenterPoint(useFinalPosition) {
+    var _this$getProps4 = this.getProps(['x', 'y'], useFinalPosition),
+        x = _this$getProps4.x,
+        y = _this$getProps4.y;
+    return {
+      x: x,
+      y: y
+    };
+  };
+  _proto.size = function size() {
+    var options = this.options || {};
+    var radius = Math.max(options.radius, options.hoverRadius) || 0;
+    var borderWidth = radius && options.borderWidth || 0;
+    return (radius + borderWidth) * 2;
+  };
+  _proto.draw = function draw(ctx, chartArea) {
+    var me = this;
+    var options = me.options;
+    if (me.skip || options.radius <= 0) {
+      return;
     }
-  }, {
-    key: "inXRange",
-    value: function inXRange(mouseX, useFinalPosition) {
-      var options = this.options;
-      var _this$getProps2 = this.getProps(['x'], useFinalPosition),
-          x = _this$getProps2.x;
-      return Math.abs(mouseX - x) < options.radius + options.hitRadius;
+    if (chartArea === undefined || _isPointInArea(me, chartArea)) {
+      ctx.strokeStyle = options.borderColor;
+      ctx.lineWidth = options.borderWidth;
+      ctx.fillStyle = options.backgroundColor;
+      drawPoint(ctx, options, me.x, me.y);
     }
-  }, {
-    key: "inYRange",
-    value: function inYRange(mouseY, useFinalPosition) {
-      var options = this.options;
-      var _this$getProps3 = this.getProps(['x'], useFinalPosition),
-          y = _this$getProps3.y;
-      return Math.abs(mouseY - y) < options.radius + options.hitRadius;
-    }
-  }, {
-    key: "getCenterPoint",
-    value: function getCenterPoint(useFinalPosition) {
-      var _this$getProps4 = this.getProps(['x', 'y'], useFinalPosition),
-          x = _this$getProps4.x,
-          y = _this$getProps4.y;
-      return {
-        x: x,
-        y: y
-      };
-    }
-  }, {
-    key: "size",
-    value: function size() {
-      var options = this.options || {};
-      var radius = Math.max(options.radius, options.hoverRadius) || 0;
-      var borderWidth = radius && options.borderWidth || 0;
-      return (radius + borderWidth) * 2;
-    }
-  }, {
-    key: "draw",
-    value: function draw(ctx, chartArea) {
-      var me = this;
-      var options = me.options;
-      if (me.skip || options.radius <= 0) {
-        return;
-      }
-      if (chartArea === undefined || _isPointInArea(me, chartArea)) {
-        ctx.strokeStyle = options.borderColor;
-        ctx.lineWidth = options.borderWidth;
-        ctx.fillStyle = options.backgroundColor;
-        drawPoint(ctx, options, me.x, me.y);
-      }
-    }
-  }, {
-    key: "getRange",
-    value: function getRange() {
-      var options = this.options || {};
-      return options.radius + options.hitRadius;
-    }
-  }]);
+  };
+  _proto.getRange = function getRange() {
+    var options = this.options || {};
+    return options.radius + options.hitRadius;
+  };
   return Point;
 }(Element$1);
 Point._type = 'point';
@@ -4184,12 +3817,10 @@ function _inRange(bar, x, y, useFinalPosition) {
   return bounds && (skipX || x >= bounds.left && x <= bounds.right) && (skipY || y >= bounds.top && y <= bounds.bottom);
 }
 var Rectangle = function (_Element) {
-  _inherits(Rectangle, _Element);
-  var _super = _createSuper(Rectangle);
+  _inheritsLoose(Rectangle, _Element);
   function Rectangle(cfg) {
     var _this;
-    _classCallCheck(this, Rectangle);
-    _this = _super.call(this);
+    _this = _Element.call(this) || this;
     _this.options = undefined;
     _this.horizontal = undefined;
     _this.base = undefined;
@@ -4200,60 +3831,48 @@ var Rectangle = function (_Element) {
     }
     return _this;
   }
-  _createClass(Rectangle, [{
-    key: "draw",
-    value: function draw(ctx) {
-      var options = this.options;
-      var _boundingRects = boundingRects(this),
-          inner = _boundingRects.inner,
-          outer = _boundingRects.outer;
-      ctx.save();
-      if (outer.w !== inner.w || outer.h !== inner.h) {
-        ctx.beginPath();
-        ctx.rect(outer.x, outer.y, outer.w, outer.h);
-        ctx.clip();
-        ctx.rect(inner.x, inner.y, inner.w, inner.h);
-        ctx.fillStyle = options.borderColor;
-        ctx.fill('evenodd');
-      }
-      ctx.fillStyle = options.backgroundColor;
-      ctx.fillRect(inner.x, inner.y, inner.w, inner.h);
-      ctx.restore();
+  var _proto = Rectangle.prototype;
+  _proto.draw = function draw(ctx) {
+    var options = this.options;
+    var _boundingRects = boundingRects(this),
+        inner = _boundingRects.inner,
+        outer = _boundingRects.outer;
+    ctx.save();
+    if (outer.w !== inner.w || outer.h !== inner.h) {
+      ctx.beginPath();
+      ctx.rect(outer.x, outer.y, outer.w, outer.h);
+      ctx.clip();
+      ctx.rect(inner.x, inner.y, inner.w, inner.h);
+      ctx.fillStyle = options.borderColor;
+      ctx.fill('evenodd');
     }
-  }, {
-    key: "inRange",
-    value: function inRange(mouseX, mouseY, useFinalPosition) {
-      return _inRange(this, mouseX, mouseY, useFinalPosition);
-    }
-  }, {
-    key: "inXRange",
-    value: function inXRange(mouseX, useFinalPosition) {
-      return _inRange(this, mouseX, null, useFinalPosition);
-    }
-  }, {
-    key: "inYRange",
-    value: function inYRange(mouseY, useFinalPosition) {
-      return _inRange(this, null, mouseY, useFinalPosition);
-    }
-  }, {
-    key: "getCenterPoint",
-    value: function getCenterPoint(useFinalPosition) {
-      var _this$getProps = this.getProps(['x', 'y', 'base', 'horizontal'], useFinalPosition),
-          x = _this$getProps.x,
-          y = _this$getProps.y,
-          base = _this$getProps.base,
-          horizontal = _this$getProps.horizontal;
-      return {
-        x: horizontal ? (x + base) / 2 : x,
-        y: horizontal ? y : (y + base) / 2
-      };
-    }
-  }, {
-    key: "getRange",
-    value: function getRange(axis) {
-      return axis === 'x' ? this.width / 2 : this.height / 2;
-    }
-  }]);
+    ctx.fillStyle = options.backgroundColor;
+    ctx.fillRect(inner.x, inner.y, inner.w, inner.h);
+    ctx.restore();
+  };
+  _proto.inRange = function inRange(mouseX, mouseY, useFinalPosition) {
+    return _inRange(this, mouseX, mouseY, useFinalPosition);
+  };
+  _proto.inXRange = function inXRange(mouseX, useFinalPosition) {
+    return _inRange(this, mouseX, null, useFinalPosition);
+  };
+  _proto.inYRange = function inYRange(mouseY, useFinalPosition) {
+    return _inRange(this, null, mouseY, useFinalPosition);
+  };
+  _proto.getCenterPoint = function getCenterPoint(useFinalPosition) {
+    var _this$getProps = this.getProps(['x', 'y', 'base', 'horizontal'], useFinalPosition),
+        x = _this$getProps.x,
+        y = _this$getProps.y,
+        base = _this$getProps.base,
+        horizontal = _this$getProps.horizontal;
+    return {
+      x: horizontal ? (x + base) / 2 : x,
+      y: horizontal ? y : (y + base) / 2
+    };
+  };
+  _proto.getRange = function getRange(axis) {
+    return axis === 'x' ? this.width / 2 : this.height / 2;
+  };
   return Rectangle;
 }(Element$1);
 Rectangle._type = 'rectangle';
@@ -4389,238 +4008,217 @@ function isFloatBar(custom) {
   return custom && custom.barStart !== undefined && custom.barEnd !== undefined;
 }
 var BarController = function (_DatasetController) {
-  _inherits(BarController, _DatasetController);
-  var _super = _createSuper(BarController);
+  _inheritsLoose(BarController, _DatasetController);
   function BarController() {
-    _classCallCheck(this, BarController);
-    return _super.apply(this, arguments);
+    return _DatasetController.apply(this, arguments) || this;
   }
-  _createClass(BarController, [{
-    key: "parsePrimitiveData",
-    value: function parsePrimitiveData(meta, data, start, count) {
-      return parseArrayOrPrimitive(meta, data, start, count);
-    }
-  }, {
-    key: "parseArrayData",
-    value: function parseArrayData(meta, data, start, count) {
-      return parseArrayOrPrimitive(meta, data, start, count);
-    }
-  }, {
-    key: "parseObjectData",
-    value: function parseObjectData(meta, data, start, count) {
-      var iScale = meta.iScale,
-          vScale = meta.vScale;
-      var vProp = vScale.axis;
-      var parsed = [];
-      var i, ilen, item, obj, value;
-      for (i = start, ilen = start + count; i < ilen; ++i) {
-        obj = data[i];
-        item = {};
-        item[iScale.axis] = iScale.parseObject(obj, iScale.axis, i);
-        value = obj[vProp];
-        if (isArray(value)) {
-          parseFloatBar(value, item, vScale, i);
-        } else {
-          item[vScale.axis] = vScale.parseObject(obj, vProp, i);
-        }
-        parsed.push(item);
+  var _proto = BarController.prototype;
+  _proto.parsePrimitiveData = function parsePrimitiveData(meta, data, start, count) {
+    return parseArrayOrPrimitive(meta, data, start, count);
+  }
+  ;
+  _proto.parseArrayData = function parseArrayData(meta, data, start, count) {
+    return parseArrayOrPrimitive(meta, data, start, count);
+  }
+  ;
+  _proto.parseObjectData = function parseObjectData(meta, data, start, count) {
+    var iScale = meta.iScale,
+        vScale = meta.vScale;
+    var vProp = vScale.axis;
+    var parsed = [];
+    var i, ilen, item, obj, value;
+    for (i = start, ilen = start + count; i < ilen; ++i) {
+      obj = data[i];
+      item = {};
+      item[iScale.axis] = iScale.parseObject(obj, iScale.axis, i);
+      value = obj[vProp];
+      if (isArray(value)) {
+        parseFloatBar(value, item, vScale, i);
+      } else {
+        item[vScale.axis] = vScale.parseObject(obj, vProp, i);
       }
-      return parsed;
+      parsed.push(item);
     }
-  }, {
-    key: "getLabelAndValue",
-    value: function getLabelAndValue(index) {
-      var me = this;
-      var meta = me._cachedMeta;
-      var iScale = meta.iScale,
-          vScale = meta.vScale;
-      var parsed = me.getParsed(index);
-      var custom = parsed._custom;
-      var value = isFloatBar(custom) ? '[' + custom.start + ', ' + custom.end + ']' : '' + vScale.getLabelForValue(parsed[vScale.axis]);
-      return {
-        label: '' + iScale.getLabelForValue(parsed[iScale.axis]),
-        value: value
+    return parsed;
+  }
+  ;
+  _proto.getLabelAndValue = function getLabelAndValue(index) {
+    var me = this;
+    var meta = me._cachedMeta;
+    var iScale = meta.iScale,
+        vScale = meta.vScale;
+    var parsed = me.getParsed(index);
+    var custom = parsed._custom;
+    var value = isFloatBar(custom) ? '[' + custom.start + ', ' + custom.end + ']' : '' + vScale.getLabelForValue(parsed[vScale.axis]);
+    return {
+      label: '' + iScale.getLabelForValue(parsed[iScale.axis]),
+      value: value
+    };
+  };
+  _proto.initialize = function initialize() {
+    var me = this;
+    _DatasetController.prototype.initialize.call(this);
+    var meta = me._cachedMeta;
+    meta.stack = me.getDataset().stack;
+  };
+  _proto.update = function update(mode) {
+    var me = this;
+    var meta = me._cachedMeta;
+    me.updateElements(meta.data, 0, mode);
+  };
+  _proto.updateElements = function updateElements(rectangles, start, mode) {
+    var me = this;
+    var reset = mode === 'reset';
+    var vscale = me._cachedMeta.vScale;
+    var base = vscale.getBasePixel();
+    var horizontal = vscale.isHorizontal();
+    var ruler = me._getRuler();
+    var firstOpts = me.resolveDataElementOptions(start, mode);
+    var sharedOptions = me.getSharedOptions(mode, rectangles[start], firstOpts);
+    var includeOptions = me.includeOptions(mode, sharedOptions);
+    var i;
+    for (i = 0; i < rectangles.length; i++) {
+      var index = start + i;
+      var options = me.resolveDataElementOptions(index, mode);
+      var vpixels = me._calculateBarValuePixels(index, options);
+      var ipixels = me._calculateBarIndexPixels(index, ruler, options);
+      var properties = {
+        horizontal: horizontal,
+        base: reset ? base : vpixels.base,
+        x: horizontal ? reset ? base : vpixels.head : ipixels.center,
+        y: horizontal ? ipixels.center : reset ? base : vpixels.head,
+        height: horizontal ? ipixels.size : undefined,
+        width: horizontal ? undefined : ipixels.size
       };
-    }
-  }, {
-    key: "initialize",
-    value: function initialize() {
-      var me = this;
-      _get(_getPrototypeOf(BarController.prototype), "initialize", this).call(this);
-      var meta = me._cachedMeta;
-      meta.stack = me.getDataset().stack;
-    }
-  }, {
-    key: "update",
-    value: function update(mode) {
-      var me = this;
-      var meta = me._cachedMeta;
-      me.updateElements(meta.data, 0, mode);
-    }
-  }, {
-    key: "updateElements",
-    value: function updateElements(rectangles, start, mode) {
-      var me = this;
-      var reset = mode === 'reset';
-      var vscale = me._cachedMeta.vScale;
-      var base = vscale.getBasePixel();
-      var horizontal = vscale.isHorizontal();
-      var ruler = me._getRuler();
-      var firstOpts = me.resolveDataElementOptions(start, mode);
-      var sharedOptions = me.getSharedOptions(mode, rectangles[start], firstOpts);
-      var includeOptions = me.includeOptions(mode, sharedOptions);
-      var i;
-      for (i = 0; i < rectangles.length; i++) {
-        var index = start + i;
-        var options = me.resolveDataElementOptions(index, mode);
-        var vpixels = me._calculateBarValuePixels(index, options);
-        var ipixels = me._calculateBarIndexPixels(index, ruler, options);
-        var properties = {
-          horizontal: horizontal,
-          base: reset ? base : vpixels.base,
-          x: horizontal ? reset ? base : vpixels.head : ipixels.center,
-          y: horizontal ? ipixels.center : reset ? base : vpixels.head,
-          height: horizontal ? ipixels.size : undefined,
-          width: horizontal ? undefined : ipixels.size
-        };
-        if (includeOptions) {
-          properties.options = options;
-        }
-        me.updateElement(rectangles[i], index, properties, mode);
+      if (includeOptions) {
+        properties.options = options;
       }
-      me.updateSharedOptions(sharedOptions, mode);
+      me.updateElement(rectangles[i], index, properties, mode);
     }
-  }, {
-    key: "_getStacks",
-    value: function _getStacks(last) {
-      var me = this;
-      var meta = me._cachedMeta;
-      var iScale = meta.iScale;
-      var metasets = iScale.getMatchingVisibleMetas(me._type);
-      var stacked = iScale.options.stacked;
-      var ilen = metasets.length;
-      var stacks = [];
-      var i, item;
-      for (i = 0; i < ilen; ++i) {
-        item = metasets[i];
-        if (stacked === false || stacks.indexOf(item.stack) === -1 || stacked === undefined && item.stack === undefined) {
-          stacks.push(item.stack);
-        }
-        if (item.index === last) {
-          break;
-        }
+    me.updateSharedOptions(sharedOptions, mode);
+  }
+  ;
+  _proto._getStacks = function _getStacks(last) {
+    var me = this;
+    var meta = me._cachedMeta;
+    var iScale = meta.iScale;
+    var metasets = iScale.getMatchingVisibleMetas(me._type);
+    var stacked = iScale.options.stacked;
+    var ilen = metasets.length;
+    var stacks = [];
+    var i, item;
+    for (i = 0; i < ilen; ++i) {
+      item = metasets[i];
+      if (stacked === false || stacks.indexOf(item.stack) === -1 || stacked === undefined && item.stack === undefined) {
+        stacks.push(item.stack);
       }
-      if (!stacks.length) {
-        stacks.push(undefined);
+      if (item.index === last) {
+        break;
       }
-      return stacks;
     }
-  }, {
-    key: "_getStackCount",
-    value: function _getStackCount() {
-      return this._getStacks().length;
+    if (!stacks.length) {
+      stacks.push(undefined);
     }
-  }, {
-    key: "_getStackIndex",
-    value: function _getStackIndex(datasetIndex, name) {
-      var stacks = this._getStacks(datasetIndex);
-      var index = name !== undefined ? stacks.indexOf(name) : -1;
-      return index === -1 ? stacks.length - 1 : index;
+    return stacks;
+  }
+  ;
+  _proto._getStackCount = function _getStackCount() {
+    return this._getStacks().length;
+  }
+  ;
+  _proto._getStackIndex = function _getStackIndex(datasetIndex, name) {
+    var stacks = this._getStacks(datasetIndex);
+    var index = name !== undefined ? stacks.indexOf(name) : -1;
+    return index === -1 ? stacks.length - 1 : index;
+  }
+  ;
+  _proto._getRuler = function _getRuler() {
+    var me = this;
+    var meta = me._cachedMeta;
+    var iScale = meta.iScale;
+    var pixels = [];
+    var i, ilen;
+    for (i = 0, ilen = meta.data.length; i < ilen; ++i) {
+      pixels.push(iScale.getPixelForValue(me.getParsed(i)[iScale.axis]));
     }
-  }, {
-    key: "_getRuler",
-    value: function _getRuler() {
-      var me = this;
-      var meta = me._cachedMeta;
-      var iScale = meta.iScale;
-      var pixels = [];
-      var i, ilen;
-      for (i = 0, ilen = meta.data.length; i < ilen; ++i) {
-        pixels.push(iScale.getPixelForValue(me.getParsed(i)[iScale.axis]));
+    var min = computeMinSampleSize(iScale, pixels);
+    return {
+      min: min,
+      pixels: pixels,
+      start: iScale._startPixel,
+      end: iScale._endPixel,
+      stackCount: me._getStackCount(),
+      scale: iScale
+    };
+  }
+  ;
+  _proto._calculateBarValuePixels = function _calculateBarValuePixels(index, options) {
+    var me = this;
+    var meta = me._cachedMeta;
+    var vScale = meta.vScale;
+    var minBarLength = options.minBarLength;
+    var parsed = me.getParsed(index);
+    var custom = parsed._custom;
+    var value = parsed[vScale.axis];
+    var start = 0;
+    var length = meta._stacked ? me.applyStack(vScale, parsed) : value;
+    var head, size;
+    if (length !== value) {
+      start = length - value;
+      length = value;
+    }
+    if (isFloatBar(custom)) {
+      value = custom.barStart;
+      length = custom.barEnd - custom.barStart;
+      if (value !== 0 && sign(value) !== sign(custom.barEnd)) {
+        start = 0;
       }
-      var min = computeMinSampleSize(iScale, pixels);
-      return {
-        min: min,
-        pixels: pixels,
-        start: iScale._startPixel,
-        end: iScale._endPixel,
-        stackCount: me._getStackCount(),
-        scale: iScale
-      };
+      start += value;
     }
-  }, {
-    key: "_calculateBarValuePixels",
-    value: function _calculateBarValuePixels(index, options) {
-      var me = this;
-      var meta = me._cachedMeta;
-      var vScale = meta.vScale;
-      var minBarLength = options.minBarLength;
-      var parsed = me.getParsed(index);
-      var custom = parsed._custom;
-      var value = parsed[vScale.axis];
-      var start = 0;
-      var length = meta._stacked ? me.applyStack(vScale, parsed) : value;
-      var head, size;
-      if (length !== value) {
-        start = length - value;
-        length = value;
-      }
-      if (isFloatBar(custom)) {
-        value = custom.barStart;
-        length = custom.barEnd - custom.barStart;
-        if (value !== 0 && sign(value) !== sign(custom.barEnd)) {
-          start = 0;
-        }
-        start += value;
-      }
-      var base = _limitValue(vScale.getPixelForValue(start), vScale._startPixel - 10, vScale._endPixel + 10);
-      head = vScale.getPixelForValue(start + length);
-      size = head - base;
-      if (minBarLength !== undefined && Math.abs(size) < minBarLength) {
-        size = size < 0 ? -minBarLength : minBarLength;
-        head = base + size;
-      }
-      return {
-        size: size,
-        base: base,
-        head: head,
-        center: head + size / 2
-      };
+    var base = _limitValue(vScale.getPixelForValue(start), vScale._startPixel - 10, vScale._endPixel + 10);
+    head = vScale.getPixelForValue(start + length);
+    size = head - base;
+    if (minBarLength !== undefined && Math.abs(size) < minBarLength) {
+      size = size < 0 ? -minBarLength : minBarLength;
+      head = base + size;
     }
-  }, {
-    key: "_calculateBarIndexPixels",
-    value: function _calculateBarIndexPixels(index, ruler, options) {
-      var me = this;
-      var range = options.barThickness === 'flex' ? computeFlexCategoryTraits(index, ruler, options) : computeFitCategoryTraits(index, ruler, options);
-      var stackIndex = me._getStackIndex(me.index, me._cachedMeta.stack);
-      var center = range.start + range.chunk * stackIndex + range.chunk / 2;
-      var size = Math.min(valueOrDefault(options.maxBarThickness, Infinity), range.chunk * range.ratio);
-      return {
-        base: center - size / 2,
-        head: center + size / 2,
-        center: center,
-        size: size
-      };
-    }
-  }, {
-    key: "draw",
-    value: function draw() {
-      var me = this;
-      var chart = me.chart;
-      var meta = me._cachedMeta;
-      var vScale = meta.vScale;
-      var rects = meta.data;
-      var ilen = rects.length;
-      var i = 0;
-      clipArea(chart.ctx, chart.chartArea);
-      for (; i < ilen; ++i) {
-        if (!isNaN(me.getParsed(i)[vScale.axis])) {
-          rects[i].draw(me._ctx);
-        }
+    return {
+      size: size,
+      base: base,
+      head: head,
+      center: head + size / 2
+    };
+  }
+  ;
+  _proto._calculateBarIndexPixels = function _calculateBarIndexPixels(index, ruler, options) {
+    var me = this;
+    var range = options.barThickness === 'flex' ? computeFlexCategoryTraits(index, ruler, options) : computeFitCategoryTraits(index, ruler, options);
+    var stackIndex = me._getStackIndex(me.index, me._cachedMeta.stack);
+    var center = range.start + range.chunk * stackIndex + range.chunk / 2;
+    var size = Math.min(valueOrDefault(options.maxBarThickness, Infinity), range.chunk * range.ratio);
+    return {
+      base: center - size / 2,
+      head: center + size / 2,
+      center: center,
+      size: size
+    };
+  };
+  _proto.draw = function draw() {
+    var me = this;
+    var chart = me.chart;
+    var meta = me._cachedMeta;
+    var vScale = meta.vScale;
+    var rects = meta.data;
+    var ilen = rects.length;
+    var i = 0;
+    clipArea(chart.ctx, chart.chartArea);
+    for (; i < ilen; ++i) {
+      if (!isNaN(me.getParsed(i)[vScale.axis])) {
+        rects[i].draw(me._ctx);
       }
-      unclipArea(chart.ctx);
     }
-  }]);
+    unclipArea(chart.ctx);
+  };
   return BarController;
 }(DatasetController);
 BarController.prototype.dataElementType = Rectangle;
@@ -4649,122 +4247,111 @@ defaults.set('bubble', {
   }
 });
 var BubbleController = function (_DatasetController) {
-  _inherits(BubbleController, _DatasetController);
-  var _super = _createSuper(BubbleController);
+  _inheritsLoose(BubbleController, _DatasetController);
   function BubbleController() {
-    _classCallCheck(this, BubbleController);
-    return _super.apply(this, arguments);
+    return _DatasetController.apply(this, arguments) || this;
   }
-  _createClass(BubbleController, [{
-    key: "parseObjectData",
-    value: function parseObjectData(meta, data, start, count) {
-      var xScale = meta.xScale,
-          yScale = meta.yScale;
-      var parsed = [];
-      var i, ilen, item;
-      for (i = start, ilen = start + count; i < ilen; ++i) {
-        item = data[i];
-        parsed.push({
-          x: xScale.parseObject(item, 'x', i),
-          y: yScale.parseObject(item, 'y', i),
-          _custom: item && item.r && +item.r
-        });
-      }
-      return parsed;
+  var _proto = BubbleController.prototype;
+  _proto.parseObjectData = function parseObjectData(meta, data, start, count) {
+    var xScale = meta.xScale,
+        yScale = meta.yScale;
+    var parsed = [];
+    var i, ilen, item;
+    for (i = start, ilen = start + count; i < ilen; ++i) {
+      item = data[i];
+      parsed.push({
+        x: xScale.parseObject(item, 'x', i),
+        y: yScale.parseObject(item, 'y', i),
+        _custom: item && item.r && +item.r
+      });
     }
-  }, {
-    key: "getMaxOverflow",
-    value: function getMaxOverflow() {
-      var me = this;
-      var meta = me._cachedMeta;
-      var i = (meta.data || []).length - 1;
-      var max = 0;
-      for (; i >= 0; --i) {
-        max = Math.max(max, me.getStyle(i, true).radius);
-      }
-      return max > 0 && max;
+    return parsed;
+  }
+  ;
+  _proto.getMaxOverflow = function getMaxOverflow() {
+    var me = this;
+    var meta = me._cachedMeta;
+    var i = (meta.data || []).length - 1;
+    var max = 0;
+    for (; i >= 0; --i) {
+      max = Math.max(max, me.getStyle(i, true).radius);
     }
-  }, {
-    key: "getLabelAndValue",
-    value: function getLabelAndValue(index) {
-      var me = this;
-      var meta = me._cachedMeta;
-      var xScale = meta.xScale,
-          yScale = meta.yScale;
-      var parsed = me.getParsed(index);
-      var x = xScale.getLabelForValue(parsed.x);
-      var y = yScale.getLabelForValue(parsed.y);
-      var r = parsed._custom;
-      return {
-        label: meta.label,
-        value: '(' + x + ', ' + y + (r ? ', ' + r : '') + ')'
+    return max > 0 && max;
+  }
+  ;
+  _proto.getLabelAndValue = function getLabelAndValue(index) {
+    var me = this;
+    var meta = me._cachedMeta;
+    var xScale = meta.xScale,
+        yScale = meta.yScale;
+    var parsed = me.getParsed(index);
+    var x = xScale.getLabelForValue(parsed.x);
+    var y = yScale.getLabelForValue(parsed.y);
+    var r = parsed._custom;
+    return {
+      label: meta.label,
+      value: '(' + x + ', ' + y + (r ? ', ' + r : '') + ')'
+    };
+  };
+  _proto.update = function update(mode) {
+    var me = this;
+    var points = me._cachedMeta.data;
+    me.updateElements(points, 0, mode);
+  };
+  _proto.updateElements = function updateElements(points, start, mode) {
+    var me = this;
+    var reset = mode === 'reset';
+    var _me$_cachedMeta = me._cachedMeta,
+        xScale = _me$_cachedMeta.xScale,
+        yScale = _me$_cachedMeta.yScale;
+    var firstOpts = me.resolveDataElementOptions(start, mode);
+    var sharedOptions = me.getSharedOptions(mode, points[start], firstOpts);
+    var includeOptions = me.includeOptions(mode, sharedOptions);
+    for (var i = 0; i < points.length; i++) {
+      var point = points[i];
+      var index = start + i;
+      var parsed = !reset && me.getParsed(index);
+      var x = reset ? xScale.getPixelForDecimal(0.5) : xScale.getPixelForValue(parsed.x);
+      var y = reset ? yScale.getBasePixel() : yScale.getPixelForValue(parsed.y);
+      var properties = {
+        x: x,
+        y: y,
+        skip: isNaN(x) || isNaN(y)
       };
-    }
-  }, {
-    key: "update",
-    value: function update(mode) {
-      var me = this;
-      var points = me._cachedMeta.data;
-      me.updateElements(points, 0, mode);
-    }
-  }, {
-    key: "updateElements",
-    value: function updateElements(points, start, mode) {
-      var me = this;
-      var reset = mode === 'reset';
-      var _me$_cachedMeta = me._cachedMeta,
-          xScale = _me$_cachedMeta.xScale,
-          yScale = _me$_cachedMeta.yScale;
-      var firstOpts = me.resolveDataElementOptions(start, mode);
-      var sharedOptions = me.getSharedOptions(mode, points[start], firstOpts);
-      var includeOptions = me.includeOptions(mode, sharedOptions);
-      for (var i = 0; i < points.length; i++) {
-        var point = points[i];
-        var index = start + i;
-        var parsed = !reset && me.getParsed(index);
-        var x = reset ? xScale.getPixelForDecimal(0.5) : xScale.getPixelForValue(parsed.x);
-        var y = reset ? yScale.getBasePixel() : yScale.getPixelForValue(parsed.y);
-        var properties = {
-          x: x,
-          y: y,
-          skip: isNaN(x) || isNaN(y)
-        };
-        if (includeOptions) {
-          properties.options = me.resolveDataElementOptions(index, mode);
-          if (reset) {
-            properties.options.radius = 0;
-          }
+      if (includeOptions) {
+        properties.options = me.resolveDataElementOptions(index, mode);
+        if (reset) {
+          properties.options.radius = 0;
         }
-        me.updateElement(point, index, properties, mode);
       }
-      me.updateSharedOptions(sharedOptions, mode);
+      me.updateElement(point, index, properties, mode);
     }
-  }, {
-    key: "resolveDataElementOptions",
-    value: function resolveDataElementOptions(index, mode) {
-      var me = this;
-      var chart = me.chart;
-      var dataset = me.getDataset();
-      var parsed = me.getParsed(index);
-      var values = _get(_getPrototypeOf(BubbleController.prototype), "resolveDataElementOptions", this).call(this, index, mode);
-      var context = {
-        chart: chart,
-        dataIndex: index,
-        dataset: dataset,
-        datasetIndex: me.index
-      };
-      if (values.$shared) {
-        values = _extends({}, values, {
-          $shared: false
-        });
-      }
-      if (mode !== 'active') {
-        values.radius = 0;
-      }
-      values.radius += resolve([parsed && parsed._custom, me._config.radius, chart.options.elements.point.radius], context, index);
-      return values;
+    me.updateSharedOptions(sharedOptions, mode);
+  }
+  ;
+  _proto.resolveDataElementOptions = function resolveDataElementOptions(index, mode) {
+    var me = this;
+    var chart = me.chart;
+    var dataset = me.getDataset();
+    var parsed = me.getParsed(index);
+    var values = _DatasetController.prototype.resolveDataElementOptions.call(this, index, mode);
+    var context = {
+      chart: chart,
+      dataIndex: index,
+      dataset: dataset,
+      datasetIndex: me.index
+    };
+    if (values.$shared) {
+      values = _extends({}, values, {
+        $shared: false
+      });
     }
-  }]);
+    if (mode !== 'active') {
+      values.radius = 0;
+    }
+    values.radius += resolve([parsed && parsed._custom, me._config.radius, chart.options.elements.point.radius], context, index);
+    return values;
+  };
   return BubbleController;
 }(DatasetController);
 BubbleController.prototype.dataElementType = Point;
@@ -4865,199 +4452,180 @@ function getRatioAndOffset(rotation, circumference, cutout) {
   };
 }
 var DoughnutController = function (_DatasetController) {
-  _inherits(DoughnutController, _DatasetController);
-  var _super = _createSuper(DoughnutController);
+  _inheritsLoose(DoughnutController, _DatasetController);
   function DoughnutController(chart, datasetIndex) {
     var _this;
-    _classCallCheck(this, DoughnutController);
-    _this = _super.call(this, chart, datasetIndex);
+    _this = _DatasetController.call(this, chart, datasetIndex) || this;
     _this.innerRadius = undefined;
     _this.outerRadius = undefined;
     _this.offsetX = undefined;
     _this.offsetY = undefined;
     return _this;
   }
-  _createClass(DoughnutController, [{
-    key: "linkScales",
-    value: function linkScales() {}
-  }, {
-    key: "parse",
-    value: function parse(start, count) {
-      var data = this.getDataset().data;
-      var meta = this._cachedMeta;
-      var i, ilen;
-      for (i = start, ilen = start + count; i < ilen; ++i) {
-        meta._parsed[i] = +data[i];
+  var _proto = DoughnutController.prototype;
+  _proto.linkScales = function linkScales() {}
+  ;
+  _proto.parse = function parse(start, count) {
+    var data = this.getDataset().data;
+    var meta = this._cachedMeta;
+    var i, ilen;
+    for (i = start, ilen = start + count; i < ilen; ++i) {
+      meta._parsed[i] = +data[i];
+    }
+  }
+  ;
+  _proto.getRingIndex = function getRingIndex(datasetIndex) {
+    var ringIndex = 0;
+    for (var j = 0; j < datasetIndex; ++j) {
+      if (this.chart.isDatasetVisible(j)) {
+        ++ringIndex;
       }
     }
-  }, {
-    key: "getRingIndex",
-    value: function getRingIndex(datasetIndex) {
-      var ringIndex = 0;
-      for (var j = 0; j < datasetIndex; ++j) {
-        if (this.chart.isDatasetVisible(j)) {
-          ++ringIndex;
+    return ringIndex;
+  }
+  ;
+  _proto.update = function update(mode) {
+    var me = this;
+    var chart = me.chart;
+    var chartArea = chart.chartArea,
+        options = chart.options;
+    var meta = me._cachedMeta;
+    var arcs = meta.data;
+    var cutout = options.cutoutPercentage / 100 || 0;
+    var chartWeight = me._getRingWeight(me.index);
+    var _getRatioAndOffset = getRatioAndOffset(options.rotation, options.circumference, cutout),
+        ratioX = _getRatioAndOffset.ratioX,
+        ratioY = _getRatioAndOffset.ratioY,
+        offsetX = _getRatioAndOffset.offsetX,
+        offsetY = _getRatioAndOffset.offsetY;
+    var borderWidth = me.getMaxBorderWidth();
+    var maxWidth = (chartArea.right - chartArea.left - borderWidth) / ratioX;
+    var maxHeight = (chartArea.bottom - chartArea.top - borderWidth) / ratioY;
+    var outerRadius = Math.max(Math.min(maxWidth, maxHeight) / 2, 0);
+    var innerRadius = Math.max(outerRadius * cutout, 0);
+    var radiusLength = (outerRadius - innerRadius) / me._getVisibleDatasetWeightTotal();
+    me.offsetX = offsetX * outerRadius;
+    me.offsetY = offsetY * outerRadius;
+    meta.total = me.calculateTotal();
+    me.outerRadius = outerRadius - radiusLength * me._getRingWeightOffset(me.index);
+    me.innerRadius = Math.max(me.outerRadius - radiusLength * chartWeight, 0);
+    me.updateElements(arcs, 0, mode);
+  }
+  ;
+  _proto._circumference = function _circumference(i, reset) {
+    var me = this;
+    var opts = me.chart.options;
+    var meta = me._cachedMeta;
+    return reset && opts.animation.animateRotate ? 0 : this.chart.getDataVisibility(i) ? me.calculateCircumference(meta._parsed[i] * opts.circumference / DOUBLE_PI$1) : 0;
+  };
+  _proto.updateElements = function updateElements(arcs, start, mode) {
+    var me = this;
+    var reset = mode === 'reset';
+    var chart = me.chart;
+    var chartArea = chart.chartArea;
+    var opts = chart.options;
+    var animationOpts = opts.animation;
+    var centerX = (chartArea.left + chartArea.right) / 2;
+    var centerY = (chartArea.top + chartArea.bottom) / 2;
+    var animateScale = reset && animationOpts.animateScale;
+    var innerRadius = animateScale ? 0 : me.innerRadius;
+    var outerRadius = animateScale ? 0 : me.outerRadius;
+    var firstOpts = me.resolveDataElementOptions(start, mode);
+    var sharedOptions = me.getSharedOptions(mode, arcs[start], firstOpts);
+    var includeOptions = me.includeOptions(mode, sharedOptions);
+    var startAngle = opts.rotation;
+    var i;
+    for (i = 0; i < start; ++i) {
+      startAngle += me._circumference(i, reset);
+    }
+    for (i = 0; i < arcs.length; ++i) {
+      var index = start + i;
+      var circumference = me._circumference(index, reset);
+      var arc = arcs[i];
+      var properties = {
+        x: centerX + me.offsetX,
+        y: centerY + me.offsetY,
+        startAngle: startAngle,
+        endAngle: startAngle + circumference,
+        circumference: circumference,
+        outerRadius: outerRadius,
+        innerRadius: innerRadius
+      };
+      if (includeOptions) {
+        properties.options = me.resolveDataElementOptions(index, mode);
+      }
+      startAngle += circumference;
+      me.updateElement(arc, index, properties, mode);
+    }
+    me.updateSharedOptions(sharedOptions, mode);
+  };
+  _proto.calculateTotal = function calculateTotal() {
+    var meta = this._cachedMeta;
+    var metaData = meta.data;
+    var total = 0;
+    var i;
+    for (i = 0; i < metaData.length; i++) {
+      var value = meta._parsed[i];
+      if (!isNaN(value) && this.chart.getDataVisibility(i)) {
+        total += Math.abs(value);
+      }
+    }
+    return total;
+  };
+  _proto.calculateCircumference = function calculateCircumference(value) {
+    var total = this._cachedMeta.total;
+    if (total > 0 && !isNaN(value)) {
+      return DOUBLE_PI$1 * (Math.abs(value) / total);
+    }
+    return 0;
+  };
+  _proto.getMaxBorderWidth = function getMaxBorderWidth(arcs) {
+    var me = this;
+    var max = 0;
+    var chart = me.chart;
+    var i, ilen, meta, controller, options;
+    if (!arcs) {
+      for (i = 0, ilen = chart.data.datasets.length; i < ilen; ++i) {
+        if (chart.isDatasetVisible(i)) {
+          meta = chart.getDatasetMeta(i);
+          arcs = meta.data;
+          controller = meta.controller;
+          if (controller !== me) {
+            controller.configure();
+          }
+          break;
         }
       }
-      return ringIndex;
     }
-  }, {
-    key: "update",
-    value: function update(mode) {
-      var me = this;
-      var chart = me.chart;
-      var chartArea = chart.chartArea,
-          options = chart.options;
-      var meta = me._cachedMeta;
-      var arcs = meta.data;
-      var cutout = options.cutoutPercentage / 100 || 0;
-      var chartWeight = me._getRingWeight(me.index);
-      var _getRatioAndOffset = getRatioAndOffset(options.rotation, options.circumference, cutout),
-          ratioX = _getRatioAndOffset.ratioX,
-          ratioY = _getRatioAndOffset.ratioY,
-          offsetX = _getRatioAndOffset.offsetX,
-          offsetY = _getRatioAndOffset.offsetY;
-      var borderWidth = me.getMaxBorderWidth();
-      var maxWidth = (chartArea.right - chartArea.left - borderWidth) / ratioX;
-      var maxHeight = (chartArea.bottom - chartArea.top - borderWidth) / ratioY;
-      var outerRadius = Math.max(Math.min(maxWidth, maxHeight) / 2, 0);
-      var innerRadius = Math.max(outerRadius * cutout, 0);
-      var radiusLength = (outerRadius - innerRadius) / me._getVisibleDatasetWeightTotal();
-      me.offsetX = offsetX * outerRadius;
-      me.offsetY = offsetY * outerRadius;
-      meta.total = me.calculateTotal();
-      me.outerRadius = outerRadius - radiusLength * me._getRingWeightOffset(me.index);
-      me.innerRadius = Math.max(me.outerRadius - radiusLength * chartWeight, 0);
-      me.updateElements(arcs, 0, mode);
-    }
-  }, {
-    key: "_circumference",
-    value: function _circumference(i, reset) {
-      var me = this;
-      var opts = me.chart.options;
-      var meta = me._cachedMeta;
-      return reset && opts.animation.animateRotate ? 0 : this.chart.getDataVisibility(i) ? me.calculateCircumference(meta._parsed[i] * opts.circumference / DOUBLE_PI$1) : 0;
-    }
-  }, {
-    key: "updateElements",
-    value: function updateElements(arcs, start, mode) {
-      var me = this;
-      var reset = mode === 'reset';
-      var chart = me.chart;
-      var chartArea = chart.chartArea;
-      var opts = chart.options;
-      var animationOpts = opts.animation;
-      var centerX = (chartArea.left + chartArea.right) / 2;
-      var centerY = (chartArea.top + chartArea.bottom) / 2;
-      var animateScale = reset && animationOpts.animateScale;
-      var innerRadius = animateScale ? 0 : me.innerRadius;
-      var outerRadius = animateScale ? 0 : me.outerRadius;
-      var firstOpts = me.resolveDataElementOptions(start, mode);
-      var sharedOptions = me.getSharedOptions(mode, arcs[start], firstOpts);
-      var includeOptions = me.includeOptions(mode, sharedOptions);
-      var startAngle = opts.rotation;
-      var i;
-      for (i = 0; i < start; ++i) {
-        startAngle += me._circumference(i, reset);
-      }
-      for (i = 0; i < arcs.length; ++i) {
-        var index = start + i;
-        var circumference = me._circumference(index, reset);
-        var arc = arcs[i];
-        var properties = {
-          x: centerX + me.offsetX,
-          y: centerY + me.offsetY,
-          startAngle: startAngle,
-          endAngle: startAngle + circumference,
-          circumference: circumference,
-          outerRadius: outerRadius,
-          innerRadius: innerRadius
-        };
-        if (includeOptions) {
-          properties.options = me.resolveDataElementOptions(index, mode);
-        }
-        startAngle += circumference;
-        me.updateElement(arc, index, properties, mode);
-      }
-      me.updateSharedOptions(sharedOptions, mode);
-    }
-  }, {
-    key: "calculateTotal",
-    value: function calculateTotal() {
-      var meta = this._cachedMeta;
-      var metaData = meta.data;
-      var total = 0;
-      var i;
-      for (i = 0; i < metaData.length; i++) {
-        var value = meta._parsed[i];
-        if (!isNaN(value) && this.chart.getDataVisibility(i)) {
-          total += Math.abs(value);
-        }
-      }
-      return total;
-    }
-  }, {
-    key: "calculateCircumference",
-    value: function calculateCircumference(value) {
-      var total = this._cachedMeta.total;
-      if (total > 0 && !isNaN(value)) {
-        return DOUBLE_PI$1 * (Math.abs(value) / total);
-      }
+    if (!arcs) {
       return 0;
     }
-  }, {
-    key: "getMaxBorderWidth",
-    value: function getMaxBorderWidth(arcs) {
-      var me = this;
-      var max = 0;
-      var chart = me.chart;
-      var i, ilen, meta, controller, options;
-      if (!arcs) {
-        for (i = 0, ilen = chart.data.datasets.length; i < ilen; ++i) {
-          if (chart.isDatasetVisible(i)) {
-            meta = chart.getDatasetMeta(i);
-            arcs = meta.data;
-            controller = meta.controller;
-            if (controller !== me) {
-              controller.configure();
-            }
-            break;
-          }
-        }
+    for (i = 0, ilen = arcs.length; i < ilen; ++i) {
+      options = controller.resolveDataElementOptions(i);
+      if (options.borderAlign !== 'inner') {
+        max = Math.max(max, options.borderWidth || 0, options.hoverBorderWidth || 0);
       }
-      if (!arcs) {
-        return 0;
+    }
+    return max;
+  }
+  ;
+  _proto._getRingWeightOffset = function _getRingWeightOffset(datasetIndex) {
+    var ringWeightOffset = 0;
+    for (var i = 0; i < datasetIndex; ++i) {
+      if (this.chart.isDatasetVisible(i)) {
+        ringWeightOffset += this._getRingWeight(i);
       }
-      for (i = 0, ilen = arcs.length; i < ilen; ++i) {
-        options = controller.resolveDataElementOptions(i);
-        if (options.borderAlign !== 'inner') {
-          max = Math.max(max, options.borderWidth || 0, options.hoverBorderWidth || 0);
-        }
-      }
-      return max;
     }
-  }, {
-    key: "_getRingWeightOffset",
-    value: function _getRingWeightOffset(datasetIndex) {
-      var ringWeightOffset = 0;
-      for (var i = 0; i < datasetIndex; ++i) {
-        if (this.chart.isDatasetVisible(i)) {
-          ringWeightOffset += this._getRingWeight(i);
-        }
-      }
-      return ringWeightOffset;
-    }
-  }, {
-    key: "_getRingWeight",
-    value: function _getRingWeight(datasetIndex) {
-      return Math.max(valueOrDefault(this.chart.data.datasets[datasetIndex].weight, 1), 0);
-    }
-  }, {
-    key: "_getVisibleDatasetWeightTotal",
-    value: function _getVisibleDatasetWeightTotal() {
-      return this._getRingWeightOffset(this.chart.data.datasets.length) || 1;
-    }
-  }]);
+    return ringWeightOffset;
+  }
+  ;
+  _proto._getRingWeight = function _getRingWeight(datasetIndex) {
+    return Math.max(valueOrDefault(this.chart.data.datasets[datasetIndex].weight, 1), 0);
+  }
+  ;
+  _proto._getVisibleDatasetWeightTotal = function _getVisibleDatasetWeightTotal() {
+    return this._getRingWeightOffset(this.chart.data.datasets.length) || 1;
+  };
   return DoughnutController;
 }(DatasetController);
 DoughnutController.prototype.dataElementType = Arc;
@@ -5096,23 +4664,18 @@ defaults.set('horizontalBar', {
   }
 });
 var HorizontalBarController = function (_BarController) {
-  _inherits(HorizontalBarController, _BarController);
-  var _super = _createSuper(HorizontalBarController);
+  _inheritsLoose(HorizontalBarController, _BarController);
   function HorizontalBarController() {
-    _classCallCheck(this, HorizontalBarController);
-    return _super.apply(this, arguments);
+    return _BarController.apply(this, arguments) || this;
   }
-  _createClass(HorizontalBarController, [{
-    key: "getValueScaleId",
-    value: function getValueScaleId() {
-      return this._cachedMeta.xAxisID;
-    }
-  }, {
-    key: "getIndexScaleId",
-    value: function getIndexScaleId() {
-      return this._cachedMeta.yAxisID;
-    }
-  }]);
+  var _proto = HorizontalBarController.prototype;
+  _proto.getValueScaleId = function getValueScaleId() {
+    return this._cachedMeta.xAxisID;
+  }
+  ;
+  _proto.getIndexScaleId = function getIndexScaleId() {
+    return this._cachedMeta.yAxisID;
+  };
   return HorizontalBarController;
 }(BarController);
 
@@ -5132,124 +4695,114 @@ defaults.set('line', {
   }
 });
 var LineController = function (_DatasetController) {
-  _inherits(LineController, _DatasetController);
-  var _super = _createSuper(LineController);
+  _inheritsLoose(LineController, _DatasetController);
   function LineController(chart, datasetIndex) {
     var _this;
-    _classCallCheck(this, LineController);
-    _this = _super.call(this, chart, datasetIndex);
+    _this = _DatasetController.call(this, chart, datasetIndex) || this;
     _this._showLine = false;
     return _this;
   }
-  _createClass(LineController, [{
-    key: "update",
-    value: function update(mode) {
-      var me = this;
-      var meta = me._cachedMeta;
-      var line = meta.dataset;
-      var points = meta.data || [];
-      var options = me.chart.options;
-      var config = me._config;
-      var showLine = me._showLine = valueOrDefault(config.showLine, options.showLines);
-      if (showLine && mode !== 'resize') {
-        var properties = {
-          points: points,
-          options: me.resolveDatasetElementOptions()
-        };
-        me.updateElement(line, undefined, properties, mode);
-      }
-      me.updateElements(points, 0, mode);
+  var _proto = LineController.prototype;
+  _proto.update = function update(mode) {
+    var me = this;
+    var meta = me._cachedMeta;
+    var line = meta.dataset;
+    var points = meta.data || [];
+    var options = me.chart.options;
+    var config = me._config;
+    var showLine = me._showLine = valueOrDefault(config.showLine, options.showLines);
+    if (showLine && mode !== 'resize') {
+      var properties = {
+        points: points,
+        options: me.resolveDatasetElementOptions()
+      };
+      me.updateElement(line, undefined, properties, mode);
     }
-  }, {
-    key: "updateElements",
-    value: function updateElements(points, start, mode) {
-      var me = this;
-      var reset = mode === 'reset';
-      var _me$_cachedMeta = me._cachedMeta,
-          xScale = _me$_cachedMeta.xScale,
-          yScale = _me$_cachedMeta.yScale,
-          _stacked = _me$_cachedMeta._stacked;
-      var firstOpts = me.resolveDataElementOptions(start, mode);
-      var sharedOptions = me.getSharedOptions(mode, points[start], firstOpts);
-      var includeOptions = me.includeOptions(mode, sharedOptions);
-      var spanGaps = valueOrDefault(me._config.spanGaps, me.chart.options.spanGaps);
-      var maxGapLength = isNumber(spanGaps) ? spanGaps : Number.POSITIVE_INFINITY;
-      var prevParsed;
-      for (var i = 0; i < points.length; ++i) {
-        var index = start + i;
-        var point = points[i];
-        var parsed = me.getParsed(index);
-        var x = xScale.getPixelForValue(parsed.x);
-        var y = reset ? yScale.getBasePixel() : yScale.getPixelForValue(_stacked ? me.applyStack(yScale, parsed) : parsed.y);
-        var properties = {
-          x: x,
-          y: y,
-          skip: isNaN(x) || isNaN(y),
-          stop: i > 0 && parsed.x - prevParsed.x > maxGapLength
-        };
-        if (includeOptions) {
-          properties.options = me.resolveDataElementOptions(index, mode);
-        }
-        me.updateElement(point, index, properties, mode);
-        prevParsed = parsed;
+    me.updateElements(points, 0, mode);
+  };
+  _proto.updateElements = function updateElements(points, start, mode) {
+    var me = this;
+    var reset = mode === 'reset';
+    var _me$_cachedMeta = me._cachedMeta,
+        xScale = _me$_cachedMeta.xScale,
+        yScale = _me$_cachedMeta.yScale,
+        _stacked = _me$_cachedMeta._stacked;
+    var firstOpts = me.resolveDataElementOptions(start, mode);
+    var sharedOptions = me.getSharedOptions(mode, points[start], firstOpts);
+    var includeOptions = me.includeOptions(mode, sharedOptions);
+    var spanGaps = valueOrDefault(me._config.spanGaps, me.chart.options.spanGaps);
+    var maxGapLength = isNumber(spanGaps) ? spanGaps : Number.POSITIVE_INFINITY;
+    var prevParsed;
+    for (var i = 0; i < points.length; ++i) {
+      var index = start + i;
+      var point = points[i];
+      var parsed = me.getParsed(index);
+      var x = xScale.getPixelForValue(parsed.x);
+      var y = reset ? yScale.getBasePixel() : yScale.getPixelForValue(_stacked ? me.applyStack(yScale, parsed) : parsed.y);
+      var properties = {
+        x: x,
+        y: y,
+        skip: isNaN(x) || isNaN(y),
+        stop: i > 0 && parsed.x - prevParsed.x > maxGapLength
+      };
+      if (includeOptions) {
+        properties.options = me.resolveDataElementOptions(index, mode);
       }
-      me.updateSharedOptions(sharedOptions, mode);
+      me.updateElement(point, index, properties, mode);
+      prevParsed = parsed;
     }
-  }, {
-    key: "resolveDatasetElementOptions",
-    value: function resolveDatasetElementOptions(active) {
-      var me = this;
-      var config = me._config;
-      var options = me.chart.options;
-      var lineOptions = options.elements.line;
-      var values = _get(_getPrototypeOf(LineController.prototype), "resolveDatasetElementOptions", this).call(this, active);
-      values.spanGaps = valueOrDefault(config.spanGaps, options.spanGaps);
-      values.tension = valueOrDefault(config.lineTension, lineOptions.tension);
-      values.stepped = resolve([config.stepped, lineOptions.stepped]);
-      return values;
+    me.updateSharedOptions(sharedOptions, mode);
+  }
+  ;
+  _proto.resolveDatasetElementOptions = function resolveDatasetElementOptions(active) {
+    var me = this;
+    var config = me._config;
+    var options = me.chart.options;
+    var lineOptions = options.elements.line;
+    var values = _DatasetController.prototype.resolveDatasetElementOptions.call(this, active);
+    values.spanGaps = valueOrDefault(config.spanGaps, options.spanGaps);
+    values.tension = valueOrDefault(config.lineTension, lineOptions.tension);
+    values.stepped = resolve([config.stepped, lineOptions.stepped]);
+    return values;
+  }
+  ;
+  _proto.getMaxOverflow = function getMaxOverflow() {
+    var me = this;
+    var meta = me._cachedMeta;
+    var border = me._showLine && meta.dataset.options.borderWidth || 0;
+    var data = meta.data || [];
+    if (!data.length) {
+      return border;
     }
-  }, {
-    key: "getMaxOverflow",
-    value: function getMaxOverflow() {
-      var me = this;
-      var meta = me._cachedMeta;
-      var border = me._showLine && meta.dataset.options.borderWidth || 0;
-      var data = meta.data || [];
-      if (!data.length) {
-        return border;
-      }
-      var firstPoint = data[0].size();
-      var lastPoint = data[data.length - 1].size();
-      return Math.max(border, firstPoint, lastPoint) / 2;
+    var firstPoint = data[0].size();
+    var lastPoint = data[data.length - 1].size();
+    return Math.max(border, firstPoint, lastPoint) / 2;
+  };
+  _proto.draw = function draw() {
+    var me = this;
+    var ctx = me._ctx;
+    var chart = me.chart;
+    var meta = me._cachedMeta;
+    var points = meta.data || [];
+    var area = chart.chartArea;
+    var active = [];
+    var ilen = points.length;
+    var i, point;
+    if (me._showLine) {
+      meta.dataset.draw(ctx, area);
     }
-  }, {
-    key: "draw",
-    value: function draw() {
-      var me = this;
-      var ctx = me._ctx;
-      var chart = me.chart;
-      var meta = me._cachedMeta;
-      var points = meta.data || [];
-      var area = chart.chartArea;
-      var active = [];
-      var ilen = points.length;
-      var i, point;
-      if (me._showLine) {
-        meta.dataset.draw(ctx, area);
-      }
-      for (i = 0; i < ilen; ++i) {
-        point = points[i];
-        if (point.active) {
-          active.push(point);
-        } else {
-          point.draw(ctx, area);
-        }
-      }
-      for (i = 0, ilen = active.length; i < ilen; ++i) {
-        active[i].draw(ctx, area);
+    for (i = 0; i < ilen; ++i) {
+      point = points[i];
+      if (point.active) {
+        active.push(point);
+      } else {
+        point.draw(ctx, area);
       }
     }
-  }]);
+    for (i = 0, ilen = active.length; i < ilen; ++i) {
+      active[i].draw(ctx, area);
+    }
+  };
   return LineController;
 }(DatasetController);
 LineController.prototype.datasetElementType = Line;
@@ -5337,127 +4890,114 @@ function getStartAngleRadians(deg) {
   return toRadians(deg) - 0.5 * Math.PI;
 }
 var PolarAreaController = function (_DatasetController) {
-  _inherits(PolarAreaController, _DatasetController);
-  var _super = _createSuper(PolarAreaController);
+  _inheritsLoose(PolarAreaController, _DatasetController);
   function PolarAreaController(chart, datasetIndex) {
     var _this;
-    _classCallCheck(this, PolarAreaController);
-    _this = _super.call(this, chart, datasetIndex);
+    _this = _DatasetController.call(this, chart, datasetIndex) || this;
     _this.innerRadius = undefined;
     _this.outerRadius = undefined;
     return _this;
   }
-  _createClass(PolarAreaController, [{
-    key: "getIndexScaleId",
-    value: function getIndexScaleId() {
-      return this._cachedMeta.rAxisID;
+  var _proto = PolarAreaController.prototype;
+  _proto.getIndexScaleId = function getIndexScaleId() {
+    return this._cachedMeta.rAxisID;
+  }
+  ;
+  _proto.getValueScaleId = function getValueScaleId() {
+    return this._cachedMeta.rAxisID;
+  };
+  _proto.update = function update(mode) {
+    var arcs = this._cachedMeta.data;
+    this._updateRadius();
+    this.updateElements(arcs, 0, mode);
+  }
+  ;
+  _proto._updateRadius = function _updateRadius() {
+    var me = this;
+    var chart = me.chart;
+    var chartArea = chart.chartArea;
+    var opts = chart.options;
+    var minSize = Math.min(chartArea.right - chartArea.left, chartArea.bottom - chartArea.top);
+    var outerRadius = Math.max(minSize / 2, 0);
+    var innerRadius = Math.max(opts.cutoutPercentage ? outerRadius / 100 * opts.cutoutPercentage : 1, 0);
+    var radiusLength = (outerRadius - innerRadius) / chart.getVisibleDatasetCount();
+    me.outerRadius = outerRadius - radiusLength * me.index;
+    me.innerRadius = me.outerRadius - radiusLength;
+  };
+  _proto.updateElements = function updateElements(arcs, start, mode) {
+    var me = this;
+    var reset = mode === 'reset';
+    var chart = me.chart;
+    var dataset = me.getDataset();
+    var opts = chart.options;
+    var animationOpts = opts.animation;
+    var scale = chart.scales.r;
+    var centerX = scale.xCenter;
+    var centerY = scale.yCenter;
+    var datasetStartAngle = getStartAngleRadians(opts.startAngle);
+    var angle = datasetStartAngle;
+    var i;
+    me._cachedMeta.count = me.countVisibleElements();
+    for (i = 0; i < start; ++i) {
+      angle += me._computeAngle(i);
     }
-  }, {
-    key: "getValueScaleId",
-    value: function getValueScaleId() {
-      return this._cachedMeta.rAxisID;
-    }
-  }, {
-    key: "update",
-    value: function update(mode) {
-      var arcs = this._cachedMeta.data;
-      this._updateRadius();
-      this.updateElements(arcs, 0, mode);
-    }
-  }, {
-    key: "_updateRadius",
-    value: function _updateRadius() {
-      var me = this;
-      var chart = me.chart;
-      var chartArea = chart.chartArea;
-      var opts = chart.options;
-      var minSize = Math.min(chartArea.right - chartArea.left, chartArea.bottom - chartArea.top);
-      var outerRadius = Math.max(minSize / 2, 0);
-      var innerRadius = Math.max(opts.cutoutPercentage ? outerRadius / 100 * opts.cutoutPercentage : 1, 0);
-      var radiusLength = (outerRadius - innerRadius) / chart.getVisibleDatasetCount();
-      me.outerRadius = outerRadius - radiusLength * me.index;
-      me.innerRadius = me.outerRadius - radiusLength;
-    }
-  }, {
-    key: "updateElements",
-    value: function updateElements(arcs, start, mode) {
-      var me = this;
-      var reset = mode === 'reset';
-      var chart = me.chart;
-      var dataset = me.getDataset();
-      var opts = chart.options;
-      var animationOpts = opts.animation;
-      var scale = chart.scales.r;
-      var centerX = scale.xCenter;
-      var centerY = scale.yCenter;
-      var datasetStartAngle = getStartAngleRadians(opts.startAngle);
-      var angle = datasetStartAngle;
-      var i;
-      me._cachedMeta.count = me.countVisibleElements();
-      for (i = 0; i < start; ++i) {
-        angle += me._computeAngle(i);
-      }
-      for (i = 0; i < arcs.length; i++) {
-        var arc = arcs[i];
-        var index = start + i;
-        var startAngle = angle;
-        var endAngle = angle + me._computeAngle(index);
-        var outerRadius = this.chart.getDataVisibility(index) ? scale.getDistanceFromCenterForValue(dataset.data[index]) : 0;
-        angle = endAngle;
-        if (reset) {
-          if (animationOpts.animateScale) {
-            outerRadius = 0;
-          }
-          if (animationOpts.animateRotate) {
-            startAngle = datasetStartAngle;
-            endAngle = datasetStartAngle;
-          }
+    for (i = 0; i < arcs.length; i++) {
+      var arc = arcs[i];
+      var index = start + i;
+      var startAngle = angle;
+      var endAngle = angle + me._computeAngle(index);
+      var outerRadius = this.chart.getDataVisibility(index) ? scale.getDistanceFromCenterForValue(dataset.data[index]) : 0;
+      angle = endAngle;
+      if (reset) {
+        if (animationOpts.animateScale) {
+          outerRadius = 0;
         }
-        var properties = {
-          x: centerX,
-          y: centerY,
-          innerRadius: 0,
-          outerRadius: outerRadius,
-          startAngle: startAngle,
-          endAngle: endAngle,
-          options: me.resolveDataElementOptions(index, mode)
-        };
-        me.updateElement(arc, index, properties, mode);
-      }
-    }
-  }, {
-    key: "countVisibleElements",
-    value: function countVisibleElements() {
-      var _this2 = this;
-      var dataset = this.getDataset();
-      var meta = this._cachedMeta;
-      var count = 0;
-      meta.data.forEach(function (element, index) {
-        if (!isNaN(dataset.data[index]) && _this2.chart.getDataVisibility(index)) {
-          count++;
+        if (animationOpts.animateRotate) {
+          startAngle = datasetStartAngle;
+          endAngle = datasetStartAngle;
         }
-      });
-      return count;
-    }
-  }, {
-    key: "_computeAngle",
-    value: function _computeAngle(index) {
-      var me = this;
-      var meta = me._cachedMeta;
-      var count = meta.count;
-      var dataset = me.getDataset();
-      if (isNaN(dataset.data[index]) || !this.chart.getDataVisibility(index)) {
-        return 0;
       }
-      var context = {
-        chart: me.chart,
-        dataIndex: index,
-        dataset: dataset,
-        datasetIndex: me.index
+      var properties = {
+        x: centerX,
+        y: centerY,
+        innerRadius: 0,
+        outerRadius: outerRadius,
+        startAngle: startAngle,
+        endAngle: endAngle,
+        options: me.resolveDataElementOptions(index, mode)
       };
-      return resolve([me.chart.options.elements.arc.angle, 2 * Math.PI / count], context, index);
+      me.updateElement(arc, index, properties, mode);
     }
-  }]);
+  };
+  _proto.countVisibleElements = function countVisibleElements() {
+    var _this2 = this;
+    var dataset = this.getDataset();
+    var meta = this._cachedMeta;
+    var count = 0;
+    meta.data.forEach(function (element, index) {
+      if (!isNaN(dataset.data[index]) && _this2.chart.getDataVisibility(index)) {
+        count++;
+      }
+    });
+    return count;
+  }
+  ;
+  _proto._computeAngle = function _computeAngle(index) {
+    var me = this;
+    var meta = me._cachedMeta;
+    var count = meta.count;
+    var dataset = me.getDataset();
+    if (isNaN(dataset.data[index]) || !this.chart.getDataVisibility(index)) {
+      return 0;
+    }
+    var context = {
+      chart: me.chart,
+      dataIndex: index,
+      dataset: dataset,
+      datasetIndex: me.index
+    };
+    return resolve([me.chart.options.elements.arc.angle, 2 * Math.PI / count], context, index);
+  };
   return PolarAreaController;
 }(DatasetController);
 PolarAreaController.prototype.dataElementType = Arc;
@@ -5484,88 +5024,77 @@ defaults.set('radar', {
   }
 });
 var RadarController = function (_DatasetController) {
-  _inherits(RadarController, _DatasetController);
-  var _super = _createSuper(RadarController);
+  _inheritsLoose(RadarController, _DatasetController);
   function RadarController() {
-    _classCallCheck(this, RadarController);
-    return _super.apply(this, arguments);
+    return _DatasetController.apply(this, arguments) || this;
   }
-  _createClass(RadarController, [{
-    key: "getIndexScaleId",
-    value: function getIndexScaleId() {
-      return this._cachedMeta.rAxisID;
-    }
-  }, {
-    key: "getValueScaleId",
-    value: function getValueScaleId() {
-      return this._cachedMeta.rAxisID;
-    }
-  }, {
-    key: "getLabelAndValue",
-    value: function getLabelAndValue(index) {
-      var me = this;
-      var vScale = me._cachedMeta.vScale;
-      var parsed = me.getParsed(index);
-      return {
-        label: vScale.getLabels()[index],
-        value: '' + vScale.getLabelForValue(parsed[vScale.axis])
-      };
-    }
-  }, {
-    key: "update",
-    value: function update(mode) {
-      var me = this;
-      var meta = me._cachedMeta;
-      var line = meta.dataset;
-      var points = meta.data || [];
-      var labels = meta.iScale.getLabels();
+  var _proto = RadarController.prototype;
+  _proto.getIndexScaleId = function getIndexScaleId() {
+    return this._cachedMeta.rAxisID;
+  }
+  ;
+  _proto.getValueScaleId = function getValueScaleId() {
+    return this._cachedMeta.rAxisID;
+  }
+  ;
+  _proto.getLabelAndValue = function getLabelAndValue(index) {
+    var me = this;
+    var vScale = me._cachedMeta.vScale;
+    var parsed = me.getParsed(index);
+    return {
+      label: vScale.getLabels()[index],
+      value: '' + vScale.getLabelForValue(parsed[vScale.axis])
+    };
+  };
+  _proto.update = function update(mode) {
+    var me = this;
+    var meta = me._cachedMeta;
+    var line = meta.dataset;
+    var points = meta.data || [];
+    var labels = meta.iScale.getLabels();
+    var properties = {
+      points: points,
+      _loop: true,
+      _fullLoop: labels.length === points.length,
+      options: me.resolveDatasetElementOptions()
+    };
+    me.updateElement(line, undefined, properties, mode);
+    me.updateElements(points, 0, mode);
+    line.updateControlPoints(me.chart.chartArea);
+  };
+  _proto.updateElements = function updateElements(points, start, mode) {
+    var me = this;
+    var dataset = me.getDataset();
+    var scale = me.chart.scales.r;
+    var reset = mode === 'reset';
+    var i;
+    for (i = 0; i < points.length; i++) {
+      var point = points[i];
+      var index = start + i;
+      var options = me.resolveDataElementOptions(index, mode);
+      var pointPosition = scale.getPointPositionForValue(index, dataset.data[index]);
+      var x = reset ? scale.xCenter : pointPosition.x;
+      var y = reset ? scale.yCenter : pointPosition.y;
       var properties = {
-        points: points,
-        _loop: true,
-        _fullLoop: labels.length === points.length,
-        options: me.resolveDatasetElementOptions()
+        x: x,
+        y: y,
+        angle: pointPosition.angle,
+        skip: isNaN(x) || isNaN(y),
+        options: options
       };
-      me.updateElement(line, undefined, properties, mode);
-      me.updateElements(points, 0, mode);
-      line.updateControlPoints(me.chart.chartArea);
+      me.updateElement(point, index, properties, mode);
     }
-  }, {
-    key: "updateElements",
-    value: function updateElements(points, start, mode) {
-      var me = this;
-      var dataset = me.getDataset();
-      var scale = me.chart.scales.r;
-      var reset = mode === 'reset';
-      var i;
-      for (i = 0; i < points.length; i++) {
-        var point = points[i];
-        var index = start + i;
-        var options = me.resolveDataElementOptions(index, mode);
-        var pointPosition = scale.getPointPositionForValue(index, dataset.data[index]);
-        var x = reset ? scale.xCenter : pointPosition.x;
-        var y = reset ? scale.yCenter : pointPosition.y;
-        var properties = {
-          x: x,
-          y: y,
-          angle: pointPosition.angle,
-          skip: isNaN(x) || isNaN(y),
-          options: options
-        };
-        me.updateElement(point, index, properties, mode);
-      }
-    }
-  }, {
-    key: "resolveDatasetElementOptions",
-    value: function resolveDatasetElementOptions(active) {
-      var me = this;
-      var config = me._config;
-      var options = me.chart.options;
-      var values = _get(_getPrototypeOf(RadarController.prototype), "resolveDatasetElementOptions", this).call(this, active);
-      values.spanGaps = valueOrDefault(config.spanGaps, options.spanGaps);
-      values.tension = valueOrDefault(config.lineTension, options.elements.line.tension);
-      return values;
-    }
-  }]);
+  }
+  ;
+  _proto.resolveDatasetElementOptions = function resolveDatasetElementOptions(active) {
+    var me = this;
+    var config = me._config;
+    var options = me.chart.options;
+    var values = _DatasetController.prototype.resolveDatasetElementOptions.call(this, active);
+    values.spanGaps = valueOrDefault(config.spanGaps, options.spanGaps);
+    values.tension = valueOrDefault(config.lineTension, options.elements.line.tension);
+    return values;
+  };
   return RadarController;
 }(DatasetController);
 RadarController.prototype.datasetElementType = Line;
@@ -6288,50 +5817,37 @@ var layouts = {
 };
 
 var BasePlatform = function () {
-  function BasePlatform() {
-    _classCallCheck(this, BasePlatform);
+  function BasePlatform() {}
+  var _proto = BasePlatform.prototype;
+  _proto.acquireContext = function acquireContext(canvas, options) {}
+  ;
+  _proto.releaseContext = function releaseContext(context) {
+    return false;
   }
-  _createClass(BasePlatform, [{
-    key: "acquireContext",
-    value: function acquireContext(canvas, options) {}
-  }, {
-    key: "releaseContext",
-    value: function releaseContext(context) {
-      return false;
-    }
-  }, {
-    key: "addEventListener",
-    value: function addEventListener(chart, type, listener) {}
-  }, {
-    key: "removeEventListener",
-    value: function removeEventListener(chart, type, listener) {}
-  }, {
-    key: "getDevicePixelRatio",
-    value: function getDevicePixelRatio() {
-      return 1;
-    }
-  }, {
-    key: "isAttached",
-    value: function isAttached(canvas) {
-      return true;
-    }
-  }]);
+  ;
+  _proto.addEventListener = function addEventListener(chart, type, listener) {}
+  ;
+  _proto.removeEventListener = function removeEventListener(chart, type, listener) {}
+  ;
+  _proto.getDevicePixelRatio = function getDevicePixelRatio() {
+    return 1;
+  }
+  ;
+  _proto.isAttached = function isAttached(canvas) {
+    return true;
+  };
   return BasePlatform;
 }();
 
 var BasicPlatform = function (_BasePlatform) {
-  _inherits(BasicPlatform, _BasePlatform);
-  var _super = _createSuper(BasicPlatform);
+  _inheritsLoose(BasicPlatform, _BasePlatform);
   function BasicPlatform() {
-    _classCallCheck(this, BasicPlatform);
-    return _super.apply(this, arguments);
+    return _BasePlatform.apply(this, arguments) || this;
   }
-  _createClass(BasicPlatform, [{
-    key: "acquireContext",
-    value: function acquireContext(item) {
-      return item && item.getContext && item.getContext('2d') || null;
-    }
-  }]);
+  var _proto = BasicPlatform.prototype;
+  _proto.acquireContext = function acquireContext(item) {
+    return item && item.getContext && item.getContext('2d') || null;
+  };
   return BasicPlatform;
 }(BasePlatform);
 
@@ -7016,89 +6532,79 @@ function createProxyAndListen(chart, type, listener) {
   return proxy;
 }
 var DomPlatform = function (_BasePlatform) {
-  _inherits(DomPlatform, _BasePlatform);
-  var _super = _createSuper(DomPlatform);
+  _inheritsLoose(DomPlatform, _BasePlatform);
   function DomPlatform() {
-    _classCallCheck(this, DomPlatform);
-    return _super.apply(this, arguments);
+    return _BasePlatform.apply(this, arguments) || this;
   }
-  _createClass(DomPlatform, [{
-    key: "acquireContext",
-    value: function acquireContext(canvas, config) {
-      var context = canvas && canvas.getContext && canvas.getContext('2d');
-      if (context && context.canvas === canvas) {
-        initCanvas(canvas, config);
-        return context;
+  var _proto = DomPlatform.prototype;
+  _proto.acquireContext = function acquireContext(canvas, config) {
+    var context = canvas && canvas.getContext && canvas.getContext('2d');
+    if (context && context.canvas === canvas) {
+      initCanvas(canvas, config);
+      return context;
+    }
+    return null;
+  }
+  ;
+  _proto.releaseContext = function releaseContext(context) {
+    var canvas = context.canvas;
+    if (!canvas[EXPANDO_KEY]) {
+      return false;
+    }
+    var initial = canvas[EXPANDO_KEY].initial;
+    ['height', 'width'].forEach(function (prop) {
+      var value = initial[prop];
+      if (isNullOrUndef(value)) {
+        canvas.removeAttribute(prop);
+      } else {
+        canvas.setAttribute(prop, value);
       }
-      return null;
+    });
+    var style = initial.style || {};
+    Object.keys(style).forEach(function (key) {
+      canvas.style[key] = style[key];
+    });
+    canvas.width = canvas.width;
+    delete canvas[EXPANDO_KEY];
+    return true;
+  }
+  ;
+  _proto.addEventListener = function addEventListener(chart, type, listener) {
+    this.removeEventListener(chart, type);
+    var proxies = chart.$proxies || (chart.$proxies = {});
+    var handlers = {
+      attach: createAttachObserver,
+      detach: createDetachObserver,
+      resize: createResizeObserver
+    };
+    var handler = handlers[type] || createProxyAndListen;
+    proxies[type] = handler(chart, type, listener);
+  }
+  ;
+  _proto.removeEventListener = function removeEventListener(chart, type) {
+    var canvas = chart.canvas;
+    var proxies = chart.$proxies || (chart.$proxies = {});
+    var proxy = proxies[type];
+    if (!proxy) {
+      return;
     }
-  }, {
-    key: "releaseContext",
-    value: function releaseContext(context) {
-      var canvas = context.canvas;
-      if (!canvas[EXPANDO_KEY]) {
-        return false;
-      }
-      var initial = canvas[EXPANDO_KEY].initial;
-      ['height', 'width'].forEach(function (prop) {
-        var value = initial[prop];
-        if (isNullOrUndef(value)) {
-          canvas.removeAttribute(prop);
-        } else {
-          canvas.setAttribute(prop, value);
-        }
-      });
-      var style = initial.style || {};
-      Object.keys(style).forEach(function (key) {
-        canvas.style[key] = style[key];
-      });
-      canvas.width = canvas.width;
-      delete canvas[EXPANDO_KEY];
-      return true;
-    }
-  }, {
-    key: "addEventListener",
-    value: function addEventListener(chart, type, listener) {
-      this.removeEventListener(chart, type);
-      var proxies = chart.$proxies || (chart.$proxies = {});
-      var handlers = {
-        attach: createAttachObserver,
-        detach: createDetachObserver,
-        resize: createResizeObserver
-      };
-      var handler = handlers[type] || createProxyAndListen;
-      proxies[type] = handler(chart, type, listener);
-    }
-  }, {
-    key: "removeEventListener",
-    value: function removeEventListener(chart, type) {
-      var canvas = chart.canvas;
-      var proxies = chart.$proxies || (chart.$proxies = {});
-      var proxy = proxies[type];
-      if (!proxy) {
-        return;
-      }
-      var handlers = {
-        attach: releaseObserver,
-        detach: releaseObserver,
-        resize: releaseObserver
-      };
-      var handler = handlers[type] || removeListener;
-      handler(canvas, type, proxy);
-      proxies[type] = undefined;
-    }
-  }, {
-    key: "getDevicePixelRatio",
-    value: function getDevicePixelRatio() {
-      return window.devicePixelRatio;
-    }
-  }, {
-    key: "isAttached",
-    value: function isAttached(canvas) {
-      var container = _getParentNode(canvas);
-      return !!(container && _getParentNode(container));
-    }
-  }]);
+    var handlers = {
+      attach: releaseObserver,
+      detach: releaseObserver,
+      resize: releaseObserver
+    };
+    var handler = handlers[type] || removeListener;
+    handler(canvas, type, proxy);
+    proxies[type] = undefined;
+  };
+  _proto.getDevicePixelRatio = function getDevicePixelRatio() {
+    return window.devicePixelRatio;
+  }
+  ;
+  _proto.isAttached = function isAttached(canvas) {
+    var container = _getParentNode(canvas);
+    return !!(container && _getParentNode(container));
+  };
   return DomPlatform;
 }(BasePlatform);
 
@@ -7112,109 +6618,99 @@ DomPlatform: DomPlatform
 defaults.set('plugins', {});
 var PluginService = function () {
   function PluginService() {
-    _classCallCheck(this, PluginService);
     this._plugins = [];
     this._cacheId = 0;
   }
-  _createClass(PluginService, [{
-    key: "register",
-    value: function register(plugins) {
-      var p = this._plugins;
-      [].concat(plugins).forEach(function (plugin) {
-        if (p.indexOf(plugin) === -1) {
-          p.push(plugin);
-        }
-      });
-      this._cacheId++;
-    }
-  }, {
-    key: "unregister",
-    value: function unregister(plugins) {
-      var p = this._plugins;
-      [].concat(plugins).forEach(function (plugin) {
-        var idx = p.indexOf(plugin);
-        if (idx !== -1) {
-          p.splice(idx, 1);
-        }
-      });
-      this._cacheId++;
-    }
-  }, {
-    key: "clear",
-    value: function clear() {
-      this._plugins = [];
-      this._cacheId++;
-    }
-  }, {
-    key: "count",
-    value: function count() {
-      return this._plugins.length;
-    }
-  }, {
-    key: "getAll",
-    value: function getAll() {
-      return this._plugins;
-    }
-  }, {
-    key: "notify",
-    value: function notify(chart, hook, args) {
-      var descriptors = this._descriptors(chart);
-      var ilen = descriptors.length;
-      var i, descriptor, plugin, params, method;
-      for (i = 0; i < ilen; ++i) {
-        descriptor = descriptors[i];
-        plugin = descriptor.plugin;
-        method = plugin[hook];
-        if (typeof method === 'function') {
-          params = [chart].concat(args || []);
-          params.push(descriptor.options);
-          if (method.apply(plugin, params) === false) {
-            return false;
-          }
+  var _proto = PluginService.prototype;
+  _proto.register = function register(plugins) {
+    var p = this._plugins;
+    [].concat(plugins).forEach(function (plugin) {
+      if (p.indexOf(plugin) === -1) {
+        p.push(plugin);
+      }
+    });
+    this._cacheId++;
+  }
+  ;
+  _proto.unregister = function unregister(plugins) {
+    var p = this._plugins;
+    [].concat(plugins).forEach(function (plugin) {
+      var idx = p.indexOf(plugin);
+      if (idx !== -1) {
+        p.splice(idx, 1);
+      }
+    });
+    this._cacheId++;
+  }
+  ;
+  _proto.clear = function clear() {
+    this._plugins = [];
+    this._cacheId++;
+  }
+  ;
+  _proto.count = function count() {
+    return this._plugins.length;
+  }
+  ;
+  _proto.getAll = function getAll() {
+    return this._plugins;
+  }
+  ;
+  _proto.notify = function notify(chart, hook, args) {
+    var descriptors = this._descriptors(chart);
+    var ilen = descriptors.length;
+    var i, descriptor, plugin, params, method;
+    for (i = 0; i < ilen; ++i) {
+      descriptor = descriptors[i];
+      plugin = descriptor.plugin;
+      method = plugin[hook];
+      if (typeof method === 'function') {
+        params = [chart].concat(args || []);
+        params.push(descriptor.options);
+        if (method.apply(plugin, params) === false) {
+          return false;
         }
       }
-      return true;
     }
-  }, {
-    key: "_descriptors",
-    value: function _descriptors(chart) {
-      var cache = chart.$plugins || (chart.$plugins = {});
-      if (cache.id === this._cacheId) {
-        return cache.descriptors;
+    return true;
+  }
+  ;
+  _proto._descriptors = function _descriptors(chart) {
+    var cache = chart.$plugins || (chart.$plugins = {});
+    if (cache.id === this._cacheId) {
+      return cache.descriptors;
+    }
+    var plugins = [];
+    var descriptors = [];
+    var config = chart && chart.config || {};
+    var options = config.options && config.options.plugins || {};
+    this._plugins.concat(config.plugins || []).forEach(function (plugin) {
+      var idx = plugins.indexOf(plugin);
+      if (idx !== -1) {
+        return;
       }
-      var plugins = [];
-      var descriptors = [];
-      var config = chart && chart.config || {};
-      var options = config.options && config.options.plugins || {};
-      this._plugins.concat(config.plugins || []).forEach(function (plugin) {
-        var idx = plugins.indexOf(plugin);
-        if (idx !== -1) {
-          return;
-        }
-        var id = plugin.id;
-        var opts = options[id];
-        if (opts === false) {
-          return;
-        }
-        if (opts === true) {
-          opts = clone(defaults.plugins[id]);
-        }
-        plugins.push(plugin);
-        descriptors.push({
-          plugin: plugin,
-          options: opts || {}
-        });
+      var id = plugin.id;
+      var opts = options[id];
+      if (opts === false) {
+        return;
+      }
+      if (opts === true) {
+        opts = clone(defaults.plugins[id]);
+      }
+      plugins.push(plugin);
+      descriptors.push({
+        plugin: plugin,
+        options: opts || {}
       });
-      cache.descriptors = descriptors;
-      cache.id = this._cacheId;
-      return descriptors;
-    }
-  }, {
-    key: "invalidate",
-    value: function invalidate(chart) {
-      delete chart.$plugins;
-    }
-  }]);
+    });
+    cache.descriptors = descriptors;
+    cache.id = this._cacheId;
+    return descriptors;
+  }
+  ;
+  _proto.invalidate = function invalidate(chart) {
+    delete chart.$plugins;
+  };
   return PluginService;
 }();
 var pluginsCore = new PluginService();
@@ -7326,9 +6822,9 @@ function updateConfig(chart) {
   chart.options.scales = scaleConfig;
   chart._animationsDisabled = isAnimationDisabled(newOptions);
 }
-var KNOWN_POSITIONS = new Set(['top', 'bottom', 'left', 'right', 'chartArea']);
+var KNOWN_POSITIONS = ['top', 'bottom', 'left', 'right', 'chartArea'];
 function positionIsHorizontal(position, axis) {
-  return position === 'top' || position === 'bottom' || !KNOWN_POSITIONS.has(position) && axis === 'x';
+  return position === 'top' || position === 'bottom' || KNOWN_POSITIONS.indexOf(position) === -1 && axis === 'x';
 }
 function compare2Level(l1, l2) {
   return function (a, b) {
@@ -7373,7 +6869,6 @@ function computeNewSize(canvas, width, height, aspectRatio) {
 }
 var Chart = function () {
   function Chart(item, config) {
-    _classCallCheck(this, Chart);
     var me = this;
     config = initConfig(config);
     var initialCanvas = getCanvas(item);
@@ -7429,689 +6924,620 @@ var Chart = function () {
       me.update();
     }
   }
-  _createClass(Chart, [{
-    key: "_initialize",
-    value: function _initialize() {
-      var me = this;
-      pluginsCore.notify(me, 'beforeInit');
-      if (me.options.responsive) {
-        me.resize(true);
-      } else {
-        retinaScale(me, me.options.devicePixelRatio);
-      }
-      me.bindEvents();
-      pluginsCore.notify(me, 'afterInit');
-      return me;
+  var _proto = Chart.prototype;
+  _proto._initialize = function _initialize() {
+    var me = this;
+    pluginsCore.notify(me, 'beforeInit');
+    if (me.options.responsive) {
+      me.resize(true);
+    } else {
+      retinaScale(me, me.options.devicePixelRatio);
     }
-  }, {
-    key: "_initializePlatform",
-    value: function _initializePlatform(canvas, config) {
-      if (config.platform) {
-        return new config.platform();
-      } else if (!isDomSupported() || typeof OffscreenCanvas !== 'undefined' && canvas instanceof OffscreenCanvas) {
-        return new BasicPlatform();
-      }
-      return new DomPlatform();
+    me.bindEvents();
+    pluginsCore.notify(me, 'afterInit');
+    return me;
+  }
+  ;
+  _proto._initializePlatform = function _initializePlatform(canvas, config) {
+    if (config.platform) {
+      return new config.platform();
+    } else if (!isDomSupported() || typeof OffscreenCanvas !== 'undefined' && canvas instanceof OffscreenCanvas) {
+      return new BasicPlatform();
     }
-  }, {
-    key: "clear",
-    value: function clear$1() {
-      clear(this);
-      return this;
+    return new DomPlatform();
+  };
+  _proto.clear = function clear$1() {
+    clear(this);
+    return this;
+  };
+  _proto.stop = function stop() {
+    animator.stop(this);
+    return this;
+  };
+  _proto.resize = function resize(silent, width, height) {
+    var me = this;
+    var options = me.options;
+    var canvas = me.canvas;
+    var aspectRatio = options.maintainAspectRatio && me.aspectRatio;
+    var newSize = computeNewSize(canvas, width, height, aspectRatio);
+    var oldRatio = me.currentDevicePixelRatio;
+    var newRatio = options.devicePixelRatio || me.platform.getDevicePixelRatio();
+    if (me.width === newSize.width && me.height === newSize.height && oldRatio === newRatio) {
+      return;
     }
-  }, {
-    key: "stop",
-    value: function stop() {
-      animator.stop(this);
-      return this;
+    canvas.width = me.width = newSize.width;
+    canvas.height = me.height = newSize.height;
+    if (canvas.style) {
+      canvas.style.width = newSize.width + 'px';
+      canvas.style.height = newSize.height + 'px';
     }
-  }, {
-    key: "resize",
-    value: function resize(silent, width, height) {
-      var me = this;
-      var options = me.options;
-      var canvas = me.canvas;
-      var aspectRatio = options.maintainAspectRatio && me.aspectRatio;
-      var newSize = computeNewSize(canvas, width, height, aspectRatio);
-      var oldRatio = me.currentDevicePixelRatio;
-      var newRatio = options.devicePixelRatio || me.platform.getDevicePixelRatio();
-      if (me.width === newSize.width && me.height === newSize.height && oldRatio === newRatio) {
-        return;
+    retinaScale(me, newRatio);
+    if (!silent) {
+      pluginsCore.notify(me, 'resize', [newSize]);
+      if (options.onResize) {
+        options.onResize(me, newSize);
       }
-      canvas.width = me.width = newSize.width;
-      canvas.height = me.height = newSize.height;
-      if (canvas.style) {
-        canvas.style.width = newSize.width + 'px';
-        canvas.style.height = newSize.height + 'px';
-      }
-      retinaScale(me, newRatio);
-      if (!silent) {
-        pluginsCore.notify(me, 'resize', [newSize]);
-        if (options.onResize) {
-          options.onResize(me, newSize);
-        }
-        me.update(me.attached && 'resize');
-      }
+      me.update(me.attached && 'resize');
     }
-  }, {
-    key: "ensureScalesHaveIDs",
-    value: function ensureScalesHaveIDs() {
-      var options = this.options;
-      var scalesOptions = options.scales || {};
-      var scaleOptions = options.scale;
-      each(scalesOptions, function (axisOptions, axisID) {
-        axisOptions.id = axisID;
-      });
-      if (scaleOptions) {
-        scaleOptions.id = scaleOptions.id || 'scale';
-      }
+  };
+  _proto.ensureScalesHaveIDs = function ensureScalesHaveIDs() {
+    var options = this.options;
+    var scalesOptions = options.scales || {};
+    var scaleOptions = options.scale;
+    each(scalesOptions, function (axisOptions, axisID) {
+      axisOptions.id = axisID;
+    });
+    if (scaleOptions) {
+      scaleOptions.id = scaleOptions.id || 'scale';
     }
-  }, {
-    key: "buildOrUpdateScales",
-    value: function buildOrUpdateScales() {
-      var me = this;
-      var options = me.options;
-      var scaleOpts = options.scales;
-      var scales = me.scales || {};
-      var updated = Object.keys(scales).reduce(function (obj, id) {
-        obj[id] = false;
-        return obj;
-      }, {});
-      var items = [];
-      if (scaleOpts) {
-        items = items.concat(Object.keys(scaleOpts).map(function (axisID) {
-          var axisOptions = scaleOpts[axisID];
-          var isRadial = axisID.charAt(0).toLowerCase() === 'r';
-          var isHorizontal = axisID.charAt(0).toLowerCase() === 'x';
-          return {
-            options: axisOptions,
-            dposition: isRadial ? 'chartArea' : isHorizontal ? 'bottom' : 'left',
-            dtype: isRadial ? 'radialLinear' : isHorizontal ? 'category' : 'linear'
-          };
-        }));
-      }
-      each(items, function (item) {
-        var scaleOptions = item.options;
-        var id = scaleOptions.id;
-        var scaleType = valueOrDefault(scaleOptions.type, item.dtype);
-        if (scaleOptions.position === undefined || positionIsHorizontal(scaleOptions.position, scaleOptions.axis || id[0]) !== positionIsHorizontal(item.dposition)) {
-          scaleOptions.position = item.dposition;
-        }
-        updated[id] = true;
-        var scale = null;
-        if (id in scales && scales[id].type === scaleType) {
-          scale = scales[id];
-        } else {
-          var scaleClass = scaleService.getScaleConstructor(scaleType);
-          if (!scaleClass) {
-            return;
-          }
-          scale = new scaleClass({
-            id: id,
-            type: scaleType,
-            ctx: me.ctx,
-            chart: me
-          });
-          scales[scale.id] = scale;
-        }
-        scale.init(scaleOptions);
-        if (item.isDefault) {
-          me.scale = scale;
-        }
-      });
-      each(updated, function (hasUpdated, id) {
-        if (!hasUpdated) {
-          delete scales[id];
-        }
-      });
-      me.scales = scales;
-      scaleService.addScalesToLayout(this);
-    }
-  }, {
-    key: "_updateMetasetIndex",
-    value: function _updateMetasetIndex(meta, index) {
-      var metasets = this._metasets;
-      var oldIndex = meta.index;
-      if (oldIndex !== index) {
-        metasets[oldIndex] = metasets[index];
-        metasets[index] = meta;
-        meta.index = index;
-      }
-    }
-  }, {
-    key: "_updateMetasets",
-    value: function _updateMetasets() {
-      var me = this;
-      var metasets = me._metasets;
-      var numData = me.data.datasets.length;
-      var numMeta = metasets.length;
-      if (numMeta > numData) {
-        for (var i = numData; i < numMeta; ++i) {
-          me._destroyDatasetMeta(i);
-        }
-        metasets.splice(numData, numMeta - numData);
-      }
-      me._sortedMetasets = metasets.slice(0).sort(compare2Level('order', 'index'));
-    }
-  }, {
-    key: "buildOrUpdateControllers",
-    value: function buildOrUpdateControllers() {
-      var me = this;
-      var newControllers = [];
-      var datasets = me.data.datasets;
-      var i, ilen;
-      for (i = 0, ilen = datasets.length; i < ilen; i++) {
-        var dataset = datasets[i];
-        var meta = me.getDatasetMeta(i);
-        var type = dataset.type || me.config.type;
-        if (meta.type && meta.type !== type) {
-          me._destroyDatasetMeta(i);
-          meta = me.getDatasetMeta(i);
-        }
-        meta.type = type;
-        meta.order = dataset.order || 0;
-        me._updateMetasetIndex(meta, i);
-        meta.label = '' + dataset.label;
-        meta.visible = me.isDatasetVisible(i);
-        if (meta.controller) {
-          meta.controller.updateIndex(i);
-          meta.controller.linkScales();
-        } else {
-          var ControllerClass = controllers[meta.type];
-          if (ControllerClass === undefined) {
-            throw new Error('"' + meta.type + '" is not a chart type.');
-          }
-          meta.controller = new ControllerClass(me, i);
-          newControllers.push(meta.controller);
-        }
-      }
-      me._updateMetasets();
-      return newControllers;
-    }
-  }, {
-    key: "_resetElements",
-    value: function _resetElements() {
-      var me = this;
-      each(me.data.datasets, function (dataset, datasetIndex) {
-        me.getDatasetMeta(datasetIndex).controller.reset();
-      }, me);
-    }
-  }, {
-    key: "reset",
-    value: function reset() {
-      this._resetElements();
-      pluginsCore.notify(this, 'reset');
-    }
-  }, {
-    key: "update",
-    value: function update(mode) {
-      var me = this;
-      var i, ilen;
-      me._updating = true;
-      updateConfig(me);
-      me.ensureScalesHaveIDs();
-      me.buildOrUpdateScales();
-      pluginsCore.invalidate(me);
-      if (pluginsCore.notify(me, 'beforeUpdate') === false) {
-        return;
-      }
-      var newControllers = me.buildOrUpdateControllers();
-      for (i = 0, ilen = me.data.datasets.length; i < ilen; i++) {
-        me.getDatasetMeta(i).controller.buildOrUpdateElements();
-      }
-      me._updateLayout();
-      if (me.options.animation) {
-        each(newControllers, function (controller) {
-          controller.reset();
-        });
-      }
-      me._updateDatasets(mode);
-      pluginsCore.notify(me, 'afterUpdate');
-      me._layers.sort(compare2Level('z', '_idx'));
-      if (me._lastEvent) {
-        me._eventHandler(me._lastEvent, true);
-      }
-      me.render();
-      me._updating = false;
-    }
-  }, {
-    key: "_updateLayout",
-    value: function _updateLayout() {
-      var me = this;
-      if (pluginsCore.notify(me, 'beforeLayout') === false) {
-        return;
-      }
-      layouts.update(me, me.width, me.height);
-      me._layers = [];
-      each(me.boxes, function (box) {
-        var _me$_layers;
-        if (box.configure) {
-          box.configure();
-        }
-        (_me$_layers = me._layers).push.apply(_me$_layers, _toConsumableArray(box._layers()));
-      }, me);
-      me._layers.forEach(function (item, index) {
-        item._idx = index;
-      });
-      pluginsCore.notify(me, 'afterLayout');
-    }
-  }, {
-    key: "_updateDatasets",
-    value: function _updateDatasets(mode) {
-      var me = this;
-      var isFunction = typeof mode === 'function';
-      if (pluginsCore.notify(me, 'beforeDatasetsUpdate') === false) {
-        return;
-      }
-      for (var i = 0, ilen = me.data.datasets.length; i < ilen; ++i) {
-        me._updateDataset(i, isFunction ? mode({
-          datasetIndex: i
-        }) : mode);
-      }
-      pluginsCore.notify(me, 'afterDatasetsUpdate');
-    }
-  }, {
-    key: "_updateDataset",
-    value: function _updateDataset(index, mode) {
-      var me = this;
-      var meta = me.getDatasetMeta(index);
-      var args = {
-        meta: meta,
-        index: index,
-        mode: mode
-      };
-      if (pluginsCore.notify(me, 'beforeDatasetUpdate', [args]) === false) {
-        return;
-      }
-      meta.controller._update(mode);
-      pluginsCore.notify(me, 'afterDatasetUpdate', [args]);
-    }
-  }, {
-    key: "render",
-    value: function render() {
-      var me = this;
-      var animationOptions = me.options.animation;
-      if (pluginsCore.notify(me, 'beforeRender') === false) {
-        return;
-      }
-      var onComplete = function onComplete() {
-        pluginsCore.notify(me, 'afterRender');
-        callback(animationOptions && animationOptions.onComplete, [], me);
-      };
-      if (animator.has(me)) {
-        if (me.attached && !animator.running(me)) {
-          animator.start(me);
-        }
-      } else {
-        me.draw();
-        onComplete();
-      }
-    }
-  }, {
-    key: "draw",
-    value: function draw() {
-      var me = this;
-      var i;
-      me.clear();
-      if (me.width <= 0 || me.height <= 0) {
-        return;
-      }
-      if (pluginsCore.notify(me, 'beforeDraw') === false) {
-        return;
-      }
-      var layers = me._layers;
-      for (i = 0; i < layers.length && layers[i].z <= 0; ++i) {
-        layers[i].draw(me.chartArea);
-      }
-      me._drawDatasets();
-      for (; i < layers.length; ++i) {
-        layers[i].draw(me.chartArea);
-      }
-      pluginsCore.notify(me, 'afterDraw');
-    }
-  }, {
-    key: "_getSortedDatasetMetas",
-    value: function _getSortedDatasetMetas(filterVisible) {
-      var me = this;
-      var metasets = me._sortedMetasets;
-      var result = [];
-      var i, ilen;
-      for (i = 0, ilen = metasets.length; i < ilen; ++i) {
-        var meta = metasets[i];
-        if (!filterVisible || meta.visible) {
-          result.push(meta);
-        }
-      }
-      return result;
-    }
-  }, {
-    key: "getSortedVisibleDatasetMetas",
-    value: function getSortedVisibleDatasetMetas() {
-      return this._getSortedDatasetMetas(true);
-    }
-  }, {
-    key: "_drawDatasets",
-    value: function _drawDatasets() {
-      var me = this;
-      if (pluginsCore.notify(me, 'beforeDatasetsDraw') === false) {
-        return;
-      }
-      var metasets = me.getSortedVisibleDatasetMetas();
-      for (var i = metasets.length - 1; i >= 0; --i) {
-        me._drawDataset(metasets[i]);
-      }
-      pluginsCore.notify(me, 'afterDatasetsDraw');
-    }
-  }, {
-    key: "_drawDataset",
-    value: function _drawDataset(meta) {
-      var me = this;
-      var ctx = me.ctx;
-      var clip = meta._clip;
-      var area = me.chartArea;
-      var args = {
-        meta: meta,
-        index: meta.index
-      };
-      if (pluginsCore.notify(me, 'beforeDatasetDraw', [args]) === false) {
-        return;
-      }
-      clipArea(ctx, {
-        left: clip.left === false ? 0 : area.left - clip.left,
-        right: clip.right === false ? me.width : area.right + clip.right,
-        top: clip.top === false ? 0 : area.top - clip.top,
-        bottom: clip.bottom === false ? me.height : area.bottom + clip.bottom
-      });
-      meta.controller.draw();
-      unclipArea(ctx);
-      pluginsCore.notify(me, 'afterDatasetDraw', [args]);
-    }
-  }, {
-    key: "getElementAtEvent",
-    value: function getElementAtEvent(e) {
-      return Interaction.modes.nearest(this, e, {
-        intersect: true
-      });
-    }
-  }, {
-    key: "getElementsAtEvent",
-    value: function getElementsAtEvent(e) {
-      return Interaction.modes.index(this, e, {
-        intersect: true
-      });
-    }
-  }, {
-    key: "getElementsAtXAxis",
-    value: function getElementsAtXAxis(e) {
-      return Interaction.modes.index(this, e, {
-        intersect: false
-      });
-    }
-  }, {
-    key: "getElementsAtEventForMode",
-    value: function getElementsAtEventForMode(e, mode, options, useFinalPosition) {
-      var method = Interaction.modes[mode];
-      if (typeof method === 'function') {
-        return method(this, e, options, useFinalPosition);
-      }
-      return [];
-    }
-  }, {
-    key: "getDatasetAtEvent",
-    value: function getDatasetAtEvent(e) {
-      return Interaction.modes.dataset(this, e, {
-        intersect: true
-      });
-    }
-  }, {
-    key: "getDatasetMeta",
-    value: function getDatasetMeta(datasetIndex) {
-      var me = this;
-      var dataset = me.data.datasets[datasetIndex];
-      var metasets = me._metasets;
-      var meta = metasets.filter(function (x) {
-        return x._dataset === dataset;
-      }).pop();
-      if (!meta) {
-        meta = metasets[datasetIndex] = {
-          type: null,
-          data: [],
-          dataset: null,
-          controller: null,
-          hidden: null,
-          xAxisID: null,
-          yAxisID: null,
-          order: dataset.order || 0,
-          index: datasetIndex,
-          _dataset: dataset,
-          _parsed: [],
-          _sorted: false
+  }
+  ;
+  _proto.buildOrUpdateScales = function buildOrUpdateScales() {
+    var me = this;
+    var options = me.options;
+    var scaleOpts = options.scales;
+    var scales = me.scales || {};
+    var updated = Object.keys(scales).reduce(function (obj, id) {
+      obj[id] = false;
+      return obj;
+    }, {});
+    var items = [];
+    if (scaleOpts) {
+      items = items.concat(Object.keys(scaleOpts).map(function (axisID) {
+        var axisOptions = scaleOpts[axisID];
+        var isRadial = axisID.charAt(0).toLowerCase() === 'r';
+        var isHorizontal = axisID.charAt(0).toLowerCase() === 'x';
+        return {
+          options: axisOptions,
+          dposition: isRadial ? 'chartArea' : isHorizontal ? 'bottom' : 'left',
+          dtype: isRadial ? 'radialLinear' : isHorizontal ? 'category' : 'linear'
         };
+      }));
+    }
+    each(items, function (item) {
+      var scaleOptions = item.options;
+      var id = scaleOptions.id;
+      var scaleType = valueOrDefault(scaleOptions.type, item.dtype);
+      if (scaleOptions.position === undefined || positionIsHorizontal(scaleOptions.position, scaleOptions.axis || id[0]) !== positionIsHorizontal(item.dposition)) {
+        scaleOptions.position = item.dposition;
       }
-      return meta;
-    }
-  }, {
-    key: "getVisibleDatasetCount",
-    value: function getVisibleDatasetCount() {
-      return this.getSortedVisibleDatasetMetas().length;
-    }
-  }, {
-    key: "isDatasetVisible",
-    value: function isDatasetVisible(datasetIndex) {
-      var meta = this.getDatasetMeta(datasetIndex);
-      return typeof meta.hidden === 'boolean' ? !meta.hidden : !this.data.datasets[datasetIndex].hidden;
-    }
-  }, {
-    key: "setDatasetVisibility",
-    value: function setDatasetVisibility(datasetIndex, visible) {
-      var meta = this.getDatasetMeta(datasetIndex);
-      meta.hidden = !visible;
-    }
-  }, {
-    key: "toggleDataVisibility",
-    value: function toggleDataVisibility(index) {
-      this._hiddenIndices[index] = !this._hiddenIndices[index];
-    }
-  }, {
-    key: "getDataVisibility",
-    value: function getDataVisibility(index) {
-      return !this._hiddenIndices[index];
-    }
-  }, {
-    key: "_updateDatasetVisibility",
-    value: function _updateDatasetVisibility(datasetIndex, visible) {
-      var me = this;
-      var mode = visible ? 'show' : 'hide';
-      var meta = me.getDatasetMeta(datasetIndex);
-      var anims = meta.controller._resolveAnimations(undefined, mode);
-      me.setDatasetVisibility(datasetIndex, visible);
-      anims.update(meta, {
-        visible: visible
-      });
-      me.update(function (ctx) {
-        return ctx.datasetIndex === datasetIndex ? mode : undefined;
-      });
-    }
-  }, {
-    key: "hide",
-    value: function hide(datasetIndex) {
-      this._updateDatasetVisibility(datasetIndex, false);
-    }
-  }, {
-    key: "show",
-    value: function show(datasetIndex) {
-      this._updateDatasetVisibility(datasetIndex, true);
-    }
-  }, {
-    key: "_destroyDatasetMeta",
-    value: function _destroyDatasetMeta(datasetIndex) {
-      var me = this;
-      var meta = me._metasets && me._metasets[datasetIndex];
-      if (meta) {
-        meta.controller._destroy();
-        delete me._metasets[datasetIndex];
+      updated[id] = true;
+      var scale = null;
+      if (id in scales && scales[id].type === scaleType) {
+        scale = scales[id];
+      } else {
+        var scaleClass = scaleService.getScaleConstructor(scaleType);
+        if (!scaleClass) {
+          return;
+        }
+        scale = new scaleClass({
+          id: id,
+          type: scaleType,
+          ctx: me.ctx,
+          chart: me
+        });
+        scales[scale.id] = scale;
       }
+      scale.init(scaleOptions);
+      if (item.isDefault) {
+        me.scale = scale;
+      }
+    });
+    each(updated, function (hasUpdated, id) {
+      if (!hasUpdated) {
+        delete scales[id];
+      }
+    });
+    me.scales = scales;
+    scaleService.addScalesToLayout(this);
+  }
+  ;
+  _proto._updateMetasetIndex = function _updateMetasetIndex(meta, index) {
+    var metasets = this._metasets;
+    var oldIndex = meta.index;
+    if (oldIndex !== index) {
+      metasets[oldIndex] = metasets[index];
+      metasets[index] = meta;
+      meta.index = index;
     }
-  }, {
-    key: "destroy",
-    value: function destroy() {
-      var me = this;
-      var canvas = me.canvas;
-      var i, ilen;
-      me.stop();
-      animator.remove(me);
-      for (i = 0, ilen = me.data.datasets.length; i < ilen; ++i) {
+  }
+  ;
+  _proto._updateMetasets = function _updateMetasets() {
+    var me = this;
+    var metasets = me._metasets;
+    var numData = me.data.datasets.length;
+    var numMeta = metasets.length;
+    if (numMeta > numData) {
+      for (var i = numData; i < numMeta; ++i) {
         me._destroyDatasetMeta(i);
       }
-      if (canvas) {
-        me.unbindEvents();
-        clear(me);
-        me.platform.releaseContext(me.ctx);
-        me.canvas = null;
-        me.ctx = null;
+      metasets.splice(numData, numMeta - numData);
+    }
+    me._sortedMetasets = metasets.slice(0).sort(compare2Level('order', 'index'));
+  };
+  _proto.buildOrUpdateControllers = function buildOrUpdateControllers() {
+    var me = this;
+    var newControllers = [];
+    var datasets = me.data.datasets;
+    var i, ilen;
+    for (i = 0, ilen = datasets.length; i < ilen; i++) {
+      var dataset = datasets[i];
+      var meta = me.getDatasetMeta(i);
+      var type = dataset.type || me.config.type;
+      if (meta.type && meta.type !== type) {
+        me._destroyDatasetMeta(i);
+        meta = me.getDatasetMeta(i);
       }
-      pluginsCore.notify(me, 'destroy');
-      delete Chart.instances[me.id];
-    }
-  }, {
-    key: "toBase64Image",
-    value: function toBase64Image() {
-      var _this$canvas;
-      return (_this$canvas = this.canvas).toDataURL.apply(_this$canvas, arguments);
-    }
-  }, {
-    key: "bindEvents",
-    value: function bindEvents() {
-      var me = this;
-      var listeners = me._listeners;
-      var platform = me.platform;
-      var _add = function _add(type, listener) {
-        platform.addEventListener(me, type, listener);
-        listeners[type] = listener;
-      };
-      var _remove = function _remove(type, listener) {
-        if (listeners[type]) {
-          platform.removeEventListener(me, type, listener);
-          delete listeners[type];
-        }
-      };
-      var listener = function listener(e) {
-        me._eventHandler(e);
-      };
-      each(me.options.events, function (type) {
-        return _add(type, listener);
-      });
-      if (me.options.responsive) {
-        listener = function listener(width, height) {
-          if (me.canvas) {
-            me.resize(false, width, height);
-          }
-        };
-        var detached;
-        var attached = function attached() {
-          _remove('attach', attached);
-          me.resize();
-          me.attached = true;
-          _add('resize', listener);
-          _add('detach', detached);
-        };
-        detached = function detached() {
-          me.attached = false;
-          _remove('resize', listener);
-          _add('attach', attached);
-        };
-        if (platform.isAttached(me.canvas)) {
-          attached();
-        } else {
-          detached();
-        }
+      meta.type = type;
+      meta.order = dataset.order || 0;
+      me._updateMetasetIndex(meta, i);
+      meta.label = '' + dataset.label;
+      meta.visible = me.isDatasetVisible(i);
+      if (meta.controller) {
+        meta.controller.updateIndex(i);
+        meta.controller.linkScales();
       } else {
+        var ControllerClass = controllers[meta.type];
+        if (ControllerClass === undefined) {
+          throw new Error('"' + meta.type + '" is not a chart type.');
+        }
+        meta.controller = new ControllerClass(me, i);
+        newControllers.push(meta.controller);
+      }
+    }
+    me._updateMetasets();
+    return newControllers;
+  }
+  ;
+  _proto._resetElements = function _resetElements() {
+    var me = this;
+    each(me.data.datasets, function (dataset, datasetIndex) {
+      me.getDatasetMeta(datasetIndex).controller.reset();
+    }, me);
+  }
+  ;
+  _proto.reset = function reset() {
+    this._resetElements();
+    pluginsCore.notify(this, 'reset');
+  };
+  _proto.update = function update(mode) {
+    var me = this;
+    var i, ilen;
+    me._updating = true;
+    updateConfig(me);
+    me.ensureScalesHaveIDs();
+    me.buildOrUpdateScales();
+    pluginsCore.invalidate(me);
+    if (pluginsCore.notify(me, 'beforeUpdate') === false) {
+      return;
+    }
+    var newControllers = me.buildOrUpdateControllers();
+    for (i = 0, ilen = me.data.datasets.length; i < ilen; i++) {
+      me.getDatasetMeta(i).controller.buildOrUpdateElements();
+    }
+    me._updateLayout();
+    if (me.options.animation) {
+      each(newControllers, function (controller) {
+        controller.reset();
+      });
+    }
+    me._updateDatasets(mode);
+    pluginsCore.notify(me, 'afterUpdate');
+    me._layers.sort(compare2Level('z', '_idx'));
+    if (me._lastEvent) {
+      me._eventHandler(me._lastEvent, true);
+    }
+    me.render();
+    me._updating = false;
+  }
+  ;
+  _proto._updateLayout = function _updateLayout() {
+    var me = this;
+    if (pluginsCore.notify(me, 'beforeLayout') === false) {
+      return;
+    }
+    layouts.update(me, me.width, me.height);
+    me._layers = [];
+    each(me.boxes, function (box) {
+      var _me$_layers;
+      if (box.configure) {
+        box.configure();
+      }
+      (_me$_layers = me._layers).push.apply(_me$_layers, box._layers());
+    }, me);
+    me._layers.forEach(function (item, index) {
+      item._idx = index;
+    });
+    pluginsCore.notify(me, 'afterLayout');
+  }
+  ;
+  _proto._updateDatasets = function _updateDatasets(mode) {
+    var me = this;
+    var isFunction = typeof mode === 'function';
+    if (pluginsCore.notify(me, 'beforeDatasetsUpdate') === false) {
+      return;
+    }
+    for (var i = 0, ilen = me.data.datasets.length; i < ilen; ++i) {
+      me._updateDataset(i, isFunction ? mode({
+        datasetIndex: i
+      }) : mode);
+    }
+    pluginsCore.notify(me, 'afterDatasetsUpdate');
+  }
+  ;
+  _proto._updateDataset = function _updateDataset(index, mode) {
+    var me = this;
+    var meta = me.getDatasetMeta(index);
+    var args = {
+      meta: meta,
+      index: index,
+      mode: mode
+    };
+    if (pluginsCore.notify(me, 'beforeDatasetUpdate', [args]) === false) {
+      return;
+    }
+    meta.controller._update(mode);
+    pluginsCore.notify(me, 'afterDatasetUpdate', [args]);
+  };
+  _proto.render = function render() {
+    var me = this;
+    var animationOptions = me.options.animation;
+    if (pluginsCore.notify(me, 'beforeRender') === false) {
+      return;
+    }
+    var onComplete = function onComplete() {
+      pluginsCore.notify(me, 'afterRender');
+      callback(animationOptions && animationOptions.onComplete, [], me);
+    };
+    if (animator.has(me)) {
+      if (me.attached && !animator.running(me)) {
+        animator.start(me);
+      }
+    } else {
+      me.draw();
+      onComplete();
+    }
+  };
+  _proto.draw = function draw() {
+    var me = this;
+    var i;
+    me.clear();
+    if (me.width <= 0 || me.height <= 0) {
+      return;
+    }
+    if (pluginsCore.notify(me, 'beforeDraw') === false) {
+      return;
+    }
+    var layers = me._layers;
+    for (i = 0; i < layers.length && layers[i].z <= 0; ++i) {
+      layers[i].draw(me.chartArea);
+    }
+    me._drawDatasets();
+    for (; i < layers.length; ++i) {
+      layers[i].draw(me.chartArea);
+    }
+    pluginsCore.notify(me, 'afterDraw');
+  }
+  ;
+  _proto._getSortedDatasetMetas = function _getSortedDatasetMetas(filterVisible) {
+    var me = this;
+    var metasets = me._sortedMetasets;
+    var result = [];
+    var i, ilen;
+    for (i = 0, ilen = metasets.length; i < ilen; ++i) {
+      var meta = metasets[i];
+      if (!filterVisible || meta.visible) {
+        result.push(meta);
+      }
+    }
+    return result;
+  }
+  ;
+  _proto.getSortedVisibleDatasetMetas = function getSortedVisibleDatasetMetas() {
+    return this._getSortedDatasetMetas(true);
+  }
+  ;
+  _proto._drawDatasets = function _drawDatasets() {
+    var me = this;
+    if (pluginsCore.notify(me, 'beforeDatasetsDraw') === false) {
+      return;
+    }
+    var metasets = me.getSortedVisibleDatasetMetas();
+    for (var i = metasets.length - 1; i >= 0; --i) {
+      me._drawDataset(metasets[i]);
+    }
+    pluginsCore.notify(me, 'afterDatasetsDraw');
+  }
+  ;
+  _proto._drawDataset = function _drawDataset(meta) {
+    var me = this;
+    var ctx = me.ctx;
+    var clip = meta._clip;
+    var area = me.chartArea;
+    var args = {
+      meta: meta,
+      index: meta.index
+    };
+    if (pluginsCore.notify(me, 'beforeDatasetDraw', [args]) === false) {
+      return;
+    }
+    clipArea(ctx, {
+      left: clip.left === false ? 0 : area.left - clip.left,
+      right: clip.right === false ? me.width : area.right + clip.right,
+      top: clip.top === false ? 0 : area.top - clip.top,
+      bottom: clip.bottom === false ? me.height : area.bottom + clip.bottom
+    });
+    meta.controller.draw();
+    unclipArea(ctx);
+    pluginsCore.notify(me, 'afterDatasetDraw', [args]);
+  }
+  ;
+  _proto.getElementAtEvent = function getElementAtEvent(e) {
+    return Interaction.modes.nearest(this, e, {
+      intersect: true
+    });
+  };
+  _proto.getElementsAtEvent = function getElementsAtEvent(e) {
+    return Interaction.modes.index(this, e, {
+      intersect: true
+    });
+  };
+  _proto.getElementsAtXAxis = function getElementsAtXAxis(e) {
+    return Interaction.modes.index(this, e, {
+      intersect: false
+    });
+  };
+  _proto.getElementsAtEventForMode = function getElementsAtEventForMode(e, mode, options, useFinalPosition) {
+    var method = Interaction.modes[mode];
+    if (typeof method === 'function') {
+      return method(this, e, options, useFinalPosition);
+    }
+    return [];
+  };
+  _proto.getDatasetAtEvent = function getDatasetAtEvent(e) {
+    return Interaction.modes.dataset(this, e, {
+      intersect: true
+    });
+  };
+  _proto.getDatasetMeta = function getDatasetMeta(datasetIndex) {
+    var me = this;
+    var dataset = me.data.datasets[datasetIndex];
+    var metasets = me._metasets;
+    var meta = metasets.filter(function (x) {
+      return x._dataset === dataset;
+    }).pop();
+    if (!meta) {
+      meta = metasets[datasetIndex] = {
+        type: null,
+        data: [],
+        dataset: null,
+        controller: null,
+        hidden: null,
+        xAxisID: null,
+        yAxisID: null,
+        order: dataset.order || 0,
+        index: datasetIndex,
+        _dataset: dataset,
+        _parsed: [],
+        _sorted: false
+      };
+    }
+    return meta;
+  };
+  _proto.getVisibleDatasetCount = function getVisibleDatasetCount() {
+    return this.getSortedVisibleDatasetMetas().length;
+  };
+  _proto.isDatasetVisible = function isDatasetVisible(datasetIndex) {
+    var meta = this.getDatasetMeta(datasetIndex);
+    return typeof meta.hidden === 'boolean' ? !meta.hidden : !this.data.datasets[datasetIndex].hidden;
+  };
+  _proto.setDatasetVisibility = function setDatasetVisibility(datasetIndex, visible) {
+    var meta = this.getDatasetMeta(datasetIndex);
+    meta.hidden = !visible;
+  };
+  _proto.toggleDataVisibility = function toggleDataVisibility(index) {
+    this._hiddenIndices[index] = !this._hiddenIndices[index];
+  };
+  _proto.getDataVisibility = function getDataVisibility(index) {
+    return !this._hiddenIndices[index];
+  }
+  ;
+  _proto._updateDatasetVisibility = function _updateDatasetVisibility(datasetIndex, visible) {
+    var me = this;
+    var mode = visible ? 'show' : 'hide';
+    var meta = me.getDatasetMeta(datasetIndex);
+    var anims = meta.controller._resolveAnimations(undefined, mode);
+    me.setDatasetVisibility(datasetIndex, visible);
+    anims.update(meta, {
+      visible: visible
+    });
+    me.update(function (ctx) {
+      return ctx.datasetIndex === datasetIndex ? mode : undefined;
+    });
+  };
+  _proto.hide = function hide(datasetIndex) {
+    this._updateDatasetVisibility(datasetIndex, false);
+  };
+  _proto.show = function show(datasetIndex) {
+    this._updateDatasetVisibility(datasetIndex, true);
+  }
+  ;
+  _proto._destroyDatasetMeta = function _destroyDatasetMeta(datasetIndex) {
+    var me = this;
+    var meta = me._metasets && me._metasets[datasetIndex];
+    if (meta) {
+      meta.controller._destroy();
+      delete me._metasets[datasetIndex];
+    }
+  };
+  _proto.destroy = function destroy() {
+    var me = this;
+    var canvas = me.canvas;
+    var i, ilen;
+    me.stop();
+    animator.remove(me);
+    for (i = 0, ilen = me.data.datasets.length; i < ilen; ++i) {
+      me._destroyDatasetMeta(i);
+    }
+    if (canvas) {
+      me.unbindEvents();
+      clear(me);
+      me.platform.releaseContext(me.ctx);
+      me.canvas = null;
+      me.ctx = null;
+    }
+    pluginsCore.notify(me, 'destroy');
+    delete Chart.instances[me.id];
+  };
+  _proto.toBase64Image = function toBase64Image() {
+    var _this$canvas;
+    return (_this$canvas = this.canvas).toDataURL.apply(_this$canvas, arguments);
+  }
+  ;
+  _proto.bindEvents = function bindEvents() {
+    var me = this;
+    var listeners = me._listeners;
+    var platform = me.platform;
+    var _add = function _add(type, listener) {
+      platform.addEventListener(me, type, listener);
+      listeners[type] = listener;
+    };
+    var _remove = function _remove(type, listener) {
+      if (listeners[type]) {
+        platform.removeEventListener(me, type, listener);
+        delete listeners[type];
+      }
+    };
+    var listener = function listener(e) {
+      me._eventHandler(e);
+    };
+    each(me.options.events, function (type) {
+      return _add(type, listener);
+    });
+    if (me.options.responsive) {
+      listener = function listener(width, height) {
+        if (me.canvas) {
+          me.resize(false, width, height);
+        }
+      };
+      var detached;
+      var attached = function attached() {
+        _remove('attach', attached);
+        me.resize();
         me.attached = true;
-      }
-    }
-  }, {
-    key: "unbindEvents",
-    value: function unbindEvents() {
-      var me = this;
-      var listeners = me._listeners;
-      if (!listeners) {
-        return;
-      }
-      delete me._listeners;
-      each(listeners, function (listener, type) {
-        me.platform.removeEventListener(me, type, listener);
-      });
-    }
-  }, {
-    key: "updateHoverStyle",
-    value: function updateHoverStyle(items, mode, enabled) {
-      var prefix = enabled ? 'set' : 'remove';
-      var meta, item, i, ilen;
-      if (mode === 'dataset') {
-        meta = this.getDatasetMeta(items[0].datasetIndex);
-        meta.controller['_' + prefix + 'DatasetHoverStyle']();
-      }
-      for (i = 0, ilen = items.length; i < ilen; ++i) {
-        item = items[i];
-        if (item) {
-          this.getDatasetMeta(item.datasetIndex).controller[prefix + 'HoverStyle'](item.element, item.datasetIndex, item.index);
-        }
-      }
-    }
-  }, {
-    key: "_updateHoverStyles",
-    value: function _updateHoverStyles() {
-      var me = this;
-      var options = me.options || {};
-      var hoverOptions = options.hover;
-      if (me.lastActive.length) {
-        me.updateHoverStyle(me.lastActive, hoverOptions.mode, false);
-      }
-      if (me.active.length && hoverOptions.mode) {
-        me.updateHoverStyle(me.active, hoverOptions.mode, true);
-      }
-    }
-  }, {
-    key: "_eventHandler",
-    value: function _eventHandler(e, replay) {
-      var me = this;
-      if (pluginsCore.notify(me, 'beforeEvent', [e, replay]) === false) {
-        return;
-      }
-      me._handleEvent(e, replay);
-      pluginsCore.notify(me, 'afterEvent', [e, replay]);
-      me.render();
-      return me;
-    }
-  }, {
-    key: "_handleEvent",
-    value: function _handleEvent(e, replay) {
-      var me = this;
-      var options = me.options;
-      var hoverOptions = options.hover;
-      var useFinalPosition = replay;
-      var changed = false;
-      if (e.type === 'mouseout') {
-        me.active = [];
-        me._lastEvent = null;
+        _add('resize', listener);
+        _add('detach', detached);
+      };
+      detached = function detached() {
+        me.attached = false;
+        _remove('resize', listener);
+        _add('attach', attached);
+      };
+      if (platform.isAttached(me.canvas)) {
+        attached();
       } else {
-        me.active = me.getElementsAtEventForMode(e, hoverOptions.mode, hoverOptions, useFinalPosition);
-        me._lastEvent = e.type === 'click' ? me._lastEvent : e;
+        detached();
       }
-      callback(options.onHover || options.hover.onHover, [e["native"], me.active, me], me);
-      if (e.type === 'mouseup' || e.type === 'click') {
-        if (_isPointInArea(e, me.chartArea)) {
-          callback(options.onClick, [e, me.active, me], me);
-        }
-      }
-      changed = !_elementsEqual(me.active, me.lastActive);
-      if (changed || replay) {
-        me._updateHoverStyles();
-      }
-      me.lastActive = me.active;
-      return changed;
+    } else {
+      me.attached = true;
     }
-  }]);
+  }
+  ;
+  _proto.unbindEvents = function unbindEvents() {
+    var me = this;
+    var listeners = me._listeners;
+    if (!listeners) {
+      return;
+    }
+    delete me._listeners;
+    each(listeners, function (listener, type) {
+      me.platform.removeEventListener(me, type, listener);
+    });
+  };
+  _proto.updateHoverStyle = function updateHoverStyle(items, mode, enabled) {
+    var prefix = enabled ? 'set' : 'remove';
+    var meta, item, i, ilen;
+    if (mode === 'dataset') {
+      meta = this.getDatasetMeta(items[0].datasetIndex);
+      meta.controller['_' + prefix + 'DatasetHoverStyle']();
+    }
+    for (i = 0, ilen = items.length; i < ilen; ++i) {
+      item = items[i];
+      if (item) {
+        this.getDatasetMeta(item.datasetIndex).controller[prefix + 'HoverStyle'](item.element, item.datasetIndex, item.index);
+      }
+    }
+  }
+  ;
+  _proto._updateHoverStyles = function _updateHoverStyles() {
+    var me = this;
+    var options = me.options || {};
+    var hoverOptions = options.hover;
+    if (me.lastActive.length) {
+      me.updateHoverStyle(me.lastActive, hoverOptions.mode, false);
+    }
+    if (me.active.length && hoverOptions.mode) {
+      me.updateHoverStyle(me.active, hoverOptions.mode, true);
+    }
+  }
+  ;
+  _proto._eventHandler = function _eventHandler(e, replay) {
+    var me = this;
+    if (pluginsCore.notify(me, 'beforeEvent', [e, replay]) === false) {
+      return;
+    }
+    me._handleEvent(e, replay);
+    pluginsCore.notify(me, 'afterEvent', [e, replay]);
+    me.render();
+    return me;
+  }
+  ;
+  _proto._handleEvent = function _handleEvent(e, replay) {
+    var me = this;
+    var options = me.options;
+    var hoverOptions = options.hover;
+    var useFinalPosition = replay;
+    var changed = false;
+    if (e.type === 'mouseout') {
+      me.active = [];
+      me._lastEvent = null;
+    } else {
+      me.active = me.getElementsAtEventForMode(e, hoverOptions.mode, hoverOptions, useFinalPosition);
+      me._lastEvent = e.type === 'click' ? me._lastEvent : e;
+    }
+    callback(options.onHover || options.hover.onHover, [e["native"], me.active, me], me);
+    if (e.type === 'mouseup' || e.type === 'click') {
+      if (_isPointInArea(e, me.chartArea)) {
+        callback(options.onClick, [e, me.active, me], me);
+      }
+    }
+    changed = !_elementsEqual(me.active, me.lastActive);
+    if (changed || replay) {
+      me._updateHoverStyles();
+    }
+    me.lastActive = me.active;
+    return changed;
+  };
   return Chart;
 }();
 Chart.version = version;
@@ -8183,7 +7609,7 @@ overrideTextDirection: overrideTextDirection,
 restoreTextDirection: restoreTextDirection
 });
 
-var helpers = _objectSpread2(_objectSpread2({}, coreHelpers), {}, {
+var helpers = _extends({}, coreHelpers, {
   canvas: canvas,
   curve: curve,
   dom: dom,
@@ -8204,45 +7630,36 @@ function _abstract() {
 }
 var DateAdapter = function () {
   function DateAdapter(options) {
-    _classCallCheck(this, DateAdapter);
     this.options = options || {};
   }
-  _createClass(DateAdapter, [{
-    key: "formats",
-    value: function formats() {
-      return _abstract();
-    }
-  }, {
-    key: "parse",
-    value: function parse(value, format) {
-      return _abstract();
-    }
-  }, {
-    key: "format",
-    value: function format(timestamp, _format) {
-      return _abstract();
-    }
-  }, {
-    key: "add",
-    value: function add(timestamp, amount, unit) {
-      return _abstract();
-    }
-  }, {
-    key: "diff",
-    value: function diff(a, b, unit) {
-      return _abstract();
-    }
-  }, {
-    key: "startOf",
-    value: function startOf(timestamp, unit, weekday) {
-      return _abstract();
-    }
-  }, {
-    key: "endOf",
-    value: function endOf(timestamp, unit) {
-      return _abstract();
-    }
-  }]);
+  var _proto = DateAdapter.prototype;
+  _proto.formats = function formats() {
+    return _abstract();
+  }
+  ;
+  _proto.parse = function parse(value, format) {
+    return _abstract();
+  }
+  ;
+  _proto.format = function format(timestamp, _format) {
+    return _abstract();
+  }
+  ;
+  _proto.add = function add(timestamp, amount, unit) {
+    return _abstract();
+  }
+  ;
+  _proto.diff = function diff(a, b, unit) {
+    return _abstract();
+  }
+  ;
+  _proto.startOf = function startOf(timestamp, unit, weekday) {
+    return _abstract();
+  }
+  ;
+  _proto.endOf = function endOf(timestamp, unit) {
+    return _abstract();
+  };
   return DateAdapter;
 }();
 DateAdapter.override = function (members) {
@@ -8469,12 +7886,10 @@ function skip(ticks, newTicks, spacing, majorStart, majorEnd) {
   }
 }
 var Scale = function (_Element) {
-  _inherits(Scale, _Element);
-  var _super = _createSuper(Scale);
+  _inheritsLoose(Scale, _Element);
   function Scale(cfg) {
     var _this;
-    _classCallCheck(this, Scale);
-    _this = _super.call(this);
+    _this = _Element.call(this) || this;
     _this.id = cfg.id;
     _this.type = cfg.type;
     _this.options = undefined;
@@ -8517,1114 +7932,1025 @@ var Scale = function (_Element) {
     _this._borderValue = 0;
     return _this;
   }
-  _createClass(Scale, [{
-    key: "init",
-    value: function init(options) {
-      var me = this;
-      me.options = options;
-      me.axis = me.isHorizontal() ? 'x' : 'y';
-      me._userMin = me.parse(options.min);
-      me._userMax = me.parse(options.max);
+  var _proto = Scale.prototype;
+  _proto.init = function init(options) {
+    var me = this;
+    me.options = options;
+    me.axis = me.isHorizontal() ? 'x' : 'y';
+    me._userMin = me.parse(options.min);
+    me._userMax = me.parse(options.max);
+  }
+  ;
+  _proto.parse = function parse(raw, index) {
+    return raw;
+  }
+  ;
+  _proto.parseObject = function parseObject(obj, axis, index) {
+    if (obj[axis] !== undefined) {
+      return this.parse(obj[axis], index);
     }
-  }, {
-    key: "parse",
-    value: function parse(raw, index) {
-      return raw;
+    return null;
+  }
+  ;
+  _proto.getUserBounds = function getUserBounds() {
+    var min = this._userMin;
+    var max = this._userMax;
+    if (isNullOrUndef(min) || isNaN(min)) {
+      min = Number.POSITIVE_INFINITY;
     }
-  }, {
-    key: "parseObject",
-    value: function parseObject(obj, axis, index) {
-      if (obj[axis] !== undefined) {
-        return this.parse(obj[axis], index);
-      }
-      return null;
+    if (isNullOrUndef(max) || isNaN(max)) {
+      max = Number.NEGATIVE_INFINITY;
     }
-  }, {
-    key: "getUserBounds",
-    value: function getUserBounds() {
-      var min = this._userMin;
-      var max = this._userMax;
-      if (isNullOrUndef(min) || isNaN(min)) {
-        min = Number.POSITIVE_INFINITY;
-      }
-      if (isNullOrUndef(max) || isNaN(max)) {
-        max = Number.NEGATIVE_INFINITY;
-      }
-      return {
-        min: min,
-        max: max,
-        minDefined: isNumberFinite(min),
-        maxDefined: isNumberFinite(max)
-      };
-    }
-  }, {
-    key: "getMinMax",
-    value: function getMinMax(canStack) {
-      var me = this;
-      var _me$getUserBounds = me.getUserBounds(),
-          min = _me$getUserBounds.min,
-          max = _me$getUserBounds.max,
-          minDefined = _me$getUserBounds.minDefined,
-          maxDefined = _me$getUserBounds.maxDefined;
-      var minmax;
-      if (minDefined && maxDefined) {
-        return {
-          min: min,
-          max: max
-        };
-      }
-      var metas = me.getMatchingVisibleMetas();
-      for (var i = 0, ilen = metas.length; i < ilen; ++i) {
-        minmax = metas[i].controller.getMinMax(me, canStack);
-        if (!minDefined) {
-          min = Math.min(min, minmax.min);
-        }
-        if (!maxDefined) {
-          max = Math.max(max, minmax.max);
-        }
-      }
+    return {
+      min: min,
+      max: max,
+      minDefined: isNumberFinite(min),
+      maxDefined: isNumberFinite(max)
+    };
+  }
+  ;
+  _proto.getMinMax = function getMinMax(canStack) {
+    var me = this;
+    var _me$getUserBounds = me.getUserBounds(),
+        min = _me$getUserBounds.min,
+        max = _me$getUserBounds.max,
+        minDefined = _me$getUserBounds.minDefined,
+        maxDefined = _me$getUserBounds.maxDefined;
+    var minmax;
+    if (minDefined && maxDefined) {
       return {
         min: min,
         max: max
       };
     }
-  }, {
-    key: "invalidateCaches",
-    value: function invalidateCaches() {}
-  }, {
-    key: "getPadding",
-    value: function getPadding() {
-      var me = this;
-      return {
-        left: me.paddingLeft || 0,
-        top: me.paddingTop || 0,
-        right: me.paddingRight || 0,
-        bottom: me.paddingBottom || 0
-      };
-    }
-  }, {
-    key: "getTicks",
-    value: function getTicks() {
-      return this.ticks;
-    }
-  }, {
-    key: "getLabels",
-    value: function getLabels() {
-      var data = this.chart.data;
-      return this.options.labels || (this.isHorizontal() ? data.xLabels : data.yLabels) || data.labels || [];
-    }
-  }, {
-    key: "beforeUpdate",
-    value: function beforeUpdate() {
-      callback(this.options.beforeUpdate, [this]);
-    }
-  }, {
-    key: "update",
-    value: function update(maxWidth, maxHeight, margins) {
-      var me = this;
-      var tickOpts = me.options.ticks;
-      var sampleSize = tickOpts.sampleSize;
-      me.beforeUpdate();
-      me.maxWidth = maxWidth;
-      me.maxHeight = maxHeight;
-      me._margins = _extends({
-        left: 0,
-        right: 0,
-        top: 0,
-        bottom: 0
-      }, margins);
-      me.ticks = null;
-      me._labelSizes = null;
-      me._gridLineItems = null;
-      me._labelItems = null;
-      me.beforeSetDimensions();
-      me.setDimensions();
-      me.afterSetDimensions();
-      me.beforeDataLimits();
-      me.determineDataLimits();
-      me.afterDataLimits();
-      me.beforeBuildTicks();
-      me.ticks = me.buildTicks() || [];
-      me.afterBuildTicks();
-      var samplingEnabled = sampleSize < me.ticks.length;
-      me._convertTicksToLabels(samplingEnabled ? sample(me.ticks, sampleSize) : me.ticks);
-      me.configure();
-      me.beforeCalculateLabelRotation();
-      me.calculateLabelRotation();
-      me.afterCalculateLabelRotation();
-      me.beforeFit();
-      me.fit();
-      me.afterFit();
-      me.ticks = tickOpts.display && (tickOpts.autoSkip || tickOpts.source === 'auto') ? me._autoSkip(me.ticks) : me.ticks;
-      if (samplingEnabled) {
-        me._convertTicksToLabels(me.ticks);
+    var metas = me.getMatchingVisibleMetas();
+    for (var i = 0, ilen = metas.length; i < ilen; ++i) {
+      minmax = metas[i].controller.getMinMax(me, canStack);
+      if (!minDefined) {
+        min = Math.min(min, minmax.min);
       }
-      me.afterUpdate();
-    }
-  }, {
-    key: "configure",
-    value: function configure() {
-      var me = this;
-      var reversePixels = me.options.reverse;
-      var startPixel, endPixel;
-      if (me.isHorizontal()) {
-        startPixel = me.left;
-        endPixel = me.right;
-      } else {
-        startPixel = me.top;
-        endPixel = me.bottom;
-        reversePixels = !reversePixels;
-      }
-      me._startPixel = startPixel;
-      me._endPixel = endPixel;
-      me._reversePixels = reversePixels;
-      me._length = endPixel - startPixel;
-    }
-  }, {
-    key: "afterUpdate",
-    value: function afterUpdate() {
-      callback(this.options.afterUpdate, [this]);
-    }
-  }, {
-    key: "beforeSetDimensions",
-    value: function beforeSetDimensions() {
-      callback(this.options.beforeSetDimensions, [this]);
-    }
-  }, {
-    key: "setDimensions",
-    value: function setDimensions() {
-      var me = this;
-      if (me.isHorizontal()) {
-        me.width = me.maxWidth;
-        me.left = 0;
-        me.right = me.width;
-      } else {
-        me.height = me.maxHeight;
-        me.top = 0;
-        me.bottom = me.height;
-      }
-      me.paddingLeft = 0;
-      me.paddingTop = 0;
-      me.paddingRight = 0;
-      me.paddingBottom = 0;
-    }
-  }, {
-    key: "afterSetDimensions",
-    value: function afterSetDimensions() {
-      callback(this.options.afterSetDimensions, [this]);
-    }
-  }, {
-    key: "beforeDataLimits",
-    value: function beforeDataLimits() {
-      callback(this.options.beforeDataLimits, [this]);
-    }
-  }, {
-    key: "determineDataLimits",
-    value: function determineDataLimits() {}
-  }, {
-    key: "afterDataLimits",
-    value: function afterDataLimits() {
-      callback(this.options.afterDataLimits, [this]);
-    }
-  }, {
-    key: "beforeBuildTicks",
-    value: function beforeBuildTicks() {
-      callback(this.options.beforeBuildTicks, [this]);
-    }
-  }, {
-    key: "buildTicks",
-    value: function buildTicks() {
-      return [];
-    }
-  }, {
-    key: "afterBuildTicks",
-    value: function afterBuildTicks() {
-      callback(this.options.afterBuildTicks, [this]);
-    }
-  }, {
-    key: "beforeTickToLabelConversion",
-    value: function beforeTickToLabelConversion() {
-      callback(this.options.beforeTickToLabelConversion, [this]);
-    }
-  }, {
-    key: "generateTickLabels",
-    value: function generateTickLabels(ticks) {
-      var me = this;
-      var tickOpts = me.options.ticks;
-      var i, ilen, tick;
-      for (i = 0, ilen = ticks.length; i < ilen; i++) {
-        tick = ticks[i];
-        tick.label = callback(tickOpts.callback, [tick.value, i, ticks], me);
+      if (!maxDefined) {
+        max = Math.max(max, minmax.max);
       }
     }
-  }, {
-    key: "afterTickToLabelConversion",
-    value: function afterTickToLabelConversion() {
-      callback(this.options.afterTickToLabelConversion, [this]);
+    return {
+      min: min,
+      max: max
+    };
+  };
+  _proto.invalidateCaches = function invalidateCaches() {}
+  ;
+  _proto.getPadding = function getPadding() {
+    var me = this;
+    return {
+      left: me.paddingLeft || 0,
+      top: me.paddingTop || 0,
+      right: me.paddingRight || 0,
+      bottom: me.paddingBottom || 0
+    };
+  }
+  ;
+  _proto.getTicks = function getTicks() {
+    return this.ticks;
+  }
+  ;
+  _proto.getLabels = function getLabels() {
+    var data = this.chart.data;
+    return this.options.labels || (this.isHorizontal() ? data.xLabels : data.yLabels) || data.labels || [];
+  }
+  ;
+  _proto.beforeUpdate = function beforeUpdate() {
+    callback(this.options.beforeUpdate, [this]);
+  }
+  ;
+  _proto.update = function update(maxWidth, maxHeight, margins) {
+    var me = this;
+    var tickOpts = me.options.ticks;
+    var sampleSize = tickOpts.sampleSize;
+    me.beforeUpdate();
+    me.maxWidth = maxWidth;
+    me.maxHeight = maxHeight;
+    me._margins = _extends({
+      left: 0,
+      right: 0,
+      top: 0,
+      bottom: 0
+    }, margins);
+    me.ticks = null;
+    me._labelSizes = null;
+    me._gridLineItems = null;
+    me._labelItems = null;
+    me.beforeSetDimensions();
+    me.setDimensions();
+    me.afterSetDimensions();
+    me.beforeDataLimits();
+    me.determineDataLimits();
+    me.afterDataLimits();
+    me.beforeBuildTicks();
+    me.ticks = me.buildTicks() || [];
+    me.afterBuildTicks();
+    var samplingEnabled = sampleSize < me.ticks.length;
+    me._convertTicksToLabels(samplingEnabled ? sample(me.ticks, sampleSize) : me.ticks);
+    me.configure();
+    me.beforeCalculateLabelRotation();
+    me.calculateLabelRotation();
+    me.afterCalculateLabelRotation();
+    me.beforeFit();
+    me.fit();
+    me.afterFit();
+    me.ticks = tickOpts.display && (tickOpts.autoSkip || tickOpts.source === 'auto') ? me._autoSkip(me.ticks) : me.ticks;
+    if (samplingEnabled) {
+      me._convertTicksToLabels(me.ticks);
     }
-  }, {
-    key: "beforeCalculateLabelRotation",
-    value: function beforeCalculateLabelRotation() {
-      callback(this.options.beforeCalculateLabelRotation, [this]);
+    me.afterUpdate();
+  }
+  ;
+  _proto.configure = function configure() {
+    var me = this;
+    var reversePixels = me.options.reverse;
+    var startPixel, endPixel;
+    if (me.isHorizontal()) {
+      startPixel = me.left;
+      endPixel = me.right;
+    } else {
+      startPixel = me.top;
+      endPixel = me.bottom;
+      reversePixels = !reversePixels;
     }
-  }, {
-    key: "calculateLabelRotation",
-    value: function calculateLabelRotation() {
-      var me = this;
-      var options = me.options;
-      var tickOpts = options.ticks;
-      var numTicks = me.ticks.length;
-      var minRotation = tickOpts.minRotation || 0;
-      var maxRotation = tickOpts.maxRotation;
-      var labelRotation = minRotation;
-      var tickWidth, maxHeight, maxLabelDiagonal;
-      if (!me._isVisible() || !tickOpts.display || minRotation >= maxRotation || numTicks <= 1 || !me.isHorizontal()) {
-        me.labelRotation = minRotation;
-        return;
-      }
+    me._startPixel = startPixel;
+    me._endPixel = endPixel;
+    me._reversePixels = reversePixels;
+    me._length = endPixel - startPixel;
+  };
+  _proto.afterUpdate = function afterUpdate() {
+    callback(this.options.afterUpdate, [this]);
+  }
+  ;
+  _proto.beforeSetDimensions = function beforeSetDimensions() {
+    callback(this.options.beforeSetDimensions, [this]);
+  };
+  _proto.setDimensions = function setDimensions() {
+    var me = this;
+    if (me.isHorizontal()) {
+      me.width = me.maxWidth;
+      me.left = 0;
+      me.right = me.width;
+    } else {
+      me.height = me.maxHeight;
+      me.top = 0;
+      me.bottom = me.height;
+    }
+    me.paddingLeft = 0;
+    me.paddingTop = 0;
+    me.paddingRight = 0;
+    me.paddingBottom = 0;
+  };
+  _proto.afterSetDimensions = function afterSetDimensions() {
+    callback(this.options.afterSetDimensions, [this]);
+  }
+  ;
+  _proto.beforeDataLimits = function beforeDataLimits() {
+    callback(this.options.beforeDataLimits, [this]);
+  };
+  _proto.determineDataLimits = function determineDataLimits() {};
+  _proto.afterDataLimits = function afterDataLimits() {
+    callback(this.options.afterDataLimits, [this]);
+  }
+  ;
+  _proto.beforeBuildTicks = function beforeBuildTicks() {
+    callback(this.options.beforeBuildTicks, [this]);
+  }
+  ;
+  _proto.buildTicks = function buildTicks() {
+    return [];
+  };
+  _proto.afterBuildTicks = function afterBuildTicks() {
+    callback(this.options.afterBuildTicks, [this]);
+  };
+  _proto.beforeTickToLabelConversion = function beforeTickToLabelConversion() {
+    callback(this.options.beforeTickToLabelConversion, [this]);
+  }
+  ;
+  _proto.generateTickLabels = function generateTickLabels(ticks) {
+    var me = this;
+    var tickOpts = me.options.ticks;
+    var i, ilen, tick;
+    for (i = 0, ilen = ticks.length; i < ilen; i++) {
+      tick = ticks[i];
+      tick.label = callback(tickOpts.callback, [tick.value, i, ticks], me);
+    }
+  };
+  _proto.afterTickToLabelConversion = function afterTickToLabelConversion() {
+    callback(this.options.afterTickToLabelConversion, [this]);
+  }
+  ;
+  _proto.beforeCalculateLabelRotation = function beforeCalculateLabelRotation() {
+    callback(this.options.beforeCalculateLabelRotation, [this]);
+  };
+  _proto.calculateLabelRotation = function calculateLabelRotation() {
+    var me = this;
+    var options = me.options;
+    var tickOpts = options.ticks;
+    var numTicks = me.ticks.length;
+    var minRotation = tickOpts.minRotation || 0;
+    var maxRotation = tickOpts.maxRotation;
+    var labelRotation = minRotation;
+    var tickWidth, maxHeight, maxLabelDiagonal;
+    if (!me._isVisible() || !tickOpts.display || minRotation >= maxRotation || numTicks <= 1 || !me.isHorizontal()) {
+      me.labelRotation = minRotation;
+      return;
+    }
+    var labelSizes = me._getLabelSizes();
+    var maxLabelWidth = labelSizes.widest.width;
+    var maxLabelHeight = labelSizes.highest.height - labelSizes.highest.offset;
+    var maxWidth = Math.min(me.maxWidth, me.chart.width - maxLabelWidth);
+    tickWidth = options.offset ? me.maxWidth / numTicks : maxWidth / (numTicks - 1);
+    if (maxLabelWidth + 6 > tickWidth) {
+      tickWidth = maxWidth / (numTicks - (options.offset ? 0.5 : 1));
+      maxHeight = me.maxHeight - getTickMarkLength(options.gridLines) - tickOpts.padding - getScaleLabelHeight(options.scaleLabel);
+      maxLabelDiagonal = Math.sqrt(maxLabelWidth * maxLabelWidth + maxLabelHeight * maxLabelHeight);
+      labelRotation = toDegrees(Math.min(Math.asin(Math.min((labelSizes.highest.height + 6) / tickWidth, 1)), Math.asin(Math.min(maxHeight / maxLabelDiagonal, 1)) - Math.asin(maxLabelHeight / maxLabelDiagonal)));
+      labelRotation = Math.max(minRotation, Math.min(maxRotation, labelRotation));
+    }
+    me.labelRotation = labelRotation;
+  };
+  _proto.afterCalculateLabelRotation = function afterCalculateLabelRotation() {
+    callback(this.options.afterCalculateLabelRotation, [this]);
+  }
+  ;
+  _proto.beforeFit = function beforeFit() {
+    callback(this.options.beforeFit, [this]);
+  };
+  _proto.fit = function fit() {
+    var me = this;
+    var minSize = {
+      width: 0,
+      height: 0
+    };
+    var chart = me.chart;
+    var opts = me.options;
+    var tickOpts = opts.ticks;
+    var scaleLabelOpts = opts.scaleLabel;
+    var gridLineOpts = opts.gridLines;
+    var display = me._isVisible();
+    var labelsBelowTicks = opts.position !== 'top' && me.axis === 'x';
+    var isHorizontal = me.isHorizontal();
+    if (isHorizontal) {
+      minSize.width = me.maxWidth;
+    } else if (display) {
+      minSize.width = getTickMarkLength(gridLineOpts) + getScaleLabelHeight(scaleLabelOpts);
+    }
+    if (!isHorizontal) {
+      minSize.height = me.maxHeight;
+    } else if (display) {
+      minSize.height = getTickMarkLength(gridLineOpts) + getScaleLabelHeight(scaleLabelOpts);
+    }
+    if (tickOpts.display && display && me.ticks.length) {
       var labelSizes = me._getLabelSizes();
-      var maxLabelWidth = labelSizes.widest.width;
-      var maxLabelHeight = labelSizes.highest.height - labelSizes.highest.offset;
-      var maxWidth = Math.min(me.maxWidth, me.chart.width - maxLabelWidth);
-      tickWidth = options.offset ? me.maxWidth / numTicks : maxWidth / (numTicks - 1);
-      if (maxLabelWidth + 6 > tickWidth) {
-        tickWidth = maxWidth / (numTicks - (options.offset ? 0.5 : 1));
-        maxHeight = me.maxHeight - getTickMarkLength(options.gridLines) - tickOpts.padding - getScaleLabelHeight(options.scaleLabel);
-        maxLabelDiagonal = Math.sqrt(maxLabelWidth * maxLabelWidth + maxLabelHeight * maxLabelHeight);
-        labelRotation = toDegrees(Math.min(Math.asin(Math.min((labelSizes.highest.height + 6) / tickWidth, 1)), Math.asin(Math.min(maxHeight / maxLabelDiagonal, 1)) - Math.asin(maxLabelHeight / maxLabelDiagonal)));
-        labelRotation = Math.max(minRotation, Math.min(maxRotation, labelRotation));
-      }
-      me.labelRotation = labelRotation;
-    }
-  }, {
-    key: "afterCalculateLabelRotation",
-    value: function afterCalculateLabelRotation() {
-      callback(this.options.afterCalculateLabelRotation, [this]);
-    }
-  }, {
-    key: "beforeFit",
-    value: function beforeFit() {
-      callback(this.options.beforeFit, [this]);
-    }
-  }, {
-    key: "fit",
-    value: function fit() {
-      var me = this;
-      var minSize = {
-        width: 0,
-        height: 0
-      };
-      var chart = me.chart;
-      var opts = me.options;
-      var tickOpts = opts.ticks;
-      var scaleLabelOpts = opts.scaleLabel;
-      var gridLineOpts = opts.gridLines;
-      var display = me._isVisible();
-      var labelsBelowTicks = opts.position !== 'top' && me.axis === 'x';
-      var isHorizontal = me.isHorizontal();
+      var firstLabelSize = labelSizes.first;
+      var lastLabelSize = labelSizes.last;
+      var widestLabelSize = labelSizes.widest;
+      var highestLabelSize = labelSizes.highest;
+      var lineSpace = highestLabelSize.offset * 0.8;
+      var tickPadding = tickOpts.padding;
       if (isHorizontal) {
-        minSize.width = me.maxWidth;
-      } else if (display) {
-        minSize.width = getTickMarkLength(gridLineOpts) + getScaleLabelHeight(scaleLabelOpts);
-      }
-      if (!isHorizontal) {
-        minSize.height = me.maxHeight;
-      } else if (display) {
-        minSize.height = getTickMarkLength(gridLineOpts) + getScaleLabelHeight(scaleLabelOpts);
-      }
-      if (tickOpts.display && display && me.ticks.length) {
-        var labelSizes = me._getLabelSizes();
-        var firstLabelSize = labelSizes.first;
-        var lastLabelSize = labelSizes.last;
-        var widestLabelSize = labelSizes.widest;
-        var highestLabelSize = labelSizes.highest;
-        var lineSpace = highestLabelSize.offset * 0.8;
-        var tickPadding = tickOpts.padding;
-        if (isHorizontal) {
-          var isRotated = me.labelRotation !== 0;
-          var angleRadians = toRadians(me.labelRotation);
-          var cosRotation = Math.cos(angleRadians);
-          var sinRotation = Math.sin(angleRadians);
-          var labelHeight = sinRotation * widestLabelSize.width + cosRotation * (highestLabelSize.height - (isRotated ? highestLabelSize.offset : 0)) + (isRotated ? 0 : lineSpace);
-          minSize.height = Math.min(me.maxHeight, minSize.height + labelHeight + tickPadding);
-          var offsetLeft = me.getPixelForTick(0) - me.left;
-          var offsetRight = me.right - me.getPixelForTick(me.ticks.length - 1);
-          var paddingLeft, paddingRight;
-          if (isRotated) {
-            paddingLeft = labelsBelowTicks ? cosRotation * firstLabelSize.width + sinRotation * firstLabelSize.offset : sinRotation * (firstLabelSize.height - firstLabelSize.offset);
-            paddingRight = labelsBelowTicks ? sinRotation * (lastLabelSize.height - lastLabelSize.offset) : cosRotation * lastLabelSize.width + sinRotation * lastLabelSize.offset;
-          } else {
-            paddingLeft = firstLabelSize.width / 2;
-            paddingRight = lastLabelSize.width / 2;
-          }
-          me.paddingLeft = Math.max((paddingLeft - offsetLeft) * me.width / (me.width - offsetLeft), 0) + 3;
-          me.paddingRight = Math.max((paddingRight - offsetRight) * me.width / (me.width - offsetRight), 0) + 3;
+        var isRotated = me.labelRotation !== 0;
+        var angleRadians = toRadians(me.labelRotation);
+        var cosRotation = Math.cos(angleRadians);
+        var sinRotation = Math.sin(angleRadians);
+        var labelHeight = sinRotation * widestLabelSize.width + cosRotation * (highestLabelSize.height - (isRotated ? highestLabelSize.offset : 0)) + (isRotated ? 0 : lineSpace);
+        minSize.height = Math.min(me.maxHeight, minSize.height + labelHeight + tickPadding);
+        var offsetLeft = me.getPixelForTick(0) - me.left;
+        var offsetRight = me.right - me.getPixelForTick(me.ticks.length - 1);
+        var paddingLeft, paddingRight;
+        if (isRotated) {
+          paddingLeft = labelsBelowTicks ? cosRotation * firstLabelSize.width + sinRotation * firstLabelSize.offset : sinRotation * (firstLabelSize.height - firstLabelSize.offset);
+          paddingRight = labelsBelowTicks ? sinRotation * (lastLabelSize.height - lastLabelSize.offset) : cosRotation * lastLabelSize.width + sinRotation * lastLabelSize.offset;
         } else {
-          var labelWidth = tickOpts.mirror ? 0 :
-          widestLabelSize.width + tickPadding + lineSpace;
-          minSize.width = Math.min(me.maxWidth, minSize.width + labelWidth);
-          me.paddingTop = firstLabelSize.height / 2;
-          me.paddingBottom = lastLabelSize.height / 2;
+          paddingLeft = firstLabelSize.width / 2;
+          paddingRight = lastLabelSize.width / 2;
         }
-      }
-      me._handleMargins();
-      if (isHorizontal) {
-        me.width = me._length = chart.width - me._margins.left - me._margins.right;
-        me.height = minSize.height;
+        me.paddingLeft = Math.max((paddingLeft - offsetLeft) * me.width / (me.width - offsetLeft), 0) + 3;
+        me.paddingRight = Math.max((paddingRight - offsetRight) * me.width / (me.width - offsetRight), 0) + 3;
       } else {
-        me.width = minSize.width;
-        me.height = me._length = chart.height - me._margins.top - me._margins.bottom;
+        var labelWidth = tickOpts.mirror ? 0 :
+        widestLabelSize.width + tickPadding + lineSpace;
+        minSize.width = Math.min(me.maxWidth, minSize.width + labelWidth);
+        me.paddingTop = firstLabelSize.height / 2;
+        me.paddingBottom = lastLabelSize.height / 2;
       }
     }
-  }, {
-    key: "_handleMargins",
-    value: function _handleMargins() {
-      var me = this;
-      if (me._margins) {
-        me._margins.left = Math.max(me.paddingLeft, me._margins.left);
-        me._margins.top = Math.max(me.paddingTop, me._margins.top);
-        me._margins.right = Math.max(me.paddingRight, me._margins.right);
-        me._margins.bottom = Math.max(me.paddingBottom, me._margins.bottom);
-      }
+    me._handleMargins();
+    if (isHorizontal) {
+      me.width = me._length = chart.width - me._margins.left - me._margins.right;
+      me.height = minSize.height;
+    } else {
+      me.width = minSize.width;
+      me.height = me._length = chart.height - me._margins.top - me._margins.bottom;
     }
-  }, {
-    key: "afterFit",
-    value: function afterFit() {
-      callback(this.options.afterFit, [this]);
+  }
+  ;
+  _proto._handleMargins = function _handleMargins() {
+    var me = this;
+    if (me._margins) {
+      me._margins.left = Math.max(me.paddingLeft, me._margins.left);
+      me._margins.top = Math.max(me.paddingTop, me._margins.top);
+      me._margins.right = Math.max(me.paddingRight, me._margins.right);
+      me._margins.bottom = Math.max(me.paddingBottom, me._margins.bottom);
     }
-  }, {
-    key: "isHorizontal",
-    value: function isHorizontal() {
-      var _this$options = this.options,
-          axis = _this$options.axis,
-          position = _this$options.position;
-      return position === 'top' || position === 'bottom' || axis === 'x';
+  };
+  _proto.afterFit = function afterFit() {
+    callback(this.options.afterFit, [this]);
+  }
+  ;
+  _proto.isHorizontal = function isHorizontal() {
+    var _this$options = this.options,
+        axis = _this$options.axis,
+        position = _this$options.position;
+    return position === 'top' || position === 'bottom' || axis === 'x';
+  }
+  ;
+  _proto.isFullWidth = function isFullWidth() {
+    return this.options.fullWidth;
+  }
+  ;
+  _proto._convertTicksToLabels = function _convertTicksToLabels(ticks) {
+    var me = this;
+    me.beforeTickToLabelConversion();
+    me.generateTickLabels(ticks);
+    me.afterTickToLabelConversion();
+  }
+  ;
+  _proto._getLabelSizes = function _getLabelSizes() {
+    var me = this;
+    var labelSizes = me._labelSizes;
+    if (!labelSizes) {
+      me._labelSizes = labelSizes = me._computeLabelSizes();
     }
-  }, {
-    key: "isFullWidth",
-    value: function isFullWidth() {
-      return this.options.fullWidth;
+    return labelSizes;
+  }
+  ;
+  _proto._computeLabelSizes = function _computeLabelSizes() {
+    var me = this;
+    var ctx = me.ctx;
+    var caches = me._longestTextCache;
+    var sampleSize = me.options.ticks.sampleSize;
+    var widths = [];
+    var heights = [];
+    var offsets = [];
+    var ticks = me.ticks;
+    if (sampleSize < ticks.length) {
+      ticks = sample(ticks, sampleSize);
     }
-  }, {
-    key: "_convertTicksToLabels",
-    value: function _convertTicksToLabels(ticks) {
-      var me = this;
-      me.beforeTickToLabelConversion();
-      me.generateTickLabels(ticks);
-      me.afterTickToLabelConversion();
-    }
-  }, {
-    key: "_getLabelSizes",
-    value: function _getLabelSizes() {
-      var me = this;
-      var labelSizes = me._labelSizes;
-      if (!labelSizes) {
-        me._labelSizes = labelSizes = me._computeLabelSizes();
-      }
-      return labelSizes;
-    }
-  }, {
-    key: "_computeLabelSizes",
-    value: function _computeLabelSizes() {
-      var me = this;
-      var ctx = me.ctx;
-      var caches = me._longestTextCache;
-      var sampleSize = me.options.ticks.sampleSize;
-      var widths = [];
-      var heights = [];
-      var offsets = [];
-      var ticks = me.ticks;
-      if (sampleSize < ticks.length) {
-        ticks = sample(ticks, sampleSize);
-      }
-      var length = ticks.length;
-      var i, j, jlen, label, tickFont, fontString, cache, lineHeight, width, height, nestedLabel;
-      for (i = 0; i < length; ++i) {
-        label = ticks[i].label;
-        tickFont = me._resolveTickFontOptions(i);
-        ctx.font = fontString = tickFont.string;
-        cache = caches[fontString] = caches[fontString] || {
-          data: {},
-          gc: []
-        };
-        lineHeight = tickFont.lineHeight;
-        width = height = 0;
-        if (!isNullOrUndef(label) && !isArray(label)) {
-          width = _measureText(ctx, cache.data, cache.gc, width, label);
-          height = lineHeight;
-        } else if (isArray(label)) {
-          for (j = 0, jlen = label.length; j < jlen; ++j) {
-            nestedLabel = label[j];
-            if (!isNullOrUndef(nestedLabel) && !isArray(nestedLabel)) {
-              width = _measureText(ctx, cache.data, cache.gc, width, nestedLabel);
-              height += lineHeight;
-            }
+    var length = ticks.length;
+    var i, j, jlen, label, tickFont, fontString, cache, lineHeight, width, height, nestedLabel;
+    for (i = 0; i < length; ++i) {
+      label = ticks[i].label;
+      tickFont = me._resolveTickFontOptions(i);
+      ctx.font = fontString = tickFont.string;
+      cache = caches[fontString] = caches[fontString] || {
+        data: {},
+        gc: []
+      };
+      lineHeight = tickFont.lineHeight;
+      width = height = 0;
+      if (!isNullOrUndef(label) && !isArray(label)) {
+        width = _measureText(ctx, cache.data, cache.gc, width, label);
+        height = lineHeight;
+      } else if (isArray(label)) {
+        for (j = 0, jlen = label.length; j < jlen; ++j) {
+          nestedLabel = label[j];
+          if (!isNullOrUndef(nestedLabel) && !isArray(nestedLabel)) {
+            width = _measureText(ctx, cache.data, cache.gc, width, nestedLabel);
+            height += lineHeight;
           }
         }
-        widths.push(width);
-        heights.push(height);
-        offsets.push(lineHeight / 2);
       }
-      garbageCollect(caches, length);
-      var widest = widths.indexOf(Math.max.apply(null, widths));
-      var highest = heights.indexOf(Math.max.apply(null, heights));
-      function valueAt(idx) {
-        return {
-          width: widths[idx] || 0,
-          height: heights[idx] || 0,
-          offset: offsets[idx] || 0
-        };
-      }
+      widths.push(width);
+      heights.push(height);
+      offsets.push(lineHeight / 2);
+    }
+    garbageCollect(caches, length);
+    var widest = widths.indexOf(Math.max.apply(null, widths));
+    var highest = heights.indexOf(Math.max.apply(null, heights));
+    function valueAt(idx) {
       return {
-        first: valueAt(0),
-        last: valueAt(length - 1),
-        widest: valueAt(widest),
-        highest: valueAt(highest)
+        width: widths[idx] || 0,
+        height: heights[idx] || 0,
+        offset: offsets[idx] || 0
       };
     }
-  }, {
-    key: "getLabelForValue",
-    value: function getLabelForValue(value) {
-      return value;
+    return {
+      first: valueAt(0),
+      last: valueAt(length - 1),
+      widest: valueAt(widest),
+      highest: valueAt(highest)
+    };
+  }
+  ;
+  _proto.getLabelForValue = function getLabelForValue(value) {
+    return value;
+  }
+  ;
+  _proto.getPixelForValue = function getPixelForValue(value) {
+    return NaN;
+  }
+  ;
+  _proto.getValueForPixel = function getValueForPixel(pixel) {}
+  ;
+  _proto.getPixelForTick = function getPixelForTick(index) {
+    var ticks = this.ticks;
+    if (index < 0 || index > ticks.length - 1) {
+      return null;
     }
-  }, {
-    key: "getPixelForValue",
-    value: function getPixelForValue(value) {
-      return NaN;
+    return this.getPixelForValue(ticks[index].value);
+  }
+  ;
+  _proto.getPixelForDecimal = function getPixelForDecimal(decimal) {
+    var me = this;
+    if (me._reversePixels) {
+      decimal = 1 - decimal;
     }
-  }, {
-    key: "getValueForPixel",
-    value: function getValueForPixel(pixel) {}
-  }, {
-    key: "getPixelForTick",
-    value: function getPixelForTick(index) {
-      var ticks = this.ticks;
-      if (index < 0 || index > ticks.length - 1) {
-        return null;
-      }
-      return this.getPixelForValue(ticks[index].value);
-    }
-  }, {
-    key: "getPixelForDecimal",
-    value: function getPixelForDecimal(decimal) {
-      var me = this;
-      if (me._reversePixels) {
-        decimal = 1 - decimal;
-      }
-      return me._startPixel + decimal * me._length;
-    }
-  }, {
-    key: "getDecimalForPixel",
-    value: function getDecimalForPixel(pixel) {
-      var decimal = (pixel - this._startPixel) / this._length;
-      return this._reversePixels ? 1 - decimal : decimal;
-    }
-  }, {
-    key: "getBasePixel",
-    value: function getBasePixel() {
-      return this.getPixelForValue(this.getBaseValue());
-    }
-  }, {
-    key: "getBaseValue",
-    value: function getBaseValue() {
-      var min = this.min,
-          max = this.max;
-      return min < 0 && max < 0 ? max : min > 0 && max > 0 ? min : 0;
-    }
-  }, {
-    key: "_autoSkip",
-    value: function _autoSkip(ticks) {
-      var me = this;
-      var tickOpts = me.options.ticks;
-      var ticksLimit = tickOpts.maxTicksLimit || me._length / me._tickSize();
-      var majorIndices = tickOpts.major.enabled ? getMajorIndices(ticks) : [];
-      var numMajorIndices = majorIndices.length;
-      var first = majorIndices[0];
-      var last = majorIndices[numMajorIndices - 1];
-      var newTicks = [];
-      if (numMajorIndices > ticksLimit) {
-        skipMajors(ticks, newTicks, majorIndices, numMajorIndices / ticksLimit);
-        return newTicks;
-      }
-      var spacing = calculateSpacing(majorIndices, ticks, ticksLimit);
-      if (numMajorIndices > 0) {
-        var i, ilen;
-        var avgMajorSpacing = numMajorIndices > 1 ? Math.round((last - first) / (numMajorIndices - 1)) : null;
-        skip(ticks, newTicks, spacing, isNullOrUndef(avgMajorSpacing) ? 0 : first - avgMajorSpacing, first);
-        for (i = 0, ilen = numMajorIndices - 1; i < ilen; i++) {
-          skip(ticks, newTicks, spacing, majorIndices[i], majorIndices[i + 1]);
-        }
-        skip(ticks, newTicks, spacing, last, isNullOrUndef(avgMajorSpacing) ? ticks.length : last + avgMajorSpacing);
-        return newTicks;
-      }
-      skip(ticks, newTicks, spacing);
+    return me._startPixel + decimal * me._length;
+  }
+  ;
+  _proto.getDecimalForPixel = function getDecimalForPixel(pixel) {
+    var decimal = (pixel - this._startPixel) / this._length;
+    return this._reversePixels ? 1 - decimal : decimal;
+  }
+  ;
+  _proto.getBasePixel = function getBasePixel() {
+    return this.getPixelForValue(this.getBaseValue());
+  }
+  ;
+  _proto.getBaseValue = function getBaseValue() {
+    var min = this.min,
+        max = this.max;
+    return min < 0 && max < 0 ? max : min > 0 && max > 0 ? min : 0;
+  }
+  ;
+  _proto._autoSkip = function _autoSkip(ticks) {
+    var me = this;
+    var tickOpts = me.options.ticks;
+    var ticksLimit = tickOpts.maxTicksLimit || me._length / me._tickSize();
+    var majorIndices = tickOpts.major.enabled ? getMajorIndices(ticks) : [];
+    var numMajorIndices = majorIndices.length;
+    var first = majorIndices[0];
+    var last = majorIndices[numMajorIndices - 1];
+    var newTicks = [];
+    if (numMajorIndices > ticksLimit) {
+      skipMajors(ticks, newTicks, majorIndices, numMajorIndices / ticksLimit);
       return newTicks;
     }
-  }, {
-    key: "_tickSize",
-    value: function _tickSize() {
-      var me = this;
-      var optionTicks = me.options.ticks;
-      var rot = toRadians(me.labelRotation);
-      var cos = Math.abs(Math.cos(rot));
-      var sin = Math.abs(Math.sin(rot));
-      var labelSizes = me._getLabelSizes();
-      var padding = optionTicks.autoSkipPadding || 0;
-      var w = labelSizes ? labelSizes.widest.width + padding : 0;
-      var h = labelSizes ? labelSizes.highest.height + padding : 0;
-      return me.isHorizontal() ? h * cos > w * sin ? w / cos : h / sin : h * sin < w * cos ? h / cos : w / sin;
-    }
-  }, {
-    key: "_isVisible",
-    value: function _isVisible() {
-      var display = this.options.display;
-      if (display !== 'auto') {
-        return !!display;
-      }
-      return this.getMatchingVisibleMetas().length > 0;
-    }
-  }, {
-    key: "_computeGridLineItems",
-    value: function _computeGridLineItems(chartArea) {
-      var me = this;
-      var axis = me.axis;
-      var chart = me.chart;
-      var options = me.options;
-      var gridLines = options.gridLines,
-          position = options.position;
-      var offsetGridLines = gridLines.offsetGridLines;
-      var isHorizontal = me.isHorizontal();
-      var ticks = me.ticks;
-      var ticksLength = ticks.length + (offsetGridLines ? 1 : 0);
-      var tl = getTickMarkLength(gridLines);
-      var items = [];
-      var context = {
-        scale: me,
-        tick: ticks[0]
-      };
-      var axisWidth = gridLines.drawBorder ? resolve([gridLines.borderWidth, gridLines.lineWidth, 0], context, 0) : 0;
-      var axisHalfWidth = axisWidth / 2;
-      var alignBorderValue = function alignBorderValue(pixel) {
-        return _alignPixel(chart, pixel, axisWidth);
-      };
-      var borderValue, i, lineValue, alignedLineValue;
-      var tx1, ty1, tx2, ty2, x1, y1, x2, y2;
-      if (position === 'top') {
-        borderValue = alignBorderValue(me.bottom);
-        ty1 = me.bottom - tl;
-        ty2 = borderValue - axisHalfWidth;
-        y1 = alignBorderValue(chartArea.top) + axisHalfWidth;
-        y2 = chartArea.bottom;
-      } else if (position === 'bottom') {
-        borderValue = alignBorderValue(me.top);
-        y1 = chartArea.top;
-        y2 = alignBorderValue(chartArea.bottom) - axisHalfWidth;
-        ty1 = borderValue + axisHalfWidth;
-        ty2 = me.top + tl;
-      } else if (position === 'left') {
-        borderValue = alignBorderValue(me.right);
-        tx1 = me.right - tl;
-        tx2 = borderValue - axisHalfWidth;
-        x1 = alignBorderValue(chartArea.left) + axisHalfWidth;
-        x2 = chartArea.right;
-      } else if (position === 'right') {
-        borderValue = alignBorderValue(me.left);
-        x1 = chartArea.left;
-        x2 = alignBorderValue(chartArea.right) - axisHalfWidth;
-        tx1 = borderValue + axisHalfWidth;
-        tx2 = me.left + tl;
-      } else if (axis === 'x') {
-        if (position === 'center') {
-          borderValue = alignBorderValue((chartArea.top + chartArea.bottom) / 2);
-        } else if (isObject(position)) {
-          var positionAxisID = Object.keys(position)[0];
-          var value = position[positionAxisID];
-          borderValue = alignBorderValue(me.chart.scales[positionAxisID].getPixelForValue(value));
-        }
-        y1 = chartArea.top;
-        y2 = chartArea.bottom;
-        ty1 = borderValue + axisHalfWidth;
-        ty2 = ty1 + tl;
-      } else if (axis === 'y') {
-        if (position === 'center') {
-          borderValue = alignBorderValue((chartArea.left + chartArea.right) / 2);
-        } else if (isObject(position)) {
-          var _positionAxisID = Object.keys(position)[0];
-          var _value = position[_positionAxisID];
-          borderValue = alignBorderValue(me.chart.scales[_positionAxisID].getPixelForValue(_value));
-        }
-        tx1 = borderValue - axisHalfWidth;
-        tx2 = tx1 - tl;
-        x1 = chartArea.left;
-        x2 = chartArea.right;
-      }
-      for (i = 0; i < ticksLength; ++i) {
-        var tick = ticks[i] || {};
-        context = {
-          scale: me,
-          tick: tick
-        };
-        var lineWidth = resolve([gridLines.lineWidth], context, i);
-        var lineColor = resolve([gridLines.color], context, i);
-        var borderDash = gridLines.borderDash || [];
-        var borderDashOffset = resolve([gridLines.borderDashOffset], context, i);
-        lineValue = getPixelForGridLine(me, i, offsetGridLines);
-        if (lineValue === undefined) {
-          continue;
-        }
-        alignedLineValue = _alignPixel(chart, lineValue, lineWidth);
-        if (isHorizontal) {
-          tx1 = tx2 = x1 = x2 = alignedLineValue;
-        } else {
-          ty1 = ty2 = y1 = y2 = alignedLineValue;
-        }
-        items.push({
-          tx1: tx1,
-          ty1: ty1,
-          tx2: tx2,
-          ty2: ty2,
-          x1: x1,
-          y1: y1,
-          x2: x2,
-          y2: y2,
-          width: lineWidth,
-          color: lineColor,
-          borderDash: borderDash,
-          borderDashOffset: borderDashOffset
-        });
-      }
-      me._ticksLength = ticksLength;
-      me._borderValue = borderValue;
-      return items;
-    }
-  }, {
-    key: "_computeLabelItems",
-    value: function _computeLabelItems(chartArea) {
-      var me = this;
-      var axis = me.axis;
-      var options = me.options;
-      var position = options.position,
-          optionTicks = options.ticks;
-      var isMirrored = optionTicks.mirror;
-      var isHorizontal = me.isHorizontal();
-      var ticks = me.ticks;
-      var tickPadding = optionTicks.padding;
-      var tl = getTickMarkLength(options.gridLines);
-      var rotation = -toRadians(me.labelRotation);
-      var items = [];
-      var i, ilen, tick, label, x, y, textAlign, pixel, font, lineHeight, lineCount, textOffset;
-      if (position === 'top') {
-        y = me.bottom - tl - tickPadding;
-        textAlign = !rotation ? 'center' : 'left';
-      } else if (position === 'bottom') {
-        y = me.top + tl + tickPadding;
-        textAlign = !rotation ? 'center' : 'right';
-      } else if (position === 'left') {
-        x = me.right - (isMirrored ? 0 : tl) - tickPadding;
-        textAlign = isMirrored ? 'left' : 'right';
-      } else if (position === 'right') {
-        x = me.left + (isMirrored ? 0 : tl) + tickPadding;
-        textAlign = isMirrored ? 'right' : 'left';
-      } else if (axis === 'x') {
-        if (position === 'center') {
-          y = (chartArea.top + chartArea.bottom) / 2 + tl + tickPadding;
-        } else if (isObject(position)) {
-          var positionAxisID = Object.keys(position)[0];
-          var value = position[positionAxisID];
-          y = me.chart.scales[positionAxisID].getPixelForValue(value) + tl + tickPadding;
-        }
-        textAlign = !rotation ? 'center' : 'right';
-      } else if (axis === 'y') {
-        if (position === 'center') {
-          x = (chartArea.left + chartArea.right) / 2 - tl - tickPadding;
-        } else if (isObject(position)) {
-          var _positionAxisID2 = Object.keys(position)[0];
-          var _value2 = position[_positionAxisID2];
-          x = me.chart.scales[_positionAxisID2].getPixelForValue(_value2);
-        }
-        textAlign = 'right';
-      }
-      for (i = 0, ilen = ticks.length; i < ilen; ++i) {
-        tick = ticks[i];
-        label = tick.label;
-        pixel = me.getPixelForTick(i) + optionTicks.labelOffset;
-        font = me._resolveTickFontOptions(i);
-        lineHeight = font.lineHeight;
-        lineCount = isArray(label) ? label.length : 1;
-        if (isHorizontal) {
-          x = pixel;
-          if (position === 'top') {
-            textOffset = (Math.sin(rotation) * (lineCount / 2) + 0.5) * lineHeight;
-            textOffset -= (rotation === 0 ? lineCount - 0.5 : Math.cos(rotation) * (lineCount / 2)) * lineHeight;
-          } else {
-            textOffset = Math.sin(rotation) * (lineCount / 2) * lineHeight;
-            textOffset += (rotation === 0 ? 0.5 : Math.cos(rotation) * (lineCount / 2)) * lineHeight;
-          }
-        } else {
-          y = pixel;
-          textOffset = (1 - lineCount) * lineHeight / 2;
-        }
-        items.push({
-          x: x,
-          y: y,
-          rotation: rotation,
-          label: label,
-          font: font,
-          textOffset: textOffset,
-          textAlign: textAlign
-        });
-      }
-      return items;
-    }
-  }, {
-    key: "drawGrid",
-    value: function drawGrid(chartArea) {
-      var me = this;
-      var gridLines = me.options.gridLines;
-      var ctx = me.ctx;
-      var chart = me.chart;
-      var context = {
-        scale: me,
-        tick: me.ticks[0]
-      };
-      var axisWidth = gridLines.drawBorder ? resolve([gridLines.borderWidth, gridLines.lineWidth, 0], context, 0) : 0;
-      var items = me._gridLineItems || (me._gridLineItems = me._computeGridLineItems(chartArea));
+    var spacing = calculateSpacing(majorIndices, ticks, ticksLimit);
+    if (numMajorIndices > 0) {
       var i, ilen;
-      if (gridLines.display) {
-        for (i = 0, ilen = items.length; i < ilen; ++i) {
-          var item = items[i];
-          var width = item.width;
-          var color = item.color;
-          if (width && color) {
-            ctx.save();
-            ctx.lineWidth = width;
-            ctx.strokeStyle = color;
-            if (ctx.setLineDash) {
-              ctx.setLineDash(item.borderDash);
-              ctx.lineDashOffset = item.borderDashOffset;
-            }
-            ctx.beginPath();
-            if (gridLines.drawTicks) {
-              ctx.moveTo(item.tx1, item.ty1);
-              ctx.lineTo(item.tx2, item.ty2);
-            }
-            if (gridLines.drawOnChartArea) {
-              ctx.moveTo(item.x1, item.y1);
-              ctx.lineTo(item.x2, item.y2);
-            }
-            ctx.stroke();
-            ctx.restore();
-          }
-        }
+      var avgMajorSpacing = numMajorIndices > 1 ? Math.round((last - first) / (numMajorIndices - 1)) : null;
+      skip(ticks, newTicks, spacing, isNullOrUndef(avgMajorSpacing) ? 0 : first - avgMajorSpacing, first);
+      for (i = 0, ilen = numMajorIndices - 1; i < ilen; i++) {
+        skip(ticks, newTicks, spacing, majorIndices[i], majorIndices[i + 1]);
       }
-      if (axisWidth) {
-        var firstLineWidth = axisWidth;
-        context = {
-          scale: me,
-          tick: me.ticks[me._ticksLength - 1]
-        };
-        var lastLineWidth = resolve([gridLines.lineWidth, 1], context, me._ticksLength - 1);
-        var borderValue = me._borderValue;
-        var x1, x2, y1, y2;
-        if (me.isHorizontal()) {
-          x1 = _alignPixel(chart, me.left, firstLineWidth) - firstLineWidth / 2;
-          x2 = _alignPixel(chart, me.right, lastLineWidth) + lastLineWidth / 2;
-          y1 = y2 = borderValue;
-        } else {
-          y1 = _alignPixel(chart, me.top, firstLineWidth) - firstLineWidth / 2;
-          y2 = _alignPixel(chart, me.bottom, lastLineWidth) + lastLineWidth / 2;
-          x1 = x2 = borderValue;
-        }
-        ctx.lineWidth = axisWidth;
-        ctx.strokeStyle = resolve([gridLines.borderColor, gridLines.color], context, 0);
-        ctx.beginPath();
-        ctx.moveTo(x1, y1);
-        ctx.lineTo(x2, y2);
-        ctx.stroke();
-      }
+      skip(ticks, newTicks, spacing, last, isNullOrUndef(avgMajorSpacing) ? ticks.length : last + avgMajorSpacing);
+      return newTicks;
     }
-  }, {
-    key: "drawLabels",
-    value: function drawLabels(chartArea) {
-      var me = this;
-      var optionTicks = me.options.ticks;
-      if (!optionTicks.display) {
-        return;
+    skip(ticks, newTicks, spacing);
+    return newTicks;
+  }
+  ;
+  _proto._tickSize = function _tickSize() {
+    var me = this;
+    var optionTicks = me.options.ticks;
+    var rot = toRadians(me.labelRotation);
+    var cos = Math.abs(Math.cos(rot));
+    var sin = Math.abs(Math.sin(rot));
+    var labelSizes = me._getLabelSizes();
+    var padding = optionTicks.autoSkipPadding || 0;
+    var w = labelSizes ? labelSizes.widest.width + padding : 0;
+    var h = labelSizes ? labelSizes.highest.height + padding : 0;
+    return me.isHorizontal() ? h * cos > w * sin ? w / cos : h / sin : h * sin < w * cos ? h / cos : w / sin;
+  }
+  ;
+  _proto._isVisible = function _isVisible() {
+    var display = this.options.display;
+    if (display !== 'auto') {
+      return !!display;
+    }
+    return this.getMatchingVisibleMetas().length > 0;
+  }
+  ;
+  _proto._computeGridLineItems = function _computeGridLineItems(chartArea) {
+    var me = this;
+    var axis = me.axis;
+    var chart = me.chart;
+    var options = me.options;
+    var gridLines = options.gridLines,
+        position = options.position;
+    var offsetGridLines = gridLines.offsetGridLines;
+    var isHorizontal = me.isHorizontal();
+    var ticks = me.ticks;
+    var ticksLength = ticks.length + (offsetGridLines ? 1 : 0);
+    var tl = getTickMarkLength(gridLines);
+    var items = [];
+    var context = {
+      scale: me,
+      tick: ticks[0]
+    };
+    var axisWidth = gridLines.drawBorder ? resolve([gridLines.borderWidth, gridLines.lineWidth, 0], context, 0) : 0;
+    var axisHalfWidth = axisWidth / 2;
+    var alignBorderValue = function alignBorderValue(pixel) {
+      return _alignPixel(chart, pixel, axisWidth);
+    };
+    var borderValue, i, lineValue, alignedLineValue;
+    var tx1, ty1, tx2, ty2, x1, y1, x2, y2;
+    if (position === 'top') {
+      borderValue = alignBorderValue(me.bottom);
+      ty1 = me.bottom - tl;
+      ty2 = borderValue - axisHalfWidth;
+      y1 = alignBorderValue(chartArea.top) + axisHalfWidth;
+      y2 = chartArea.bottom;
+    } else if (position === 'bottom') {
+      borderValue = alignBorderValue(me.top);
+      y1 = chartArea.top;
+      y2 = alignBorderValue(chartArea.bottom) - axisHalfWidth;
+      ty1 = borderValue + axisHalfWidth;
+      ty2 = me.top + tl;
+    } else if (position === 'left') {
+      borderValue = alignBorderValue(me.right);
+      tx1 = me.right - tl;
+      tx2 = borderValue - axisHalfWidth;
+      x1 = alignBorderValue(chartArea.left) + axisHalfWidth;
+      x2 = chartArea.right;
+    } else if (position === 'right') {
+      borderValue = alignBorderValue(me.left);
+      x1 = chartArea.left;
+      x2 = alignBorderValue(chartArea.right) - axisHalfWidth;
+      tx1 = borderValue + axisHalfWidth;
+      tx2 = me.left + tl;
+    } else if (axis === 'x') {
+      if (position === 'center') {
+        borderValue = alignBorderValue((chartArea.top + chartArea.bottom) / 2);
+      } else if (isObject(position)) {
+        var positionAxisID = Object.keys(position)[0];
+        var value = position[positionAxisID];
+        borderValue = alignBorderValue(me.chart.scales[positionAxisID].getPixelForValue(value));
       }
-      var ctx = me.ctx;
-      var items = me._labelItems || (me._labelItems = me._computeLabelItems(chartArea));
-      var i, j, ilen, jlen;
+      y1 = chartArea.top;
+      y2 = chartArea.bottom;
+      ty1 = borderValue + axisHalfWidth;
+      ty2 = ty1 + tl;
+    } else if (axis === 'y') {
+      if (position === 'center') {
+        borderValue = alignBorderValue((chartArea.left + chartArea.right) / 2);
+      } else if (isObject(position)) {
+        var _positionAxisID = Object.keys(position)[0];
+        var _value = position[_positionAxisID];
+        borderValue = alignBorderValue(me.chart.scales[_positionAxisID].getPixelForValue(_value));
+      }
+      tx1 = borderValue - axisHalfWidth;
+      tx2 = tx1 - tl;
+      x1 = chartArea.left;
+      x2 = chartArea.right;
+    }
+    for (i = 0; i < ticksLength; ++i) {
+      var tick = ticks[i] || {};
+      context = {
+        scale: me,
+        tick: tick
+      };
+      var lineWidth = resolve([gridLines.lineWidth], context, i);
+      var lineColor = resolve([gridLines.color], context, i);
+      var borderDash = gridLines.borderDash || [];
+      var borderDashOffset = resolve([gridLines.borderDashOffset], context, i);
+      lineValue = getPixelForGridLine(me, i, offsetGridLines);
+      if (lineValue === undefined) {
+        continue;
+      }
+      alignedLineValue = _alignPixel(chart, lineValue, lineWidth);
+      if (isHorizontal) {
+        tx1 = tx2 = x1 = x2 = alignedLineValue;
+      } else {
+        ty1 = ty2 = y1 = y2 = alignedLineValue;
+      }
+      items.push({
+        tx1: tx1,
+        ty1: ty1,
+        tx2: tx2,
+        ty2: ty2,
+        x1: x1,
+        y1: y1,
+        x2: x2,
+        y2: y2,
+        width: lineWidth,
+        color: lineColor,
+        borderDash: borderDash,
+        borderDashOffset: borderDashOffset
+      });
+    }
+    me._ticksLength = ticksLength;
+    me._borderValue = borderValue;
+    return items;
+  }
+  ;
+  _proto._computeLabelItems = function _computeLabelItems(chartArea) {
+    var me = this;
+    var axis = me.axis;
+    var options = me.options;
+    var position = options.position,
+        optionTicks = options.ticks;
+    var isMirrored = optionTicks.mirror;
+    var isHorizontal = me.isHorizontal();
+    var ticks = me.ticks;
+    var tickPadding = optionTicks.padding;
+    var tl = getTickMarkLength(options.gridLines);
+    var rotation = -toRadians(me.labelRotation);
+    var items = [];
+    var i, ilen, tick, label, x, y, textAlign, pixel, font, lineHeight, lineCount, textOffset;
+    if (position === 'top') {
+      y = me.bottom - tl - tickPadding;
+      textAlign = !rotation ? 'center' : 'left';
+    } else if (position === 'bottom') {
+      y = me.top + tl + tickPadding;
+      textAlign = !rotation ? 'center' : 'right';
+    } else if (position === 'left') {
+      x = me.right - (isMirrored ? 0 : tl) - tickPadding;
+      textAlign = isMirrored ? 'left' : 'right';
+    } else if (position === 'right') {
+      x = me.left + (isMirrored ? 0 : tl) + tickPadding;
+      textAlign = isMirrored ? 'right' : 'left';
+    } else if (axis === 'x') {
+      if (position === 'center') {
+        y = (chartArea.top + chartArea.bottom) / 2 + tl + tickPadding;
+      } else if (isObject(position)) {
+        var positionAxisID = Object.keys(position)[0];
+        var value = position[positionAxisID];
+        y = me.chart.scales[positionAxisID].getPixelForValue(value) + tl + tickPadding;
+      }
+      textAlign = !rotation ? 'center' : 'right';
+    } else if (axis === 'y') {
+      if (position === 'center') {
+        x = (chartArea.left + chartArea.right) / 2 - tl - tickPadding;
+      } else if (isObject(position)) {
+        var _positionAxisID2 = Object.keys(position)[0];
+        var _value2 = position[_positionAxisID2];
+        x = me.chart.scales[_positionAxisID2].getPixelForValue(_value2);
+      }
+      textAlign = 'right';
+    }
+    for (i = 0, ilen = ticks.length; i < ilen; ++i) {
+      tick = ticks[i];
+      label = tick.label;
+      pixel = me.getPixelForTick(i) + optionTicks.labelOffset;
+      font = me._resolveTickFontOptions(i);
+      lineHeight = font.lineHeight;
+      lineCount = isArray(label) ? label.length : 1;
+      if (isHorizontal) {
+        x = pixel;
+        if (position === 'top') {
+          textOffset = (Math.sin(rotation) * (lineCount / 2) + 0.5) * lineHeight;
+          textOffset -= (rotation === 0 ? lineCount - 0.5 : Math.cos(rotation) * (lineCount / 2)) * lineHeight;
+        } else {
+          textOffset = Math.sin(rotation) * (lineCount / 2) * lineHeight;
+          textOffset += (rotation === 0 ? 0.5 : Math.cos(rotation) * (lineCount / 2)) * lineHeight;
+        }
+      } else {
+        y = pixel;
+        textOffset = (1 - lineCount) * lineHeight / 2;
+      }
+      items.push({
+        x: x,
+        y: y,
+        rotation: rotation,
+        label: label,
+        font: font,
+        textOffset: textOffset,
+        textAlign: textAlign
+      });
+    }
+    return items;
+  }
+  ;
+  _proto.drawGrid = function drawGrid(chartArea) {
+    var me = this;
+    var gridLines = me.options.gridLines;
+    var ctx = me.ctx;
+    var chart = me.chart;
+    var context = {
+      scale: me,
+      tick: me.ticks[0]
+    };
+    var axisWidth = gridLines.drawBorder ? resolve([gridLines.borderWidth, gridLines.lineWidth, 0], context, 0) : 0;
+    var items = me._gridLineItems || (me._gridLineItems = me._computeGridLineItems(chartArea));
+    var i, ilen;
+    if (gridLines.display) {
       for (i = 0, ilen = items.length; i < ilen; ++i) {
         var item = items[i];
-        var tickFont = item.font;
-        var useStroke = tickFont.lineWidth > 0 && tickFont.strokeStyle !== '';
-        ctx.save();
-        ctx.translate(item.x, item.y);
-        ctx.rotate(item.rotation);
-        ctx.font = tickFont.string;
-        ctx.fillStyle = tickFont.color;
-        ctx.textBaseline = 'middle';
-        ctx.textAlign = item.textAlign;
-        if (useStroke) {
-          ctx.strokeStyle = tickFont.strokeStyle;
-          ctx.lineWidth = tickFont.lineWidth;
-        }
-        var label = item.label;
-        var y = item.textOffset;
-        if (isArray(label)) {
-          for (j = 0, jlen = label.length; j < jlen; ++j) {
-            if (useStroke) {
-              ctx.strokeText('' + label[j], 0, y);
-            }
-            ctx.fillText('' + label[j], 0, y);
-            y += tickFont.lineHeight;
+        var width = item.width;
+        var color = item.color;
+        if (width && color) {
+          ctx.save();
+          ctx.lineWidth = width;
+          ctx.strokeStyle = color;
+          if (ctx.setLineDash) {
+            ctx.setLineDash(item.borderDash);
+            ctx.lineDashOffset = item.borderDashOffset;
           }
-        } else {
-          if (useStroke) {
-            ctx.strokeText(label, 0, y);
+          ctx.beginPath();
+          if (gridLines.drawTicks) {
+            ctx.moveTo(item.tx1, item.ty1);
+            ctx.lineTo(item.tx2, item.ty2);
           }
-          ctx.fillText(label, 0, y);
+          if (gridLines.drawOnChartArea) {
+            ctx.moveTo(item.x1, item.y1);
+            ctx.lineTo(item.x2, item.y2);
+          }
+          ctx.stroke();
+          ctx.restore();
         }
-        ctx.restore();
       }
     }
-  }, {
-    key: "drawTitle",
-    value: function drawTitle(chartArea) {
-      var me = this;
-      var ctx = me.ctx;
-      var options = me.options;
-      var scaleLabel = options.scaleLabel;
-      if (!scaleLabel.display) {
-        return;
-      }
-      var scaleLabelFont = toFont(scaleLabel.font);
-      var scaleLabelPadding = toPadding(scaleLabel.padding);
-      var halfLineHeight = scaleLabelFont.lineHeight / 2;
-      var scaleLabelAlign = scaleLabel.align;
-      var position = options.position;
-      var isReverse = me.options.reverse;
-      var rotation = 0;
-      var textAlign;
-      var scaleLabelX, scaleLabelY;
+    if (axisWidth) {
+      var firstLineWidth = axisWidth;
+      context = {
+        scale: me,
+        tick: me.ticks[me._ticksLength - 1]
+      };
+      var lastLineWidth = resolve([gridLines.lineWidth, 1], context, me._ticksLength - 1);
+      var borderValue = me._borderValue;
+      var x1, x2, y1, y2;
       if (me.isHorizontal()) {
-        switch (scaleLabelAlign) {
-          case 'start':
-            scaleLabelX = me.left + (isReverse ? me.width : 0);
-            textAlign = isReverse ? 'right' : 'left';
-            break;
-          case 'end':
-            scaleLabelX = me.left + (isReverse ? 0 : me.width);
-            textAlign = isReverse ? 'left' : 'right';
-            break;
-          default:
-            scaleLabelX = me.left + me.width / 2;
-            textAlign = 'center';
-        }
-        scaleLabelY = position === 'top' ? me.top + halfLineHeight + scaleLabelPadding.top : me.bottom - halfLineHeight - scaleLabelPadding.bottom;
+        x1 = _alignPixel(chart, me.left, firstLineWidth) - firstLineWidth / 2;
+        x2 = _alignPixel(chart, me.right, lastLineWidth) + lastLineWidth / 2;
+        y1 = y2 = borderValue;
       } else {
-        var isLeft = position === 'left';
-        scaleLabelX = isLeft ? me.left + halfLineHeight + scaleLabelPadding.top : me.right - halfLineHeight - scaleLabelPadding.top;
-        switch (scaleLabelAlign) {
-          case 'start':
-            scaleLabelY = me.top + (isReverse ? 0 : me.height);
-            textAlign = isReverse === isLeft ? 'right' : 'left';
-            break;
-          case 'end':
-            scaleLabelY = me.top + (isReverse ? me.height : 0);
-            textAlign = isReverse === isLeft ? 'left' : 'right';
-            break;
-          default:
-            scaleLabelY = me.top + me.height / 2;
-            textAlign = 'center';
-        }
-        rotation = isLeft ? -0.5 * Math.PI : 0.5 * Math.PI;
+        y1 = _alignPixel(chart, me.top, firstLineWidth) - firstLineWidth / 2;
+        y2 = _alignPixel(chart, me.bottom, lastLineWidth) + lastLineWidth / 2;
+        x1 = x2 = borderValue;
       }
+      ctx.lineWidth = axisWidth;
+      ctx.strokeStyle = resolve([gridLines.borderColor, gridLines.color], context, 0);
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.stroke();
+    }
+  }
+  ;
+  _proto.drawLabels = function drawLabels(chartArea) {
+    var me = this;
+    var optionTicks = me.options.ticks;
+    if (!optionTicks.display) {
+      return;
+    }
+    var ctx = me.ctx;
+    var items = me._labelItems || (me._labelItems = me._computeLabelItems(chartArea));
+    var i, j, ilen, jlen;
+    for (i = 0, ilen = items.length; i < ilen; ++i) {
+      var item = items[i];
+      var tickFont = item.font;
+      var useStroke = tickFont.lineWidth > 0 && tickFont.strokeStyle !== '';
       ctx.save();
-      ctx.translate(scaleLabelX, scaleLabelY);
-      ctx.rotate(rotation);
-      ctx.textAlign = textAlign;
+      ctx.translate(item.x, item.y);
+      ctx.rotate(item.rotation);
+      ctx.font = tickFont.string;
+      ctx.fillStyle = tickFont.color;
       ctx.textBaseline = 'middle';
-      ctx.fillStyle = scaleLabelFont.color;
-      ctx.font = scaleLabelFont.string;
-      ctx.fillText(scaleLabel.labelString, 0, 0);
+      ctx.textAlign = item.textAlign;
+      if (useStroke) {
+        ctx.strokeStyle = tickFont.strokeStyle;
+        ctx.lineWidth = tickFont.lineWidth;
+      }
+      var label = item.label;
+      var y = item.textOffset;
+      if (isArray(label)) {
+        for (j = 0, jlen = label.length; j < jlen; ++j) {
+          if (useStroke) {
+            ctx.strokeText('' + label[j], 0, y);
+          }
+          ctx.fillText('' + label[j], 0, y);
+          y += tickFont.lineHeight;
+        }
+      } else {
+        if (useStroke) {
+          ctx.strokeText(label, 0, y);
+        }
+        ctx.fillText(label, 0, y);
+      }
       ctx.restore();
     }
-  }, {
-    key: "draw",
-    value: function draw(chartArea) {
-      var me = this;
-      if (!me._isVisible()) {
-        return;
-      }
-      me.drawGrid(chartArea);
-      me.drawTitle();
-      me.drawLabels(chartArea);
+  }
+  ;
+  _proto.drawTitle = function drawTitle(chartArea) {
+    var me = this;
+    var ctx = me.ctx;
+    var options = me.options;
+    var scaleLabel = options.scaleLabel;
+    if (!scaleLabel.display) {
+      return;
     }
-  }, {
-    key: "_layers",
-    value: function _layers() {
-      var me = this;
-      var opts = me.options;
-      var tz = opts.ticks && opts.ticks.z || 0;
-      var gz = opts.gridLines && opts.gridLines.z || 0;
-      if (!me._isVisible() || tz === gz || me.draw !== me._draw) {
-        return [{
-          z: tz,
-          draw: function draw(chartArea) {
-            me.draw(chartArea);
-          }
-        }];
+    var scaleLabelFont = toFont(scaleLabel.font);
+    var scaleLabelPadding = toPadding(scaleLabel.padding);
+    var halfLineHeight = scaleLabelFont.lineHeight / 2;
+    var scaleLabelAlign = scaleLabel.align;
+    var position = options.position;
+    var isReverse = me.options.reverse;
+    var rotation = 0;
+    var textAlign;
+    var scaleLabelX, scaleLabelY;
+    if (me.isHorizontal()) {
+      switch (scaleLabelAlign) {
+        case 'start':
+          scaleLabelX = me.left + (isReverse ? me.width : 0);
+          textAlign = isReverse ? 'right' : 'left';
+          break;
+        case 'end':
+          scaleLabelX = me.left + (isReverse ? 0 : me.width);
+          textAlign = isReverse ? 'left' : 'right';
+          break;
+        default:
+          scaleLabelX = me.left + me.width / 2;
+          textAlign = 'center';
       }
+      scaleLabelY = position === 'top' ? me.top + halfLineHeight + scaleLabelPadding.top : me.bottom - halfLineHeight - scaleLabelPadding.bottom;
+    } else {
+      var isLeft = position === 'left';
+      scaleLabelX = isLeft ? me.left + halfLineHeight + scaleLabelPadding.top : me.right - halfLineHeight - scaleLabelPadding.top;
+      switch (scaleLabelAlign) {
+        case 'start':
+          scaleLabelY = me.top + (isReverse ? 0 : me.height);
+          textAlign = isReverse === isLeft ? 'right' : 'left';
+          break;
+        case 'end':
+          scaleLabelY = me.top + (isReverse ? me.height : 0);
+          textAlign = isReverse === isLeft ? 'left' : 'right';
+          break;
+        default:
+          scaleLabelY = me.top + me.height / 2;
+          textAlign = 'center';
+      }
+      rotation = isLeft ? -0.5 * Math.PI : 0.5 * Math.PI;
+    }
+    ctx.save();
+    ctx.translate(scaleLabelX, scaleLabelY);
+    ctx.rotate(rotation);
+    ctx.textAlign = textAlign;
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = scaleLabelFont.color;
+    ctx.font = scaleLabelFont.string;
+    ctx.fillText(scaleLabel.labelString, 0, 0);
+    ctx.restore();
+  };
+  _proto.draw = function draw(chartArea) {
+    var me = this;
+    if (!me._isVisible()) {
+      return;
+    }
+    me.drawGrid(chartArea);
+    me.drawTitle();
+    me.drawLabels(chartArea);
+  }
+  ;
+  _proto._layers = function _layers() {
+    var me = this;
+    var opts = me.options;
+    var tz = opts.ticks && opts.ticks.z || 0;
+    var gz = opts.gridLines && opts.gridLines.z || 0;
+    if (!me._isVisible() || tz === gz || me.draw !== me._draw) {
       return [{
-        z: gz,
-        draw: function draw(chartArea) {
-          me.drawGrid(chartArea);
-          me.drawTitle();
-        }
-      }, {
         z: tz,
         draw: function draw(chartArea) {
-          me.drawLabels(chartArea);
+          me.draw(chartArea);
         }
       }];
     }
-  }, {
-    key: "getMatchingVisibleMetas",
-    value: function getMatchingVisibleMetas(type) {
-      var me = this;
-      var metas = me.chart.getSortedVisibleDatasetMetas();
-      var axisID = me.axis + 'AxisID';
-      var result = [];
-      var i, ilen;
-      for (i = 0, ilen = metas.length; i < ilen; ++i) {
-        var meta = metas[i];
-        if (meta[axisID] === me.id && (!type || meta.type === type)) {
-          result.push(meta);
-        }
+    return [{
+      z: gz,
+      draw: function draw(chartArea) {
+        me.drawGrid(chartArea);
+        me.drawTitle();
       }
-      return result;
+    }, {
+      z: tz,
+      draw: function draw(chartArea) {
+        me.drawLabels(chartArea);
+      }
+    }];
+  }
+  ;
+  _proto.getMatchingVisibleMetas = function getMatchingVisibleMetas(type) {
+    var me = this;
+    var metas = me.chart.getSortedVisibleDatasetMetas();
+    var axisID = me.axis + 'AxisID';
+    var result = [];
+    var i, ilen;
+    for (i = 0, ilen = metas.length; i < ilen; ++i) {
+      var meta = metas[i];
+      if (meta[axisID] === me.id && (!type || meta.type === type)) {
+        result.push(meta);
+      }
     }
-  }, {
-    key: "_resolveTickFontOptions",
-    value: function _resolveTickFontOptions(index) {
-      var me = this;
-      var options = me.options.ticks;
-      var ticks = me.ticks || [];
-      var context = {
-        chart: me.chart,
-        scale: me,
-        tick: ticks[index],
-        index: index
-      };
-      return toFont(resolve([options.font], context));
-    }
-  }]);
+    return result;
+  }
+  ;
+  _proto._resolveTickFontOptions = function _resolveTickFontOptions(index) {
+    var me = this;
+    var options = me.options.ticks;
+    var ticks = me.ticks || [];
+    var context = {
+      chart: me.chart,
+      scale: me,
+      tick: ticks[index],
+      index: index
+    };
+    return toFont(resolve([options.font], context));
+  };
   return Scale;
 }(Element$1);
 Scale.prototype._draw = Scale.prototype.draw;
 
 var defaultConfig = {};
 var CategoryScale = function (_Scale) {
-  _inherits(CategoryScale, _Scale);
-  var _super = _createSuper(CategoryScale);
+  _inheritsLoose(CategoryScale, _Scale);
   function CategoryScale(cfg) {
     var _this;
-    _classCallCheck(this, CategoryScale);
-    _this = _super.call(this, cfg);
+    _this = _Scale.call(this, cfg) || this;
     _this._numLabels = 0;
     _this._startValue = undefined;
     _this._valueRange = 0;
     return _this;
   }
-  _createClass(CategoryScale, [{
-    key: "parse",
-    value: function parse(raw, index) {
-      var labels = this.getLabels();
-      if (labels[index] === raw) {
-        return index;
-      }
-      var first = labels.indexOf(raw);
-      var last = labels.lastIndexOf(raw);
-      return first === -1 || first !== last ? index : first;
+  var _proto = CategoryScale.prototype;
+  _proto.parse = function parse(raw, index) {
+    var labels = this.getLabels();
+    if (labels[index] === raw) {
+      return index;
     }
-  }, {
-    key: "determineDataLimits",
-    value: function determineDataLimits() {
-      var me = this;
-      var max = me.getLabels().length - 1;
-      me.min = Math.max(me._userMin || 0, 0);
-      me.max = Math.min(me._userMax || max, max);
+    var first = labels.indexOf(raw);
+    var last = labels.lastIndexOf(raw);
+    return first === -1 || first !== last ? index : first;
+  };
+  _proto.determineDataLimits = function determineDataLimits() {
+    var me = this;
+    var max = me.getLabels().length - 1;
+    me.min = Math.max(me._userMin || 0, 0);
+    me.max = Math.min(me._userMax || max, max);
+  };
+  _proto.buildTicks = function buildTicks() {
+    var me = this;
+    var min = me.min;
+    var max = me.max;
+    var offset = me.options.offset;
+    var labels = me.getLabels();
+    labels = min === 0 && max === labels.length - 1 ? labels : labels.slice(min, max + 1);
+    me._numLabels = labels.length;
+    me._valueRange = Math.max(labels.length - (offset ? 0 : 1), 1);
+    me._startValue = me.min - (offset ? 0.5 : 0);
+    return labels.map(function (l) {
+      return {
+        value: l
+      };
+    });
+  };
+  _proto.getLabelForValue = function getLabelForValue(value) {
+    var me = this;
+    var labels = me.getLabels();
+    if (value >= 0 && value < labels.length) {
+      return labels[value];
     }
-  }, {
-    key: "buildTicks",
-    value: function buildTicks() {
-      var me = this;
-      var min = me.min;
-      var max = me.max;
-      var offset = me.options.offset;
-      var labels = me.getLabels();
-      labels = min === 0 && max === labels.length - 1 ? labels : labels.slice(min, max + 1);
-      me._numLabels = labels.length;
-      me._valueRange = Math.max(labels.length - (offset ? 0 : 1), 1);
-      me._startValue = me.min - (offset ? 0.5 : 0);
-      return labels.map(function (l) {
-        return {
-          value: l
-        };
-      });
+    return value;
+  }
+  ;
+  _proto.configure = function configure() {
+    var me = this;
+    _Scale.prototype.configure.call(this);
+    if (!me.isHorizontal()) {
+      me._reversePixels = !me._reversePixels;
     }
-  }, {
-    key: "getLabelForValue",
-    value: function getLabelForValue(value) {
-      var me = this;
-      var labels = me.getLabels();
-      if (value >= 0 && value < labels.length) {
-        return labels[value];
-      }
-      return value;
+  }
+  ;
+  _proto.getPixelForValue = function getPixelForValue(value) {
+    var me = this;
+    if (typeof value !== 'number') {
+      value = me.parse(value);
     }
-  }, {
-    key: "configure",
-    value: function configure() {
-      var me = this;
-      _get(_getPrototypeOf(CategoryScale.prototype), "configure", this).call(this);
-      if (!me.isHorizontal()) {
-        me._reversePixels = !me._reversePixels;
-      }
+    return me.getPixelForDecimal((value - me._startValue) / me._valueRange);
+  }
+  ;
+  _proto.getPixelForTick = function getPixelForTick(index) {
+    var me = this;
+    var ticks = me.ticks;
+    if (index < 0 || index > ticks.length - 1) {
+      return null;
     }
-  }, {
-    key: "getPixelForValue",
-    value: function getPixelForValue(value) {
-      var me = this;
-      if (typeof value !== 'number') {
-        value = me.parse(value);
-      }
-      return me.getPixelForDecimal((value - me._startValue) / me._valueRange);
-    }
-  }, {
-    key: "getPixelForTick",
-    value: function getPixelForTick(index) {
-      var me = this;
-      var ticks = me.ticks;
-      if (index < 0 || index > ticks.length - 1) {
-        return null;
-      }
-      return me.getPixelForValue(index * me._numLabels / ticks.length + me.min);
-    }
-  }, {
-    key: "getValueForPixel",
-    value: function getValueForPixel(pixel) {
-      var me = this;
-      var value = Math.round(me._startValue + me.getDecimalForPixel(pixel) * me._valueRange);
-      return Math.min(Math.max(value, 0), me.ticks.length - 1);
-    }
-  }, {
-    key: "getBasePixel",
-    value: function getBasePixel() {
-      return this.bottom;
-    }
-  }]);
+    return me.getPixelForValue(index * me._numLabels / ticks.length + me.min);
+  };
+  _proto.getValueForPixel = function getValueForPixel(pixel) {
+    var me = this;
+    var value = Math.round(me._startValue + me.getDecimalForPixel(pixel) * me._valueRange);
+    return Math.min(Math.max(value, 0), me.ticks.length - 1);
+  };
+  _proto.getBasePixel = function getBasePixel() {
+    return this.bottom;
+  };
   return CategoryScale;
 }(Scale);
 CategoryScale.id = 'category';
@@ -9715,12 +9041,10 @@ function generateTicks(generationOptions, dataRange) {
   return ticks;
 }
 var LinearScaleBase = function (_Scale) {
-  _inherits(LinearScaleBase, _Scale);
-  var _super = _createSuper(LinearScaleBase);
+  _inheritsLoose(LinearScaleBase, _Scale);
   function LinearScaleBase(cfg) {
     var _this;
-    _classCallCheck(this, LinearScaleBase);
-    _this = _super.call(this, cfg);
+    _this = _Scale.call(this, cfg) || this;
     _this.start = undefined;
     _this.end = undefined;
     _this._startValue = undefined;
@@ -9728,147 +9052,134 @@ var LinearScaleBase = function (_Scale) {
     _this._valueRange = 0;
     return _this;
   }
-  _createClass(LinearScaleBase, [{
-    key: "parse",
-    value: function parse(raw, index) {
-      if (isNullOrUndef(raw)) {
-        return NaN;
-      }
-      if ((typeof raw === 'number' || raw instanceof Number) && !isFinite(+raw)) {
-        return NaN;
-      }
-      return +raw;
+  var _proto = LinearScaleBase.prototype;
+  _proto.parse = function parse(raw, index) {
+    if (isNullOrUndef(raw)) {
+      return NaN;
     }
-  }, {
-    key: "handleTickRangeOptions",
-    value: function handleTickRangeOptions() {
-      var me = this;
-      var opts = me.options;
-      if (opts.beginAtZero) {
-        var minSign = sign(me.min);
-        var maxSign = sign(me.max);
-        if (minSign < 0 && maxSign < 0) {
-          me.max = 0;
-        } else if (minSign > 0 && maxSign > 0) {
-          me.min = 0;
-        }
-      }
-      var setMin = opts.min !== undefined || opts.suggestedMin !== undefined;
-      var setMax = opts.max !== undefined || opts.suggestedMax !== undefined;
-      if (opts.min !== undefined) {
-        me.min = opts.min;
-      } else if (opts.suggestedMin !== undefined) {
-        if (me.min === null) {
-          me.min = opts.suggestedMin;
-        } else {
-          me.min = Math.min(me.min, opts.suggestedMin);
-        }
-      }
-      if (opts.max !== undefined) {
-        me.max = opts.max;
-      } else if (opts.suggestedMax !== undefined) {
-        if (me.max === null) {
-          me.max = opts.suggestedMax;
-        } else {
-          me.max = Math.max(me.max, opts.suggestedMax);
-        }
-      }
-      if (setMin !== setMax) {
-        if (me.min >= me.max) {
-          if (setMin) {
-            me.max = me.min + 1;
-          } else {
-            me.min = me.max - 1;
-          }
-        }
-      }
-      if (me.min === me.max) {
-        me.max++;
-        if (!opts.beginAtZero) {
-          me.min--;
-        }
+    if ((typeof raw === 'number' || raw instanceof Number) && !isFinite(+raw)) {
+      return NaN;
+    }
+    return +raw;
+  };
+  _proto.handleTickRangeOptions = function handleTickRangeOptions() {
+    var me = this;
+    var opts = me.options;
+    if (opts.beginAtZero) {
+      var minSign = sign(me.min);
+      var maxSign = sign(me.max);
+      if (minSign < 0 && maxSign < 0) {
+        me.max = 0;
+      } else if (minSign > 0 && maxSign > 0) {
+        me.min = 0;
       }
     }
-  }, {
-    key: "getTickLimit",
-    value: function getTickLimit() {
-      var me = this;
-      var tickOpts = me.options.ticks;
-      var maxTicksLimit = tickOpts.maxTicksLimit,
-          stepSize = tickOpts.stepSize;
-      var maxTicks;
-      if (stepSize) {
-        maxTicks = Math.ceil(me.max / stepSize) - Math.floor(me.min / stepSize) + 1;
+    var setMin = opts.min !== undefined || opts.suggestedMin !== undefined;
+    var setMax = opts.max !== undefined || opts.suggestedMax !== undefined;
+    if (opts.min !== undefined) {
+      me.min = opts.min;
+    } else if (opts.suggestedMin !== undefined) {
+      if (me.min === null) {
+        me.min = opts.suggestedMin;
       } else {
-        maxTicks = me.computeTickLimit();
-        maxTicksLimit = maxTicksLimit || 11;
+        me.min = Math.min(me.min, opts.suggestedMin);
       }
-      if (maxTicksLimit) {
-        maxTicks = Math.min(maxTicksLimit, maxTicks);
-      }
-      return maxTicks;
     }
-  }, {
-    key: "computeTickLimit",
-    value: function computeTickLimit() {
-      return Number.POSITIVE_INFINITY;
-    }
-  }, {
-    key: "handleDirectionalChanges",
-    value: function handleDirectionalChanges(ticks) {
-      return ticks;
-    }
-  }, {
-    key: "buildTicks",
-    value: function buildTicks() {
-      var me = this;
-      var opts = me.options;
-      var tickOpts = opts.ticks;
-      var maxTicks = me.getTickLimit();
-      maxTicks = Math.max(2, maxTicks);
-      var numericGeneratorOptions = {
-        maxTicks: maxTicks,
-        min: opts.min,
-        max: opts.max,
-        precision: tickOpts.precision,
-        stepSize: valueOrDefault(tickOpts.fixedStepSize, tickOpts.stepSize)
-      };
-      var ticks = generateTicks(numericGeneratorOptions, me);
-      ticks = me.handleDirectionalChanges(ticks);
-      _setMinAndMaxByKey(ticks, me, 'value');
-      if (opts.reverse) {
-        ticks.reverse();
-        me.start = me.max;
-        me.end = me.min;
+    if (opts.max !== undefined) {
+      me.max = opts.max;
+    } else if (opts.suggestedMax !== undefined) {
+      if (me.max === null) {
+        me.max = opts.suggestedMax;
       } else {
-        me.start = me.min;
-        me.end = me.max;
+        me.max = Math.max(me.max, opts.suggestedMax);
       }
-      return ticks;
     }
-  }, {
-    key: "configure",
-    value: function configure() {
-      var me = this;
-      var ticks = me.ticks;
-      var start = me.min;
-      var end = me.max;
-      _get(_getPrototypeOf(LinearScaleBase.prototype), "configure", this).call(this);
-      if (me.options.offset && ticks.length) {
-        var offset = (end - start) / Math.max(ticks.length - 1, 1) / 2;
-        start -= offset;
-        end += offset;
+    if (setMin !== setMax) {
+      if (me.min >= me.max) {
+        if (setMin) {
+          me.max = me.min + 1;
+        } else {
+          me.min = me.max - 1;
+        }
       }
-      me._startValue = start;
-      me._endValue = end;
-      me._valueRange = end - start;
     }
-  }, {
-    key: "getLabelForValue",
-    value: function getLabelForValue(value) {
-      return new Intl.NumberFormat(this.options.locale).format(value);
+    if (me.min === me.max) {
+      me.max++;
+      if (!opts.beginAtZero) {
+        me.min--;
+      }
     }
-  }]);
+  };
+  _proto.getTickLimit = function getTickLimit() {
+    var me = this;
+    var tickOpts = me.options.ticks;
+    var maxTicksLimit = tickOpts.maxTicksLimit,
+        stepSize = tickOpts.stepSize;
+    var maxTicks;
+    if (stepSize) {
+      maxTicks = Math.ceil(me.max / stepSize) - Math.floor(me.min / stepSize) + 1;
+    } else {
+      maxTicks = me.computeTickLimit();
+      maxTicksLimit = maxTicksLimit || 11;
+    }
+    if (maxTicksLimit) {
+      maxTicks = Math.min(maxTicksLimit, maxTicks);
+    }
+    return maxTicks;
+  }
+  ;
+  _proto.computeTickLimit = function computeTickLimit() {
+    return Number.POSITIVE_INFINITY;
+  }
+  ;
+  _proto.handleDirectionalChanges = function handleDirectionalChanges(ticks) {
+    return ticks;
+  };
+  _proto.buildTicks = function buildTicks() {
+    var me = this;
+    var opts = me.options;
+    var tickOpts = opts.ticks;
+    var maxTicks = me.getTickLimit();
+    maxTicks = Math.max(2, maxTicks);
+    var numericGeneratorOptions = {
+      maxTicks: maxTicks,
+      min: opts.min,
+      max: opts.max,
+      precision: tickOpts.precision,
+      stepSize: valueOrDefault(tickOpts.fixedStepSize, tickOpts.stepSize)
+    };
+    var ticks = generateTicks(numericGeneratorOptions, me);
+    ticks = me.handleDirectionalChanges(ticks);
+    _setMinAndMaxByKey(ticks, me, 'value');
+    if (opts.reverse) {
+      ticks.reverse();
+      me.start = me.max;
+      me.end = me.min;
+    } else {
+      me.start = me.min;
+      me.end = me.max;
+    }
+    return ticks;
+  }
+  ;
+  _proto.configure = function configure() {
+    var me = this;
+    var ticks = me.ticks;
+    var start = me.min;
+    var end = me.max;
+    _Scale.prototype.configure.call(this);
+    if (me.options.offset && ticks.length) {
+      var offset = (end - start) / Math.max(ticks.length - 1, 1) / 2;
+      start -= offset;
+      end += offset;
+    }
+    me._startValue = start;
+    me._endValue = end;
+    me._valueRange = end - start;
+  };
+  _proto.getLabelForValue = function getLabelForValue(value) {
+    return new Intl.NumberFormat(this.options.locale).format(value);
+  };
   return LinearScaleBase;
 }(Scale);
 
@@ -9878,54 +9189,45 @@ var defaultConfig$1 = {
   }
 };
 var LinearScale = function (_LinearScaleBase) {
-  _inherits(LinearScale, _LinearScaleBase);
-  var _super = _createSuper(LinearScale);
+  _inheritsLoose(LinearScale, _LinearScaleBase);
   function LinearScale() {
-    _classCallCheck(this, LinearScale);
-    return _super.apply(this, arguments);
+    return _LinearScaleBase.apply(this, arguments) || this;
   }
-  _createClass(LinearScale, [{
-    key: "determineDataLimits",
-    value: function determineDataLimits() {
-      var me = this;
-      var options = me.options;
-      var minmax = me.getMinMax(true);
-      var min = minmax.min;
-      var max = minmax.max;
-      me.min = isNumberFinite(min) ? min : valueOrDefault(options.suggestedMin, 0);
-      me.max = isNumberFinite(max) ? max : valueOrDefault(options.suggestedMax, 1);
-      if (options.stacked && min > 0) {
-        me.min = 0;
-      }
-      me.handleTickRangeOptions();
+  var _proto = LinearScale.prototype;
+  _proto.determineDataLimits = function determineDataLimits() {
+    var me = this;
+    var options = me.options;
+    var minmax = me.getMinMax(true);
+    var min = minmax.min;
+    var max = minmax.max;
+    me.min = isNumberFinite(min) ? min : valueOrDefault(options.suggestedMin, 0);
+    me.max = isNumberFinite(max) ? max : valueOrDefault(options.suggestedMax, 1);
+    if (options.stacked && min > 0) {
+      me.min = 0;
     }
-  }, {
-    key: "computeTickLimit",
-    value: function computeTickLimit() {
-      var me = this;
-      if (me.isHorizontal()) {
-        return Math.ceil(me.width / 40);
-      }
-      var tickFont = me._resolveTickFontOptions(0);
-      return Math.ceil(me.height / tickFont.lineHeight);
+    me.handleTickRangeOptions();
+  }
+  ;
+  _proto.computeTickLimit = function computeTickLimit() {
+    var me = this;
+    if (me.isHorizontal()) {
+      return Math.ceil(me.width / 40);
     }
-  }, {
-    key: "handleDirectionalChanges",
-    value: function handleDirectionalChanges(ticks) {
-      return this.isHorizontal() ? ticks : ticks.reverse();
-    }
-  }, {
-    key: "getPixelForValue",
-    value: function getPixelForValue(value) {
-      var me = this;
-      return me.getPixelForDecimal((value - me._startValue) / me._valueRange);
-    }
-  }, {
-    key: "getValueForPixel",
-    value: function getValueForPixel(pixel) {
-      return this._startValue + this.getDecimalForPixel(pixel) * this._valueRange;
-    }
-  }]);
+    var tickFont = me._resolveTickFontOptions(0);
+    return Math.ceil(me.height / tickFont.lineHeight);
+  }
+  ;
+  _proto.handleDirectionalChanges = function handleDirectionalChanges(ticks) {
+    return this.isHorizontal() ? ticks : ticks.reverse();
+  }
+  ;
+  _proto.getPixelForValue = function getPixelForValue(value) {
+    var me = this;
+    return me.getPixelForDecimal((value - me._startValue) / me._valueRange);
+  };
+  _proto.getValueForPixel = function getValueForPixel(pixel) {
+    return this._startValue + this.getDecimalForPixel(pixel) * this._valueRange;
+  };
   return LinearScale;
 }(LinearScaleBase);
 LinearScale.id = 'linear';
@@ -9975,120 +9277,104 @@ var defaultConfig$2 = {
   }
 };
 var LogarithmicScale = function (_Scale) {
-  _inherits(LogarithmicScale, _Scale);
-  var _super = _createSuper(LogarithmicScale);
+  _inheritsLoose(LogarithmicScale, _Scale);
   function LogarithmicScale(cfg) {
     var _this;
-    _classCallCheck(this, LogarithmicScale);
-    _this = _super.call(this, cfg);
+    _this = _Scale.call(this, cfg) || this;
     _this.start = undefined;
     _this.end = undefined;
     _this._startValue = undefined;
     _this._valueRange = 0;
     return _this;
   }
-  _createClass(LogarithmicScale, [{
-    key: "parse",
-    value: function parse(raw, index) {
-      var value = LinearScaleBase.prototype.parse.apply(this, [raw, index]);
-      if (value === 0) {
-        return undefined;
-      }
-      return isNumberFinite(value) && value > 0 ? value : NaN;
+  var _proto = LogarithmicScale.prototype;
+  _proto.parse = function parse(raw, index) {
+    var value = LinearScaleBase.prototype.parse.apply(this, [raw, index]);
+    if (value === 0) {
+      return undefined;
     }
-  }, {
-    key: "determineDataLimits",
-    value: function determineDataLimits() {
-      var me = this;
-      var minmax = me.getMinMax(true);
-      var min = minmax.min;
-      var max = minmax.max;
-      me.min = isNumberFinite(min) ? Math.max(0, min) : null;
-      me.max = isNumberFinite(max) ? Math.max(0, max) : null;
-      me.handleTickRangeOptions();
-    }
-  }, {
-    key: "handleTickRangeOptions",
-    value: function handleTickRangeOptions() {
-      var me = this;
-      var DEFAULT_MIN = 1;
-      var DEFAULT_MAX = 10;
-      var min = me.min;
-      var max = me.max;
-      if (min === max) {
-        if (min <= 0) {
-          min = DEFAULT_MIN;
-          max = DEFAULT_MAX;
-        } else {
-          min = Math.pow(10, Math.floor(log10(min)) - 1);
-          max = Math.pow(10, Math.floor(log10(max)) + 1);
-        }
-      }
+    return isNumberFinite(value) && value > 0 ? value : NaN;
+  };
+  _proto.determineDataLimits = function determineDataLimits() {
+    var me = this;
+    var minmax = me.getMinMax(true);
+    var min = minmax.min;
+    var max = minmax.max;
+    me.min = isNumberFinite(min) ? Math.max(0, min) : null;
+    me.max = isNumberFinite(max) ? Math.max(0, max) : null;
+    me.handleTickRangeOptions();
+  };
+  _proto.handleTickRangeOptions = function handleTickRangeOptions() {
+    var me = this;
+    var DEFAULT_MIN = 1;
+    var DEFAULT_MAX = 10;
+    var min = me.min;
+    var max = me.max;
+    if (min === max) {
       if (min <= 0) {
-        min = Math.pow(10, Math.floor(log10(max)) - 1);
-      }
-      if (max <= 0) {
-        max = Math.pow(10, Math.floor(log10(min)) + 1);
-      }
-      me.min = min;
-      me.max = max;
-    }
-  }, {
-    key: "buildTicks",
-    value: function buildTicks() {
-      var me = this;
-      var opts = me.options;
-      var generationOptions = {
-        min: me._userMin,
-        max: me._userMax
-      };
-      var ticks = generateTicks$1(generationOptions, me);
-      var reverse = !me.isHorizontal();
-      _setMinAndMaxByKey(ticks, me, 'value');
-      if (opts.reverse) {
-        reverse = !reverse;
-        me.start = me.max;
-        me.end = me.min;
+        min = DEFAULT_MIN;
+        max = DEFAULT_MAX;
       } else {
-        me.start = me.min;
-        me.end = me.max;
+        min = Math.pow(10, Math.floor(log10(min)) - 1);
+        max = Math.pow(10, Math.floor(log10(max)) + 1);
       }
-      if (reverse) {
-        ticks.reverse();
-      }
-      return ticks;
     }
-  }, {
-    key: "getLabelForValue",
-    value: function getLabelForValue(value) {
-      return value === undefined ? '0' : new Intl.NumberFormat(this.options.locale).format(value);
+    if (min <= 0) {
+      min = Math.pow(10, Math.floor(log10(max)) - 1);
     }
-  }, {
-    key: "configure",
-    value: function configure() {
-      var me = this;
-      var start = me.min;
-      _get(_getPrototypeOf(LogarithmicScale.prototype), "configure", this).call(this);
-      me._startValue = log10(start);
-      me._valueRange = log10(me.max) - log10(start);
+    if (max <= 0) {
+      max = Math.pow(10, Math.floor(log10(min)) + 1);
     }
-  }, {
-    key: "getPixelForValue",
-    value: function getPixelForValue(value) {
-      var me = this;
-      if (value === undefined || value === 0) {
-        value = me.min;
-      }
-      return me.getPixelForDecimal(value === me.min ? 0 : (log10(value) - me._startValue) / me._valueRange);
+    me.min = min;
+    me.max = max;
+  };
+  _proto.buildTicks = function buildTicks() {
+    var me = this;
+    var opts = me.options;
+    var generationOptions = {
+      min: me._userMin,
+      max: me._userMax
+    };
+    var ticks = generateTicks$1(generationOptions, me);
+    var reverse = !me.isHorizontal();
+    _setMinAndMaxByKey(ticks, me, 'value');
+    if (opts.reverse) {
+      reverse = !reverse;
+      me.start = me.max;
+      me.end = me.min;
+    } else {
+      me.start = me.min;
+      me.end = me.max;
     }
-  }, {
-    key: "getValueForPixel",
-    value: function getValueForPixel(pixel) {
-      var me = this;
-      var decimal = me.getDecimalForPixel(pixel);
-      return Math.pow(10, me._startValue + decimal * me._valueRange);
+    if (reverse) {
+      ticks.reverse();
     }
-  }]);
+    return ticks;
+  }
+  ;
+  _proto.getLabelForValue = function getLabelForValue(value) {
+    return value === undefined ? '0' : new Intl.NumberFormat(this.options.locale).format(value);
+  }
+  ;
+  _proto.configure = function configure() {
+    var me = this;
+    var start = me.min;
+    _Scale.prototype.configure.call(this);
+    me._startValue = log10(start);
+    me._valueRange = log10(me.max) - log10(start);
+  };
+  _proto.getPixelForValue = function getPixelForValue(value) {
+    var me = this;
+    if (value === undefined || value === 0) {
+      value = me.min;
+    }
+    return me.getPixelForDecimal(value === me.min ? 0 : (log10(value) - me._startValue) / me._valueRange);
+  };
+  _proto.getValueForPixel = function getValueForPixel(pixel) {
+    var me = this;
+    var decimal = me.getDecimalForPixel(pixel);
+    return Math.pow(10, me._startValue + decimal * me._valueRange);
+  };
   return LogarithmicScale;
 }(Scale);
 LogarithmicScale.id = 'logarithmic';
@@ -10286,230 +9572,199 @@ function numberOrZero(param) {
   return isNumber(param) ? param : 0;
 }
 var RadialLinearScale = function (_LinearScaleBase) {
-  _inherits(RadialLinearScale, _LinearScaleBase);
-  var _super = _createSuper(RadialLinearScale);
+  _inheritsLoose(RadialLinearScale, _LinearScaleBase);
   function RadialLinearScale(cfg) {
     var _this;
-    _classCallCheck(this, RadialLinearScale);
-    _this = _super.call(this, cfg);
+    _this = _LinearScaleBase.call(this, cfg) || this;
     _this.xCenter = undefined;
     _this.yCenter = undefined;
     _this.drawingArea = undefined;
     _this.pointLabels = [];
     return _this;
   }
-  _createClass(RadialLinearScale, [{
-    key: "init",
-    value: function init(options) {
-      _get(_getPrototypeOf(RadialLinearScale.prototype), "init", this).call(this, options);
-      this.axis = 'r';
+  var _proto = RadialLinearScale.prototype;
+  _proto.init = function init(options) {
+    _LinearScaleBase.prototype.init.call(this, options);
+    this.axis = 'r';
+  };
+  _proto.setDimensions = function setDimensions() {
+    var me = this;
+    me.width = me.maxWidth;
+    me.height = me.maxHeight;
+    me.paddingTop = getTickBackdropHeight(me.options) / 2;
+    me.xCenter = Math.floor(me.width / 2);
+    me.yCenter = Math.floor((me.height - me.paddingTop) / 2);
+    me.drawingArea = Math.min(me.height - me.paddingTop, me.width) / 2;
+  };
+  _proto.determineDataLimits = function determineDataLimits() {
+    var me = this;
+    var minmax = me.getMinMax(false);
+    var min = minmax.min;
+    var max = minmax.max;
+    me.min = isNumberFinite(min) && !isNaN(min) ? min : 0;
+    me.max = isNumberFinite(max) && !isNaN(max) ? max : 0;
+    me.handleTickRangeOptions();
+  }
+  ;
+  _proto.computeTickLimit = function computeTickLimit() {
+    return Math.ceil(this.drawingArea / getTickBackdropHeight(this.options));
+  };
+  _proto.generateTickLabels = function generateTickLabels(ticks) {
+    var me = this;
+    LinearScaleBase.prototype.generateTickLabels.call(me, ticks);
+    me.pointLabels = me.chart.data.labels.map(function (value, index) {
+      var label = callback(me.options.pointLabels.callback, [value, index], me);
+      return label || label === 0 ? label : '';
+    });
+  };
+  _proto.fit = function fit() {
+    var me = this;
+    var opts = me.options;
+    if (opts.display && opts.pointLabels.display) {
+      fitWithPointLabels(me);
+    } else {
+      me.setCenterPoint(0, 0, 0, 0);
     }
-  }, {
-    key: "setDimensions",
-    value: function setDimensions() {
-      var me = this;
-      me.width = me.maxWidth;
-      me.height = me.maxHeight;
-      me.paddingTop = getTickBackdropHeight(me.options) / 2;
-      me.xCenter = Math.floor(me.width / 2);
-      me.yCenter = Math.floor((me.height - me.paddingTop) / 2);
-      me.drawingArea = Math.min(me.height - me.paddingTop, me.width) / 2;
+  }
+  ;
+  _proto._setReductions = function _setReductions(largestPossibleRadius, furthestLimits, furthestAngles) {
+    var me = this;
+    var radiusReductionLeft = furthestLimits.l / Math.sin(furthestAngles.l);
+    var radiusReductionRight = Math.max(furthestLimits.r - me.width, 0) / Math.sin(furthestAngles.r);
+    var radiusReductionTop = -furthestLimits.t / Math.cos(furthestAngles.t);
+    var radiusReductionBottom = -Math.max(furthestLimits.b - (me.height - me.paddingTop), 0) / Math.cos(furthestAngles.b);
+    radiusReductionLeft = numberOrZero(radiusReductionLeft);
+    radiusReductionRight = numberOrZero(radiusReductionRight);
+    radiusReductionTop = numberOrZero(radiusReductionTop);
+    radiusReductionBottom = numberOrZero(radiusReductionBottom);
+    me.drawingArea = Math.min(Math.floor(largestPossibleRadius - (radiusReductionLeft + radiusReductionRight) / 2), Math.floor(largestPossibleRadius - (radiusReductionTop + radiusReductionBottom) / 2));
+    me.setCenterPoint(radiusReductionLeft, radiusReductionRight, radiusReductionTop, radiusReductionBottom);
+  };
+  _proto.setCenterPoint = function setCenterPoint(leftMovement, rightMovement, topMovement, bottomMovement) {
+    var me = this;
+    var maxRight = me.width - rightMovement - me.drawingArea;
+    var maxLeft = leftMovement + me.drawingArea;
+    var maxTop = topMovement + me.drawingArea;
+    var maxBottom = me.height - me.paddingTop - bottomMovement - me.drawingArea;
+    me.xCenter = Math.floor((maxLeft + maxRight) / 2 + me.left);
+    me.yCenter = Math.floor((maxTop + maxBottom) / 2 + me.top + me.paddingTop);
+  };
+  _proto.getIndexAngle = function getIndexAngle(index) {
+    var chart = this.chart;
+    var angleMultiplier = Math.PI * 2 / chart.data.labels.length;
+    var options = chart.options || {};
+    var startAngle = options.startAngle || 0;
+    return _normalizeAngle(index * angleMultiplier + toRadians(startAngle));
+  };
+  _proto.getDistanceFromCenterForValue = function getDistanceFromCenterForValue(value) {
+    var me = this;
+    if (isNullOrUndef(value)) {
+      return NaN;
     }
-  }, {
-    key: "determineDataLimits",
-    value: function determineDataLimits() {
-      var me = this;
-      var minmax = me.getMinMax(false);
-      var min = minmax.min;
-      var max = minmax.max;
-      me.min = isNumberFinite(min) && !isNaN(min) ? min : 0;
-      me.max = isNumberFinite(max) && !isNaN(max) ? max : 0;
-      me.handleTickRangeOptions();
+    var scalingFactor = me.drawingArea / (me.max - me.min);
+    if (me.options.reverse) {
+      return (me.max - value) * scalingFactor;
     }
-  }, {
-    key: "computeTickLimit",
-    value: function computeTickLimit() {
-      return Math.ceil(this.drawingArea / getTickBackdropHeight(this.options));
+    return (value - me.min) * scalingFactor;
+  };
+  _proto.getValueForDistanceFromCenter = function getValueForDistanceFromCenter(distance) {
+    if (isNullOrUndef(distance)) {
+      return NaN;
     }
-  }, {
-    key: "generateTickLabels",
-    value: function generateTickLabels(ticks) {
-      var me = this;
-      LinearScaleBase.prototype.generateTickLabels.call(me, ticks);
-      me.pointLabels = me.chart.data.labels.map(function (value, index) {
-        var label = callback(me.options.pointLabels.callback, [value, index], me);
-        return label || label === 0 ? label : '';
-      });
+    var me = this;
+    var scaledDistance = distance / (me.drawingArea / (me.max - me.min));
+    return me.options.reverse ? me.max - scaledDistance : me.min + scaledDistance;
+  };
+  _proto.getPointPosition = function getPointPosition(index, distanceFromCenter) {
+    var me = this;
+    var angle = me.getIndexAngle(index) - Math.PI / 2;
+    return {
+      x: Math.cos(angle) * distanceFromCenter + me.xCenter,
+      y: Math.sin(angle) * distanceFromCenter + me.yCenter,
+      angle: angle
+    };
+  };
+  _proto.getPointPositionForValue = function getPointPositionForValue(index, value) {
+    return this.getPointPosition(index, this.getDistanceFromCenterForValue(value));
+  };
+  _proto.getBasePosition = function getBasePosition(index) {
+    return this.getPointPositionForValue(index || 0, this.getBaseValue());
+  }
+  ;
+  _proto.drawGrid = function drawGrid() {
+    var me = this;
+    var ctx = me.ctx;
+    var opts = me.options;
+    var gridLineOpts = opts.gridLines;
+    var angleLineOpts = opts.angleLines;
+    var lineWidth = valueOrDefault(angleLineOpts.lineWidth, gridLineOpts.lineWidth);
+    var lineColor = valueOrDefault(angleLineOpts.color, gridLineOpts.color);
+    var i, offset, position;
+    if (opts.pointLabels.display) {
+      drawPointLabels(me);
     }
-  }, {
-    key: "fit",
-    value: function fit() {
-      var me = this;
-      var opts = me.options;
-      if (opts.display && opts.pointLabels.display) {
-        fitWithPointLabels(me);
-      } else {
-        me.setCenterPoint(0, 0, 0, 0);
-      }
-    }
-  }, {
-    key: "_setReductions",
-    value: function _setReductions(largestPossibleRadius, furthestLimits, furthestAngles) {
-      var me = this;
-      var radiusReductionLeft = furthestLimits.l / Math.sin(furthestAngles.l);
-      var radiusReductionRight = Math.max(furthestLimits.r - me.width, 0) / Math.sin(furthestAngles.r);
-      var radiusReductionTop = -furthestLimits.t / Math.cos(furthestAngles.t);
-      var radiusReductionBottom = -Math.max(furthestLimits.b - (me.height - me.paddingTop), 0) / Math.cos(furthestAngles.b);
-      radiusReductionLeft = numberOrZero(radiusReductionLeft);
-      radiusReductionRight = numberOrZero(radiusReductionRight);
-      radiusReductionTop = numberOrZero(radiusReductionTop);
-      radiusReductionBottom = numberOrZero(radiusReductionBottom);
-      me.drawingArea = Math.min(Math.floor(largestPossibleRadius - (radiusReductionLeft + radiusReductionRight) / 2), Math.floor(largestPossibleRadius - (radiusReductionTop + radiusReductionBottom) / 2));
-      me.setCenterPoint(radiusReductionLeft, radiusReductionRight, radiusReductionTop, radiusReductionBottom);
-    }
-  }, {
-    key: "setCenterPoint",
-    value: function setCenterPoint(leftMovement, rightMovement, topMovement, bottomMovement) {
-      var me = this;
-      var maxRight = me.width - rightMovement - me.drawingArea;
-      var maxLeft = leftMovement + me.drawingArea;
-      var maxTop = topMovement + me.drawingArea;
-      var maxBottom = me.height - me.paddingTop - bottomMovement - me.drawingArea;
-      me.xCenter = Math.floor((maxLeft + maxRight) / 2 + me.left);
-      me.yCenter = Math.floor((maxTop + maxBottom) / 2 + me.top + me.paddingTop);
-    }
-  }, {
-    key: "getIndexAngle",
-    value: function getIndexAngle(index) {
-      var chart = this.chart;
-      var angleMultiplier = Math.PI * 2 / chart.data.labels.length;
-      var options = chart.options || {};
-      var startAngle = options.startAngle || 0;
-      return _normalizeAngle(index * angleMultiplier + toRadians(startAngle));
-    }
-  }, {
-    key: "getDistanceFromCenterForValue",
-    value: function getDistanceFromCenterForValue(value) {
-      var me = this;
-      if (isNullOrUndef(value)) {
-        return NaN;
-      }
-      var scalingFactor = me.drawingArea / (me.max - me.min);
-      if (me.options.reverse) {
-        return (me.max - value) * scalingFactor;
-      }
-      return (value - me.min) * scalingFactor;
-    }
-  }, {
-    key: "getValueForDistanceFromCenter",
-    value: function getValueForDistanceFromCenter(distance) {
-      if (isNullOrUndef(distance)) {
-        return NaN;
-      }
-      var me = this;
-      var scaledDistance = distance / (me.drawingArea / (me.max - me.min));
-      return me.options.reverse ? me.max - scaledDistance : me.min + scaledDistance;
-    }
-  }, {
-    key: "getPointPosition",
-    value: function getPointPosition(index, distanceFromCenter) {
-      var me = this;
-      var angle = me.getIndexAngle(index) - Math.PI / 2;
-      return {
-        x: Math.cos(angle) * distanceFromCenter + me.xCenter,
-        y: Math.sin(angle) * distanceFromCenter + me.yCenter,
-        angle: angle
-      };
-    }
-  }, {
-    key: "getPointPositionForValue",
-    value: function getPointPositionForValue(index, value) {
-      return this.getPointPosition(index, this.getDistanceFromCenterForValue(value));
-    }
-  }, {
-    key: "getBasePosition",
-    value: function getBasePosition(index) {
-      return this.getPointPositionForValue(index || 0, this.getBaseValue());
-    }
-  }, {
-    key: "drawGrid",
-    value: function drawGrid() {
-      var me = this;
-      var ctx = me.ctx;
-      var opts = me.options;
-      var gridLineOpts = opts.gridLines;
-      var angleLineOpts = opts.angleLines;
-      var lineWidth = valueOrDefault(angleLineOpts.lineWidth, gridLineOpts.lineWidth);
-      var lineColor = valueOrDefault(angleLineOpts.color, gridLineOpts.color);
-      var i, offset, position;
-      if (opts.pointLabels.display) {
-        drawPointLabels(me);
-      }
-      if (gridLineOpts.display) {
-        me.ticks.forEach(function (tick, index) {
-          if (index !== 0) {
-            offset = me.getDistanceFromCenterForValue(me.ticks[index].value);
-            drawRadiusLine(me, gridLineOpts, offset, index);
-          }
-        });
-      }
-      if (angleLineOpts.display && lineWidth && lineColor) {
-        ctx.save();
-        ctx.lineWidth = lineWidth;
-        ctx.strokeStyle = lineColor;
-        if (ctx.setLineDash) {
-          ctx.setLineDash(resolve([angleLineOpts.borderDash, gridLineOpts.borderDash, []]));
-          ctx.lineDashOffset = resolve([angleLineOpts.borderDashOffset, gridLineOpts.borderDashOffset, 0.0]);
-        }
-        for (i = me.chart.data.labels.length - 1; i >= 0; i--) {
-          offset = me.getDistanceFromCenterForValue(opts.ticks.reverse ? me.min : me.max);
-          position = me.getPointPosition(i, offset);
-          ctx.beginPath();
-          ctx.moveTo(me.xCenter, me.yCenter);
-          ctx.lineTo(position.x, position.y);
-          ctx.stroke();
-        }
-        ctx.restore();
-      }
-    }
-  }, {
-    key: "drawLabels",
-    value: function drawLabels() {
-      var me = this;
-      var ctx = me.ctx;
-      var opts = me.options;
-      var tickOpts = opts.ticks;
-      if (!tickOpts.display) {
-        return;
-      }
-      var startAngle = me.getIndexAngle(0);
-      var tickFont = toFont(tickOpts.font);
-      var offset, width;
-      ctx.save();
-      ctx.font = tickFont.string;
-      ctx.translate(me.xCenter, me.yCenter);
-      ctx.rotate(startAngle);
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
+    if (gridLineOpts.display) {
       me.ticks.forEach(function (tick, index) {
-        if (index === 0 && !opts.reverse) {
-          return;
+        if (index !== 0) {
+          offset = me.getDistanceFromCenterForValue(me.ticks[index].value);
+          drawRadiusLine(me, gridLineOpts, offset, index);
         }
-        offset = me.getDistanceFromCenterForValue(me.ticks[index].value);
-        if (tickOpts.showLabelBackdrop) {
-          width = ctx.measureText(tick.label).width;
-          ctx.fillStyle = tickOpts.backdropColor;
-          ctx.fillRect(-width / 2 - tickOpts.backdropPaddingX, -offset - tickFont.size / 2 - tickOpts.backdropPaddingY, width + tickOpts.backdropPaddingX * 2, tickFont.size + tickOpts.backdropPaddingY * 2);
-        }
-        ctx.fillStyle = tickFont.color;
-        ctx.fillText(tick.label, 0, -offset);
       });
+    }
+    if (angleLineOpts.display && lineWidth && lineColor) {
+      ctx.save();
+      ctx.lineWidth = lineWidth;
+      ctx.strokeStyle = lineColor;
+      if (ctx.setLineDash) {
+        ctx.setLineDash(resolve([angleLineOpts.borderDash, gridLineOpts.borderDash, []]));
+        ctx.lineDashOffset = resolve([angleLineOpts.borderDashOffset, gridLineOpts.borderDashOffset, 0.0]);
+      }
+      for (i = me.chart.data.labels.length - 1; i >= 0; i--) {
+        offset = me.getDistanceFromCenterForValue(opts.ticks.reverse ? me.min : me.max);
+        position = me.getPointPosition(i, offset);
+        ctx.beginPath();
+        ctx.moveTo(me.xCenter, me.yCenter);
+        ctx.lineTo(position.x, position.y);
+        ctx.stroke();
+      }
       ctx.restore();
     }
-  }, {
-    key: "drawTitle",
-    value: function drawTitle() {}
-  }]);
+  }
+  ;
+  _proto.drawLabels = function drawLabels() {
+    var me = this;
+    var ctx = me.ctx;
+    var opts = me.options;
+    var tickOpts = opts.ticks;
+    if (!tickOpts.display) {
+      return;
+    }
+    var startAngle = me.getIndexAngle(0);
+    var tickFont = toFont(tickOpts.font);
+    var offset, width;
+    ctx.save();
+    ctx.font = tickFont.string;
+    ctx.translate(me.xCenter, me.yCenter);
+    ctx.rotate(startAngle);
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    me.ticks.forEach(function (tick, index) {
+      if (index === 0 && !opts.reverse) {
+        return;
+      }
+      offset = me.getDistanceFromCenterForValue(me.ticks[index].value);
+      if (tickOpts.showLabelBackdrop) {
+        width = ctx.measureText(tick.label).width;
+        ctx.fillStyle = tickOpts.backdropColor;
+        ctx.fillRect(-width / 2 - tickOpts.backdropPaddingX, -offset - tickFont.size / 2 - tickOpts.backdropPaddingY, width + tickOpts.backdropPaddingX * 2, tickFont.size + tickOpts.backdropPaddingY * 2);
+      }
+      ctx.fillStyle = tickFont.color;
+      ctx.fillText(tick.label, 0, -offset);
+    });
+    ctx.restore();
+  }
+  ;
+  _proto.drawTitle = function drawTitle() {};
   return RadialLinearScale;
 }(LinearScaleBase);
 RadialLinearScale.id = 'radialLinear';
@@ -10568,15 +9823,13 @@ function sorter(a, b) {
   return a - b;
 }
 function arrayUnique(items) {
-  var set = new Set();
-  var i, ilen;
-  for (i = 0, ilen = items.length; i < ilen; ++i) {
-    set.add(items[i]);
+  var unique = {};
+  for (var i = 0, ilen = items.length; i < ilen; ++i) {
+    unique[items[i]] = true;
   }
-  if (set.size === ilen) {
-    return items;
-  }
-  return _toConsumableArray(set);
+  return Object.keys(unique).map(function (x) {
+    return +x;
+  });
 }
 function _parse(scale, input) {
   if (isNullOrUndef(input)) {
@@ -10725,7 +9978,7 @@ function addTick(timestamps, ticks, time) {
       lo = _lookup2.lo,
       hi = _lookup2.hi;
   var timestamp = timestamps[lo] >= time ? timestamps[lo] : timestamps[hi];
-  ticks.add(timestamp);
+  ticks[timestamp] = true;
 }
 function generate(scale) {
   var adapter = scale._adapter;
@@ -10736,7 +9989,7 @@ function generate(scale) {
   var minor = timeOpts.unit || determineUnitForAutoTicks(timeOpts.minUnit, min, max, scale._getLabelCapacity(min));
   var stepSize = valueOrDefault(timeOpts.stepSize, 1);
   var weekday = minor === 'week' ? timeOpts.isoWeekday : false;
-  var ticks = new Set();
+  var ticks = {};
   var first = min;
   var time;
   if (weekday) {
@@ -10756,13 +10009,15 @@ function generate(scale) {
     }
   } else {
     for (time = first; time < max; time = +adapter.add(time, stepSize, minor)) {
-      ticks.add(time);
+      ticks[time] = true;
     }
     if (time === max || options.bounds === 'ticks') {
-      ticks.add(time);
+      ticks[time] = true;
     }
   }
-  return _toConsumableArray(ticks);
+  return Object.keys(ticks).map(function (x) {
+    return +x;
+  });
 }
 function computeOffsets(table, timestamps, min, max, options) {
   var start = 0;
@@ -10859,12 +10114,10 @@ var defaultConfig$4 = {
   }
 };
 var TimeScale = function (_Scale) {
-  _inherits(TimeScale, _Scale);
-  var _super = _createSuper(TimeScale);
+  _inheritsLoose(TimeScale, _Scale);
   function TimeScale(props) {
     var _this;
-    _classCallCheck(this, TimeScale);
-    _this = _super.call(this, props);
+    _this = _Scale.call(this, props) || this;
     _this._cache = {
       data: [],
       labels: [],
@@ -10876,178 +10129,162 @@ var TimeScale = function (_Scale) {
     _this._table = [];
     return _this;
   }
-  _createClass(TimeScale, [{
-    key: "init",
-    value: function init(options) {
-      var time = options.time || (options.time = {});
-      var adapter = this._adapter = new _adapters._date(options.adapters.date);
-      mergeIf(time.displayFormats, adapter.formats());
-      _get(_getPrototypeOf(TimeScale.prototype), "init", this).call(this, options);
+  var _proto = TimeScale.prototype;
+  _proto.init = function init(options) {
+    var time = options.time || (options.time = {});
+    var adapter = this._adapter = new _adapters._date(options.adapters.date);
+    mergeIf(time.displayFormats, adapter.formats());
+    _Scale.prototype.init.call(this, options);
+  }
+  ;
+  _proto.parse = function parse(raw, index) {
+    if (raw === undefined) {
+      return NaN;
     }
-  }, {
-    key: "parse",
-    value: function parse(raw, index) {
-      if (raw === undefined) {
-        return NaN;
-      }
-      return _parse(this, raw);
+    return _parse(this, raw);
+  }
+  ;
+  _proto.parseObject = function parseObject(obj, axis, index) {
+    if (obj && obj.t) {
+      return this.parse(obj.t, index);
     }
-  }, {
-    key: "parseObject",
-    value: function parseObject(obj, axis, index) {
-      if (obj && obj.t) {
-        return this.parse(obj.t, index);
-      }
-      if (obj[axis] !== undefined) {
-        return this.parse(obj[axis], index);
-      }
-      return null;
+    if (obj[axis] !== undefined) {
+      return this.parse(obj[axis], index);
     }
-  }, {
-    key: "invalidateCaches",
-    value: function invalidateCaches() {
-      this._cache = {
-        data: [],
-        labels: [],
-        all: []
-      };
-    }
-  }, {
-    key: "determineDataLimits",
-    value: function determineDataLimits() {
-      var me = this;
-      var options = me.options;
-      var adapter = me._adapter;
-      var unit = options.time.unit || 'day';
-      var _me$getUserBounds = me.getUserBounds(),
-          min = _me$getUserBounds.min,
-          max = _me$getUserBounds.max,
-          minDefined = _me$getUserBounds.minDefined,
-          maxDefined = _me$getUserBounds.maxDefined;
-      function _applyBounds(bounds) {
-        if (!minDefined && !isNaN(bounds.min)) {
-          min = Math.min(min, bounds.min);
-        }
-        if (!maxDefined && !isNaN(bounds.max)) {
-          max = Math.max(max, bounds.max);
-        }
+    return null;
+  };
+  _proto.invalidateCaches = function invalidateCaches() {
+    this._cache = {
+      data: [],
+      labels: [],
+      all: []
+    };
+  };
+  _proto.determineDataLimits = function determineDataLimits() {
+    var me = this;
+    var options = me.options;
+    var adapter = me._adapter;
+    var unit = options.time.unit || 'day';
+    var _me$getUserBounds = me.getUserBounds(),
+        min = _me$getUserBounds.min,
+        max = _me$getUserBounds.max,
+        minDefined = _me$getUserBounds.minDefined,
+        maxDefined = _me$getUserBounds.maxDefined;
+    function _applyBounds(bounds) {
+      if (!minDefined && !isNaN(bounds.min)) {
+        min = Math.min(min, bounds.min);
       }
-      if (!minDefined || !maxDefined) {
-        _applyBounds(getLabelBounds(me));
-        if (options.bounds !== 'ticks' || options.ticks.source !== 'labels') {
-          _applyBounds(me.getMinMax(false));
-        }
-      }
-      min = isNumberFinite(min) && !isNaN(min) ? min : +adapter.startOf(Date.now(), unit);
-      max = isNumberFinite(max) && !isNaN(max) ? max : +adapter.endOf(Date.now(), unit) + 1;
-      me.min = Math.min(min, max);
-      me.max = Math.max(min + 1, max);
-    }
-  }, {
-    key: "buildTicks",
-    value: function buildTicks() {
-      var me = this;
-      var options = me.options;
-      var timeOpts = options.time;
-      var tickOpts = options.ticks;
-      var distribution = options.distribution;
-      var timestamps = getTimestampsForTicks(me);
-      if (options.bounds === 'ticks' && timestamps.length) {
-        me.min = me._userMin || timestamps[0];
-        me.max = me._userMax || timestamps[timestamps.length - 1];
-      }
-      var min = me.min;
-      var max = me.max;
-      var ticks = _filterBetween(timestamps, min, max);
-      me._unit = timeOpts.unit || (tickOpts.autoSkip ? determineUnitForAutoTicks(timeOpts.minUnit, me.min, me.max, me._getLabelCapacity(min)) : determineUnitForFormatting(me, ticks.length, timeOpts.minUnit, me.min, me.max));
-      me._majorUnit = !tickOpts.major.enabled || me._unit === 'year' ? undefined : determineMajorUnit(me._unit);
-      me._table = buildLookupTable(getTimestampsForTable(me), min, max, distribution);
-      me._offsets = computeOffsets(me._table, timestamps, min, max, options);
-      if (options.reverse) {
-        ticks.reverse();
-      }
-      return ticksFromTimestamps(me, ticks, me._majorUnit);
-    }
-  }, {
-    key: "getLabelForValue",
-    value: function getLabelForValue(value) {
-      var me = this;
-      var adapter = me._adapter;
-      var timeOpts = me.options.time;
-      if (timeOpts.tooltipFormat) {
-        return adapter.format(value, timeOpts.tooltipFormat);
-      }
-      return adapter.format(value, timeOpts.displayFormats.datetime);
-    }
-  }, {
-    key: "_tickFormatFunction",
-    value: function _tickFormatFunction(time, index, ticks, format) {
-      var me = this;
-      var options = me.options;
-      var formats = options.time.displayFormats;
-      var unit = me._unit;
-      var majorUnit = me._majorUnit;
-      var minorFormat = unit && formats[unit];
-      var majorFormat = majorUnit && formats[majorUnit];
-      var tick = ticks[index];
-      var major = majorUnit && majorFormat && tick && tick.major;
-      var label = me._adapter.format(time, format || (major ? majorFormat : minorFormat));
-      var formatter = options.ticks.callback;
-      return formatter ? formatter(label, index, ticks) : label;
-    }
-  }, {
-    key: "generateTickLabels",
-    value: function generateTickLabels(ticks) {
-      var i, ilen, tick;
-      for (i = 0, ilen = ticks.length; i < ilen; ++i) {
-        tick = ticks[i];
-        tick.label = this._tickFormatFunction(tick.value, i, ticks);
+      if (!maxDefined && !isNaN(bounds.max)) {
+        max = Math.max(max, bounds.max);
       }
     }
-  }, {
-    key: "getPixelForValue",
-    value: function getPixelForValue(value) {
-      var me = this;
-      var offsets = me._offsets;
-      var pos = interpolate(me._table, 'time', value, 'pos');
-      return me.getPixelForDecimal((offsets.start + pos) * offsets.factor);
+    if (!minDefined || !maxDefined) {
+      _applyBounds(getLabelBounds(me));
+      if (options.bounds !== 'ticks' || options.ticks.source !== 'labels') {
+        _applyBounds(me.getMinMax(false));
+      }
     }
-  }, {
-    key: "getValueForPixel",
-    value: function getValueForPixel(pixel) {
-      var me = this;
-      var offsets = me._offsets;
-      var pos = me.getDecimalForPixel(pixel) / offsets.factor - offsets.end;
-      return interpolate(me._table, 'pos', pos, 'time');
+    min = isNumberFinite(min) && !isNaN(min) ? min : +adapter.startOf(Date.now(), unit);
+    max = isNumberFinite(max) && !isNaN(max) ? max : +adapter.endOf(Date.now(), unit) + 1;
+    me.min = Math.min(min, max);
+    me.max = Math.max(min + 1, max);
+  }
+  ;
+  _proto.buildTicks = function buildTicks() {
+    var me = this;
+    var options = me.options;
+    var timeOpts = options.time;
+    var tickOpts = options.ticks;
+    var distribution = options.distribution;
+    var timestamps = getTimestampsForTicks(me);
+    if (options.bounds === 'ticks' && timestamps.length) {
+      me.min = me._userMin || timestamps[0];
+      me.max = me._userMax || timestamps[timestamps.length - 1];
     }
-  }, {
-    key: "_getLabelSize",
-    value: function _getLabelSize(label) {
-      var me = this;
-      var ticksOpts = me.options.ticks;
-      var tickLabelWidth = me.ctx.measureText(label).width;
-      var angle = toRadians(me.isHorizontal() ? ticksOpts.maxRotation : ticksOpts.minRotation);
-      var cosRotation = Math.cos(angle);
-      var sinRotation = Math.sin(angle);
-      var tickFontSize = me._resolveTickFontOptions(0).size;
-      return {
-        w: tickLabelWidth * cosRotation + tickFontSize * sinRotation,
-        h: tickLabelWidth * sinRotation + tickFontSize * cosRotation
-      };
+    var min = me.min;
+    var max = me.max;
+    var ticks = _filterBetween(timestamps, min, max);
+    me._unit = timeOpts.unit || (tickOpts.autoSkip ? determineUnitForAutoTicks(timeOpts.minUnit, me.min, me.max, me._getLabelCapacity(min)) : determineUnitForFormatting(me, ticks.length, timeOpts.minUnit, me.min, me.max));
+    me._majorUnit = !tickOpts.major.enabled || me._unit === 'year' ? undefined : determineMajorUnit(me._unit);
+    me._table = buildLookupTable(getTimestampsForTable(me), min, max, distribution);
+    me._offsets = computeOffsets(me._table, timestamps, min, max, options);
+    if (options.reverse) {
+      ticks.reverse();
     }
-  }, {
-    key: "_getLabelCapacity",
-    value: function _getLabelCapacity(exampleTime) {
-      var me = this;
-      var timeOpts = me.options.time;
-      var displayFormats = timeOpts.displayFormats;
-      var format = displayFormats[timeOpts.unit] || displayFormats.millisecond;
-      var exampleLabel = me._tickFormatFunction(exampleTime, 0, ticksFromTimestamps(me, [exampleTime], me._majorUnit), format);
-      var size = me._getLabelSize(exampleLabel);
-      var capacity = Math.floor(me.isHorizontal() ? me.width / size.w : me.height / size.h) - 1;
-      return capacity > 0 ? capacity : 1;
+    return ticksFromTimestamps(me, ticks, me._majorUnit);
+  }
+  ;
+  _proto.getLabelForValue = function getLabelForValue(value) {
+    var me = this;
+    var adapter = me._adapter;
+    var timeOpts = me.options.time;
+    if (timeOpts.tooltipFormat) {
+      return adapter.format(value, timeOpts.tooltipFormat);
     }
-  }]);
+    return adapter.format(value, timeOpts.displayFormats.datetime);
+  }
+  ;
+  _proto._tickFormatFunction = function _tickFormatFunction(time, index, ticks, format) {
+    var me = this;
+    var options = me.options;
+    var formats = options.time.displayFormats;
+    var unit = me._unit;
+    var majorUnit = me._majorUnit;
+    var minorFormat = unit && formats[unit];
+    var majorFormat = majorUnit && formats[majorUnit];
+    var tick = ticks[index];
+    var major = majorUnit && majorFormat && tick && tick.major;
+    var label = me._adapter.format(time, format || (major ? majorFormat : minorFormat));
+    var formatter = options.ticks.callback;
+    return formatter ? formatter(label, index, ticks) : label;
+  }
+  ;
+  _proto.generateTickLabels = function generateTickLabels(ticks) {
+    var i, ilen, tick;
+    for (i = 0, ilen = ticks.length; i < ilen; ++i) {
+      tick = ticks[i];
+      tick.label = this._tickFormatFunction(tick.value, i, ticks);
+    }
+  }
+  ;
+  _proto.getPixelForValue = function getPixelForValue(value) {
+    var me = this;
+    var offsets = me._offsets;
+    var pos = interpolate(me._table, 'time', value, 'pos');
+    return me.getPixelForDecimal((offsets.start + pos) * offsets.factor);
+  }
+  ;
+  _proto.getValueForPixel = function getValueForPixel(pixel) {
+    var me = this;
+    var offsets = me._offsets;
+    var pos = me.getDecimalForPixel(pixel) / offsets.factor - offsets.end;
+    return interpolate(me._table, 'pos', pos, 'time');
+  }
+  ;
+  _proto._getLabelSize = function _getLabelSize(label) {
+    var me = this;
+    var ticksOpts = me.options.ticks;
+    var tickLabelWidth = me.ctx.measureText(label).width;
+    var angle = toRadians(me.isHorizontal() ? ticksOpts.maxRotation : ticksOpts.minRotation);
+    var cosRotation = Math.cos(angle);
+    var sinRotation = Math.sin(angle);
+    var tickFontSize = me._resolveTickFontOptions(0).size;
+    return {
+      w: tickLabelWidth * cosRotation + tickFontSize * sinRotation,
+      h: tickLabelWidth * sinRotation + tickFontSize * cosRotation
+    };
+  }
+  ;
+  _proto._getLabelCapacity = function _getLabelCapacity(exampleTime) {
+    var me = this;
+    var timeOpts = me.options.time;
+    var displayFormats = timeOpts.displayFormats;
+    var format = displayFormats[timeOpts.unit] || displayFormats.millisecond;
+    var exampleLabel = me._tickFormatFunction(exampleTime, 0, ticksFromTimestamps(me, [exampleTime], me._majorUnit), format);
+    var size = me._getLabelSize(exampleLabel);
+    var capacity = Math.floor(me.isHorizontal() ? me.width / size.w : me.height / size.h) - 1;
+    return capacity > 0 ? capacity : 1;
+  };
   return TimeScale;
 }(Scale);
 TimeScale.id = 'time';
@@ -11125,44 +10362,39 @@ function computeLinearBoundary(source) {
 }
 var simpleArc = function () {
   function simpleArc(opts) {
-    _classCallCheck(this, simpleArc);
     this.x = opts.x;
     this.y = opts.y;
     this.radius = opts.radius;
   }
-  _createClass(simpleArc, [{
-    key: "pathSegment",
-    value: function pathSegment(ctx, bounds, opts) {
-      var x = this.x,
-          y = this.y,
-          radius = this.radius;
-      bounds = bounds || {
-        start: 0,
-        end: Math.PI * 2
+  var _proto = simpleArc.prototype;
+  _proto.pathSegment = function pathSegment(ctx, bounds, opts) {
+    var x = this.x,
+        y = this.y,
+        radius = this.radius;
+    bounds = bounds || {
+      start: 0,
+      end: Math.PI * 2
+    };
+    if (opts.reverse) {
+      ctx.arc(x, y, radius, bounds.end, bounds.start, true);
+    } else {
+      ctx.arc(x, y, radius, bounds.start, bounds.end);
+    }
+    return !opts.bounds;
+  };
+  _proto.interpolate = function interpolate(point, property) {
+    var x = this.x,
+        y = this.y,
+        radius = this.radius;
+    var angle = point.angle;
+    if (property === 'angle') {
+      return {
+        x: x + Math.cos(angle) * radius,
+        y: y + Math.sin(angle) * radius,
+        angle: angle
       };
-      if (opts.reverse) {
-        ctx.arc(x, y, radius, bounds.end, bounds.start, true);
-      } else {
-        ctx.arc(x, y, radius, bounds.start, bounds.end);
-      }
-      return !opts.bounds;
     }
-  }, {
-    key: "interpolate",
-    value: function interpolate(point, property) {
-      var x = this.x,
-          y = this.y,
-          radius = this.radius;
-      var angle = point.angle;
-      if (property === 'angle') {
-        return {
-          x: x + Math.cos(angle) * radius,
-          y: y + Math.sin(angle) * radius,
-          angle: angle
-        };
-      }
-    }
-  }]);
+  };
   return simpleArc;
 }();
 function computeCircularBoundary(source) {
@@ -11353,11 +10585,12 @@ function _segments(line, target, property) {
       var subBounds = getBounds(property, tpoints[sub.start], tpoints[sub.end], sub.loop);
       var fillSources = _boundSegment(segment, points, subBounds);
       for (var k = 0; k < fillSources.length; k++) {
+        var _start, _end;
         parts.push({
           source: fillSources[k],
           target: sub,
-          start: _defineProperty({}, property, _getEdge(bounds, subBounds, 'start', Math.max)),
-          end: _defineProperty({}, property, _getEdge(bounds, subBounds, 'end', Math.min))
+          start: (_start = {}, _start[property] = _getEdge(bounds, subBounds, 'start', Math.max), _start),
+          end: (_end = {}, _end[property] = _getEdge(bounds, subBounds, 'end', Math.min), _end)
         });
       }
     }
@@ -11589,12 +10822,10 @@ function getBoxHeight(labelOpts, fontSize) {
   return labelOpts.usePointStyle && boxHeight > fontSize || isNullOrUndef(boxHeight) ? fontSize : boxHeight;
 }
 var Legend = function (_Element) {
-  _inherits(Legend, _Element);
-  var _super = _createSuper(Legend);
+  _inheritsLoose(Legend, _Element);
   function Legend(config) {
     var _this;
-    _classCallCheck(this, Legend);
-    _this = _super.call(this);
+    _this = _Element.call(this) || this;
     _extends(_assertThisInitialized(_this), config);
     _this.legendHitBoxes = [];
     _this._hoveredItem = null;
@@ -11625,435 +10856,405 @@ var Legend = function (_Element) {
     _this.fullWidth = undefined;
     return _this;
   }
-  _createClass(Legend, [{
-    key: "beforeUpdate",
-    value: function beforeUpdate() {}
-  }, {
-    key: "update",
-    value: function update(maxWidth, maxHeight, margins) {
-      var me = this;
-      me.beforeUpdate();
-      me.maxWidth = maxWidth;
-      me.maxHeight = maxHeight;
-      me._margins = margins;
-      me.beforeSetDimensions();
-      me.setDimensions();
-      me.afterSetDimensions();
-      me.beforeBuildLabels();
-      me.buildLabels();
-      me.afterBuildLabels();
-      me.beforeFit();
-      me.fit();
-      me.afterFit();
-      me.afterUpdate();
+  var _proto = Legend.prototype;
+  _proto.beforeUpdate = function beforeUpdate() {};
+  _proto.update = function update(maxWidth, maxHeight, margins) {
+    var me = this;
+    me.beforeUpdate();
+    me.maxWidth = maxWidth;
+    me.maxHeight = maxHeight;
+    me._margins = margins;
+    me.beforeSetDimensions();
+    me.setDimensions();
+    me.afterSetDimensions();
+    me.beforeBuildLabels();
+    me.buildLabels();
+    me.afterBuildLabels();
+    me.beforeFit();
+    me.fit();
+    me.afterFit();
+    me.afterUpdate();
+  };
+  _proto.afterUpdate = function afterUpdate() {};
+  _proto.beforeSetDimensions = function beforeSetDimensions() {};
+  _proto.setDimensions = function setDimensions() {
+    var me = this;
+    if (me.isHorizontal()) {
+      me.width = me.maxWidth;
+      me.left = 0;
+      me.right = me.width;
+    } else {
+      me.height = me.maxHeight;
+      me.top = 0;
+      me.bottom = me.height;
     }
-  }, {
-    key: "afterUpdate",
-    value: function afterUpdate() {}
-  }, {
-    key: "beforeSetDimensions",
-    value: function beforeSetDimensions() {}
-  }, {
-    key: "setDimensions",
-    value: function setDimensions() {
-      var me = this;
-      if (me.isHorizontal()) {
-        me.width = me.maxWidth;
-        me.left = 0;
-        me.right = me.width;
-      } else {
-        me.height = me.maxHeight;
-        me.top = 0;
-        me.bottom = me.height;
-      }
-      me.paddingLeft = 0;
-      me.paddingTop = 0;
-      me.paddingRight = 0;
-      me.paddingBottom = 0;
-      me._minSize = {
-        width: 0,
-        height: 0
-      };
-    }
-  }, {
-    key: "afterSetDimensions",
-    value: function afterSetDimensions() {}
-  }, {
-    key: "beforeBuildLabels",
-    value: function beforeBuildLabels() {}
-  }, {
-    key: "buildLabels",
-    value: function buildLabels() {
-      var me = this;
-      var labelOpts = me.options.labels || {};
-      var legendItems = callback(labelOpts.generateLabels, [me.chart], me) || [];
-      if (labelOpts.filter) {
-        legendItems = legendItems.filter(function (item) {
-          return labelOpts.filter(item, me.chart.data);
-        });
-      }
-      if (me.options.reverse) {
-        legendItems.reverse();
-      }
-      me.legendItems = legendItems;
-    }
-  }, {
-    key: "afterBuildLabels",
-    value: function afterBuildLabels() {}
-  }, {
-    key: "beforeFit",
-    value: function beforeFit() {}
-  }, {
-    key: "fit",
-    value: function fit() {
-      var me = this;
-      var opts = me.options;
-      var labelOpts = opts.labels;
-      var display = opts.display;
-      var ctx = me.ctx;
-      var labelFont = toFont(labelOpts.font);
-      var fontSize = labelFont.size;
-      var boxWidth = getBoxWidth(labelOpts, fontSize);
-      var boxHeight = getBoxHeight(labelOpts, fontSize);
-      var itemHeight = Math.max(boxHeight, fontSize);
-      var hitboxes = me.legendHitBoxes = [];
-      var minSize = me._minSize;
-      var isHorizontal = me.isHorizontal();
-      var titleHeight = me._computeTitleHeight();
-      if (isHorizontal) {
-        minSize.width = me.maxWidth;
-        minSize.height = display ? 10 : 0;
-      } else {
-        minSize.width = display ? 10 : 0;
-        minSize.height = me.maxHeight;
-      }
-      if (!display) {
-        me.width = minSize.width = me.height = minSize.height = 0;
-        return;
-      }
-      ctx.font = labelFont.string;
-      if (isHorizontal) {
-        var lineWidths = me.lineWidths = [0];
-        var totalHeight = titleHeight;
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'middle';
-        me.legendItems.forEach(function (legendItem, i) {
-          var width = boxWidth + fontSize / 2 + ctx.measureText(legendItem.text).width;
-          if (i === 0 || lineWidths[lineWidths.length - 1] + width + 2 * labelOpts.padding > minSize.width) {
-            totalHeight += itemHeight + labelOpts.padding;
-            lineWidths[lineWidths.length - (i > 0 ? 0 : 1)] = 0;
-          }
-          hitboxes[i] = {
-            left: 0,
-            top: 0,
-            width: width,
-            height: itemHeight
-          };
-          lineWidths[lineWidths.length - 1] += width + labelOpts.padding;
-        });
-        minSize.height += totalHeight;
-      } else {
-        var vPadding = labelOpts.padding;
-        var columnWidths = me.columnWidths = [];
-        var columnHeights = me.columnHeights = [];
-        var totalWidth = labelOpts.padding;
-        var currentColWidth = 0;
-        var currentColHeight = 0;
-        var heightLimit = minSize.height - titleHeight;
-        me.legendItems.forEach(function (legendItem, i) {
-          var itemWidth = boxWidth + fontSize / 2 + ctx.measureText(legendItem.text).width;
-          if (i > 0 && currentColHeight + fontSize + 2 * vPadding > heightLimit) {
-            totalWidth += currentColWidth + labelOpts.padding;
-            columnWidths.push(currentColWidth);
-            columnHeights.push(currentColHeight);
-            currentColWidth = 0;
-            currentColHeight = 0;
-          }
-          currentColWidth = Math.max(currentColWidth, itemWidth);
-          currentColHeight += fontSize + vPadding;
-          hitboxes[i] = {
-            left: 0,
-            top: 0,
-            width: itemWidth,
-            height: itemHeight
-          };
-        });
-        totalWidth += currentColWidth;
-        columnWidths.push(currentColWidth);
-        columnHeights.push(currentColHeight);
-        minSize.width += totalWidth;
-      }
-      me.width = minSize.width;
-      me.height = minSize.height;
-    }
-  }, {
-    key: "afterFit",
-    value: function afterFit() {}
-  }, {
-    key: "isHorizontal",
-    value: function isHorizontal() {
-      return this.options.position === 'top' || this.options.position === 'bottom';
-    }
-  }, {
-    key: "draw",
-    value: function draw() {
-      var me = this;
-      var opts = me.options;
-      var labelOpts = opts.labels;
-      var defaultColor = defaults.color;
-      var lineDefault = defaults.elements.line;
-      var legendHeight = me.height;
-      var columnHeights = me.columnHeights;
-      var legendWidth = me.width;
-      var lineWidths = me.lineWidths;
-      if (!opts.display) {
-        return;
-      }
-      me.drawTitle();
-      var rtlHelper = getRtlAdapter(opts.rtl, me.left, me._minSize.width);
-      var ctx = me.ctx;
-      var labelFont = toFont(labelOpts.font);
-      var fontColor = labelFont.color;
-      var fontSize = labelFont.size;
-      var cursor;
-      ctx.textAlign = rtlHelper.textAlign('left');
-      ctx.textBaseline = 'middle';
-      ctx.lineWidth = 0.5;
-      ctx.strokeStyle = fontColor;
-      ctx.fillStyle = fontColor;
-      ctx.font = labelFont.string;
-      var boxWidth = getBoxWidth(labelOpts, fontSize);
-      var boxHeight = getBoxHeight(labelOpts, fontSize);
-      var height = Math.max(fontSize, boxHeight);
-      var hitboxes = me.legendHitBoxes;
-      var drawLegendBox = function drawLegendBox(x, y, legendItem) {
-        if (isNaN(boxWidth) || boxWidth <= 0 || isNaN(boxHeight) || boxHeight < 0) {
-          return;
-        }
-        ctx.save();
-        var lineWidth = valueOrDefault(legendItem.lineWidth, lineDefault.borderWidth);
-        ctx.fillStyle = valueOrDefault(legendItem.fillStyle, defaultColor);
-        ctx.lineCap = valueOrDefault(legendItem.lineCap, lineDefault.borderCapStyle);
-        ctx.lineDashOffset = valueOrDefault(legendItem.lineDashOffset, lineDefault.borderDashOffset);
-        ctx.lineJoin = valueOrDefault(legendItem.lineJoin, lineDefault.borderJoinStyle);
-        ctx.lineWidth = lineWidth;
-        ctx.strokeStyle = valueOrDefault(legendItem.strokeStyle, defaultColor);
-        if (ctx.setLineDash) {
-          ctx.setLineDash(valueOrDefault(legendItem.lineDash, lineDefault.borderDash));
-        }
-        if (labelOpts && labelOpts.usePointStyle) {
-          var drawOptions = {
-            radius: boxWidth * Math.SQRT2 / 2,
-            pointStyle: legendItem.pointStyle,
-            rotation: legendItem.rotation,
-            borderWidth: lineWidth
-          };
-          var centerX = rtlHelper.xPlus(x, boxWidth / 2);
-          var centerY = y + fontSize / 2;
-          drawPoint(ctx, drawOptions, centerX, centerY);
-        } else {
-          var yBoxTop = y + Math.max((fontSize - boxHeight) / 2, 0);
-          ctx.fillRect(rtlHelper.leftForLtr(x, boxWidth), yBoxTop, boxWidth, boxHeight);
-          if (lineWidth !== 0) {
-            ctx.strokeRect(rtlHelper.leftForLtr(x, boxWidth), yBoxTop, boxWidth, boxHeight);
-          }
-        }
-        ctx.restore();
-      };
-      var fillText = function fillText(x, y, legendItem, textWidth) {
-        var halfFontSize = fontSize / 2;
-        var xLeft = rtlHelper.xPlus(x, boxWidth + halfFontSize);
-        var yMiddle = y + height / 2;
-        ctx.fillText(legendItem.text, xLeft, yMiddle);
-        if (legendItem.hidden) {
-          ctx.beginPath();
-          ctx.lineWidth = 2;
-          ctx.moveTo(xLeft, yMiddle);
-          ctx.lineTo(rtlHelper.xPlus(xLeft, textWidth), yMiddle);
-          ctx.stroke();
-        }
-      };
-      var alignmentOffset = function alignmentOffset(dimension, blockSize) {
-        switch (opts.align) {
-          case 'start':
-            return labelOpts.padding;
-          case 'end':
-            return dimension - blockSize;
-          default:
-            return (dimension - blockSize + labelOpts.padding) / 2;
-        }
-      };
-      var isHorizontal = me.isHorizontal();
-      var titleHeight = this._computeTitleHeight();
-      if (isHorizontal) {
-        cursor = {
-          x: me.left + alignmentOffset(legendWidth, lineWidths[0]),
-          y: me.top + labelOpts.padding + titleHeight,
-          line: 0
-        };
-      } else {
-        cursor = {
-          x: me.left + labelOpts.padding,
-          y: me.top + alignmentOffset(legendHeight, columnHeights[0]) + titleHeight,
-          line: 0
-        };
-      }
-      overrideTextDirection(me.ctx, opts.textDirection);
-      var itemHeight = height + labelOpts.padding;
-      me.legendItems.forEach(function (legendItem, i) {
-        var textWidth = ctx.measureText(legendItem.text).width;
-        var width = boxWidth + fontSize / 2 + textWidth;
-        var x = cursor.x;
-        var y = cursor.y;
-        rtlHelper.setWidth(me._minSize.width);
-        if (isHorizontal) {
-          if (i > 0 && x + width + labelOpts.padding > me.left + me._minSize.width) {
-            y = cursor.y += itemHeight;
-            cursor.line++;
-            x = cursor.x = me.left + alignmentOffset(legendWidth, lineWidths[cursor.line]);
-          }
-        } else if (i > 0 && y + itemHeight > me.top + me._minSize.height) {
-          x = cursor.x = x + me.columnWidths[cursor.line] + labelOpts.padding;
-          cursor.line++;
-          y = cursor.y = me.top + alignmentOffset(legendHeight, columnHeights[cursor.line]);
-        }
-        var realX = rtlHelper.x(x);
-        drawLegendBox(realX, y, legendItem);
-        hitboxes[i].left = rtlHelper.leftForLtr(realX, hitboxes[i].width);
-        hitboxes[i].top = y;
-        fillText(realX, y, legendItem, textWidth);
-        if (isHorizontal) {
-          cursor.x += width + labelOpts.padding;
-        } else {
-          cursor.y += itemHeight;
-        }
+    me.paddingLeft = 0;
+    me.paddingTop = 0;
+    me.paddingRight = 0;
+    me.paddingBottom = 0;
+    me._minSize = {
+      width: 0,
+      height: 0
+    };
+  };
+  _proto.afterSetDimensions = function afterSetDimensions() {};
+  _proto.beforeBuildLabels = function beforeBuildLabels() {};
+  _proto.buildLabels = function buildLabels() {
+    var me = this;
+    var labelOpts = me.options.labels || {};
+    var legendItems = callback(labelOpts.generateLabels, [me.chart], me) || [];
+    if (labelOpts.filter) {
+      legendItems = legendItems.filter(function (item) {
+        return labelOpts.filter(item, me.chart.data);
       });
-      restoreTextDirection(me.ctx, opts.textDirection);
     }
-  }, {
-    key: "drawTitle",
-    value: function drawTitle() {
-      var me = this;
-      var opts = me.options;
-      var titleOpts = opts.title;
-      var titleFont = toFont(titleOpts.font);
-      var titlePadding = toPadding(titleOpts.padding);
-      if (!titleOpts.display) {
+    if (me.options.reverse) {
+      legendItems.reverse();
+    }
+    me.legendItems = legendItems;
+  };
+  _proto.afterBuildLabels = function afterBuildLabels() {};
+  _proto.beforeFit = function beforeFit() {};
+  _proto.fit = function fit() {
+    var me = this;
+    var opts = me.options;
+    var labelOpts = opts.labels;
+    var display = opts.display;
+    var ctx = me.ctx;
+    var labelFont = toFont(labelOpts.font);
+    var fontSize = labelFont.size;
+    var boxWidth = getBoxWidth(labelOpts, fontSize);
+    var boxHeight = getBoxHeight(labelOpts, fontSize);
+    var itemHeight = Math.max(boxHeight, fontSize);
+    var hitboxes = me.legendHitBoxes = [];
+    var minSize = me._minSize;
+    var isHorizontal = me.isHorizontal();
+    var titleHeight = me._computeTitleHeight();
+    if (isHorizontal) {
+      minSize.width = me.maxWidth;
+      minSize.height = display ? 10 : 0;
+    } else {
+      minSize.width = display ? 10 : 0;
+      minSize.height = me.maxHeight;
+    }
+    if (!display) {
+      me.width = minSize.width = me.height = minSize.height = 0;
+      return;
+    }
+    ctx.font = labelFont.string;
+    if (isHorizontal) {
+      var lineWidths = me.lineWidths = [0];
+      var totalHeight = titleHeight;
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      me.legendItems.forEach(function (legendItem, i) {
+        var width = boxWidth + fontSize / 2 + ctx.measureText(legendItem.text).width;
+        if (i === 0 || lineWidths[lineWidths.length - 1] + width + 2 * labelOpts.padding > minSize.width) {
+          totalHeight += itemHeight + labelOpts.padding;
+          lineWidths[lineWidths.length - (i > 0 ? 0 : 1)] = 0;
+        }
+        hitboxes[i] = {
+          left: 0,
+          top: 0,
+          width: width,
+          height: itemHeight
+        };
+        lineWidths[lineWidths.length - 1] += width + labelOpts.padding;
+      });
+      minSize.height += totalHeight;
+    } else {
+      var vPadding = labelOpts.padding;
+      var columnWidths = me.columnWidths = [];
+      var columnHeights = me.columnHeights = [];
+      var totalWidth = labelOpts.padding;
+      var currentColWidth = 0;
+      var currentColHeight = 0;
+      var heightLimit = minSize.height - titleHeight;
+      me.legendItems.forEach(function (legendItem, i) {
+        var itemWidth = boxWidth + fontSize / 2 + ctx.measureText(legendItem.text).width;
+        if (i > 0 && currentColHeight + fontSize + 2 * vPadding > heightLimit) {
+          totalWidth += currentColWidth + labelOpts.padding;
+          columnWidths.push(currentColWidth);
+          columnHeights.push(currentColHeight);
+          currentColWidth = 0;
+          currentColHeight = 0;
+        }
+        currentColWidth = Math.max(currentColWidth, itemWidth);
+        currentColHeight += fontSize + vPadding;
+        hitboxes[i] = {
+          left: 0,
+          top: 0,
+          width: itemWidth,
+          height: itemHeight
+        };
+      });
+      totalWidth += currentColWidth;
+      columnWidths.push(currentColWidth);
+      columnHeights.push(currentColHeight);
+      minSize.width += totalWidth;
+    }
+    me.width = minSize.width;
+    me.height = minSize.height;
+  };
+  _proto.afterFit = function afterFit() {}
+  ;
+  _proto.isHorizontal = function isHorizontal() {
+    return this.options.position === 'top' || this.options.position === 'bottom';
+  }
+  ;
+  _proto.draw = function draw() {
+    var me = this;
+    var opts = me.options;
+    var labelOpts = opts.labels;
+    var defaultColor = defaults.color;
+    var lineDefault = defaults.elements.line;
+    var legendHeight = me.height;
+    var columnHeights = me.columnHeights;
+    var legendWidth = me.width;
+    var lineWidths = me.lineWidths;
+    if (!opts.display) {
+      return;
+    }
+    me.drawTitle();
+    var rtlHelper = getRtlAdapter(opts.rtl, me.left, me._minSize.width);
+    var ctx = me.ctx;
+    var labelFont = toFont(labelOpts.font);
+    var fontColor = labelFont.color;
+    var fontSize = labelFont.size;
+    var cursor;
+    ctx.textAlign = rtlHelper.textAlign('left');
+    ctx.textBaseline = 'middle';
+    ctx.lineWidth = 0.5;
+    ctx.strokeStyle = fontColor;
+    ctx.fillStyle = fontColor;
+    ctx.font = labelFont.string;
+    var boxWidth = getBoxWidth(labelOpts, fontSize);
+    var boxHeight = getBoxHeight(labelOpts, fontSize);
+    var height = Math.max(fontSize, boxHeight);
+    var hitboxes = me.legendHitBoxes;
+    var drawLegendBox = function drawLegendBox(x, y, legendItem) {
+      if (isNaN(boxWidth) || boxWidth <= 0 || isNaN(boxHeight) || boxHeight < 0) {
         return;
       }
-      var rtlHelper = getRtlAdapter(opts.rtl, me.left, me._minSize.width);
-      var ctx = me.ctx;
-      var position = titleOpts.position;
-      var x, textAlign;
-      var halfFontSize = titleFont.size / 2;
-      var y = me.top + titlePadding.top + halfFontSize;
-      var left = me.left;
-      var maxWidth = me.width;
-      if (this.isHorizontal()) {
-        maxWidth = Math.max.apply(Math, _toConsumableArray(me.lineWidths));
-        switch (opts.align) {
-          case 'start':
-            break;
-          case 'end':
-            left = me.right - maxWidth;
-            break;
-          default:
-            left = (me.left + me.right) / 2 - maxWidth / 2;
-            break;
-        }
+      ctx.save();
+      var lineWidth = valueOrDefault(legendItem.lineWidth, lineDefault.borderWidth);
+      ctx.fillStyle = valueOrDefault(legendItem.fillStyle, defaultColor);
+      ctx.lineCap = valueOrDefault(legendItem.lineCap, lineDefault.borderCapStyle);
+      ctx.lineDashOffset = valueOrDefault(legendItem.lineDashOffset, lineDefault.borderDashOffset);
+      ctx.lineJoin = valueOrDefault(legendItem.lineJoin, lineDefault.borderJoinStyle);
+      ctx.lineWidth = lineWidth;
+      ctx.strokeStyle = valueOrDefault(legendItem.strokeStyle, defaultColor);
+      if (ctx.setLineDash) {
+        ctx.setLineDash(valueOrDefault(legendItem.lineDash, lineDefault.borderDash));
+      }
+      if (labelOpts && labelOpts.usePointStyle) {
+        var drawOptions = {
+          radius: boxWidth * Math.SQRT2 / 2,
+          pointStyle: legendItem.pointStyle,
+          rotation: legendItem.rotation,
+          borderWidth: lineWidth
+        };
+        var centerX = rtlHelper.xPlus(x, boxWidth / 2);
+        var centerY = y + fontSize / 2;
+        drawPoint(ctx, drawOptions, centerX, centerY);
       } else {
-        var maxHeight = Math.max.apply(Math, _toConsumableArray(me.columnHeights));
-        switch (opts.align) {
-          case 'start':
-            break;
-          case 'end':
-            y += me.height - maxHeight;
-            break;
-          default:
-            y += (me.height - maxHeight) / 2;
-            break;
+        var yBoxTop = y + Math.max((fontSize - boxHeight) / 2, 0);
+        ctx.fillRect(rtlHelper.leftForLtr(x, boxWidth), yBoxTop, boxWidth, boxHeight);
+        if (lineWidth !== 0) {
+          ctx.strokeRect(rtlHelper.leftForLtr(x, boxWidth), yBoxTop, boxWidth, boxHeight);
         }
       }
-      switch (position) {
+      ctx.restore();
+    };
+    var fillText = function fillText(x, y, legendItem, textWidth) {
+      var halfFontSize = fontSize / 2;
+      var xLeft = rtlHelper.xPlus(x, boxWidth + halfFontSize);
+      var yMiddle = y + height / 2;
+      ctx.fillText(legendItem.text, xLeft, yMiddle);
+      if (legendItem.hidden) {
+        ctx.beginPath();
+        ctx.lineWidth = 2;
+        ctx.moveTo(xLeft, yMiddle);
+        ctx.lineTo(rtlHelper.xPlus(xLeft, textWidth), yMiddle);
+        ctx.stroke();
+      }
+    };
+    var alignmentOffset = function alignmentOffset(dimension, blockSize) {
+      switch (opts.align) {
         case 'start':
-          x = left;
-          textAlign = 'left';
+          return labelOpts.padding;
+        case 'end':
+          return dimension - blockSize;
+        default:
+          return (dimension - blockSize + labelOpts.padding) / 2;
+      }
+    };
+    var isHorizontal = me.isHorizontal();
+    var titleHeight = this._computeTitleHeight();
+    if (isHorizontal) {
+      cursor = {
+        x: me.left + alignmentOffset(legendWidth, lineWidths[0]),
+        y: me.top + labelOpts.padding + titleHeight,
+        line: 0
+      };
+    } else {
+      cursor = {
+        x: me.left + labelOpts.padding,
+        y: me.top + alignmentOffset(legendHeight, columnHeights[0]) + titleHeight,
+        line: 0
+      };
+    }
+    overrideTextDirection(me.ctx, opts.textDirection);
+    var itemHeight = height + labelOpts.padding;
+    me.legendItems.forEach(function (legendItem, i) {
+      var textWidth = ctx.measureText(legendItem.text).width;
+      var width = boxWidth + fontSize / 2 + textWidth;
+      var x = cursor.x;
+      var y = cursor.y;
+      rtlHelper.setWidth(me._minSize.width);
+      if (isHorizontal) {
+        if (i > 0 && x + width + labelOpts.padding > me.left + me._minSize.width) {
+          y = cursor.y += itemHeight;
+          cursor.line++;
+          x = cursor.x = me.left + alignmentOffset(legendWidth, lineWidths[cursor.line]);
+        }
+      } else if (i > 0 && y + itemHeight > me.top + me._minSize.height) {
+        x = cursor.x = x + me.columnWidths[cursor.line] + labelOpts.padding;
+        cursor.line++;
+        y = cursor.y = me.top + alignmentOffset(legendHeight, columnHeights[cursor.line]);
+      }
+      var realX = rtlHelper.x(x);
+      drawLegendBox(realX, y, legendItem);
+      hitboxes[i].left = rtlHelper.leftForLtr(realX, hitboxes[i].width);
+      hitboxes[i].top = y;
+      fillText(realX, y, legendItem, textWidth);
+      if (isHorizontal) {
+        cursor.x += width + labelOpts.padding;
+      } else {
+        cursor.y += itemHeight;
+      }
+    });
+    restoreTextDirection(me.ctx, opts.textDirection);
+  }
+  ;
+  _proto.drawTitle = function drawTitle() {
+    var me = this;
+    var opts = me.options;
+    var titleOpts = opts.title;
+    var titleFont = toFont(titleOpts.font);
+    var titlePadding = toPadding(titleOpts.padding);
+    if (!titleOpts.display) {
+      return;
+    }
+    var rtlHelper = getRtlAdapter(opts.rtl, me.left, me._minSize.width);
+    var ctx = me.ctx;
+    var position = titleOpts.position;
+    var x, textAlign;
+    var halfFontSize = titleFont.size / 2;
+    var y = me.top + titlePadding.top + halfFontSize;
+    var left = me.left;
+    var maxWidth = me.width;
+    if (this.isHorizontal()) {
+      maxWidth = Math.max.apply(Math, me.lineWidths);
+      switch (opts.align) {
+        case 'start':
           break;
         case 'end':
-          x = left + maxWidth;
-          textAlign = 'right';
+          left = me.right - maxWidth;
           break;
         default:
-          x = left + maxWidth / 2;
-          textAlign = 'center';
+          left = (me.left + me.right) / 2 - maxWidth / 2;
           break;
       }
-      ctx.textAlign = rtlHelper.textAlign(textAlign);
-      ctx.textBaseline = 'middle';
-      ctx.strokeStyle = titleFont.color;
-      ctx.fillStyle = titleFont.color;
-      ctx.font = titleFont.string;
-      ctx.fillText(titleOpts.text, x, y);
+    } else {
+      var maxHeight = Math.max.apply(Math, me.columnHeights);
+      switch (opts.align) {
+        case 'start':
+          break;
+        case 'end':
+          y += me.height - maxHeight;
+          break;
+        default:
+          y += (me.height - maxHeight) / 2;
+          break;
+      }
     }
-  }, {
-    key: "_computeTitleHeight",
-    value: function _computeTitleHeight() {
-      var titleOpts = this.options.title;
-      var titleFont = toFont(titleOpts.font);
-      var titlePadding = toPadding(titleOpts.padding);
-      return titleOpts.display ? titleFont.lineHeight + titlePadding.height : 0;
+    switch (position) {
+      case 'start':
+        x = left;
+        textAlign = 'left';
+        break;
+      case 'end':
+        x = left + maxWidth;
+        textAlign = 'right';
+        break;
+      default:
+        x = left + maxWidth / 2;
+        textAlign = 'center';
+        break;
     }
-  }, {
-    key: "_getLegendItemAt",
-    value: function _getLegendItemAt(x, y) {
-      var me = this;
-      var i, hitBox, lh;
-      if (x >= me.left && x <= me.right && y >= me.top && y <= me.bottom) {
-        lh = me.legendHitBoxes;
-        for (i = 0; i < lh.length; ++i) {
-          hitBox = lh[i];
-          if (x >= hitBox.left && x <= hitBox.left + hitBox.width && y >= hitBox.top && y <= hitBox.top + hitBox.height) {
-            return me.legendItems[i];
-          }
+    ctx.textAlign = rtlHelper.textAlign(textAlign);
+    ctx.textBaseline = 'middle';
+    ctx.strokeStyle = titleFont.color;
+    ctx.fillStyle = titleFont.color;
+    ctx.font = titleFont.string;
+    ctx.fillText(titleOpts.text, x, y);
+  }
+  ;
+  _proto._computeTitleHeight = function _computeTitleHeight() {
+    var titleOpts = this.options.title;
+    var titleFont = toFont(titleOpts.font);
+    var titlePadding = toPadding(titleOpts.padding);
+    return titleOpts.display ? titleFont.lineHeight + titlePadding.height : 0;
+  }
+  ;
+  _proto._getLegendItemAt = function _getLegendItemAt(x, y) {
+    var me = this;
+    var i, hitBox, lh;
+    if (x >= me.left && x <= me.right && y >= me.top && y <= me.bottom) {
+      lh = me.legendHitBoxes;
+      for (i = 0; i < lh.length; ++i) {
+        hitBox = lh[i];
+        if (x >= hitBox.left && x <= hitBox.left + hitBox.width && y >= hitBox.top && y <= hitBox.top + hitBox.height) {
+          return me.legendItems[i];
         }
       }
-      return null;
     }
-  }, {
-    key: "handleEvent",
-    value: function handleEvent(e) {
-      var me = this;
-      var opts = me.options;
-      var type = e.type === 'mouseup' ? 'click' : e.type;
-      if (type === 'mousemove') {
-        if (!opts.onHover && !opts.onLeave) {
-          return;
-        }
-      } else if (type === 'click') {
-        if (!opts.onClick) {
-          return;
-        }
-      } else {
+    return null;
+  }
+  ;
+  _proto.handleEvent = function handleEvent(e) {
+    var me = this;
+    var opts = me.options;
+    var type = e.type === 'mouseup' ? 'click' : e.type;
+    if (type === 'mousemove') {
+      if (!opts.onHover && !opts.onLeave) {
         return;
       }
-      var hoveredItem = me._getLegendItemAt(e.x, e.y);
-      if (type === 'click') {
-        if (hoveredItem) {
-          callback(opts.onClick, [e, hoveredItem, me], me);
+    } else if (type === 'click') {
+      if (!opts.onClick) {
+        return;
+      }
+    } else {
+      return;
+    }
+    var hoveredItem = me._getLegendItemAt(e.x, e.y);
+    if (type === 'click') {
+      if (hoveredItem) {
+        callback(opts.onClick, [e, hoveredItem, me], me);
+      }
+    } else {
+      if (opts.onLeave && hoveredItem !== me._hoveredItem) {
+        if (me._hoveredItem) {
+          callback(opts.onLeave, [e, me._hoveredItem, me], me);
         }
-      } else {
-        if (opts.onLeave && hoveredItem !== me._hoveredItem) {
-          if (me._hoveredItem) {
-            callback(opts.onLeave, [e, me._hoveredItem, me], me);
-          }
-          me._hoveredItem = hoveredItem;
-        }
-        if (hoveredItem) {
-          callback(opts.onHover, [e, hoveredItem, me], me);
-        }
+        me._hoveredItem = hoveredItem;
+      }
+      if (hoveredItem) {
+        callback(opts.onHover, [e, hoveredItem, me], me);
       }
     }
-  }]);
+  };
   return Legend;
 }(Element$1);
 function createNewLegendAndAttach(chart, legendOpts) {
@@ -12113,12 +11314,10 @@ defaults.set('title', {
   weight: 2000
 });
 var Title = function (_Element) {
-  _inherits(Title, _Element);
-  var _super = _createSuper(Title);
+  _inheritsLoose(Title, _Element);
   function Title(config) {
     var _this;
-    _classCallCheck(this, Title);
-    _this = _super.call(this);
+    _this = _Element.call(this) || this;
     _extends(_assertThisInitialized(_this), config);
     _this.chart = config.chart;
     _this.options = config.options;
@@ -12139,164 +11338,138 @@ var Title = function (_Element) {
     _this.fullWidth = undefined;
     return _this;
   }
-  _createClass(Title, [{
-    key: "beforeUpdate",
-    value: function beforeUpdate() {}
-  }, {
-    key: "update",
-    value: function update(maxWidth, maxHeight, margins) {
-      var me = this;
-      me.beforeUpdate();
-      me.maxWidth = maxWidth;
-      me.maxHeight = maxHeight;
-      me._margins = margins;
-      me.beforeSetDimensions();
-      me.setDimensions();
-      me.afterSetDimensions();
-      me.beforeBuildLabels();
-      me.buildLabels();
-      me.afterBuildLabels();
-      me.beforeFit();
-      me.fit();
-      me.afterFit();
-      me.afterUpdate();
+  var _proto = Title.prototype;
+  _proto.beforeUpdate = function beforeUpdate() {};
+  _proto.update = function update(maxWidth, maxHeight, margins) {
+    var me = this;
+    me.beforeUpdate();
+    me.maxWidth = maxWidth;
+    me.maxHeight = maxHeight;
+    me._margins = margins;
+    me.beforeSetDimensions();
+    me.setDimensions();
+    me.afterSetDimensions();
+    me.beforeBuildLabels();
+    me.buildLabels();
+    me.afterBuildLabels();
+    me.beforeFit();
+    me.fit();
+    me.afterFit();
+    me.afterUpdate();
+  };
+  _proto.afterUpdate = function afterUpdate() {};
+  _proto.beforeSetDimensions = function beforeSetDimensions() {};
+  _proto.setDimensions = function setDimensions() {
+    var me = this;
+    if (me.isHorizontal()) {
+      me.width = me.maxWidth;
+      me.left = 0;
+      me.right = me.width;
+    } else {
+      me.height = me.maxHeight;
+      me.top = 0;
+      me.bottom = me.height;
     }
-  }, {
-    key: "afterUpdate",
-    value: function afterUpdate() {}
-  }, {
-    key: "beforeSetDimensions",
-    value: function beforeSetDimensions() {}
-  }, {
-    key: "setDimensions",
-    value: function setDimensions() {
-      var me = this;
-      if (me.isHorizontal()) {
-        me.width = me.maxWidth;
-        me.left = 0;
-        me.right = me.width;
-      } else {
-        me.height = me.maxHeight;
-        me.top = 0;
-        me.bottom = me.height;
-      }
+  };
+  _proto.afterSetDimensions = function afterSetDimensions() {};
+  _proto.beforeBuildLabels = function beforeBuildLabels() {};
+  _proto.buildLabels = function buildLabels() {};
+  _proto.afterBuildLabels = function afterBuildLabels() {};
+  _proto.beforeFit = function beforeFit() {};
+  _proto.fit = function fit() {
+    var me = this;
+    var opts = me.options;
+    var minSize = {};
+    var isHorizontal = me.isHorizontal();
+    if (!opts.display) {
+      me.width = minSize.width = me.height = minSize.height = 0;
+      return;
     }
-  }, {
-    key: "afterSetDimensions",
-    value: function afterSetDimensions() {}
-  }, {
-    key: "beforeBuildLabels",
-    value: function beforeBuildLabels() {}
-  }, {
-    key: "buildLabels",
-    value: function buildLabels() {}
-  }, {
-    key: "afterBuildLabels",
-    value: function afterBuildLabels() {}
-  }, {
-    key: "beforeFit",
-    value: function beforeFit() {}
-  }, {
-    key: "fit",
-    value: function fit() {
-      var me = this;
-      var opts = me.options;
-      var minSize = {};
-      var isHorizontal = me.isHorizontal();
-      if (!opts.display) {
-        me.width = minSize.width = me.height = minSize.height = 0;
-        return;
-      }
-      var lineCount = isArray(opts.text) ? opts.text.length : 1;
-      me._padding = toPadding(opts.padding);
-      var textSize = lineCount * toFont(opts.font).lineHeight + me._padding.height;
-      me.width = minSize.width = isHorizontal ? me.maxWidth : textSize;
-      me.height = minSize.height = isHorizontal ? textSize : me.maxHeight;
+    var lineCount = isArray(opts.text) ? opts.text.length : 1;
+    me._padding = toPadding(opts.padding);
+    var textSize = lineCount * toFont(opts.font).lineHeight + me._padding.height;
+    me.width = minSize.width = isHorizontal ? me.maxWidth : textSize;
+    me.height = minSize.height = isHorizontal ? textSize : me.maxHeight;
+  };
+  _proto.afterFit = function afterFit() {}
+  ;
+  _proto.isHorizontal = function isHorizontal() {
+    var pos = this.options.position;
+    return pos === 'top' || pos === 'bottom';
+  }
+  ;
+  _proto.draw = function draw() {
+    var me = this;
+    var ctx = me.ctx;
+    var opts = me.options;
+    if (!opts.display) {
+      return;
     }
-  }, {
-    key: "afterFit",
-    value: function afterFit() {}
-  }, {
-    key: "isHorizontal",
-    value: function isHorizontal() {
-      var pos = this.options.position;
-      return pos === 'top' || pos === 'bottom';
+    var fontOpts = toFont(opts);
+    var lineHeight = fontOpts.lineHeight;
+    var offset = lineHeight / 2 + me._padding.top;
+    var rotation = 0;
+    var top = me.top;
+    var left = me.left;
+    var bottom = me.bottom;
+    var right = me.right;
+    var maxWidth, titleX, titleY;
+    var align;
+    if (me.isHorizontal()) {
+      switch (opts.align) {
+        case 'start':
+          titleX = left;
+          align = 'left';
+          break;
+        case 'end':
+          titleX = right;
+          align = 'right';
+          break;
+        default:
+          titleX = left + (right - left) / 2;
+          align = 'center';
+          break;
+      }
+      titleY = top + offset;
+      maxWidth = right - left;
+    } else {
+      titleX = opts.position === 'left' ? left + offset : right - offset;
+      switch (opts.align) {
+        case 'start':
+          titleY = opts.position === 'left' ? bottom : top;
+          align = 'left';
+          break;
+        case 'end':
+          titleY = opts.position === 'left' ? top : bottom;
+          align = 'right';
+          break;
+        default:
+          titleY = top + (bottom - top) / 2;
+          align = 'center';
+          break;
+      }
+      maxWidth = bottom - top;
+      rotation = Math.PI * (opts.position === 'left' ? -0.5 : 0.5);
     }
-  }, {
-    key: "draw",
-    value: function draw() {
-      var me = this;
-      var ctx = me.ctx;
-      var opts = me.options;
-      if (!opts.display) {
-        return;
+    ctx.save();
+    ctx.fillStyle = fontOpts.color;
+    ctx.font = fontOpts.string;
+    ctx.translate(titleX, titleY);
+    ctx.rotate(rotation);
+    ctx.textAlign = align;
+    ctx.textBaseline = 'middle';
+    var text = opts.text;
+    if (isArray(text)) {
+      var y = 0;
+      for (var i = 0; i < text.length; ++i) {
+        ctx.fillText(text[i], 0, y, maxWidth);
+        y += lineHeight;
       }
-      var fontOpts = toFont(opts);
-      var lineHeight = fontOpts.lineHeight;
-      var offset = lineHeight / 2 + me._padding.top;
-      var rotation = 0;
-      var top = me.top;
-      var left = me.left;
-      var bottom = me.bottom;
-      var right = me.right;
-      var maxWidth, titleX, titleY;
-      var align;
-      if (me.isHorizontal()) {
-        switch (opts.align) {
-          case 'start':
-            titleX = left;
-            align = 'left';
-            break;
-          case 'end':
-            titleX = right;
-            align = 'right';
-            break;
-          default:
-            titleX = left + (right - left) / 2;
-            align = 'center';
-            break;
-        }
-        titleY = top + offset;
-        maxWidth = right - left;
-      } else {
-        titleX = opts.position === 'left' ? left + offset : right - offset;
-        switch (opts.align) {
-          case 'start':
-            titleY = opts.position === 'left' ? bottom : top;
-            align = 'left';
-            break;
-          case 'end':
-            titleY = opts.position === 'left' ? top : bottom;
-            align = 'right';
-            break;
-          default:
-            titleY = top + (bottom - top) / 2;
-            align = 'center';
-            break;
-        }
-        maxWidth = bottom - top;
-        rotation = Math.PI * (opts.position === 'left' ? -0.5 : 0.5);
-      }
-      ctx.save();
-      ctx.fillStyle = fontOpts.color;
-      ctx.font = fontOpts.string;
-      ctx.translate(titleX, titleY);
-      ctx.rotate(rotation);
-      ctx.textAlign = align;
-      ctx.textBaseline = 'middle';
-      var text = opts.text;
-      if (isArray(text)) {
-        var y = 0;
-        for (var i = 0; i < text.length; ++i) {
-          ctx.fillText(text[i], 0, y, maxWidth);
-          y += lineHeight;
-        }
-      } else {
-        ctx.fillText(text, 0, 0, maxWidth);
-      }
-      ctx.restore();
+    } else {
+      ctx.fillText(text, 0, 0, maxWidth);
     }
-  }]);
+    ctx.restore();
+  };
   return Title;
 }(Element$1);
 function createNewTitleBlockAndAttach(chart, titleOpts) {
@@ -12694,12 +11867,10 @@ function getBeforeAfterBodyLines(callback) {
   return pushOrConcat([], splitNewlines(callback));
 }
 var Tooltip = function (_Element) {
-  _inherits(Tooltip, _Element);
-  var _super = _createSuper(Tooltip);
+  _inheritsLoose(Tooltip, _Element);
   function Tooltip(config) {
     var _this;
-    _classCallCheck(this, Tooltip);
-    _this = _super.call(this);
+    _this = _Element.call(this) || this;
     _this.opacity = 0;
     _this._active = [];
     _this._chart = config._chart;
@@ -12727,475 +11898,447 @@ var Tooltip = function (_Element) {
     _this.initialize();
     return _this;
   }
-  _createClass(Tooltip, [{
-    key: "initialize",
-    value: function initialize() {
-      var me = this;
-      me.options = resolveOptions(me._chart.options.tooltips);
+  var _proto = Tooltip.prototype;
+  _proto.initialize = function initialize() {
+    var me = this;
+    me.options = resolveOptions(me._chart.options.tooltips);
+  }
+  ;
+  _proto._resolveAnimations = function _resolveAnimations() {
+    var me = this;
+    var cached = me._cachedAnimations;
+    if (cached) {
+      return cached;
     }
-  }, {
-    key: "_resolveAnimations",
-    value: function _resolveAnimations() {
-      var me = this;
-      var cached = me._cachedAnimations;
-      if (cached) {
-        return cached;
-      }
-      var chart = me._chart;
-      var opts = chart.options.animation && me.options.animation;
-      var animations = new Animations(me._chart, opts);
-      me._cachedAnimations = Object.freeze(animations);
-      return animations;
+    var chart = me._chart;
+    var opts = chart.options.animation && me.options.animation;
+    var animations = new Animations(me._chart, opts);
+    me._cachedAnimations = Object.freeze(animations);
+    return animations;
+  }
+  ;
+  _proto.getTitle = function getTitle(tooltipitem, data) {
+    var me = this;
+    var opts = me.options;
+    var callbacks = opts.callbacks;
+    var beforeTitle = callbacks.beforeTitle.apply(me, [tooltipitem, data]);
+    var title = callbacks.title.apply(me, [tooltipitem, data]);
+    var afterTitle = callbacks.afterTitle.apply(me, [tooltipitem, data]);
+    var lines = [];
+    lines = pushOrConcat(lines, splitNewlines(beforeTitle));
+    lines = pushOrConcat(lines, splitNewlines(title));
+    lines = pushOrConcat(lines, splitNewlines(afterTitle));
+    return lines;
+  }
+  ;
+  _proto.getBeforeBody = function getBeforeBody(tooltipitem, data) {
+    return getBeforeAfterBodyLines(this.options.callbacks.beforeBody.apply(this, [tooltipitem, data]));
+  }
+  ;
+  _proto.getBody = function getBody(tooltipItems, data) {
+    var me = this;
+    var callbacks = me.options.callbacks;
+    var bodyItems = [];
+    each(tooltipItems, function (tooltipItem) {
+      var bodyItem = {
+        before: [],
+        lines: [],
+        after: []
+      };
+      pushOrConcat(bodyItem.before, splitNewlines(callbacks.beforeLabel.call(me, tooltipItem, data)));
+      pushOrConcat(bodyItem.lines, callbacks.label.call(me, tooltipItem, data));
+      pushOrConcat(bodyItem.after, splitNewlines(callbacks.afterLabel.call(me, tooltipItem, data)));
+      bodyItems.push(bodyItem);
+    });
+    return bodyItems;
+  }
+  ;
+  _proto.getAfterBody = function getAfterBody(tooltipitem, data) {
+    return getBeforeAfterBodyLines(this.options.callbacks.afterBody.apply(this, [tooltipitem, data]));
+  }
+  ;
+  _proto.getFooter = function getFooter(tooltipitem, data) {
+    var me = this;
+    var callbacks = me.options.callbacks;
+    var beforeFooter = callbacks.beforeFooter.apply(me, [tooltipitem, data]);
+    var footer = callbacks.footer.apply(me, [tooltipitem, data]);
+    var afterFooter = callbacks.afterFooter.apply(me, [tooltipitem, data]);
+    var lines = [];
+    lines = pushOrConcat(lines, splitNewlines(beforeFooter));
+    lines = pushOrConcat(lines, splitNewlines(footer));
+    lines = pushOrConcat(lines, splitNewlines(afterFooter));
+    return lines;
+  }
+  ;
+  _proto._createItems = function _createItems() {
+    var me = this;
+    var active = me._active;
+    var options = me.options;
+    var data = me._chart.data;
+    var labelColors = [];
+    var labelTextColors = [];
+    var tooltipItems = [];
+    var i, len;
+    for (i = 0, len = active.length; i < len; ++i) {
+      tooltipItems.push(createTooltipItem(me._chart, active[i]));
     }
-  }, {
-    key: "getTitle",
-    value: function getTitle(tooltipitem, data) {
-      var me = this;
-      var opts = me.options;
-      var callbacks = opts.callbacks;
-      var beforeTitle = callbacks.beforeTitle.apply(me, [tooltipitem, data]);
-      var title = callbacks.title.apply(me, [tooltipitem, data]);
-      var afterTitle = callbacks.afterTitle.apply(me, [tooltipitem, data]);
-      var lines = [];
-      lines = pushOrConcat(lines, splitNewlines(beforeTitle));
-      lines = pushOrConcat(lines, splitNewlines(title));
-      lines = pushOrConcat(lines, splitNewlines(afterTitle));
-      return lines;
-    }
-  }, {
-    key: "getBeforeBody",
-    value: function getBeforeBody(tooltipitem, data) {
-      return getBeforeAfterBodyLines(this.options.callbacks.beforeBody.apply(this, [tooltipitem, data]));
-    }
-  }, {
-    key: "getBody",
-    value: function getBody(tooltipItems, data) {
-      var me = this;
-      var callbacks = me.options.callbacks;
-      var bodyItems = [];
-      each(tooltipItems, function (tooltipItem) {
-        var bodyItem = {
-          before: [],
-          lines: [],
-          after: []
-        };
-        pushOrConcat(bodyItem.before, splitNewlines(callbacks.beforeLabel.call(me, tooltipItem, data)));
-        pushOrConcat(bodyItem.lines, callbacks.label.call(me, tooltipItem, data));
-        pushOrConcat(bodyItem.after, splitNewlines(callbacks.afterLabel.call(me, tooltipItem, data)));
-        bodyItems.push(bodyItem);
+    if (options.filter) {
+      tooltipItems = tooltipItems.filter(function (a) {
+        return options.filter(a, data);
       });
-      return bodyItems;
     }
-  }, {
-    key: "getAfterBody",
-    value: function getAfterBody(tooltipitem, data) {
-      return getBeforeAfterBodyLines(this.options.callbacks.afterBody.apply(this, [tooltipitem, data]));
-    }
-  }, {
-    key: "getFooter",
-    value: function getFooter(tooltipitem, data) {
-      var me = this;
-      var callbacks = me.options.callbacks;
-      var beforeFooter = callbacks.beforeFooter.apply(me, [tooltipitem, data]);
-      var footer = callbacks.footer.apply(me, [tooltipitem, data]);
-      var afterFooter = callbacks.afterFooter.apply(me, [tooltipitem, data]);
-      var lines = [];
-      lines = pushOrConcat(lines, splitNewlines(beforeFooter));
-      lines = pushOrConcat(lines, splitNewlines(footer));
-      lines = pushOrConcat(lines, splitNewlines(afterFooter));
-      return lines;
-    }
-  }, {
-    key: "_createItems",
-    value: function _createItems() {
-      var me = this;
-      var active = me._active;
-      var options = me.options;
-      var data = me._chart.data;
-      var labelColors = [];
-      var labelTextColors = [];
-      var tooltipItems = [];
-      var i, len;
-      for (i = 0, len = active.length; i < len; ++i) {
-        tooltipItems.push(createTooltipItem(me._chart, active[i]));
-      }
-      if (options.filter) {
-        tooltipItems = tooltipItems.filter(function (a) {
-          return options.filter(a, data);
-        });
-      }
-      if (options.itemSort) {
-        tooltipItems = tooltipItems.sort(function (a, b) {
-          return options.itemSort(a, b, data);
-        });
-      }
-      each(tooltipItems, function (tooltipItem) {
-        labelColors.push(options.callbacks.labelColor.call(me, tooltipItem, me._chart));
-        labelTextColors.push(options.callbacks.labelTextColor.call(me, tooltipItem, me._chart));
+    if (options.itemSort) {
+      tooltipItems = tooltipItems.sort(function (a, b) {
+        return options.itemSort(a, b, data);
       });
-      me.labelColors = labelColors;
-      me.labelTextColors = labelTextColors;
-      me.dataPoints = tooltipItems;
-      return tooltipItems;
     }
-  }, {
-    key: "update",
-    value: function update(changed) {
-      var me = this;
-      var options = me.options;
-      var active = me._active;
-      var properties;
-      if (!active.length) {
-        if (me.opacity !== 0) {
-          properties = {
-            opacity: 0
-          };
-        }
-      } else {
-        var data = me._chart.data;
-        var position = positioners[options.position].call(me, active, me._eventPosition);
-        var tooltipItems = me._createItems();
-        me.title = me.getTitle(tooltipItems, data);
-        me.beforeBody = me.getBeforeBody(tooltipItems, data);
-        me.body = me.getBody(tooltipItems, data);
-        me.afterBody = me.getAfterBody(tooltipItems, data);
-        me.footer = me.getFooter(tooltipItems, data);
-        var size = me._size = getTooltipSize(me);
-        var positionAndSize = _extends({}, position, size);
-        var alignment = determineAlignment(me._chart, options, positionAndSize);
-        var backgroundPoint = getBackgroundPoint(options, positionAndSize, alignment, me._chart);
-        me.xAlign = alignment.xAlign;
-        me.yAlign = alignment.yAlign;
+    each(tooltipItems, function (tooltipItem) {
+      labelColors.push(options.callbacks.labelColor.call(me, tooltipItem, me._chart));
+      labelTextColors.push(options.callbacks.labelTextColor.call(me, tooltipItem, me._chart));
+    });
+    me.labelColors = labelColors;
+    me.labelTextColors = labelTextColors;
+    me.dataPoints = tooltipItems;
+    return tooltipItems;
+  };
+  _proto.update = function update(changed) {
+    var me = this;
+    var options = me.options;
+    var active = me._active;
+    var properties;
+    if (!active.length) {
+      if (me.opacity !== 0) {
         properties = {
-          opacity: 1,
-          x: backgroundPoint.x,
-          y: backgroundPoint.y,
-          width: size.width,
-          height: size.height,
-          caretX: position.x,
-          caretY: position.y
+          opacity: 0
         };
       }
-      if (properties) {
-        me._resolveAnimations().update(me, properties);
-      }
-      if (changed && options.custom) {
-        options.custom.call(me);
-      }
+    } else {
+      var data = me._chart.data;
+      var position = positioners[options.position].call(me, active, me._eventPosition);
+      var tooltipItems = me._createItems();
+      me.title = me.getTitle(tooltipItems, data);
+      me.beforeBody = me.getBeforeBody(tooltipItems, data);
+      me.body = me.getBody(tooltipItems, data);
+      me.afterBody = me.getAfterBody(tooltipItems, data);
+      me.footer = me.getFooter(tooltipItems, data);
+      var size = me._size = getTooltipSize(me);
+      var positionAndSize = _extends({}, position, size);
+      var alignment = determineAlignment(me._chart, options, positionAndSize);
+      var backgroundPoint = getBackgroundPoint(options, positionAndSize, alignment, me._chart);
+      me.xAlign = alignment.xAlign;
+      me.yAlign = alignment.yAlign;
+      properties = {
+        opacity: 1,
+        x: backgroundPoint.x,
+        y: backgroundPoint.y,
+        width: size.width,
+        height: size.height,
+        caretX: position.x,
+        caretY: position.y
+      };
     }
-  }, {
-    key: "drawCaret",
-    value: function drawCaret(tooltipPoint, ctx, size) {
-      var caretPosition = this.getCaretPosition(tooltipPoint, size);
-      ctx.lineTo(caretPosition.x1, caretPosition.y1);
-      ctx.lineTo(caretPosition.x2, caretPosition.y2);
-      ctx.lineTo(caretPosition.x3, caretPosition.y3);
+    if (properties) {
+      me._resolveAnimations().update(me, properties);
     }
-  }, {
-    key: "getCaretPosition",
-    value: function getCaretPosition(tooltipPoint, size) {
-      var xAlign = this.xAlign,
-          yAlign = this.yAlign,
-          options = this.options;
-      var cornerRadius = options.cornerRadius,
-          caretSize = options.caretSize;
-      var ptX = tooltipPoint.x,
-          ptY = tooltipPoint.y;
-      var width = size.width,
-          height = size.height;
-      var x1, x2, x3, y1, y2, y3;
-      if (yAlign === 'center') {
-        y2 = ptY + height / 2;
-        if (xAlign === 'left') {
-          x1 = ptX;
-          x2 = x1 - caretSize;
-        } else {
-          x1 = ptX + width;
-          x2 = x1 + caretSize;
-        }
-        x3 = x1;
-        y1 = y2 + caretSize;
-        y3 = y2 - caretSize;
+    if (changed && options.custom) {
+      options.custom.call(me);
+    }
+  };
+  _proto.drawCaret = function drawCaret(tooltipPoint, ctx, size) {
+    var caretPosition = this.getCaretPosition(tooltipPoint, size);
+    ctx.lineTo(caretPosition.x1, caretPosition.y1);
+    ctx.lineTo(caretPosition.x2, caretPosition.y2);
+    ctx.lineTo(caretPosition.x3, caretPosition.y3);
+  };
+  _proto.getCaretPosition = function getCaretPosition(tooltipPoint, size) {
+    var xAlign = this.xAlign,
+        yAlign = this.yAlign,
+        options = this.options;
+    var cornerRadius = options.cornerRadius,
+        caretSize = options.caretSize;
+    var ptX = tooltipPoint.x,
+        ptY = tooltipPoint.y;
+    var width = size.width,
+        height = size.height;
+    var x1, x2, x3, y1, y2, y3;
+    if (yAlign === 'center') {
+      y2 = ptY + height / 2;
+      if (xAlign === 'left') {
+        x1 = ptX;
+        x2 = x1 - caretSize;
       } else {
-        if (xAlign === 'left') {
-          x2 = ptX + cornerRadius + caretSize;
-        } else if (xAlign === 'right') {
-          x2 = ptX + width - cornerRadius - caretSize;
-        } else {
-          x2 = this.caretX;
-        }
-        x1 = x2 - caretSize;
-        x3 = x2 + caretSize;
-        if (yAlign === 'top') {
-          y1 = ptY;
-          y2 = y1 - caretSize;
-        } else {
-          y1 = ptY + height;
-          y2 = y1 + caretSize;
-        }
-        y3 = y1;
+        x1 = ptX + width;
+        x2 = x1 + caretSize;
       }
-      return {
-        x1: x1,
-        x2: x2,
-        x3: x3,
-        y1: y1,
-        y2: y2,
-        y3: y3
-      };
-    }
-  }, {
-    key: "drawTitle",
-    value: function drawTitle(pt, ctx) {
-      var me = this;
-      var options = me.options;
-      var title = me.title;
-      var length = title.length;
-      var titleFont, titleSpacing, i;
-      if (length) {
-        var rtlHelper = getRtlAdapter(options.rtl, me.x, me.width);
-        pt.x = getAlignedX(me, options.titleAlign);
-        ctx.textAlign = rtlHelper.textAlign(options.titleAlign);
-        ctx.textBaseline = 'middle';
-        titleFont = options.titleFont;
-        titleSpacing = options.titleSpacing;
-        ctx.fillStyle = options.titleFont.color;
-        ctx.font = titleFont.string;
-        for (i = 0; i < length; ++i) {
-          ctx.fillText(title[i], rtlHelper.x(pt.x), pt.y + titleFont.size / 2);
-          pt.y += titleFont.size + titleSpacing;
-          if (i + 1 === length) {
-            pt.y += options.titleMarginBottom - titleSpacing;
-          }
-        }
+      x3 = x1;
+      y1 = y2 + caretSize;
+      y3 = y2 - caretSize;
+    } else {
+      if (xAlign === 'left') {
+        x2 = ptX + cornerRadius + caretSize;
+      } else if (xAlign === 'right') {
+        x2 = ptX + width - cornerRadius - caretSize;
+      } else {
+        x2 = this.caretX;
       }
-    }
-  }, {
-    key: "_drawColorBox",
-    value: function _drawColorBox(ctx, pt, i, rtlHelper) {
-      var me = this;
-      var options = me.options;
-      var labelColors = me.labelColors[i];
-      var boxHeight = options.boxHeight,
-          boxWidth = options.boxWidth,
-          bodyFont = options.bodyFont;
-      var colorX = getAlignedX(me, 'left');
-      var rtlColorX = rtlHelper.x(colorX);
-      var yOffSet = boxHeight < bodyFont.size ? (bodyFont.size - boxHeight) / 2 : 0;
-      var colorY = pt.y + yOffSet;
-      ctx.fillStyle = options.multiKeyBackground;
-      ctx.fillRect(rtlHelper.leftForLtr(rtlColorX, boxWidth), colorY, boxWidth, boxHeight);
-      ctx.lineWidth = 1;
-      ctx.strokeStyle = labelColors.borderColor;
-      ctx.strokeRect(rtlHelper.leftForLtr(rtlColorX, boxWidth), colorY, boxWidth, boxHeight);
-      ctx.fillStyle = labelColors.backgroundColor;
-      ctx.fillRect(rtlHelper.leftForLtr(rtlHelper.xPlus(rtlColorX, 1), boxWidth - 2), colorY + 1, boxWidth - 2, boxHeight - 2);
-      ctx.fillStyle = me.labelTextColors[i];
-    }
-  }, {
-    key: "drawBody",
-    value: function drawBody(pt, ctx) {
-      var me = this;
-      var body = me.body,
-          options = me.options;
-      var bodyFont = options.bodyFont,
-          bodySpacing = options.bodySpacing,
-          bodyAlign = options.bodyAlign,
-          displayColors = options.displayColors,
-          boxHeight = options.boxHeight,
-          boxWidth = options.boxWidth;
-      var bodyLineHeight = bodyFont.size;
-      var xLinePadding = 0;
-      var rtlHelper = getRtlAdapter(options.rtl, me.x, me.width);
-      var fillLineOfText = function fillLineOfText(line) {
-        ctx.fillText(line, rtlHelper.x(pt.x + xLinePadding), pt.y + bodyLineHeight / 2);
-        pt.y += bodyLineHeight + bodySpacing;
-      };
-      var bodyAlignForCalculation = rtlHelper.textAlign(bodyAlign);
-      var bodyItem, textColor, lines, i, j, ilen, jlen;
-      ctx.textAlign = bodyAlign;
-      ctx.textBaseline = 'middle';
-      ctx.font = bodyFont.string;
-      pt.x = getAlignedX(me, bodyAlignForCalculation);
-      ctx.fillStyle = bodyFont.color;
-      each(me.beforeBody, fillLineOfText);
-      xLinePadding = displayColors && bodyAlignForCalculation !== 'right' ? bodyAlign === 'center' ? boxWidth / 2 + 1 : boxWidth + 2 : 0;
-      for (i = 0, ilen = body.length; i < ilen; ++i) {
-        bodyItem = body[i];
-        textColor = me.labelTextColors[i];
-        ctx.fillStyle = textColor;
-        each(bodyItem.before, fillLineOfText);
-        lines = bodyItem.lines;
-        if (displayColors && lines.length) {
-          me._drawColorBox(ctx, pt, i, rtlHelper);
-          bodyLineHeight = Math.max(bodyFont.size, boxHeight);
-        }
-        for (j = 0, jlen = lines.length; j < jlen; ++j) {
-          fillLineOfText(lines[j]);
-          bodyLineHeight = bodyFont.size;
-        }
-        each(bodyItem.after, fillLineOfText);
-      }
-      xLinePadding = 0;
-      bodyLineHeight = bodyFont.size;
-      each(me.afterBody, fillLineOfText);
-      pt.y -= bodySpacing;
-    }
-  }, {
-    key: "drawFooter",
-    value: function drawFooter(pt, ctx) {
-      var me = this;
-      var options = me.options;
-      var footer = me.footer;
-      var length = footer.length;
-      var footerFont, i;
-      if (length) {
-        var rtlHelper = getRtlAdapter(options.rtl, me.x, me.width);
-        pt.x = getAlignedX(me, options.footerAlign);
-        pt.y += options.footerMarginTop;
-        ctx.textAlign = rtlHelper.textAlign(options.footerAlign);
-        ctx.textBaseline = 'middle';
-        footerFont = options.footerFont;
-        ctx.fillStyle = options.footerFont.color;
-        ctx.font = footerFont.string;
-        for (i = 0; i < length; ++i) {
-          ctx.fillText(footer[i], rtlHelper.x(pt.x), pt.y + footerFont.size / 2);
-          pt.y += footerFont.size + options.footerSpacing;
-        }
-      }
-    }
-  }, {
-    key: "drawBackground",
-    value: function drawBackground(pt, ctx, tooltipSize) {
-      var xAlign = this.xAlign,
-          yAlign = this.yAlign,
-          options = this.options;
-      var x = pt.x,
-          y = pt.y;
-      var width = tooltipSize.width,
-          height = tooltipSize.height;
-      var radius = options.cornerRadius;
-      ctx.fillStyle = options.backgroundColor;
-      ctx.strokeStyle = options.borderColor;
-      ctx.lineWidth = options.borderWidth;
-      ctx.beginPath();
-      ctx.moveTo(x + radius, y);
+      x1 = x2 - caretSize;
+      x3 = x2 + caretSize;
       if (yAlign === 'top') {
-        this.drawCaret(pt, ctx, tooltipSize);
+        y1 = ptY;
+        y2 = y1 - caretSize;
+      } else {
+        y1 = ptY + height;
+        y2 = y1 + caretSize;
       }
-      ctx.lineTo(x + width - radius, y);
-      ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-      if (yAlign === 'center' && xAlign === 'right') {
-        this.drawCaret(pt, ctx, tooltipSize);
-      }
-      ctx.lineTo(x + width, y + height - radius);
-      ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-      if (yAlign === 'bottom') {
-        this.drawCaret(pt, ctx, tooltipSize);
-      }
-      ctx.lineTo(x + radius, y + height);
-      ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-      if (yAlign === 'center' && xAlign === 'left') {
-        this.drawCaret(pt, ctx, tooltipSize);
-      }
-      ctx.lineTo(x, y + radius);
-      ctx.quadraticCurveTo(x, y, x + radius, y);
-      ctx.closePath();
-      ctx.fill();
-      if (options.borderWidth > 0) {
-        ctx.stroke();
-      }
+      y3 = y1;
     }
-  }, {
-    key: "_updateAnimationTarget",
-    value: function _updateAnimationTarget() {
-      var me = this;
-      var chart = me._chart;
-      var options = me.options;
-      var anims = me.$animations;
-      var animX = anims && anims.x;
-      var animY = anims && anims.y;
-      if (animX || animY) {
-        var position = positioners[options.position].call(me, me._active, me._eventPosition);
-        if (!position) {
-          return;
-        }
-        var size = me._size = getTooltipSize(me);
-        var positionAndSize = _extends({}, position, me._size);
-        var alignment = determineAlignment(chart, options, positionAndSize);
-        var point = getBackgroundPoint(options, positionAndSize, alignment, chart);
-        if (animX._to !== point.x || animY._to !== point.y) {
-          me.xAlign = alignment.xAlign;
-          me.yAlign = alignment.yAlign;
-          me.width = size.width;
-          me.height = size.height;
-          me.caretX = position.x;
-          me.caretY = position.y;
-          me._resolveAnimations().update(me, point);
+    return {
+      x1: x1,
+      x2: x2,
+      x3: x3,
+      y1: y1,
+      y2: y2,
+      y3: y3
+    };
+  };
+  _proto.drawTitle = function drawTitle(pt, ctx) {
+    var me = this;
+    var options = me.options;
+    var title = me.title;
+    var length = title.length;
+    var titleFont, titleSpacing, i;
+    if (length) {
+      var rtlHelper = getRtlAdapter(options.rtl, me.x, me.width);
+      pt.x = getAlignedX(me, options.titleAlign);
+      ctx.textAlign = rtlHelper.textAlign(options.titleAlign);
+      ctx.textBaseline = 'middle';
+      titleFont = options.titleFont;
+      titleSpacing = options.titleSpacing;
+      ctx.fillStyle = options.titleFont.color;
+      ctx.font = titleFont.string;
+      for (i = 0; i < length; ++i) {
+        ctx.fillText(title[i], rtlHelper.x(pt.x), pt.y + titleFont.size / 2);
+        pt.y += titleFont.size + titleSpacing;
+        if (i + 1 === length) {
+          pt.y += options.titleMarginBottom - titleSpacing;
         }
       }
     }
-  }, {
-    key: "draw",
-    value: function draw(ctx) {
-      var me = this;
-      var options = me.options;
-      var opacity = me.opacity;
-      if (!opacity) {
+  }
+  ;
+  _proto._drawColorBox = function _drawColorBox(ctx, pt, i, rtlHelper) {
+    var me = this;
+    var options = me.options;
+    var labelColors = me.labelColors[i];
+    var boxHeight = options.boxHeight,
+        boxWidth = options.boxWidth,
+        bodyFont = options.bodyFont;
+    var colorX = getAlignedX(me, 'left');
+    var rtlColorX = rtlHelper.x(colorX);
+    var yOffSet = boxHeight < bodyFont.size ? (bodyFont.size - boxHeight) / 2 : 0;
+    var colorY = pt.y + yOffSet;
+    ctx.fillStyle = options.multiKeyBackground;
+    ctx.fillRect(rtlHelper.leftForLtr(rtlColorX, boxWidth), colorY, boxWidth, boxHeight);
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = labelColors.borderColor;
+    ctx.strokeRect(rtlHelper.leftForLtr(rtlColorX, boxWidth), colorY, boxWidth, boxHeight);
+    ctx.fillStyle = labelColors.backgroundColor;
+    ctx.fillRect(rtlHelper.leftForLtr(rtlHelper.xPlus(rtlColorX, 1), boxWidth - 2), colorY + 1, boxWidth - 2, boxHeight - 2);
+    ctx.fillStyle = me.labelTextColors[i];
+  };
+  _proto.drawBody = function drawBody(pt, ctx) {
+    var me = this;
+    var body = me.body,
+        options = me.options;
+    var bodyFont = options.bodyFont,
+        bodySpacing = options.bodySpacing,
+        bodyAlign = options.bodyAlign,
+        displayColors = options.displayColors,
+        boxHeight = options.boxHeight,
+        boxWidth = options.boxWidth;
+    var bodyLineHeight = bodyFont.size;
+    var xLinePadding = 0;
+    var rtlHelper = getRtlAdapter(options.rtl, me.x, me.width);
+    var fillLineOfText = function fillLineOfText(line) {
+      ctx.fillText(line, rtlHelper.x(pt.x + xLinePadding), pt.y + bodyLineHeight / 2);
+      pt.y += bodyLineHeight + bodySpacing;
+    };
+    var bodyAlignForCalculation = rtlHelper.textAlign(bodyAlign);
+    var bodyItem, textColor, lines, i, j, ilen, jlen;
+    ctx.textAlign = bodyAlign;
+    ctx.textBaseline = 'middle';
+    ctx.font = bodyFont.string;
+    pt.x = getAlignedX(me, bodyAlignForCalculation);
+    ctx.fillStyle = bodyFont.color;
+    each(me.beforeBody, fillLineOfText);
+    xLinePadding = displayColors && bodyAlignForCalculation !== 'right' ? bodyAlign === 'center' ? boxWidth / 2 + 1 : boxWidth + 2 : 0;
+    for (i = 0, ilen = body.length; i < ilen; ++i) {
+      bodyItem = body[i];
+      textColor = me.labelTextColors[i];
+      ctx.fillStyle = textColor;
+      each(bodyItem.before, fillLineOfText);
+      lines = bodyItem.lines;
+      if (displayColors && lines.length) {
+        me._drawColorBox(ctx, pt, i, rtlHelper);
+        bodyLineHeight = Math.max(bodyFont.size, boxHeight);
+      }
+      for (j = 0, jlen = lines.length; j < jlen; ++j) {
+        fillLineOfText(lines[j]);
+        bodyLineHeight = bodyFont.size;
+      }
+      each(bodyItem.after, fillLineOfText);
+    }
+    xLinePadding = 0;
+    bodyLineHeight = bodyFont.size;
+    each(me.afterBody, fillLineOfText);
+    pt.y -= bodySpacing;
+  };
+  _proto.drawFooter = function drawFooter(pt, ctx) {
+    var me = this;
+    var options = me.options;
+    var footer = me.footer;
+    var length = footer.length;
+    var footerFont, i;
+    if (length) {
+      var rtlHelper = getRtlAdapter(options.rtl, me.x, me.width);
+      pt.x = getAlignedX(me, options.footerAlign);
+      pt.y += options.footerMarginTop;
+      ctx.textAlign = rtlHelper.textAlign(options.footerAlign);
+      ctx.textBaseline = 'middle';
+      footerFont = options.footerFont;
+      ctx.fillStyle = options.footerFont.color;
+      ctx.font = footerFont.string;
+      for (i = 0; i < length; ++i) {
+        ctx.fillText(footer[i], rtlHelper.x(pt.x), pt.y + footerFont.size / 2);
+        pt.y += footerFont.size + options.footerSpacing;
+      }
+    }
+  };
+  _proto.drawBackground = function drawBackground(pt, ctx, tooltipSize) {
+    var xAlign = this.xAlign,
+        yAlign = this.yAlign,
+        options = this.options;
+    var x = pt.x,
+        y = pt.y;
+    var width = tooltipSize.width,
+        height = tooltipSize.height;
+    var radius = options.cornerRadius;
+    ctx.fillStyle = options.backgroundColor;
+    ctx.strokeStyle = options.borderColor;
+    ctx.lineWidth = options.borderWidth;
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y);
+    if (yAlign === 'top') {
+      this.drawCaret(pt, ctx, tooltipSize);
+    }
+    ctx.lineTo(x + width - radius, y);
+    ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+    if (yAlign === 'center' && xAlign === 'right') {
+      this.drawCaret(pt, ctx, tooltipSize);
+    }
+    ctx.lineTo(x + width, y + height - radius);
+    ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+    if (yAlign === 'bottom') {
+      this.drawCaret(pt, ctx, tooltipSize);
+    }
+    ctx.lineTo(x + radius, y + height);
+    ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+    if (yAlign === 'center' && xAlign === 'left') {
+      this.drawCaret(pt, ctx, tooltipSize);
+    }
+    ctx.lineTo(x, y + radius);
+    ctx.quadraticCurveTo(x, y, x + radius, y);
+    ctx.closePath();
+    ctx.fill();
+    if (options.borderWidth > 0) {
+      ctx.stroke();
+    }
+  }
+  ;
+  _proto._updateAnimationTarget = function _updateAnimationTarget() {
+    var me = this;
+    var chart = me._chart;
+    var options = me.options;
+    var anims = me.$animations;
+    var animX = anims && anims.x;
+    var animY = anims && anims.y;
+    if (animX || animY) {
+      var position = positioners[options.position].call(me, me._active, me._eventPosition);
+      if (!position) {
         return;
       }
-      me._updateAnimationTarget();
-      var tooltipSize = {
-        width: me.width,
-        height: me.height
-      };
-      var pt = {
-        x: me.x,
-        y: me.y
-      };
-      opacity = Math.abs(opacity) < 1e-3 ? 0 : opacity;
-      var hasTooltipContent = me.title.length || me.beforeBody.length || me.body.length || me.afterBody.length || me.footer.length;
-      if (options.enabled && hasTooltipContent) {
-        ctx.save();
-        ctx.globalAlpha = opacity;
-        me.drawBackground(pt, ctx, tooltipSize);
-        overrideTextDirection(ctx, options.textDirection);
-        pt.y += options.yPadding;
-        me.drawTitle(pt, ctx);
-        me.drawBody(pt, ctx);
-        me.drawFooter(pt, ctx);
-        restoreTextDirection(ctx, options.textDirection);
-        ctx.restore();
+      var size = me._size = getTooltipSize(me);
+      var positionAndSize = _extends({}, position, me._size);
+      var alignment = determineAlignment(chart, options, positionAndSize);
+      var point = getBackgroundPoint(options, positionAndSize, alignment, chart);
+      if (animX._to !== point.x || animY._to !== point.y) {
+        me.xAlign = alignment.xAlign;
+        me.yAlign = alignment.yAlign;
+        me.width = size.width;
+        me.height = size.height;
+        me.caretX = position.x;
+        me.caretY = position.y;
+        me._resolveAnimations().update(me, point);
       }
     }
-  }, {
-    key: "handleEvent",
-    value: function handleEvent(e, replay) {
-      var me = this;
-      var options = me.options;
-      var lastActive = me._active || [];
-      var changed = false;
-      var active = [];
-      if (e.type !== 'mouseout') {
-        active = me._chart.getElementsAtEventForMode(e, options.mode, options, replay);
-        if (options.reverse) {
-          active.reverse();
-        }
-      }
-      changed = replay || !_elementsEqual(active, lastActive);
-      if (changed) {
-        me._active = active;
-        if (options.enabled || options.custom) {
-          me._eventPosition = {
-            x: e.x,
-            y: e.y
-          };
-          me.update(true);
-        }
-      }
-      return changed;
+  };
+  _proto.draw = function draw(ctx) {
+    var me = this;
+    var options = me.options;
+    var opacity = me.opacity;
+    if (!opacity) {
+      return;
     }
-  }]);
+    me._updateAnimationTarget();
+    var tooltipSize = {
+      width: me.width,
+      height: me.height
+    };
+    var pt = {
+      x: me.x,
+      y: me.y
+    };
+    opacity = Math.abs(opacity) < 1e-3 ? 0 : opacity;
+    var hasTooltipContent = me.title.length || me.beforeBody.length || me.body.length || me.afterBody.length || me.footer.length;
+    if (options.enabled && hasTooltipContent) {
+      ctx.save();
+      ctx.globalAlpha = opacity;
+      me.drawBackground(pt, ctx, tooltipSize);
+      overrideTextDirection(ctx, options.textDirection);
+      pt.y += options.yPadding;
+      me.drawTitle(pt, ctx);
+      me.drawBody(pt, ctx);
+      me.drawFooter(pt, ctx);
+      restoreTextDirection(ctx, options.textDirection);
+      ctx.restore();
+    }
+  }
+  ;
+  _proto.handleEvent = function handleEvent(e, replay) {
+    var me = this;
+    var options = me.options;
+    var lastActive = me._active || [];
+    var changed = false;
+    var active = [];
+    if (e.type !== 'mouseout') {
+      active = me._chart.getElementsAtEventForMode(e, options.mode, options, replay);
+      if (options.reverse) {
+        active.reverse();
+      }
+    }
+    changed = replay || !_elementsEqual(active, lastActive);
+    if (changed) {
+      me._active = active;
+      if (options.enabled || options.custom) {
+        me._eventPosition = {
+          x: e.x,
+          y: e.y
+        };
+        me.update(true);
+      }
+    }
+    return changed;
+  };
   return Tooltip;
 }(Element$1);
 Tooltip.positioners = positioners;
