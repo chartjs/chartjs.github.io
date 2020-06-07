@@ -2411,8 +2411,9 @@ var DatasetController = function () {
         otherMax = _getUserBounds.max;
     var i, value, parsed, otherValue;
     function _compute() {
-      if (stack) {
-        stack.values = parsed._stacks[scale.axis];
+      var values = stack && parsed._stacks[scale.axis];
+      if (stack && values) {
+        stack.values = values;
         min = Math.min(min, value);
         max = Math.max(max, value);
         value = _applyStack(stack, value, meta.index, true);

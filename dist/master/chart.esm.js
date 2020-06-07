@@ -2260,8 +2260,9 @@ class DatasetController {
 		const {min: otherMin, max: otherMax} = getUserBounds(otherScale);
 		let i, value, parsed, otherValue;
 		function _compute() {
-			if (stack) {
-				stack.values = parsed._stacks[scale.axis];
+			const values = stack && parsed._stacks[scale.axis];
+			if (stack && values) {
+				stack.values = values;
 				min = Math.min(min, value);
 				max = Math.max(max, value);
 				value = applyStack(stack, value, meta.index, true);
