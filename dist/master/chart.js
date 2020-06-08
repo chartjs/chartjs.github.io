@@ -483,24 +483,6 @@ function each(loopable, fn, thisArg, reverse) {
     }
   }
 }
-function arrayEquals(a0, a1) {
-  var i, ilen, v0, v1;
-  if (!a0 || !a1 || a0.length !== a1.length) {
-    return false;
-  }
-  for (i = 0, ilen = a0.length; i < ilen; ++i) {
-    v0 = a0[i];
-    v1 = a1[i];
-    if (v0 instanceof Array && v1 instanceof Array) {
-      if (!arrayEquals(v0, v1)) {
-        return false;
-      }
-    } else if (v0 !== v1) {
-      return false;
-    }
-  }
-  return true;
-}
 function _elementsEqual(a0, a1) {
   var i, ilen, v0, v1;
   if (!a0 || !a1 || a0.length !== a1.length) {
@@ -592,7 +574,6 @@ valueOrDefault: valueOrDefault,
 valueAtIndexOrDefault: valueAtIndexOrDefault,
 callback: callback,
 each: each,
-arrayEquals: arrayEquals,
 _elementsEqual: _elementsEqual,
 clone: clone,
 _merger: _merger,
@@ -602,6 +583,17 @@ _mergerIf: _mergerIf,
 _deprecated: _deprecated
 });
 
+function getScope(node, key) {
+  if (!key) {
+    return node;
+  }
+  var keys = key.split('.');
+  for (var i = 0, n = keys.length; i < n; ++i) {
+    var k = keys[i];
+    node = node[k] || (node[k] = {});
+  }
+  return node;
+}
 var Defaults = function () {
   function Defaults() {
     this.color = 'rgba(0,0,0,0.1)';
@@ -632,10 +624,33 @@ var Defaults = function () {
     this.title = undefined;
     this.tooltips = undefined;
     this.doughnut = undefined;
+    this._routes = {};
   }
   var _proto = Defaults.prototype;
   _proto.set = function set(scope, values) {
-    return merge(this[scope] || (this[scope] = {}), values);
+    return merge(getScope(this, scope), values);
+  }
+  ;
+  _proto.route = function route(scope, names, targetScope, targetNames) {
+    var scopeObject = getScope(this, scope);
+    var targetScopeObject = getScope(this, targetScope);
+    var targetNamesIsArray = isArray(targetNames);
+    names.forEach(function (name, index) {
+      var _Object$definePropert;
+      var privateName = '_' + name;
+      var targetName = targetNamesIsArray ? targetNames[index] : targetNames;
+      Object.defineProperties(scopeObject, (_Object$definePropert = {}, _Object$definePropert[privateName] = {
+        writable: true
+      }, _Object$definePropert[name] = {
+        enumerable: true,
+        get: function get() {
+          return valueOrDefault(this[privateName], targetScopeObject[targetName]);
+        },
+        set: function set(value) {
+          this[privateName] = value;
+        }
+      }, _Object$definePropert));
+    });
   };
   return Defaults;
 }();
@@ -2129,10 +2144,7 @@ var DatasetController = function () {
     this._config = undefined;
     this._parsing = false;
     this._data = undefined;
-    this._dataCopy = undefined;
-    this._dataModified = false;
     this._objectData = undefined;
-    this._labels = undefined;
     this._scaleStacked = {};
     this.initialize();
   }
@@ -2208,37 +2220,16 @@ var DatasetController = function () {
     var dataset = me.getDataset();
     var data = dataset.data || (dataset.data = []);
     if (isObject(data)) {
-      if (me._objectData === data) {
-        return false;
-      }
       me._data = convertObjectDataToArray(data);
-      me._objectData = data;
-    } else {
-      if (me._data === data && !me._dataModified && arrayEquals(data, me._dataCopy)) {
-        return false;
-      }
+    } else if (me._data !== data) {
       if (me._data) {
         unlistenArrayEvents(me._data, me);
       }
-      me._dataCopy = data.slice(0);
-      me._dataModified = false;
       if (data && Object.isExtensible(data)) {
         listenArrayEvents(data, me);
       }
       me._data = data;
     }
-    return true;
-  }
-  ;
-  _proto._labelCheck = function _labelCheck() {
-    var me = this;
-    var iScale = me._cachedMeta.iScale;
-    var labels = iScale ? iScale.getLabels() : me.chart.data.labels;
-    if (me._labels === labels) {
-      return false;
-    }
-    me._labels = labels;
-    return true;
   };
   _proto.addElements = function addElements() {
     var me = this;
@@ -2255,12 +2246,10 @@ var DatasetController = function () {
   };
   _proto.buildOrUpdateElements = function buildOrUpdateElements() {
     var me = this;
-    var dataChanged = me._dataCheck();
-    var labelsChanged = me._labelCheck();
-    var scaleChanged = me._scaleCheck();
     var meta = me._cachedMeta;
     var dataset = me.getDataset();
     var stackChanged = false;
+    me._dataCheck();
     meta._stacked = isStacked(meta.vScale, meta);
     if (meta.stack !== dataset.stack) {
       stackChanged = true;
@@ -2269,7 +2258,7 @@ var DatasetController = function () {
       });
       meta.stack = dataset.stack;
     }
-    me._resyncElements(dataChanged || labelsChanged || scaleChanged || stackChanged);
+    me._resyncElements();
     if (stackChanged) {
       updateStacks(me, meta._parsed);
     }
@@ -2473,15 +2462,6 @@ var DatasetController = function () {
       cache[iScale.id] = iScale.options.stacked;
       cache[vScale.id] = vScale.options.stacked;
     }
-  }
-  ;
-  _proto._scaleCheck = function _scaleCheck() {
-    var me = this;
-    var meta = me._cachedMeta;
-    var iScale = meta.iScale;
-    var vScale = meta.vScale;
-    var cache = me._scaleStacked;
-    return !cache || !iScale || !vScale || cache[iScale.id] !== iScale.options.stacked || cache[vScale.id] !== vScale.options.stacked;
   }
   ;
   _proto.getMaxOverflow = function getMaxOverflow() {
@@ -2714,23 +2694,18 @@ var DatasetController = function () {
     }
   }
   ;
-  _proto._resyncElements = function _resyncElements(changed) {
+  _proto._resyncElements = function _resyncElements() {
     var me = this;
     var meta = me._cachedMeta;
     var numMeta = meta.data.length;
     var numData = me._data.length;
     if (numData > numMeta) {
       me._insertElements(numMeta, numData - numMeta);
-      if (changed && numMeta) {
-        me.parse(0, numMeta);
-      }
     } else if (numData < numMeta) {
       meta.data.splice(numData, numMeta - numData);
       meta._parsed.splice(numData, numMeta - numData);
-      me.parse(0, numData);
-    } else if (changed) {
-      me.parse(0, numData);
     }
+    me.parse(0, Math.min(numData, numMeta));
   }
   ;
   _proto._insertElements = function _insertElements(start, count) {
@@ -2763,28 +2738,23 @@ var DatasetController = function () {
   _proto._onDataPush = function _onDataPush() {
     var count = arguments.length;
     this._insertElements(this.getDataset().data.length - count, count);
-    this._dataModified = true;
   }
   ;
   _proto._onDataPop = function _onDataPop() {
     this._removeElements(this._cachedMeta.data.length - 1, 1);
-    this._dataModified = true;
   }
   ;
   _proto._onDataShift = function _onDataShift() {
     this._removeElements(0, 1);
-    this._dataModified = true;
   }
   ;
   _proto._onDataSplice = function _onDataSplice(start, count) {
     this._removeElements(start, count);
     this._insertElements(start, arguments.length - 2);
-    this._dataModified = true;
   }
   ;
   _proto._onDataUnshift = function _onDataUnshift() {
     this._insertElements(0, arguments.length);
-    this._dataModified = true;
   };
   return DatasetController;
 }();
@@ -2831,14 +2801,13 @@ var Element$1 = function () {
 }();
 
 var TAU$1 = Math.PI * 2;
-defaults.set('elements', {
-  arc: {
-    backgroundColor: defaults.color,
-    borderAlign: 'center',
-    borderColor: '#fff',
-    borderWidth: 2
-  }
+var scope = 'elements.arc';
+defaults.set(scope, {
+  borderAlign: 'center',
+  borderColor: '#fff',
+  borderWidth: 2
 });
+defaults.route(scope, ['backgroundColor'], '', ['color']);
 function clipArc(ctx, model) {
   var startAngle = model.startAngle,
       endAngle = model.endAngle,
@@ -3378,21 +3347,18 @@ splineCurveMonotone: splineCurveMonotone,
 _updateBezierControlPoints: _updateBezierControlPoints
 });
 
-var defaultColor = defaults.color;
-defaults.set('elements', {
-  line: {
-    backgroundColor: defaultColor,
-    borderCapStyle: 'butt',
-    borderColor: defaultColor,
-    borderDash: [],
-    borderDashOffset: 0,
-    borderJoinStyle: 'miter',
-    borderWidth: 3,
-    capBezierPoints: true,
-    fill: true,
-    tension: 0.4
-  }
+var scope$1 = 'elements.line';
+defaults.set(scope$1, {
+  borderCapStyle: 'butt',
+  borderDash: [],
+  borderDashOffset: 0,
+  borderJoinStyle: 'miter',
+  borderWidth: 3,
+  capBezierPoints: true,
+  fill: true,
+  tension: 0.4
 });
+defaults.route(scope$1, ['backgroundColor', 'borderColor'], '', 'color');
 function setStyle(ctx, vm) {
   ctx.lineCap = vm.borderCapStyle;
   ctx.setLineDash(vm.borderDash);
@@ -3631,19 +3597,16 @@ var Line = function (_Element) {
 }(Element$1);
 Line._type = 'line';
 
-var defaultColor$1 = defaults.color;
-defaults.set('elements', {
-  point: {
-    backgroundColor: defaultColor$1,
-    borderColor: defaultColor$1,
-    borderWidth: 1,
-    hitRadius: 1,
-    hoverBorderWidth: 1,
-    hoverRadius: 4,
-    pointStyle: 'circle',
-    radius: 3
-  }
+var scope$2 = 'elements.point';
+defaults.set(scope$2, {
+  borderWidth: 1,
+  hitRadius: 1,
+  hoverBorderWidth: 1,
+  hoverRadius: 4,
+  pointStyle: 'circle',
+  radius: 3
 });
+defaults.route(scope$2, ['backgroundColor', 'borderColor'], '', 'color');
 var Point = function (_Element) {
   _inheritsLoose(Point, _Element);
   function Point(cfg) {
@@ -3713,15 +3676,12 @@ var Point = function (_Element) {
 }(Element$1);
 Point._type = 'point';
 
-var defaultColor$2 = defaults.color;
-defaults.set('elements', {
-  rectangle: {
-    backgroundColor: defaultColor$2,
-    borderColor: defaultColor$2,
-    borderSkipped: 'bottom',
-    borderWidth: 0
-  }
+var scope$3 = 'elements.rectangle';
+defaults.set(scope$3, {
+  borderSkipped: 'bottom',
+  borderWidth: 0
 });
+defaults.route(scope$3, ['backgroundColor', 'borderColor'], '', 'color');
 function getBarBounds(bar, useFinalPosition) {
   var _bar$getProps = bar.getProps(['x', 'y', 'base', 'width', 'height'], useFinalPosition),
       x = _bar$getProps.x,

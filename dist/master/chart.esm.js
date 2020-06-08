@@ -411,24 +411,6 @@ function each(loopable, fn, thisArg, reverse) {
 		}
 	}
 }
-function arrayEquals(a0, a1) {
-	let i, ilen, v0, v1;
-	if (!a0 || !a1 || a0.length !== a1.length) {
-		return false;
-	}
-	for (i = 0, ilen = a0.length; i < ilen; ++i) {
-		v0 = a0[i];
-		v1 = a1[i];
-		if (v0 instanceof Array && v1 instanceof Array) {
-			if (!arrayEquals(v0, v1)) {
-				return false;
-			}
-		} else if (v0 !== v1) {
-			return false;
-		}
-	}
-	return true;
-}
 function _elementsEqual(a0, a1) {
 	let i, ilen, v0, v1;
 	if (!a0 || !a1 || a0.length !== a1.length) {
@@ -519,7 +501,6 @@ valueOrDefault: valueOrDefault,
 valueAtIndexOrDefault: valueAtIndexOrDefault,
 callback: callback,
 each: each,
-arrayEquals: arrayEquals,
 _elementsEqual: _elementsEqual,
 clone: clone,
 _merger: _merger,
@@ -529,6 +510,17 @@ _mergerIf: _mergerIf,
 _deprecated: _deprecated
 });
 
+function getScope(node, key) {
+	if (!key) {
+		return node;
+	}
+	const keys = key.split('.');
+	for (let i = 0, n = keys.length; i < n; ++i) {
+		const k = keys[i];
+		node = node[k] || (node[k] = {});
+	}
+	return node;
+}
 class Defaults {
 	constructor() {
 		this.color = 'rgba(0,0,0,0.1)';
@@ -565,9 +557,33 @@ class Defaults {
 		this.title = undefined;
 		this.tooltips = undefined;
 		this.doughnut = undefined;
+		this._routes = {};
 	}
 	set(scope, values) {
-		return merge(this[scope] || (this[scope] = {}), values);
+		return merge(getScope(this, scope), values);
+	}
+	route(scope, names, targetScope, targetNames) {
+		const scopeObject = getScope(this, scope);
+		const targetScopeObject = getScope(this, targetScope);
+		const targetNamesIsArray = isArray(targetNames);
+		names.forEach((name, index) => {
+			const privateName = '_' + name;
+			const targetName = targetNamesIsArray ? targetNames[index] : targetNames;
+			Object.defineProperties(scopeObject, {
+				[privateName]: {
+					writable: true
+				},
+				[name]: {
+					enumerable: true,
+					get() {
+						return valueOrDefault(this[privateName], targetScopeObject[targetName]);
+					},
+					set(value) {
+						this[privateName] = value;
+					}
+				}
+			});
+		});
 	}
 }
 var defaults = new Defaults();
@@ -2000,10 +2016,7 @@ class DatasetController {
 		this._config = undefined;
 		this._parsing = false;
 		this._data = undefined;
-		this._dataCopy = undefined;
-		this._dataModified = false;
 		this._objectData = undefined;
-		this._labels = undefined;
 		this._scaleStacked = {};
 		this.initialize();
 	}
@@ -2072,36 +2085,16 @@ class DatasetController {
 		const dataset = me.getDataset();
 		const data = dataset.data || (dataset.data = []);
 		if (isObject(data)) {
-			if (me._objectData === data) {
-				return false;
-			}
 			me._data = convertObjectDataToArray(data);
-			me._objectData = data;
-		} else {
-			if (me._data === data && !me._dataModified && arrayEquals(data, me._dataCopy)) {
-				return false;
-			}
+		} else if (me._data !== data) {
 			if (me._data) {
 				unlistenArrayEvents(me._data, me);
 			}
-			me._dataCopy = data.slice(0);
-			me._dataModified = false;
 			if (data && Object.isExtensible(data)) {
 				listenArrayEvents(data, me);
 			}
 			me._data = data;
 		}
-		return true;
-	}
-	_labelCheck() {
-		const me = this;
-		const iScale = me._cachedMeta.iScale;
-		const labels = iScale ? iScale.getLabels() : me.chart.data.labels;
-		if (me._labels === labels) {
-			return false;
-		}
-		me._labels = labels;
-		return true;
 	}
 	addElements() {
 		const me = this;
@@ -2118,12 +2111,10 @@ class DatasetController {
 	}
 	buildOrUpdateElements() {
 		const me = this;
-		const dataChanged = me._dataCheck();
-		const labelsChanged = me._labelCheck();
-		const scaleChanged = me._scaleCheck();
 		const meta = me._cachedMeta;
 		const dataset = me.getDataset();
 		let stackChanged = false;
+		me._dataCheck();
 		meta._stacked = isStacked(meta.vScale, meta);
 		if (meta.stack !== dataset.stack) {
 			stackChanged = true;
@@ -2132,7 +2123,7 @@ class DatasetController {
 			});
 			meta.stack = dataset.stack;
 		}
-		me._resyncElements(dataChanged || labelsChanged || scaleChanged || stackChanged);
+		me._resyncElements();
 		if (stackChanged) {
 			updateStacks(me, meta._parsed);
 		}
@@ -2318,18 +2309,6 @@ class DatasetController {
 			cache[iScale.id] = iScale.options.stacked;
 			cache[vScale.id] = vScale.options.stacked;
 		}
-	}
-	_scaleCheck() {
-		const me = this;
-		const meta = me._cachedMeta;
-		const iScale = meta.iScale;
-		const vScale = meta.vScale;
-		const cache = me._scaleStacked;
-		return !cache ||
-			!iScale ||
-			!vScale ||
-			cache[iScale.id] !== iScale.options.stacked ||
-			cache[vScale.id] !== vScale.options.stacked;
 	}
 	getMaxOverflow() {
 		return false;
@@ -2544,23 +2523,18 @@ class DatasetController {
 			this._setStyle(element, undefined, 'active', true);
 		}
 	}
-	_resyncElements(changed) {
+	_resyncElements() {
 		const me = this;
 		const meta = me._cachedMeta;
 		const numMeta = meta.data.length;
 		const numData = me._data.length;
 		if (numData > numMeta) {
 			me._insertElements(numMeta, numData - numMeta);
-			if (changed && numMeta) {
-				me.parse(0, numMeta);
-			}
 		} else if (numData < numMeta) {
 			meta.data.splice(numData, numMeta - numData);
 			meta._parsed.splice(numData, numMeta - numData);
-			me.parse(0, numData);
-		} else if (changed) {
-			me.parse(0, numData);
 		}
+		me.parse(0, Math.min(numData, numMeta));
 	}
 	_insertElements(start, count) {
 		const me = this;
@@ -2589,24 +2563,19 @@ class DatasetController {
 	_onDataPush() {
 		const count = arguments.length;
 		this._insertElements(this.getDataset().data.length - count, count);
-		this._dataModified = true;
 	}
 	_onDataPop() {
 		this._removeElements(this._cachedMeta.data.length - 1, 1);
-		this._dataModified = true;
 	}
 	_onDataShift() {
 		this._removeElements(0, 1);
-		this._dataModified = true;
 	}
 	_onDataSplice(start, count) {
 		this._removeElements(start, count);
 		this._insertElements(start, arguments.length - 2);
-		this._dataModified = true;
 	}
 	_onDataUnshift() {
 		this._insertElements(0, arguments.length);
-		this._dataModified = true;
 	}
 }
 DatasetController.prototype.datasetElementType = null;
@@ -2657,14 +2626,13 @@ class Element {
 }
 
 const TAU$1 = Math.PI * 2;
-defaults.set('elements', {
-	arc: {
-		backgroundColor: defaults.color,
-		borderAlign: 'center',
-		borderColor: '#fff',
-		borderWidth: 2
-	}
+const scope = 'elements.arc';
+defaults.set(scope, {
+	borderAlign: 'center',
+	borderColor: '#fff',
+	borderWidth: 2
 });
+defaults.route(scope, ['backgroundColor'], '', ['color']);
 function clipArc(ctx, model) {
 	const {startAngle, endAngle, pixelMargin, x, y} = model;
 	let angleMargin = pixelMargin / model.outerRadius;
@@ -3146,21 +3114,18 @@ splineCurveMonotone: splineCurveMonotone,
 _updateBezierControlPoints: _updateBezierControlPoints
 });
 
-const defaultColor = defaults.color;
-defaults.set('elements', {
-	line: {
-		backgroundColor: defaultColor,
-		borderCapStyle: 'butt',
-		borderColor: defaultColor,
-		borderDash: [],
-		borderDashOffset: 0,
-		borderJoinStyle: 'miter',
-		borderWidth: 3,
-		capBezierPoints: true,
-		fill: true,
-		tension: 0.4
-	}
+const scope$1 = 'elements.line';
+defaults.set(scope$1, {
+	borderCapStyle: 'butt',
+	borderDash: [],
+	borderDashOffset: 0,
+	borderJoinStyle: 'miter',
+	borderWidth: 3,
+	capBezierPoints: true,
+	fill: true,
+	tension: 0.4
 });
+defaults.route(scope$1, ['backgroundColor', 'borderColor'], '', 'color');
 function setStyle(ctx, vm) {
 	ctx.lineCap = vm.borderCapStyle;
 	ctx.setLineDash(vm.borderDash);
@@ -3368,19 +3333,16 @@ class Line extends Element {
 }
 Line._type = 'line';
 
-const defaultColor$1 = defaults.color;
-defaults.set('elements', {
-	point: {
-		backgroundColor: defaultColor$1,
-		borderColor: defaultColor$1,
-		borderWidth: 1,
-		hitRadius: 1,
-		hoverBorderWidth: 1,
-		hoverRadius: 4,
-		pointStyle: 'circle',
-		radius: 3
-	}
+const scope$2 = 'elements.point';
+defaults.set(scope$2, {
+	borderWidth: 1,
+	hitRadius: 1,
+	hoverBorderWidth: 1,
+	hoverRadius: 4,
+	pointStyle: 'circle',
+	radius: 3
 });
+defaults.route(scope$2, ['backgroundColor', 'borderColor'], '', 'color');
 class Point extends Element {
 	constructor(cfg) {
 		super();
@@ -3436,15 +3398,12 @@ class Point extends Element {
 }
 Point._type = 'point';
 
-const defaultColor$2 = defaults.color;
-defaults.set('elements', {
-	rectangle: {
-		backgroundColor: defaultColor$2,
-		borderColor: defaultColor$2,
-		borderSkipped: 'bottom',
-		borderWidth: 0
-	}
+const scope$3 = 'elements.rectangle';
+defaults.set(scope$3, {
+	borderSkipped: 'bottom',
+	borderWidth: 0
 });
+defaults.route(scope$3, ['backgroundColor', 'borderColor'], '', 'color');
 function getBarBounds(bar, useFinalPosition) {
 	const {x, y, base, width, height} = bar.getProps(['x', 'y', 'base', 'width', 'height'], useFinalPosition);
 	let left, right, top, bottom, half;

@@ -68,7 +68,8 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<p>Please use the module&#39;s default export which provides a singleton instance</p>
+						<p>Please use the module&#39;s default export which provides a singleton instance
+						Note: class is exported for typedoc</p>
 					</div>
 				</div>
 			</section>
@@ -93,6 +94,7 @@
 						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_core_core_defaults_.defaults.html#route" class="tsd-kind-icon">route</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_core_core_defaults_.defaults.html#set" class="tsd-kind-icon">set</a></li>
 							</ul>
 						</section>
@@ -111,7 +113,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2a8962c/src/core/core.defaults.js#L6">core/core.defaults.js:6</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/8e7bde2/src/core/core.defaults.js#L24">core/core.defaults.js:24</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="_core_core_defaults_.defaults.html" class="tsd-signature-type">Defaults</a></h4>
@@ -122,6 +124,69 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Methods</h2>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="route" class="tsd-anchor"></a>
+					<h3>route</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">route<span class="tsd-signature-symbol">(</span>scope<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, names<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span>, targetScope<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, targetNames<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/8e7bde2/src/core/core.defaults.js#L92">core/core.defaults.js:92</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Routes the named defaults to fallback to another scope/name.
+										This routing is useful when those target values, like defaults.color, are changed runtime.
+										If the values would be copied, the runtime change would not take effect. By routing, the
+									fallback is evaluated at each access, so its always up to date.</p>
+								</div>
+								<p>Examples:</p>
+								<pre><code><span class="hljs-selector-tag">defaults</span><span class="hljs-selector-class">.route</span>(<span class="hljs-string">'elements.arc'</span>, <span class="hljs-string">'backgroundColor'</span>, <span class="hljs-string">''</span>, <span class="hljs-string">'color'</span>)</code></pre><ul>
+									<li><p>reads the backgroundColor from defaults.color when undefined locally</p>
+										<p>defaults.route(&#39;elements.line&#39;, [&#39;backgroundColor&#39;, &#39;borderColor&#39;], &#39;&#39;, &#39;color&#39;)</p>
+									</li>
+									<li><p>reads the backgroundColor and borderColor from defaults.color when undefined locally</p>
+										<p>defaults.route(&#39;elements.customLine&#39;, [&#39;borderWidth&#39;, &#39;tension&#39;], &#39;elements.line&#39;, [&#39;borderWidth&#39;, &#39;tension&#39;])</p>
+									</li>
+									<li><p>reads the borderWidth and tension from elements.line when those are not defined in elements.customLine</p>
+									</li>
+								</ul>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>scope: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Scope this route applies to.</p>
+									</div>
+								</li>
+								<li>
+									<h5>names: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Names of the properties that should be routed to different namespace when not defined here.</p>
+									</div>
+								</li>
+								<li>
+									<h5>targetScope: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The namespace where those properties should be routed to. Empty string (&#39;&#39;) is the root of defaults.</p>
+									</div>
+								</li>
+								<li>
+									<h5>targetNames: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The target name/names in the target scope the properties should be routed to.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="set" class="tsd-anchor"></a>
 					<h3>set</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -131,7 +196,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/2a8962c/src/core/core.defaults.js#L47">core/core.defaults.js:47</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/8e7bde2/src/core/core.defaults.js#L66">core/core.defaults.js:66</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -173,6 +238,9 @@
 						<ul>
 							<li class=" tsd-kind-constructor tsd-parent-kind-class">
 								<a href="_core_core_defaults_.defaults.html#constructor" class="tsd-kind-icon">constructor</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_core_core_defaults_.defaults.html#route" class="tsd-kind-icon">route</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="_core_core_defaults_.defaults.html#set" class="tsd-kind-icon">set</a>
