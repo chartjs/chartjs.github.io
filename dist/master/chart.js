@@ -7678,26 +7678,25 @@ var formatters = {
     if (tickValue === 0) {
       return '0';
     }
+    var locale = this.chart.options.locale;
+    var maxTick = Math.max(Math.abs(ticks[0].value), Math.abs(ticks[ticks.length - 1].value));
+    var notation;
+    if (maxTick < 1e-4 || maxTick > 1e+15) {
+      notation = 'scientific';
+    }
     var delta = ticks.length > 3 ? ticks[2].value - ticks[1].value : ticks[1].value - ticks[0].value;
     if (Math.abs(delta) > 1 && tickValue !== Math.floor(tickValue)) {
       delta = tickValue - Math.floor(tickValue);
     }
     var logDelta = log10(Math.abs(delta));
-    var maxTick = Math.max(Math.abs(ticks[0].value), Math.abs(ticks[ticks.length - 1].value));
-    var minTick = Math.min(Math.abs(ticks[0].value), Math.abs(ticks[ticks.length - 1].value));
-    var locale = this.chart.options.locale;
-    if (maxTick < 1e-4 || minTick > 1e+7) {
-      var logTick = log10(Math.abs(tickValue));
-      var numExponential = Math.floor(logTick) - Math.floor(logDelta);
-      numExponential = Math.max(Math.min(numExponential, 20), 0);
-      return tickValue.toExponential(numExponential);
-    }
-    var numDecimal = -1 * Math.floor(logDelta);
-    numDecimal = Math.max(Math.min(numDecimal, 20), 0);
-    return new Intl.NumberFormat(locale, {
+    var numDecimal = Math.max(Math.min(-1 * Math.floor(logDelta), 20), 0);
+    var options = {
+      notation: notation,
       minimumFractionDigits: numDecimal,
       maximumFractionDigits: numDecimal
-    }).format(tickValue);
+    };
+    _extends(options, this.options.ticks.format);
+    return new Intl.NumberFormat(locale, options).format(tickValue);
   }
 };
 formatters.logarithmic = function (tickValue, index, ticks) {
