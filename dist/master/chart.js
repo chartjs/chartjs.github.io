@@ -6893,8 +6893,7 @@ var Chart = function () {
     this.currentDevicePixelRatio = undefined;
     this.chartArea = undefined;
     this.data = undefined;
-    this.active = undefined;
-    this.lastActive = [];
+    this._active = [];
     this._lastEvent = undefined;
     this._listeners = {};
     this._sortedMetasets = [];
@@ -7490,15 +7489,15 @@ var Chart = function () {
     }
   }
   ;
-  _proto._updateHoverStyles = function _updateHoverStyles() {
+  _proto._updateHoverStyles = function _updateHoverStyles(active, lastActive) {
     var me = this;
     var options = me.options || {};
     var hoverOptions = options.hover;
-    if (me.lastActive.length) {
-      me.updateHoverStyle(me.lastActive, hoverOptions.mode, false);
+    if (lastActive.length) {
+      me.updateHoverStyle(lastActive, hoverOptions.mode, false);
     }
-    if (me.active.length && hoverOptions.mode) {
-      me.updateHoverStyle(me.active, hoverOptions.mode, true);
+    if (active.length && hoverOptions.mode) {
+      me.updateHoverStyle(active, hoverOptions.mode, true);
     }
   }
   ;
@@ -7515,28 +7514,29 @@ var Chart = function () {
   ;
   _proto._handleEvent = function _handleEvent(e, replay) {
     var me = this;
+    var lastActive = me._active || [];
     var options = me.options;
     var hoverOptions = options.hover;
     var useFinalPosition = replay;
+    var active = [];
     var changed = false;
     if (e.type === 'mouseout') {
-      me.active = [];
       me._lastEvent = null;
     } else {
-      me.active = me.getElementsAtEventForMode(e, hoverOptions.mode, hoverOptions, useFinalPosition);
+      active = me.getElementsAtEventForMode(e, hoverOptions.mode, hoverOptions, useFinalPosition);
       me._lastEvent = e.type === 'click' ? me._lastEvent : e;
     }
-    callback(options.onHover || options.hover.onHover, [e["native"], me.active, me], me);
+    callback(options.onHover || options.hover.onHover, [e, active, me], me);
     if (e.type === 'mouseup' || e.type === 'click') {
       if (_isPointInArea(e, me.chartArea)) {
-        callback(options.onClick, [e, me.active, me], me);
+        callback(options.onClick, [e, active, me], me);
       }
     }
-    changed = !_elementsEqual(me.active, me.lastActive);
+    changed = !_elementsEqual(active, lastActive);
     if (changed || replay) {
-      me._updateHoverStyles();
+      me._active = active;
+      me._updateHoverStyles(active, lastActive);
     }
-    me.lastActive = me.active;
     return changed;
   };
   return Chart;
