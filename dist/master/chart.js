@@ -965,7 +965,7 @@ resolve: resolve
 });
 
 /*!
- * @kurkle/color v0.1.8
+ * @kurkle/color v0.1.9
  * https://github.com/kurkle/color#readme
  * (c) 2020 Jukka Kurkela
  * Released under the MIT License
@@ -1219,23 +1219,7 @@ var map$1 = {
   I: 'ightg',
   J: 'wh'
 };
-function unpack(obj) {
-  var unpacked = {};
-  var keys = Object.keys(obj);
-  var tkeys = Object.keys(map$1);
-  var i, j, k, ok, nk;
-  for (i = 0; i < keys.length; i++) {
-    ok = nk = keys[i];
-    for (j = 0; j < tkeys.length; j++) {
-      k = tkeys[j];
-      nk = nk.replace(k, map$1[k]);
-    }
-    k = parseInt(obj[ok], 16);
-    unpacked[nk] = [k >> 16 & 0xFF, k >> 8 & 0xFF, k & 0xFF];
-  }
-  return unpacked;
-}
-var names = unpack({
+var names = {
   OiceXe: 'f0f8ff',
   antiquewEte: 'faebd7',
   aqua: 'ffff',
@@ -1384,10 +1368,30 @@ var names = unpack({
   wEtesmoke: 'f5f5f5',
   Lw: 'ffff00',
   LwgYF: '9acd32'
-});
-names.transparent = [0, 0, 0, 0];
+};
+function unpack() {
+  var unpacked = {};
+  var keys = Object.keys(names);
+  var tkeys = Object.keys(map$1);
+  var i, j, k, ok, nk;
+  for (i = 0; i < keys.length; i++) {
+    ok = nk = keys[i];
+    for (j = 0; j < tkeys.length; j++) {
+      k = tkeys[j];
+      nk = nk.replace(k, map$1[k]);
+    }
+    k = parseInt(names[ok], 16);
+    unpacked[nk] = [k >> 16 & 0xFF, k >> 8 & 0xFF, k & 0xFF];
+  }
+  return unpacked;
+}
+var names$1;
 function nameParse(str) {
-  var a = names[str.toLowerCase()];
+  if (!names$1) {
+    names$1 = unpack();
+    names$1.transparent = [0, 0, 0, 0];
+  }
+  var a = names$1[str.toLowerCase()];
   return a && {
     r: a[0],
     g: a[1],
@@ -2383,33 +2387,38 @@ var DatasetController = function () {
     return _applyStack(stack, value, meta.index);
   }
   ;
+  _proto.updateRangeFromParsed = function updateRangeFromParsed(range, scale, parsed, stack) {
+    var value = parsed[scale.axis];
+    var values = stack && parsed._stacks[scale.axis];
+    if (stack && values) {
+      stack.values = values;
+      range.min = Math.min(range.min, value);
+      range.max = Math.max(range.max, value);
+      value = _applyStack(stack, value, this._cachedMeta.index, true);
+    }
+    range.min = Math.min(range.min, value);
+    range.max = Math.max(range.max, value);
+  }
+  ;
   _proto.getMinMax = function getMinMax(scale, canStack) {
-    var meta = this._cachedMeta;
+    var me = this;
+    var meta = me._cachedMeta;
     var _parsed = meta._parsed;
     var sorted = meta._sorted && scale === meta.iScale;
     var ilen = _parsed.length;
-    var otherScale = this._getOtherScale(scale);
+    var otherScale = me._getOtherScale(scale);
     var stack = canStack && meta._stacked && {
-      keys: getSortedDatasetIndices(this.chart, true),
+      keys: getSortedDatasetIndices(me.chart, true),
       values: null
     };
-    var min = Number.POSITIVE_INFINITY;
-    var max = Number.NEGATIVE_INFINITY;
+    var range = {
+      min: Number.POSITIVE_INFINITY,
+      max: Number.NEGATIVE_INFINITY
+    };
     var _getUserBounds = getUserBounds(otherScale),
         otherMin = _getUserBounds.min,
         otherMax = _getUserBounds.max;
     var i, value, parsed, otherValue;
-    function _compute() {
-      var values = stack && parsed._stacks[scale.axis];
-      if (stack && values) {
-        stack.values = values;
-        min = Math.min(min, value);
-        max = Math.max(max, value);
-        value = _applyStack(stack, value, meta.index, true);
-      }
-      min = Math.min(min, value);
-      max = Math.max(max, value);
-    }
     function _skip() {
       parsed = _parsed[i];
       value = parsed[scale.axis];
@@ -2420,7 +2429,7 @@ var DatasetController = function () {
       if (_skip()) {
         continue;
       }
-      _compute();
+      me.updateRangeFromParsed(range, scale, parsed, stack);
       if (sorted) {
         break;
       }
@@ -2430,14 +2439,11 @@ var DatasetController = function () {
         if (_skip()) {
           continue;
         }
-        _compute();
+        me.updateRangeFromParsed(range, scale, parsed, stack);
         break;
       }
     }
-    return {
-      min: min,
-      max: max
-    };
+    return range;
   };
   _proto.getAllParsedValues = function getAllParsedValues(scale) {
     var parsed = this._cachedMeta._parsed;
@@ -4001,6 +4007,15 @@ var BarController = function (_DatasetController) {
       parsed.push(item);
     }
     return parsed;
+  }
+  ;
+  _proto.updateRangeFromParsed = function updateRangeFromParsed(range, scale, parsed, stack) {
+    _DatasetController.prototype.updateRangeFromParsed.call(this, range, scale, parsed, stack);
+    var custom = parsed._custom;
+    if (custom) {
+      range.min = Math.min(range.min, custom.min);
+      range.max = Math.max(range.max, custom.max);
+    }
   }
   ;
   _proto.getLabelAndValue = function getLabelAndValue(index) {
@@ -7936,7 +7951,7 @@ var Scale = function (_Element) {
         max = _me$getUserBounds.max,
         minDefined = _me$getUserBounds.minDefined,
         maxDefined = _me$getUserBounds.maxDefined;
-    var minmax;
+    var range;
     if (minDefined && maxDefined) {
       return {
         min: min,
@@ -7945,12 +7960,12 @@ var Scale = function (_Element) {
     }
     var metas = me.getMatchingVisibleMetas();
     for (var i = 0, ilen = metas.length; i < ilen; ++i) {
-      minmax = metas[i].controller.getMinMax(me, canStack);
+      range = metas[i].controller.getMinMax(me, canStack);
       if (!minDefined) {
-        min = Math.min(min, minmax.min);
+        min = Math.min(min, range.min);
       }
       if (!maxDefined) {
-        max = Math.max(max, minmax.max);
+        max = Math.max(max, range.max);
       }
     }
     return {
@@ -9147,9 +9162,9 @@ var LinearScale = function (_LinearScaleBase) {
   _proto.determineDataLimits = function determineDataLimits() {
     var me = this;
     var options = me.options;
-    var minmax = me.getMinMax(true);
-    var min = minmax.min;
-    var max = minmax.max;
+    var _me$getMinMax = me.getMinMax(true),
+        min = _me$getMinMax.min,
+        max = _me$getMinMax.max;
     me.min = isNumberFinite(min) ? min : valueOrDefault(options.suggestedMin, 0);
     me.max = isNumberFinite(max) ? max : valueOrDefault(options.suggestedMax, 1);
     if (options.stacked && min > 0) {
@@ -9247,9 +9262,9 @@ var LogarithmicScale = function (_Scale) {
   };
   _proto.determineDataLimits = function determineDataLimits() {
     var me = this;
-    var minmax = me.getMinMax(true);
-    var min = minmax.min;
-    var max = minmax.max;
+    var _me$getMinMax = me.getMinMax(true),
+        min = _me$getMinMax.min,
+        max = _me$getMinMax.max;
     me.min = isNumberFinite(min) ? Math.max(0, min) : null;
     me.max = isNumberFinite(max) ? Math.max(0, max) : null;
     me.handleTickRangeOptions();
@@ -9548,9 +9563,9 @@ var RadialLinearScale = function (_LinearScaleBase) {
   };
   _proto.determineDataLimits = function determineDataLimits() {
     var me = this;
-    var minmax = me.getMinMax(false);
-    var min = minmax.min;
-    var max = minmax.max;
+    var _me$getMinMax = me.getMinMax(false),
+        min = _me$getMinMax.min,
+        max = _me$getMinMax.max;
     me.min = isNumberFinite(min) && !isNaN(min) ? min : 0;
     me.max = isNumberFinite(max) && !isNaN(max) ? max : 0;
     me.handleTickRangeOptions();

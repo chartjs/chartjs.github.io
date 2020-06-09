@@ -907,7 +907,7 @@ resolve: resolve
 });
 
 /*!
- * @kurkle/color v0.1.8
+ * @kurkle/color v0.1.9
  * https://github.com/kurkle/color#readme
  * (c) 2020 Jukka Kurkela
  * Released under the MIT License
@@ -1107,7 +1107,7 @@ function hslString(v) {
 		? `hsla(${h}, ${s}%, ${l}%, ${b2n(v.a)})`
 		: `hsl(${h}, ${s}%, ${l}%)`;
 }
-var map$1 = {
+const map$1 = {
 	x: 'dark',
 	Z: 'light',
 	Y: 're',
@@ -1136,23 +1136,7 @@ var map$1 = {
 	I: 'ightg',
 	J: 'wh'
 };
-function unpack(obj) {
-	var unpacked = {};
-	var keys = Object.keys(obj);
-	var tkeys = Object.keys(map$1);
-	var i, j, k, ok, nk;
-	for (i = 0; i < keys.length; i++) {
-		ok = nk = keys[i];
-		for (j = 0; j < tkeys.length; j++) {
-			k = tkeys[j];
-			nk = nk.replace(k, map$1[k]);
-		}
-		k = parseInt(obj[ok], 16);
-		unpacked[nk] = [k >> 16 & 0xFF, k >> 8 & 0xFF, k & 0xFF];
-	}
-	return unpacked;
-}
-const names = unpack({
+const names = {
 	OiceXe: 'f0f8ff',
 	antiquewEte: 'faebd7',
 	aqua: 'ffff',
@@ -1301,10 +1285,30 @@ const names = unpack({
 	wEtesmoke: 'f5f5f5',
 	Lw: 'ffff00',
 	LwgYF: '9acd32'
-});
-names.transparent = [0, 0, 0, 0];
+};
+function unpack() {
+	const unpacked = {};
+	const keys = Object.keys(names);
+	const tkeys = Object.keys(map$1);
+	let i, j, k, ok, nk;
+	for (i = 0; i < keys.length; i++) {
+		ok = nk = keys[i];
+		for (j = 0; j < tkeys.length; j++) {
+			k = tkeys[j];
+			nk = nk.replace(k, map$1[k]);
+		}
+		k = parseInt(names[ok], 16);
+		unpacked[nk] = [k >> 16 & 0xFF, k >> 8 & 0xFF, k & 0xFF];
+	}
+	return unpacked;
+}
+let names$1;
 function nameParse(str) {
-	var a = names[str.toLowerCase()];
+	if (!names$1) {
+		names$1 = unpack();
+		names$1.transparent = [0, 0, 0, 0];
+	}
+	const a = names$1[str.toLowerCase()];
 	return a && {
 		r: a[0],
 		g: a[1],
@@ -2239,28 +2243,29 @@ class DatasetController {
 		};
 		return applyStack(stack, value, meta.index);
 	}
+	updateRangeFromParsed(range, scale, parsed, stack) {
+		let value = parsed[scale.axis];
+		const values = stack && parsed._stacks[scale.axis];
+		if (stack && values) {
+			stack.values = values;
+			range.min = Math.min(range.min, value);
+			range.max = Math.max(range.max, value);
+			value = applyStack(stack, value, this._cachedMeta.index, true);
+		}
+		range.min = Math.min(range.min, value);
+		range.max = Math.max(range.max, value);
+	}
 	getMinMax(scale, canStack) {
-		const meta = this._cachedMeta;
+		const me = this;
+		const meta = me._cachedMeta;
 		const _parsed = meta._parsed;
 		const sorted = meta._sorted && scale === meta.iScale;
 		const ilen = _parsed.length;
-		const otherScale = this._getOtherScale(scale);
-		const stack = canStack && meta._stacked && {keys: getSortedDatasetIndices(this.chart, true), values: null};
-		let min = Number.POSITIVE_INFINITY;
-		let max = Number.NEGATIVE_INFINITY;
+		const otherScale = me._getOtherScale(scale);
+		const stack = canStack && meta._stacked && {keys: getSortedDatasetIndices(me.chart, true), values: null};
+		const range = {min: Number.POSITIVE_INFINITY, max: Number.NEGATIVE_INFINITY};
 		const {min: otherMin, max: otherMax} = getUserBounds(otherScale);
 		let i, value, parsed, otherValue;
-		function _compute() {
-			const values = stack && parsed._stacks[scale.axis];
-			if (stack && values) {
-				stack.values = values;
-				min = Math.min(min, value);
-				max = Math.max(max, value);
-				value = applyStack(stack, value, meta.index, true);
-			}
-			min = Math.min(min, value);
-			max = Math.max(max, value);
-		}
 		function _skip() {
 			parsed = _parsed[i];
 			value = parsed[scale.axis];
@@ -2271,7 +2276,7 @@ class DatasetController {
 			if (_skip()) {
 				continue;
 			}
-			_compute();
+			me.updateRangeFromParsed(range, scale, parsed, stack);
 			if (sorted) {
 				break;
 			}
@@ -2281,11 +2286,11 @@ class DatasetController {
 				if (_skip()) {
 					continue;
 				}
-				_compute();
+				me.updateRangeFromParsed(range, scale, parsed, stack);
 				break;
 			}
 		}
-		return {min, max};
+		return range;
 	}
 	getAllParsedValues(scale) {
 		const parsed = this._cachedMeta._parsed;
@@ -3696,6 +3701,14 @@ class BarController extends DatasetController {
 			parsed.push(item);
 		}
 		return parsed;
+	}
+	updateRangeFromParsed(range, scale, parsed, stack) {
+		super.updateRangeFromParsed(range, scale, parsed, stack);
+		const custom = parsed._custom;
+		if (custom) {
+			range.min = Math.min(range.min, custom.min);
+			range.max = Math.max(range.max, custom.max);
+		}
 	}
 	getLabelAndValue(index) {
 		const me = this;
@@ -6974,18 +6987,18 @@ class Scale extends Element {
 	getMinMax(canStack) {
 		const me = this;
 		let {min, max, minDefined, maxDefined} = me.getUserBounds();
-		let minmax;
+		let range;
 		if (minDefined && maxDefined) {
 			return {min, max};
 		}
 		const metas = me.getMatchingVisibleMetas();
 		for (let i = 0, ilen = metas.length; i < ilen; ++i) {
-			minmax = metas[i].controller.getMinMax(me, canStack);
+			range = metas[i].controller.getMinMax(me, canStack);
 			if (!minDefined) {
-				min = Math.min(min, minmax.min);
+				min = Math.min(min, range.min);
 			}
 			if (!maxDefined) {
-				max = Math.max(max, minmax.max);
+				max = Math.max(max, range.max);
 			}
 		}
 		return {min, max};
@@ -8111,9 +8124,7 @@ class LinearScale extends LinearScaleBase {
 	determineDataLimits() {
 		const me = this;
 		const options = me.options;
-		const minmax = me.getMinMax(true);
-		const min = minmax.min;
-		const max = minmax.max;
+		const {min, max} = me.getMinMax(true);
 		me.min = isNumberFinite(min) ? min : valueOrDefault(options.suggestedMin, 0);
 		me.max = isNumberFinite(max) ? max : valueOrDefault(options.suggestedMax, 1);
 		if (options.stacked && min > 0) {
@@ -8197,9 +8208,7 @@ class LogarithmicScale extends Scale {
 	}
 	determineDataLimits() {
 		const me = this;
-		const minmax = me.getMinMax(true);
-		const min = minmax.min;
-		const max = minmax.max;
+		const {min, max} = me.getMinMax(true);
 		me.min = isNumberFinite(min) ? Math.max(0, min) : null;
 		me.max = isNumberFinite(max) ? Math.max(0, max) : null;
 		me.handleTickRangeOptions();
@@ -8493,9 +8502,7 @@ class RadialLinearScale extends LinearScaleBase {
 	}
 	determineDataLimits() {
 		const me = this;
-		const minmax = me.getMinMax(false);
-		const min = minmax.min;
-		const max = minmax.max;
+		const {min, max} = me.getMinMax(false);
 		me.min = isNumberFinite(min) && !isNaN(min) ? min : 0;
 		me.max = isNumberFinite(max) && !isNaN(max) ? max : 0;
 		me.handleTickRangeOptions();
