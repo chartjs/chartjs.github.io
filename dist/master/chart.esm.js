@@ -8683,11 +8683,19 @@ function sorter(a, b) {
 	return a - b;
 }
 function arrayUnique(items) {
-	const unique = {};
-	for (let i = 0, ilen = items.length; i < ilen; ++i) {
-		unique[items[i]] = true;
+	const set = new Set();
+	let i, ilen;
+	for (i = 0, ilen = items.length; i < ilen; ++i) {
+		set.add(items[i]);
 	}
-	return Object.keys(unique).map(x => +x);
+	if (set.size === ilen) {
+		return items;
+	}
+	const result = [];
+	set.forEach(item => {
+		result.push(item);
+	});
+	return result;
 }
 function parse(scale, input) {
 	if (isNullOrUndef(input)) {

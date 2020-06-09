@@ -9773,13 +9773,19 @@ function sorter(a, b) {
   return a - b;
 }
 function arrayUnique(items) {
-  var unique = {};
-  for (var i = 0, ilen = items.length; i < ilen; ++i) {
-    unique[items[i]] = true;
+  var set = new Set();
+  var i, ilen;
+  for (i = 0, ilen = items.length; i < ilen; ++i) {
+    set.add(items[i]);
   }
-  return Object.keys(unique).map(function (x) {
-    return +x;
+  if (set.size === ilen) {
+    return items;
+  }
+  var result = [];
+  set.forEach(function (item) {
+    result.push(item);
   });
+  return result;
 }
 function _parse(scale, input) {
   if (isNullOrUndef(input)) {
