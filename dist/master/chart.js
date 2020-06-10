@@ -4635,7 +4635,6 @@ defaults.set('horizontalBar', {
     }
   },
   tooltips: {
-    mode: 'index',
     axis: 'y'
   }
 });
