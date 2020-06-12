@@ -3407,7 +3407,7 @@ defaults.set(scope$1, {
   borderWidth: 3,
   capBezierPoints: true,
   fill: true,
-  tension: 0.4
+  tension: 0
 });
 defaults.route(scope$1, ['backgroundColor', 'borderColor'], '', 'color');
 function setStyle(ctx, vm) {
