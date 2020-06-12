@@ -10160,7 +10160,7 @@ class Title extends Element {
 		if (!opts.display) {
 			return;
 		}
-		const fontOpts = toFont(opts);
+		const fontOpts = toFont(opts.font);
 		const lineHeight = fontOpts.lineHeight;
 		const offset = lineHeight / 2 + me._padding.top;
 		let rotation = 0;

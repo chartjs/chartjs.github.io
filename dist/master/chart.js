@@ -11390,7 +11390,7 @@ var Title = function (_Element) {
     if (!opts.display) {
       return;
     }
-    var fontOpts = toFont(opts);
+    var fontOpts = toFont(opts.font);
     var lineHeight = fontOpts.lineHeight;
     var offset = lineHeight / 2 + me._padding.top;
     var rotation = 0;
