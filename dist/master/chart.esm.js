@@ -1706,6 +1706,111 @@ class Animations {
 	}
 }
 
+function _lookup(table, value) {
+	let hi = table.length - 1;
+	let lo = 0;
+	let mid;
+	while (hi - lo > 1) {
+		mid = (lo + hi) >> 1;
+		if (table[mid] < value) {
+			lo = mid;
+		} else {
+			hi = mid;
+		}
+	}
+	return {lo, hi};
+}
+function _lookupByKey(table, key, value) {
+	let hi = table.length - 1;
+	let lo = 0;
+	let mid;
+	while (hi - lo > 1) {
+		mid = (lo + hi) >> 1;
+		if (table[mid][key] < value) {
+			lo = mid;
+		} else {
+			hi = mid;
+		}
+	}
+	return {lo, hi};
+}
+function _rlookupByKey(table, key, value) {
+	let hi = table.length - 1;
+	let lo = 0;
+	let mid;
+	while (hi - lo > 1) {
+		mid = (lo + hi) >> 1;
+		if (table[mid][key] < value) {
+			hi = mid;
+		} else {
+			lo = mid;
+		}
+	}
+	return {lo, hi};
+}
+function _filterBetween(values, min, max) {
+	let start = 0;
+	let end = values.length;
+	while (start < end && values[start] < min) {
+		start++;
+	}
+	while (end > start && values[end - 1] > max) {
+		end--;
+	}
+	return start > 0 || end < values.length
+		? values.slice(start, end)
+		: values;
+}
+const arrayEvents = ['push', 'pop', 'shift', 'splice', 'unshift'];
+function listenArrayEvents(array, listener) {
+	if (array._chartjs) {
+		array._chartjs.listeners.push(listener);
+		return;
+	}
+	Object.defineProperty(array, '_chartjs', {
+		configurable: true,
+		enumerable: false,
+		value: {
+			listeners: [listener]
+		}
+	});
+	arrayEvents.forEach((key) => {
+		const method = '_onData' + key.charAt(0).toUpperCase() + key.slice(1);
+		const base = array[key];
+		Object.defineProperty(array, key, {
+			configurable: true,
+			enumerable: false,
+			value(...args) {
+				const res = base.apply(this, args);
+				array._chartjs.listeners.forEach((object) => {
+					if (typeof object[method] === 'function') {
+						object[method](...args);
+					}
+				});
+				return res;
+			}
+		});
+	});
+}
+function unlistenArrayEvents(array, listener) {
+	const stub = array._chartjs;
+	if (!stub) {
+		return;
+	}
+	const listeners = stub.listeners;
+	const index = listeners.indexOf(listener);
+	if (index !== -1) {
+		listeners.splice(index, 1);
+	}
+	if (listeners.length > 0) {
+		return;
+	}
+	arrayEvents.forEach((key) => {
+		delete array[key];
+	});
+	delete array._chartjs;
+}
+
 const PI$1 = Math.PI;
 const TAU = 2 * PI$1;
 const PITAU = TAU + PI$1;
@@ -1836,37 +1941,6 @@ _angleBetween: _angleBetween,
 _limitValue: _limitValue
 });
 
-const arrayEvents = ['push', 'pop', 'shift', 'splice', 'unshift'];
-function listenArrayEvents(array, listener) {
-	if (array._chartjs) {
-		array._chartjs.listeners.push(listener);
-		return;
-	}
-	Object.defineProperty(array, '_chartjs', {
-		configurable: true,
-		enumerable: false,
-		value: {
-			listeners: [listener]
-		}
-	});
-	arrayEvents.forEach((key) => {
-		const method = '_onData' + key.charAt(0).toUpperCase() + key.slice(1);
-		const base = array[key];
-		Object.defineProperty(array, key, {
-			configurable: true,
-			enumerable: false,
-			value(...args) {
-				const res = base.apply(this, args);
-				array._chartjs.listeners.forEach((object) => {
-					if (typeof object[method] === 'function') {
-						object[method](...args);
-					}
-				});
-				return res;
-			}
-		});
-	});
-}
 function scaleClip(scale, allowedOverflow) {
 	const opts = scale && scale.options || {};
 	const reverse = opts.reverse;
@@ -1906,24 +1980,6 @@ function toClip(value) {
 		bottom: b,
 		left: l
 	};
-}
-function unlistenArrayEvents(array, listener) {
-	const stub = array._chartjs;
-	if (!stub) {
-		return;
-	}
-	const listeners = stub.listeners;
-	const index = listeners.indexOf(listener);
-	if (index !== -1) {
-		listeners.splice(index, 1);
-	}
-	if (listeners.length > 0) {
-		return;
-	}
-	arrayEvents.forEach((key) => {
-		delete array[key];
-	});
-	delete array._chartjs;
 }
 function getSortedDatasetIndices(chart, filterVisible) {
 	const keys = [];
@@ -4795,62 +4851,6 @@ radar: RadarController,
 scatter: LineController
 });
 
-function _lookup(table, value) {
-	let hi = table.length - 1;
-	let lo = 0;
-	let mid;
-	while (hi - lo > 1) {
-		mid = (lo + hi) >> 1;
-		if (table[mid] < value) {
-			lo = mid;
-		} else {
-			hi = mid;
-		}
-	}
-	return {lo, hi};
-}
-function _lookupByKey(table, key, value) {
-	let hi = table.length - 1;
-	let lo = 0;
-	let mid;
-	while (hi - lo > 1) {
-		mid = (lo + hi) >> 1;
-		if (table[mid][key] < value) {
-			lo = mid;
-		} else {
-			hi = mid;
-		}
-	}
-	return {lo, hi};
-}
-function _rlookupByKey(table, key, value) {
-	let hi = table.length - 1;
-	let lo = 0;
-	let mid;
-	while (hi - lo > 1) {
-		mid = (lo + hi) >> 1;
-		if (table[mid][key] < value) {
-			hi = mid;
-		} else {
-			lo = mid;
-		}
-	}
-	return {lo, hi};
-}
-function _filterBetween(values, min, max) {
-	let start = 0;
-	let end = values.length;
-	while (start < end && values[start] < min) {
-		start++;
-	}
-	while (end > start && values[end - 1] > max) {
-		end--;
-	}
-	return start > 0 || end < values.length
-		? values.slice(start, end)
-		: values;
-}
-
 function isConstrainedValue(value) {
 	return value !== undefined && value !== null && value !== 'none';
 }
@@ -7415,8 +7415,10 @@ class Scale extends Element {
 		const tl = getTickMarkLength(gridLines);
 		const items = [];
 		let context = {
+			chart,
 			scale: me,
 			tick: ticks[0],
+			index: 0,
 		};
 		const axisWidth = gridLines.drawBorder ? resolve([gridLines.borderWidth, gridLines.lineWidth, 0], context, 0) : 0;
 		const axisHalfWidth = axisWidth / 2;
@@ -7477,8 +7479,10 @@ class Scale extends Element {
 		for (i = 0; i < ticksLength; ++i) {
 			const tick = ticks[i] || {};
 			context = {
+				chart,
 				scale: me,
 				tick,
+				index: i,
 			};
 			const lineWidth = resolve([gridLines.lineWidth], context, i);
 			const lineColor = resolve([gridLines.color], context, i);
@@ -7595,8 +7599,10 @@ class Scale extends Element {
 		const ctx = me.ctx;
 		const chart = me.chart;
 		let context = {
+			chart,
 			scale: me,
 			tick: me.ticks[0],
+			index: 0,
 		};
 		const axisWidth = gridLines.drawBorder ? resolve([gridLines.borderWidth, gridLines.lineWidth, 0], context, 0) : 0;
 		const items = me._gridLineItems || (me._gridLineItems = me._computeGridLineItems(chartArea));
@@ -7631,8 +7637,10 @@ class Scale extends Element {
 		if (axisWidth) {
 			const firstLineWidth = axisWidth;
 			context = {
+				chart,
 				scale: me,
 				tick: me.ticks[me._ticksLength - 1],
+				index: me._ticksLength - 1,
 			};
 			const lastLineWidth = resolve([gridLines.lineWidth, 1], context, me._ticksLength - 1);
 			const borderValue = me._borderValue;

@@ -1821,6 +1821,121 @@ var Animations = function () {
   return Animations;
 }();
 
+function _lookup(table, value) {
+  var hi = table.length - 1;
+  var lo = 0;
+  var mid;
+  while (hi - lo > 1) {
+    mid = lo + hi >> 1;
+    if (table[mid] < value) {
+      lo = mid;
+    } else {
+      hi = mid;
+    }
+  }
+  return {
+    lo: lo,
+    hi: hi
+  };
+}
+function _lookupByKey(table, key, value) {
+  var hi = table.length - 1;
+  var lo = 0;
+  var mid;
+  while (hi - lo > 1) {
+    mid = lo + hi >> 1;
+    if (table[mid][key] < value) {
+      lo = mid;
+    } else {
+      hi = mid;
+    }
+  }
+  return {
+    lo: lo,
+    hi: hi
+  };
+}
+function _rlookupByKey(table, key, value) {
+  var hi = table.length - 1;
+  var lo = 0;
+  var mid;
+  while (hi - lo > 1) {
+    mid = lo + hi >> 1;
+    if (table[mid][key] < value) {
+      hi = mid;
+    } else {
+      lo = mid;
+    }
+  }
+  return {
+    lo: lo,
+    hi: hi
+  };
+}
+function _filterBetween(values, min, max) {
+  var start = 0;
+  var end = values.length;
+  while (start < end && values[start] < min) {
+    start++;
+  }
+  while (end > start && values[end - 1] > max) {
+    end--;
+  }
+  return start > 0 || end < values.length ? values.slice(start, end) : values;
+}
+var arrayEvents = ['push', 'pop', 'shift', 'splice', 'unshift'];
+function listenArrayEvents(array, listener) {
+  if (array._chartjs) {
+    array._chartjs.listeners.push(listener);
+    return;
+  }
+  Object.defineProperty(array, '_chartjs', {
+    configurable: true,
+    enumerable: false,
+    value: {
+      listeners: [listener]
+    }
+  });
+  arrayEvents.forEach(function (key) {
+    var method = '_onData' + key.charAt(0).toUpperCase() + key.slice(1);
+    var base = array[key];
+    Object.defineProperty(array, key, {
+      configurable: true,
+      enumerable: false,
+      value: function value() {
+        for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+          args[_key] = arguments[_key];
+        }
+        var res = base.apply(this, args);
+        array._chartjs.listeners.forEach(function (object) {
+          if (typeof object[method] === 'function') {
+            object[method].apply(object, args);
+          }
+        });
+        return res;
+      }
+    });
+  });
+}
+function unlistenArrayEvents(array, listener) {
+  var stub = array._chartjs;
+  if (!stub) {
+    return;
+  }
+  var listeners = stub.listeners;
+  var index = listeners.indexOf(listener);
+  if (index !== -1) {
+    listeners.splice(index, 1);
+  }
+  if (listeners.length > 0) {
+    return;
+  }
+  arrayEvents.forEach(function (key) {
+    delete array[key];
+  });
+  delete array._chartjs;
+}
+
 var PI$1 = Math.PI;
 var TAU = 2 * PI$1;
 var PITAU = TAU + PI$1;
@@ -1951,40 +2066,6 @@ _angleBetween: _angleBetween,
 _limitValue: _limitValue
 });
 
-var arrayEvents = ['push', 'pop', 'shift', 'splice', 'unshift'];
-function listenArrayEvents(array, listener) {
-  if (array._chartjs) {
-    array._chartjs.listeners.push(listener);
-    return;
-  }
-  Object.defineProperty(array, '_chartjs', {
-    configurable: true,
-    enumerable: false,
-    value: {
-      listeners: [listener]
-    }
-  });
-  arrayEvents.forEach(function (key) {
-    var method = '_onData' + key.charAt(0).toUpperCase() + key.slice(1);
-    var base = array[key];
-    Object.defineProperty(array, key, {
-      configurable: true,
-      enumerable: false,
-      value: function value() {
-        for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-          args[_key] = arguments[_key];
-        }
-        var res = base.apply(this, args);
-        array._chartjs.listeners.forEach(function (object) {
-          if (typeof object[method] === 'function') {
-            object[method].apply(object, args);
-          }
-        });
-        return res;
-      }
-    });
-  });
-}
 function scaleClip(scale, allowedOverflow) {
   var opts = scale && scale.options || {};
   var reverse = opts.reverse;
@@ -2024,24 +2105,6 @@ function toClip(value) {
     bottom: b,
     left: l
   };
-}
-function unlistenArrayEvents(array, listener) {
-  var stub = array._chartjs;
-  if (!stub) {
-    return;
-  }
-  var listeners = stub.listeners;
-  var index = listeners.indexOf(listener);
-  if (index !== -1) {
-    listeners.splice(index, 1);
-  }
-  if (listeners.length > 0) {
-    return;
-  }
-  arrayEvents.forEach(function (key) {
-    delete array[key];
-  });
-  delete array._chartjs;
 }
 function getSortedDatasetIndices(chart, filterVisible) {
   var keys = [];
@@ -5107,69 +5170,6 @@ pie: DoughnutController,
 radar: RadarController,
 scatter: LineController
 });
-
-function _lookup(table, value) {
-  var hi = table.length - 1;
-  var lo = 0;
-  var mid;
-  while (hi - lo > 1) {
-    mid = lo + hi >> 1;
-    if (table[mid] < value) {
-      lo = mid;
-    } else {
-      hi = mid;
-    }
-  }
-  return {
-    lo: lo,
-    hi: hi
-  };
-}
-function _lookupByKey(table, key, value) {
-  var hi = table.length - 1;
-  var lo = 0;
-  var mid;
-  while (hi - lo > 1) {
-    mid = lo + hi >> 1;
-    if (table[mid][key] < value) {
-      lo = mid;
-    } else {
-      hi = mid;
-    }
-  }
-  return {
-    lo: lo,
-    hi: hi
-  };
-}
-function _rlookupByKey(table, key, value) {
-  var hi = table.length - 1;
-  var lo = 0;
-  var mid;
-  while (hi - lo > 1) {
-    mid = lo + hi >> 1;
-    if (table[mid][key] < value) {
-      hi = mid;
-    } else {
-      lo = mid;
-    }
-  }
-  return {
-    lo: lo,
-    hi: hi
-  };
-}
-function _filterBetween(values, min, max) {
-  var start = 0;
-  var end = values.length;
-  while (start < end && values[start] < min) {
-    start++;
-  }
-  while (end > start && values[end - 1] > max) {
-    end--;
-  }
-  return start > 0 || end < values.length ? values.slice(start, end) : values;
-}
 
 function isConstrainedValue(value) {
   return value !== undefined && value !== null && value !== 'none';
@@ -8408,8 +8408,10 @@ var Scale = function (_Element) {
     var tl = getTickMarkLength(gridLines);
     var items = [];
     var context = {
+      chart: chart,
       scale: me,
-      tick: ticks[0]
+      tick: ticks[0],
+      index: 0
     };
     var axisWidth = gridLines.drawBorder ? resolve([gridLines.borderWidth, gridLines.lineWidth, 0], context, 0) : 0;
     var axisHalfWidth = axisWidth / 2;
@@ -8470,8 +8472,10 @@ var Scale = function (_Element) {
     for (i = 0; i < ticksLength; ++i) {
       var tick = ticks[i] || {};
       context = {
+        chart: chart,
         scale: me,
-        tick: tick
+        tick: tick,
+        index: i
       };
       var lineWidth = resolve([gridLines.lineWidth], context, i);
       var lineColor = resolve([gridLines.color], context, i);
@@ -8591,8 +8595,10 @@ var Scale = function (_Element) {
     var ctx = me.ctx;
     var chart = me.chart;
     var context = {
+      chart: chart,
       scale: me,
-      tick: me.ticks[0]
+      tick: me.ticks[0],
+      index: 0
     };
     var axisWidth = gridLines.drawBorder ? resolve([gridLines.borderWidth, gridLines.lineWidth, 0], context, 0) : 0;
     var items = me._gridLineItems || (me._gridLineItems = me._computeGridLineItems(chartArea));
@@ -8627,8 +8633,10 @@ var Scale = function (_Element) {
     if (axisWidth) {
       var firstLineWidth = axisWidth;
       context = {
+        chart: chart,
         scale: me,
-        tick: me.ticks[me._ticksLength - 1]
+        tick: me.ticks[me._ticksLength - 1],
+        index: me._ticksLength - 1
       };
       var lastLineWidth = resolve([gridLines.lineWidth, 1], context, me._ticksLength - 1);
       var borderValue = me._borderValue;
