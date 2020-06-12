@@ -2145,7 +2145,6 @@ var DatasetController = function () {
     this._parsing = false;
     this._data = undefined;
     this._objectData = undefined;
-    this._scaleStacked = {};
     this.initialize();
   }
   var _proto = DatasetController.prototype;
@@ -2454,18 +2453,6 @@ var DatasetController = function () {
     return values;
   }
   ;
-  _proto._cacheScaleStackStatus = function _cacheScaleStackStatus() {
-    var me = this;
-    var meta = me._cachedMeta;
-    var iScale = meta.iScale;
-    var vScale = meta.vScale;
-    var cache = me._scaleStacked = {};
-    if (iScale && vScale) {
-      cache[iScale.id] = iScale.options.stacked;
-      cache[vScale.id] = vScale.options.stacked;
-    }
-  }
-  ;
   _proto.getMaxOverflow = function getMaxOverflow() {
     return false;
   }
@@ -2490,7 +2477,6 @@ var DatasetController = function () {
     me._cachedDataOpts = {};
     me.update(mode);
     meta._clip = toClip(valueOrDefault(me._config.clip, defaultClip(meta.xScale, meta.yScale, me.getMaxOverflow())));
-    me._cacheScaleStackStatus();
   }
   ;
   _proto.update = function update(mode) {}

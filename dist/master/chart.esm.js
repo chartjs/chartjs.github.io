@@ -2017,7 +2017,6 @@ class DatasetController {
 		this._parsing = false;
 		this._data = undefined;
 		this._objectData = undefined;
-		this._scaleStacked = {};
 		this.initialize();
 	}
 	initialize() {
@@ -2300,17 +2299,6 @@ class DatasetController {
 		}
 		return values;
 	}
-	_cacheScaleStackStatus() {
-		const me = this;
-		const meta = me._cachedMeta;
-		const iScale = meta.iScale;
-		const vScale = meta.vScale;
-		const cache = me._scaleStacked = {};
-		if (iScale && vScale) {
-			cache[iScale.id] = iScale.options.stacked;
-			cache[vScale.id] = vScale.options.stacked;
-		}
-	}
 	getMaxOverflow() {
 		return false;
 	}
@@ -2333,7 +2321,6 @@ class DatasetController {
 		me._cachedDataOpts = {};
 		me.update(mode);
 		meta._clip = toClip(valueOrDefault(me._config.clip, defaultClip(meta.xScale, meta.yScale, me.getMaxOverflow())));
-		me._cacheScaleStackStatus();
 	}
 	update(mode) {}
 	draw() {
