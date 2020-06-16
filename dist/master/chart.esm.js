@@ -5970,7 +5970,7 @@ class Chart {
 		this.$plugins = undefined;
 		this.$proxies = {};
 		this._hiddenIndices = {};
-		this.attached = true;
+		this.attached = false;
 		Chart.instances[me.id] = me;
 		Object.defineProperty(me, 'data', {
 			get() {
@@ -6039,10 +6039,10 @@ class Chart {
 		retinaScale(me, newRatio);
 		if (!silent) {
 			pluginsCore.notify(me, 'resize', [newSize]);
-			if (options.onResize) {
-				options.onResize(me, newSize);
+			callback(options.onResize, [newSize], me);
+			if (me.attached) {
+				me.update('resize');
 			}
-			me.update(me.attached && 'resize');
 		}
 	}
 	ensureScalesHaveIDs() {
