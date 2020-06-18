@@ -2211,6 +2211,12 @@ function getFirstScaleId(chart, axis) {
     return scales[key].axis === axis;
   }).shift();
 }
+function optionKeys(optionNames) {
+  return isArray(optionNames) ? optionNames : Object.keys(optionNames);
+}
+function optionKey(key, active) {
+  return active ? 'hover' + key.charAt(0).toUpperCase() + key.slice(1) : key;
+}
 var DatasetController = function () {
   function DatasetController(chart, datasetIndex) {
     this.chart = chart;
@@ -2608,23 +2614,10 @@ var DatasetController = function () {
   }
   ;
   _proto.resolveDatasetElementOptions = function resolveDatasetElementOptions(active) {
-    var me = this;
-    var chart = me.chart;
-    var datasetOpts = me._config;
-    var options = chart.options.elements[me.datasetElementType._type] || {};
-    var elementOptions = me.datasetElementOptions;
-    var values = {};
-    var context = me._getContext(undefined, active);
-    var i, ilen, key, readKey, value;
-    for (i = 0, ilen = elementOptions.length; i < ilen; ++i) {
-      key = elementOptions[i];
-      readKey = active ? 'hover' + key.charAt(0).toUpperCase() + key.slice(1) : key;
-      value = resolve([datasetOpts[readKey], options[readKey]], context);
-      if (value !== undefined) {
-        values[key] = value;
-      }
-    }
-    return values;
+    return this._resolveOptions(this.datasetElementOptions, {
+      active: active,
+      type: this.datasetElementType._type
+    });
   }
   ;
   _proto.resolveDataElementOptions = function resolveDataElementOptions(index, mode) {
@@ -2634,39 +2627,40 @@ var DatasetController = function () {
     if (cached[mode]) {
       return cached[mode];
     }
-    var chart = me.chart;
-    var datasetOpts = me._config;
-    var options = chart.options.elements[me.dataElementType._type] || {};
-    var elementOptions = me.dataElementOptions;
-    var values = {};
-    var context = me._getContext(index, active);
     var info = {
       cacheable: !active
     };
-    var keys, i, ilen, key, value, readKey;
-    if (isArray(elementOptions)) {
-      for (i = 0, ilen = elementOptions.length; i < ilen; ++i) {
-        key = elementOptions[i];
-        readKey = active ? 'hover' + key.charAt(0).toUpperCase() + key.slice(1) : key;
-        value = resolve([datasetOpts[readKey], options[readKey]], context, index, info);
-        if (value !== undefined) {
-          values[key] = value;
-        }
-      }
-    } else {
-      keys = Object.keys(elementOptions);
-      for (i = 0, ilen = keys.length; i < ilen; ++i) {
-        key = keys[i];
-        readKey = active ? 'hover' + key.charAt(0).toUpperCase() + key.slice(1) : key;
-        value = resolve([datasetOpts[elementOptions[readKey]], datasetOpts[readKey], options[readKey]], context, index, info);
-        if (value !== undefined) {
-          values[key] = value;
-        }
-      }
-    }
+    var values = me._resolveOptions(me.dataElementOptions, {
+      index: index,
+      active: active,
+      info: info,
+      type: me.dataElementType._type
+    });
     if (info.cacheable) {
       values.$shared = true;
       cached[mode] = values;
+    }
+    return values;
+  }
+  ;
+  _proto._resolveOptions = function _resolveOptions(optionNames, args) {
+    var me = this;
+    var index = args.index,
+        active = args.active,
+        type = args.type,
+        info = args.info;
+    var datasetOpts = me._config;
+    var options = me.chart.options.elements[type] || {};
+    var values = {};
+    var context = me._getContext(index, active);
+    var keys = optionKeys(optionNames);
+    for (var i = 0, ilen = keys.length; i < ilen; ++i) {
+      var key = keys[i];
+      var readKey = optionKey(key, active);
+      var value = resolve([datasetOpts[optionNames[readKey]], datasetOpts[readKey], options[readKey]], context, index, info);
+      if (value !== undefined) {
+        values[key] = value;
+      }
     }
     return values;
   }
