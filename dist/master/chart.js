@@ -558,6 +558,21 @@ function _deprecated(scope, value, previous, current) {
     console.warn(scope + ': "' + previous + '" is deprecated. Please use "' + current + '" instead');
   }
 }
+function resolveObjectKey(obj, key) {
+  if (key.length < 3) {
+    return obj[key];
+  }
+  var keys = key.split('.');
+  for (var i = 0, n = keys.length; i < n; ++i) {
+    var k = keys[i];
+    if (k in obj) {
+      obj = obj[k];
+    } else {
+      return;
+    }
+  }
+  return obj;
+}
 
 var coreHelpers = /*#__PURE__*/Object.freeze({
 __proto__: null,
@@ -576,7 +591,8 @@ _merger: _merger,
 merge: merge,
 mergeIf: mergeIf,
 _mergerIf: _mergerIf,
-_deprecated: _deprecated
+_deprecated: _deprecated,
+resolveObjectKey: resolveObjectKey
 });
 
 function getScope(node, key) {
@@ -2227,14 +2243,20 @@ var DatasetController = function () {
     var chart = me.chart;
     var meta = me._cachedMeta;
     var dataset = me.getDataset();
-    var xid = meta.xAxisID = dataset.xAxisID || getFirstScaleId(chart, 'x');
-    var yid = meta.yAxisID = dataset.yAxisID || getFirstScaleId(chart, 'y');
-    var rid = meta.rAxisID = dataset.rAxisID || getFirstScaleId(chart, 'r');
+    var chooseId = function chooseId(axis, x, y, r) {
+      return axis === 'x' ? x : axis === 'r' ? r : y;
+    };
+    var xid = meta.xAxisID = valueOrDefault(dataset.xAxisID, getFirstScaleId(chart, 'x'));
+    var yid = meta.yAxisID = valueOrDefault(dataset.yAxisID, getFirstScaleId(chart, 'y'));
+    var rid = meta.rAxisID = valueOrDefault(dataset.rAxisID, getFirstScaleId(chart, 'r'));
+    var indexAxis = meta.indexAxis;
+    var iid = meta.iAxisID = chooseId(indexAxis, xid, yid, rid);
+    var vid = meta.vAxisID = chooseId(indexAxis, yid, xid, rid);
     meta.xScale = me.getScaleForId(xid);
     meta.yScale = me.getScaleForId(yid);
     meta.rScale = me.getScaleForId(rid);
-    meta.iScale = me._getIndexScale();
-    meta.vScale = me._getValueScale();
+    meta.iScale = me.getScaleForId(iid);
+    meta.vScale = me.getScaleForId(vid);
   };
   _proto.getDataset = function getDataset() {
     return this.chart.data.datasets[this.index];
@@ -2245,22 +2267,6 @@ var DatasetController = function () {
   ;
   _proto.getScaleForId = function getScaleForId(scaleID) {
     return this.chart.scales[scaleID];
-  }
-  ;
-  _proto.getValueScaleId = function getValueScaleId() {
-    return this._cachedMeta.yAxisID;
-  }
-  ;
-  _proto.getIndexScaleId = function getIndexScaleId() {
-    return this._cachedMeta.xAxisID;
-  }
-  ;
-  _proto._getValueScale = function _getValueScale() {
-    return this.getScaleForId(this.getValueScaleId());
-  }
-  ;
-  _proto._getIndexScale = function _getIndexScale() {
-    return this.getScaleForId(this.getIndexScaleId());
   }
   ;
   _proto._getOtherScale = function _getOtherScale(scale) {
@@ -2417,14 +2423,19 @@ var DatasetController = function () {
   _proto.parseObjectData = function parseObjectData(meta, data, start, count) {
     var xScale = meta.xScale,
         yScale = meta.yScale;
+    var _this$_parsing = this._parsing,
+        _this$_parsing$xAxisK = _this$_parsing.xAxisKey,
+        xAxisKey = _this$_parsing$xAxisK === void 0 ? 'x' : _this$_parsing$xAxisK,
+        _this$_parsing$yAxisK = _this$_parsing.yAxisKey,
+        yAxisKey = _this$_parsing$yAxisK === void 0 ? 'y' : _this$_parsing$yAxisK;
     var parsed = new Array(count);
     var i, ilen, index, item;
     for (i = 0, ilen = count; i < ilen; ++i) {
       index = i + start;
       item = data[index];
       parsed[i] = {
-        x: xScale.parseObject(item, 'x', index),
-        y: yScale.parseObject(item, 'y', index)
+        x: xScale.parse(resolveObjectKey(item, xAxisKey), index),
+        y: yScale.parse(resolveObjectKey(item, yAxisKey), index)
       };
     }
     return parsed;
@@ -3475,12 +3486,22 @@ function fastPathSegment(ctx, line, segment, params) {
   var avgX = 0;
   var countX = 0;
   var i, point, prevX, minY, maxY, lastY;
+  var pointIndex = function pointIndex(index) {
+    return (start + (reverse ? ilen - index : index)) % count;
+  };
+  var drawX = function drawX() {
+    if (minY !== maxY) {
+      ctx.lineTo(avgX, maxY);
+      ctx.lineTo(avgX, minY);
+      ctx.lineTo(avgX, lastY);
+    }
+  };
   if (move) {
-    point = points[(start + (reverse ? ilen : 0)) % count];
+    point = points[pointIndex(0)];
     ctx.moveTo(point.x, point.y);
   }
   for (i = 0; i <= ilen; ++i) {
-    point = points[(start + (reverse ? ilen - i : i)) % count];
+    point = points[pointIndex(i)];
     if (point.skip) {
       continue;
     }
@@ -3495,11 +3516,7 @@ function fastPathSegment(ctx, line, segment, params) {
       }
       avgX = (countX * avgX + x) / ++countX;
     } else {
-      if (minY !== maxY) {
-        ctx.lineTo(avgX, maxY);
-        ctx.lineTo(avgX, minY);
-        ctx.lineTo(avgX, lastY);
-      }
+      drawX();
       ctx.lineTo(x, y);
       prevX = truncX;
       countX = 0;
@@ -3507,6 +3524,7 @@ function fastPathSegment(ctx, line, segment, params) {
     }
     lastY = y;
   }
+  drawX();
 }
 function _getSegmentMethod(line) {
   var opts = line.options;
@@ -3729,7 +3747,7 @@ Point._type = 'point';
 
 var scope$3 = 'elements.rectangle';
 defaults.set(scope$3, {
-  borderSkipped: 'bottom',
+  borderSkipped: 'start',
   borderWidth: 0
 });
 defaults.route(scope$3, ['backgroundColor', 'borderColor'], '', 'color');
@@ -3761,24 +3779,30 @@ function getBarBounds(bar, useFinalPosition) {
     bottom: bottom
   };
 }
-function swap(orig, v1, v2) {
-  return orig === v1 ? v2 : orig === v2 ? v1 : orig;
-}
 function parseBorderSkipped(bar) {
   var edge = bar.options.borderSkipped;
   var res = {};
   if (!edge) {
     return res;
   }
-  if (bar.horizontal) {
-    if (bar.base > bar.x) {
-      edge = swap(edge, 'left', 'right');
-    }
-  } else if (bar.base < bar.y) {
-    edge = swap(edge, 'bottom', 'top');
-  }
+  edge = bar.horizontal ? parseEdge(edge, 'left', 'right', bar.base > bar.x) : parseEdge(edge, 'bottom', 'top', bar.base < bar.y);
   res[edge] = true;
   return res;
+}
+function parseEdge(edge, a, b, reverse) {
+  if (reverse) {
+    edge = swap(edge, a, b);
+    edge = startEnd(edge, b, a);
+  } else {
+    edge = startEnd(edge, a, b);
+  }
+  return edge;
+}
+function swap(orig, v1, v2) {
+  return orig === v1 ? v2 : orig === v2 ? v1 : orig;
+}
+function startEnd(v, start, end) {
+  return v === 'start' ? start : v === 'end' ? end : v;
 }
 function skipOrLimit(skip, value, min, max) {
   return skip ? 0 : Math.max(Math.min(value, max), min);
@@ -3912,14 +3936,14 @@ defaults.set('bar', {
     }
   },
   scales: {
-    x: {
+    _index_: {
       type: 'category',
       offset: true,
       gridLines: {
         offsetGridLines: true
       }
     },
-    y: {
+    _value_: {
       type: 'linear',
       beginAtZero: true
     }
@@ -3975,9 +3999,9 @@ function computeFlexCategoryTraits(index, ruler, options) {
     start: start
   };
 }
-function parseFloatBar(arr, item, vScale, i) {
-  var startValue = vScale.parse(arr[0], i);
-  var endValue = vScale.parse(arr[1], i);
+function parseFloatBar(entry, item, vScale, i) {
+  var startValue = vScale.parse(entry[0], i);
+  var endValue = vScale.parse(entry[1], i);
   var min = Math.min(startValue, endValue);
   var max = Math.max(startValue, endValue);
   var barStart = min;
@@ -3996,6 +4020,14 @@ function parseFloatBar(arr, item, vScale, i) {
     max: max
   };
 }
+function parseValue(entry, item, vScale, i) {
+  if (isArray(entry)) {
+    parseFloatBar(entry, item, vScale, i);
+  } else {
+    item[vScale.axis] = vScale.parse(entry, i);
+  }
+  return item;
+}
 function parseArrayOrPrimitive(meta, data, start, count) {
   var iScale = meta.iScale;
   var vScale = meta.vScale;
@@ -4007,12 +4039,7 @@ function parseArrayOrPrimitive(meta, data, start, count) {
     entry = data[i];
     item = {};
     item[iScale.axis] = singleScale || iScale.parse(labels[i], i);
-    if (isArray(entry)) {
-      parseFloatBar(entry, item, vScale, i);
-    } else {
-      item[vScale.axis] = vScale.parse(entry, i);
-    }
-    parsed.push(item);
+    parsed.push(parseValue(entry, item, vScale, i));
   }
   return parsed;
 }
@@ -4036,20 +4063,20 @@ var BarController = function (_DatasetController) {
   _proto.parseObjectData = function parseObjectData(meta, data, start, count) {
     var iScale = meta.iScale,
         vScale = meta.vScale;
-    var vProp = vScale.axis;
+    var _this$_parsing = this._parsing,
+        _this$_parsing$xAxisK = _this$_parsing.xAxisKey,
+        xAxisKey = _this$_parsing$xAxisK === void 0 ? 'x' : _this$_parsing$xAxisK,
+        _this$_parsing$yAxisK = _this$_parsing.yAxisKey,
+        yAxisKey = _this$_parsing$yAxisK === void 0 ? 'y' : _this$_parsing$yAxisK;
+    var iAxisKey = iScale.axis === 'x' ? xAxisKey : yAxisKey;
+    var vAxisKey = vScale.axis === 'x' ? xAxisKey : yAxisKey;
     var parsed = [];
-    var i, ilen, item, obj, value;
+    var i, ilen, item, obj;
     for (i = start, ilen = start + count; i < ilen; ++i) {
       obj = data[i];
       item = {};
-      item[iScale.axis] = iScale.parseObject(obj, iScale.axis, i);
-      value = obj[vProp];
-      if (isArray(value)) {
-        parseFloatBar(value, item, vScale, i);
-      } else {
-        item[vScale.axis] = vScale.parseObject(obj, vProp, i);
-      }
-      parsed.push(item);
+      item[iScale.axis] = iScale.parse(resolveObjectKey(obj, iAxisKey), i);
+      parsed.push(parseValue(resolveObjectKey(obj, vAxisKey), item, vScale, i));
     }
     return parsed;
   }
@@ -4276,13 +4303,18 @@ var BubbleController = function (_DatasetController) {
   _proto.parseObjectData = function parseObjectData(meta, data, start, count) {
     var xScale = meta.xScale,
         yScale = meta.yScale;
+    var _this$_parsing = this._parsing,
+        _this$_parsing$xAxisK = _this$_parsing.xAxisKey,
+        xAxisKey = _this$_parsing$xAxisK === void 0 ? 'x' : _this$_parsing$xAxisK,
+        _this$_parsing$yAxisK = _this$_parsing.yAxisKey,
+        yAxisKey = _this$_parsing$yAxisK === void 0 ? 'y' : _this$_parsing$yAxisK;
     var parsed = [];
     var i, ilen, item;
     for (i = start, ilen = start + count; i < ilen; ++i) {
       item = data[i];
       parsed.push({
-        x: xScale.parseObject(item, 'x', i),
-        y: yScale.parseObject(item, 'y', i),
+        x: xScale.parse(resolveObjectKey(item, xAxisKey), i),
+        y: yScale.parse(resolveObjectKey(item, yAxisKey), i),
         _custom: item && item.r && +item.r
       });
     }
@@ -4652,53 +4684,6 @@ var DoughnutController = function (_DatasetController) {
 DoughnutController.prototype.dataElementType = Arc;
 DoughnutController.prototype.dataElementOptions = ['backgroundColor', 'borderColor', 'borderWidth', 'borderAlign', 'hoverBackgroundColor', 'hoverBorderColor', 'hoverBorderWidth'];
 
-defaults.set('horizontalBar', {
-  hover: {
-    mode: 'index',
-    axis: 'y'
-  },
-  scales: {
-    x: {
-      type: 'linear',
-      beginAtZero: true
-    },
-    y: {
-      type: 'category',
-      offset: true,
-      gridLines: {
-        offsetGridLines: true
-      }
-    }
-  },
-  datasets: {
-    categoryPercentage: 0.8,
-    barPercentage: 0.9
-  },
-  elements: {
-    rectangle: {
-      borderSkipped: 'left'
-    }
-  },
-  tooltips: {
-    axis: 'y'
-  }
-});
-var HorizontalBarController = function (_BarController) {
-  _inheritsLoose(HorizontalBarController, _BarController);
-  function HorizontalBarController() {
-    return _BarController.apply(this, arguments) || this;
-  }
-  var _proto = HorizontalBarController.prototype;
-  _proto.getValueScaleId = function getValueScaleId() {
-    return this._cachedMeta.xAxisID;
-  }
-  ;
-  _proto.getIndexScaleId = function getIndexScaleId() {
-    return this._cachedMeta.yAxisID;
-  };
-  return HorizontalBarController;
-}(BarController);
-
 defaults.set('line', {
   showLines: true,
   spanGaps: false,
@@ -4706,10 +4691,10 @@ defaults.set('line', {
     mode: 'index'
   },
   scales: {
-    x: {
+    _index_: {
       type: 'category'
     },
-    y: {
+    _value_: {
       type: 'linear'
     }
   }
@@ -4853,6 +4838,9 @@ defaults.set('polarArea', {
     animateScale: true
   },
   aspectRatio: 1,
+  datasets: {
+    indexAxis: 'r'
+  },
   scales: {
     r: {
       type: 'radialLinear',
@@ -4919,13 +4907,6 @@ var PolarAreaController = function (_DatasetController) {
     return _this;
   }
   var _proto = PolarAreaController.prototype;
-  _proto.getIndexScaleId = function getIndexScaleId() {
-    return this._cachedMeta.rAxisID;
-  }
-  ;
-  _proto.getValueScaleId = function getValueScaleId() {
-    return this._cachedMeta.rAxisID;
-  };
   _proto.update = function update(mode) {
     var arcs = this._cachedMeta.data;
     this._updateRadius();
@@ -4951,7 +4932,7 @@ var PolarAreaController = function (_DatasetController) {
     var dataset = me.getDataset();
     var opts = chart.options;
     var animationOpts = opts.animation;
-    var scale = chart.scales.r;
+    var scale = me._cachedMeta.rScale;
     var centerX = scale.xCenter;
     var centerY = scale.yCenter;
     var datasetStartAngle = getStartAngleRadians(opts.startAngle);
@@ -5036,6 +5017,9 @@ defaults.set('radar', {
       type: 'radialLinear'
     }
   },
+  datasets: {
+    indexAxis: 'r'
+  },
   elements: {
     line: {
       fill: 'start',
@@ -5049,14 +5033,6 @@ var RadarController = function (_DatasetController) {
     return _DatasetController.apply(this, arguments) || this;
   }
   var _proto = RadarController.prototype;
-  _proto.getIndexScaleId = function getIndexScaleId() {
-    return this._cachedMeta.rAxisID;
-  }
-  ;
-  _proto.getValueScaleId = function getValueScaleId() {
-    return this._cachedMeta.rAxisID;
-  }
-  ;
   _proto.getLabelAndValue = function getLabelAndValue(index) {
     var me = this;
     var vScale = me._cachedMeta.vScale;
@@ -5085,7 +5061,7 @@ var RadarController = function (_DatasetController) {
   _proto.updateElements = function updateElements(points, start, mode) {
     var me = this;
     var dataset = me.getDataset();
-    var scale = me.chart.scales.r;
+    var scale = me._cachedMeta.rScale;
     var reset = mode === 'reset';
     var i;
     for (i = 0; i < points.length; i++) {
@@ -5163,7 +5139,6 @@ __proto__: null,
 bar: BarController,
 bubble: BubbleController,
 doughnut: DoughnutController,
-horizontalBar: HorizontalBarController,
 line: LineController,
 polarArea: PolarAreaController,
 pie: DoughnutController,
@@ -6705,32 +6680,61 @@ var scaleService = {
 
 var version = "3.0.0-alpha";
 
+function getIndexAxis(type, options) {
+  var typeDefaults = defaults[type] || {};
+  var datasetDefaults = typeDefaults.datasets || {};
+  var typeOptions = options[type] || {};
+  var datasetOptions = typeOptions.datasets || {};
+  return datasetOptions.indexAxis || options.indexAxis || datasetDefaults.indexAxis || 'x';
+}
+function getAxisFromDefaultScaleID(id, indexAxis) {
+  var axis = id;
+  if (id === '_index_') {
+    axis = indexAxis;
+  } else if (id === '_value_') {
+    axis = indexAxis === 'x' ? 'y' : 'x';
+  }
+  return axis;
+}
+function getDefaultScaleIDFromAxis(axis, indexAxis) {
+  return axis === indexAxis ? '_index_' : '_value_';
+}
 function mergeScaleConfig(config, options) {
   options = options || {};
   var chartDefaults = defaults[config.type] || {
     scales: {}
   };
   var configScales = options.scales || {};
+  var chartIndexAxis = getIndexAxis(config.type, options);
   var firstIDs = {};
   var scales = {};
   Object.keys(configScales).forEach(function (id) {
-    var axis = id[0];
+    var scaleConf = configScales[id];
+    var axis = determineAxis(id, scaleConf);
+    var defaultId = getDefaultScaleIDFromAxis(axis, chartIndexAxis);
     firstIDs[axis] = firstIDs[axis] || id;
-    scales[id] = mergeIf({}, [configScales[id], chartDefaults.scales[axis]]);
+    scales[id] = mergeIf({
+      axis: axis
+    }, [scaleConf, chartDefaults.scales[axis], chartDefaults.scales[defaultId]]);
   });
   if (options.scale) {
-    scales[options.scale.id || 'r'] = mergeIf({}, [options.scale, chartDefaults.scales.r]);
+    scales[options.scale.id || 'r'] = mergeIf({
+      axis: 'r'
+    }, [options.scale, chartDefaults.scales.r]);
     firstIDs.r = firstIDs.r || options.scale.id || 'r';
   }
   config.data.datasets.forEach(function (dataset) {
-    var datasetDefaults = defaults[dataset.type || config.type] || {
-      scales: {}
-    };
+    var type = dataset.type || config.type;
+    var indexAxis = dataset.indexAxis || getIndexAxis(type, options);
+    var datasetDefaults = defaults[type] || {};
     var defaultScaleOptions = datasetDefaults.scales || {};
     Object.keys(defaultScaleOptions).forEach(function (defaultID) {
-      var id = dataset[defaultID + 'AxisID'] || firstIDs[defaultID] || defaultID;
+      var axis = getAxisFromDefaultScaleID(defaultID, indexAxis);
+      var id = dataset[axis + 'AxisID'] || firstIDs[axis] || axis;
       scales[id] = scales[id] || {};
-      mergeIf(scales[id], [configScales[id], defaultScaleOptions[defaultID]]);
+      mergeIf(scales[id], [{
+        axis: axis
+      }, configScales[id], defaultScaleOptions[defaultID]]);
     });
   });
   Object.keys(scales).forEach(function (key) {
@@ -6782,6 +6786,20 @@ function updateConfig(chart) {
 var KNOWN_POSITIONS = ['top', 'bottom', 'left', 'right', 'chartArea'];
 function positionIsHorizontal(position, axis) {
   return position === 'top' || position === 'bottom' || KNOWN_POSITIONS.indexOf(position) === -1 && axis === 'x';
+}
+function axisFromPosition(position) {
+  if (position === 'top' || position === 'bottom') {
+    return 'x';
+  }
+  if (position === 'left' || position === 'right') {
+    return 'y';
+  }
+}
+function determineAxis(id, scaleOptions) {
+  if (id === 'x' || id === 'y' || id === 'r') {
+    return id;
+  }
+  return scaleOptions.axis || axisFromPosition(scaleOptions.position) || id.charAt(0).toLowerCase();
 }
 function compare2Level(l1, l2) {
   return function (a, b) {
@@ -6959,12 +6977,13 @@ var Chart = function () {
     }, {});
     var items = [];
     if (scaleOpts) {
-      items = items.concat(Object.keys(scaleOpts).map(function (axisID) {
-        var axisOptions = scaleOpts[axisID];
-        var isRadial = axisID.charAt(0).toLowerCase() === 'r';
-        var isHorizontal = axisID.charAt(0).toLowerCase() === 'x';
+      items = items.concat(Object.keys(scaleOpts).map(function (id) {
+        var scaleOptions = scaleOpts[id];
+        var axis = determineAxis(id, scaleOptions);
+        var isRadial = axis === 'r';
+        var isHorizontal = axis === 'x';
         return {
-          options: axisOptions,
+          options: scaleOptions,
           dposition: isRadial ? 'chartArea' : isHorizontal ? 'bottom' : 'left',
           dtype: isRadial ? 'radialLinear' : isHorizontal ? 'category' : 'linear'
         };
@@ -6973,8 +6992,9 @@ var Chart = function () {
     each(items, function (item) {
       var scaleOptions = item.options;
       var id = scaleOptions.id;
+      var axis = determineAxis(id, scaleOptions);
       var scaleType = valueOrDefault(scaleOptions.type, item.dtype);
-      if (scaleOptions.position === undefined || positionIsHorizontal(scaleOptions.position, scaleOptions.axis || id[0]) !== positionIsHorizontal(item.dposition)) {
+      if (scaleOptions.position === undefined || positionIsHorizontal(scaleOptions.position, axis) !== positionIsHorizontal(item.dposition)) {
         scaleOptions.position = item.dposition;
       }
       updated[id] = true;
@@ -7045,6 +7065,7 @@ var Chart = function () {
         meta = me.getDatasetMeta(i);
       }
       meta.type = type;
+      meta.indexAxis = dataset.indexAxis || getIndexAxis(type, me.options);
       meta.order = dataset.order || 0;
       me._updateMetasetIndex(meta, i);
       meta.label = '' + dataset.label;
@@ -7899,13 +7920,6 @@ var Scale = function (_Element) {
   ;
   _proto.parse = function parse(raw, index) {
     return raw;
-  }
-  ;
-  _proto.parseObject = function parseObject(obj, axis, index) {
-    if (obj[axis] !== undefined) {
-      return this.parse(obj[axis], index);
-    }
-    return null;
   }
   ;
   _proto.getUserBounds = function getUserBounds() {
@@ -10135,16 +10149,6 @@ var TimeScale = function (_Scale) {
       return NaN;
     }
     return _parse(this, raw);
-  }
-  ;
-  _proto.parseObject = function parseObject(obj, axis, index) {
-    if (obj && obj.t) {
-      return this.parse(obj.t, index);
-    }
-    if (obj[axis] !== undefined) {
-      return this.parse(obj[axis], index);
-    }
-    return null;
   };
   _proto.invalidateCaches = function invalidateCaches() {
     this._cache = {
@@ -12034,7 +12038,7 @@ var Tooltip = function (_Element) {
       me._resolveAnimations().update(me, properties);
     }
     if (changed && options.custom) {
-      options.custom.call(me);
+      options.custom.call(me, [me]);
     }
   };
   _proto.drawCaret = function drawCaret(tooltipPoint, ctx, size) {
