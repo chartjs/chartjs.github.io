@@ -1826,6 +1826,21 @@ function unlistenArrayEvents(array, listener) {
 	});
 	delete array._chartjs;
 }
+function _arrayUnique(items) {
+	const set = new Set();
+	let i, ilen;
+	for (i = 0, ilen = items.length; i < ilen; ++i) {
+		set.add(items[i]);
+	}
+	if (set.size === ilen) {
+		return items;
+	}
+	const result = [];
+	set.forEach(item => {
+		result.push(item);
+	});
+	return result;
+}
 
 const PI$1 = Math.PI;
 const TAU = 2 * PI$1;
@@ -8704,21 +8719,6 @@ const UNITS = (Object.keys(INTERVALS));
 function sorter(a, b) {
 	return a - b;
 }
-function arrayUnique(items) {
-	const set = new Set();
-	let i, ilen;
-	for (i = 0, ilen = items.length; i < ilen; ++i) {
-		set.add(items[i]);
-	}
-	if (set.size === ilen) {
-		return items;
-	}
-	const result = [];
-	set.forEach(item => {
-		result.push(item);
-	});
-	return result;
-}
 function parse(scale, input) {
 	if (isNullOrUndef(input)) {
 		return null;
@@ -8744,77 +8744,6 @@ function parse(scale, input) {
 			: scale._adapter.startOf(value, round);
 	}
 	return +value;
-}
-function getDataTimestamps(scale) {
-	const isSeries = scale.options.distribution === 'series';
-	let timestamps = scale._cache.data || [];
-	let i, ilen;
-	if (timestamps.length) {
-		return timestamps;
-	}
-	const metas = scale.getMatchingVisibleMetas();
-	if (isSeries && metas.length) {
-		return metas[0].controller.getAllParsedValues(scale);
-	}
-	for (i = 0, ilen = metas.length; i < ilen; ++i) {
-		timestamps = timestamps.concat(metas[i].controller.getAllParsedValues(scale));
-	}
-	return (scale._cache.data = arrayUnique(timestamps.sort(sorter)));
-}
-function getLabelTimestamps(scale) {
-	const isSeries = scale.options.distribution === 'series';
-	const timestamps = scale._cache.labels || [];
-	let i, ilen;
-	if (timestamps.length) {
-		return timestamps;
-	}
-	const labels = scale.getLabels();
-	for (i = 0, ilen = labels.length; i < ilen; ++i) {
-		timestamps.push(parse(scale, labels[i]));
-	}
-	return (scale._cache.labels = isSeries ? timestamps : arrayUnique(timestamps.sort(sorter)));
-}
-function getAllTimestamps(scale) {
-	let timestamps = scale._cache.all || [];
-	if (timestamps.length) {
-		return timestamps;
-	}
-	const data = getDataTimestamps(scale);
-	const label = getLabelTimestamps(scale);
-	if (data.length && label.length) {
-		timestamps = arrayUnique(data.concat(label).sort(sorter));
-	} else {
-		timestamps = data.length ? data : label;
-	}
-	timestamps = scale._cache.all = timestamps;
-	return timestamps;
-}
-function buildLookupTable(timestamps, min, max, distribution) {
-	if (distribution === 'linear' || !timestamps.length) {
-		return [
-			{time: min, pos: 0},
-			{time: max, pos: 1}
-		];
-	}
-	const table = [];
-	const items = [min];
-	let i, ilen, prev, curr, next;
-	for (i = 0, ilen = timestamps.length; i < ilen; ++i) {
-		curr = timestamps[i];
-		if (curr > min && curr < max) {
-			items.push(curr);
-		}
-	}
-	items.push(max);
-	for (i = 0, ilen = items.length; i < ilen; ++i) {
-		next = items[i + 1];
-		prev = items[i - 1];
-		curr = items[i];
-		if (prev === undefined || next === undefined || Math.round((next + prev) / 2) !== curr) {
-			table.push({time: curr, pos: i / (ilen - 1)});
-		}
-	}
-	return table;
 }
 function interpolate(table, skey, sval, tkey) {
 	const {lo, hi} = _lookupByKey(table, skey, sval);
@@ -8859,43 +8788,6 @@ function addTick(timestamps, ticks, time) {
 	const {lo, hi} = _lookup(timestamps, time);
 	const timestamp = timestamps[lo] >= time ? timestamps[lo] : timestamps[hi];
 	ticks[timestamp] = true;
-}
-function generate(scale) {
-	const adapter = scale._adapter;
-	const min = scale.min;
-	const max = scale.max;
-	const options = scale.options;
-	const timeOpts = options.time;
-	const minor = timeOpts.unit || determineUnitForAutoTicks(timeOpts.minUnit, min, max, scale._getLabelCapacity(min));
-	const stepSize = valueOrDefault(timeOpts.stepSize, 1);
-	const weekday = minor === 'week' ? timeOpts.isoWeekday : false;
-	const ticks = {};
-	let first = min;
-	let time;
-	if (weekday) {
-		first = +adapter.startOf(first, 'isoWeek', weekday);
-	}
-	first = +adapter.startOf(first, weekday ? 'day' : minor);
-	if (adapter.diff(max, min, minor) > 100000 * stepSize) {
-		throw new Error(min + ' and ' + max + ' are too far apart with stepSize of ' + stepSize + ' ' + minor);
-	}
-	if (scale.options.ticks.source === 'data') {
-		const timestamps = getDataTimestamps(scale);
-		for (time = first; time < max; time = +adapter.add(time, stepSize, minor)) {
-			addTick(timestamps, ticks, time);
-		}
-		if (time === max || options.bounds === 'ticks') {
-			addTick(timestamps, ticks, time);
-		}
-	} else {
-		for (time = first; time < max; time = +adapter.add(time, stepSize, minor)) {
-			ticks[time] = true;
-		}
-		if (time === max || options.bounds === 'ticks') {
-			ticks[time] = true;
-		}
-	}
-	return Object.keys(ticks).map(x => +x);
 }
 function computeOffsets(table, timestamps, min, max, options) {
 	let start = 0;
@@ -8945,29 +8837,7 @@ function ticksFromTimestamps(scale, values, majorUnit) {
 	}
 	return (ilen === 0 || !majorUnit) ? ticks : setMajorTicks(scale, ticks, map, majorUnit);
 }
-function getTimestampsForTicks(scale) {
-	if (scale.options.ticks.source === 'labels') {
-		return getLabelTimestamps(scale);
-	}
-	return generate(scale);
-}
-function getTimestampsForTable(scale) {
-	return scale.options.distribution === 'series'
-		? getAllTimestamps(scale)
-		: [scale.min, scale.max];
-}
-function getLabelBounds(scale) {
-	const arr = getLabelTimestamps(scale);
-	let min = Number.POSITIVE_INFINITY;
-	let max = Number.NEGATIVE_INFINITY;
-	if (arr.length) {
-		min = arr[0];
-		max = arr[arr.length - 1];
-	}
-	return {min, max};
-}
 const defaultConfig$4 = {
-	distribution: 'linear',
 	bounds: 'data',
 	adapters: {},
 	time: {
@@ -9018,6 +8888,9 @@ class TimeScale extends Scale {
 			all: []
 		};
 	}
+	getTimestampsForTable() {
+		return [this.min, this.max];
+	}
 	determineDataLimits() {
 		const me = this;
 		const options = me.options;
@@ -9033,7 +8906,7 @@ class TimeScale extends Scale {
 			}
 		}
 		if (!minDefined || !maxDefined) {
-			_applyBounds(getLabelBounds(me));
+			_applyBounds(me._getLabelBounds());
 			if (options.bounds !== 'ticks' || options.ticks.source !== 'labels') {
 				_applyBounds(me.getMinMax(false));
 			}
@@ -9043,13 +8916,22 @@ class TimeScale extends Scale {
 		me.min = Math.min(min, max);
 		me.max = Math.max(min + 1, max);
 	}
+	_getLabelBounds() {
+		const arr = this.getLabelTimestamps();
+		let min = Number.POSITIVE_INFINITY;
+		let max = Number.NEGATIVE_INFINITY;
+		if (arr.length) {
+			min = arr[0];
+			max = arr[arr.length - 1];
+		}
+		return {min, max};
+	}
 	buildTicks() {
 		const me = this;
 		const options = me.options;
 		const timeOpts = options.time;
 		const tickOpts = options.ticks;
-		const distribution = options.distribution;
-		const timestamps = getTimestampsForTicks(me);
+		const timestamps = tickOpts.source === 'labels' ? me.getLabelTimestamps() : me._generate();
 		if (options.bounds === 'ticks' && timestamps.length) {
 			me.min = me._userMin || timestamps[0];
 			me.max = me._userMax || timestamps[timestamps.length - 1];
@@ -9062,12 +8944,56 @@ class TimeScale extends Scale {
 			: determineUnitForFormatting(me, ticks.length, timeOpts.minUnit, me.min, me.max));
 		me._majorUnit = !tickOpts.major.enabled || me._unit === 'year' ? undefined
 			: determineMajorUnit(me._unit);
-		me._table = buildLookupTable(getTimestampsForTable(me), min, max, distribution);
+		me._table = me.buildLookupTable(me.getTimestampsForTable(), min, max);
 		me._offsets = computeOffsets(me._table, timestamps, min, max, options);
 		if (options.reverse) {
 			ticks.reverse();
 		}
 		return ticksFromTimestamps(me, ticks, me._majorUnit);
+	}
+	_generate() {
+		const me = this;
+		const adapter = me._adapter;
+		const min = me.min;
+		const max = me.max;
+		const options = me.options;
+		const timeOpts = options.time;
+		const minor = timeOpts.unit || determineUnitForAutoTicks(timeOpts.minUnit, min, max, me._getLabelCapacity(min));
+		const stepSize = valueOrDefault(timeOpts.stepSize, 1);
+		const weekday = minor === 'week' ? timeOpts.isoWeekday : false;
+		const ticks = {};
+		let first = min;
+		let time;
+		if (weekday) {
+			first = +adapter.startOf(first, 'isoWeek', weekday);
+		}
+		first = +adapter.startOf(first, weekday ? 'day' : minor);
+		if (adapter.diff(max, min, minor) > 100000 * stepSize) {
+			throw new Error(min + ' and ' + max + ' are too far apart with stepSize of ' + stepSize + ' ' + minor);
+		}
+		if (me.options.ticks.source === 'data') {
+			const timestamps = me.getDataTimestamps();
+			for (time = first; time < max; time = +adapter.add(time, stepSize, minor)) {
+				addTick(timestamps, ticks, time);
+			}
+			if (time === max || options.bounds === 'ticks') {
+				addTick(timestamps, ticks, time);
+			}
+		} else {
+			for (time = first; time < max; time = +adapter.add(time, stepSize, minor)) {
+				ticks[time] = true;
+			}
+			if (time === max || options.bounds === 'ticks') {
+				ticks[time] = true;
+			}
+		}
+		return Object.keys(ticks).map(x => +x);
+	}
+	buildLookupTable(timestamps, min, max) {
+		return [
+			{time: min, pos: 0},
+			{time: max, pos: 1}
+		];
 	}
 	getLabelForValue(value) {
 		const me = this;
@@ -9134,9 +9060,108 @@ class TimeScale extends Scale {
 		const capacity = Math.floor(me.isHorizontal() ? me.width / size.w : me.height / size.h) - 1;
 		return capacity > 0 ? capacity : 1;
 	}
+	getDataTimestamps() {
+		const me = this;
+		let timestamps = me._cache.data || [];
+		let i, ilen;
+		if (timestamps.length) {
+			return timestamps;
+		}
+		const metas = me.getMatchingVisibleMetas();
+		for (i = 0, ilen = metas.length; i < ilen; ++i) {
+			timestamps = timestamps.concat(metas[i].controller.getAllParsedValues(me));
+		}
+		return (me._cache.data = _arrayUnique(timestamps.sort(sorter)));
+	}
+	getLabelTimestamps() {
+		const me = this;
+		const timestamps = me._cache.labels || [];
+		let i, ilen;
+		if (timestamps.length) {
+			return timestamps;
+		}
+		const labels = me.getLabels();
+		for (i = 0, ilen = labels.length; i < ilen; ++i) {
+			timestamps.push(parse(me, labels[i]));
+		}
+		return (me._cache.labels = _arrayUnique(timestamps.sort(sorter)));
+	}
 }
 TimeScale.id = 'time';
 TimeScale.defaults = defaultConfig$4;
+
+function sorter$1(a, b) {
+	return a - b;
+}
+class TimeSeriesScale extends TimeScale {
+	getTimestampsForTable() {
+		const me = this;
+		let timestamps = me._cache.all || [];
+		if (timestamps.length) {
+			return timestamps;
+		}
+		const data = me.getDataTimestamps();
+		const label = me.getLabelTimestamps();
+		if (data.length && label.length) {
+			timestamps = _arrayUnique(data.concat(label).sort(sorter$1));
+		} else {
+			timestamps = data.length ? data : label;
+		}
+		timestamps = me._cache.all = timestamps;
+		return timestamps;
+	}
+	buildLookupTable(timestamps, min, max) {
+		if (!timestamps.length) {
+			return [
+				{time: min, pos: 0},
+				{time: max, pos: 1}
+			];
+		}
+		const table = [];
+		const items = [min];
+		let i, ilen, prev, curr, next;
+		for (i = 0, ilen = timestamps.length; i < ilen; ++i) {
+			curr = timestamps[i];
+			if (curr > min && curr < max) {
+				items.push(curr);
+			}
+		}
+		items.push(max);
+		for (i = 0, ilen = items.length; i < ilen; ++i) {
+			next = items[i + 1];
+			prev = items[i - 1];
+			curr = items[i];
+			if (prev === undefined || next === undefined || Math.round((next + prev) / 2) !== curr) {
+				table.push({time: curr, pos: i / (ilen - 1)});
+			}
+		}
+		return table;
+	}
+	getDataTimestamps() {
+		const me = this;
+		const timestamps = me._cache.data || [];
+		if (timestamps.length) {
+			return timestamps;
+		}
+		const metas = me.getMatchingVisibleMetas();
+		return (me._cache.data = metas.length ? metas[0].controller.getAllParsedValues(me) : []);
+	}
+	getLabelTimestamps() {
+		const me = this;
+		const timestamps = me._cache.labels || [];
+		let i, ilen;
+		if (timestamps.length) {
+			return timestamps;
+		}
+		const labels = me.getLabels();
+		for (i = 0, ilen = labels.length; i < ilen; ++i) {
+			timestamps.push(me.parse(labels[i]));
+		}
+		return (me._cache.labels = timestamps);
+	}
+}
+TimeSeriesScale.id = 'timeseries';
+TimeSeriesScale.defaults = TimeScale.defaults;
 
 var scales = /*#__PURE__*/Object.freeze({
 __proto__: null,
@@ -9144,7 +9169,8 @@ CategoryScale: CategoryScale,
 LinearScale: LinearScale,
 LogarithmicScale: LogarithmicScale,
 RadialLinearScale: RadialLinearScale,
-TimeScale: TimeScale
+TimeScale: TimeScale,
+TimeSeriesScale: TimeSeriesScale
 });
 
 defaults.set('plugins', {
