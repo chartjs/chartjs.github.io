@@ -10054,7 +10054,7 @@ var plugin_legend = {
 			createNewLegendAndAttach(chart, legendOpts);
 		}
 	},
-	afterUpdate(chart) {
+	beforeUpdate(chart) {
 		const legendOpts = chart.options.legend;
 		const legend = chart.legend;
 		if (legendOpts) {
@@ -10062,13 +10062,17 @@ var plugin_legend = {
 			if (legend) {
 				layouts.configure(chart, legend, legendOpts);
 				legend.options = legendOpts;
-				legend.buildLabels();
 			} else {
 				createNewLegendAndAttach(chart, legendOpts);
 			}
 		} else if (legend) {
 			layouts.removeBox(chart, legend);
 			delete chart.legend;
+		}
+	},
+	afterUpdate(chart) {
+		if (chart.legend) {
+			chart.legend.buildLabels();
 		}
 	},
 	afterEvent(chart, e) {
