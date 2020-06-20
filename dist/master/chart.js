@@ -9856,17 +9856,6 @@ function _parse(scale, input) {
   }
   return +value;
 }
-function interpolate(table, skey, sval, tkey) {
-  var _lookupByKey2 = _lookupByKey(table, skey, sval),
-      lo = _lookupByKey2.lo,
-      hi = _lookupByKey2.hi;
-  var prev = table[lo];
-  var next = table[hi];
-  var span = next[skey] - prev[skey];
-  var ratio = span ? (sval - prev[skey]) / span : 0;
-  var offset = (next[tkey] - prev[tkey]) * ratio;
-  return prev[tkey] + offset;
-}
 function determineUnitForAutoTicks(minUnit, min, max, capacity) {
   var ilen = UNITS.length;
   for (var i = UNITS.indexOf(minUnit); i < ilen - 1; ++i) {
@@ -9903,30 +9892,6 @@ function addTick(timestamps, ticks, time) {
       hi = _lookup2.hi;
   var timestamp = timestamps[lo] >= time ? timestamps[lo] : timestamps[hi];
   ticks[timestamp] = true;
-}
-function computeOffsets(table, timestamps, min, max, options) {
-  var start = 0;
-  var end = 0;
-  var first, last;
-  if (options.offset && timestamps.length) {
-    first = interpolate(table, 'time', timestamps[0], 'pos');
-    if (timestamps.length === 1) {
-      start = 1 - first;
-    } else {
-      start = (interpolate(table, 'time', timestamps[1], 'pos') - first) / 2;
-    }
-    last = interpolate(table, 'time', timestamps[timestamps.length - 1], 'pos');
-    if (timestamps.length === 1) {
-      end = last;
-    } else {
-      end = (last - interpolate(table, 'time', timestamps[timestamps.length - 2], 'pos')) / 2;
-    }
-  }
-  return {
-    start: start,
-    end: end,
-    factor: 1 / (start + 1 + end)
-  };
 }
 function setMajorTicks(scale, ticks, map, majorUnit) {
   var adapter = scale._adapter;
@@ -9988,7 +9953,6 @@ var TimeScale = function (_Scale) {
     _this._unit = 'day';
     _this._majorUnit = undefined;
     _this._offsets = {};
-    _this._table = [];
     return _this;
   }
   var _proto = TimeScale.prototype;
@@ -10011,10 +9975,6 @@ var TimeScale = function (_Scale) {
       labels: [],
       all: []
     };
-  }
-  ;
-  _proto.getTimestampsForTable = function getTimestampsForTable() {
-    return [this.min, this.max];
   };
   _proto.determineDataLimits = function determineDataLimits() {
     var me = this;
@@ -10075,12 +10035,37 @@ var TimeScale = function (_Scale) {
     var ticks = _filterBetween(timestamps, min, max);
     me._unit = timeOpts.unit || (tickOpts.autoSkip ? determineUnitForAutoTicks(timeOpts.minUnit, me.min, me.max, me._getLabelCapacity(min)) : determineUnitForFormatting(me, ticks.length, timeOpts.minUnit, me.min, me.max));
     me._majorUnit = !tickOpts.major.enabled || me._unit === 'year' ? undefined : determineMajorUnit(me._unit);
-    me._table = me.buildLookupTable(me.getTimestampsForTable(), min, max);
-    me._offsets = computeOffsets(me._table, timestamps, min, max, options);
+    me.initOffsets(timestamps);
     if (options.reverse) {
       ticks.reverse();
     }
     return ticksFromTimestamps(me, ticks, me._majorUnit);
+  }
+  ;
+  _proto.initOffsets = function initOffsets(timestamps) {
+    var me = this;
+    var start = 0;
+    var end = 0;
+    var first, last;
+    if (me.options.offset && timestamps.length) {
+      first = me.getDecimalForValue(timestamps[0]);
+      if (timestamps.length === 1) {
+        start = 1 - first;
+      } else {
+        start = (me.getDecimalForValue(timestamps[1]) - first) / 2;
+      }
+      last = me.getDecimalForValue(timestamps[timestamps.length - 1]);
+      if (timestamps.length === 1) {
+        end = last;
+      } else {
+        end = (last - me.getDecimalForValue(timestamps[timestamps.length - 2])) / 2;
+      }
+    }
+    me._offsets = {
+      start: start,
+      end: end,
+      factor: 1 / (start + 1 + end)
+    };
   }
   ;
   _proto._generate = function _generate() {
@@ -10124,16 +10109,6 @@ var TimeScale = function (_Scale) {
     });
   }
   ;
-  _proto.buildLookupTable = function buildLookupTable(timestamps, min, max) {
-    return [{
-      time: min,
-      pos: 0
-    }, {
-      time: max,
-      pos: 1
-    }];
-  }
-  ;
   _proto.getLabelForValue = function getLabelForValue(value) {
     var me = this;
     var adapter = me._adapter;
@@ -10167,10 +10142,15 @@ var TimeScale = function (_Scale) {
     }
   }
   ;
+  _proto.getDecimalForValue = function getDecimalForValue(value) {
+    var me = this;
+    return (value - me.min) / (me.max - me.min);
+  }
+  ;
   _proto.getPixelForValue = function getPixelForValue(value) {
     var me = this;
     var offsets = me._offsets;
-    var pos = interpolate(me._table, 'time', value, 'pos');
+    var pos = me.getDecimalForValue(value);
     return me.getPixelForDecimal((offsets.start + pos) * offsets.factor);
   }
   ;
@@ -10178,7 +10158,7 @@ var TimeScale = function (_Scale) {
     var me = this;
     var offsets = me._offsets;
     var pos = me.getDecimalForPixel(pixel) / offsets.factor - offsets.end;
-    return interpolate(me._table, 'pos', pos, 'time');
+    return me.min + pos * (me.max - me.min);
   }
   ;
   _proto._getLabelSize = function _getLabelSize(label) {
@@ -10238,33 +10218,40 @@ var TimeScale = function (_Scale) {
 TimeScale.id = 'time';
 TimeScale.defaults = defaultConfig$4;
 
+function interpolate(table, skey, sval, tkey) {
+  var _lookupByKey2 = _lookupByKey(table, skey, sval),
+      lo = _lookupByKey2.lo,
+      hi = _lookupByKey2.hi;
+  var prev = table[lo];
+  var next = table[hi];
+  var span = next[skey] - prev[skey];
+  var ratio = span ? (sval - prev[skey]) / span : 0;
+  var offset = (next[tkey] - prev[tkey]) * ratio;
+  return prev[tkey] + offset;
+}
 function sorter$1(a, b) {
   return a - b;
 }
 var TimeSeriesScale = function (_TimeScale) {
   _inheritsLoose(TimeSeriesScale, _TimeScale);
-  function TimeSeriesScale() {
-    return _TimeScale.apply(this, arguments) || this;
+  function TimeSeriesScale(props) {
+    var _this;
+    _this = _TimeScale.call(this, props) || this;
+    _this._table = [];
+    return _this;
   }
   var _proto = TimeSeriesScale.prototype;
-  _proto.getTimestampsForTable = function getTimestampsForTable() {
+  _proto.initOffsets = function initOffsets(timestamps) {
     var me = this;
-    var timestamps = me._cache.all || [];
-    if (timestamps.length) {
-      return timestamps;
-    }
-    var data = me.getDataTimestamps();
-    var label = me.getLabelTimestamps();
-    if (data.length && label.length) {
-      timestamps = _arrayUnique(data.concat(label).sort(sorter$1));
-    } else {
-      timestamps = data.length ? data : label;
-    }
-    timestamps = me._cache.all = timestamps;
-    return timestamps;
+    me._table = me.buildLookupTable();
+    _TimeScale.prototype.initOffsets.call(this, timestamps);
   }
   ;
-  _proto.buildLookupTable = function buildLookupTable(timestamps, min, max) {
+  _proto.buildLookupTable = function buildLookupTable() {
+    var me = this;
+    var min = me.min,
+        max = me.max;
+    var timestamps = me._getTimestampsForTable();
     if (!timestamps.length) {
       return [{
         time: min,
@@ -10298,6 +10285,27 @@ var TimeSeriesScale = function (_TimeScale) {
     return table;
   }
   ;
+  _proto._getTimestampsForTable = function _getTimestampsForTable() {
+    var me = this;
+    var timestamps = me._cache.all || [];
+    if (timestamps.length) {
+      return timestamps;
+    }
+    var data = me.getDataTimestamps();
+    var label = me.getLabelTimestamps();
+    if (data.length && label.length) {
+      timestamps = _arrayUnique(data.concat(label).sort(sorter$1));
+    } else {
+      timestamps = data.length ? data : label;
+    }
+    timestamps = me._cache.all = timestamps;
+    return timestamps;
+  }
+  ;
+  _proto.getDecimalForValue = function getDecimalForValue(value) {
+    return interpolate(this._table, 'time', value, 'pos');
+  }
+  ;
   _proto.getDataTimestamps = function getDataTimestamps() {
     var me = this;
     var timestamps = me._cache.data || [];
@@ -10320,6 +10328,13 @@ var TimeSeriesScale = function (_TimeScale) {
       timestamps.push(me.parse(labels[i]));
     }
     return me._cache.labels = timestamps;
+  }
+  ;
+  _proto.getValueForPixel = function getValueForPixel(pixel) {
+    var me = this;
+    var offsets = me._offsets;
+    var pos = me.getDecimalForPixel(pixel) / offsets.factor - offsets.end;
+    return interpolate(me._table, 'pos', pos, 'time');
   };
   return TimeSeriesScale;
 }(TimeScale);

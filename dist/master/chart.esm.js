@@ -8745,15 +8745,6 @@ function parse(scale, input) {
 	}
 	return +value;
 }
-function interpolate(table, skey, sval, tkey) {
-	const {lo, hi} = _lookupByKey(table, skey, sval);
-	const prev = table[lo];
-	const next = table[hi];
-	const span = next[skey] - prev[skey];
-	const ratio = span ? (sval - prev[skey]) / span : 0;
-	const offset = (next[tkey] - prev[tkey]) * ratio;
-	return prev[tkey] + offset;
-}
 function determineUnitForAutoTicks(minUnit, min, max, capacity) {
 	const ilen = UNITS.length;
 	for (let i = UNITS.indexOf(minUnit); i < ilen - 1; ++i) {
@@ -8788,26 +8779,6 @@ function addTick(timestamps, ticks, time) {
 	const {lo, hi} = _lookup(timestamps, time);
 	const timestamp = timestamps[lo] >= time ? timestamps[lo] : timestamps[hi];
 	ticks[timestamp] = true;
-}
-function computeOffsets(table, timestamps, min, max, options) {
-	let start = 0;
-	let end = 0;
-	let first, last;
-	if (options.offset && timestamps.length) {
-		first = interpolate(table, 'time', timestamps[0], 'pos');
-		if (timestamps.length === 1) {
-			start = 1 - first;
-		} else {
-			start = (interpolate(table, 'time', timestamps[1], 'pos') - first) / 2;
-		}
-		last = interpolate(table, 'time', timestamps[timestamps.length - 1], 'pos');
-		if (timestamps.length === 1) {
-			end = last;
-		} else {
-			end = (last - interpolate(table, 'time', timestamps[timestamps.length - 2], 'pos')) / 2;
-		}
-	}
-	return {start, end, factor: 1 / (start + 1 + end)};
 }
 function setMajorTicks(scale, ticks, map, majorUnit) {
 	const adapter = scale._adapter;
@@ -8867,7 +8838,6 @@ class TimeScale extends Scale {
 		this._unit = 'day';
 		this._majorUnit = undefined;
 		this._offsets = {};
-		this._table = [];
 	}
 	init(options) {
 		const time = options.time || (options.time = {});
@@ -8887,9 +8857,6 @@ class TimeScale extends Scale {
 			labels: [],
 			all: []
 		};
-	}
-	getTimestampsForTable() {
-		return [this.min, this.max];
 	}
 	determineDataLimits() {
 		const me = this;
@@ -8944,12 +8911,32 @@ class TimeScale extends Scale {
 			: determineUnitForFormatting(me, ticks.length, timeOpts.minUnit, me.min, me.max));
 		me._majorUnit = !tickOpts.major.enabled || me._unit === 'year' ? undefined
 			: determineMajorUnit(me._unit);
-		me._table = me.buildLookupTable(me.getTimestampsForTable(), min, max);
-		me._offsets = computeOffsets(me._table, timestamps, min, max, options);
+		me.initOffsets(timestamps);
 		if (options.reverse) {
 			ticks.reverse();
 		}
 		return ticksFromTimestamps(me, ticks, me._majorUnit);
+	}
+	initOffsets(timestamps) {
+		const me = this;
+		let start = 0;
+		let end = 0;
+		let first, last;
+		if (me.options.offset && timestamps.length) {
+			first = me.getDecimalForValue(timestamps[0]);
+			if (timestamps.length === 1) {
+				start = 1 - first;
+			} else {
+				start = (me.getDecimalForValue(timestamps[1]) - first) / 2;
+			}
+			last = me.getDecimalForValue(timestamps[timestamps.length - 1]);
+			if (timestamps.length === 1) {
+				end = last;
+			} else {
+				end = (last - me.getDecimalForValue(timestamps[timestamps.length - 2])) / 2;
+			}
+		}
+		me._offsets = {start, end, factor: 1 / (start + 1 + end)};
 	}
 	_generate() {
 		const me = this;
@@ -8989,12 +8976,6 @@ class TimeScale extends Scale {
 		}
 		return Object.keys(ticks).map(x => +x);
 	}
-	buildLookupTable(timestamps, min, max) {
-		return [
-			{time: min, pos: 0},
-			{time: max, pos: 1}
-		];
-	}
 	getLabelForValue(value) {
 		const me = this;
 		const adapter = me._adapter;
@@ -9025,17 +9006,21 @@ class TimeScale extends Scale {
 			tick.label = this._tickFormatFunction(tick.value, i, ticks);
 		}
 	}
+	getDecimalForValue(value) {
+		const me = this;
+		return (value - me.min) / (me.max - me.min);
+	}
 	getPixelForValue(value) {
 		const me = this;
 		const offsets = me._offsets;
-		const pos = interpolate(me._table, 'time', value, 'pos');
+		const pos = me.getDecimalForValue(value);
 		return me.getPixelForDecimal((offsets.start + pos) * offsets.factor);
 	}
 	getValueForPixel(pixel) {
 		const me = this;
 		const offsets = me._offsets;
 		const pos = me.getDecimalForPixel(pixel) / offsets.factor - offsets.end;
-		return interpolate(me._table, 'pos', pos, 'time');
+		return me.min + pos * (me.max - me.min);
 	}
 	_getLabelSize(label) {
 		const me = this;
@@ -9090,27 +9075,32 @@ class TimeScale extends Scale {
 TimeScale.id = 'time';
 TimeScale.defaults = defaultConfig$4;
 
+function interpolate(table, skey, sval, tkey) {
+	const {lo, hi} = _lookupByKey(table, skey, sval);
+	const prev = table[lo];
+	const next = table[hi];
+	const span = next[skey] - prev[skey];
+	const ratio = span ? (sval - prev[skey]) / span : 0;
+	const offset = (next[tkey] - prev[tkey]) * ratio;
+	return prev[tkey] + offset;
+}
 function sorter$1(a, b) {
 	return a - b;
 }
 class TimeSeriesScale extends TimeScale {
-	getTimestampsForTable() {
-		const me = this;
-		let timestamps = me._cache.all || [];
-		if (timestamps.length) {
-			return timestamps;
-		}
-		const data = me.getDataTimestamps();
-		const label = me.getLabelTimestamps();
-		if (data.length && label.length) {
-			timestamps = _arrayUnique(data.concat(label).sort(sorter$1));
-		} else {
-			timestamps = data.length ? data : label;
-		}
-		timestamps = me._cache.all = timestamps;
-		return timestamps;
+	constructor(props) {
+		super(props);
+		this._table = [];
 	}
-	buildLookupTable(timestamps, min, max) {
+	initOffsets(timestamps) {
+		const me = this;
+		me._table = me.buildLookupTable();
+		super.initOffsets(timestamps);
+	}
+	buildLookupTable() {
+		const me = this;
+		const {min, max} = me;
+		const timestamps = me._getTimestampsForTable();
 		if (!timestamps.length) {
 			return [
 				{time: min, pos: 0},
@@ -9137,6 +9127,25 @@ class TimeSeriesScale extends TimeScale {
 		}
 		return table;
 	}
+	_getTimestampsForTable() {
+		const me = this;
+		let timestamps = me._cache.all || [];
+		if (timestamps.length) {
+			return timestamps;
+		}
+		const data = me.getDataTimestamps();
+		const label = me.getLabelTimestamps();
+		if (data.length && label.length) {
+			timestamps = _arrayUnique(data.concat(label).sort(sorter$1));
+		} else {
+			timestamps = data.length ? data : label;
+		}
+		timestamps = me._cache.all = timestamps;
+		return timestamps;
+	}
+	getDecimalForValue(value) {
+		return interpolate(this._table, 'time', value, 'pos');
+	}
 	getDataTimestamps() {
 		const me = this;
 		const timestamps = me._cache.data || [];
@@ -9158,6 +9167,12 @@ class TimeSeriesScale extends TimeScale {
 			timestamps.push(me.parse(labels[i]));
 		}
 		return (me._cache.labels = timestamps);
+	}
+	getValueForPixel(pixel) {
+		const me = this;
+		const offsets = me._offsets;
+		const pos = me.getDecimalForPixel(pixel) / offsets.factor - offsets.end;
+		return interpolate(me._table, 'pos', pos, 'time');
 	}
 }
 TimeSeriesScale.id = 'timeseries';
