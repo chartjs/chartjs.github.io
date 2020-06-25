@@ -12382,7 +12382,9 @@ var Tooltip = function (_Element) {
         active.reverse();
       }
     }
-    changed = replay || !_elementsEqual(active, lastActive);
+    var position = positioners[options.position].call(me, active, e);
+    var positionChanged = this.caretX !== position.x || this.caretY !== position.y;
+    changed = replay || !_elementsEqual(active, lastActive) || positionChanged;
     if (changed) {
       me._active = active;
       if (options.enabled || options.custom) {

@@ -7577,7 +7577,9 @@ class Tooltip extends Element {
 				active.reverse();
 			}
 		}
-		changed = replay || !_elementsEqual(active, lastActive);
+		const position = positioners[options.position].call(me, active, e);
+		const positionChanged = this.caretX !== position.x || this.caretY !== position.y;
+		changed = replay || !_elementsEqual(active, lastActive) || positionChanged;
 		if (changed) {
 			me._active = active;
 			if (options.enabled || options.custom) {
