@@ -9107,10 +9107,6 @@ var LinearScaleBase = function (_Scale) {
   ;
   _proto.computeTickLimit = function computeTickLimit() {
     return Number.POSITIVE_INFINITY;
-  }
-  ;
-  _proto.handleDirectionalChanges = function handleDirectionalChanges(ticks) {
-    return ticks;
   };
   _proto.buildTicks = function buildTicks() {
     var me = this;
@@ -9126,7 +9122,6 @@ var LinearScaleBase = function (_Scale) {
       stepSize: valueOrDefault(tickOpts.fixedStepSize, tickOpts.stepSize)
     };
     var ticks = generateTicks(numericGeneratorOptions, me);
-    ticks = me.handleDirectionalChanges(ticks);
     _setMinAndMaxByKey(ticks, me, 'value');
     if (opts.reverse) {
       ticks.reverse();
@@ -9192,10 +9187,6 @@ var LinearScale = function (_LinearScaleBase) {
     }
     var tickFont = me._resolveTickFontOptions(0);
     return Math.ceil(me.height / tickFont.lineHeight);
-  }
-  ;
-  _proto.handleDirectionalChanges = function handleDirectionalChanges(ticks) {
-    return this.isHorizontal() ? ticks : ticks.reverse();
   }
   ;
   _proto.getPixelForValue = function getPixelForValue(value) {

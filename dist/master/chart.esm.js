@@ -7858,9 +7858,6 @@ class LinearScaleBase extends Scale {
 	computeTickLimit() {
 		return Number.POSITIVE_INFINITY;
 	}
-	handleDirectionalChanges(ticks) {
-		return ticks;
-	}
 	buildTicks() {
 		const me = this;
 		const opts = me.options;
@@ -7874,8 +7871,7 @@ class LinearScaleBase extends Scale {
 			precision: tickOpts.precision,
 			stepSize: valueOrDefault(tickOpts.fixedStepSize, tickOpts.stepSize)
 		};
-		let ticks = generateTicks(numericGeneratorOptions, me);
-		ticks = me.handleDirectionalChanges(ticks);
+		const ticks = generateTicks(numericGeneratorOptions, me);
 		_setMinAndMaxByKey(ticks, me, 'value');
 		if (opts.reverse) {
 			ticks.reverse();
@@ -7931,9 +7927,6 @@ class LinearScale extends LinearScaleBase {
 		}
 		const tickFont = me._resolveTickFontOptions(0);
 		return Math.ceil(me.height / tickFont.lineHeight);
-	}
-	handleDirectionalChanges(ticks) {
-		return this.isHorizontal() ? ticks : ticks.reverse();
 	}
 	getPixelForValue(value) {
 		const me = this;
