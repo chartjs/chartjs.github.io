@@ -12039,8 +12039,8 @@ var Tooltip = function (_Element) {
       tooltipItems.push(createTooltipItem(me._chart, active[i]));
     }
     if (options.filter) {
-      tooltipItems = tooltipItems.filter(function (a) {
-        return options.filter(a, data);
+      tooltipItems = tooltipItems.filter(function (element, index, array) {
+        return options.filter(element, index, array, data);
       });
     }
     if (options.itemSort) {

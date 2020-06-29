@@ -7263,7 +7263,7 @@ class Tooltip extends Element {
 			tooltipItems.push(createTooltipItem(me._chart, active[i]));
 		}
 		if (options.filter) {
-			tooltipItems = tooltipItems.filter((a) => options.filter(a, data));
+			tooltipItems = tooltipItems.filter((element, index, array) => options.filter(element, index, array, data));
 		}
 		if (options.itemSort) {
 			tooltipItems = tooltipItems.sort((a, b) => options.itemSort(a, b, data));
