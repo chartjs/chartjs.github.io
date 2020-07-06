@@ -5106,8 +5106,8 @@ class Scale extends Element {
 				const labelWidth = tickOpts.mirror ? 0 :
 					widestLabelSize.width + tickPadding + lineSpace;
 				minSize.width = Math.min(me.maxWidth, minSize.width + labelWidth);
-				me.paddingTop = firstLabelSize.height / 2;
-				me.paddingBottom = lastLabelSize.height / 2;
+				me.paddingTop = lastLabelSize.height / 2;
+				me.paddingBottom = firstLabelSize.height / 2;
 			}
 		}
 		me._handleMargins();
@@ -7317,7 +7317,7 @@ class Tooltip extends Element {
 			me._resolveAnimations().update(me, properties);
 		}
 		if (changed && options.custom) {
-			options.custom.call(me, [me]);
+			options.custom.call(me, {chart: me._chart, tooltip: me});
 		}
 	}
 	drawCaret(tooltipPoint, ctx, size) {
@@ -8612,7 +8612,6 @@ const defaultConfig$4 = {
 		displayFormats: {}
 	},
 	ticks: {
-		autoSkip: false,
 		source: 'auto',
 		major: {
 			enabled: false
@@ -8884,15 +8883,15 @@ class TimeSeriesScale extends TimeScale {
 		super(props);
 		this._table = [];
 	}
-	initOffsets(timestamps) {
+	initOffsets() {
 		const me = this;
-		me._table = me.buildLookupTable();
+		const timestamps = me._getTimestampsForTable();
+		me._table = me.buildLookupTable(timestamps);
 		super.initOffsets(timestamps);
 	}
-	buildLookupTable() {
+	buildLookupTable(timestamps) {
 		const me = this;
 		const {min, max} = me;
-		const timestamps = me._getTimestampsForTable();
 		if (!timestamps.length) {
 			return [
 				{time: min, pos: 0},

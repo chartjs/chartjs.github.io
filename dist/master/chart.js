@@ -8215,8 +8215,8 @@ var Scale = function (_Element) {
         var labelWidth = tickOpts.mirror ? 0 :
         widestLabelSize.width + tickPadding + lineSpace;
         minSize.width = Math.min(me.maxWidth, minSize.width + labelWidth);
-        me.paddingTop = firstLabelSize.height / 2;
-        me.paddingBottom = lastLabelSize.height / 2;
+        me.paddingTop = lastLabelSize.height / 2;
+        me.paddingBottom = firstLabelSize.height / 2;
       }
     }
     me._handleMargins();
@@ -9924,7 +9924,6 @@ var defaultConfig$4 = {
     displayFormats: {}
   },
   ticks: {
-    autoSkip: false,
     source: 'auto',
     major: {
       enabled: false
@@ -10232,17 +10231,17 @@ var TimeSeriesScale = function (_TimeScale) {
     return _this;
   }
   var _proto = TimeSeriesScale.prototype;
-  _proto.initOffsets = function initOffsets(timestamps) {
+  _proto.initOffsets = function initOffsets() {
     var me = this;
-    me._table = me.buildLookupTable();
+    var timestamps = me._getTimestampsForTable();
+    me._table = me.buildLookupTable(timestamps);
     _TimeScale.prototype.initOffsets.call(this, timestamps);
   }
   ;
-  _proto.buildLookupTable = function buildLookupTable() {
+  _proto.buildLookupTable = function buildLookupTable(timestamps) {
     var me = this;
     var min = me.min,
         max = me.max;
-    var timestamps = me._getTimestampsForTable();
     if (!timestamps.length) {
       return [{
         time: min,
@@ -12088,7 +12087,10 @@ var Tooltip = function (_Element) {
       me._resolveAnimations().update(me, properties);
     }
     if (changed && options.custom) {
-      options.custom.call(me, [me]);
+      options.custom.call(me, {
+        chart: me._chart,
+        tooltip: me
+      });
     }
   };
   _proto.drawCaret = function drawCaret(tooltipPoint, ctx, size) {
