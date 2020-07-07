@@ -1311,7 +1311,7 @@ class BarController extends DatasetController {
 		const pixels = [];
 		let i, ilen;
 		for (i = 0, ilen = meta.data.length; i < ilen; ++i) {
-			pixels.push(iScale.getPixelForValue(me.getParsed(i)[iScale.axis]));
+			pixels.push(iScale.getPixelForValue(me.getParsed(i)[iScale.axis], i));
 		}
 		const min = computeMinSampleSize(iScale, pixels);
 		return {
@@ -1870,8 +1870,8 @@ class LineController extends DatasetController {
 			const index = start + i;
 			const point = points[i];
 			const parsed = me.getParsed(index);
-			const x = xScale.getPixelForValue(parsed.x);
-			const y = reset ? yScale.getBasePixel() : yScale.getPixelForValue(_stacked ? me.applyStack(yScale, parsed) : parsed.y);
+			const x = xScale.getPixelForValue(parsed.x, index);
+			const y = reset ? yScale.getBasePixel() : yScale.getPixelForValue(_stacked ? me.applyStack(yScale, parsed) : parsed.y, index);
 			const properties = {
 				x,
 				y,
@@ -3792,7 +3792,7 @@ class Scale extends Element {
 	getLabelForValue(value) {
 		return value;
 	}
-	getPixelForValue(value) {
+	getPixelForValue(value, index) {
 		return NaN;
 	}
 	getValueForPixel(pixel) {}
@@ -4766,7 +4766,7 @@ class Chart {
 				});
 				scales[scale.id] = scale;
 			}
-			scale.init(scaleOptions);
+			scale.init(scaleOptions, options);
 			if (item.isDefault) {
 				me.scale = scale;
 			}
@@ -8733,12 +8733,14 @@ class TimeScale extends Scale {
 		this._unit = 'day';
 		this._majorUnit = undefined;
 		this._offsets = {};
+		this._normalized = false;
 	}
-	init(options) {
-		const time = options.time || (options.time = {});
-		const adapter = this._adapter = new adapters._date(options.adapters.date);
+	init(scaleOpts, opts) {
+		const time = scaleOpts.time || (scaleOpts.time = {});
+		const adapter = this._adapter = new adapters._date(scaleOpts.adapters.date);
 		mergeIf(time.displayFormats, adapter.formats());
-		super.init(options);
+		super.init(scaleOpts);
+		this._normalized = opts.normalized;
 	}
 	parse(raw, index) {
 		if (raw === undefined) {
@@ -8948,10 +8950,13 @@ class TimeScale extends Scale {
 			return timestamps;
 		}
 		const metas = me.getMatchingVisibleMetas();
+		if (me._normalized && metas.length) {
+			return (me._cache.data = metas[0].controller.getAllParsedValues(me));
+		}
 		for (i = 0, ilen = metas.length; i < ilen; ++i) {
 			timestamps = timestamps.concat(metas[i].controller.getAllParsedValues(me));
 		}
-		return (me._cache.data = _arrayUnique(timestamps.sort(sorter)));
+		return (me._cache.data = me.normalize(timestamps));
 	}
 	getLabelTimestamps() {
 		const me = this;
@@ -8964,7 +8969,10 @@ class TimeScale extends Scale {
 		for (i = 0, ilen = labels.length; i < ilen; ++i) {
 			timestamps.push(parse(me, labels[i]));
 		}
-		return (me._cache.labels = _arrayUnique(timestamps.sort(sorter)));
+		return (me._cache.labels = me._normalized ? timestamps : me.normalize(timestamps));
+	}
+	normalize(values) {
+		return _arrayUnique(values.sort(sorter));
 	}
 }
 TimeScale.id = 'time';
@@ -8987,27 +8995,34 @@ TimeScale.defaults = {
 	}
 };
 
-function interpolate(table, skey, sval, tkey) {
-	const {lo, hi} = _lookupByKey(table, skey, sval);
-	const prev = table[lo];
-	const next = table[hi];
-	const span = next[skey] - prev[skey];
-	const ratio = span ? (sval - prev[skey]) / span : 0;
-	const offset = (next[tkey] - prev[tkey]) * ratio;
-	return prev[tkey] + offset;
-}
-function sorter$1(a, b) {
-	return a - b;
+function interpolate(table, val, reverse) {
+	let prevSource, nextSource, prevTarget, nextTarget;
+	if (reverse) {
+		prevSource = Math.floor(val);
+		nextSource = Math.ceil(val);
+		prevTarget = table[prevSource];
+		nextTarget = table[nextSource];
+	} else {
+		const result = _lookup(table, val);
+		prevTarget = result.lo;
+		nextTarget = result.hi;
+		prevSource = table[prevTarget];
+		nextSource = table[nextTarget];
+	}
+	const span = nextSource - prevSource;
+	return span ? prevTarget + (nextTarget - prevTarget) * (val - prevSource) / span : prevTarget;
 }
 class TimeSeriesScale extends TimeScale {
 	constructor(props) {
 		super(props);
 		this._table = [];
+		this._maxIndex = undefined;
 	}
 	initOffsets() {
 		const me = this;
 		const timestamps = me._getTimestampsForTable();
 		me._table = me.buildLookupTable(timestamps);
+		me._maxIndex = me._table.length - 1;
 		super.initOffsets(timestamps);
 	}
 	buildLookupTable(timestamps) {
@@ -9019,9 +9034,8 @@ class TimeSeriesScale extends TimeScale {
 				{time: max, pos: 1}
 			];
 		}
-		const table = [];
 		const items = [min];
-		let i, ilen, prev, curr, next;
+		let i, ilen, curr;
 		for (i = 0, ilen = timestamps.length; i < ilen; ++i) {
 			curr = timestamps[i];
 			if (curr > min && curr < max) {
@@ -9029,15 +9043,7 @@ class TimeSeriesScale extends TimeScale {
 			}
 		}
 		items.push(max);
-		for (i = 0, ilen = items.length; i < ilen; ++i) {
-			next = items[i + 1];
-			prev = items[i - 1];
-			curr = items[i];
-			if (prev === undefined || next === undefined || Math.round((next + prev) / 2) !== curr) {
-				table.push({time: curr, pos: i / (ilen - 1)});
-			}
-		}
-		return table;
+		return items;
 	}
 	_getTimestampsForTable() {
 		const me = this;
@@ -9048,43 +9054,28 @@ class TimeSeriesScale extends TimeScale {
 		const data = me.getDataTimestamps();
 		const label = me.getLabelTimestamps();
 		if (data.length && label.length) {
-			timestamps = _arrayUnique(data.concat(label).sort(sorter$1));
+			timestamps = me.normalize(data.concat(label));
 		} else {
 			timestamps = data.length ? data : label;
 		}
 		timestamps = me._cache.all = timestamps;
 		return timestamps;
 	}
+	getPixelForValue(value, index) {
+		const me = this;
+		const offsets = me._offsets;
+		const pos = me._normalized && me._maxIndex > 0 && !isNullOrUndef(index)
+			? index / me._maxIndex : me.getDecimalForValue(value);
+		return me.getPixelForDecimal((offsets.start + pos) * offsets.factor);
+	}
 	getDecimalForValue(value) {
-		return interpolate(this._table, 'time', value, 'pos');
-	}
-	getDataTimestamps() {
-		const me = this;
-		const timestamps = me._cache.data || [];
-		if (timestamps.length) {
-			return timestamps;
-		}
-		const metas = me.getMatchingVisibleMetas();
-		return (me._cache.data = metas.length ? metas[0].controller.getAllParsedValues(me) : []);
-	}
-	getLabelTimestamps() {
-		const me = this;
-		const timestamps = me._cache.labels || [];
-		let i, ilen;
-		if (timestamps.length) {
-			return timestamps;
-		}
-		const labels = me.getLabels();
-		for (i = 0, ilen = labels.length; i < ilen; ++i) {
-			timestamps.push(me.parse(labels[i]));
-		}
-		return (me._cache.labels = timestamps);
+		return interpolate(this._table, value) / this._maxIndex;
 	}
 	getValueForPixel(pixel) {
 		const me = this;
 		const offsets = me._offsets;
-		const pos = me.getDecimalForPixel(pixel) / offsets.factor - offsets.end;
-		return interpolate(me._table, 'pos', pos, 'time');
+		const decimal = me.getDecimalForPixel(pixel) / offsets.factor - offsets.end;
+		return interpolate(me._table, decimal * this._maxIndex, true);
 	}
 }
 TimeSeriesScale.id = 'timeseries';
