@@ -384,6 +384,9 @@ function resolveObjectKey(obj, key) {
   }
   return obj;
 }
+function _capitalize(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
 
 var coreHelpers = /*#__PURE__*/Object.freeze({
 __proto__: null,
@@ -403,7 +406,8 @@ merge: merge,
 mergeIf: mergeIf,
 _mergerIf: _mergerIf,
 _deprecated: _deprecated,
-resolveObjectKey: resolveObjectKey
+resolveObjectKey: resolveObjectKey,
+_capitalize: _capitalize
 });
 
 function getScope(node, key) {
@@ -441,7 +445,7 @@ var Defaults = function () {
     this.onClick = null;
     this.responsive = true;
     this.showLines = true;
-    this.plugins = undefined;
+    this.plugins = {};
     this.scale = undefined;
     this.legend = undefined;
     this.title = undefined;
@@ -776,7 +780,7 @@ function listenArrayEvents(array, listener) {
     }
   });
   arrayEvents.forEach(function (key) {
-    var method = '_onData' + key.charAt(0).toUpperCase() + key.slice(1);
+    var method = '_onData' + _capitalize(key);
     var base = array[key];
     Object.defineProperty(array, key, {
       configurable: true,
@@ -2319,106 +2323,6 @@ BasicPlatform: BasicPlatform,
 DomPlatform: DomPlatform
 });
 
-defaults.set('plugins', {});
-var PluginService = function () {
-  function PluginService() {
-    this._plugins = [];
-    this._cacheId = 0;
-  }
-  var _proto = PluginService.prototype;
-  _proto.register = function register(plugins) {
-    var p = this._plugins;
-    [].concat(plugins).forEach(function (plugin) {
-      if (p.indexOf(plugin) === -1) {
-        p.push(plugin);
-      }
-    });
-    this._cacheId++;
-  }
-  ;
-  _proto.unregister = function unregister(plugins) {
-    var p = this._plugins;
-    [].concat(plugins).forEach(function (plugin) {
-      var idx = p.indexOf(plugin);
-      if (idx !== -1) {
-        p.splice(idx, 1);
-      }
-    });
-    this._cacheId++;
-  }
-  ;
-  _proto.clear = function clear() {
-    this._plugins = [];
-    this._cacheId++;
-  }
-  ;
-  _proto.count = function count() {
-    return this._plugins.length;
-  }
-  ;
-  _proto.getAll = function getAll() {
-    return this._plugins;
-  }
-  ;
-  _proto.notify = function notify(chart, hook, args) {
-    var descriptors = this._descriptors(chart);
-    var ilen = descriptors.length;
-    var i, descriptor, plugin, params, method;
-    for (i = 0; i < ilen; ++i) {
-      descriptor = descriptors[i];
-      plugin = descriptor.plugin;
-      method = plugin[hook];
-      if (typeof method === 'function') {
-        params = [chart].concat(args || []);
-        params.push(descriptor.options);
-        if (method.apply(plugin, params) === false) {
-          return false;
-        }
-      }
-    }
-    return true;
-  }
-  ;
-  _proto._descriptors = function _descriptors(chart) {
-    var cache = chart.$plugins || (chart.$plugins = {});
-    if (cache.id === this._cacheId) {
-      return cache.descriptors;
-    }
-    var plugins = [];
-    var descriptors = [];
-    var config = chart && chart.config || {};
-    var options = config.options && config.options.plugins || {};
-    this._plugins.concat(config.plugins || []).forEach(function (plugin) {
-      var idx = plugins.indexOf(plugin);
-      if (idx !== -1) {
-        return;
-      }
-      var id = plugin.id;
-      var opts = options[id];
-      if (opts === false) {
-        return;
-      }
-      if (opts === true) {
-        opts = clone(defaults.plugins[id]);
-      }
-      plugins.push(plugin);
-      descriptors.push({
-        plugin: plugin,
-        options: opts || {}
-      });
-    });
-    cache.descriptors = descriptors;
-    cache.id = this._cacheId;
-    return descriptors;
-  }
-  ;
-  _proto.invalidate = function invalidate(chart) {
-    delete chart.$plugins;
-  };
-  return PluginService;
-}();
-var pluginsCore = new PluginService();
-
 var effects = {
   linear: function linear(t) {
     return t;
@@ -3732,7 +3636,7 @@ function optionKeys(optionNames) {
   return isArray(optionNames) ? optionNames : Object.keys(optionNames);
 }
 function optionKey(key, active) {
-  return active ? 'hover' + key.charAt(0).toUpperCase() + key.slice(1) : key;
+  return active ? 'hover' + _capitalize(key) : key;
 }
 var DatasetController = function () {
   function DatasetController(chart, datasetIndex) {
@@ -5656,35 +5560,41 @@ var Registry = function () {
     for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
       args[_key] = arguments[_key];
     }
-    this._registerEach(args);
-  }
-  ;
-  _proto.addControllers = function addControllers() {
+    this._each('register', args);
+  };
+  _proto.remove = function remove() {
     for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
       args[_key2] = arguments[_key2];
     }
-    this._registerEach(args, this.controllers);
+    this._each('unregister', args);
   }
   ;
-  _proto.addElements = function addElements() {
+  _proto.addControllers = function addControllers() {
     for (var _len3 = arguments.length, args = new Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
       args[_key3] = arguments[_key3];
     }
-    this._registerEach(args, this.elements);
+    this._each('register', args, this.controllers);
   }
   ;
-  _proto.addPlugins = function addPlugins() {
+  _proto.addElements = function addElements() {
     for (var _len4 = arguments.length, args = new Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
       args[_key4] = arguments[_key4];
     }
-    this._registerEach(args, this.plugins);
+    this._each('register', args, this.elements);
   }
   ;
-  _proto.addScales = function addScales() {
+  _proto.addPlugins = function addPlugins() {
     for (var _len5 = arguments.length, args = new Array(_len5), _key5 = 0; _key5 < _len5; _key5++) {
       args[_key5] = arguments[_key5];
     }
-    this._registerEach(args, this.scales);
+    this._each('register', args, this.plugins);
+  }
+  ;
+  _proto.addScales = function addScales() {
+    for (var _len6 = arguments.length, args = new Array(_len6), _key6 = 0; _key6 < _len6; _key6++) {
+      args[_key6] = arguments[_key6];
+    }
+    this._each('register', args, this.scales);
   }
   ;
   _proto.getController = function getController(id) {
@@ -5703,25 +5613,26 @@ var Registry = function () {
     return this._get(id, this.scales, 'scale');
   }
   ;
-  _proto._registerEach = function _registerEach(args, typedRegistry) {
+  _proto._each = function _each(method, args, typedRegistry) {
     var me = this;
     [].concat(args).forEach(function (arg) {
       var reg = typedRegistry || me._getRegistryForType(arg);
-      if (reg.isForType(arg)) {
-        me._registerComponent(reg, arg);
+      if (reg.isForType(arg) || reg === me.plugins && arg.id) {
+        me._exec(method, reg, arg);
       } else {
         each(arg, function (item) {
           var itemReg = typedRegistry || me._getRegistryForType(item);
-          me._registerComponent(itemReg, item);
+          me._exec(method, itemReg, item);
         });
       }
     });
   }
   ;
-  _proto._registerComponent = function _registerComponent(registry, component) {
-    callback(component.beforeRegister, [], component);
-    registry.register(component);
-    callback(component.afterRegister, [], component);
+  _proto._exec = function _exec(method, registry, component) {
+    var camelMethod = _capitalize(method);
+    callback(component['before' + camelMethod], [], component);
+    registry[method](component);
+    callback(component['after' + camelMethod], [], component);
   }
   ;
   _proto._getRegistryForType = function _getRegistryForType(type) {
@@ -5744,6 +5655,77 @@ var Registry = function () {
   return Registry;
 }();
 var registry = new Registry();
+
+var PluginService = function () {
+  function PluginService() {}
+  var _proto = PluginService.prototype;
+  _proto.notify = function notify(chart, hook, args) {
+    var descriptors = this._descriptors(chart);
+    for (var i = 0; i < descriptors.length; ++i) {
+      var descriptor = descriptors[i];
+      var plugin = descriptor.plugin;
+      var method = plugin[hook];
+      if (typeof method === 'function') {
+        var params = [chart].concat(args || []);
+        params.push(descriptor.options);
+        if (method.apply(plugin, params) === false) {
+          return false;
+        }
+      }
+    }
+    return true;
+  };
+  _proto.invalidate = function invalidate() {
+    this._cache = undefined;
+  }
+  ;
+  _proto._descriptors = function _descriptors(chart) {
+    if (this._cache) {
+      return this._cache;
+    }
+    var config = chart && chart.config || {};
+    var options = config.options && config.options.plugins || {};
+    var plugins = allPlugins(config);
+    var descriptors = createDescriptors(plugins, options);
+    this._cache = descriptors;
+    return descriptors;
+  };
+  return PluginService;
+}();
+function allPlugins(config) {
+  var plugins = [];
+  var keys = Object.keys(registry.plugins.items);
+  for (var i = 0; i < keys.length; i++) {
+    plugins.push(registry.getPlugin(keys[i]));
+  }
+  var local = config.plugins || [];
+  for (var _i = 0; _i < local.length; _i++) {
+    var plugin = local[_i];
+    if (plugins.indexOf(plugin) === -1) {
+      plugins.push(plugin);
+    }
+  }
+  return plugins;
+}
+function createDescriptors(plugins, options) {
+  var result = [];
+  for (var i = 0; i < plugins.length; i++) {
+    var plugin = plugins[i];
+    var id = plugin.id;
+    var opts = options[id];
+    if (opts === false) {
+      continue;
+    }
+    if (opts === true) {
+      opts = {};
+    }
+    result.push({
+      plugin: plugin,
+      options: mergeIf({}, [opts, defaults.plugins[id]])
+    });
+  }
+  return result;
+}
 
 var version = "3.0.0-alpha";
 
@@ -5832,8 +5814,10 @@ function initConfig(config) {
   data.datasets = data.datasets || [];
   data.labels = data.labels || [];
   var scaleConfig = mergeScaleConfig(config, config.options);
-  config.options = mergeConfig(defaults, defaults[config.type], config.options || {});
-  config.options.scales = scaleConfig;
+  var options = config.options = mergeConfig(defaults, defaults[config.type], config.options || {});
+  options.scales = scaleConfig;
+  options.title = options.title !== false && merge({}, [defaults.plugins.title, options.title]);
+  options.tooltips = options.tooltips !== false && merge({}, [defaults.plugins.tooltip, options.tooltips]);
   return config;
 }
 function isAnimationDisabled(config) {
@@ -5876,7 +5860,7 @@ function compare2Level(l1, l2) {
 function onAnimationsComplete(ctx) {
   var chart = ctx.chart;
   var animationOptions = chart.options.animation;
-  pluginsCore.notify(chart, 'afterRender');
+  chart._plugins.notify(chart, 'afterRender');
   callback(animationOptions && animationOptions.onComplete, [ctx], chart);
 }
 function onAnimationProgress(ctx) {
@@ -5941,7 +5925,7 @@ var Chart = function () {
     this._updating = false;
     this.scales = {};
     this.scale = undefined;
-    this.$plugins = undefined;
+    this._plugins = new PluginService();
     this.$proxies = {};
     this._hiddenIndices = {};
     this.attached = false;
@@ -5968,14 +5952,14 @@ var Chart = function () {
   var _proto = Chart.prototype;
   _proto._initialize = function _initialize() {
     var me = this;
-    pluginsCore.notify(me, 'beforeInit');
+    me._plugins.notify(me, 'beforeInit');
     if (me.options.responsive) {
       me.resize(true);
     } else {
       retinaScale(me, me.options.devicePixelRatio);
     }
     me.bindEvents();
-    pluginsCore.notify(me, 'afterInit');
+    me._plugins.notify(me, 'afterInit');
     return me;
   }
   ;
@@ -6014,7 +5998,7 @@ var Chart = function () {
     }
     retinaScale(me, newRatio);
     if (!silent) {
-      pluginsCore.notify(me, 'resize', [newSize]);
+      me._plugins.notify(me, 'resize', [newSize]);
       callback(options.onResize, [newSize], me);
       if (me.attached) {
         me.update('resize');
@@ -6168,7 +6152,7 @@ var Chart = function () {
   ;
   _proto.reset = function reset() {
     this._resetElements();
-    pluginsCore.notify(this, 'reset');
+    this._plugins.notify(this, 'reset');
   };
   _proto.update = function update(mode) {
     var me = this;
@@ -6177,8 +6161,8 @@ var Chart = function () {
     updateConfig(me);
     me.ensureScalesHaveIDs();
     me.buildOrUpdateScales();
-    pluginsCore.invalidate(me);
-    if (pluginsCore.notify(me, 'beforeUpdate') === false) {
+    me._plugins.invalidate();
+    if (me._plugins.notify(me, 'beforeUpdate') === false) {
       return;
     }
     var newControllers = me.buildOrUpdateControllers();
@@ -6192,7 +6176,7 @@ var Chart = function () {
       });
     }
     me._updateDatasets(mode);
-    pluginsCore.notify(me, 'afterUpdate');
+    me._plugins.notify(me, 'afterUpdate');
     me._layers.sort(compare2Level('z', '_idx'));
     if (me._lastEvent) {
       me._eventHandler(me._lastEvent, true);
@@ -6203,7 +6187,7 @@ var Chart = function () {
   ;
   _proto._updateLayout = function _updateLayout() {
     var me = this;
-    if (pluginsCore.notify(me, 'beforeLayout') === false) {
+    if (me._plugins.notify(me, 'beforeLayout') === false) {
       return;
     }
     layouts.update(me, me.width, me.height);
@@ -6218,13 +6202,13 @@ var Chart = function () {
     me._layers.forEach(function (item, index) {
       item._idx = index;
     });
-    pluginsCore.notify(me, 'afterLayout');
+    me._plugins.notify(me, 'afterLayout');
   }
   ;
   _proto._updateDatasets = function _updateDatasets(mode) {
     var me = this;
     var isFunction = typeof mode === 'function';
-    if (pluginsCore.notify(me, 'beforeDatasetsUpdate') === false) {
+    if (me._plugins.notify(me, 'beforeDatasetsUpdate') === false) {
       return;
     }
     for (var i = 0, ilen = me.data.datasets.length; i < ilen; ++i) {
@@ -6232,7 +6216,7 @@ var Chart = function () {
         datasetIndex: i
       }) : mode);
     }
-    pluginsCore.notify(me, 'afterDatasetsUpdate');
+    me._plugins.notify(me, 'afterDatasetsUpdate');
   }
   ;
   _proto._updateDataset = function _updateDataset(index, mode) {
@@ -6243,20 +6227,20 @@ var Chart = function () {
       index: index,
       mode: mode
     };
-    if (pluginsCore.notify(me, 'beforeDatasetUpdate', [args]) === false) {
+    if (me._plugins.notify(me, 'beforeDatasetUpdate', [args]) === false) {
       return;
     }
     meta.controller._update(mode);
-    pluginsCore.notify(me, 'afterDatasetUpdate', [args]);
+    me._plugins.notify(me, 'afterDatasetUpdate', [args]);
   };
   _proto.render = function render() {
     var me = this;
     var animationOptions = me.options.animation;
-    if (pluginsCore.notify(me, 'beforeRender') === false) {
+    if (me._plugins.notify(me, 'beforeRender') === false) {
       return;
     }
     var onComplete = function onComplete() {
-      pluginsCore.notify(me, 'afterRender');
+      me._plugins.notify(me, 'afterRender');
       callback(animationOptions && animationOptions.onComplete, [], me);
     };
     if (animator.has(me)) {
@@ -6275,7 +6259,7 @@ var Chart = function () {
     if (me.width <= 0 || me.height <= 0) {
       return;
     }
-    if (pluginsCore.notify(me, 'beforeDraw') === false) {
+    if (me._plugins.notify(me, 'beforeDraw') === false) {
       return;
     }
     var layers = me._layers;
@@ -6286,7 +6270,7 @@ var Chart = function () {
     for (; i < layers.length; ++i) {
       layers[i].draw(me.chartArea);
     }
-    pluginsCore.notify(me, 'afterDraw');
+    me._plugins.notify(me, 'afterDraw');
   }
   ;
   _proto._getSortedDatasetMetas = function _getSortedDatasetMetas(filterVisible) {
@@ -6309,14 +6293,14 @@ var Chart = function () {
   ;
   _proto._drawDatasets = function _drawDatasets() {
     var me = this;
-    if (pluginsCore.notify(me, 'beforeDatasetsDraw') === false) {
+    if (me._plugins.notify(me, 'beforeDatasetsDraw') === false) {
       return;
     }
     var metasets = me.getSortedVisibleDatasetMetas();
     for (var i = metasets.length - 1; i >= 0; --i) {
       me._drawDataset(metasets[i]);
     }
-    pluginsCore.notify(me, 'afterDatasetsDraw');
+    me._plugins.notify(me, 'afterDatasetsDraw');
   }
   ;
   _proto._drawDataset = function _drawDataset(meta) {
@@ -6328,7 +6312,7 @@ var Chart = function () {
       meta: meta,
       index: meta.index
     };
-    if (pluginsCore.notify(me, 'beforeDatasetDraw', [args]) === false) {
+    if (me._plugins.notify(me, 'beforeDatasetDraw', [args]) === false) {
       return;
     }
     clipArea(ctx, {
@@ -6339,7 +6323,7 @@ var Chart = function () {
     });
     meta.controller.draw();
     unclipArea(ctx);
-    pluginsCore.notify(me, 'afterDatasetDraw', [args]);
+    me._plugins.notify(me, 'afterDatasetDraw', [args]);
   }
   ;
   _proto.getElementAtEvent = function getElementAtEvent(e) {
@@ -6456,7 +6440,7 @@ var Chart = function () {
       me.canvas = null;
       me.ctx = null;
     }
-    pluginsCore.notify(me, 'destroy');
+    me._plugins.notify(me, 'destroy');
     delete Chart.instances[me.id];
   };
   _proto.toBase64Image = function toBase64Image() {
@@ -6553,11 +6537,11 @@ var Chart = function () {
   ;
   _proto._eventHandler = function _eventHandler(e, replay) {
     var me = this;
-    if (pluginsCore.notify(me, 'beforeEvent', [e, replay]) === false) {
+    if (me._plugins.notify(me, 'beforeEvent', [e, replay]) === false) {
       return;
     }
     me._handleEvent(e, replay);
-    pluginsCore.notify(me, 'afterEvent', [e, replay]);
+    me._plugins.notify(me, 'afterEvent', [e, replay]);
     me.render();
     return me;
   }
@@ -10042,18 +10026,6 @@ var plugin_legend = {
   }
 };
 
-defaults.set('title', {
-  align: 'center',
-  display: false,
-  font: {
-    style: 'bold'
-  },
-  fullWidth: true,
-  padding: 10,
-  position: 'top',
-  text: '',
-  weight: 2000
-});
 var Title = function (_Element) {
   _inheritsLoose(Title, _Element);
   function Title(config) {
@@ -10236,7 +10208,7 @@ var plugin_title = {
     var titleOpts = chart.options.title;
     var titleBlock = chart.titleBlock;
     if (titleOpts) {
-      mergeIf(titleOpts, defaults.title);
+      mergeIf(titleOpts, defaults.plugins.title);
       if (titleBlock) {
         layouts.configure(chart, titleBlock, titleOpts);
         titleBlock.options = titleOpts;
@@ -10247,104 +10219,21 @@ var plugin_title = {
       layouts.removeBox(chart, titleBlock);
       delete chart.titleBlock;
     }
+  },
+  defaults: {
+    align: 'center',
+    display: false,
+    font: {
+      style: 'bold'
+    },
+    fullWidth: true,
+    padding: 10,
+    position: 'top',
+    text: '',
+    weight: 2000
   }
 };
 
-defaults.set('tooltips', {
-  enabled: true,
-  custom: null,
-  mode: 'nearest',
-  position: 'average',
-  intersect: true,
-  backgroundColor: 'rgba(0,0,0,0.8)',
-  titleFont: {
-    style: 'bold',
-    color: '#fff'
-  },
-  titleSpacing: 2,
-  titleMarginBottom: 6,
-  titleAlign: 'left',
-  bodySpacing: 2,
-  bodyFont: {
-    color: '#fff'
-  },
-  bodyAlign: 'left',
-  footerSpacing: 2,
-  footerMarginTop: 6,
-  footerFont: {
-    color: '#fff',
-    style: 'bold'
-  },
-  footerAlign: 'left',
-  yPadding: 6,
-  xPadding: 6,
-  caretPadding: 2,
-  caretSize: 5,
-  cornerRadius: 6,
-  multiKeyBackground: '#fff',
-  displayColors: true,
-  borderColor: 'rgba(0,0,0,0)',
-  borderWidth: 0,
-  animation: {
-    duration: 400,
-    easing: 'easeOutQuart',
-    numbers: {
-      type: 'number',
-      properties: ['x', 'y', 'width', 'height', 'caretX', 'caretY']
-    },
-    opacity: {
-      easing: 'linear',
-      duration: 200
-    }
-  },
-  callbacks: {
-    beforeTitle: noop,
-    title: function title(tooltipItems, data) {
-      var title = '';
-      var labels = data.labels;
-      var labelCount = labels ? labels.length : 0;
-      if (tooltipItems.length > 0) {
-        var item = tooltipItems[0];
-        if (item.label) {
-          title = item.label;
-        } else if (labelCount > 0 && item.index < labelCount) {
-          title = labels[item.index];
-        }
-      }
-      return title;
-    },
-    afterTitle: noop,
-    beforeBody: noop,
-    beforeLabel: noop,
-    label: function label(tooltipItem, data) {
-      var label = data.datasets[tooltipItem.datasetIndex].label || '';
-      if (label) {
-        label += ': ';
-      }
-      var value = tooltipItem.value;
-      if (!isNullOrUndef(value)) {
-        label += value;
-      }
-      return label;
-    },
-    labelColor: function labelColor(tooltipItem, chart) {
-      var meta = chart.getDatasetMeta(tooltipItem.datasetIndex);
-      var options = meta.controller.getStyle(tooltipItem.index);
-      return {
-        borderColor: options.borderColor,
-        backgroundColor: options.backgroundColor
-      };
-    },
-    labelTextColor: function labelTextColor() {
-      return this.options.bodyFont.color;
-    },
-    afterLabel: noop,
-    afterBody: noop,
-    beforeFooter: noop,
-    footer: noop,
-    afterFooter: noop
-  }
-});
 var positioners = {
   average: function average(items) {
     if (!items.length) {
@@ -10425,7 +10314,7 @@ function createTooltipItem(chart, item) {
   };
 }
 function resolveOptions(options) {
-  options = _extends({}, defaults.tooltips, options);
+  options = merge({}, [defaults.plugins.tooltip, options]);
   options.bodyFont = toFont(options.bodyFont);
   options.titleFont = toFont(options.titleFont);
   options.footerFont = toFont(options.footerFont);
@@ -11119,28 +11008,123 @@ var plugin_tooltip = {
     var args = {
       tooltip: tooltip
     };
-    if (pluginsCore.notify(chart, 'beforeTooltipDraw', [args]) === false) {
+    if (chart._plugins.notify(chart, 'beforeTooltipDraw', [args]) === false) {
       return;
     }
     if (tooltip) {
       tooltip.draw(chart.ctx);
     }
-    pluginsCore.notify(chart, 'afterTooltipDraw', [args]);
+    chart._plugins.notify(chart, 'afterTooltipDraw', [args]);
   },
   afterEvent: function afterEvent(chart, e, replay) {
     if (chart.tooltip) {
       var useFinalPosition = replay;
       chart.tooltip.handleEvent(e, useFinalPosition);
     }
+  },
+  defaults: {
+    enabled: true,
+    custom: null,
+    mode: 'nearest',
+    position: 'average',
+    intersect: true,
+    backgroundColor: 'rgba(0,0,0,0.8)',
+    titleFont: {
+      style: 'bold',
+      color: '#fff'
+    },
+    titleSpacing: 2,
+    titleMarginBottom: 6,
+    titleAlign: 'left',
+    bodySpacing: 2,
+    bodyFont: {
+      color: '#fff'
+    },
+    bodyAlign: 'left',
+    footerSpacing: 2,
+    footerMarginTop: 6,
+    footerFont: {
+      color: '#fff',
+      style: 'bold'
+    },
+    footerAlign: 'left',
+    yPadding: 6,
+    xPadding: 6,
+    caretPadding: 2,
+    caretSize: 5,
+    cornerRadius: 6,
+    multiKeyBackground: '#fff',
+    displayColors: true,
+    borderColor: 'rgba(0,0,0,0)',
+    borderWidth: 0,
+    animation: {
+      duration: 400,
+      easing: 'easeOutQuart',
+      numbers: {
+        type: 'number',
+        properties: ['x', 'y', 'width', 'height', 'caretX', 'caretY']
+      },
+      opacity: {
+        easing: 'linear',
+        duration: 200
+      }
+    },
+    callbacks: {
+      beforeTitle: noop,
+      title: function title(tooltipItems, data) {
+        var title = '';
+        var labels = data.labels;
+        var labelCount = labels ? labels.length : 0;
+        if (tooltipItems.length > 0) {
+          var item = tooltipItems[0];
+          if (item.label) {
+            title = item.label;
+          } else if (labelCount > 0 && item.index < labelCount) {
+            title = labels[item.index];
+          }
+        }
+        return title;
+      },
+      afterTitle: noop,
+      beforeBody: noop,
+      beforeLabel: noop,
+      label: function label(tooltipItem, data) {
+        var label = data.datasets[tooltipItem.datasetIndex].label || '';
+        if (label) {
+          label += ': ';
+        }
+        var value = tooltipItem.value;
+        if (!isNullOrUndef(value)) {
+          label += value;
+        }
+        return label;
+      },
+      labelColor: function labelColor(tooltipItem, chart) {
+        var meta = chart.getDatasetMeta(tooltipItem.datasetIndex);
+        var options = meta.controller.getStyle(tooltipItem.index);
+        return {
+          borderColor: options.borderColor,
+          backgroundColor: options.backgroundColor
+        };
+      },
+      labelTextColor: function labelTextColor() {
+        return this.options.bodyFont.color;
+      },
+      afterLabel: noop,
+      afterBody: noop,
+      beforeFooter: noop,
+      footer: noop,
+      afterFooter: noop
+    }
   }
 };
 
 var plugins = /*#__PURE__*/Object.freeze({
 __proto__: null,
-filler: plugin_filler,
-legend: plugin_legend,
-title: plugin_title,
-tooltip: plugin_tooltip
+Filler: plugin_filler,
+Legend: plugin_legend,
+Title: plugin_title,
+Tooltip: plugin_tooltip
 });
 
 var CategoryScale = function (_Scale) {
@@ -12610,8 +12594,18 @@ TimeScale: TimeScale,
 TimeSeriesScale: TimeSeriesScale
 });
 
+var invalidatePlugins = function invalidatePlugins() {
+  return each(Chart.instances, function (chart) {
+    return chart._plugins.invalidate();
+  });
+};
 Chart.register = function () {
-  return registry.add.apply(registry, arguments);
+  registry.add.apply(registry, arguments);
+  invalidatePlugins();
+};
+Chart.unregister = function () {
+  registry.remove.apply(registry, arguments);
+  invalidatePlugins();
 };
 Chart.register(controllers, scales, elements, plugins);
 Chart.helpers = helpers;
@@ -12627,15 +12621,9 @@ Chart.elements = elements;
 Chart.Interaction = Interaction;
 Chart.layouts = layouts;
 Chart.platforms = platforms;
-Chart.plugins = pluginsCore;
 Chart.registry = registry;
 Chart.Scale = Scale;
 Chart.Ticks = Ticks;
-for (var k in plugins) {
-  if (Object.prototype.hasOwnProperty.call(plugins, k)) {
-    Chart.plugins.register(plugins[k]);
-  }
-}
 if (typeof window !== 'undefined') {
   window.Chart = Chart;
 }

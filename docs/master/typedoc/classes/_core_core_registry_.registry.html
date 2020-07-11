@@ -94,10 +94,10 @@
 						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="_core_core_registry_.registry.html#_each" class="tsd-kind-icon">_each</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="_core_core_registry_.registry.html#_exec" class="tsd-kind-icon">_exec</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="_core_core_registry_.registry.html#_get" class="tsd-kind-icon">_get</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="_core_core_registry_.registry.html#_getregistryfortype" class="tsd-kind-icon">_get<wbr>Registry<wbr>For<wbr>Type</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="_core_core_registry_.registry.html#_registercomponent" class="tsd-kind-icon">_register<wbr>Component</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="_core_core_registry_.registry.html#_registereach" class="tsd-kind-icon">_register<wbr>Each</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_core_core_registry_.registry.html#add" class="tsd-kind-icon">add</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_core_core_registry_.registry.html#addcontrollers" class="tsd-kind-icon">add<wbr>Controllers</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_core_core_registry_.registry.html#addelements" class="tsd-kind-icon">add<wbr>Elements</a></li>
@@ -107,6 +107,7 @@
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_core_core_registry_.registry.html#getelement" class="tsd-kind-icon">get<wbr>Element</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_core_core_registry_.registry.html#getplugin" class="tsd-kind-icon">get<wbr>Plugin</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_core_core_registry_.registry.html#getscale" class="tsd-kind-icon">get<wbr>Scale</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_core_core_registry_.registry.html#remove" class="tsd-kind-icon">remove</a></li>
 							</ul>
 						</section>
 					</div>
@@ -124,7 +125,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/69c8cc7/src/core/core.registry.js#L11">core/core.registry.js:11</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/7024aad/src/core/core.registry.js#L11">core/core.registry.js:11</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="_core_core_registry_.registry.html" class="tsd-signature-type">Registry</a></h4>
@@ -135,6 +136,68 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Methods</h2>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
+					<a name="_each" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _each</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
+						<li class="tsd-signature tsd-kind-icon">_each<span class="tsd-signature-symbol">(</span>method<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, args<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, typedRegistry<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/7024aad/src/core/core.registry.js#L96">core/core.registry.js:96</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>method: <span class="tsd-signature-type">any</span></h5>
+								</li>
+								<li>
+									<h5>args: <span class="tsd-signature-type">any</span></h5>
+								</li>
+								<li>
+									<h5>typedRegistry: <span class="tsd-signature-type">any</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
+					<a name="_exec" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _exec</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
+						<li class="tsd-signature tsd-kind-icon">_exec<span class="tsd-signature-symbol">(</span>method<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, registry<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, component<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/7024aad/src/core/core.registry.js#L124">core/core.registry.js:124</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>method: <span class="tsd-signature-type">any</span></h5>
+								</li>
+								<li>
+									<h5>registry: <span class="tsd-signature-type">any</span></h5>
+								</li>
+								<li>
+									<h5>component: <span class="tsd-signature-type">any</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
 					<a name="_get" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _get</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
@@ -144,7 +207,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/69c8cc7/src/core/core.registry.js#L143">core/core.registry.js:143</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/7024aad/src/core/core.registry.js#L148">core/core.registry.js:148</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -175,7 +238,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/69c8cc7/src/core/core.registry.js#L129">core/core.registry.js:129</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/7024aad/src/core/core.registry.js#L134">core/core.registry.js:134</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -190,62 +253,6 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
-					<a name="_registercomponent" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _register<wbr>Component</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
-						<li class="tsd-signature tsd-kind-icon">_register<wbr>Component<span class="tsd-signature-symbol">(</span>registry<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, component<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/69c8cc7/src/core/core.registry.js#L120">core/core.registry.js:120</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>registry: <span class="tsd-signature-type">any</span></h5>
-								</li>
-								<li>
-									<h5>component: <span class="tsd-signature-type">any</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
-					<a name="_registereach" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _register<wbr>Each</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
-						<li class="tsd-signature tsd-kind-icon">_register<wbr>Each<span class="tsd-signature-symbol">(</span>args<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, typedRegistry<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/69c8cc7/src/core/core.registry.js#L92">core/core.registry.js:92</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>args: <span class="tsd-signature-type">any</span></h5>
-								</li>
-								<li>
-									<h5>typedRegistry: <span class="tsd-signature-type">any</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
-						</li>
-					</ul>
-				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="add" class="tsd-anchor"></a>
 					<h3>add</h3>
@@ -256,7 +263,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/69c8cc7/src/core/core.registry.js#L25">core/core.registry.js:25</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/7024aad/src/core/core.registry.js#L25">core/core.registry.js:25</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -283,7 +290,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/69c8cc7/src/core/core.registry.js#L32">core/core.registry.js:32</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/7024aad/src/core/core.registry.js#L36">core/core.registry.js:36</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -310,7 +317,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/69c8cc7/src/core/core.registry.js#L39">core/core.registry.js:39</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/7024aad/src/core/core.registry.js#L43">core/core.registry.js:43</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -337,7 +344,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/69c8cc7/src/core/core.registry.js#L46">core/core.registry.js:46</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/7024aad/src/core/core.registry.js#L50">core/core.registry.js:50</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -364,7 +371,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/69c8cc7/src/core/core.registry.js#L53">core/core.registry.js:53</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/7024aad/src/core/core.registry.js#L57">core/core.registry.js:57</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -391,7 +398,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/69c8cc7/src/core/core.registry.js#L61">core/core.registry.js:61</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/7024aad/src/core/core.registry.js#L65">core/core.registry.js:65</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -416,7 +423,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/69c8cc7/src/core/core.registry.js#L69">core/core.registry.js:69</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/7024aad/src/core/core.registry.js#L73">core/core.registry.js:73</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -441,7 +448,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/69c8cc7/src/core/core.registry.js#L77">core/core.registry.js:77</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/7024aad/src/core/core.registry.js#L81">core/core.registry.js:81</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -466,7 +473,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/69c8cc7/src/core/core.registry.js#L85">core/core.registry.js:85</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/7024aad/src/core/core.registry.js#L89">core/core.registry.js:89</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -478,6 +485,29 @@
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="_core_core_scale_.scale.html" class="tsd-signature-type">Scale</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="remove" class="tsd-anchor"></a>
+					<h3>remove</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">remove<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">...</span>args<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/7024aad/src/core/core.registry.js#L29">core/core.registry.js:29</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5><span class="tsd-flag ts-flagRest">Rest</span> <span class="tsd-signature-symbol">...</span>args: <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -505,16 +535,16 @@
 								<a href="_core_core_registry_.registry.html#constructor" class="tsd-kind-icon">constructor</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
+								<a href="_core_core_registry_.registry.html#_each" class="tsd-kind-icon">_each</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
+								<a href="_core_core_registry_.registry.html#_exec" class="tsd-kind-icon">_exec</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
 								<a href="_core_core_registry_.registry.html#_get" class="tsd-kind-icon">_get</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
 								<a href="_core_core_registry_.registry.html#_getregistryfortype" class="tsd-kind-icon">_get<wbr>Registry<wbr>For<wbr>Type</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
-								<a href="_core_core_registry_.registry.html#_registercomponent" class="tsd-kind-icon">_register<wbr>Component</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
-								<a href="_core_core_registry_.registry.html#_registereach" class="tsd-kind-icon">_register<wbr>Each</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="_core_core_registry_.registry.html#add" class="tsd-kind-icon">add</a>
@@ -542,6 +572,9 @@
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="_core_core_registry_.registry.html#getscale" class="tsd-kind-icon">get<wbr>Scale</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_core_core_registry_.registry.html#remove" class="tsd-kind-icon">remove</a>
 							</li>
 						</ul>
 					</li>

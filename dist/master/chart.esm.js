@@ -6,7 +6,7 @@
  */
 import { requestAnimFrame } from '../helpers/extras.js';
 import effects from '../helpers/easing.js';
-import { isObject, noop, valueOrDefault, merge, isArray, resolveObjectKey, mergeIf, _merger, isNullOrUndef, each, clone, isFinite as isNumberFinite, callback, uid, _elementsEqual } from '../helpers/core.js';
+import { isObject, noop, valueOrDefault, merge, isArray, resolveObjectKey, _capitalize, mergeIf, _merger, isNullOrUndef, each, isFinite as isNumberFinite, callback, uid, _elementsEqual } from '../helpers/core.js';
 import { r as resolve, d as defaults, t as toPadding, a as toFont } from '../helpers/chunks/helpers.options.js';
 export { d as defaults } from '../helpers/chunks/helpers.options.js';
 import { clipArea, unclipArea, _isPointInArea, _measureText, _alignPixel, clear, _steppedLineTo, _bezierCurveTo, drawPoint, _longestText } from '../helpers/canvas.js';
@@ -531,7 +531,7 @@ function optionKeys(optionNames) {
 	return isArray(optionNames) ? optionNames : Object.keys(optionNames);
 }
 function optionKey(key, active) {
-	return active ? 'hover' + key.charAt(0).toUpperCase() + key.slice(1) : key;
+	return active ? 'hover' + _capitalize(key) : key;
 }
 class DatasetController {
 	constructor(chart, datasetIndex) {
@@ -3039,97 +3039,6 @@ class DomPlatform extends BasePlatform {
 	}
 }
 
-defaults.set('plugins', {});
-class PluginService {
-	constructor() {
-		this._plugins = [];
-		this._cacheId = 0;
-	}
-	register(plugins) {
-		const p = this._plugins;
-		([]).concat(plugins).forEach((plugin) => {
-			if (p.indexOf(plugin) === -1) {
-				p.push(plugin);
-			}
-		});
-		this._cacheId++;
-	}
-	unregister(plugins) {
-		const p = this._plugins;
-		([]).concat(plugins).forEach((plugin) => {
-			const idx = p.indexOf(plugin);
-			if (idx !== -1) {
-				p.splice(idx, 1);
-			}
-		});
-		this._cacheId++;
-	}
-	clear() {
-		this._plugins = [];
-		this._cacheId++;
-	}
-	count() {
-		return this._plugins.length;
-	}
-	getAll() {
-		return this._plugins;
-	}
-	notify(chart, hook, args) {
-		const descriptors = this._descriptors(chart);
-		const ilen = descriptors.length;
-		let i, descriptor, plugin, params, method;
-		for (i = 0; i < ilen; ++i) {
-			descriptor = descriptors[i];
-			plugin = descriptor.plugin;
-			method = plugin[hook];
-			if (typeof method === 'function') {
-				params = [chart].concat(args || []);
-				params.push(descriptor.options);
-				if (method.apply(plugin, params) === false) {
-					return false;
-				}
-			}
-		}
-		return true;
-	}
-	_descriptors(chart) {
-		const cache = chart.$plugins || (chart.$plugins = {});
-		if (cache.id === this._cacheId) {
-			return cache.descriptors;
-		}
-		const plugins = [];
-		const descriptors = [];
-		const config = (chart && chart.config) || {};
-		const options = (config.options && config.options.plugins) || {};
-		this._plugins.concat(config.plugins || []).forEach((plugin) => {
-			const idx = plugins.indexOf(plugin);
-			if (idx !== -1) {
-				return;
-			}
-			const id = plugin.id;
-			let opts = options[id];
-			if (opts === false) {
-				return;
-			}
-			if (opts === true) {
-				opts = clone(defaults.plugins[id]);
-			}
-			plugins.push(plugin);
-			descriptors.push({
-				plugin,
-				options: opts || {}
-			});
-		});
-		cache.descriptors = descriptors;
-		cache.id = this._cacheId;
-		return descriptors;
-	}
-	invalidate(chart) {
-		delete chart.$plugins;
-	}
-}
-var plugins = new PluginService();
-
 class Element {
 	constructor() {
 		this.x = undefined;
@@ -4377,19 +4286,22 @@ class Registry {
 		this._typedRegistries = [this.controllers, this.scales, this.elements];
 	}
 	add(...args) {
-		this._registerEach(args);
+		this._each('register', args);
+	}
+	remove(...args) {
+		this._each('unregister', args);
 	}
 	addControllers(...args) {
-		this._registerEach(args, this.controllers);
+		this._each('register', args, this.controllers);
 	}
 	addElements(...args) {
-		this._registerEach(args, this.elements);
+		this._each('register', args, this.elements);
 	}
 	addPlugins(...args) {
-		this._registerEach(args, this.plugins);
+		this._each('register', args, this.plugins);
 	}
 	addScales(...args) {
-		this._registerEach(args, this.scales);
+		this._each('register', args, this.scales);
 	}
 	getController(id) {
 		return this._get(id, this.controllers, 'controller');
@@ -4403,24 +4315,25 @@ class Registry {
 	getScale(id) {
 		return this._get(id, this.scales, 'scale');
 	}
-	_registerEach(args, typedRegistry) {
+	_each(method, args, typedRegistry) {
 		const me = this;
 		[...args].forEach(arg => {
 			const reg = typedRegistry || me._getRegistryForType(arg);
-			if (reg.isForType(arg)) {
-				me._registerComponent(reg, arg);
+			if (reg.isForType(arg) || (reg === me.plugins && arg.id)) {
+				me._exec(method, reg, arg);
 			} else {
 				each(arg, item => {
 					const itemReg = typedRegistry || me._getRegistryForType(item);
-					me._registerComponent(itemReg, item);
+					me._exec(method, itemReg, item);
 				});
 			}
 		});
 	}
-	_registerComponent(registry, component) {
-		callback(component.beforeRegister, [], component);
-		registry.register(component);
-		callback(component.afterRegister, [], component);
+	_exec(method, registry, component) {
+		const camelMethod = _capitalize(method);
+		callback(component['before' + camelMethod], [], component);
+		registry[method](component);
+		callback(component['after' + camelMethod], [], component);
 	}
 	_getRegistryForType(type) {
 		for (let i = 0; i < this._typedRegistries.length; i++) {
@@ -4440,6 +4353,73 @@ class Registry {
 	}
 }
 var registry = new Registry();
+
+class PluginService {
+	notify(chart, hook, args) {
+		const descriptors = this._descriptors(chart);
+		for (let i = 0; i < descriptors.length; ++i) {
+			const descriptor = descriptors[i];
+			const plugin = descriptor.plugin;
+			const method = plugin[hook];
+			if (typeof method === 'function') {
+				const params = [chart].concat(args || []);
+				params.push(descriptor.options);
+				if (method.apply(plugin, params) === false) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+	invalidate() {
+		this._cache = undefined;
+	}
+	_descriptors(chart) {
+		if (this._cache) {
+			return this._cache;
+		}
+		const config = (chart && chart.config) || {};
+		const options = (config.options && config.options.plugins) || {};
+		const plugins = allPlugins(config);
+		const descriptors = createDescriptors(plugins, options);
+		this._cache = descriptors;
+		return descriptors;
+	}
+}
+function allPlugins(config) {
+	const plugins = [];
+	const keys = Object.keys(registry.plugins.items);
+	for (let i = 0; i < keys.length; i++) {
+		plugins.push(registry.getPlugin(keys[i]));
+	}
+	const local = config.plugins || [];
+	for (let i = 0; i < local.length; i++) {
+		const plugin = local[i];
+		if (plugins.indexOf(plugin) === -1) {
+			plugins.push(plugin);
+		}
+	}
+	return plugins;
+}
+function createDescriptors(plugins, options) {
+	const result = [];
+	for (let i = 0; i < plugins.length; i++) {
+		const plugin = plugins[i];
+		const id = plugin.id;
+		let opts = options[id];
+		if (opts === false) {
+			continue;
+		}
+		if (opts === true) {
+			opts = {};
+		}
+		result.push({
+			plugin,
+			options: mergeIf({}, [opts, defaults.plugins[id]])
+		});
+	}
+	return result;
+}
 
 var version = "3.0.0-alpha";
 
@@ -4513,11 +4493,13 @@ function initConfig(config) {
 	data.datasets = data.datasets || [];
 	data.labels = data.labels || [];
 	const scaleConfig = mergeScaleConfig(config, config.options);
-	config.options = mergeConfig(
+	const options = config.options = mergeConfig(
 		defaults,
 		defaults[config.type],
 		config.options || {});
-	config.options.scales = scaleConfig;
+	options.scales = scaleConfig;
+	options.title = (options.title !== false) && merge({}, [defaults.plugins.title, options.title]);
+	options.tooltips = (options.tooltips !== false) && merge({}, [defaults.plugins.tooltip, options.tooltips]);
 	return config;
 }
 function isAnimationDisabled(config) {
@@ -4565,7 +4547,7 @@ function compare2Level(l1, l2) {
 function onAnimationsComplete(ctx) {
 	const chart = ctx.chart;
 	const animationOptions = chart.options.animation;
-	plugins.notify(chart, 'afterRender');
+	chart._plugins.notify(chart, 'afterRender');
 	callback(animationOptions && animationOptions.onComplete, [ctx], chart);
 }
 function onAnimationProgress(ctx) {
@@ -4630,7 +4612,7 @@ class Chart {
 		this._updating = false;
 		this.scales = {};
 		this.scale = undefined;
-		this.$plugins = undefined;
+		this._plugins = new PluginService();
 		this.$proxies = {};
 		this._hiddenIndices = {};
 		this.attached = false;
@@ -4656,14 +4638,14 @@ class Chart {
 	}
 	_initialize() {
 		const me = this;
-		plugins.notify(me, 'beforeInit');
+		me._plugins.notify(me, 'beforeInit');
 		if (me.options.responsive) {
 			me.resize(true);
 		} else {
 			retinaScale(me, me.options.devicePixelRatio);
 		}
 		me.bindEvents();
-		plugins.notify(me, 'afterInit');
+		me._plugins.notify(me, 'afterInit');
 		return me;
 	}
 	_initializePlatform(canvas, config) {
@@ -4701,7 +4683,7 @@ class Chart {
 		}
 		retinaScale(me, newRatio);
 		if (!silent) {
-			plugins.notify(me, 'resize', [newSize]);
+			me._plugins.notify(me, 'resize', [newSize]);
 			callback(options.onResize, [newSize], me);
 			if (me.attached) {
 				me.update('resize');
@@ -4852,7 +4834,7 @@ class Chart {
 	}
 	reset() {
 		this._resetElements();
-		plugins.notify(this, 'reset');
+		this._plugins.notify(this, 'reset');
 	}
 	update(mode) {
 		const me = this;
@@ -4861,8 +4843,8 @@ class Chart {
 		updateConfig(me);
 		me.ensureScalesHaveIDs();
 		me.buildOrUpdateScales();
-		plugins.invalidate(me);
-		if (plugins.notify(me, 'beforeUpdate') === false) {
+		me._plugins.invalidate();
+		if (me._plugins.notify(me, 'beforeUpdate') === false) {
 			return;
 		}
 		const newControllers = me.buildOrUpdateControllers();
@@ -4876,7 +4858,7 @@ class Chart {
 			});
 		}
 		me._updateDatasets(mode);
-		plugins.notify(me, 'afterUpdate');
+		me._plugins.notify(me, 'afterUpdate');
 		me._layers.sort(compare2Level('z', '_idx'));
 		if (me._lastEvent) {
 			me._eventHandler(me._lastEvent, true);
@@ -4886,7 +4868,7 @@ class Chart {
 	}
 	_updateLayout() {
 		const me = this;
-		if (plugins.notify(me, 'beforeLayout') === false) {
+		if (me._plugins.notify(me, 'beforeLayout') === false) {
 			return;
 		}
 		layouts.update(me, me.width, me.height);
@@ -4900,37 +4882,37 @@ class Chart {
 		me._layers.forEach((item, index) => {
 			item._idx = index;
 		});
-		plugins.notify(me, 'afterLayout');
+		me._plugins.notify(me, 'afterLayout');
 	}
 	_updateDatasets(mode) {
 		const me = this;
 		const isFunction = typeof mode === 'function';
-		if (plugins.notify(me, 'beforeDatasetsUpdate') === false) {
+		if (me._plugins.notify(me, 'beforeDatasetsUpdate') === false) {
 			return;
 		}
 		for (let i = 0, ilen = me.data.datasets.length; i < ilen; ++i) {
 			me._updateDataset(i, isFunction ? mode({datasetIndex: i}) : mode);
 		}
-		plugins.notify(me, 'afterDatasetsUpdate');
+		me._plugins.notify(me, 'afterDatasetsUpdate');
 	}
 	_updateDataset(index, mode) {
 		const me = this;
 		const meta = me.getDatasetMeta(index);
 		const args = {meta, index, mode};
-		if (plugins.notify(me, 'beforeDatasetUpdate', [args]) === false) {
+		if (me._plugins.notify(me, 'beforeDatasetUpdate', [args]) === false) {
 			return;
 		}
 		meta.controller._update(mode);
-		plugins.notify(me, 'afterDatasetUpdate', [args]);
+		me._plugins.notify(me, 'afterDatasetUpdate', [args]);
 	}
 	render() {
 		const me = this;
 		const animationOptions = me.options.animation;
-		if (plugins.notify(me, 'beforeRender') === false) {
+		if (me._plugins.notify(me, 'beforeRender') === false) {
 			return;
 		}
 		const onComplete = function() {
-			plugins.notify(me, 'afterRender');
+			me._plugins.notify(me, 'afterRender');
 			callback(animationOptions && animationOptions.onComplete, [], me);
 		};
 		if (animator.has(me)) {
@@ -4949,7 +4931,7 @@ class Chart {
 		if (me.width <= 0 || me.height <= 0) {
 			return;
 		}
-		if (plugins.notify(me, 'beforeDraw') === false) {
+		if (me._plugins.notify(me, 'beforeDraw') === false) {
 			return;
 		}
 		const layers = me._layers;
@@ -4960,7 +4942,7 @@ class Chart {
 		for (; i < layers.length; ++i) {
 			layers[i].draw(me.chartArea);
 		}
-		plugins.notify(me, 'afterDraw');
+		me._plugins.notify(me, 'afterDraw');
 	}
 	_getSortedDatasetMetas(filterVisible) {
 		const me = this;
@@ -4980,14 +4962,14 @@ class Chart {
 	}
 	_drawDatasets() {
 		const me = this;
-		if (plugins.notify(me, 'beforeDatasetsDraw') === false) {
+		if (me._plugins.notify(me, 'beforeDatasetsDraw') === false) {
 			return;
 		}
 		const metasets = me.getSortedVisibleDatasetMetas();
 		for (let i = metasets.length - 1; i >= 0; --i) {
 			me._drawDataset(metasets[i]);
 		}
-		plugins.notify(me, 'afterDatasetsDraw');
+		me._plugins.notify(me, 'afterDatasetsDraw');
 	}
 	_drawDataset(meta) {
 		const me = this;
@@ -4998,7 +4980,7 @@ class Chart {
 			meta,
 			index: meta.index,
 		};
-		if (plugins.notify(me, 'beforeDatasetDraw', [args]) === false) {
+		if (me._plugins.notify(me, 'beforeDatasetDraw', [args]) === false) {
 			return;
 		}
 		clipArea(ctx, {
@@ -5009,7 +4991,7 @@ class Chart {
 		});
 		meta.controller.draw();
 		unclipArea(ctx);
-		plugins.notify(me, 'afterDatasetDraw', [args]);
+		me._plugins.notify(me, 'afterDatasetDraw', [args]);
 	}
 	getElementAtEvent(e) {
 		return Interaction.modes.nearest(this, e, {intersect: true});
@@ -5109,7 +5091,7 @@ class Chart {
 			me.canvas = null;
 			me.ctx = null;
 		}
-		plugins.notify(me, 'destroy');
+		me._plugins.notify(me, 'destroy');
 		delete Chart.instances[me.id];
 	}
 	toBase64Image(...args) {
@@ -5199,11 +5181,11 @@ class Chart {
 	}
 	_eventHandler(e, replay) {
 		const me = this;
-		if (plugins.notify(me, 'beforeEvent', [e, replay]) === false) {
+		if (me._plugins.notify(me, 'beforeEvent', [e, replay]) === false) {
 			return;
 		}
 		me._handleEvent(e, replay);
-		plugins.notify(me, 'afterEvent', [e, replay]);
+		me._plugins.notify(me, 'afterEvent', [e, replay]);
 		me.render();
 		return me;
 	}
@@ -6756,18 +6738,6 @@ var plugin_legend = {
 	}
 };
 
-defaults.set('title', {
-	align: 'center',
-	display: false,
-	font: {
-		style: 'bold',
-	},
-	fullWidth: true,
-	padding: 10,
-	position: 'top',
-	text: '',
-	weight: 2000
-});
 class Title extends Element {
 	constructor(config) {
 		super();
@@ -6943,7 +6913,7 @@ var plugin_title = {
 		const titleOpts = chart.options.title;
 		const titleBlock = chart.titleBlock;
 		if (titleOpts) {
-			mergeIf(titleOpts, defaults.title);
+			mergeIf(titleOpts, defaults.plugins.title);
 			if (titleBlock) {
 				layouts.configure(chart, titleBlock, titleOpts);
 				titleBlock.options = titleOpts;
@@ -6954,104 +6924,21 @@ var plugin_title = {
 			layouts.removeBox(chart, titleBlock);
 			delete chart.titleBlock;
 		}
+	},
+	defaults: {
+		align: 'center',
+		display: false,
+		font: {
+			style: 'bold',
+		},
+		fullWidth: true,
+		padding: 10,
+		position: 'top',
+		text: '',
+		weight: 2000
 	}
 };
 
-defaults.set('tooltips', {
-	enabled: true,
-	custom: null,
-	mode: 'nearest',
-	position: 'average',
-	intersect: true,
-	backgroundColor: 'rgba(0,0,0,0.8)',
-	titleFont: {
-		style: 'bold',
-		color: '#fff',
-	},
-	titleSpacing: 2,
-	titleMarginBottom: 6,
-	titleAlign: 'left',
-	bodySpacing: 2,
-	bodyFont: {
-		color: '#fff',
-	},
-	bodyAlign: 'left',
-	footerSpacing: 2,
-	footerMarginTop: 6,
-	footerFont: {
-		color: '#fff',
-		style: 'bold',
-	},
-	footerAlign: 'left',
-	yPadding: 6,
-	xPadding: 6,
-	caretPadding: 2,
-	caretSize: 5,
-	cornerRadius: 6,
-	multiKeyBackground: '#fff',
-	displayColors: true,
-	borderColor: 'rgba(0,0,0,0)',
-	borderWidth: 0,
-	animation: {
-		duration: 400,
-		easing: 'easeOutQuart',
-		numbers: {
-			type: 'number',
-			properties: ['x', 'y', 'width', 'height', 'caretX', 'caretY'],
-		},
-		opacity: {
-			easing: 'linear',
-			duration: 200
-		}
-	},
-	callbacks: {
-		beforeTitle: noop,
-		title(tooltipItems, data) {
-			let title = '';
-			const labels = data.labels;
-			const labelCount = labels ? labels.length : 0;
-			if (tooltipItems.length > 0) {
-				const item = tooltipItems[0];
-				if (item.label) {
-					title = item.label;
-				} else if (labelCount > 0 && item.index < labelCount) {
-					title = labels[item.index];
-				}
-			}
-			return title;
-		},
-		afterTitle: noop,
-		beforeBody: noop,
-		beforeLabel: noop,
-		label(tooltipItem, data) {
-			let label = data.datasets[tooltipItem.datasetIndex].label || '';
-			if (label) {
-				label += ': ';
-			}
-			const value = tooltipItem.value;
-			if (!isNullOrUndef(value)) {
-				label += value;
-			}
-			return label;
-		},
-		labelColor(tooltipItem, chart) {
-			const meta = chart.getDatasetMeta(tooltipItem.datasetIndex);
-			const options = meta.controller.getStyle(tooltipItem.index);
-			return {
-				borderColor: options.borderColor,
-				backgroundColor: options.backgroundColor
-			};
-		},
-		labelTextColor() {
-			return this.options.bodyFont.color;
-		},
-		afterLabel: noop,
-		afterBody: noop,
-		beforeFooter: noop,
-		footer: noop,
-		afterFooter: noop
-	}
-});
 const positioners = {
 	average(items) {
 		if (!items.length) {
@@ -7129,7 +7016,7 @@ function createTooltipItem(chart, item) {
 	};
 }
 function resolveOptions(options) {
-	options = Object.assign({}, defaults.tooltips, options);
+	options = merge({}, [defaults.plugins.tooltip, options]);
 	options.bodyFont = toFont(options.bodyFont);
 	options.titleFont = toFont(options.titleFont);
 	options.footerFont = toFont(options.footerFont);
@@ -7750,18 +7637,113 @@ var plugin_tooltip = {
 		const args = {
 			tooltip
 		};
-		if (plugins.notify(chart, 'beforeTooltipDraw', [args]) === false) {
+		if (chart._plugins.notify(chart, 'beforeTooltipDraw', [args]) === false) {
 			return;
 		}
 		if (tooltip) {
 			tooltip.draw(chart.ctx);
 		}
-		plugins.notify(chart, 'afterTooltipDraw', [args]);
+		chart._plugins.notify(chart, 'afterTooltipDraw', [args]);
 	},
 	afterEvent(chart, e, replay) {
 		if (chart.tooltip) {
 			const useFinalPosition = replay;
 			chart.tooltip.handleEvent(e, useFinalPosition);
+		}
+	},
+	defaults: {
+		enabled: true,
+		custom: null,
+		mode: 'nearest',
+		position: 'average',
+		intersect: true,
+		backgroundColor: 'rgba(0,0,0,0.8)',
+		titleFont: {
+			style: 'bold',
+			color: '#fff',
+		},
+		titleSpacing: 2,
+		titleMarginBottom: 6,
+		titleAlign: 'left',
+		bodySpacing: 2,
+		bodyFont: {
+			color: '#fff',
+		},
+		bodyAlign: 'left',
+		footerSpacing: 2,
+		footerMarginTop: 6,
+		footerFont: {
+			color: '#fff',
+			style: 'bold',
+		},
+		footerAlign: 'left',
+		yPadding: 6,
+		xPadding: 6,
+		caretPadding: 2,
+		caretSize: 5,
+		cornerRadius: 6,
+		multiKeyBackground: '#fff',
+		displayColors: true,
+		borderColor: 'rgba(0,0,0,0)',
+		borderWidth: 0,
+		animation: {
+			duration: 400,
+			easing: 'easeOutQuart',
+			numbers: {
+				type: 'number',
+				properties: ['x', 'y', 'width', 'height', 'caretX', 'caretY'],
+			},
+			opacity: {
+				easing: 'linear',
+				duration: 200
+			}
+		},
+		callbacks: {
+			beforeTitle: noop,
+			title(tooltipItems, data) {
+				let title = '';
+				const labels = data.labels;
+				const labelCount = labels ? labels.length : 0;
+				if (tooltipItems.length > 0) {
+					const item = tooltipItems[0];
+					if (item.label) {
+						title = item.label;
+					} else if (labelCount > 0 && item.index < labelCount) {
+						title = labels[item.index];
+					}
+				}
+				return title;
+			},
+			afterTitle: noop,
+			beforeBody: noop,
+			beforeLabel: noop,
+			label(tooltipItem, data) {
+				let label = data.datasets[tooltipItem.datasetIndex].label || '';
+				if (label) {
+					label += ': ';
+				}
+				const value = tooltipItem.value;
+				if (!isNullOrUndef(value)) {
+					label += value;
+				}
+				return label;
+			},
+			labelColor(tooltipItem, chart) {
+				const meta = chart.getDatasetMeta(tooltipItem.datasetIndex);
+				const options = meta.controller.getStyle(tooltipItem.index);
+				return {
+					borderColor: options.borderColor,
+					backgroundColor: options.backgroundColor
+				};
+			},
+			labelTextColor() {
+				return this.options.bodyFont.color;
+			},
+			afterLabel: noop,
+			afterBody: noop,
+			beforeFooter: noop,
+			footer: noop,
+			afterFooter: noop
 		}
 	}
 };
@@ -9081,4 +9063,4 @@ class TimeSeriesScale extends TimeScale {
 TimeSeriesScale.id = 'timeseries';
 TimeSeriesScale.defaults = TimeScale.defaults;
 
-export { Animation, Animations, Arc, BarController, BasePlatform, BasicPlatform, BubbleController, CategoryScale, Chart, DatasetController, DomPlatform, DoughnutController, Element, Interaction, Line, LineController, LinearScale, LogarithmicScale, PieController, Point, PolarAreaController, RadarController, RadialLinearScale, Rectangle, Scale, ScatterController, Ticks, TimeScale, TimeSeriesScale, adapters as _adapters, animator, plugin_filler as filler, layouts, plugin_legend as legend, plugins, registry, plugin_title as title, plugin_tooltip as tooltip };
+export { Animation, Animations, Arc, BarController, BasePlatform, BasicPlatform, BubbleController, CategoryScale, Chart, DatasetController, DomPlatform, DoughnutController, Element, plugin_filler as Filler, Interaction, plugin_legend as Legend, Line, LineController, LinearScale, LogarithmicScale, PieController, Point, PolarAreaController, RadarController, RadialLinearScale, Rectangle, Scale, ScatterController, Ticks, TimeScale, TimeSeriesScale, plugin_title as Title, plugin_tooltip as Tooltip, adapters as _adapters, animator, layouts, PluginService as plugins, registry };
