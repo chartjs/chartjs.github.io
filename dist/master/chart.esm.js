@@ -1819,9 +1819,9 @@ DoughnutController.defaults = {
 			title() {
 				return '';
 			},
-			label(tooltipItem, data) {
-				let dataLabel = data.labels[tooltipItem.index];
-				const value = ': ' + data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
+			label(tooltipItem) {
+				let dataLabel = tooltipItem.chart.data.labels[tooltipItem.dataIndex];
+				const value = ': ' + tooltipItem.dataset.data[tooltipItem.dataIndex];
 				if (isArray(dataLabel)) {
 					dataLabel = dataLabel.slice();
 					dataLabel[0] += value;
@@ -2153,8 +2153,8 @@ PolarAreaController.defaults = {
 			title() {
 				return '';
 			},
-			label(item, data) {
-				return data.labels[item.index] + ': ' + item.value;
+			label(context) {
+				return context.chart.data.labels[context.dataIndex] + ': ' + context.value;
 			}
 		}
 	}
@@ -7007,11 +7007,15 @@ function splitNewlines(str) {
 }
 function createTooltipItem(chart, item) {
 	const {datasetIndex, index} = item;
-	const {label, value} = chart.getDatasetMeta(datasetIndex).controller.getLabelAndValue(index);
+	const controller = chart.getDatasetMeta(datasetIndex).controller;
+	const dataset = controller.getDataset();
+	const {label, value} = controller.getLabelAndValue(index);
 	return {
+		chart,
 		label,
 		value,
-		index,
+		dataset,
+		dataIndex: index,
 		datasetIndex
 	};
 }
@@ -7216,48 +7220,48 @@ class Tooltip extends Element {
 		me._cachedAnimations = Object.freeze(animations);
 		return animations;
 	}
-	getTitle(tooltipitem, data) {
+	getTitle(context) {
 		const me = this;
 		const opts = me.options;
 		const callbacks = opts.callbacks;
-		const beforeTitle = callbacks.beforeTitle.apply(me, [tooltipitem, data]);
-		const title = callbacks.title.apply(me, [tooltipitem, data]);
-		const afterTitle = callbacks.afterTitle.apply(me, [tooltipitem, data]);
+		const beforeTitle = callbacks.beforeTitle.apply(me, [context]);
+		const title = callbacks.title.apply(me, [context]);
+		const afterTitle = callbacks.afterTitle.apply(me, [context]);
 		let lines = [];
 		lines = pushOrConcat(lines, splitNewlines(beforeTitle));
 		lines = pushOrConcat(lines, splitNewlines(title));
 		lines = pushOrConcat(lines, splitNewlines(afterTitle));
 		return lines;
 	}
-	getBeforeBody(tooltipitem, data) {
-		return getBeforeAfterBodyLines(this.options.callbacks.beforeBody.apply(this, [tooltipitem, data]));
+	getBeforeBody(tooltipItems) {
+		return getBeforeAfterBodyLines(this.options.callbacks.beforeBody.apply(this, [tooltipItems]));
 	}
-	getBody(tooltipItems, data) {
+	getBody(tooltipItems) {
 		const me = this;
 		const callbacks = me.options.callbacks;
 		const bodyItems = [];
-		each(tooltipItems, (tooltipItem) => {
+		each(tooltipItems, (context) => {
 			const bodyItem = {
 				before: [],
 				lines: [],
 				after: []
 			};
-			pushOrConcat(bodyItem.before, splitNewlines(callbacks.beforeLabel.call(me, tooltipItem, data)));
-			pushOrConcat(bodyItem.lines, callbacks.label.call(me, tooltipItem, data));
-			pushOrConcat(bodyItem.after, splitNewlines(callbacks.afterLabel.call(me, tooltipItem, data)));
+			pushOrConcat(bodyItem.before, splitNewlines(callbacks.beforeLabel.call(me, context)));
+			pushOrConcat(bodyItem.lines, callbacks.label.call(me, context));
+			pushOrConcat(bodyItem.after, splitNewlines(callbacks.afterLabel.call(me, context)));
 			bodyItems.push(bodyItem);
 		});
 		return bodyItems;
 	}
-	getAfterBody(tooltipitem, data) {
-		return getBeforeAfterBodyLines(this.options.callbacks.afterBody.apply(this, [tooltipitem, data]));
+	getAfterBody(tooltipItems) {
+		return getBeforeAfterBodyLines(this.options.callbacks.afterBody.apply(this, [tooltipItems]));
 	}
-	getFooter(tooltipitem, data) {
+	getFooter(tooltipItems) {
 		const me = this;
 		const callbacks = me.options.callbacks;
-		const beforeFooter = callbacks.beforeFooter.apply(me, [tooltipitem, data]);
-		const footer = callbacks.footer.apply(me, [tooltipitem, data]);
-		const afterFooter = callbacks.afterFooter.apply(me, [tooltipitem, data]);
+		const beforeFooter = callbacks.beforeFooter.apply(me, [tooltipItems]);
+		const footer = callbacks.footer.apply(me, [tooltipItems]);
+		const afterFooter = callbacks.afterFooter.apply(me, [tooltipItems]);
 		let lines = [];
 		lines = pushOrConcat(lines, splitNewlines(beforeFooter));
 		lines = pushOrConcat(lines, splitNewlines(footer));
@@ -7282,9 +7286,9 @@ class Tooltip extends Element {
 		if (options.itemSort) {
 			tooltipItems = tooltipItems.sort((a, b) => options.itemSort(a, b, data));
 		}
-		each(tooltipItems, (tooltipItem) => {
-			labelColors.push(options.callbacks.labelColor.call(me, tooltipItem, me._chart));
-			labelTextColors.push(options.callbacks.labelTextColor.call(me, tooltipItem, me._chart));
+		each(tooltipItems, (context) => {
+			labelColors.push(options.callbacks.labelColor.call(me, context));
+			labelTextColors.push(options.callbacks.labelTextColor.call(me, context));
 		});
 		me.labelColors = labelColors;
 		me.labelTextColors = labelTextColors;
@@ -7303,14 +7307,13 @@ class Tooltip extends Element {
 				};
 			}
 		} else {
-			const data = me._chart.data;
 			const position = positioners[options.position].call(me, active, me._eventPosition);
 			const tooltipItems = me._createItems();
-			me.title = me.getTitle(tooltipItems, data);
-			me.beforeBody = me.getBeforeBody(tooltipItems, data);
-			me.body = me.getBody(tooltipItems, data);
-			me.afterBody = me.getAfterBody(tooltipItems, data);
-			me.footer = me.getFooter(tooltipItems, data);
+			me.title = me.getTitle(tooltipItems);
+			me.beforeBody = me.getBeforeBody(tooltipItems);
+			me.body = me.getBody(tooltipItems);
+			me.afterBody = me.getAfterBody(tooltipItems);
+			me.footer = me.getFooter(tooltipItems);
 			const size = me._size = getTooltipSize(me);
 			const positionAndSize = Object.assign({}, position, size);
 			const alignment = determineAlignment(me._chart, options, positionAndSize);
@@ -7700,25 +7703,24 @@ var plugin_tooltip = {
 		},
 		callbacks: {
 			beforeTitle: noop,
-			title(tooltipItems, data) {
-				let title = '';
-				const labels = data.labels;
-				const labelCount = labels ? labels.length : 0;
+			title(tooltipItems) {
 				if (tooltipItems.length > 0) {
 					const item = tooltipItems[0];
+					const labels = item.chart.data.labels;
+					const labelCount = labels ? labels.length : 0;
 					if (item.label) {
-						title = item.label;
-					} else if (labelCount > 0 && item.index < labelCount) {
-						title = labels[item.index];
+						return item.label;
+					} else if (labelCount > 0 && item.dataIndex < labelCount) {
+						return labels[item.dataIndex];
 					}
 				}
-				return title;
+				return '';
 			},
 			afterTitle: noop,
 			beforeBody: noop,
 			beforeLabel: noop,
-			label(tooltipItem, data) {
-				let label = data.datasets[tooltipItem.datasetIndex].label || '';
+			label(tooltipItem) {
+				let label = tooltipItem.dataset.label || '';
 				if (label) {
 					label += ': ';
 				}
@@ -7728,9 +7730,9 @@ var plugin_tooltip = {
 				}
 				return label;
 			},
-			labelColor(tooltipItem, chart) {
-				const meta = chart.getDatasetMeta(tooltipItem.datasetIndex);
-				const options = meta.controller.getStyle(tooltipItem.index);
+			labelColor(tooltipItem) {
+				const meta = tooltipItem.chart.getDatasetMeta(tooltipItem.datasetIndex);
+				const options = meta.controller.getStyle(tooltipItem.dataIndex);
 				return {
 					borderColor: options.borderColor,
 					backgroundColor: options.backgroundColor

@@ -7608,9 +7608,9 @@ DoughnutController.defaults = {
       title: function title() {
         return '';
       },
-      label: function label(tooltipItem, data) {
-        var dataLabel = data.labels[tooltipItem.index];
-        var value = ': ' + data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
+      label: function label(tooltipItem) {
+        var dataLabel = tooltipItem.chart.data.labels[tooltipItem.dataIndex];
+        var value = ': ' + tooltipItem.dataset.data[tooltipItem.dataIndex];
         if (isArray(dataLabel)) {
           dataLabel = dataLabel.slice();
           dataLabel[0] += value;
@@ -7938,8 +7938,8 @@ PolarAreaController.defaults = {
       title: function title() {
         return '';
       },
-      label: function label(item, data) {
-        return data.labels[item.index] + ': ' + item.value;
+      label: function label(context) {
+        return context.chart.data.labels[context.dataIndex] + ': ' + context.value;
       }
     }
   }
@@ -10303,13 +10303,17 @@ function splitNewlines(str) {
 function createTooltipItem(chart, item) {
   var datasetIndex = item.datasetIndex,
       index = item.index;
-  var _chart$getDatasetMeta = chart.getDatasetMeta(datasetIndex).controller.getLabelAndValue(index),
-      label = _chart$getDatasetMeta.label,
-      value = _chart$getDatasetMeta.value;
+  var controller = chart.getDatasetMeta(datasetIndex).controller;
+  var dataset = controller.getDataset();
+  var _controller$getLabelA = controller.getLabelAndValue(index),
+      label = _controller$getLabelA.label,
+      value = _controller$getLabelA.value;
   return {
+    chart: chart,
     label: label,
     value: value,
-    index: index,
+    dataset: dataset,
+    dataIndex: index,
     datasetIndex: datasetIndex
   };
 }
@@ -10545,54 +10549,50 @@ var Tooltip = function (_Element) {
     var animations = new Animations(me._chart, opts);
     me._cachedAnimations = Object.freeze(animations);
     return animations;
-  }
-  ;
-  _proto.getTitle = function getTitle(tooltipitem, data) {
+  };
+  _proto.getTitle = function getTitle(context) {
     var me = this;
     var opts = me.options;
     var callbacks = opts.callbacks;
-    var beforeTitle = callbacks.beforeTitle.apply(me, [tooltipitem, data]);
-    var title = callbacks.title.apply(me, [tooltipitem, data]);
-    var afterTitle = callbacks.afterTitle.apply(me, [tooltipitem, data]);
+    var beforeTitle = callbacks.beforeTitle.apply(me, [context]);
+    var title = callbacks.title.apply(me, [context]);
+    var afterTitle = callbacks.afterTitle.apply(me, [context]);
     var lines = [];
     lines = pushOrConcat(lines, splitNewlines(beforeTitle));
     lines = pushOrConcat(lines, splitNewlines(title));
     lines = pushOrConcat(lines, splitNewlines(afterTitle));
     return lines;
-  }
-  ;
-  _proto.getBeforeBody = function getBeforeBody(tooltipitem, data) {
-    return getBeforeAfterBodyLines(this.options.callbacks.beforeBody.apply(this, [tooltipitem, data]));
-  }
-  ;
-  _proto.getBody = function getBody(tooltipItems, data) {
+  };
+  _proto.getBeforeBody = function getBeforeBody(tooltipItems) {
+    return getBeforeAfterBodyLines(this.options.callbacks.beforeBody.apply(this, [tooltipItems]));
+  };
+  _proto.getBody = function getBody(tooltipItems) {
     var me = this;
     var callbacks = me.options.callbacks;
     var bodyItems = [];
-    each(tooltipItems, function (tooltipItem) {
+    each(tooltipItems, function (context) {
       var bodyItem = {
         before: [],
         lines: [],
         after: []
       };
-      pushOrConcat(bodyItem.before, splitNewlines(callbacks.beforeLabel.call(me, tooltipItem, data)));
-      pushOrConcat(bodyItem.lines, callbacks.label.call(me, tooltipItem, data));
-      pushOrConcat(bodyItem.after, splitNewlines(callbacks.afterLabel.call(me, tooltipItem, data)));
+      pushOrConcat(bodyItem.before, splitNewlines(callbacks.beforeLabel.call(me, context)));
+      pushOrConcat(bodyItem.lines, callbacks.label.call(me, context));
+      pushOrConcat(bodyItem.after, splitNewlines(callbacks.afterLabel.call(me, context)));
       bodyItems.push(bodyItem);
     });
     return bodyItems;
+  };
+  _proto.getAfterBody = function getAfterBody(tooltipItems) {
+    return getBeforeAfterBodyLines(this.options.callbacks.afterBody.apply(this, [tooltipItems]));
   }
   ;
-  _proto.getAfterBody = function getAfterBody(tooltipitem, data) {
-    return getBeforeAfterBodyLines(this.options.callbacks.afterBody.apply(this, [tooltipitem, data]));
-  }
-  ;
-  _proto.getFooter = function getFooter(tooltipitem, data) {
+  _proto.getFooter = function getFooter(tooltipItems) {
     var me = this;
     var callbacks = me.options.callbacks;
-    var beforeFooter = callbacks.beforeFooter.apply(me, [tooltipitem, data]);
-    var footer = callbacks.footer.apply(me, [tooltipitem, data]);
-    var afterFooter = callbacks.afterFooter.apply(me, [tooltipitem, data]);
+    var beforeFooter = callbacks.beforeFooter.apply(me, [tooltipItems]);
+    var footer = callbacks.footer.apply(me, [tooltipItems]);
+    var afterFooter = callbacks.afterFooter.apply(me, [tooltipItems]);
     var lines = [];
     lines = pushOrConcat(lines, splitNewlines(beforeFooter));
     lines = pushOrConcat(lines, splitNewlines(footer));
@@ -10622,9 +10622,9 @@ var Tooltip = function (_Element) {
         return options.itemSort(a, b, data);
       });
     }
-    each(tooltipItems, function (tooltipItem) {
-      labelColors.push(options.callbacks.labelColor.call(me, tooltipItem, me._chart));
-      labelTextColors.push(options.callbacks.labelTextColor.call(me, tooltipItem, me._chart));
+    each(tooltipItems, function (context) {
+      labelColors.push(options.callbacks.labelColor.call(me, context));
+      labelTextColors.push(options.callbacks.labelTextColor.call(me, context));
     });
     me.labelColors = labelColors;
     me.labelTextColors = labelTextColors;
@@ -10643,14 +10643,13 @@ var Tooltip = function (_Element) {
         };
       }
     } else {
-      var data = me._chart.data;
       var position = positioners[options.position].call(me, active, me._eventPosition);
       var tooltipItems = me._createItems();
-      me.title = me.getTitle(tooltipItems, data);
-      me.beforeBody = me.getBeforeBody(tooltipItems, data);
-      me.body = me.getBody(tooltipItems, data);
-      me.afterBody = me.getAfterBody(tooltipItems, data);
-      me.footer = me.getFooter(tooltipItems, data);
+      me.title = me.getTitle(tooltipItems);
+      me.beforeBody = me.getBeforeBody(tooltipItems);
+      me.body = me.getBody(tooltipItems);
+      me.afterBody = me.getAfterBody(tooltipItems);
+      me.footer = me.getFooter(tooltipItems);
       var size = me._size = getTooltipSize(me);
       var positionAndSize = _extends({}, position, size);
       var alignment = determineAlignment(me._chart, options, positionAndSize);
@@ -11071,25 +11070,24 @@ var plugin_tooltip = {
     },
     callbacks: {
       beforeTitle: noop,
-      title: function title(tooltipItems, data) {
-        var title = '';
-        var labels = data.labels;
-        var labelCount = labels ? labels.length : 0;
+      title: function title(tooltipItems) {
         if (tooltipItems.length > 0) {
           var item = tooltipItems[0];
+          var labels = item.chart.data.labels;
+          var labelCount = labels ? labels.length : 0;
           if (item.label) {
-            title = item.label;
-          } else if (labelCount > 0 && item.index < labelCount) {
-            title = labels[item.index];
+            return item.label;
+          } else if (labelCount > 0 && item.dataIndex < labelCount) {
+            return labels[item.dataIndex];
           }
         }
-        return title;
+        return '';
       },
       afterTitle: noop,
       beforeBody: noop,
       beforeLabel: noop,
-      label: function label(tooltipItem, data) {
-        var label = data.datasets[tooltipItem.datasetIndex].label || '';
+      label: function label(tooltipItem) {
+        var label = tooltipItem.dataset.label || '';
         if (label) {
           label += ': ';
         }
@@ -11099,9 +11097,9 @@ var plugin_tooltip = {
         }
         return label;
       },
-      labelColor: function labelColor(tooltipItem, chart) {
-        var meta = chart.getDatasetMeta(tooltipItem.datasetIndex);
-        var options = meta.controller.getStyle(tooltipItem.index);
+      labelColor: function labelColor(tooltipItem) {
+        var meta = tooltipItem.chart.getDatasetMeta(tooltipItem.datasetIndex);
+        var options = meta.controller.getStyle(tooltipItem.dataIndex);
         return {
           borderColor: options.borderColor,
           backgroundColor: options.backgroundColor
