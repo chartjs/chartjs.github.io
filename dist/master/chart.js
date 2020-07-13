@@ -452,7 +452,7 @@ var Defaults = function () {
     this.tooltips = undefined;
     this.doughnut = undefined;
     this._routes = {};
-    this.scales = undefined;
+    this.scales = {};
     this.controllers = undefined;
   }
   var _proto = Defaults.prototype;
@@ -9020,11 +9020,6 @@ Point: Point,
 Rectangle: Rectangle
 });
 
-defaults.set('plugins', {
-  filler: {
-    propagate: true
-  }
-});
 function getLineByIndex(chart, index) {
   var meta = chart.getDatasetMeta(index);
   var visible = meta && chart.isDatasetVisible(index);
@@ -9461,7 +9456,7 @@ var plugin_filler = {
         scale = meta.scale;
     var lineOpts = line.options;
     var fillOption = lineOpts.fill;
-    var color = lineOpts.backgroundColor || defaults.color;
+    var color = lineOpts.backgroundColor;
     var _ref3 = fillOption || {},
         _ref3$above = _ref3.above,
         above = _ref3$above === void 0 ? color : _ref3$above,
@@ -9479,61 +9474,12 @@ var plugin_filler = {
       });
       unclipArea(ctx);
     }
+  },
+  defaults: {
+    propagate: true
   }
 };
 
-defaults.set('legend', {
-  display: true,
-  position: 'top',
-  align: 'center',
-  fullWidth: true,
-  reverse: false,
-  weight: 1000,
-  onClick: function onClick(e, legendItem, legend) {
-    var index = legendItem.datasetIndex;
-    var ci = legend.chart;
-    if (ci.isDatasetVisible(index)) {
-      ci.hide(index);
-      legendItem.hidden = true;
-    } else {
-      ci.show(index);
-      legendItem.hidden = false;
-    }
-  },
-  onHover: null,
-  onLeave: null,
-  labels: {
-    boxWidth: 40,
-    padding: 10,
-    generateLabels: function generateLabels(chart) {
-      var datasets = chart.data.datasets;
-      var options = chart.options.legend || {};
-      var usePointStyle = options.labels && options.labels.usePointStyle;
-      return chart._getSortedDatasetMetas().map(function (meta) {
-        var style = meta.controller.getStyle(usePointStyle ? 0 : undefined);
-        return {
-          text: datasets[meta.index].label,
-          fillStyle: style.backgroundColor,
-          hidden: !meta.visible,
-          lineCap: style.borderCapStyle,
-          lineDash: style.borderDash,
-          lineDashOffset: style.borderDashOffset,
-          lineJoin: style.borderJoinStyle,
-          lineWidth: style.borderWidth,
-          strokeStyle: style.borderColor,
-          pointStyle: style.pointStyle,
-          rotation: style.rotation,
-          datasetIndex: meta.index
-        };
-      }, this);
-    }
-  },
-  title: {
-    display: false,
-    position: 'center',
-    text: ''
-  }
-});
 function getBoxWidth(labelOpts, fontSize) {
   var boxWidth = labelOpts.boxWidth;
   return labelOpts.usePointStyle && boxWidth > fontSize || isNullOrUndef(boxWidth) ? fontSize : boxWidth;
@@ -9978,6 +9924,9 @@ var Legend = function (_Element) {
   };
   return Legend;
 }(Element$1);
+function resolveOptions(options) {
+  return options !== false && merge({}, [defaults.plugins.legend, options]);
+}
 function createNewLegendAndAttach(chart, legendOpts) {
   var legend = new Legend({
     ctx: chart.ctx,
@@ -9992,16 +9941,15 @@ var plugin_legend = {
   id: 'legend',
   _element: Legend,
   beforeInit: function beforeInit(chart) {
-    var legendOpts = chart.options.legend;
+    var legendOpts = resolveOptions(chart.options.legend);
     if (legendOpts) {
       createNewLegendAndAttach(chart, legendOpts);
     }
   },
   beforeUpdate: function beforeUpdate(chart) {
-    var legendOpts = chart.options.legend;
+    var legendOpts = resolveOptions(chart.options.legend);
     var legend = chart.legend;
     if (legendOpts) {
-      mergeIf(legendOpts, defaults.legend);
       if (legend) {
         layouts.configure(chart, legend, legendOpts);
         legend.options = legendOpts;
@@ -10023,6 +9971,58 @@ var plugin_legend = {
     if (legend) {
       legend.handleEvent(e);
     }
+  },
+  defaults: {
+    display: true,
+    position: 'top',
+    align: 'center',
+    fullWidth: true,
+    reverse: false,
+    weight: 1000,
+    onClick: function onClick(e, legendItem, legend) {
+      var index = legendItem.datasetIndex;
+      var ci = legend.chart;
+      if (ci.isDatasetVisible(index)) {
+        ci.hide(index);
+        legendItem.hidden = true;
+      } else {
+        ci.show(index);
+        legendItem.hidden = false;
+      }
+    },
+    onHover: null,
+    onLeave: null,
+    labels: {
+      boxWidth: 40,
+      padding: 10,
+      generateLabels: function generateLabels(chart) {
+        var datasets = chart.data.datasets;
+        var options = chart.options.legend || {};
+        var usePointStyle = options.labels && options.labels.usePointStyle;
+        return chart._getSortedDatasetMetas().map(function (meta) {
+          var style = meta.controller.getStyle(usePointStyle ? 0 : undefined);
+          return {
+            text: datasets[meta.index].label,
+            fillStyle: style.backgroundColor,
+            hidden: !meta.visible,
+            lineCap: style.borderCapStyle,
+            lineDash: style.borderDash,
+            lineDashOffset: style.borderDashOffset,
+            lineJoin: style.borderJoinStyle,
+            lineWidth: style.borderWidth,
+            strokeStyle: style.borderColor,
+            pointStyle: style.pointStyle,
+            rotation: style.rotation,
+            datasetIndex: meta.index
+          };
+        }, this);
+      }
+    },
+    title: {
+      display: false,
+      position: 'center',
+      text: ''
+    }
   }
 };
 
@@ -10037,7 +10037,6 @@ var Title = function (_Element) {
     _this.ctx = config.ctx;
     _this._margins = undefined;
     _this._padding = undefined;
-    _this.legendHitBoxes = [];
     _this.top = undefined;
     _this.bottom = undefined;
     _this.left = undefined;
@@ -10317,7 +10316,7 @@ function createTooltipItem(chart, item) {
     datasetIndex: datasetIndex
   };
 }
-function resolveOptions(options) {
+function resolveOptions$1(options) {
   options = merge({}, [defaults.plugins.tooltip, options]);
   options.bodyFont = toFont(options.bodyFont);
   options.titleFont = toFont(options.titleFont);
@@ -10535,7 +10534,7 @@ var Tooltip = function (_Element) {
   var _proto = Tooltip.prototype;
   _proto.initialize = function initialize() {
     var me = this;
-    me.options = resolveOptions(me._chart.options.tooltips);
+    me.options = resolveOptions$1(me._chart.options.tooltips);
   }
   ;
   _proto._resolveAnimations = function _resolveAnimations() {

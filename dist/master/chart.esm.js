@@ -5828,11 +5828,6 @@ Rectangle.defaultRoutes = {
 	borderColor: 'color'
 };
 
-defaults.set('plugins', {
-	filler: {
-		propagate: true
-	}
-});
 function getLineByIndex(chart, index) {
 	const meta = chart.getDatasetMeta(index);
 	const visible = meta && chart.isDatasetVisible(index);
@@ -6193,68 +6188,19 @@ var plugin_filler = {
 		const {line, target, scale} = meta;
 		const lineOpts = line.options;
 		const fillOption = lineOpts.fill;
-		const color = lineOpts.backgroundColor || defaults.color;
+		const color = lineOpts.backgroundColor;
 		const {above = color, below = color} = fillOption || {};
 		if (target && line.points.length) {
 			clipArea(ctx, area);
 			doFill(ctx, {line, target, above, below, area, scale});
 			unclipArea(ctx);
 		}
+	},
+	defaults: {
+		propagate: true
 	}
 };
 
-defaults.set('legend', {
-	display: true,
-	position: 'top',
-	align: 'center',
-	fullWidth: true,
-	reverse: false,
-	weight: 1000,
-	onClick(e, legendItem, legend) {
-		const index = legendItem.datasetIndex;
-		const ci = legend.chart;
-		if (ci.isDatasetVisible(index)) {
-			ci.hide(index);
-			legendItem.hidden = true;
-		} else {
-			ci.show(index);
-			legendItem.hidden = false;
-		}
-	},
-	onHover: null,
-	onLeave: null,
-	labels: {
-		boxWidth: 40,
-		padding: 10,
-		generateLabels(chart) {
-			const datasets = chart.data.datasets;
-			const options = chart.options.legend || {};
-			const usePointStyle = options.labels && options.labels.usePointStyle;
-			return chart._getSortedDatasetMetas().map((meta) => {
-				const style = meta.controller.getStyle(usePointStyle ? 0 : undefined);
-				return {
-					text: datasets[meta.index].label,
-					fillStyle: style.backgroundColor,
-					hidden: !meta.visible,
-					lineCap: style.borderCapStyle,
-					lineDash: style.borderDash,
-					lineDashOffset: style.borderDashOffset,
-					lineJoin: style.borderJoinStyle,
-					lineWidth: style.borderWidth,
-					strokeStyle: style.borderColor,
-					pointStyle: style.pointStyle,
-					rotation: style.rotation,
-					datasetIndex: meta.index
-				};
-			}, this);
-		}
-	},
-	title: {
-		display: false,
-		position: 'center',
-		text: '',
-	}
-});
 function getBoxWidth(labelOpts, fontSize) {
 	const {boxWidth} = labelOpts;
 	return (labelOpts.usePointStyle && boxWidth > fontSize) || isNullOrUndef(boxWidth) ?
@@ -6690,6 +6636,9 @@ class Legend extends Element {
 		}
 	}
 }
+function resolveOptions(options) {
+	return options !== false && merge({}, [defaults.plugins.legend, options]);
+}
 function createNewLegendAndAttach(chart, legendOpts) {
 	const legend = new Legend({
 		ctx: chart.ctx,
@@ -6704,16 +6653,15 @@ var plugin_legend = {
 	id: 'legend',
 	_element: Legend,
 	beforeInit(chart) {
-		const legendOpts = chart.options.legend;
+		const legendOpts = resolveOptions(chart.options.legend);
 		if (legendOpts) {
 			createNewLegendAndAttach(chart, legendOpts);
 		}
 	},
 	beforeUpdate(chart) {
-		const legendOpts = chart.options.legend;
+		const legendOpts = resolveOptions(chart.options.legend);
 		const legend = chart.legend;
 		if (legendOpts) {
-			mergeIf(legendOpts, defaults.legend);
 			if (legend) {
 				layouts.configure(chart, legend, legendOpts);
 				legend.options = legendOpts;
@@ -6735,6 +6683,58 @@ var plugin_legend = {
 		if (legend) {
 			legend.handleEvent(e);
 		}
+	},
+	defaults: {
+		display: true,
+		position: 'top',
+		align: 'center',
+		fullWidth: true,
+		reverse: false,
+		weight: 1000,
+		onClick(e, legendItem, legend) {
+			const index = legendItem.datasetIndex;
+			const ci = legend.chart;
+			if (ci.isDatasetVisible(index)) {
+				ci.hide(index);
+				legendItem.hidden = true;
+			} else {
+				ci.show(index);
+				legendItem.hidden = false;
+			}
+		},
+		onHover: null,
+		onLeave: null,
+		labels: {
+			boxWidth: 40,
+			padding: 10,
+			generateLabels(chart) {
+				const datasets = chart.data.datasets;
+				const options = chart.options.legend || {};
+				const usePointStyle = options.labels && options.labels.usePointStyle;
+				return chart._getSortedDatasetMetas().map((meta) => {
+					const style = meta.controller.getStyle(usePointStyle ? 0 : undefined);
+					return {
+						text: datasets[meta.index].label,
+						fillStyle: style.backgroundColor,
+						hidden: !meta.visible,
+						lineCap: style.borderCapStyle,
+						lineDash: style.borderDash,
+						lineDashOffset: style.borderDashOffset,
+						lineJoin: style.borderJoinStyle,
+						lineWidth: style.borderWidth,
+						strokeStyle: style.borderColor,
+						pointStyle: style.pointStyle,
+						rotation: style.rotation,
+						datasetIndex: meta.index
+					};
+				}, this);
+			}
+		},
+		title: {
+			display: false,
+			position: 'center',
+			text: '',
+		}
 	}
 };
 
@@ -6747,7 +6747,6 @@ class Title extends Element {
 		this.ctx = config.ctx;
 		this._margins = undefined;
 		this._padding = undefined;
-		this.legendHitBoxes = [];
 		this.top = undefined;
 		this.bottom = undefined;
 		this.left = undefined;
@@ -7019,7 +7018,7 @@ function createTooltipItem(chart, item) {
 		datasetIndex
 	};
 }
-function resolveOptions(options) {
+function resolveOptions$1(options) {
 	options = merge({}, [defaults.plugins.tooltip, options]);
 	options.bodyFont = toFont(options.bodyFont);
 	options.titleFont = toFont(options.titleFont);
@@ -7206,7 +7205,7 @@ class Tooltip extends Element {
 	}
 	initialize() {
 		const me = this;
-		me.options = resolveOptions(me._chart.options.tooltips);
+		me.options = resolveOptions$1(me._chart.options.tooltips);
 	}
 	_resolveAnimations() {
 		const me = this;
