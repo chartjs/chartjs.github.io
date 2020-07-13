@@ -846,16 +846,27 @@ class DatasetController {
 	}
 	update(mode) {}
 	draw() {
-		const ctx = this._ctx;
-		const meta = this._cachedMeta;
+		const me = this;
+		const ctx = me._ctx;
+		const chart = me.chart;
+		const meta = me._cachedMeta;
 		const elements = meta.data || [];
-		const ilen = elements.length;
-		let i = 0;
+		const area = chart.chartArea;
+		const active = [];
+		let i, ilen;
 		if (meta.dataset) {
-			meta.dataset.draw(ctx);
+			meta.dataset.draw(ctx, area);
 		}
-		for (; i < ilen; ++i) {
-			elements[i].draw(ctx);
+		for (i = 0, ilen = elements.length; i < ilen; ++i) {
+			const element = elements[i];
+			if (element.active) {
+				active.push(element);
+			} else {
+				element.draw(ctx, area);
+			}
+		}
+		for (i = 0, ilen = active.length; i < ilen; ++i) {
+			active[i].draw(ctx, area);
 		}
 	}
 	_addAutomaticHoverColors(index, options) {
@@ -1835,19 +1846,12 @@ DoughnutController.defaults = {
 };
 
 class LineController extends DatasetController {
-	constructor(chart, datasetIndex) {
-		super(chart, datasetIndex);
-		this._showLine = false;
-	}
 	update(mode) {
 		const me = this;
 		const meta = me._cachedMeta;
 		const line = meta.dataset;
 		const points = meta.data || [];
-		const options = me.chart.options;
-		const config = me._config;
-		const showLine = me._showLine = valueOrDefault(config.showLine, options.showLines);
-		if (showLine && mode !== 'resize') {
+		if (mode !== 'resize') {
 			const properties = {
 				points,
 				options: me.resolveDatasetElementOptions()
@@ -1892,15 +1896,19 @@ class LineController extends DatasetController {
 		const options = me.chart.options;
 		const lineOptions = options.elements.line;
 		const values = super.resolveDatasetElementOptions(active);
+		const showLine = valueOrDefault(config.showLine, options.showLines);
 		values.spanGaps = valueOrDefault(config.spanGaps, options.spanGaps);
 		values.tension = valueOrDefault(config.lineTension, lineOptions.tension);
 		values.stepped = resolve([config.stepped, lineOptions.stepped]);
+		if (!showLine) {
+			values.borderWidth = 0;
+		}
 		return values;
 	}
 	getMaxOverflow() {
 		const me = this;
 		const meta = me._cachedMeta;
-		const border = me._showLine && meta.dataset.options.borderWidth || 0;
+		const border = meta.dataset.options.borderWidth || 0;
 		const data = meta.data || [];
 		if (!data.length) {
 			return border;
@@ -1908,31 +1916,6 @@ class LineController extends DatasetController {
 		const firstPoint = data[0].size();
 		const lastPoint = data[data.length - 1].size();
 		return Math.max(border, firstPoint, lastPoint) / 2;
-	}
-	draw() {
-		const me = this;
-		const ctx = me._ctx;
-		const chart = me.chart;
-		const meta = me._cachedMeta;
-		const points = meta.data || [];
-		const area = chart.chartArea;
-		const active = [];
-		let ilen = points.length;
-		let i, point;
-		if (me._showLine) {
-			meta.dataset.draw(ctx, area);
-		}
-		for (i = 0; i < ilen; ++i) {
-			point = points[i];
-			if (point.active) {
-				active.push(point);
-			} else {
-				point.draw(ctx, area);
-			}
-		}
-		for (i = 0, ilen = active.length; i < ilen; ++i) {
-			active[i].draw(ctx, area);
-		}
 	}
 }
 LineController.id = 'line';
@@ -2183,15 +2166,16 @@ class RadarController extends DatasetController {
 		const line = meta.dataset;
 		const points = meta.data || [];
 		const labels = meta.iScale.getLabels();
-		const properties = {
-			points,
-			_loop: true,
-			_fullLoop: labels.length === points.length,
-			options: me.resolveDatasetElementOptions()
-		};
-		me.updateElement(line, undefined, properties, mode);
+		if (mode !== 'resize') {
+			const properties = {
+				points,
+				_loop: true,
+				_fullLoop: labels.length === points.length,
+				options: me.resolveDatasetElementOptions()
+			};
+			me.updateElement(line, undefined, properties, mode);
+		}
 		me.updateElements(points, 0, mode);
-		line.updateControlPoints(me.chart.chartArea);
 	}
 	updateElements(points, start, mode) {
 		const me = this;
@@ -2221,8 +2205,12 @@ class RadarController extends DatasetController {
 		const config = me._config;
 		const options = me.chart.options;
 		const values = super.resolveDatasetElementOptions(active);
+		const showLine = valueOrDefault(config.showLine, options.showLines);
 		values.spanGaps = valueOrDefault(config.spanGaps, options.spanGaps);
 		values.tension = valueOrDefault(config.lineTension, options.elements.line.tension);
+		if (!showLine) {
+			values.borderWidth = 0;
+		}
 		return values;
 	}
 }
@@ -2284,7 +2272,8 @@ ScatterController.defaults = {
 		}
 	},
 	datasets: {
-		showLine: false
+		showLine: false,
+		fill: false
 	},
 	tooltips: {
 		callbacks: {
@@ -5496,7 +5485,6 @@ class Line extends Element {
 		this.options = undefined;
 		this._loop = undefined;
 		this._fullLoop = undefined;
-		this._controlPointsUpdated = undefined;
 		this._points = undefined;
 		this._segments = undefined;
 		if (cfg) {
@@ -5505,9 +5493,6 @@ class Line extends Element {
 	}
 	updateControlPoints(chartArea) {
 		const me = this;
-		if (me._controlPointsUpdated) {
-			return;
-		}
 		const options = me.options;
 		if (options.tension && !options.stepped) {
 			const loop = options.spanGaps ? me._loop : me._fullLoop;
@@ -5578,14 +5563,15 @@ class Line extends Element {
 		return !!loop;
 	}
 	draw(ctx) {
-		const me = this;
-		if (!me.points.length) {
+		const options = this.options || {};
+		const points = this.points || [];
+		if (!points.length || !options.borderWidth) {
 			return;
 		}
 		ctx.save();
-		setStyle(ctx, me.options);
+		setStyle(ctx, options);
 		ctx.beginPath();
-		if (me.path(ctx)) {
+		if (this.path(ctx)) {
 			ctx.closePath();
 		}
 		ctx.stroke();

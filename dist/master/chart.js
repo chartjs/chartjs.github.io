@@ -3983,16 +3983,27 @@ var DatasetController = function () {
   _proto.update = function update(mode) {}
   ;
   _proto.draw = function draw() {
-    var ctx = this._ctx;
-    var meta = this._cachedMeta;
+    var me = this;
+    var ctx = me._ctx;
+    var chart = me.chart;
+    var meta = me._cachedMeta;
     var elements = meta.data || [];
-    var ilen = elements.length;
-    var i = 0;
+    var area = chart.chartArea;
+    var active = [];
+    var i, ilen;
     if (meta.dataset) {
-      meta.dataset.draw(ctx);
+      meta.dataset.draw(ctx, area);
     }
-    for (; i < ilen; ++i) {
-      elements[i].draw(ctx);
+    for (i = 0, ilen = elements.length; i < ilen; ++i) {
+      var element = elements[i];
+      if (element.active) {
+        active.push(element);
+      } else {
+        element.draw(ctx, area);
+      }
+    }
+    for (i = 0, ilen = active.length; i < ilen; ++i) {
+      active[i].draw(ctx, area);
     }
   }
   ;
@@ -7625,11 +7636,8 @@ DoughnutController.defaults = {
 
 var LineController = function (_DatasetController) {
   _inheritsLoose(LineController, _DatasetController);
-  function LineController(chart, datasetIndex) {
-    var _this;
-    _this = _DatasetController.call(this, chart, datasetIndex) || this;
-    _this._showLine = false;
-    return _this;
+  function LineController() {
+    return _DatasetController.apply(this, arguments) || this;
   }
   var _proto = LineController.prototype;
   _proto.update = function update(mode) {
@@ -7637,10 +7645,7 @@ var LineController = function (_DatasetController) {
     var meta = me._cachedMeta;
     var line = meta.dataset;
     var points = meta.data || [];
-    var options = me.chart.options;
-    var config = me._config;
-    var showLine = me._showLine = valueOrDefault(config.showLine, options.showLines);
-    if (showLine && mode !== 'resize') {
+    if (mode !== 'resize') {
       var properties = {
         points: points,
         options: me.resolveDatasetElementOptions()
@@ -7689,16 +7694,20 @@ var LineController = function (_DatasetController) {
     var options = me.chart.options;
     var lineOptions = options.elements.line;
     var values = _DatasetController.prototype.resolveDatasetElementOptions.call(this, active);
+    var showLine = valueOrDefault(config.showLine, options.showLines);
     values.spanGaps = valueOrDefault(config.spanGaps, options.spanGaps);
     values.tension = valueOrDefault(config.lineTension, lineOptions.tension);
     values.stepped = resolve([config.stepped, lineOptions.stepped]);
+    if (!showLine) {
+      values.borderWidth = 0;
+    }
     return values;
   }
   ;
   _proto.getMaxOverflow = function getMaxOverflow() {
     var me = this;
     var meta = me._cachedMeta;
-    var border = me._showLine && meta.dataset.options.borderWidth || 0;
+    var border = meta.dataset.options.borderWidth || 0;
     var data = meta.data || [];
     if (!data.length) {
       return border;
@@ -7706,31 +7715,6 @@ var LineController = function (_DatasetController) {
     var firstPoint = data[0].size();
     var lastPoint = data[data.length - 1].size();
     return Math.max(border, firstPoint, lastPoint) / 2;
-  };
-  _proto.draw = function draw() {
-    var me = this;
-    var ctx = me._ctx;
-    var chart = me.chart;
-    var meta = me._cachedMeta;
-    var points = meta.data || [];
-    var area = chart.chartArea;
-    var active = [];
-    var ilen = points.length;
-    var i, point;
-    if (me._showLine) {
-      meta.dataset.draw(ctx, area);
-    }
-    for (i = 0; i < ilen; ++i) {
-      point = points[i];
-      if (point.active) {
-        active.push(point);
-      } else {
-        point.draw(ctx, area);
-      }
-    }
-    for (i = 0, ilen = active.length; i < ilen; ++i) {
-      active[i].draw(ctx, area);
-    }
   };
   return LineController;
 }(DatasetController);
@@ -7978,15 +7962,16 @@ var RadarController = function (_DatasetController) {
     var line = meta.dataset;
     var points = meta.data || [];
     var labels = meta.iScale.getLabels();
-    var properties = {
-      points: points,
-      _loop: true,
-      _fullLoop: labels.length === points.length,
-      options: me.resolveDatasetElementOptions()
-    };
-    me.updateElement(line, undefined, properties, mode);
+    if (mode !== 'resize') {
+      var properties = {
+        points: points,
+        _loop: true,
+        _fullLoop: labels.length === points.length,
+        options: me.resolveDatasetElementOptions()
+      };
+      me.updateElement(line, undefined, properties, mode);
+    }
     me.updateElements(points, 0, mode);
-    line.updateControlPoints(me.chart.chartArea);
   };
   _proto.updateElements = function updateElements(points, start, mode) {
     var me = this;
@@ -8017,8 +8002,12 @@ var RadarController = function (_DatasetController) {
     var config = me._config;
     var options = me.chart.options;
     var values = _DatasetController.prototype.resolveDatasetElementOptions.call(this, active);
+    var showLine = valueOrDefault(config.showLine, options.showLines);
     values.spanGaps = valueOrDefault(config.spanGaps, options.spanGaps);
     values.tension = valueOrDefault(config.lineTension, options.elements.line.tension);
+    if (!showLine) {
+      values.borderWidth = 0;
+    }
     return values;
   };
   return RadarController;
@@ -8077,7 +8066,8 @@ ScatterController.defaults = {
     }
   },
   datasets: {
-    showLine: false
+    showLine: false,
+    fill: false
   },
   tooltips: {
     callbacks: {
@@ -8630,7 +8620,6 @@ var Line = function (_Element) {
     _this.options = undefined;
     _this._loop = undefined;
     _this._fullLoop = undefined;
-    _this._controlPointsUpdated = undefined;
     _this._points = undefined;
     _this._segments = undefined;
     if (cfg) {
@@ -8641,9 +8630,6 @@ var Line = function (_Element) {
   var _proto = Line.prototype;
   _proto.updateControlPoints = function updateControlPoints(chartArea) {
     var me = this;
-    if (me._controlPointsUpdated) {
-      return;
-    }
     var options = me.options;
     if (options.tension && !options.stepped) {
       var loop = options.spanGaps ? me._loop : me._fullLoop;
@@ -8715,14 +8701,15 @@ var Line = function (_Element) {
   }
   ;
   _proto.draw = function draw(ctx) {
-    var me = this;
-    if (!me.points.length) {
+    var options = this.options || {};
+    var points = this.points || [];
+    if (!points.length || !options.borderWidth) {
       return;
     }
     ctx.save();
-    setStyle(ctx, me.options);
+    setStyle(ctx, options);
     ctx.beginPath();
-    if (me.path(ctx)) {
+    if (this.path(ctx)) {
       ctx.closePath();
     }
     ctx.stroke();
