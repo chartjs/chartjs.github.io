@@ -21510,12 +21510,14 @@ new Chart(ctx, {
     options: options
 });
 `)),Object(_mdx_js_react__WEBPACK_IMPORTED_MODULE_2__[/* mdx */ "b"])("p",null,`Same example in classic style`),Object(_mdx_js_react__WEBPACK_IMPORTED_MODULE_2__[/* mdx */ "b"])("pre",null,Object(_mdx_js_react__WEBPACK_IMPORTED_MODULE_2__[/* mdx */ "b"])("code",Object(_home_travis_build_chartjs_Chart_js_docs_node_modules_babel_runtime_helpers_esm_extends__WEBPACK_IMPORTED_MODULE_0__[/* default */ "a"])({parentName:"pre"},{"className":"language-javascript"}),`function Custom() {
-  Chart.controllers.bubble.call(this, arguments);
+  Chart.controllers.bubble.apply(this, arguments);
   // constructor stuff
 }
+Custom.prototype = Object.create(Chart.controllers.bubble.prototype);
+Custom.prototype.constructor = Custom;
 
 Custom.prototype.draw = function(ctx) {
-    Chart.controllers.bubble.prototype.draw.call(this, arguments);
+    Chart.controllers.bubble.prototype.draw.apply(this, arguments);
 
     var meta = this.getMeta();
     var pt0 = meta.data[0];
@@ -21532,9 +21534,7 @@ Custom.prototype.draw = function(ctx) {
 Custom.id = 'derivedBubble';
 Custom.defaults = Chart.defaults.bubble;
 
-// Prototype chain can not be used to detect we are trying to register a controller, so we need
-// to be explicit
-Chart.registry.addControllers(Custom);
+Chart.register(Custom);
 
 // Now we can create and use our new chart type
 new Chart(ctx, {
@@ -25419,6 +25419,8 @@ function MyScale() {
   Chart.Scale.call(this, arguments);
   // constructor stuff
 }
+MyScale.prototype = Object.create(Chart.Scale.prototype);
+MyScale.prototype.constructor = MyScale;
 
 MyScale.prototype.draw = function(ctx) {
   Chart.Scale.prototype.draw.call(this, arguments);

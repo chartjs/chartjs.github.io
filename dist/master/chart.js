@@ -5497,10 +5497,10 @@ var TypedRegistry = function () {
   }
   var _proto = TypedRegistry.prototype;
   _proto.isForType = function isForType(type) {
-    return Object.prototype.isPrototypeOf.call(this.type, type);
+    return Object.prototype.isPrototypeOf.call(this.type.prototype, type.prototype);
   }
   ;
-  _proto.register = function register(item, scopeOverride) {
+  _proto.register = function register(item) {
     var proto = Object.getPrototypeOf(item);
     var parentScope;
     if (isIChartComponent(proto)) {
@@ -5508,10 +5508,10 @@ var TypedRegistry = function () {
     }
     var items = this.items;
     var id = item.id;
-    var baseScope = valueOrDefault(scopeOverride, this.scope);
+    var baseScope = this.scope;
     var scope = baseScope ? baseScope + '.' + id : id;
     if (!id) {
-      throw new Error('class does not have id: ' + Object.getPrototypeOf(item));
+      throw new Error('class does not have id: ' + item);
     }
     if (id in items) {
       return scope;
@@ -5528,11 +5528,12 @@ var TypedRegistry = function () {
   _proto.unregister = function unregister(item) {
     var items = this.items;
     var id = item.id;
+    var scope = this.scope;
     if (id in items) {
       delete items[id];
     }
-    if (id in defaults[this.scope]) {
-      delete defaults[this.scope][id];
+    if (scope && id in defaults[scope]) {
+      delete defaults[scope][id];
     } else if (id in defaults) {
       delete defaults[id];
     }
