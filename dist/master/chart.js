@@ -4038,6 +4038,7 @@ var DatasetController = function () {
   _proto._getContext = function _getContext(index, active) {
     return {
       chart: this.chart,
+      dataPoint: this.getParsed(index),
       dataIndex: index,
       dataset: this.getDataset(),
       datasetIndex: this.index,
@@ -7315,6 +7316,7 @@ var BubbleController = function (_DatasetController) {
     var values = _DatasetController.prototype.resolveDataElementOptions.call(this, index, mode);
     var context = {
       chart: chart,
+      dataPoint: parsed,
       dataIndex: index,
       dataset: dataset,
       datasetIndex: me.index
@@ -7852,6 +7854,7 @@ var PolarAreaController = function (_DatasetController) {
     }
     var context = {
       chart: me.chart,
+      dataPoint: this.getParsed(index),
       dataIndex: index,
       dataset: dataset,
       datasetIndex: me.index
@@ -7924,7 +7927,7 @@ PolarAreaController.defaults = {
         return '';
       },
       label: function label(context) {
-        return context.chart.data.labels[context.dataIndex] + ': ' + context.value;
+        return context.chart.data.labels[context.dataIndex] + ': ' + context.formattedValue;
       }
     }
   }
@@ -8076,7 +8079,7 @@ ScatterController.defaults = {
         return '';
       },
       label: function label(item) {
-        return '(' + item.label + ', ' + item.value + ')';
+        return '(' + item.label + ', ' + item.formattedValue + ')';
       }
     }
   }
@@ -10298,7 +10301,8 @@ function createTooltipItem(chart, item) {
   return {
     chart: chart,
     label: label,
-    value: value,
+    dataPoint: controller.getParsed(index),
+    formattedValue: value,
     dataset: dataset,
     dataIndex: index,
     datasetIndex: datasetIndex
@@ -11078,7 +11082,7 @@ var plugin_tooltip = {
         if (label) {
           label += ': ';
         }
-        var value = tooltipItem.value;
+        var value = tooltipItem.formattedValue;
         if (!isNullOrUndef(value)) {
           label += value;
         }

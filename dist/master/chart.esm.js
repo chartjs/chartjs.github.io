@@ -898,6 +898,7 @@ class DatasetController {
 	_getContext(index, active) {
 		return {
 			chart: this.chart,
+			dataPoint: this.getParsed(index),
 			dataIndex: index,
 			dataset: this.getDataset(),
 			datasetIndex: this.index,
@@ -1530,6 +1531,7 @@ class BubbleController extends DatasetController {
 		let values = super.resolveDataElementOptions(index, mode);
 		const context = {
 			chart,
+			dataPoint: parsed,
 			dataIndex: index,
 			dataset,
 			datasetIndex: me.index
@@ -2055,6 +2057,7 @@ class PolarAreaController extends DatasetController {
 		}
 		const context = {
 			chart: me.chart,
+			dataPoint: this.getParsed(index),
 			dataIndex: index,
 			dataset,
 			datasetIndex: me.index
@@ -2137,7 +2140,7 @@ PolarAreaController.defaults = {
 				return '';
 			},
 			label(context) {
-				return context.chart.data.labels[context.dataIndex] + ': ' + context.value;
+				return context.chart.data.labels[context.dataIndex] + ': ' + context.formattedValue;
 			}
 		}
 	}
@@ -2281,7 +2284,7 @@ ScatterController.defaults = {
 				return '';
 			},
 			label(item) {
-				return '(' + item.label + ', ' + item.value + ')';
+				return '(' + item.label + ', ' + item.formattedValue + ')';
 			}
 		}
 	}
@@ -6999,7 +7002,8 @@ function createTooltipItem(chart, item) {
 	return {
 		chart,
 		label,
-		value,
+		dataPoint: controller.getParsed(index),
+		formattedValue: value,
 		dataset,
 		dataIndex: index,
 		datasetIndex
@@ -7710,7 +7714,7 @@ var plugin_tooltip = {
 				if (label) {
 					label += ': ';
 				}
-				const value = tooltipItem.value;
+				const value = tooltipItem.formattedValue;
 				if (!isNullOrUndef(value)) {
 					label += value;
 				}
