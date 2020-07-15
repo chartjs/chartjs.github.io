@@ -447,11 +447,7 @@ var Defaults = function () {
     this.showLines = true;
     this.plugins = {};
     this.scale = undefined;
-    this.legend = undefined;
-    this.title = undefined;
-    this.tooltips = undefined;
     this.doughnut = undefined;
-    this._routes = {};
     this.scales = {};
     this.controllers = undefined;
   }
@@ -6591,6 +6587,19 @@ var Chart = function () {
 Chart.version = version;
 Chart.instances = {};
 Chart.registry = registry;
+var invalidatePlugins = function invalidatePlugins() {
+  return each(Chart.instances, function (chart) {
+    return chart._plugins.invalidate();
+  });
+};
+Chart.register = function () {
+  registry.add.apply(registry, arguments);
+  invalidatePlugins();
+};
+Chart.unregister = function () {
+  registry.remove.apply(registry, arguments);
+  invalidatePlugins();
+};
 
 var EPSILON = Number.EPSILON || 1e-14;
 function splineCurve(firstPoint, middlePoint, afterPoint, t) {
@@ -11121,7 +11130,6 @@ var CategoryScale = function (_Scale) {
   function CategoryScale(cfg) {
     var _this;
     _this = _Scale.call(this, cfg) || this;
-    _this._numLabels = 0;
     _this._startValue = undefined;
     _this._valueRange = 0;
     return _this;
@@ -11147,16 +11155,17 @@ var CategoryScale = function (_Scale) {
     var min = me.min;
     var max = me.max;
     var offset = me.options.offset;
+    var ticks = [];
     var labels = me.getLabels();
     labels = min === 0 && max === labels.length - 1 ? labels : labels.slice(min, max + 1);
-    me._numLabels = labels.length;
     me._valueRange = Math.max(labels.length - (offset ? 0 : 1), 1);
     me._startValue = me.min - (offset ? 0.5 : 0);
-    return labels.map(function (l) {
-      return {
-        value: l
-      };
-    });
+    for (var value = min; value <= max; value++) {
+      ticks.push({
+        value: value
+      });
+    }
+    return ticks;
   };
   _proto.getLabelForValue = function getLabelForValue(value) {
     var me = this;
@@ -11189,7 +11198,7 @@ var CategoryScale = function (_Scale) {
     if (index < 0 || index > ticks.length - 1) {
       return null;
     }
-    return me.getPixelForValue(index * me._numLabels / ticks.length + me.min);
+    return me.getPixelForValue(ticks[index].value);
   };
   _proto.getValueForPixel = function getValueForPixel(pixel) {
     var me = this;
@@ -11202,7 +11211,11 @@ var CategoryScale = function (_Scale) {
   return CategoryScale;
 }(Scale);
 CategoryScale.id = 'category';
-CategoryScale.defaults = {};
+CategoryScale.defaults = {
+  ticks: {
+    callback: CategoryScale.prototype.getLabelForValue
+  }
+};
 
 function niceNum(range) {
   var exponent = Math.floor(log10(range));
@@ -12583,19 +12596,6 @@ TimeScale: TimeScale,
 TimeSeriesScale: TimeSeriesScale
 });
 
-var invalidatePlugins = function invalidatePlugins() {
-  return each(Chart.instances, function (chart) {
-    return chart._plugins.invalidate();
-  });
-};
-Chart.register = function () {
-  registry.add.apply(registry, arguments);
-  invalidatePlugins();
-};
-Chart.unregister = function () {
-  registry.remove.apply(registry, arguments);
-  invalidatePlugins();
-};
 Chart.register(controllers, scales, elements, plugins);
 Chart.helpers = helpers;
 Chart._adapters = _adapters;

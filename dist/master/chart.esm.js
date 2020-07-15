@@ -5213,6 +5213,15 @@ class Chart {
 Chart.version = version;
 Chart.instances = {};
 Chart.registry = registry;
+const invalidatePlugins = () => each(Chart.instances, (chart) => chart._plugins.invalidate());
+Chart.register = (...items) => {
+	registry.add(...items);
+	invalidatePlugins();
+};
+Chart.unregister = (...items) => {
+	registry.remove(...items);
+	invalidatePlugins();
+};
 
 const TAU = Math.PI * 2;
 function clipArc(ctx, model) {
@@ -7743,7 +7752,6 @@ var plugin_tooltip = {
 class CategoryScale extends Scale {
 	constructor(cfg) {
 		super(cfg);
-		this._numLabels = 0;
 		this._startValue = undefined;
 		this._valueRange = 0;
 	}
@@ -7767,12 +7775,15 @@ class CategoryScale extends Scale {
 		const min = me.min;
 		const max = me.max;
 		const offset = me.options.offset;
+		const ticks = [];
 		let labels = me.getLabels();
 		labels = (min === 0 && max === labels.length - 1) ? labels : labels.slice(min, max + 1);
-		me._numLabels = labels.length;
 		me._valueRange = Math.max(labels.length - (offset ? 0 : 1), 1);
 		me._startValue = me.min - (offset ? 0.5 : 0);
-		return labels.map((l) => ({value: l}));
+		for (let value = min; value <= max; value++) {
+			ticks.push({value});
+		}
+		return ticks;
 	}
 	getLabelForValue(value) {
 		const me = this;
@@ -7802,7 +7813,7 @@ class CategoryScale extends Scale {
 		if (index < 0 || index > ticks.length - 1) {
 			return null;
 		}
-		return me.getPixelForValue(index * me._numLabels / ticks.length + me.min);
+		return me.getPixelForValue(ticks[index].value);
 	}
 	getValueForPixel(pixel) {
 		const me = this;
@@ -7814,7 +7825,11 @@ class CategoryScale extends Scale {
 	}
 }
 CategoryScale.id = 'category';
-CategoryScale.defaults = {};
+CategoryScale.defaults = {
+	ticks: {
+		callback: CategoryScale.prototype.getLabelForValue
+	}
+};
 
 function niceNum(range) {
 	const exponent = Math.floor(log10(range));
