@@ -45,7 +45,7 @@ class Animator {
 		callbacks.forEach(fn => fn({
 			chart,
 			numSteps,
-			currentStep: date - anims.start
+			currentStep: Math.min(date - anims.start, numSteps)
 		}));
 	}
 	_refresh() {
@@ -86,11 +86,11 @@ class Animator {
 			}
 			if (draw) {
 				chart.draw();
+				me._notify(chart, anims, date, 'progress');
 			}
 			if (chart.options.animation.debug) {
 				drawFPS(chart, items.length, date, me._lastDate);
 			}
-			me._notify(chart, anims, date, 'progress');
 			if (!items.length) {
 				anims.running = false;
 				me._notify(chart, anims, date, 'complete');
