@@ -212,6 +212,7 @@ class Animation {
 			const remain = me._duration - elapsed;
 			me._start = date;
 			me._duration = Math.floor(Math.max(remain, cfg.duration));
+			me._loop = !!cfg.loop;
 			me._to = resolve([cfg.to, to, currentValue, cfg.from]);
 			me._from = resolve([cfg.from, currentValue, to]);
 		}
@@ -7004,18 +7005,18 @@ function splitNewlines(str) {
 	return str;
 }
 function createTooltipItem(chart, item) {
-	const {datasetIndex, index} = item;
+	const {element, datasetIndex, index} = item;
 	const controller = chart.getDatasetMeta(datasetIndex).controller;
-	const dataset = controller.getDataset();
 	const {label, value} = controller.getLabelAndValue(index);
 	return {
 		chart,
 		label,
 		dataPoint: controller.getParsed(index),
 		formattedValue: value,
-		dataset,
+		dataset: controller.getDataset(),
 		dataIndex: index,
-		datasetIndex
+		datasetIndex,
+		element
 	};
 }
 function resolveOptions$1(options) {
@@ -7214,7 +7215,8 @@ class Tooltip extends Element {
 			return cached;
 		}
 		const chart = me._chart;
-		const opts = chart.options.animation && me.options.animation;
+		const options = me.options;
+		const opts = options.enabled && chart.options.animation && options.animation;
 		const animations = new Animations(me._chart, opts);
 		me._cachedAnimations = Object.freeze(animations);
 		return animations;

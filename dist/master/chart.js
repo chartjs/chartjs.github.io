@@ -3162,6 +3162,7 @@ var Animation = function () {
       var remain = me._duration - elapsed;
       me._start = date;
       me._duration = Math.floor(Math.max(remain, cfg.duration));
+      me._loop = !!cfg.loop;
       me._to = resolve([cfg.to, to, currentValue, cfg.from]);
       me._from = resolve([cfg.from, currentValue, to]);
     }
@@ -10300,10 +10301,10 @@ function splitNewlines(str) {
   return str;
 }
 function createTooltipItem(chart, item) {
-  var datasetIndex = item.datasetIndex,
+  var element = item.element,
+      datasetIndex = item.datasetIndex,
       index = item.index;
   var controller = chart.getDatasetMeta(datasetIndex).controller;
-  var dataset = controller.getDataset();
   var _controller$getLabelA = controller.getLabelAndValue(index),
       label = _controller$getLabelA.label,
       value = _controller$getLabelA.value;
@@ -10312,9 +10313,10 @@ function createTooltipItem(chart, item) {
     label: label,
     dataPoint: controller.getParsed(index),
     formattedValue: value,
-    dataset: dataset,
+    dataset: controller.getDataset(),
     dataIndex: index,
-    datasetIndex: datasetIndex
+    datasetIndex: datasetIndex,
+    element: element
   };
 }
 function resolveOptions$1(options) {
@@ -10545,7 +10547,8 @@ var Tooltip = function (_Element) {
       return cached;
     }
     var chart = me._chart;
-    var opts = chart.options.animation && me.options.animation;
+    var options = me.options;
+    var opts = options.enabled && chart.options.animation && options.animation;
     var animations = new Animations(me._chart, opts);
     me._cachedAnimations = Object.freeze(animations);
     return animations;
