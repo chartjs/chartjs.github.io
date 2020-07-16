@@ -7012,7 +7012,7 @@ var BarController = function (_DatasetController) {
   _proto.updateRangeFromParsed = function updateRangeFromParsed(range, scale, parsed, stack) {
     _DatasetController.prototype.updateRangeFromParsed.call(this, range, scale, parsed, stack);
     var custom = parsed._custom;
-    if (custom) {
+    if (custom && scale === this._cachedMeta.vScale) {
       range.min = Math.min(range.min, custom.min);
       range.max = Math.max(range.max, custom.max);
     }

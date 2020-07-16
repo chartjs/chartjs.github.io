@@ -1220,7 +1220,7 @@ class BarController extends DatasetController {
 	updateRangeFromParsed(range, scale, parsed, stack) {
 		super.updateRangeFromParsed(range, scale, parsed, stack);
 		const custom = parsed._custom;
-		if (custom) {
+		if (custom && scale === this._cachedMeta.vScale) {
 			range.min = Math.min(range.min, custom.min);
 			range.max = Math.max(range.max, custom.max);
 		}
