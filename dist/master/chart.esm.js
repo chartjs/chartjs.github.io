@@ -1359,13 +1359,16 @@ class BarController extends DatasetController {
 			}
 			start += value;
 		}
-		const base = _limitValue(vScale.getPixelForValue(start),
+		let base = _limitValue(vScale.getPixelForValue(start),
 			vScale._startPixel - 10,
 			vScale._endPixel + 10);
 		head = vScale.getPixelForValue(start + length);
 		size = head - base;
 		if (minBarLength !== undefined && Math.abs(size) < minBarLength) {
 			size = size < 0 ? -minBarLength : minBarLength;
+			if (value === 0) {
+				base -= size / 2;
+			}
 			head = base + size;
 		}
 		return {

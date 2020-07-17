@@ -7156,6 +7156,9 @@ var BarController = function (_DatasetController) {
     size = head - base;
     if (minBarLength !== undefined && Math.abs(size) < minBarLength) {
       size = size < 0 ? -minBarLength : minBarLength;
+      if (value === 0) {
+        base -= size / 2;
+      }
       head = base + size;
     }
     return {
