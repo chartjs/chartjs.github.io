@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>BasicPlatform | Chart.js - v3.0.0-alpha</title>
-	<meta name="description" content="Documentation for Chart.js - v3.0.0-alpha">
+	<title>BasicPlatform | Chart.js - v3.0.0-alpha.2</title>
+	<meta name="description" content="Documentation for Chart.js - v3.0.0-alpha.2">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
 </head>
@@ -22,7 +22,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../index.html" class="title">Chart.js - v3.0.0-alpha</a>
+					<a href="../index.html" class="title">Chart.js - v3.0.0-alpha.2</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -96,6 +96,7 @@
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="_platform_platform_basic_.basicplatform.html#acquirecontext" class="tsd-kind-icon">acquire<wbr>Context</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="_platform_platform_basic_.basicplatform.html#addeventlistener" class="tsd-kind-icon">add<wbr>Event<wbr>Listener</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="_platform_platform_basic_.basicplatform.html#getdevicepixelratio" class="tsd-kind-icon">get<wbr>Device<wbr>Pixel<wbr>Ratio</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="_platform_platform_basic_.basicplatform.html#isattached" class="tsd-kind-icon">is<wbr>Attached</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="_platform_platform_basic_.basicplatform.html#releasecontext" class="tsd-kind-icon">release<wbr>Context</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="_platform_platform_basic_.basicplatform.html#removeeventlistener" class="tsd-kind-icon">remove<wbr>Event<wbr>Listener</a></li>
 							</ul>
@@ -116,7 +117,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides <a href="_platform_platform_base_.baseplatform.html">BasePlatform</a>.<a href="_platform_platform_base_.baseplatform.html#acquirecontext">acquireContext</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/00f726b/src/platform/platform.basic.js#L14">platform/platform.basic.js:14</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/b1babbf/src/platform/platform.basic.js#L14">platform/platform.basic.js:14</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -133,14 +134,14 @@
 					<a name="addeventlistener" class="tsd-anchor"></a>
 					<h3>add<wbr>Event<wbr>Listener</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon">add<wbr>Event<wbr>Listener<span class="tsd-signature-symbol">(</span>chart<span class="tsd-signature-symbol">: </span><a href="_core_core_controller_.chart.html" class="tsd-signature-type">Chart</a>, type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, listener<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Function</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">add<wbr>Event<wbr>Listener<span class="tsd-signature-symbol">(</span>chart<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Chart</span>, type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, listener<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Function</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_platform_platform_base_.baseplatform.html">BasePlatform</a>.<a href="_platform_platform_base_.baseplatform.html#addeventlistener">addEventListener</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/00f726b/src/platform/platform.base.js#L35">platform/platform.base.js:35</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/b1babbf/src/platform/platform.base.js#L35">platform/platform.base.js:35</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -151,7 +152,7 @@
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>chart: <a href="_core_core_controller_.chart.html" class="tsd-signature-type">Chart</a></h5>
+									<h5>chart: <span class="tsd-signature-type">Chart</span></h5>
 									<div class="tsd-comment tsd-typography">
 										<p>Chart from which to listen for event</p>
 									</div>
@@ -185,13 +186,40 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_platform_platform_base_.baseplatform.html">BasePlatform</a>.<a href="_platform_platform_base_.baseplatform.html#getdevicepixelratio">getDevicePixelRatio</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/00f726b/src/platform/platform.base.js#L48">platform/platform.base.js:48</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/b1babbf/src/platform/platform.base.js#L48">platform/platform.base.js:48</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
 							<p>the current devicePixelRatio of the device this platform is connected to.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+					<a name="isattached" class="tsd-anchor"></a>
+					<h3>is<wbr>Attached</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+						<li class="tsd-signature tsd-kind-icon">is<wbr>Attached<span class="tsd-signature-symbol">(</span>canvas<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">HTMLCanvasElement</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<p>Inherited from <a href="_platform_platform_base_.baseplatform.html">BasePlatform</a>.<a href="_platform_platform_base_.baseplatform.html#isattached">isAttached</a></p>
+								<ul>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/b1babbf/src/platform/platform.base.js#L56">platform/platform.base.js:56</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>canvas: <span class="tsd-signature-type">HTMLCanvasElement</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+							<p>true if the canvas is attached to the platform, false if not.</p>
 						</li>
 					</ul>
 				</section>
@@ -206,7 +234,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_platform_platform_base_.baseplatform.html">BasePlatform</a>.<a href="_platform_platform_base_.baseplatform.html#releasecontext">releaseContext</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/00f726b/src/platform/platform.base.js#L24">platform/platform.base.js:24</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/b1babbf/src/platform/platform.base.js#L24">platform/platform.base.js:24</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -233,14 +261,14 @@
 					<a name="removeeventlistener" class="tsd-anchor"></a>
 					<h3>remove<wbr>Event<wbr>Listener</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon">remove<wbr>Event<wbr>Listener<span class="tsd-signature-symbol">(</span>chart<span class="tsd-signature-symbol">: </span><a href="_core_core_controller_.chart.html" class="tsd-signature-type">Chart</a>, type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, listener<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Function</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">remove<wbr>Event<wbr>Listener<span class="tsd-signature-symbol">(</span>chart<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Chart</span>, type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, listener<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Function</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_platform_platform_base_.baseplatform.html">BasePlatform</a>.<a href="_platform_platform_base_.baseplatform.html#removeeventlistener">removeEventListener</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/00f726b/src/platform/platform.base.js#L43">platform/platform.base.js:43</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/b1babbf/src/platform/platform.base.js#L43">platform/platform.base.js:43</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -251,7 +279,7 @@
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>chart: <a href="_core_core_controller_.chart.html" class="tsd-signature-type">Chart</a></h5>
+									<h5>chart: <span class="tsd-signature-type">Chart</span></h5>
 									<div class="tsd-comment tsd-typography">
 										<p>Chart from which to remove the listener</p>
 									</div>
@@ -301,6 +329,9 @@
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 								<a href="_platform_platform_basic_.basicplatform.html#getdevicepixelratio" class="tsd-kind-icon">get<wbr>Device<wbr>Pixel<wbr>Ratio</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+								<a href="_platform_platform_basic_.basicplatform.html#isattached" class="tsd-kind-icon">is<wbr>Attached</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 								<a href="_platform_platform_basic_.basicplatform.html#releasecontext" class="tsd-kind-icon">release<wbr>Context</a>

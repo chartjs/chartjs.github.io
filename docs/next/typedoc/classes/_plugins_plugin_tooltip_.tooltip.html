@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Tooltip | Chart.js - v3.0.0-alpha</title>
-	<meta name="description" content="Documentation for Chart.js - v3.0.0-alpha">
+	<title>Tooltip | Chart.js - v3.0.0-alpha.2</title>
+	<meta name="description" content="Documentation for Chart.js - v3.0.0-alpha.2">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
 </head>
@@ -22,7 +22,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../index.html" class="title">Chart.js - v3.0.0-alpha</a>
+					<a href="../index.html" class="title">Chart.js - v3.0.0-alpha.2</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -88,12 +88,6 @@
 								<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite"><a href="_plugins_plugin_tooltip_.tooltip.html#constructor" class="tsd-kind-icon">constructor</a></li>
 							</ul>
 						</section>
-						<section class="tsd-index-section tsd-is-inherited">
-							<h3>Properties</h3>
-							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static"><a href="_plugins_plugin_tooltip_.tooltip.html#extend" class="tsd-kind-icon">extend</a></li>
-							</ul>
-						</section>
 						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
@@ -137,7 +131,7 @@
 							<aside class="tsd-sources">
 								<p>Overrides <a href="_core_core_element_.element.html">Element</a>.<a href="_core_core_element_.element.html#constructor">constructor</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/00f726b/src/plugins/plugin.tooltip.js#L463">plugins/plugin.tooltip.js:463</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/b1babbf/src/plugins/plugin.tooltip.js#L357">plugins/plugin.tooltip.js:357</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -151,38 +145,24 @@
 					</ul>
 				</section>
 			</section>
-			<section class="tsd-panel-group tsd-member-group tsd-is-inherited">
-				<h2>Properties</h2>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static">
-					<a name="extend" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagStatic">Static</span> extend</h3>
-					<div class="tsd-signature tsd-kind-icon">extend<span class="tsd-signature-symbol">:</span> <a href="../modules/_helpers_helpers_core_.html#inherits" class="tsd-signature-type">inherits</a><span class="tsd-signature-symbol"> = inherits</span></div>
-					<aside class="tsd-sources">
-						<p>Inherited from <a href="_core_core_element_.element.html">Element</a>.<a href="_core_core_element_.element.html#extend">extend</a></p>
-						<ul>
-							<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/00f726b/src/core/core.element.js#L6">core/core.element.js:6</a></li>
-						</ul>
-					</aside>
-				</section>
-			</section>
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Methods</h2>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
 					<a name="_createitems" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _create<wbr>Items</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
-						<li class="tsd-signature tsd-kind-icon">_create<wbr>Items<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>datasetIndex<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>index<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>label<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">[]</span></li>
+						<li class="tsd-signature tsd-kind-icon">_create<wbr>Items<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>chart<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>dataIndex<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>dataPoint<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>dataset<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>datasetIndex<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>element<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>formattedValue<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>label<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">[]</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/00f726b/src/plugins/plugin.tooltip.js#L591">plugins/plugin.tooltip.js:591</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/b1babbf/src/plugins/plugin.tooltip.js#L480">plugins/plugin.tooltip.js:480</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 							</div>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{ </span>datasetIndex<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>index<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>label<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">[]</span></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{ </span>chart<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>dataIndex<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>dataPoint<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>dataset<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>datasetIndex<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>element<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>formattedValue<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>label<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">[]</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -196,7 +176,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/00f726b/src/plugins/plugin.tooltip.js#L763">plugins/plugin.tooltip.js:763</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/b1babbf/src/plugins/plugin.tooltip.js#L665">plugins/plugin.tooltip.js:665</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -230,7 +210,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/00f726b/src/plugins/plugin.tooltip.js#L503">plugins/plugin.tooltip.js:503</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/b1babbf/src/plugins/plugin.tooltip.js#L397">plugins/plugin.tooltip.js:397</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -249,7 +229,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/00f726b/src/plugins/plugin.tooltip.js#L927">plugins/plugin.tooltip.js:927</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/b1babbf/src/plugins/plugin.tooltip.js#L829">plugins/plugin.tooltip.js:829</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -271,7 +251,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/00f726b/src/plugins/plugin.tooltip.js#L955">plugins/plugin.tooltip.js:955</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/b1babbf/src/plugins/plugin.tooltip.js#L857">plugins/plugin.tooltip.js:857</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -294,7 +274,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/00f726b/src/plugins/plugin.tooltip.js#L882">plugins/plugin.tooltip.js:882</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/b1babbf/src/plugins/plugin.tooltip.js#L784">plugins/plugin.tooltip.js:784</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -323,7 +303,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/00f726b/src/plugins/plugin.tooltip.js#L790">plugins/plugin.tooltip.js:790</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/b1babbf/src/plugins/plugin.tooltip.js#L692">plugins/plugin.tooltip.js:692</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -349,7 +329,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/00f726b/src/plugins/plugin.tooltip.js#L678">plugins/plugin.tooltip.js:678</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/b1babbf/src/plugins/plugin.tooltip.js#L566">plugins/plugin.tooltip.js:566</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -378,7 +358,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/00f726b/src/plugins/plugin.tooltip.js#L854">plugins/plugin.tooltip.js:854</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/b1babbf/src/plugins/plugin.tooltip.js#L756">plugins/plugin.tooltip.js:756</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -404,7 +384,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/00f726b/src/plugins/plugin.tooltip.js#L728">plugins/plugin.tooltip.js:728</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/b1babbf/src/plugins/plugin.tooltip.js#L630">plugins/plugin.tooltip.js:630</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -424,22 +404,19 @@
 					<a name="getafterbody" class="tsd-anchor"></a>
 					<h3>get<wbr>After<wbr>Body</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>After<wbr>Body<span class="tsd-signature-symbol">(</span>tooltipitem<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, data<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
+						<li class="tsd-signature tsd-kind-icon">get<wbr>After<wbr>Body<span class="tsd-signature-symbol">(</span>tooltipItems<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/00f726b/src/plugins/plugin.tooltip.js#L566">plugins/plugin.tooltip.js:566</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/b1babbf/src/plugins/plugin.tooltip.js#L456">plugins/plugin.tooltip.js:456</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>tooltipitem: <span class="tsd-signature-type">any</span></h5>
-								</li>
-								<li>
-									<h5>data: <span class="tsd-signature-type">any</span></h5>
+									<h5>tooltipItems: <span class="tsd-signature-type">any</span></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
@@ -450,22 +427,19 @@
 					<a name="getbeforebody" class="tsd-anchor"></a>
 					<h3>get<wbr>Before<wbr>Body</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>Before<wbr>Body<span class="tsd-signature-symbol">(</span>tooltipitem<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, data<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Before<wbr>Body<span class="tsd-signature-symbol">(</span>tooltipItems<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/00f726b/src/plugins/plugin.tooltip.js#L539">plugins/plugin.tooltip.js:539</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/b1babbf/src/plugins/plugin.tooltip.js#L431">plugins/plugin.tooltip.js:431</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>tooltipitem: <span class="tsd-signature-type">any</span></h5>
-								</li>
-								<li>
-									<h5>data: <span class="tsd-signature-type">any</span></h5>
+									<h5>tooltipItems: <span class="tsd-signature-type">any</span></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
@@ -476,22 +450,19 @@
 					<a name="getbody" class="tsd-anchor"></a>
 					<h3>get<wbr>Body</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>Body<span class="tsd-signature-symbol">(</span>tooltipItems<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, data<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span></li>
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Body<span class="tsd-signature-symbol">(</span>tooltipItems<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/00f726b/src/plugins/plugin.tooltip.js#L544">plugins/plugin.tooltip.js:544</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/b1babbf/src/plugins/plugin.tooltip.js#L435">plugins/plugin.tooltip.js:435</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>tooltipItems: <span class="tsd-signature-type">any</span></h5>
-								</li>
-								<li>
-									<h5>data: <span class="tsd-signature-type">any</span></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span></h4>
@@ -508,7 +479,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/00f726b/src/plugins/plugin.tooltip.js#L686">plugins/plugin.tooltip.js:686</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/b1babbf/src/plugins/plugin.tooltip.js#L574">plugins/plugin.tooltip.js:574</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -548,22 +519,19 @@
 					<a name="getfooter" class="tsd-anchor"></a>
 					<h3>get<wbr>Footer</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>Footer<span class="tsd-signature-symbol">(</span>tooltipitem<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, data<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Footer<span class="tsd-signature-symbol">(</span>tooltipItems<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/00f726b/src/plugins/plugin.tooltip.js#L572">plugins/plugin.tooltip.js:572</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/b1babbf/src/plugins/plugin.tooltip.js#L461">plugins/plugin.tooltip.js:461</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>tooltipitem: <span class="tsd-signature-type">any</span></h5>
-								</li>
-								<li>
-									<h5>data: <span class="tsd-signature-type">any</span></h5>
+									<h5>tooltipItems: <span class="tsd-signature-type">any</span></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
@@ -581,7 +549,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_core_core_element_.element.html">Element</a>.<a href="_core_core_element_.element.html#getprops">getProps</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/00f726b/src/core/core.element.js#L34">core/core.element.js:34</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/b1babbf/src/core/core.element.js#L31">core/core.element.js:31</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -609,22 +577,19 @@
 					<a name="gettitle" class="tsd-anchor"></a>
 					<h3>get<wbr>Title</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>Title<span class="tsd-signature-symbol">(</span>tooltipitem<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, data<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Title<span class="tsd-signature-symbol">(</span>context<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/00f726b/src/plugins/plugin.tooltip.js#L521">plugins/plugin.tooltip.js:521</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/b1babbf/src/plugins/plugin.tooltip.js#L414">plugins/plugin.tooltip.js:414</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>tooltipitem: <span class="tsd-signature-type">any</span></h5>
-								</li>
-								<li>
-									<h5>data: <span class="tsd-signature-type">any</span></h5>
+									<h5>context: <span class="tsd-signature-type">any</span></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
@@ -641,7 +606,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/00f726b/src/plugins/plugin.tooltip.js#L1013">plugins/plugin.tooltip.js:1013</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/b1babbf/src/plugins/plugin.tooltip.js#L915">plugins/plugin.tooltip.js:915</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -679,7 +644,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_core_core_element_.element.html">Element</a>.<a href="_core_core_element_.element.html#hasvalue">hasValue</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/00f726b/src/core/core.element.js#L24">core/core.element.js:24</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/b1babbf/src/core/core.element.js#L21">core/core.element.js:21</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
@@ -696,7 +661,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/00f726b/src/plugins/plugin.tooltip.js#L495">plugins/plugin.tooltip.js:495</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/b1babbf/src/plugins/plugin.tooltip.js#L389">plugins/plugin.tooltip.js:389</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -714,7 +679,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_core_core_element_.element.html">Element</a>.<a href="_core_core_element_.element.html#tooltipposition">tooltipPosition</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/00f726b/src/core/core.element.js#L19">core/core.element.js:19</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/b1babbf/src/core/core.element.js#L16">core/core.element.js:16</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -747,7 +712,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/00f726b/src/plugins/plugin.tooltip.js#L627">plugins/plugin.tooltip.js:627</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/b1babbf/src/plugins/plugin.tooltip.js#L516">plugins/plugin.tooltip.js:516</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -782,9 +747,6 @@
 						<ul>
 							<li class=" tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
 								<a href="_plugins_plugin_tooltip_.tooltip.html#constructor" class="tsd-kind-icon">constructor</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static">
-								<a href="_plugins_plugin_tooltip_.tooltip.html#extend" class="tsd-kind-icon">extend</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
 								<a href="_plugins_plugin_tooltip_.tooltip.html#_createitems" class="tsd-kind-icon">_create<wbr>Items</a>

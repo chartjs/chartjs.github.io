@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>&quot;helpers/helpers.core&quot; | Chart.js - v3.0.0-alpha</title>
-	<meta name="description" content="Documentation for Chart.js - v3.0.0-alpha">
+	<title>&quot;helpers/helpers.core&quot; | Chart.js - v3.0.0-alpha.2</title>
+	<meta name="description" content="Documentation for Chart.js - v3.0.0-alpha.2">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
 </head>
@@ -22,7 +22,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../index.html" class="title">Chart.js - v3.0.0-alpha</a>
+					<a href="../index.html" class="title">Chart.js - v3.0.0-alpha.2</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -90,22 +90,21 @@
 						<section class="tsd-index-section ">
 							<h3>Functions</h3>
 							<ul class="tsd-index-list">
+								<li class="tsd-kind-function tsd-parent-kind-module tsd-is-private"><a href="_helpers_helpers_core_.html#_capitalize" class="tsd-kind-icon">_capitalize</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-module tsd-is-private"><a href="_helpers_helpers_core_.html#_deprecated" class="tsd-kind-icon">_deprecated</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-module tsd-is-private"><a href="_helpers_helpers_core_.html#_elementsequal" class="tsd-kind-icon">_elements<wbr>Equal</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-module tsd-is-private"><a href="_helpers_helpers_core_.html#_merger" class="tsd-kind-icon">_merger</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-module tsd-is-private"><a href="_helpers_helpers_core_.html#_mergerif" class="tsd-kind-icon">_merger<wbr>If</a></li>
-								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_helpers_helpers_core_.html#arrayequals" class="tsd-kind-icon">array<wbr>Equals</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_helpers_helpers_core_.html#callback" class="tsd-kind-icon">callback</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_helpers_helpers_core_.html#clone" class="tsd-kind-icon">clone</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_helpers_helpers_core_.html#each" class="tsd-kind-icon">each</a></li>
-								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_helpers_helpers_core_.html#inherits" class="tsd-kind-icon">inherits</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_helpers_helpers_core_.html#isarray" class="tsd-kind-icon">is<wbr>Array</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_helpers_helpers_core_.html#isnullorundef" class="tsd-kind-icon">is<wbr>Null<wbr>OrUndef</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_helpers_helpers_core_.html#isobject" class="tsd-kind-icon">is<wbr>Object</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_helpers_helpers_core_.html#merge" class="tsd-kind-icon">merge</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_helpers_helpers_core_.html#mergeif" class="tsd-kind-icon">merge<wbr>If</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_helpers_helpers_core_.html#noop" class="tsd-kind-icon">noop</a></li>
-								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_helpers_helpers_core_.html#valueatindexordefault" class="tsd-kind-icon">value<wbr>AtIndex<wbr>OrDefault</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_helpers_helpers_core_.html#resolveobjectkey" class="tsd-kind-icon">resolve<wbr>Object<wbr>Key</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_helpers_helpers_core_.html#valueordefault" class="tsd-kind-icon">value<wbr>OrDefault</a></li>
 							</ul>
 						</section>
@@ -128,7 +127,7 @@
 					<div class="tsd-signature tsd-kind-icon">uid<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">(Anonymous function)</span><span class="tsd-signature-symbol"> = (function() {let id &#x3D; 0;return function() {return id++;};}())</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/00f726b/src/helpers/helpers.core.js#L14">helpers/helpers.core.js:14</a></li>
+							<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/b1babbf/src/helpers/helpers.core.js#L14">helpers/helpers.core.js:14</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -147,6 +146,31 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Functions</h2>
 				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module tsd-is-private">
+					<a name="_capitalize" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _capitalize</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module tsd-is-private">
+						<li class="tsd-signature tsd-kind-icon">_capitalize<span class="tsd-signature-symbol">(</span>str<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/b1babbf/src/helpers/helpers.core.js#L283">helpers/helpers.core.js:283</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>str: <span class="tsd-signature-type">any</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module tsd-is-private">
 					<a name="_deprecated" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _deprecated</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module tsd-is-private">
@@ -156,7 +180,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/00f726b/src/helpers/helpers.core.js#L326">helpers/helpers.core.js:326</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/b1babbf/src/helpers/helpers.core.js#L257">helpers/helpers.core.js:257</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -190,7 +214,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/00f726b/src/helpers/helpers.core.js#L172">helpers/helpers.core.js:172</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/b1babbf/src/helpers/helpers.core.js#L130">helpers/helpers.core.js:130</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -227,7 +251,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/00f726b/src/helpers/helpers.core.js#L222">helpers/helpers.core.js:222</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/b1babbf/src/helpers/helpers.core.js#L180">helpers/helpers.core.js:180</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -265,7 +289,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/00f726b/src/helpers/helpers.core.js#L285">helpers/helpers.core.js:285</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/b1babbf/src/helpers/helpers.core.js#L243">helpers/helpers.core.js:243</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -290,48 +314,6 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
-					<a name="arrayequals" class="tsd-anchor"></a>
-					<h3>array<wbr>Equals</h3>
-					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
-						<li class="tsd-signature tsd-kind-icon">array<wbr>Equals<span class="tsd-signature-symbol">(</span>a0<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span>, a1<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/00f726b/src/helpers/helpers.core.js#L141">helpers/helpers.core.js:141</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Returns true if the <code>a0</code> and <code>a1</code> arrays have the same content, else returns false.</p>
-								</div>
-								<dl class="tsd-comment-tags">
-									<dt>see</dt>
-									<dd><p><a href="https://stackoverflow.com/a/14853974">https://stackoverflow.com/a/14853974</a></p>
-									</dd>
-								</dl>
-							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>a0: <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>The array to compare</p>
-									</div>
-								</li>
-								<li>
-									<h5>a1: <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>The array to compare</p>
-									</div>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
 					<a name="callback" class="tsd-anchor"></a>
 					<h3>callback</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
@@ -341,7 +323,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/00f726b/src/helpers/helpers.core.js#L97">helpers/helpers.core.js:97</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/b1babbf/src/helpers/helpers.core.js#L86">helpers/helpers.core.js:86</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -382,7 +364,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/00f726b/src/helpers/helpers.core.js#L196">helpers/helpers.core.js:196</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/b1babbf/src/helpers/helpers.core.js#L154">helpers/helpers.core.js:154</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -413,7 +395,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/00f726b/src/helpers/helpers.core.js#L112">helpers/helpers.core.js:112</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/b1babbf/src/helpers/helpers.core.js#L101">helpers/helpers.core.js:101</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -449,34 +431,6 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
-					<a name="inherits" class="tsd-anchor"></a>
-					<h3>inherits</h3>
-					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
-						<li class="tsd-signature tsd-kind-icon">inherits<span class="tsd-signature-symbol">(</span>extensions<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/00f726b/src/helpers/helpers.core.js#L299">helpers/helpers.core.js:299</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Basic javascript inheritance based on the model created in Backbone.js</p>
-								</div>
-							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>extensions: <span class="tsd-signature-type">any</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
 					<a name="isarray" class="tsd-anchor"></a>
 					<h3>is<wbr>Array</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
@@ -486,7 +440,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/00f726b/src/helpers/helpers.core.js#L37">helpers/helpers.core.js:37</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/b1babbf/src/helpers/helpers.core.js#L37">helpers/helpers.core.js:37</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -521,7 +475,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/00f726b/src/helpers/helpers.core.js#L27">helpers/helpers.core.js:27</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/b1babbf/src/helpers/helpers.core.js#L27">helpers/helpers.core.js:27</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -557,7 +511,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/00f726b/src/helpers/helpers.core.js#L54">helpers/helpers.core.js:54</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/b1babbf/src/helpers/helpers.core.js#L54">helpers/helpers.core.js:54</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -593,7 +547,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/00f726b/src/helpers/helpers.core.js#L243">helpers/helpers.core.js:243</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/b1babbf/src/helpers/helpers.core.js#L201">helpers/helpers.core.js:201</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -637,7 +591,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/00f726b/src/helpers/helpers.core.js#L276">helpers/helpers.core.js:276</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/b1babbf/src/helpers/helpers.core.js#L234">helpers/helpers.core.js:234</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -676,7 +630,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/00f726b/src/helpers/helpers.core.js#L7">helpers/helpers.core.js:7</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/b1babbf/src/helpers/helpers.core.js#L7">helpers/helpers.core.js:7</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -689,42 +643,25 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
-					<a name="valueatindexordefault" class="tsd-anchor"></a>
-					<h3>value<wbr>AtIndex<wbr>OrDefault</h3>
+					<a name="resolveobjectkey" class="tsd-anchor"></a>
+					<h3>resolve<wbr>Object<wbr>Key</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
-						<li class="tsd-signature tsd-kind-icon">value<wbr>AtIndex<wbr>OrDefault<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span>, index<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, defaultValue<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
+						<li class="tsd-signature tsd-kind-icon">resolve<wbr>Object<wbr>Key<span class="tsd-signature-symbol">(</span>obj<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, key<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/00f726b/src/helpers/helpers.core.js#L85">helpers/helpers.core.js:85</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/b1babbf/src/helpers/helpers.core.js#L264">helpers/helpers.core.js:264</a></li>
 								</ul>
 							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Returns value at the given <code>index</code> in array if defined, else returns <code>defaultValue</code>.</p>
-								</div>
-							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>value: <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>The array to lookup for value at <code>index</code>.</p>
-									</div>
+									<h5>obj: <span class="tsd-signature-type">any</span></h5>
 								</li>
 								<li>
-									<h5>index: <span class="tsd-signature-type">number</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>The index in <code>value</code> to lookup for value.</p>
-									</div>
-								</li>
-								<li>
-									<h5>defaultValue: <span class="tsd-signature-type">any</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>The value to return if <code>value[index]</code> is undefined.</p>
-									</div>
+									<h5>key: <span class="tsd-signature-type">any</span></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
@@ -741,7 +678,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/00f726b/src/helpers/helpers.core.js#L74">helpers/helpers.core.js:74</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/b1babbf/src/helpers/helpers.core.js#L74">helpers/helpers.core.js:74</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -790,6 +727,9 @@
 						<a href="_helpers_helpers_core_.html#uid" class="tsd-kind-icon">uid</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-module tsd-is-private">
+						<a href="_helpers_helpers_core_.html#_capitalize" class="tsd-kind-icon">_capitalize</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module tsd-is-private">
 						<a href="_helpers_helpers_core_.html#_deprecated" class="tsd-kind-icon">_deprecated</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-module tsd-is-private">
@@ -802,9 +742,6 @@
 						<a href="_helpers_helpers_core_.html#_mergerif" class="tsd-kind-icon">_merger<wbr>If</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-module">
-						<a href="_helpers_helpers_core_.html#arrayequals" class="tsd-kind-icon">array<wbr>Equals</a>
-					</li>
-					<li class=" tsd-kind-function tsd-parent-kind-module">
 						<a href="_helpers_helpers_core_.html#callback" class="tsd-kind-icon">callback</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-module">
@@ -812,9 +749,6 @@
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-module">
 						<a href="_helpers_helpers_core_.html#each" class="tsd-kind-icon">each</a>
-					</li>
-					<li class=" tsd-kind-function tsd-parent-kind-module">
-						<a href="_helpers_helpers_core_.html#inherits" class="tsd-kind-icon">inherits</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-module">
 						<a href="_helpers_helpers_core_.html#isarray" class="tsd-kind-icon">is<wbr>Array</a>
@@ -835,7 +769,7 @@
 						<a href="_helpers_helpers_core_.html#noop" class="tsd-kind-icon">noop</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-module">
-						<a href="_helpers_helpers_core_.html#valueatindexordefault" class="tsd-kind-icon">value<wbr>AtIndex<wbr>OrDefault</a>
+						<a href="_helpers_helpers_core_.html#resolveobjectkey" class="tsd-kind-icon">resolve<wbr>Object<wbr>Key</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-module">
 						<a href="_helpers_helpers_core_.html#valueordefault" class="tsd-kind-icon">value<wbr>OrDefault</a>
