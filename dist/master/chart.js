@@ -1,5 +1,5 @@
 /*!
- * Chart.js v3.0.0-alpha
+ * Chart.js v3.0.0-alpha.2
  * https://www.chartjs.org
  * (c) 2020 Chart.js Contributors
  * Released under the MIT License
@@ -5737,7 +5737,7 @@ function createDescriptors(plugins, options) {
   return result;
 }
 
-var version = "3.0.0-alpha";
+var version = "3.0.0-alpha.2";
 
 function getIndexAxis(type, options) {
   var typeDefaults = defaults[type] || {};
