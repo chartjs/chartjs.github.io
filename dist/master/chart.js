@@ -9678,7 +9678,6 @@ var Legend = function (_Element) {
     var opts = me.options;
     var labelOpts = opts.labels;
     var defaultColor = defaults.color;
-    var lineDefault = defaults.elements.line;
     var legendHeight = me.height;
     var columnHeights = me.columnHeights;
     var legendWidth = me.width;
@@ -9708,15 +9707,15 @@ var Legend = function (_Element) {
         return;
       }
       ctx.save();
-      var lineWidth = valueOrDefault(legendItem.lineWidth, lineDefault.borderWidth);
+      var lineWidth = valueOrDefault(legendItem.lineWidth, 1);
       ctx.fillStyle = valueOrDefault(legendItem.fillStyle, defaultColor);
-      ctx.lineCap = valueOrDefault(legendItem.lineCap, lineDefault.borderCapStyle);
-      ctx.lineDashOffset = valueOrDefault(legendItem.lineDashOffset, lineDefault.borderDashOffset);
-      ctx.lineJoin = valueOrDefault(legendItem.lineJoin, lineDefault.borderJoinStyle);
+      ctx.lineCap = valueOrDefault(legendItem.lineCap, 'butt');
+      ctx.lineDashOffset = valueOrDefault(legendItem.lineDashOffset, 0);
+      ctx.lineJoin = valueOrDefault(legendItem.lineJoin, 'miter');
       ctx.lineWidth = lineWidth;
       ctx.strokeStyle = valueOrDefault(legendItem.strokeStyle, defaultColor);
       if (ctx.setLineDash) {
-        ctx.setLineDash(valueOrDefault(legendItem.lineDash, lineDefault.borderDash));
+        ctx.setLineDash(valueOrDefault(legendItem.lineDash, []));
       }
       if (labelOpts && labelOpts.usePointStyle) {
         var drawOptions = {
