@@ -3193,11 +3193,11 @@ function garbageCollect(caches, length) {
 function getTickMarkLength(options) {
 	return options.drawTicks ? options.tickMarkLength : 0;
 }
-function getScaleLabelHeight(options) {
+function getScaleLabelHeight(options, fallback) {
 	if (!options.display) {
 		return 0;
 	}
-	const font = toFont(options.font);
+	const font = toFont(options.font, fallback);
 	const padding = toPadding(options.padding);
 	return font.lineHeight + padding.height;
 }
@@ -3517,7 +3517,7 @@ class Scale extends Element {
 		if (maxLabelWidth + 6 > tickWidth) {
 			tickWidth = maxWidth / (numTicks - (options.offset ? 0.5 : 1));
 			maxHeight = me.maxHeight - getTickMarkLength(options.gridLines)
-				- tickOpts.padding - getScaleLabelHeight(options.scaleLabel);
+				- tickOpts.padding - getScaleLabelHeight(options.scaleLabel, me.chart.options.font);
 			maxLabelDiagonal = Math.sqrt(maxLabelWidth * maxLabelWidth + maxLabelHeight * maxLabelHeight);
 			labelRotation = toDegrees(Math.min(
 				Math.asin(Math.min((labelSizes.highest.height + 6) / tickWidth, 1)),
@@ -3547,15 +3547,16 @@ class Scale extends Element {
 		const display = me._isVisible();
 		const labelsBelowTicks = opts.position !== 'top' && me.axis === 'x';
 		const isHorizontal = me.isHorizontal();
+		const scaleLabelHeight = display && getScaleLabelHeight(scaleLabelOpts, chart.options.font);
 		if (isHorizontal) {
 			minSize.width = me.maxWidth;
 		} else if (display) {
-			minSize.width = getTickMarkLength(gridLineOpts) + getScaleLabelHeight(scaleLabelOpts);
+			minSize.width = getTickMarkLength(gridLineOpts) + scaleLabelHeight;
 		}
 		if (!isHorizontal) {
 			minSize.height = me.maxHeight;
 		} else if (display) {
-			minSize.height = getTickMarkLength(gridLineOpts) + getScaleLabelHeight(scaleLabelOpts);
+			minSize.height = getTickMarkLength(gridLineOpts) + scaleLabelHeight;
 		}
 		if (tickOpts.display && display && me.ticks.length) {
 			const labelSizes = me._getLabelSizes();
@@ -4087,7 +4088,7 @@ class Scale extends Element {
 		if (!scaleLabel.display) {
 			return;
 		}
-		const scaleLabelFont = toFont(scaleLabel.font);
+		const scaleLabelFont = toFont(scaleLabel.font, me.chart.options.font);
 		const scaleLabelPadding = toPadding(scaleLabel.padding);
 		const halfLineHeight = scaleLabelFont.lineHeight / 2;
 		const scaleLabelAlign = scaleLabel.align;
@@ -4194,15 +4195,16 @@ class Scale extends Element {
 	}
 	_resolveTickFontOptions(index) {
 		const me = this;
+		const chart = me.chart;
 		const options = me.options.ticks;
 		const ticks = me.ticks || [];
 		const context = {
-			chart: me.chart,
+			chart,
 			scale: me,
 			tick: ticks[index],
 			index
 		};
-		return toFont(resolve([options.font], context));
+		return toFont(resolve([options.font], context), chart.options.font);
 	}
 }
 Scale.prototype._draw = Scale.prototype.draw;
@@ -5214,9 +5216,10 @@ class Chart {
 		return changed;
 	}
 }
-Chart.version = version;
+Chart.defaults = defaults;
 Chart.instances = {};
 Chart.registry = registry;
+Chart.version = version;
 const invalidatePlugins = () => each(Chart.instances, (chart) => chart._plugins.invalidate());
 Chart.register = (...items) => {
 	registry.add(...items);
@@ -6310,7 +6313,7 @@ class Legend extends Element {
 		const labelOpts = opts.labels;
 		const display = opts.display;
 		const ctx = me.ctx;
-		const labelFont = toFont(labelOpts.font);
+		const labelFont = toFont(labelOpts.font, me.chart.options.font);
 		const fontSize = labelFont.size;
 		const boxWidth = getBoxWidth(labelOpts, fontSize);
 		const boxHeight = getBoxHeight(labelOpts, fontSize);
@@ -6404,7 +6407,7 @@ class Legend extends Element {
 		me.drawTitle();
 		const rtlHelper = getRtlAdapter(opts.rtl, me.left, me._minSize.width);
 		const ctx = me.ctx;
-		const labelFont = toFont(labelOpts.font);
+		const labelFont = toFont(labelOpts.font, me.chart.options.font);
 		const fontColor = labelFont.color;
 		const fontSize = labelFont.size;
 		let cursor;
@@ -6526,7 +6529,7 @@ class Legend extends Element {
 		const me = this;
 		const opts = me.options;
 		const titleOpts = opts.title;
-		const titleFont = toFont(titleOpts.font);
+		const titleFont = toFont(titleOpts.font, me.chart.options.font);
 		const titlePadding = toPadding(titleOpts.padding);
 		if (!titleOpts.display) {
 			return;
@@ -6587,7 +6590,7 @@ class Legend extends Element {
 	}
 	_computeTitleHeight() {
 		const titleOpts = this.options.title;
-		const titleFont = toFont(titleOpts.font);
+		const titleFont = toFont(titleOpts.font, this.chart.options.font);
 		const titlePadding = toPadding(titleOpts.padding);
 		return titleOpts.display ? titleFont.lineHeight + titlePadding.height : 0;
 	}
@@ -6809,7 +6812,7 @@ class Title extends Element {
 		}
 		const lineCount = isArray(opts.text) ? opts.text.length : 1;
 		me._padding = toPadding(opts.padding);
-		const textSize = lineCount * toFont(opts.font).lineHeight + me._padding.height;
+		const textSize = lineCount * toFont(opts.font, me.chart.options.font).lineHeight + me._padding.height;
 		me.width = minSize.width = isHorizontal ? me.maxWidth : textSize;
 		me.height = minSize.height = isHorizontal ? textSize : me.maxHeight;
 	}
@@ -6825,7 +6828,7 @@ class Title extends Element {
 		if (!opts.display) {
 			return;
 		}
-		const fontOpts = toFont(opts.font);
+		const fontOpts = toFont(opts.font, me.chart.options.font);
 		const lineHeight = fontOpts.lineHeight;
 		const offset = lineHeight / 2 + me._padding.top;
 		let rotation = 0;
@@ -7021,11 +7024,11 @@ function createTooltipItem(chart, item) {
 		element
 	};
 }
-function resolveOptions$1(options) {
+function resolveOptions$1(options, fallbackFont) {
 	options = merge({}, [defaults.plugins.tooltip, options]);
-	options.bodyFont = toFont(options.bodyFont);
-	options.titleFont = toFont(options.titleFont);
-	options.footerFont = toFont(options.footerFont);
+	options.bodyFont = toFont(options.bodyFont, fallbackFont);
+	options.titleFont = toFont(options.titleFont, fallbackFont);
+	options.footerFont = toFont(options.footerFont, fallbackFont);
 	options.boxHeight = valueOrDefault(options.boxHeight, options.bodyFont.size);
 	options.boxWidth = valueOrDefault(options.boxWidth, options.bodyFont.size);
 	return options;
@@ -7208,7 +7211,8 @@ class Tooltip extends Element {
 	}
 	initialize() {
 		const me = this;
-		me.options = resolveOptions$1(me._chart.options.tooltips);
+		const chartOpts = me._chart.options;
+		me.options = resolveOptions$1(chartOpts.tooltips, chartOpts.font);
 	}
 	_resolveAnimations() {
 		const me = this;
@@ -7750,7 +7754,7 @@ var plugin_tooltip = {
 			footer: noop,
 			afterFooter: noop
 		}
-	}
+	},
 };
 
 class CategoryScale extends Scale {
@@ -8248,7 +8252,7 @@ function fitWithPointLabels(scale) {
 			index: i,
 			label: scale.pointLabels[i]
 		};
-		const plFont = toFont(resolve([scale.options.pointLabels.font], context, i));
+		const plFont = toFont(resolve([scale.options.pointLabels.font], context, i), scale.chart.options.font);
 		scale.ctx.font = plFont.string;
 		textSize = measureLabelSize(scale.ctx, plFont.lineHeight, scale.pointLabels[i]);
 		scale._pointLabelSizes[i] = textSize;
@@ -8319,7 +8323,7 @@ function drawPointLabels(scale) {
 			index: i,
 			label: scale.pointLabels[i],
 		};
-		const plFont = toFont(resolve([pointLabelOpts.font], context, i));
+		const plFont = toFont(resolve([pointLabelOpts.font], context, i), scale.chart.options.font);
 		ctx.font = plFont.string;
 		ctx.fillStyle = plFont.color;
 		const angle = toDegrees(scale.getIndexAngle(i));

@@ -830,6 +830,17 @@ function _arrayUnique(items) {
   return result;
 }
 
+var collection = /*#__PURE__*/Object.freeze({
+__proto__: null,
+_lookup: _lookup,
+_lookupByKey: _lookupByKey,
+_rlookupByKey: _rlookupByKey,
+_filterBetween: _filterBetween,
+listenArrayEvents: listenArrayEvents,
+unlistenArrayEvents: unlistenArrayEvents,
+_arrayUnique: _arrayUnique
+});
+
 function isConstrainedValue(value) {
   return value !== undefined && value !== null && value !== 'none';
 }
@@ -1213,22 +1224,22 @@ function toPadding(value) {
     width: l + r
   };
 }
-function toFont(options) {
-  var defaultFont = defaults.font;
+function toFont(options, fallback) {
   options = options || {};
-  var size = valueOrDefault(options.size, defaultFont.size);
+  fallback = fallback || defaults.font;
+  var size = valueOrDefault(options.size, fallback.size);
   if (typeof size === 'string') {
     size = parseInt(size, 10);
   }
   var font = {
-    color: valueOrDefault(options.color, defaultFont.color),
-    family: valueOrDefault(options.family, defaultFont.family),
-    lineHeight: toLineHeight(valueOrDefault(options.lineHeight, defaultFont.lineHeight), size),
-    lineWidth: valueOrDefault(options.lineWidth, defaultFont.lineWidth),
+    color: valueOrDefault(options.color, fallback.color),
+    family: valueOrDefault(options.family, fallback.family),
+    lineHeight: toLineHeight(valueOrDefault(options.lineHeight, fallback.lineHeight), size),
+    lineWidth: valueOrDefault(options.lineWidth, fallback.lineWidth),
     size: size,
-    style: valueOrDefault(options.style, defaultFont.style),
-    weight: valueOrDefault(options.weight, defaultFont.weight),
-    strokeStyle: valueOrDefault(options.strokeStyle, defaultFont.strokeStyle),
+    style: valueOrDefault(options.style, fallback.style),
+    weight: valueOrDefault(options.weight, fallback.weight),
+    strokeStyle: valueOrDefault(options.strokeStyle, fallback.strokeStyle),
     string: ''
   };
   font.string = toFontString(font);
@@ -4422,11 +4433,11 @@ function garbageCollect(caches, length) {
 function getTickMarkLength(options) {
   return options.drawTicks ? options.tickMarkLength : 0;
 }
-function getScaleLabelHeight(options) {
+function getScaleLabelHeight(options, fallback) {
   if (!options.display) {
     return 0;
   }
-  var font = toFont(options.font);
+  var font = toFont(options.font, fallback);
   var padding = toPadding(options.padding);
   return font.lineHeight + padding.height;
 }
@@ -4779,7 +4790,7 @@ var Scale = function (_Element) {
     tickWidth = options.offset ? me.maxWidth / numTicks : maxWidth / (numTicks - 1);
     if (maxLabelWidth + 6 > tickWidth) {
       tickWidth = maxWidth / (numTicks - (options.offset ? 0.5 : 1));
-      maxHeight = me.maxHeight - getTickMarkLength(options.gridLines) - tickOpts.padding - getScaleLabelHeight(options.scaleLabel);
+      maxHeight = me.maxHeight - getTickMarkLength(options.gridLines) - tickOpts.padding - getScaleLabelHeight(options.scaleLabel, me.chart.options.font);
       maxLabelDiagonal = Math.sqrt(maxLabelWidth * maxLabelWidth + maxLabelHeight * maxLabelHeight);
       labelRotation = toDegrees(Math.min(Math.asin(Math.min((labelSizes.highest.height + 6) / tickWidth, 1)), Math.asin(Math.min(maxHeight / maxLabelDiagonal, 1)) - Math.asin(maxLabelHeight / maxLabelDiagonal)));
       labelRotation = Math.max(minRotation, Math.min(maxRotation, labelRotation));
@@ -4807,15 +4818,16 @@ var Scale = function (_Element) {
     var display = me._isVisible();
     var labelsBelowTicks = opts.position !== 'top' && me.axis === 'x';
     var isHorizontal = me.isHorizontal();
+    var scaleLabelHeight = display && getScaleLabelHeight(scaleLabelOpts, chart.options.font);
     if (isHorizontal) {
       minSize.width = me.maxWidth;
     } else if (display) {
-      minSize.width = getTickMarkLength(gridLineOpts) + getScaleLabelHeight(scaleLabelOpts);
+      minSize.width = getTickMarkLength(gridLineOpts) + scaleLabelHeight;
     }
     if (!isHorizontal) {
       minSize.height = me.maxHeight;
     } else if (display) {
-      minSize.height = getTickMarkLength(gridLineOpts) + getScaleLabelHeight(scaleLabelOpts);
+      minSize.height = getTickMarkLength(gridLineOpts) + scaleLabelHeight;
     }
     if (tickOpts.display && display && me.ticks.length) {
       var labelSizes = me._getLabelSizes();
@@ -5367,7 +5379,7 @@ var Scale = function (_Element) {
     if (!scaleLabel.display) {
       return;
     }
-    var scaleLabelFont = toFont(scaleLabel.font);
+    var scaleLabelFont = toFont(scaleLabel.font, me.chart.options.font);
     var scaleLabelPadding = toPadding(scaleLabel.padding);
     var halfLineHeight = scaleLabelFont.lineHeight / 2;
     var scaleLabelAlign = scaleLabel.align;
@@ -5473,15 +5485,16 @@ var Scale = function (_Element) {
   ;
   _proto._resolveTickFontOptions = function _resolveTickFontOptions(index) {
     var me = this;
+    var chart = me.chart;
     var options = me.options.ticks;
     var ticks = me.ticks || [];
     var context = {
-      chart: me.chart,
+      chart: chart,
       scale: me,
       tick: ticks[index],
       index: index
     };
-    return toFont(resolve([options.font], context));
+    return toFont(resolve([options.font], context), chart.options.font);
   };
   return Scale;
 }(Element$1);
@@ -6585,9 +6598,10 @@ var Chart = function () {
   };
   return Chart;
 }();
-Chart.version = version;
+Chart.defaults = defaults;
 Chart.instances = {};
 Chart.registry = registry;
+Chart.version = version;
 var invalidatePlugins = function invalidatePlugins() {
   return each(Chart.instances, function (chart) {
     return chart._plugins.invalidate();
@@ -6819,6 +6833,7 @@ restoreTextDirection: restoreTextDirection
 
 var helpers = _extends({}, coreHelpers, {
   canvas: canvas,
+  collection: collection,
   curve: curve,
   dom: dom,
   easing: {
@@ -9592,7 +9607,7 @@ var Legend = function (_Element) {
     var labelOpts = opts.labels;
     var display = opts.display;
     var ctx = me.ctx;
-    var labelFont = toFont(labelOpts.font);
+    var labelFont = toFont(labelOpts.font, me.chart.options.font);
     var fontSize = labelFont.size;
     var boxWidth = getBoxWidth(labelOpts, fontSize);
     var boxHeight = getBoxHeight(labelOpts, fontSize);
@@ -9688,7 +9703,7 @@ var Legend = function (_Element) {
     me.drawTitle();
     var rtlHelper = getRtlAdapter(opts.rtl, me.left, me._minSize.width);
     var ctx = me.ctx;
-    var labelFont = toFont(labelOpts.font);
+    var labelFont = toFont(labelOpts.font, me.chart.options.font);
     var fontColor = labelFont.color;
     var fontSize = labelFont.size;
     var cursor;
@@ -9811,7 +9826,7 @@ var Legend = function (_Element) {
     var me = this;
     var opts = me.options;
     var titleOpts = opts.title;
-    var titleFont = toFont(titleOpts.font);
+    var titleFont = toFont(titleOpts.font, me.chart.options.font);
     var titlePadding = toPadding(titleOpts.padding);
     if (!titleOpts.display) {
       return;
@@ -9873,7 +9888,7 @@ var Legend = function (_Element) {
   ;
   _proto._computeTitleHeight = function _computeTitleHeight() {
     var titleOpts = this.options.title;
-    var titleFont = toFont(titleOpts.font);
+    var titleFont = toFont(titleOpts.font, this.chart.options.font);
     var titlePadding = toPadding(titleOpts.padding);
     return titleOpts.display ? titleFont.lineHeight + titlePadding.height : 0;
   }
@@ -10102,7 +10117,7 @@ var Title = function (_Element) {
     }
     var lineCount = isArray(opts.text) ? opts.text.length : 1;
     me._padding = toPadding(opts.padding);
-    var textSize = lineCount * toFont(opts.font).lineHeight + me._padding.height;
+    var textSize = lineCount * toFont(opts.font, me.chart.options.font).lineHeight + me._padding.height;
     me.width = minSize.width = isHorizontal ? me.maxWidth : textSize;
     me.height = minSize.height = isHorizontal ? textSize : me.maxHeight;
   };
@@ -10120,7 +10135,7 @@ var Title = function (_Element) {
     if (!opts.display) {
       return;
     }
-    var fontOpts = toFont(opts.font);
+    var fontOpts = toFont(opts.font, me.chart.options.font);
     var lineHeight = fontOpts.lineHeight;
     var offset = lineHeight / 2 + me._padding.top;
     var rotation = 0;
@@ -10321,11 +10336,11 @@ function createTooltipItem(chart, item) {
     element: element
   };
 }
-function resolveOptions$1(options) {
+function resolveOptions$1(options, fallbackFont) {
   options = merge({}, [defaults.plugins.tooltip, options]);
-  options.bodyFont = toFont(options.bodyFont);
-  options.titleFont = toFont(options.titleFont);
-  options.footerFont = toFont(options.footerFont);
+  options.bodyFont = toFont(options.bodyFont, fallbackFont);
+  options.titleFont = toFont(options.titleFont, fallbackFont);
+  options.footerFont = toFont(options.footerFont, fallbackFont);
   options.boxHeight = valueOrDefault(options.boxHeight, options.bodyFont.size);
   options.boxWidth = valueOrDefault(options.boxWidth, options.bodyFont.size);
   return options;
@@ -10539,7 +10554,8 @@ var Tooltip = function (_Element) {
   var _proto = Tooltip.prototype;
   _proto.initialize = function initialize() {
     var me = this;
-    me.options = resolveOptions$1(me._chart.options.tooltips);
+    var chartOpts = me._chart.options;
+    me.options = resolveOptions$1(chartOpts.tooltips, chartOpts.font);
   }
   ;
   _proto._resolveAnimations = function _resolveAnimations() {
@@ -11680,7 +11696,7 @@ function fitWithPointLabels(scale) {
       index: i,
       label: scale.pointLabels[i]
     };
-    var plFont = toFont(resolve([scale.options.pointLabels.font], context, i));
+    var plFont = toFont(resolve([scale.options.pointLabels.font], context, i), scale.chart.options.font);
     scale.ctx.font = plFont.string;
     textSize = measureLabelSize(scale.ctx, plFont.lineHeight, scale.pointLabels[i]);
     scale._pointLabelSizes[i] = textSize;
@@ -11751,7 +11767,7 @@ function drawPointLabels(scale) {
       index: i,
       label: scale.pointLabels[i]
     };
-    var plFont = toFont(resolve([pointLabelOpts.font], context, i));
+    var plFont = toFont(resolve([pointLabelOpts.font], context, i), scale.chart.options.font);
     ctx.font = plFont.string;
     ctx.fillStyle = plFont.color;
     var angle = toDegrees(scale.getIndexAngle(i));
@@ -12605,19 +12621,19 @@ Chart.register(controllers, scales, elements, plugins);
 Chart.helpers = helpers;
 Chart._adapters = _adapters;
 Chart.Animation = Animation;
+Chart.Animations = Animations;
 Chart.animator = animator;
-Chart.animationService = Animations;
 Chart.controllers = registry.controllers.items;
 Chart.DatasetController = DatasetController;
-Chart.defaults = defaults;
 Chart.Element = Element$1;
 Chart.elements = elements;
 Chart.Interaction = Interaction;
 Chart.layouts = layouts;
 Chart.platforms = platforms;
-Chart.registry = registry;
 Chart.Scale = Scale;
 Chart.Ticks = Ticks;
+_extends(Chart, controllers, scales, elements, plugins, platforms);
+Chart.Chart = Chart;
 if (typeof window !== 'undefined') {
   window.Chart = Chart;
 }
