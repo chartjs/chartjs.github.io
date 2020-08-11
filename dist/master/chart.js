@@ -7553,6 +7553,16 @@ var DoughnutController = function (_DatasetController) {
     }
     return 0;
   };
+  _proto.getLabelAndValue = function getLabelAndValue(index) {
+    var me = this;
+    var meta = me._cachedMeta;
+    var chart = me.chart;
+    var labels = chart.data.labels || [];
+    return {
+      label: labels[index] || '',
+      value: meta._parsed[index]
+    };
+  };
   _proto.getMaxBorderWidth = function getMaxBorderWidth(arcs) {
     var me = this;
     var max = 0;
@@ -7659,8 +7669,8 @@ DoughnutController.defaults = {
         return '';
       },
       label: function label(tooltipItem) {
-        var dataLabel = tooltipItem.chart.data.labels[tooltipItem.dataIndex];
-        var value = ': ' + tooltipItem.dataset.data[tooltipItem.dataIndex];
+        var dataLabel = tooltipItem.label;
+        var value = ': ' + tooltipItem.formattedValue;
         if (isArray(dataLabel)) {
           dataLabel = dataLabel.slice();
           dataLabel[0] += value;

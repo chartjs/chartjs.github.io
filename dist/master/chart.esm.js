@@ -1735,6 +1735,16 @@ class DoughnutController extends DatasetController {
 		}
 		return 0;
 	}
+	getLabelAndValue(index) {
+		const me = this;
+		const meta = me._cachedMeta;
+		const chart = me.chart;
+		const labels = chart.data.labels || [];
+		return {
+			label: labels[index] || '',
+			value: meta._parsed[index],
+		};
+	}
 	getMaxBorderWidth(arcs) {
 		const me = this;
 		let max = 0;
@@ -1843,8 +1853,8 @@ DoughnutController.defaults = {
 				return '';
 			},
 			label(tooltipItem) {
-				let dataLabel = tooltipItem.chart.data.labels[tooltipItem.dataIndex];
-				const value = ': ' + tooltipItem.dataset.data[tooltipItem.dataIndex];
+				let dataLabel = tooltipItem.label;
+				const value = ': ' + tooltipItem.formattedValue;
 				if (isArray(dataLabel)) {
 					dataLabel = dataLabel.slice();
 					dataLabel[0] += value;
