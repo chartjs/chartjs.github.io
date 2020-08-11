@@ -9101,7 +9101,7 @@ function decodeFill(line, index, count) {
     }
     return target;
   }
-  return ['origin', 'start', 'end'].indexOf(fill) >= 0 ? fill : false;
+  return ['origin', 'start', 'end', 'stack'].indexOf(fill) >= 0 && fill;
 }
 function computeLinearBoundary(source) {
   var _source$scale = source.scale,
@@ -9233,6 +9233,94 @@ function pointsFromSegments(boundary, line) {
   });
   return points;
 }
+function buildStackLine(source) {
+  var chart = source.chart,
+      scale = source.scale,
+      index = source.index,
+      line = source.line;
+  var linesBelow = getLinesBelow(chart, index);
+  var points = [];
+  var segments = line.segments;
+  var sourcePoints = line.points;
+  var startPoints = [];
+  sourcePoints.forEach(function (point) {
+    return startPoints.push({
+      x: point.x,
+      y: scale.bottom,
+      _prop: 'x',
+      _ref: point
+    });
+  });
+  linesBelow.push(new Line({
+    points: startPoints,
+    options: {}
+  }));
+  for (var i = 0; i < segments.length; i++) {
+    var segment = segments[i];
+    for (var j = segment.start; j <= segment.end; j++) {
+      addPointsBelow(points, sourcePoints[j], linesBelow);
+    }
+  }
+  return new Line({
+    points: points,
+    options: {},
+    _refPoints: true
+  });
+}
+function getLinesBelow(chart, index) {
+  var below = [];
+  var metas = chart.getSortedVisibleDatasetMetas();
+  for (var i = 0; i < metas.length; i++) {
+    var meta = metas[i];
+    if (meta.index === index) {
+      break;
+    }
+    if (meta.type === 'line') {
+      below.unshift(meta.dataset);
+    }
+  }
+  return below;
+}
+function addPointsBelow(points, sourcePoint, linesBelow) {
+  var postponed = [];
+  for (var j = 0; j < linesBelow.length; j++) {
+    var line = linesBelow[j];
+    var _findPoint = findPoint(line, sourcePoint, 'x'),
+        first = _findPoint.first,
+        last = _findPoint.last,
+        point = _findPoint.point;
+    if (!point || first && last) {
+      continue;
+    }
+    if (first) {
+      postponed.unshift(point);
+    } else {
+      points.push(point);
+      if (!last) {
+        break;
+      }
+    }
+  }
+  points.push.apply(points, postponed);
+}
+function findPoint(line, sourcePoint, property) {
+  var segments = line.segments;
+  var linePoints = line.points;
+  for (var i = 0; i < segments.length; i++) {
+    var segment = segments[i];
+    for (var j = segment.start; j <= segment.end; j++) {
+      var point = linePoints[j];
+      if (sourcePoint[property] === point[property]) {
+        return {
+          first: j === segment.start,
+          last: j === segment.end,
+          point: point
+        };
+      }
+    }
+  }
+  return {};
+}
 function getTarget(source) {
   var chart = source.chart,
       fill = source.fill,
@@ -9240,13 +9328,19 @@ function getTarget(source) {
   if (isNumberFinite(fill)) {
     return getLineByIndex(chart, fill);
   }
+  if (fill === 'stack') {
+    return buildStackLine(source);
+  }
   var boundary = computeBoundary(source);
-  var points = [];
-  var _loop = false;
-  var _refPoints = false;
   if (boundary instanceof simpleArc) {
     return boundary;
   }
+  return createBoundaryLine(boundary, line);
+}
+function createBoundaryLine(boundary, line) {
+  var points = [];
+  var _loop = false;
+  var _refPoints = false;
   if (isArray(boundary)) {
     _loop = true;
     points = boundary;
@@ -9463,6 +9557,7 @@ var plugin_filler = {
       if (line && line.options && line instanceof Line) {
         source = {
           visible: chart.isDatasetVisible(i),
+          index: i,
           fill: decodeFill(line, i, count),
           chart: chart,
           scale: meta.vScale,
