@@ -7,7 +7,7 @@
 (function (global, factory) {
 typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
 typeof define === 'function' && define.amd ? define(factory) :
-(global = global || self, global.Chart = factory());
+(global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.Chart = factory());
 }(this, (function () { 'use strict';
 
 function _defineProperties(target, props) {
@@ -6765,6 +6765,42 @@ splineCurveMonotone: splineCurveMonotone,
 _updateBezierControlPoints: _updateBezierControlPoints
 });
 
+function _pointInLine(p1, p2, t, mode) {
+  return {
+    x: p1.x + t * (p2.x - p1.x),
+    y: p1.y + t * (p2.y - p1.y)
+  };
+}
+function _steppedInterpolation(p1, p2, t, mode) {
+  return {
+    x: p1.x + t * (p2.x - p1.x),
+    y: mode === 'middle' ? t < 0.5 ? p1.y : p2.y : mode === 'after' ? t < 1 ? p1.y : p2.y : t > 0 ? p2.y : p1.y
+  };
+}
+function _bezierInterpolation(p1, p2, t, mode) {
+  var cp1 = {
+    x: p1.controlPointNextX,
+    y: p1.controlPointNextY
+  };
+  var cp2 = {
+    x: p2.controlPointPreviousX,
+    y: p2.controlPointPreviousY
+  };
+  var a = _pointInLine(p1, cp1, t);
+  var b = _pointInLine(cp1, cp2, t);
+  var c = _pointInLine(cp2, p2, t);
+  var d = _pointInLine(a, b, t);
+  var e = _pointInLine(b, c, t);
+  return _pointInLine(d, e, t);
+}
+
+var interpolation = /*#__PURE__*/Object.freeze({
+__proto__: null,
+_pointInLine: _pointInLine,
+_steppedInterpolation: _steppedInterpolation,
+_bezierInterpolation: _bezierInterpolation
+});
+
 var getRightToLeftAdapter = function getRightToLeftAdapter(rectX, width) {
   return {
     x: function x(_x) {
@@ -6839,6 +6875,7 @@ var helpers = _extends({}, coreHelpers, {
   easing: {
     effects: effects
   },
+  interpolation: interpolation,
   options: options,
   math: math,
   rtl: rtl,
@@ -8339,35 +8376,6 @@ Arc.defaults = {
 Arc.defaultRoutes = {
   backgroundColor: 'color'
 };
-
-function _pointInLine(p1, p2, t, mode) {
-  return {
-    x: p1.x + t * (p2.x - p1.x),
-    y: p1.y + t * (p2.y - p1.y)
-  };
-}
-function _steppedInterpolation(p1, p2, t, mode) {
-  return {
-    x: p1.x + t * (p2.x - p1.x),
-    y: mode === 'middle' ? t < 0.5 ? p1.y : p2.y : mode === 'after' ? t < 1 ? p1.y : p2.y : t > 0 ? p2.y : p1.y
-  };
-}
-function _bezierInterpolation(p1, p2, t, mode) {
-  var cp1 = {
-    x: p1.controlPointNextX,
-    y: p1.controlPointNextY
-  };
-  var cp2 = {
-    x: p2.controlPointPreviousX,
-    y: p2.controlPointPreviousY
-  };
-  var a = _pointInLine(p1, cp1, t);
-  var b = _pointInLine(cp1, cp2, t);
-  var c = _pointInLine(cp2, p2, t);
-  var d = _pointInLine(a, b, t);
-  var e = _pointInLine(b, c, t);
-  return _pointInLine(d, e, t);
-}
 
 function propertyFn(property) {
   if (property === 'angle') {
