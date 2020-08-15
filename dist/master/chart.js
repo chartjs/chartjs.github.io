@@ -7802,6 +7802,10 @@ var LineController = function (_DatasetController) {
     var lastPoint = data[data.length - 1].size();
     return Math.max(border, firstPoint, lastPoint) / 2;
   };
+  _proto.draw = function draw() {
+    this._cachedMeta.dataset.updateControlPoints(this.chart.chartArea);
+    _DatasetController.prototype.draw.call(this);
+  };
   return LineController;
 }(DatasetController);
 LineController.id = 'line';
@@ -8702,6 +8706,7 @@ var Line = function (_Element) {
     _this._fullLoop = undefined;
     _this._points = undefined;
     _this._segments = undefined;
+    _this._pointsUpdated = false;
     if (cfg) {
       _extends(_assertThisInitialized(_this), cfg);
     }
@@ -8711,9 +8716,10 @@ var Line = function (_Element) {
   _proto.updateControlPoints = function updateControlPoints(chartArea) {
     var me = this;
     var options = me.options;
-    if (options.tension && !options.stepped) {
+    if (options.tension && !options.stepped && !me._pointsUpdated) {
       var loop = options.spanGaps ? me._loop : me._fullLoop;
       _updateBezierControlPoints(me._points, options, chartArea, loop);
+      me._pointsUpdated = true;
     }
   };
   _proto.first = function first() {
@@ -8794,6 +8800,7 @@ var Line = function (_Element) {
     }
     ctx.stroke();
     ctx.restore();
+    this._pointsUpdated = false;
   };
   _createClass(Line, [{
     key: "points",
