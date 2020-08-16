@@ -6867,6 +6867,221 @@ overrideTextDirection: overrideTextDirection,
 restoreTextDirection: restoreTextDirection
 });
 
+function propertyFn(property) {
+  if (property === 'angle') {
+    return {
+      between: _angleBetween,
+      compare: _angleDiff,
+      normalize: _normalizeAngle
+    };
+  }
+  return {
+    between: function between(n, s, e) {
+      return n >= s && n <= e;
+    },
+    compare: function compare(a, b) {
+      return a - b;
+    },
+    normalize: function normalize(x) {
+      return x;
+    }
+  };
+}
+function makeSubSegment(start, end, loop, count) {
+  return {
+    start: start % count,
+    end: end % count,
+    loop: loop && (end - start + 1) % count === 0
+  };
+}
+function getSegment(segment, points, bounds) {
+  var property = bounds.property,
+      startBound = bounds.start,
+      endBound = bounds.end;
+  var _propertyFn = propertyFn(property),
+      between = _propertyFn.between,
+      normalize = _propertyFn.normalize;
+  var count = points.length;
+  var start = segment.start,
+      end = segment.end,
+      loop = segment.loop;
+  var i, ilen;
+  if (loop) {
+    start += count;
+    end += count;
+    for (i = 0, ilen = count; i < ilen; ++i) {
+      if (!between(normalize(points[start % count][property]), startBound, endBound)) {
+        break;
+      }
+      start--;
+      end--;
+    }
+    start %= count;
+    end %= count;
+  }
+  if (end < start) {
+    end += count;
+  }
+  return {
+    start: start,
+    end: end,
+    loop: loop
+  };
+}
+function _boundSegment(segment, points, bounds) {
+  if (!bounds) {
+    return [segment];
+  }
+  var property = bounds.property,
+      startBound = bounds.start,
+      endBound = bounds.end;
+  var count = points.length;
+  var _propertyFn2 = propertyFn(property),
+      compare = _propertyFn2.compare,
+      between = _propertyFn2.between,
+      normalize = _propertyFn2.normalize;
+  var _getSegment = getSegment(segment, points, bounds),
+      start = _getSegment.start,
+      end = _getSegment.end,
+      loop = _getSegment.loop;
+  var result = [];
+  var inside = false;
+  var subStart = null;
+  var value, point, prevValue;
+  var startIsBefore = function startIsBefore() {
+    return between(startBound, prevValue, value) && compare(startBound, prevValue) !== 0;
+  };
+  var endIsBefore = function endIsBefore() {
+    return compare(endBound, value) === 0 || between(endBound, prevValue, value);
+  };
+  var shouldStart = function shouldStart() {
+    return inside || startIsBefore();
+  };
+  var shouldStop = function shouldStop() {
+    return !inside || endIsBefore();
+  };
+  for (var i = start, prev = start; i <= end; ++i) {
+    point = points[i % count];
+    if (point.skip) {
+      continue;
+    }
+    value = normalize(point[property]);
+    inside = between(value, startBound, endBound);
+    if (subStart === null && shouldStart()) {
+      subStart = compare(value, startBound) === 0 ? i : prev;
+    }
+    if (subStart !== null && shouldStop()) {
+      result.push(makeSubSegment(subStart, i, loop, count));
+      subStart = null;
+    }
+    prev = i;
+    prevValue = value;
+  }
+  if (subStart !== null) {
+    result.push(makeSubSegment(subStart, end, loop, count));
+  }
+  return result;
+}
+function _boundSegments(line, bounds) {
+  var result = [];
+  var segments = line.segments;
+  for (var i = 0; i < segments.length; i++) {
+    var sub = _boundSegment(segments[i], line.points, bounds);
+    if (sub.length) {
+      result.push.apply(result, sub);
+    }
+  }
+  return result;
+}
+function findStartAndEnd(points, count, loop, spanGaps) {
+  var start = 0;
+  var end = count - 1;
+  if (loop && !spanGaps) {
+    while (start < count && !points[start].skip) {
+      start++;
+    }
+  }
+  while (start < count && points[start].skip) {
+    start++;
+  }
+  start %= count;
+  if (loop) {
+    end += start;
+  }
+  while (end > start && points[end % count].skip) {
+    end--;
+  }
+  end %= count;
+  return {
+    start: start,
+    end: end
+  };
+}
+function solidSegments(points, start, max, loop) {
+  var count = points.length;
+  var result = [];
+  var last = start;
+  var prev = points[start];
+  var end;
+  for (end = start + 1; end <= max; ++end) {
+    var cur = points[end % count];
+    if (cur.skip || cur.stop) {
+      if (!prev.skip) {
+        loop = false;
+        result.push({
+          start: start % count,
+          end: (end - 1) % count,
+          loop: loop
+        });
+        start = last = cur.stop ? end : null;
+      }
+    } else {
+      last = end;
+      if (prev.skip) {
+        start = end;
+      }
+    }
+    prev = cur;
+  }
+  if (last !== null) {
+    result.push({
+      start: start % count,
+      end: last % count,
+      loop: loop
+    });
+  }
+  return result;
+}
+function _computeSegments(line) {
+  var points = line.points;
+  var spanGaps = line.options.spanGaps;
+  var count = points.length;
+  if (!count) {
+    return [];
+  }
+  var loop = !!line._loop;
+  var _findStartAndEnd = findStartAndEnd(points, count, loop, spanGaps),
+      start = _findStartAndEnd.start,
+      end = _findStartAndEnd.end;
+  if (spanGaps === true) {
+    return [{
+      start: start,
+      end: end,
+      loop: loop
+    }];
+  }
+  var max = end < start ? end + count : end;
+  var completeLoop = !!line._fullLoop && start === 0 && end === count - 1;
+  return solidSegments(points, start, max, completeLoop);
+}
+
+var segment = /*#__PURE__*/Object.freeze({
+__proto__: null,
+_boundSegment: _boundSegment,
+_boundSegments: _boundSegments,
+_computeSegments: _computeSegments
+});
+
 var helpers = _extends({}, coreHelpers, {
   canvas: canvas,
   collection: collection,
@@ -6879,6 +7094,7 @@ var helpers = _extends({}, coreHelpers, {
   options: options,
   math: math,
   rtl: rtl,
+  segment: segment,
   requestAnimFrame: requestAnimFrame,
   fontString: fontString,
   color: color,
@@ -8381,201 +8597,6 @@ Arc.defaultRoutes = {
   backgroundColor: 'color'
 };
 
-function propertyFn(property) {
-  if (property === 'angle') {
-    return {
-      between: _angleBetween,
-      compare: _angleDiff,
-      normalize: _normalizeAngle
-    };
-  }
-  return {
-    between: function between(n, s, e) {
-      return n >= s && n <= e;
-    },
-    compare: function compare(a, b) {
-      return a - b;
-    },
-    normalize: function normalize(x) {
-      return x;
-    }
-  };
-}
-function makeSubSegment(start, end, loop, count) {
-  return {
-    start: start % count,
-    end: end % count,
-    loop: loop && (end - start + 1) % count === 0
-  };
-}
-function getSegment(segment, points, bounds) {
-  var property = bounds.property,
-      startBound = bounds.start,
-      endBound = bounds.end;
-  var _propertyFn = propertyFn(property),
-      between = _propertyFn.between,
-      normalize = _propertyFn.normalize;
-  var count = points.length;
-  var start = segment.start,
-      end = segment.end,
-      loop = segment.loop;
-  var i, ilen;
-  if (loop) {
-    start += count;
-    end += count;
-    for (i = 0, ilen = count; i < ilen; ++i) {
-      if (!between(normalize(points[start % count][property]), startBound, endBound)) {
-        break;
-      }
-      start--;
-      end--;
-    }
-    start %= count;
-    end %= count;
-  }
-  if (end < start) {
-    end += count;
-  }
-  return {
-    start: start,
-    end: end,
-    loop: loop
-  };
-}
-function _boundSegment(segment, points, bounds) {
-  if (!bounds) {
-    return [segment];
-  }
-  var property = bounds.property,
-      startBound = bounds.start,
-      endBound = bounds.end;
-  var count = points.length;
-  var _propertyFn2 = propertyFn(property),
-      compare = _propertyFn2.compare,
-      between = _propertyFn2.between,
-      normalize = _propertyFn2.normalize;
-  var _getSegment = getSegment(segment, points, bounds),
-      start = _getSegment.start,
-      end = _getSegment.end,
-      loop = _getSegment.loop;
-  var result = [];
-  var inside = false;
-  var subStart = null;
-  var i, value, point, prev;
-  for (i = start; i <= end; ++i) {
-    point = points[i % count];
-    if (point.skip) {
-      continue;
-    }
-    value = normalize(point[property]);
-    inside = between(value, startBound, endBound);
-    if (subStart === null && inside) {
-      subStart = i > start && compare(value, startBound) > 0 ? prev : i;
-    }
-    if (subStart !== null && (!inside || compare(value, endBound) === 0)) {
-      result.push(makeSubSegment(subStart, i, loop, count));
-      subStart = null;
-    }
-    prev = i;
-  }
-  if (subStart !== null) {
-    result.push(makeSubSegment(subStart, end, loop, count));
-  }
-  return result;
-}
-function _boundSegments(line, bounds) {
-  var result = [];
-  var segments = line.segments;
-  for (var i = 0; i < segments.length; i++) {
-    var sub = _boundSegment(segments[i], line.points, bounds);
-    if (sub.length) {
-      result.push.apply(result, sub);
-    }
-  }
-  return result;
-}
-function findStartAndEnd(points, count, loop, spanGaps) {
-  var start = 0;
-  var end = count - 1;
-  if (loop && !spanGaps) {
-    while (start < count && !points[start].skip) {
-      start++;
-    }
-  }
-  while (start < count && points[start].skip) {
-    start++;
-  }
-  start %= count;
-  if (loop) {
-    end += start;
-  }
-  while (end > start && points[end % count].skip) {
-    end--;
-  }
-  end %= count;
-  return {
-    start: start,
-    end: end
-  };
-}
-function solidSegments(points, start, max, loop) {
-  var count = points.length;
-  var result = [];
-  var last = start;
-  var prev = points[start];
-  var end;
-  for (end = start + 1; end <= max; ++end) {
-    var cur = points[end % count];
-    if (cur.skip || cur.stop) {
-      if (!prev.skip) {
-        loop = false;
-        result.push({
-          start: start % count,
-          end: (end - 1) % count,
-          loop: loop
-        });
-        start = last = cur.stop ? end : null;
-      }
-    } else {
-      last = end;
-      if (prev.skip) {
-        start = end;
-      }
-    }
-    prev = cur;
-  }
-  if (last !== null) {
-    result.push({
-      start: start % count,
-      end: last % count,
-      loop: loop
-    });
-  }
-  return result;
-}
-function _computeSegments(line) {
-  var points = line.points;
-  var spanGaps = line.options.spanGaps;
-  var count = points.length;
-  if (!count) {
-    return [];
-  }
-  var loop = !!line._loop;
-  var _findStartAndEnd = findStartAndEnd(points, count, loop, spanGaps),
-      start = _findStartAndEnd.start,
-      end = _findStartAndEnd.end;
-  if (spanGaps === true) {
-    return [{
-      start: start,
-      end: end,
-      loop: loop
-    }];
-  }
-  var max = end < start ? end + count : end;
-  var completeLoop = !!line._fullLoop && start === 0 && end === count - 1;
-  return solidSegments(points, start, max, completeLoop);
-}
-
 function setStyle(ctx, vm) {
   ctx.lineCap = vm.borderCapStyle;
   ctx.setLineDash(vm.borderDash);
@@ -9231,28 +9252,20 @@ function pointsFromSegments(boundary, line) {
     if (y !== null) {
       points.push({
         x: first.x,
-        y: y,
-        _prop: 'x',
-        _ref: first
+        y: y
       });
       points.push({
         x: last.x,
-        y: y,
-        _prop: 'x',
-        _ref: last
+        y: y
       });
     } else if (x !== null) {
       points.push({
         x: x,
-        y: first.y,
-        _prop: 'y',
-        _ref: first
+        y: first.y
       });
       points.push({
         x: x,
-        y: last.y,
-        _prop: 'y',
-        _ref: last
+        y: last.y
       });
     }
   });
@@ -9263,23 +9276,14 @@ function buildStackLine(source) {
       scale = source.scale,
       index = source.index,
       line = source.line;
-  var linesBelow = getLinesBelow(chart, index);
   var points = [];
   var segments = line.segments;
   var sourcePoints = line.points;
-  var startPoints = [];
-  sourcePoints.forEach(function (point) {
-    return startPoints.push({
-      x: point.x,
-      y: scale.bottom,
-      _prop: 'x',
-      _ref: point
-    });
-  });
-  linesBelow.push(new Line({
-    points: startPoints,
-    options: {}
-  }));
+  var linesBelow = getLinesBelow(chart, index);
+  linesBelow.push(createBoundaryLine({
+    x: null,
+    y: scale.bottom
+  }, line));
   for (var i = 0; i < segments.length; i++) {
     var segment = segments[i];
     for (var j = segment.start; j <= segment.end; j++) {
@@ -9288,10 +9292,12 @@ function buildStackLine(source) {
   }
   return new Line({
     points: points,
-    options: {},
-    _refPoints: true
+    options: {}
   });
 }
+var isLineAndNotInHideAnimation = function isLineAndNotInHideAnimation(meta) {
+  return meta.type === 'line' && !meta.hidden;
+};
 function getLinesBelow(chart, index) {
   var below = [];
   var metas = chart.getSortedVisibleDatasetMetas();
@@ -9300,7 +9306,7 @@ function getLinesBelow(chart, index) {
     if (meta.index === index) {
       break;
     }
-    if (meta.type === 'line') {
+    if (isLineAndNotInHideAnimation(meta)) {
       below.unshift(meta.dataset);
     }
   }
@@ -9329,22 +9335,30 @@ function addPointsBelow(points, sourcePoint, linesBelow) {
   points.push.apply(points, postponed);
 }
 function findPoint(line, sourcePoint, property) {
+  var point = line.interpolate(sourcePoint, property);
+  if (!point) {
+    return {};
+  }
+  var pointValue = point[property];
   var segments = line.segments;
   var linePoints = line.points;
+  var first = false;
+  var last = false;
   for (var i = 0; i < segments.length; i++) {
     var segment = segments[i];
-    for (var j = segment.start; j <= segment.end; j++) {
-      var point = linePoints[j];
-      if (sourcePoint[property] === point[property]) {
-        return {
-          first: j === segment.start,
-          last: j === segment.end,
-          point: point
-        };
-      }
+    var firstValue = linePoints[segment.start][property];
+    var lastValue = linePoints[segment.end][property];
+    if (pointValue >= firstValue && pointValue <= lastValue) {
+      first = pointValue === firstValue;
+      last = pointValue === lastValue;
+      break;
     }
   }
-  return {};
+  return {
+    first: first,
+    last: last,
+    point: point
+  };
 }
 function getTarget(source) {
   var chart = source.chart,
@@ -9365,13 +9379,11 @@ function getTarget(source) {
 function createBoundaryLine(boundary, line) {
   var points = [];
   var _loop = false;
-  var _refPoints = false;
   if (isArray(boundary)) {
     _loop = true;
     points = boundary;
   } else {
     points = pointsFromSegments(boundary, line);
-    _refPoints = true;
   }
   return points.length ? new Line({
     points: points,
@@ -9379,8 +9391,7 @@ function createBoundaryLine(boundary, line) {
       tension: 0
     },
     _loop: _loop,
-    _fullLoop: _loop,
-    _refPoints: _refPoints
+    _fullLoop: _loop
   }) : null;
 }
 function resolveTarget(sources, index, propagate) {
@@ -9442,17 +9453,8 @@ function _segments(line, target, property) {
   var points = line.points;
   var tpoints = target.points;
   var parts = [];
-  if (target._refPoints) {
-    for (var i = 0, ilen = tpoints.length; i < ilen; ++i) {
-      var point = tpoints[i];
-      var prop = point._prop;
-      if (prop) {
-        point[prop] = point._ref[prop];
-      }
-    }
-  }
-  for (var _i = 0; _i < segments.length; _i++) {
-    var segment = segments[_i];
+  for (var i = 0; i < segments.length; i++) {
+    var segment = segments[i];
     var bounds = getBounds(property, points[segment.start], points[segment.end], segment.loop);
     if (!target.segments) {
       parts.push({
@@ -9507,7 +9509,7 @@ function _fill(ctx, cfg) {
       property = cfg.property,
       color = cfg.color,
       scale = cfg.scale;
-  var segments = _segments(cfg.line, cfg.target, property);
+  var segments = _segments(line, target, property);
   ctx.fillStyle = color;
   for (var i = 0, ilen = segments.length; i < ilen; ++i) {
     var _segments$i = segments[i],
@@ -9586,8 +9588,7 @@ var plugin_filler = {
           fill: decodeFill(line, i, count),
           chart: chart,
           scale: meta.vScale,
-          line: line,
-          target: undefined
+          line: line
         };
       }
       meta.$filler = source;
@@ -9599,7 +9600,6 @@ var plugin_filler = {
         continue;
       }
       source.fill = resolveTarget(sources, i, propagate);
-      source.target = source.fill !== false && getTarget(source);
     }
   },
   beforeDatasetsDraw: function beforeDatasetsDraw(chart) {
@@ -9616,13 +9616,13 @@ var plugin_filler = {
   beforeDatasetDraw: function beforeDatasetDraw(chart, args) {
     var area = chart.chartArea;
     var ctx = chart.ctx;
-    var meta = args.meta.$filler;
-    if (!meta || meta.fill === false) {
+    var source = args.meta.$filler;
+    if (!source || source.fill === false) {
       return;
     }
-    var line = meta.line,
-        target = meta.target,
-        scale = meta.scale;
+    var target = getTarget(source);
+    var line = source.line,
+        scale = source.scale;
     var lineOpts = line.options;
     var fillOption = lineOpts.fill;
     var color = lineOpts.backgroundColor;

@@ -5981,32 +5981,31 @@ function pointsFromSegments(boundary, line) {
 		const first = linePoints[segment.start];
 		const last = linePoints[segment.end];
 		if (y !== null) {
-			points.push({x: first.x, y, _prop: 'x', _ref: first});
-			points.push({x: last.x, y, _prop: 'x', _ref: last});
+			points.push({x: first.x, y});
+			points.push({x: last.x, y});
 		} else if (x !== null) {
-			points.push({x, y: first.y, _prop: 'y', _ref: first});
-			points.push({x, y: last.y, _prop: 'y', _ref: last});
+			points.push({x, y: first.y});
+			points.push({x, y: last.y});
 		}
 	});
 	return points;
 }
 function buildStackLine(source) {
 	const {chart, scale, index, line} = source;
-	const linesBelow = getLinesBelow(chart, index);
 	const points = [];
 	const segments = line.segments;
 	const sourcePoints = line.points;
-	const startPoints = [];
-	sourcePoints.forEach(point => startPoints.push({x: point.x, y: scale.bottom, _prop: 'x', _ref: point}));
-	linesBelow.push(new Line({points: startPoints, options: {}}));
+	const linesBelow = getLinesBelow(chart, index);
+	linesBelow.push(createBoundaryLine({x: null, y: scale.bottom}, line));
 	for (let i = 0; i < segments.length; i++) {
 		const segment = segments[i];
 		for (let j = segment.start; j <= segment.end; j++) {
 			addPointsBelow(points, sourcePoints[j], linesBelow);
 		}
 	}
-	return new Line({points, options: {}, _refPoints: true});
+	return new Line({points, options: {}});
 }
+const isLineAndNotInHideAnimation = (meta) => meta.type === 'line' && !meta.hidden;
 function getLinesBelow(chart, index) {
 	const below = [];
 	const metas = chart.getSortedVisibleDatasetMetas();
@@ -6015,7 +6014,7 @@ function getLinesBelow(chart, index) {
 		if (meta.index === index) {
 			break;
 		}
-		if (meta.type === 'line') {
+		if (isLineAndNotInHideAnimation(meta)) {
 			below.unshift(meta.dataset);
 		}
 	}
@@ -6041,22 +6040,26 @@ function addPointsBelow(points, sourcePoint, linesBelow) {
 	points.push(...postponed);
 }
 function findPoint(line, sourcePoint, property) {
+	const point = line.interpolate(sourcePoint, property);
+	if (!point) {
+		return {};
+	}
+	const pointValue = point[property];
 	const segments = line.segments;
 	const linePoints = line.points;
+	let first = false;
+	let last = false;
 	for (let i = 0; i < segments.length; i++) {
 		const segment = segments[i];
-		for (let j = segment.start; j <= segment.end; j++) {
-			const point = linePoints[j];
-			if (sourcePoint[property] === point[property]) {
-				return {
-					first: j === segment.start,
-					last: j === segment.end,
-					point
-				};
-			}
+		const firstValue = linePoints[segment.start][property];
+		const lastValue = linePoints[segment.end][property];
+		if (pointValue >= firstValue && pointValue <= lastValue) {
+			first = pointValue === firstValue;
+			last = pointValue === lastValue;
+			break;
 		}
 	}
-	return {};
+	return {first, last, point};
 }
 function getTarget(source) {
 	const {chart, fill, line} = source;
@@ -6075,20 +6078,17 @@ function getTarget(source) {
 function createBoundaryLine(boundary, line) {
 	let points = [];
 	let _loop = false;
-	let _refPoints = false;
 	if (isArray(boundary)) {
 		_loop = true;
 		points = boundary;
 	} else {
 		points = pointsFromSegments(boundary, line);
-		_refPoints = true;
 	}
 	return points.length ? new Line({
 		points,
 		options: {tension: 0},
 		_loop,
-		_fullLoop: _loop,
-		_refPoints
+		_fullLoop: _loop
 	}) : null;
 }
 function resolveTarget(sources, index, propagate) {
@@ -6146,15 +6146,6 @@ function _segments(line, target, property) {
 	const points = line.points;
 	const tpoints = target.points;
 	const parts = [];
-	if (target._refPoints) {
-		for (let i = 0, ilen = tpoints.length; i < ilen; ++i) {
-			const point = tpoints[i];
-			const prop = point._prop;
-			if (prop) {
-				point[prop] = point._ref[prop];
-			}
-		}
-	}
 	for (let i = 0; i < segments.length; i++) {
 		const segment = segments[i];
 		const bounds = getBounds(property, points[segment.start], points[segment.end], segment.loop);
@@ -6205,7 +6196,7 @@ function interpolatedLineTo(ctx, target, point, property) {
 }
 function _fill(ctx, cfg) {
 	const {line, target, property, color, scale} = cfg;
-	const segments = _segments(cfg.line, cfg.target, property);
+	const segments = _segments(line, target, property);
 	ctx.fillStyle = color;
 	for (let i = 0, ilen = segments.length; i < ilen; ++i) {
 		const {source: src, target: tgt, start, end} = segments[i];
@@ -6260,8 +6251,7 @@ var plugin_filler = {
 					fill: decodeFill(line, i, count),
 					chart,
 					scale: meta.vScale,
-					line,
-					target: undefined
+					line
 				};
 			}
 			meta.$filler = source;
@@ -6273,7 +6263,6 @@ var plugin_filler = {
 				continue;
 			}
 			source.fill = resolveTarget(sources, i, propagate);
-			source.target = source.fill !== false && getTarget(source);
 		}
 	},
 	beforeDatasetsDraw(chart) {
@@ -6290,11 +6279,12 @@ var plugin_filler = {
 	beforeDatasetDraw(chart, args) {
 		const area = chart.chartArea;
 		const ctx = chart.ctx;
-		const meta = args.meta.$filler;
-		if (!meta || meta.fill === false) {
+		const source = args.meta.$filler;
+		if (!source || source.fill === false) {
 			return;
 		}
-		const {line, target, scale} = meta;
+		const target = getTarget(source);
+		const {line, scale} = source;
 		const lineOpts = line.options;
 		const fillOption = lineOpts.fill;
 		const color = lineOpts.backgroundColor;
