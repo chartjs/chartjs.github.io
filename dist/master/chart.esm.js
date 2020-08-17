@@ -337,7 +337,8 @@ class Animations {
 				if (!animatedProps.has(prop)) {
 					animatedProps.set(prop, Object.assign({}, animDefaults, cfg));
 				} else if (prop === key) {
-					animatedProps.set(prop, Object.assign({}, animatedProps.get(prop), cfg));
+					const {properties, ...inherited} = animatedProps.get(prop);
+					animatedProps.set(prop, Object.assign({}, inherited, cfg));
 				}
 			});
 		});
@@ -4252,6 +4253,9 @@ class TypedRegistry {
 		if (id in items) {
 			return scope;
 		}
+		if (Object.keys(defaults.get(scope)).length) {
+			throw new Error('Can not register "' + id + '", because "defaults.' + scope + '" would collide with existing defaults');
+		}
 		items[id] = item;
 		registerDefaults(item, scope, parentScope);
 		return scope;
@@ -4332,11 +4336,23 @@ class Registry {
 	getScale(id) {
 		return this._get(id, this.scales, 'scale');
 	}
+	removeControllers(...args) {
+		this._each('unregister', args, this.controllers);
+	}
+	removeElements(...args) {
+		this._each('unregister', args, this.elements);
+	}
+	removePlugins(...args) {
+		this._each('unregister', args, this.plugins);
+	}
+	removeScales(...args) {
+		this._each('unregister', args, this.scales);
+	}
 	_each(method, args, typedRegistry) {
 		const me = this;
 		[...args].forEach(arg => {
 			const reg = typedRegistry || me._getRegistryForType(arg);
-			if (reg.isForType(arg) || (reg === me.plugins && arg.id)) {
+			if (typedRegistry || reg.isForType(arg) || (reg === me.plugins && arg.id)) {
 				me._exec(method, reg, arg);
 			} else {
 				each(arg, item => {

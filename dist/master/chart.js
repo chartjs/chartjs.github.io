@@ -50,6 +50,21 @@ function _inheritsLoose(subClass, superClass) {
   subClass.__proto__ = superClass;
 }
 
+function _objectWithoutPropertiesLoose(source, excluded) {
+  if (source == null) return {};
+  var target = {};
+  var sourceKeys = Object.keys(source);
+  var key, i;
+
+  for (i = 0; i < sourceKeys.length; i++) {
+    key = sourceKeys[i];
+    if (excluded.indexOf(key) >= 0) continue;
+    target[key] = source[key];
+  }
+
+  return target;
+}
+
 function _assertThisInitialized(self) {
   if (self === void 0) {
     throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -3302,7 +3317,10 @@ var Animations = function () {
         if (!animatedProps.has(prop)) {
           animatedProps.set(prop, _extends({}, animDefaults, cfg));
         } else if (prop === key) {
-          animatedProps.set(prop, _extends({}, animatedProps.get(prop), cfg));
+          var _animatedProps$get = animatedProps.get(prop),
+              properties = _animatedProps$get.properties,
+              inherited = _objectWithoutPropertiesLoose(_animatedProps$get, ["properties"]);
+          animatedProps.set(prop, _extends({}, inherited, cfg));
         }
       });
     });
@@ -5527,6 +5545,9 @@ var TypedRegistry = function () {
     if (id in items) {
       return scope;
     }
+    if (Object.keys(defaults.get(scope)).length) {
+      throw new Error('Can not register "' + id + '", because "defaults.' + scope + '" would collide with existing defaults');
+    }
     items[id] = item;
     registerDefaults(item, scope, parentScope);
     return scope;
@@ -5636,11 +5657,39 @@ var Registry = function () {
     return this._get(id, this.scales, 'scale');
   }
   ;
+  _proto.removeControllers = function removeControllers() {
+    for (var _len7 = arguments.length, args = new Array(_len7), _key7 = 0; _key7 < _len7; _key7++) {
+      args[_key7] = arguments[_key7];
+    }
+    this._each('unregister', args, this.controllers);
+  }
+  ;
+  _proto.removeElements = function removeElements() {
+    for (var _len8 = arguments.length, args = new Array(_len8), _key8 = 0; _key8 < _len8; _key8++) {
+      args[_key8] = arguments[_key8];
+    }
+    this._each('unregister', args, this.elements);
+  }
+  ;
+  _proto.removePlugins = function removePlugins() {
+    for (var _len9 = arguments.length, args = new Array(_len9), _key9 = 0; _key9 < _len9; _key9++) {
+      args[_key9] = arguments[_key9];
+    }
+    this._each('unregister', args, this.plugins);
+  }
+  ;
+  _proto.removeScales = function removeScales() {
+    for (var _len10 = arguments.length, args = new Array(_len10), _key10 = 0; _key10 < _len10; _key10++) {
+      args[_key10] = arguments[_key10];
+    }
+    this._each('unregister', args, this.scales);
+  }
+  ;
   _proto._each = function _each(method, args, typedRegistry) {
     var me = this;
     [].concat(args).forEach(function (arg) {
       var reg = typedRegistry || me._getRegistryForType(arg);
-      if (reg.isForType(arg) || reg === me.plugins && arg.id) {
+      if (typedRegistry || reg.isForType(arg) || reg === me.plugins && arg.id) {
         me._exec(method, reg, arg);
       } else {
         each(arg, function (item) {
