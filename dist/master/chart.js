@@ -84,6 +84,23 @@ var requestAnimFrame = function () {
   }
   return window.requestAnimationFrame;
 }();
+function throttled(fn, thisArg) {
+  var ticking = false;
+  var args = [];
+  return function () {
+    for (var _len = arguments.length, rest = new Array(_len), _key = 0; _key < _len; _key++) {
+      rest[_key] = arguments[_key];
+    }
+    args = Array.prototype.slice.call(rest);
+    if (!ticking) {
+      ticking = true;
+      requestAnimFrame.call(window, function () {
+        ticking = false;
+        fn.apply(thisArg, args);
+      });
+    }
+  };
+}
 
 function drawFPS(chart, count, date, lastDate) {
   var fps = 1000 / (date - lastDate) | 0;
@@ -972,6 +989,26 @@ function retinaScale(chart, forceRatio) {
     canvas.style.width = width + 'px';
   }
 }
+var supportsEventListenerOptions = function () {
+  var passiveSupported = false;
+  try {
+    var options = {
+      get passive() {
+        passiveSupported = true;
+        return false;
+      }
+    };
+    window.addEventListener('test', null, options);
+    window.removeEventListener('test', null, options);
+  } catch (e) {
+  }
+  return passiveSupported;
+}();
+function readUsedSize(element, property) {
+  var value = getStyle(element, property);
+  var matches = value && value.match(/^(\d+)(\.\d+)?px$/);
+  return matches ? +matches[1] : undefined;
+}
 
 var dom = /*#__PURE__*/Object.freeze({
 __proto__: null,
@@ -980,7 +1017,9 @@ getStyle: getStyle,
 getRelativePosition: getRelativePosition,
 getMaximumWidth: getMaximumWidth,
 getMaximumHeight: getMaximumHeight,
-retinaScale: retinaScale
+retinaScale: retinaScale,
+supportsEventListenerOptions: supportsEventListenerOptions,
+readUsedSize: readUsedSize
 });
 
 function getRelativePosition$1(e, chart) {
@@ -2084,11 +2123,9 @@ var EVENT_TYPES = {
   pointerleave: 'mouseout',
   pointerout: 'mouseout'
 };
-function readUsedSize(element, property) {
-  var value = getStyle(element, property);
-  var matches = value && value.match(/^(\d+)(\.\d+)?px$/);
-  return matches ? +matches[1] : undefined;
-}
+var isNullOrEmpty = function isNullOrEmpty(value) {
+  return value === null || value === '';
+};
 function initCanvas(canvas, config) {
   var style = canvas.style;
   var renderHeight = canvas.getAttribute('height');
@@ -2106,13 +2143,13 @@ function initCanvas(canvas, config) {
   };
   style.display = style.display || 'block';
   style.boxSizing = style.boxSizing || 'border-box';
-  if (renderWidth === null || renderWidth === '') {
+  if (isNullOrEmpty(renderWidth)) {
     var displayWidth = readUsedSize(canvas, 'width');
     if (displayWidth !== undefined) {
       canvas.width = displayWidth;
     }
   }
-  if (renderHeight === null || renderHeight === '') {
+  if (isNullOrEmpty(renderHeight)) {
     if (canvas.style.height === '') {
       canvas.height = canvas.width / (config.options.aspectRatio || 2);
     } else {
@@ -2124,29 +2161,14 @@ function initCanvas(canvas, config) {
   }
   return canvas;
 }
-var supportsEventListenerOptions = function () {
-  var passiveSupported = false;
-  try {
-    var options = {
-      get passive() {
-        passiveSupported = true;
-        return false;
-      }
-    };
-    window.addEventListener('test', null, options);
-    window.removeEventListener('test', null, options);
-  } catch (e) {
-  }
-  return passiveSupported;
-}();
 var eventListenerOptions = supportsEventListenerOptions ? {
   passive: true
 } : false;
 function addListener(node, type, listener) {
   node.addEventListener(type, listener, eventListenerOptions);
 }
-function removeListener(node, type, listener) {
-  node.removeEventListener(type, listener, eventListenerOptions);
+function removeListener(chart, type, listener) {
+  chart.canvas.removeEventListener(type, listener, eventListenerOptions);
 }
 function createEvent(type, chart, x, y, nativeEvent) {
   return {
@@ -2161,23 +2183,6 @@ function fromNativeEvent(event, chart) {
   var type = EVENT_TYPES[event.type] || event.type;
   var pos = getRelativePosition(event, chart);
   return createEvent(type, chart, pos.x, pos.y, event);
-}
-function throttled(fn, thisArg) {
-  var ticking = false;
-  var args = [];
-  return function () {
-    for (var _len = arguments.length, rest = new Array(_len), _key = 0; _key < _len; _key++) {
-      rest[_key] = arguments[_key];
-    }
-    args = Array.prototype.slice.call(rest);
-    if (!ticking) {
-      ticking = true;
-      requestAnimFrame.call(window, function () {
-        ticking = false;
-        fn.apply(thisArg, args);
-      });
-    }
-  };
 }
 function createAttachObserver(chart, type, listener) {
   var canvas = chart.canvas;
@@ -2221,6 +2226,32 @@ function createDetachObserver(chart, type, listener) {
   });
   return observer;
 }
+var drpListeningCharts = new Map();
+var oldDevicePixelRatio = 0;
+function onWindowResize() {
+  var dpr = window.devicePixelRatio;
+  if (dpr === oldDevicePixelRatio) {
+    return;
+  }
+  oldDevicePixelRatio = dpr;
+  drpListeningCharts.forEach(function (resize, chart) {
+    if (chart.currentDevicePixelRatio !== dpr) {
+      resize();
+    }
+  });
+}
+function listenDevicePixelRatioChanges(chart, resize) {
+  if (!drpListeningCharts.size) {
+    window.addEventListener('resize', onWindowResize);
+  }
+  drpListeningCharts.set(chart, resize);
+}
+function unlistenDevicePixelRatioChanges(chart) {
+  drpListeningCharts["delete"](chart);
+  if (!drpListeningCharts.size) {
+    window.removeEventListener('resize', onWindowResize);
+  }
+}
 function createResizeObserver(chart, type, listener) {
   var canvas = chart.canvas;
   var container = canvas && _getParentNode(canvas);
@@ -2244,11 +2275,15 @@ function createResizeObserver(chart, type, listener) {
     resize(width, height);
   });
   observer.observe(container);
+  listenDevicePixelRatioChanges(chart, resize);
   return observer;
 }
-function releaseObserver(canvas, type, observer) {
+function releaseObserver(chart, type, observer) {
   if (observer) {
     observer.disconnect();
+  }
+  if (type === 'resize') {
+    unlistenDevicePixelRatioChanges(chart);
   }
 }
 function createProxyAndListen(chart, type, listener) {
@@ -2312,7 +2347,6 @@ var DomPlatform = function (_BasePlatform) {
   }
   ;
   _proto.removeEventListener = function removeEventListener(chart, type) {
-    var canvas = chart.canvas;
     var proxies = chart.$proxies || (chart.$proxies = {});
     var proxy = proxies[type];
     if (!proxy) {
@@ -2324,7 +2358,7 @@ var DomPlatform = function (_BasePlatform) {
       resize: releaseObserver
     };
     var handler = handlers[type] || removeListener;
-    handler(canvas, type, proxy);
+    handler(chart, type, proxy);
     proxies[type] = undefined;
   };
   _proto.getDevicePixelRatio = function getDevicePixelRatio() {

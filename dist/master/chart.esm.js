@@ -4,7 +4,7 @@
  * (c) 2020 Chart.js Contributors
  * Released under the MIT License
  */
-import { requestAnimFrame } from '../helpers/extras.js';
+import { requestAnimFrame, throttled } from '../helpers/extras.js';
 import effects from '../helpers/easing.js';
 import { isObject, noop, valueOrDefault, merge, isArray, resolveObjectKey, _capitalize, mergeIf, _merger, isNullOrUndef, each, isFinite as isNumberFinite, callback, uid, _elementsEqual } from '../helpers/core.js';
 import { r as resolve, d as defaults, t as toPadding, a as toFont } from '../helpers/chunks/helpers.options.js';
@@ -13,7 +13,7 @@ import { clipArea, unclipArea, _isPointInArea, _measureText, _alignPixel, clear,
 import { color, getHoverColor } from '../helpers/color.js';
 import { unlistenArrayEvents, listenArrayEvents, _rlookupByKey, _lookupByKey, _filterBetween, _arrayUnique, _lookup } from '../helpers/collection.js';
 import { sign, _limitValue, isNumber, toRadians, log10, toDegrees, _factorize, getAngleFromPoint, _angleBetween, _normalizeAngle, distanceBetweenPoints, _setMinAndMaxByKey, _decimalPlaces, almostEquals, almostWhole } from '../helpers/math.js';
-import { getRelativePosition as getRelativePosition$1, _getParentNode, getStyle, retinaScale, getMaximumWidth, getMaximumHeight } from '../helpers/dom.js';
+import { getRelativePosition as getRelativePosition$1, _getParentNode, readUsedSize, supportsEventListenerOptions, retinaScale, getMaximumWidth, getMaximumHeight } from '../helpers/dom.js';
 import { _steppedInterpolation, _bezierInterpolation, _pointInLine } from '../helpers/interpolation.js';
 import { _computeSegments, _boundSegments, _boundSegment } from '../helpers/segment.js';
 import { _updateBezierControlPoints } from '../helpers/curve.js';
@@ -2820,11 +2820,7 @@ const EVENT_TYPES = {
 	pointerleave: 'mouseout',
 	pointerout: 'mouseout'
 };
-function readUsedSize(element, property) {
-	const value = getStyle(element, property);
-	const matches = value && value.match(/^(\d+)(\.\d+)?px$/);
-	return matches ? +matches[1] : undefined;
-}
+const isNullOrEmpty = value => value === null || value === '';
 function initCanvas(canvas, config) {
 	const style = canvas.style;
 	const renderHeight = canvas.getAttribute('height');
@@ -2842,13 +2838,13 @@ function initCanvas(canvas, config) {
 	};
 	style.display = style.display || 'block';
 	style.boxSizing = style.boxSizing || 'border-box';
-	if (renderWidth === null || renderWidth === '') {
+	if (isNullOrEmpty(renderWidth)) {
 		const displayWidth = readUsedSize(canvas, 'width');
 		if (displayWidth !== undefined) {
 			canvas.width = displayWidth;
 		}
 	}
-	if (renderHeight === null || renderHeight === '') {
+	if (isNullOrEmpty(renderHeight)) {
 		if (canvas.style.height === '') {
 			canvas.height = canvas.width / (config.options.aspectRatio || 2);
 		} else {
@@ -2860,27 +2856,12 @@ function initCanvas(canvas, config) {
 	}
 	return canvas;
 }
-const supportsEventListenerOptions = (function() {
-	let passiveSupported = false;
-	try {
-		const options = {
-			get passive() {
-				passiveSupported = true;
-				return false;
-			}
-		};
-		window.addEventListener('test', null, options);
-		window.removeEventListener('test', null, options);
-	} catch (e) {
-	}
-	return passiveSupported;
-}());
 const eventListenerOptions = supportsEventListenerOptions ? {passive: true} : false;
 function addListener(node, type, listener) {
 	node.addEventListener(type, listener, eventListenerOptions);
 }
-function removeListener(node, type, listener) {
-	node.removeEventListener(type, listener, eventListenerOptions);
+function removeListener(chart, type, listener) {
+	chart.canvas.removeEventListener(type, listener, eventListenerOptions);
 }
 function createEvent(type, chart, x, y, nativeEvent) {
 	return {
@@ -2895,20 +2876,6 @@ function fromNativeEvent(event, chart) {
 	const type = EVENT_TYPES[event.type] || event.type;
 	const pos = getRelativePosition$1(event, chart);
 	return createEvent(type, chart, pos.x, pos.y, event);
-}
-function throttled(fn, thisArg) {
-	let ticking = false;
-	let args = [];
-	return function(...rest) {
-		args = Array.prototype.slice.call(rest);
-		if (!ticking) {
-			ticking = true;
-			requestAnimFrame.call(window, () => {
-				ticking = false;
-				fn.apply(thisArg, args);
-			});
-		}
-	};
 }
 function createAttachObserver(chart, type, listener) {
 	const canvas = chart.canvas;
@@ -2947,6 +2914,32 @@ function createDetachObserver(chart, type, listener) {
 	observer.observe(container, {childList: true});
 	return observer;
 }
+const drpListeningCharts = new Map();
+let oldDevicePixelRatio = 0;
+function onWindowResize() {
+	const dpr = window.devicePixelRatio;
+	if (dpr === oldDevicePixelRatio) {
+		return;
+	}
+	oldDevicePixelRatio = dpr;
+	drpListeningCharts.forEach((resize, chart) => {
+		if (chart.currentDevicePixelRatio !== dpr) {
+			resize();
+		}
+	});
+}
+function listenDevicePixelRatioChanges(chart, resize) {
+	if (!drpListeningCharts.size) {
+		window.addEventListener('resize', onWindowResize);
+	}
+	drpListeningCharts.set(chart, resize);
+}
+function unlistenDevicePixelRatioChanges(chart) {
+	drpListeningCharts.delete(chart);
+	if (!drpListeningCharts.size) {
+		window.removeEventListener('resize', onWindowResize);
+	}
+}
 function createResizeObserver(chart, type, listener) {
 	const canvas = chart.canvas;
 	const container = canvas && _getParentNode(canvas);
@@ -2970,11 +2963,15 @@ function createResizeObserver(chart, type, listener) {
 		resize(width, height);
 	});
 	observer.observe(container);
+	listenDevicePixelRatioChanges(chart, resize);
 	return observer;
 }
-function releaseObserver(canvas, type, observer) {
+function releaseObserver(chart, type, observer) {
 	if (observer) {
 		observer.disconnect();
+	}
+	if (type === 'resize') {
+		unlistenDevicePixelRatioChanges(chart);
 	}
 }
 function createProxyAndListen(chart, type, listener) {
@@ -3030,7 +3027,6 @@ class DomPlatform extends BasePlatform {
 		proxies[type] = handler(chart, type, listener);
 	}
 	removeEventListener(chart, type) {
-		const canvas = chart.canvas;
 		const proxies = chart.$proxies || (chart.$proxies = {});
 		const proxy = proxies[type];
 		if (!proxy) {
@@ -3042,7 +3038,7 @@ class DomPlatform extends BasePlatform {
 			resize: releaseObserver
 		};
 		const handler = handlers[type] || removeListener;
-		handler(canvas, type, proxy);
+		handler(chart, type, proxy);
 		proxies[type] = undefined;
 	}
 	getDevicePixelRatio() {
