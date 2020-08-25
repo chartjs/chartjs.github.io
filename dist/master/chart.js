@@ -924,29 +924,31 @@ function _calculatePadding(container, padding, parentDimension) {
   return padding.indexOf('%') > -1 ? parentDimension * parseInt(padding, 10) / 100 : parseInt(padding, 10);
 }
 function getRelativePosition(evt, chart) {
-  var mouseX, mouseY;
   var e = evt.originalEvent || evt;
-  var canvasElement = chart.canvas;
-  var boundingRect = canvasElement.getBoundingClientRect();
   var touches = e.touches;
-  if (touches && touches.length > 0) {
-    mouseX = touches[0].clientX;
-    mouseY = touches[0].clientY;
-  } else {
-    mouseX = e.clientX;
-    mouseY = e.clientY;
+  var source = touches && touches.length ? touches[0] : e;
+  var clientX = source.clientX;
+  var clientY = source.clientY;
+  var x = source.offsetX || source.layerX || clientX;
+  var y = source.offsetY || source.layerY || clientY;
+  if (x !== clientX && y !== clientY) {
+    return {
+      x: x,
+      y: y
+    };
   }
+  var canvasElement = chart.canvas;
+  var devicePixelRatio = chart.currentDevicePixelRatio;
+  var boundingRect = canvasElement.getBoundingClientRect();
   var paddingLeft = parseFloat(getStyle(canvasElement, 'padding-left'));
   var paddingTop = parseFloat(getStyle(canvasElement, 'padding-top'));
   var paddingRight = parseFloat(getStyle(canvasElement, 'padding-right'));
   var paddingBottom = parseFloat(getStyle(canvasElement, 'padding-bottom'));
   var width = boundingRect.right - boundingRect.left - paddingLeft - paddingRight;
   var height = boundingRect.bottom - boundingRect.top - paddingTop - paddingBottom;
-  mouseX = Math.round((mouseX - boundingRect.left - paddingLeft) / width * canvasElement.width / chart.currentDevicePixelRatio);
-  mouseY = Math.round((mouseY - boundingRect.top - paddingTop) / height * canvasElement.height / chart.currentDevicePixelRatio);
   return {
-    x: mouseX,
-    y: mouseY
+    x: Math.round((x - boundingRect.left - paddingLeft) / width * canvasElement.width / devicePixelRatio),
+    y: Math.round((y - boundingRect.top - paddingTop) / height * canvasElement.height / devicePixelRatio)
   };
 }
 function fallbackIfNotValid(measure, fallback) {
