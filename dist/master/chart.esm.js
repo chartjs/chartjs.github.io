@@ -200,6 +200,7 @@ class Animation {
 		this._prop = prop;
 		this._from = from;
 		this._to = to;
+		this._promises = undefined;
 	}
 	active() {
 		return this._active;
@@ -222,6 +223,7 @@ class Animation {
 		if (me._active) {
 			me.tick(Date.now());
 			me._active = false;
+			me._notify(false);
 		}
 	}
 	tick(date) {
@@ -236,6 +238,7 @@ class Animation {
 		me._active = from !== to && (loop || (elapsed < duration));
 		if (!me._active) {
 			me._target[prop] = to;
+			me._notify(true);
 			return;
 		}
 		if (elapsed < 0) {
@@ -246,6 +249,19 @@ class Animation {
 		factor = loop && factor > 1 ? 2 - factor : factor;
 		factor = me._easing(Math.min(1, Math.max(0, factor)));
 		me._target[prop] = me._fn(from, to, factor);
+	}
+	wait() {
+		const promises = this._promises || (this._promises = []);
+		return new Promise((res, rej) => {
+			promises.push({res, rej});
+		});
+	}
+	_notify(resolved) {
+		const method = resolved ? 'res' : 'rej';
+		const promises = this._promises || [];
+		for (let i = 0; i < promises.length; i++) {
+			promises[i][method]();
+		}
 	}
 }
 
@@ -296,10 +312,10 @@ defaults.set('animation', {
 function copyOptions(target, values) {
 	const oldOpts = target.options;
 	const newOpts = values.options;
-	if (!oldOpts || !newOpts || newOpts.$shared) {
+	if (!oldOpts || !newOpts) {
 		return;
 	}
-	if (oldOpts.$shared) {
+	if (oldOpts.$shared && !newOpts.$shared) {
 		target.options = Object.assign({}, oldOpts, newOpts, {$shared: false});
 	} else {
 		Object.assign(oldOpts, newOpts);
@@ -345,18 +361,15 @@ class Animations {
 	}
 	_animateOptions(target, values) {
 		const newOptions = values.options;
-		let animations = [];
-		if (!newOptions) {
-			return animations;
+		const options = resolveTargetOptions(target, newOptions);
+		if (!options) {
+			return [];
 		}
-		let options = target.options;
-		if (options) {
-			if (options.$shared) {
-				target.options = options = Object.assign({}, options, {$shared: false, $animations: {}});
-			}
-			animations = this._createAnimations(options, newOptions);
-		} else {
-			target.options = newOptions;
+		const animations = this._createAnimations(options, newOptions);
+		if (newOptions.$shared && !options.$shared) {
+			awaitAll(target.$animations, newOptions).then(() => {
+				target.options = newOptions;
+			});
 		}
 		return animations;
 	}
@@ -408,6 +421,31 @@ class Animations {
 			return true;
 		}
 	}
+}
+function awaitAll(animations, properties) {
+	const running = [];
+	const keys = Object.keys(properties);
+	for (let i = 0; i < keys.length; i++) {
+		const anim = animations[keys[i]];
+		if (anim && anim.active()) {
+			running.push(anim.wait());
+		}
+	}
+	return Promise.all(running);
+}
+function resolveTargetOptions(target, newOptions) {
+	if (!newOptions) {
+		return;
+	}
+	let options = target.options;
+	if (!options) {
+		target.options = newOptions;
+		return;
+	}
+	if (options.$shared && !newOptions.$shared) {
+		target.options = options = Object.assign({}, options, {$shared: false, $animations: {}});
+	}
+	return options;
 }
 
 function scaleClip(scale, allowedOverflow) {
@@ -535,6 +573,9 @@ function optionKeys(optionNames) {
 function optionKey(key, active) {
 	return active ? 'hover' + _capitalize(key) : key;
 }
+function isDirectUpdateMode(mode) {
+	return mode === 'reset' || mode === 'none';
+}
 class DatasetController {
 	constructor(chart, datasetIndex) {
 		this.chart = chart;
@@ -548,6 +589,8 @@ class DatasetController {
 		this._parsing = false;
 		this._data = undefined;
 		this._objectData = undefined;
+		this._sharedOptions = undefined;
+		this.enableOptionSharing = false;
 		this.initialize();
 	}
 	initialize() {
@@ -843,7 +886,7 @@ class DatasetController {
 		me.configure();
 		me._cachedAnimations = {};
 		me._cachedDataOpts = {};
-		me.update(mode);
+		me.update(mode || 'default');
 		meta._clip = toClip(valueOrDefault(me._config.clip, defaultClip(meta.xScale, meta.yScale, me.getMaxOverflow())));
 	}
 	update(mode) {}
@@ -914,9 +957,11 @@ class DatasetController {
 		});
 	}
 	resolveDataElementOptions(index, mode) {
+		mode = mode || 'default';
 		const me = this;
 		const active = mode === 'active';
 		const cached = me._cachedDataOpts;
+		const sharing = me.enableOptionSharing;
 		if (cached[mode]) {
 			return cached[mode];
 		}
@@ -928,8 +973,8 @@ class DatasetController {
 			type: me.dataElementType.id
 		});
 		if (info.cacheable) {
-			values.$shared = true;
-			cached[mode] = values;
+			values.$shared = sharing;
+			cached[mode] = sharing ? Object.freeze(values) : values;
 		}
 		return values;
 	}
@@ -977,35 +1022,31 @@ class DatasetController {
 		}
 		return animations;
 	}
-	getSharedOptions(mode, el, options) {
-		if (!mode) {
-			this._sharedOptions = options && options.$shared;
+	getSharedOptions(options) {
+		if (!options.$shared) {
+			return;
 		}
-		if (mode !== 'reset' && options && options.$shared && el && el.options && el.options.$shared) {
-			return {target: el.options, options};
-		}
+		return this._sharedOptions || (this._sharedOptions = Object.assign({}, options));
 	}
 	includeOptions(mode, sharedOptions) {
-		if (mode === 'hide' || mode === 'show') {
-			return true;
-		}
-		return mode !== 'resize' && !sharedOptions;
+		return !sharedOptions || isDirectUpdateMode(mode);
 	}
 	updateElement(element, index, properties, mode) {
-		if (mode === 'reset' || mode === 'none') {
+		if (isDirectUpdateMode(mode)) {
 			Object.assign(element, properties);
 		} else {
 			this._resolveAnimations(index, mode).update(element, properties);
 		}
 	}
-	updateSharedOptions(sharedOptions, mode) {
+	updateSharedOptions(sharedOptions, mode, newOptions) {
 		if (sharedOptions) {
-			this._resolveAnimations(undefined, mode).update(sharedOptions.target, sharedOptions.options);
+			this._resolveAnimations(undefined, mode).update({options: sharedOptions}, {options: newOptions});
 		}
 	}
 	_setStyle(element, index, mode, active) {
 		element.active = active;
-		this._resolveAnimations(index, mode, active).update(element, {options: this.getStyle(index, active)});
+		const options = this.getStyle(index, active);
+		this._resolveAnimations(index, mode, active).update(element, {options: this.getSharedOptions(options) || options});
 	}
 	removeHoverStyle(element, datasetIndex, index) {
 		this._setStyle(element, index, 'active', false);
@@ -1242,6 +1283,7 @@ class BarController extends DatasetController {
 	}
 	initialize() {
 		const me = this;
+		me.enableOptionSharing = true;
 		super.initialize();
 		const meta = me._cachedMeta;
 		meta.stack = me.getDataset().stack;
@@ -1259,12 +1301,12 @@ class BarController extends DatasetController {
 		const horizontal = vscale.isHorizontal();
 		const ruler = me._getRuler();
 		const firstOpts = me.resolveDataElementOptions(start, mode);
-		const sharedOptions = me.getSharedOptions(mode, rectangles[start], firstOpts);
+		const sharedOptions = me.getSharedOptions(firstOpts);
 		const includeOptions = me.includeOptions(mode, sharedOptions);
-		let i;
-		for (i = 0; i < rectangles.length; i++) {
+		me.updateSharedOptions(sharedOptions, mode, firstOpts);
+		for (let i = 0; i < rectangles.length; i++) {
 			const index = start + i;
-			const options = me.resolveDataElementOptions(index, mode);
+			const options = sharedOptions || me.resolveDataElementOptions(index, mode);
 			const vpixels = me._calculateBarValuePixels(index, options);
 			const ipixels = me._calculateBarIndexPixels(index, ruler, options);
 			const properties = {
@@ -1280,7 +1322,6 @@ class BarController extends DatasetController {
 			}
 			me.updateElement(rectangles[i], index, properties, mode);
 		}
-		me.updateSharedOptions(sharedOptions, mode);
 	}
 	_getStacks(last) {
 		const me = this;
@@ -1457,6 +1498,10 @@ BarController.defaults = {
 };
 
 class BubbleController extends DatasetController {
+	initialize() {
+		this.enableOptionSharing = true;
+		super.initialize();
+	}
 	parseObjectData(meta, data, start, count) {
 		const {xScale, yScale} = meta;
 		const {xAxisKey = 'x', yAxisKey = 'y'} = this._parsing;
@@ -1505,7 +1550,7 @@ class BubbleController extends DatasetController {
 		const reset = mode === 'reset';
 		const {xScale, yScale} = me._cachedMeta;
 		const firstOpts = me.resolveDataElementOptions(start, mode);
-		const sharedOptions = me.getSharedOptions(mode, points[start], firstOpts);
+		const sharedOptions = me.getSharedOptions(firstOpts);
 		const includeOptions = me.includeOptions(mode, sharedOptions);
 		for (let i = 0; i < points.length; i++) {
 			const point = points[i];
@@ -1526,7 +1571,7 @@ class BubbleController extends DatasetController {
 			}
 			me.updateElement(point, index, properties, mode);
 		}
-		me.updateSharedOptions(sharedOptions, mode);
+		me.updateSharedOptions(sharedOptions, mode, firstOpts);
 	}
 	resolveDataElementOptions(index, mode) {
 		const me = this;
@@ -1624,6 +1669,7 @@ function getRatioAndOffset(rotation, circumference, cutout) {
 class DoughnutController extends DatasetController {
 	constructor(chart, datasetIndex) {
 		super(chart, datasetIndex);
+		this.enableOptionSharing = true;
 		this.innerRadius = undefined;
 		this.outerRadius = undefined;
 		this.offsetX = undefined;
@@ -1688,7 +1734,7 @@ class DoughnutController extends DatasetController {
 		const innerRadius = animateScale ? 0 : me.innerRadius;
 		const outerRadius = animateScale ? 0 : me.outerRadius;
 		const firstOpts = me.resolveDataElementOptions(start, mode);
-		const sharedOptions = me.getSharedOptions(mode, arcs[start], firstOpts);
+		const sharedOptions = me.getSharedOptions(firstOpts);
 		const includeOptions = me.includeOptions(mode, sharedOptions);
 		let startAngle = opts.rotation;
 		let i;
@@ -1709,12 +1755,12 @@ class DoughnutController extends DatasetController {
 				innerRadius
 			};
 			if (includeOptions) {
-				properties.options = me.resolveDataElementOptions(index, mode);
+				properties.options = sharedOptions || me.resolveDataElementOptions(index, mode);
 			}
 			startAngle += circumference;
 			me.updateElement(arc, index, properties, mode);
 		}
-		me.updateSharedOptions(sharedOptions, mode);
+		me.updateSharedOptions(sharedOptions, mode, firstOpts);
 	}
 	calculateTotal() {
 		const meta = this._cachedMeta;
@@ -1869,6 +1915,10 @@ DoughnutController.defaults = {
 };
 
 class LineController extends DatasetController {
+	initialize() {
+		this.enableOptionSharing = true;
+		super.initialize();
+	}
 	update(mode) {
 		const me = this;
 		const meta = me._cachedMeta;
@@ -1888,7 +1938,7 @@ class LineController extends DatasetController {
 		const reset = mode === 'reset';
 		const {xScale, yScale, _stacked} = me._cachedMeta;
 		const firstOpts = me.resolveDataElementOptions(start, mode);
-		const sharedOptions = me.getSharedOptions(mode, points[start], firstOpts);
+		const sharedOptions = me.getSharedOptions(firstOpts);
 		const includeOptions = me.includeOptions(mode, sharedOptions);
 		const spanGaps = valueOrDefault(me._config.spanGaps, me.chart.options.spanGaps);
 		const maxGapLength = isNumber(spanGaps) ? spanGaps : Number.POSITIVE_INFINITY;
@@ -1906,12 +1956,12 @@ class LineController extends DatasetController {
 				stop: i > 0 && (parsed.x - prevParsed.x) > maxGapLength
 			};
 			if (includeOptions) {
-				properties.options = me.resolveDataElementOptions(index, mode);
+				properties.options = sharedOptions || me.resolveDataElementOptions(index, mode);
 			}
 			me.updateElement(point, index, properties, mode);
 			prevParsed = parsed;
 		}
-		me.updateSharedOptions(sharedOptions, mode);
+		me.updateSharedOptions(sharedOptions, mode, firstOpts);
 	}
 	resolveDatasetElementOptions(active) {
 		const me = this;
@@ -4881,11 +4931,9 @@ class Chart {
 			me.getDatasetMeta(i).controller.buildOrUpdateElements();
 		}
 		me._updateLayout();
-		if (me.options.animation) {
-			each(newControllers, (controller) => {
-				controller.reset();
-			});
-		}
+		each(newControllers, (controller) => {
+			controller.reset();
+		});
 		me._updateDatasets(mode);
 		me._plugins.notify(me, 'afterUpdate');
 		me._layers.sort(compare2Level('z', '_idx'));

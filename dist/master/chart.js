@@ -2381,6 +2381,202 @@ BasicPlatform: BasicPlatform,
 DomPlatform: DomPlatform
 });
 
+function finallyConstructor(callback) {
+  var constructor = this.constructor;
+  return this.then(function (value) {
+    return constructor.resolve(callback()).then(function () {
+      return value;
+    });
+  }, function (reason) {
+    return constructor.resolve(callback()).then(function () {
+      return constructor.reject(reason);
+    });
+  });
+}
+
+var setTimeoutFunc = setTimeout;
+function isArray$1(x) {
+  return Boolean(x && typeof x.length !== 'undefined');
+}
+function noop$1() {}
+function bind(fn, thisArg) {
+  return function () {
+    fn.apply(thisArg, arguments);
+  };
+}
+function Promise(fn) {
+  if (!(this instanceof Promise)) throw new TypeError('Promises must be constructed via new');
+  if (typeof fn !== 'function') throw new TypeError('not a function');
+  this._state = 0;
+  this._handled = false;
+  this._value = undefined;
+  this._deferreds = [];
+  doResolve(fn, this);
+}
+function handle(self, deferred) {
+  while (self._state === 3) {
+    self = self._value;
+  }
+  if (self._state === 0) {
+    self._deferreds.push(deferred);
+    return;
+  }
+  self._handled = true;
+  Promise._immediateFn(function () {
+    var cb = self._state === 1 ? deferred.onFulfilled : deferred.onRejected;
+    if (cb === null) {
+      (self._state === 1 ? resolve$1 : reject)(deferred.promise, self._value);
+      return;
+    }
+    var ret;
+    try {
+      ret = cb(self._value);
+    } catch (e) {
+      reject(deferred.promise, e);
+      return;
+    }
+    resolve$1(deferred.promise, ret);
+  });
+}
+function resolve$1(self, newValue) {
+  try {
+    if (newValue === self) throw new TypeError('A promise cannot be resolved with itself.');
+    if (newValue && (typeof newValue === 'object' || typeof newValue === 'function')) {
+      var then = newValue.then;
+      if (newValue instanceof Promise) {
+        self._state = 3;
+        self._value = newValue;
+        finale(self);
+        return;
+      } else if (typeof then === 'function') {
+        doResolve(bind(then, newValue), self);
+        return;
+      }
+    }
+    self._state = 1;
+    self._value = newValue;
+    finale(self);
+  } catch (e) {
+    reject(self, e);
+  }
+}
+function reject(self, newValue) {
+  self._state = 2;
+  self._value = newValue;
+  finale(self);
+}
+function finale(self) {
+  if (self._state === 2 && self._deferreds.length === 0) {
+    Promise._immediateFn(function () {
+      if (!self._handled) {
+        Promise._unhandledRejectionFn(self._value);
+      }
+    });
+  }
+  for (var i = 0, len = self._deferreds.length; i < len; i++) {
+    handle(self, self._deferreds[i]);
+  }
+  self._deferreds = null;
+}
+function Handler(onFulfilled, onRejected, promise) {
+  this.onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : null;
+  this.onRejected = typeof onRejected === 'function' ? onRejected : null;
+  this.promise = promise;
+}
+function doResolve(fn, self) {
+  var done = false;
+  try {
+    fn(function (value) {
+      if (done) return;
+      done = true;
+      resolve$1(self, value);
+    }, function (reason) {
+      if (done) return;
+      done = true;
+      reject(self, reason);
+    });
+  } catch (ex) {
+    if (done) return;
+    done = true;
+    reject(self, ex);
+  }
+}
+Promise.prototype['catch'] = function (onRejected) {
+  return this.then(null, onRejected);
+};
+Promise.prototype.then = function (onFulfilled, onRejected) {
+  var prom = new this.constructor(noop$1);
+  handle(this, new Handler(onFulfilled, onRejected, prom));
+  return prom;
+};
+Promise.prototype['finally'] = finallyConstructor;
+Promise.all = function (arr) {
+  return new Promise(function (resolve, reject) {
+    if (!isArray$1(arr)) {
+      return reject(new TypeError('Promise.all accepts an array'));
+    }
+    var args = Array.prototype.slice.call(arr);
+    if (args.length === 0) return resolve([]);
+    var remaining = args.length;
+    function res(i, val) {
+      try {
+        if (val && (typeof val === 'object' || typeof val === 'function')) {
+          var then = val.then;
+          if (typeof then === 'function') {
+            then.call(val, function (val) {
+              res(i, val);
+            }, reject);
+            return;
+          }
+        }
+        args[i] = val;
+        if (--remaining === 0) {
+          resolve(args);
+        }
+      } catch (ex) {
+        reject(ex);
+      }
+    }
+    for (var i = 0; i < args.length; i++) {
+      res(i, args[i]);
+    }
+  });
+};
+Promise.resolve = function (value) {
+  if (value && typeof value === 'object' && value.constructor === Promise) {
+    return value;
+  }
+  return new Promise(function (resolve) {
+    resolve(value);
+  });
+};
+Promise.reject = function (value) {
+  return new Promise(function (resolve, reject) {
+    reject(value);
+  });
+};
+Promise.race = function (arr) {
+  return new Promise(function (resolve, reject) {
+    if (!isArray$1(arr)) {
+      return reject(new TypeError('Promise.race accepts an array'));
+    }
+    for (var i = 0, len = arr.length; i < len; i++) {
+      Promise.resolve(arr[i]).then(resolve, reject);
+    }
+  });
+};
+Promise._immediateFn =
+typeof setImmediate === 'function' && function (fn) {
+  setImmediate(fn);
+} || function (fn) {
+  setTimeoutFunc(fn, 0);
+};
+Promise._unhandledRejectionFn = function _unhandledRejectionFn(err) {
+  if (typeof console !== 'undefined' && console) {
+    console.warn('Possible Unhandled Promise Rejection:', err);
+  }
+};
+
 var effects = {
   linear: function linear(t) {
     return t;
@@ -3211,6 +3407,7 @@ var Animation = function () {
     this._prop = prop;
     this._from = from;
     this._to = to;
+    this._promises = undefined;
   }
   var _proto = Animation.prototype;
   _proto.active = function active() {
@@ -3234,6 +3431,7 @@ var Animation = function () {
     if (me._active) {
       me.tick(Date.now());
       me._active = false;
+      me._notify(false);
     }
   };
   _proto.tick = function tick(date) {
@@ -3248,6 +3446,7 @@ var Animation = function () {
     me._active = from !== to && (loop || elapsed < duration);
     if (!me._active) {
       me._target[prop] = to;
+      me._notify(true);
       return;
     }
     if (elapsed < 0) {
@@ -3258,6 +3457,22 @@ var Animation = function () {
     factor = loop && factor > 1 ? 2 - factor : factor;
     factor = me._easing(Math.min(1, Math.max(0, factor)));
     me._target[prop] = me._fn(from, to, factor);
+  };
+  _proto.wait = function wait() {
+    var promises = this._promises || (this._promises = []);
+    return new Promise(function (res, rej) {
+      promises.push({
+        res: res,
+        rej: rej
+      });
+    });
+  };
+  _proto._notify = function _notify(resolved) {
+    var method = resolved ? 'res' : 'rej';
+    var promises = this._promises || [];
+    for (var i = 0; i < promises.length; i++) {
+      promises[i][method]();
+    }
   };
   return Animation;
 }();
@@ -3309,10 +3524,10 @@ defaults.set('animation', {
 function copyOptions(target, values) {
   var oldOpts = target.options;
   var newOpts = values.options;
-  if (!oldOpts || !newOpts || newOpts.$shared) {
+  if (!oldOpts || !newOpts) {
     return;
   }
-  if (oldOpts.$shared) {
+  if (oldOpts.$shared && !newOpts.$shared) {
     target.options = _extends({}, oldOpts, newOpts, {
       $shared: false
     });
@@ -3364,21 +3579,15 @@ var Animations = function () {
   ;
   _proto._animateOptions = function _animateOptions(target, values) {
     var newOptions = values.options;
-    var animations = [];
-    if (!newOptions) {
-      return animations;
+    var options = resolveTargetOptions(target, newOptions);
+    if (!options) {
+      return [];
     }
-    var options = target.options;
-    if (options) {
-      if (options.$shared) {
-        target.options = options = _extends({}, options, {
-          $shared: false,
-          $animations: {}
-        });
-      }
-      animations = this._createAnimations(options, newOptions);
-    } else {
-      target.options = newOptions;
+    var animations = this._createAnimations(options, newOptions);
+    if (newOptions.$shared && !options.$shared) {
+      awaitAll(target.$animations, newOptions).then(function () {
+        target.options = newOptions;
+      });
     }
     return animations;
   }
@@ -3434,6 +3643,34 @@ var Animations = function () {
   };
   return Animations;
 }();
+function awaitAll(animations, properties) {
+  var running = [];
+  var keys = Object.keys(properties);
+  for (var i = 0; i < keys.length; i++) {
+    var anim = animations[keys[i]];
+    if (anim && anim.active()) {
+      running.push(anim.wait());
+    }
+  }
+  return Promise.all(running);
+}
+function resolveTargetOptions(target, newOptions) {
+  if (!newOptions) {
+    return;
+  }
+  var options = target.options;
+  if (!options) {
+    target.options = newOptions;
+    return;
+  }
+  if (options.$shared && !newOptions.$shared) {
+    target.options = options = _extends({}, options, {
+      $shared: false,
+      $animations: {}
+    });
+  }
+  return options;
+}
 
 var PI$1 = Math.PI;
 var TAU = 2 * PI$1;
@@ -3700,6 +3937,9 @@ function optionKeys(optionNames) {
 function optionKey(key, active) {
   return active ? 'hover' + _capitalize(key) : key;
 }
+function isDirectUpdateMode(mode) {
+  return mode === 'reset' || mode === 'none';
+}
 var DatasetController = function () {
   function DatasetController(chart, datasetIndex) {
     this.chart = chart;
@@ -3713,6 +3953,8 @@ var DatasetController = function () {
     this._parsing = false;
     this._data = undefined;
     this._objectData = undefined;
+    this._sharedOptions = undefined;
+    this.enableOptionSharing = false;
     this.initialize();
   }
   var _proto = DatasetController.prototype;
@@ -4038,7 +4280,7 @@ var DatasetController = function () {
     me.configure();
     me._cachedAnimations = {};
     me._cachedDataOpts = {};
-    me.update(mode);
+    me.update(mode || 'default');
     meta._clip = toClip(valueOrDefault(me._config.clip, defaultClip(meta.xScale, meta.yScale, me.getMaxOverflow())));
   }
   ;
@@ -4116,9 +4358,11 @@ var DatasetController = function () {
   }
   ;
   _proto.resolveDataElementOptions = function resolveDataElementOptions(index, mode) {
+    mode = mode || 'default';
     var me = this;
     var active = mode === 'active';
     var cached = me._cachedDataOpts;
+    var sharing = me.enableOptionSharing;
     if (cached[mode]) {
       return cached[mode];
     }
@@ -4132,8 +4376,8 @@ var DatasetController = function () {
       type: me.dataElementType.id
     });
     if (info.cacheable) {
-      values.$shared = true;
-      cached[mode] = values;
+      values.$shared = sharing;
+      cached[mode] = sharing ? Object.freeze(values) : values;
     }
     return values;
   }
@@ -4185,43 +4429,40 @@ var DatasetController = function () {
     return animations;
   }
   ;
-  _proto.getSharedOptions = function getSharedOptions(mode, el, options) {
-    if (!mode) {
-      this._sharedOptions = options && options.$shared;
+  _proto.getSharedOptions = function getSharedOptions(options) {
+    if (!options.$shared) {
+      return;
     }
-    if (mode !== 'reset' && options && options.$shared && el && el.options && el.options.$shared) {
-      return {
-        target: el.options,
-        options: options
-      };
-    }
+    return this._sharedOptions || (this._sharedOptions = _extends({}, options));
   }
   ;
   _proto.includeOptions = function includeOptions(mode, sharedOptions) {
-    if (mode === 'hide' || mode === 'show') {
-      return true;
-    }
-    return mode !== 'resize' && !sharedOptions;
+    return !sharedOptions || isDirectUpdateMode(mode);
   }
   ;
   _proto.updateElement = function updateElement(element, index, properties, mode) {
-    if (mode === 'reset' || mode === 'none') {
+    if (isDirectUpdateMode(mode)) {
       _extends(element, properties);
     } else {
       this._resolveAnimations(index, mode).update(element, properties);
     }
   }
   ;
-  _proto.updateSharedOptions = function updateSharedOptions(sharedOptions, mode) {
+  _proto.updateSharedOptions = function updateSharedOptions(sharedOptions, mode, newOptions) {
     if (sharedOptions) {
-      this._resolveAnimations(undefined, mode).update(sharedOptions.target, sharedOptions.options);
+      this._resolveAnimations(undefined, mode).update({
+        options: sharedOptions
+      }, {
+        options: newOptions
+      });
     }
   }
   ;
   _proto._setStyle = function _setStyle(element, index, mode, active) {
     element.active = active;
+    var options = this.getStyle(index, active);
     this._resolveAnimations(index, mode, active).update(element, {
-      options: this.getStyle(index, active)
+      options: this.getSharedOptions(options) || options
     });
   };
   _proto.removeHoverStyle = function removeHoverStyle(element, datasetIndex, index) {
@@ -6278,11 +6519,9 @@ var Chart = function () {
       me.getDatasetMeta(i).controller.buildOrUpdateElements();
     }
     me._updateLayout();
-    if (me.options.animation) {
-      each(newControllers, function (controller) {
-        controller.reset();
-      });
-    }
+    each(newControllers, function (controller) {
+      controller.reset();
+    });
     me._updateDatasets(mode);
     me._plugins.notify(me, 'afterUpdate');
     me._layers.sort(compare2Level('z', '_idx'));
@@ -7386,6 +7625,7 @@ var BarController = function (_DatasetController) {
   };
   _proto.initialize = function initialize() {
     var me = this;
+    me.enableOptionSharing = true;
     _DatasetController.prototype.initialize.call(this);
     var meta = me._cachedMeta;
     meta.stack = me.getDataset().stack;
@@ -7403,12 +7643,12 @@ var BarController = function (_DatasetController) {
     var horizontal = vscale.isHorizontal();
     var ruler = me._getRuler();
     var firstOpts = me.resolveDataElementOptions(start, mode);
-    var sharedOptions = me.getSharedOptions(mode, rectangles[start], firstOpts);
+    var sharedOptions = me.getSharedOptions(firstOpts);
     var includeOptions = me.includeOptions(mode, sharedOptions);
-    var i;
-    for (i = 0; i < rectangles.length; i++) {
+    me.updateSharedOptions(sharedOptions, mode, firstOpts);
+    for (var i = 0; i < rectangles.length; i++) {
       var index = start + i;
-      var options = me.resolveDataElementOptions(index, mode);
+      var options = sharedOptions || me.resolveDataElementOptions(index, mode);
       var vpixels = me._calculateBarValuePixels(index, options);
       var ipixels = me._calculateBarIndexPixels(index, ruler, options);
       var properties = {
@@ -7424,7 +7664,6 @@ var BarController = function (_DatasetController) {
       }
       me.updateElement(rectangles[i], index, properties, mode);
     }
-    me.updateSharedOptions(sharedOptions, mode);
   }
   ;
   _proto._getStacks = function _getStacks(last) {
@@ -7592,6 +7831,11 @@ var BubbleController = function (_DatasetController) {
     return _DatasetController.apply(this, arguments) || this;
   }
   var _proto = BubbleController.prototype;
+  _proto.initialize = function initialize() {
+    this.enableOptionSharing = true;
+    _DatasetController.prototype.initialize.call(this);
+  }
+  ;
   _proto.parseObjectData = function parseObjectData(meta, data, start, count) {
     var xScale = meta.xScale,
         yScale = meta.yScale;
@@ -7650,7 +7894,7 @@ var BubbleController = function (_DatasetController) {
         xScale = _me$_cachedMeta.xScale,
         yScale = _me$_cachedMeta.yScale;
     var firstOpts = me.resolveDataElementOptions(start, mode);
-    var sharedOptions = me.getSharedOptions(mode, points[start], firstOpts);
+    var sharedOptions = me.getSharedOptions(firstOpts);
     var includeOptions = me.includeOptions(mode, sharedOptions);
     for (var i = 0; i < points.length; i++) {
       var point = points[i];
@@ -7671,7 +7915,7 @@ var BubbleController = function (_DatasetController) {
       }
       me.updateElement(point, index, properties, mode);
     }
-    me.updateSharedOptions(sharedOptions, mode);
+    me.updateSharedOptions(sharedOptions, mode, firstOpts);
   }
   ;
   _proto.resolveDataElementOptions = function resolveDataElementOptions(index, mode) {
@@ -7768,6 +8012,7 @@ var DoughnutController = function (_DatasetController) {
   function DoughnutController(chart, datasetIndex) {
     var _this;
     _this = _DatasetController.call(this, chart, datasetIndex) || this;
+    _this.enableOptionSharing = true;
     _this.innerRadius = undefined;
     _this.outerRadius = undefined;
     _this.offsetX = undefined;
@@ -7843,7 +8088,7 @@ var DoughnutController = function (_DatasetController) {
     var innerRadius = animateScale ? 0 : me.innerRadius;
     var outerRadius = animateScale ? 0 : me.outerRadius;
     var firstOpts = me.resolveDataElementOptions(start, mode);
-    var sharedOptions = me.getSharedOptions(mode, arcs[start], firstOpts);
+    var sharedOptions = me.getSharedOptions(firstOpts);
     var includeOptions = me.includeOptions(mode, sharedOptions);
     var startAngle = opts.rotation;
     var i;
@@ -7864,12 +8109,12 @@ var DoughnutController = function (_DatasetController) {
         innerRadius: innerRadius
       };
       if (includeOptions) {
-        properties.options = me.resolveDataElementOptions(index, mode);
+        properties.options = sharedOptions || me.resolveDataElementOptions(index, mode);
       }
       startAngle += circumference;
       me.updateElement(arc, index, properties, mode);
     }
-    me.updateSharedOptions(sharedOptions, mode);
+    me.updateSharedOptions(sharedOptions, mode, firstOpts);
   };
   _proto.calculateTotal = function calculateTotal() {
     var meta = this._cachedMeta;
@@ -8027,6 +8272,10 @@ var LineController = function (_DatasetController) {
     return _DatasetController.apply(this, arguments) || this;
   }
   var _proto = LineController.prototype;
+  _proto.initialize = function initialize() {
+    this.enableOptionSharing = true;
+    _DatasetController.prototype.initialize.call(this);
+  };
   _proto.update = function update(mode) {
     var me = this;
     var meta = me._cachedMeta;
@@ -8049,7 +8298,7 @@ var LineController = function (_DatasetController) {
         yScale = _me$_cachedMeta.yScale,
         _stacked = _me$_cachedMeta._stacked;
     var firstOpts = me.resolveDataElementOptions(start, mode);
-    var sharedOptions = me.getSharedOptions(mode, points[start], firstOpts);
+    var sharedOptions = me.getSharedOptions(firstOpts);
     var includeOptions = me.includeOptions(mode, sharedOptions);
     var spanGaps = valueOrDefault(me._config.spanGaps, me.chart.options.spanGaps);
     var maxGapLength = isNumber(spanGaps) ? spanGaps : Number.POSITIVE_INFINITY;
@@ -8067,12 +8316,12 @@ var LineController = function (_DatasetController) {
         stop: i > 0 && parsed.x - prevParsed.x > maxGapLength
       };
       if (includeOptions) {
-        properties.options = me.resolveDataElementOptions(index, mode);
+        properties.options = sharedOptions || me.resolveDataElementOptions(index, mode);
       }
       me.updateElement(point, index, properties, mode);
       prevParsed = parsed;
     }
-    me.updateSharedOptions(sharedOptions, mode);
+    me.updateSharedOptions(sharedOptions, mode, firstOpts);
   }
   ;
   _proto.resolveDatasetElementOptions = function resolveDatasetElementOptions(active) {
