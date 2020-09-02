@@ -12650,15 +12650,16 @@ function determineMajorUnit(unit) {
     }
   }
 }
-function addTick(timestamps, ticks, time) {
-  if (!timestamps.length) {
-    return;
+function addTick(ticks, time, timestamps) {
+  if (!timestamps) {
+    ticks[time] = true;
+  } else if (timestamps.length) {
+    var _lookup2 = _lookup(timestamps, time),
+        lo = _lookup2.lo,
+        hi = _lookup2.hi;
+    var timestamp = timestamps[lo] >= time ? timestamps[lo] : timestamps[hi];
+    ticks[timestamp] = true;
   }
-  var _lookup2 = _lookup(timestamps, time),
-      lo = _lookup2.lo,
-      hi = _lookup2.hi;
-  var timestamp = timestamps[lo] >= time ? timestamps[lo] : timestamps[hi];
-  ticks[timestamp] = true;
 }
 function setMajorTicks(scale, ticks, map, majorUnit) {
   var adapter = scale._adapter;
@@ -12838,23 +12839,16 @@ var TimeScale = function (_Scale) {
     if (adapter.diff(max, min, minor) > 100000 * stepSize) {
       throw new Error(min + ' and ' + max + ' are too far apart with stepSize of ' + stepSize + ' ' + minor);
     }
-    if (me.options.ticks.source === 'data') {
-      var timestamps = me.getDataTimestamps();
-      for (time = first; time < max; time = +adapter.add(time, stepSize, minor)) {
-        addTick(timestamps, ticks, time);
-      }
-      if (time === max || options.bounds === 'ticks') {
-        addTick(timestamps, ticks, time);
-      }
-    } else {
-      for (time = first; time < max; time = +adapter.add(time, stepSize, minor)) {
-        ticks[time] = true;
-      }
-      if (time === max || options.bounds === 'ticks') {
-        ticks[time] = true;
-      }
+    var timestamps = options.ticks.source === 'data' && me.getDataTimestamps();
+    for (time = first; time < max; time = +adapter.add(time, stepSize, minor)) {
+      addTick(ticks, time, timestamps);
     }
-    return Object.keys(ticks).map(function (x) {
+    if (time === max || options.bounds === 'ticks') {
+      addTick(ticks, time, timestamps);
+    }
+    return Object.keys(ticks).sort(function (a, b) {
+      return a - b;
+    }).map(function (x) {
       return +x;
     });
   }
