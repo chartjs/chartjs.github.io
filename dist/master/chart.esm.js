@@ -3131,6 +3131,7 @@ class Element {
 Element.defaults = {};
 Element.defaultRoutes = undefined;
 
+const intlCache = new Map();
 const formatters = {
 	values(value) {
 		return isArray(value) ? value : '' + value;
@@ -3153,7 +3154,13 @@ const formatters = {
 		const numDecimal = Math.max(Math.min(-1 * Math.floor(logDelta), 20), 0);
 		const options = {notation, minimumFractionDigits: numDecimal, maximumFractionDigits: numDecimal};
 		Object.assign(options, this.options.ticks.format);
-		return new Intl.NumberFormat(locale, options).format(tickValue);
+		const cacheKey = locale + JSON.stringify(options);
+		let formatter = intlCache.get(cacheKey);
+		if (!formatter) {
+			formatter = new Intl.NumberFormat(locale, options);
+			intlCache.set(cacheKey, formatter);
+		}
+		return formatter.format(tickValue);
 	}
 };
 formatters.logarithmic = function(tickValue, index, ticks) {

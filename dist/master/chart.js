@@ -4595,6 +4595,7 @@ var Element$1 = function () {
 Element$1.defaults = {};
 Element$1.defaultRoutes = undefined;
 
+var intlCache = new Map();
 var formatters = {
   values: function values(value) {
     return isArray(value) ? value : '' + value;
@@ -4621,7 +4622,13 @@ var formatters = {
       maximumFractionDigits: numDecimal
     };
     _extends(options, this.options.ticks.format);
-    return new Intl.NumberFormat(locale, options).format(tickValue);
+    var cacheKey = locale + JSON.stringify(options);
+    var formatter = intlCache.get(cacheKey);
+    if (!formatter) {
+      formatter = new Intl.NumberFormat(locale, options);
+      intlCache.set(cacheKey, formatter);
+    }
+    return formatter.format(tickValue);
   }
 };
 formatters.logarithmic = function (tickValue, index, ticks) {
