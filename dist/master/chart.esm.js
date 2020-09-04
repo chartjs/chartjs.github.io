@@ -4623,16 +4623,16 @@ function compare2Level(l1, l2) {
 			: a[l1] - b[l1];
 	};
 }
-function onAnimationsComplete(ctx) {
-	const chart = ctx.chart;
+function onAnimationsComplete(context) {
+	const chart = context.chart;
 	const animationOptions = chart.options.animation;
 	chart._plugins.notify(chart, 'afterRender');
-	callback(animationOptions && animationOptions.onComplete, [ctx], chart);
+	callback(animationOptions && animationOptions.onComplete, [context], chart);
 }
-function onAnimationProgress(ctx) {
-	const chart = ctx.chart;
+function onAnimationProgress(context) {
+	const chart = context.chart;
 	const animationOptions = chart.options.animation;
-	callback(animationOptions && animationOptions.onProgress, [ctx], chart);
+	callback(animationOptions && animationOptions.onProgress, [context], chart);
 }
 function isDomSupported() {
 	return typeof window !== 'undefined' && typeof document !== 'undefined';
@@ -4984,21 +4984,16 @@ class Chart {
 	}
 	render() {
 		const me = this;
-		const animationOptions = me.options.animation;
 		if (me._plugins.notify(me, 'beforeRender') === false) {
 			return;
 		}
-		const onComplete = function() {
-			me._plugins.notify(me, 'afterRender');
-			callback(animationOptions && animationOptions.onComplete, [], me);
-		};
 		if (animator.has(me)) {
 			if (me.attached && !animator.running(me)) {
 				animator.start(me);
 			}
 		} else {
 			me.draw();
-			onComplete();
+			onAnimationsComplete({chart: me});
 		}
 	}
 	draw() {
@@ -5201,8 +5196,8 @@ class Chart {
 			let detached;
 			const attached = () => {
 				_remove('attach', attached);
-				me.resize();
 				me.attached = true;
+				me.resize();
 				_add('resize', listener);
 				_add('detach', detached);
 			};
