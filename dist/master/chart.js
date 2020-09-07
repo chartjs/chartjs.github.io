@@ -12623,7 +12623,7 @@ function _parse(scale, input) {
     return value;
   }
   if (round) {
-    value = round === 'week' && isoWeekday ? scale._adapter.startOf(value, 'isoWeek', isoWeekday) : scale._adapter.startOf(value, round);
+    value = round === 'week' && (isNumber(isoWeekday) || isoWeekday === true) ? scale._adapter.startOf(value, 'isoWeek', isoWeekday) : scale._adapter.startOf(value, round);
   }
   return +value;
 }
@@ -12833,13 +12833,14 @@ var TimeScale = function (_Scale) {
     var minor = timeOpts.unit || determineUnitForAutoTicks(timeOpts.minUnit, min, max, me._getLabelCapacity(min));
     var stepSize = valueOrDefault(timeOpts.stepSize, 1);
     var weekday = minor === 'week' ? timeOpts.isoWeekday : false;
+    var hasWeekday = isNumber(weekday) || weekday === true;
     var ticks = {};
     var first = min;
     var time;
-    if (weekday) {
+    if (hasWeekday) {
       first = +adapter.startOf(first, 'isoWeek', weekday);
     }
-    first = +adapter.startOf(first, weekday ? 'day' : minor);
+    first = +adapter.startOf(first, hasWeekday ? 'day' : minor);
     if (adapter.diff(max, min, minor) > 100000 * stepSize) {
       throw new Error(min + ' and ' + max + ' are too far apart with stepSize of ' + stepSize + ' ' + minor);
     }

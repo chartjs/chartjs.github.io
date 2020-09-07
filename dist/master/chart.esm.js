@@ -8805,7 +8805,7 @@ function parse(scale, input) {
 		return value;
 	}
 	if (round) {
-		value = round === 'week' && isoWeekday
+		value = round === 'week' && (isNumber(isoWeekday) || isoWeekday === true)
 			? scale._adapter.startOf(value, 'isoWeek', isoWeekday)
 			: scale._adapter.startOf(value, round);
 	}
@@ -8998,13 +8998,14 @@ class TimeScale extends Scale {
 		const minor = timeOpts.unit || determineUnitForAutoTicks(timeOpts.minUnit, min, max, me._getLabelCapacity(min));
 		const stepSize = valueOrDefault(timeOpts.stepSize, 1);
 		const weekday = minor === 'week' ? timeOpts.isoWeekday : false;
+		const hasWeekday = isNumber(weekday) || weekday === true;
 		const ticks = {};
 		let first = min;
 		let time;
-		if (weekday) {
+		if (hasWeekday) {
 			first = +adapter.startOf(first, 'isoWeek', weekday);
 		}
-		first = +adapter.startOf(first, weekday ? 'day' : minor);
+		first = +adapter.startOf(first, hasWeekday ? 'day' : minor);
 		if (adapter.diff(max, min, minor) > 100000 * stepSize) {
 			throw new Error(min + ' and ' + max + ' are too far apart with stepSize of ' + stepSize + ' ' + minor);
 		}
