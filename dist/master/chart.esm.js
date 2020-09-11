@@ -367,7 +367,7 @@ class Animations {
 		}
 		const animations = this._createAnimations(options, newOptions);
 		if (newOptions.$shared && !options.$shared) {
-			awaitAll(target.$animations, newOptions).then(() => {
+			awaitAll(target.options.$animations, newOptions).then(() => {
 				target.options = newOptions;
 			});
 		}

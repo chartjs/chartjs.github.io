@@ -3585,7 +3585,7 @@ var Animations = function () {
     }
     var animations = this._createAnimations(options, newOptions);
     if (newOptions.$shared && !options.$shared) {
-      awaitAll(target.$animations, newOptions).then(function () {
+      awaitAll(target.options.$animations, newOptions).then(function () {
         target.options = newOptions;
       });
     }
