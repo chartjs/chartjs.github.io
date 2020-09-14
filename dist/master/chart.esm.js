@@ -4647,7 +4647,7 @@ function isDomSupported() {
 function getCanvas(item) {
 	if (isDomSupported() && typeof item === 'string') {
 		item = document.getElementById(item);
-	} else if (item.length) {
+	} else if (item && item.length) {
 		item = item[0];
 	}
 	if (item && item.canvas) {

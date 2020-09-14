@@ -927,16 +927,28 @@ function getRelativePosition(evt, chart) {
   var e = evt.originalEvent || evt;
   var touches = e.touches;
   var source = touches && touches.length ? touches[0] : e;
-  var clientX = source.clientX;
-  var clientY = source.clientY;
-  var x = source.offsetX || source.layerX || clientX;
-  var y = source.offsetY || source.layerY || clientY;
-  if (x !== clientX && y !== clientY) {
+  var offsetX = source.offsetX,
+      offsetY = source.offsetY,
+      layerX = source.layerX,
+      layerY = source.layerY,
+      target = source.target;
+  if (offsetX > 0 || offsetY > 0) {
     return {
-      x: x,
-      y: y
+      x: offsetX,
+      y: offsetY
     };
   }
+  if (layerX > 0 || layerY > 0) {
+    return {
+      x: layerX - target.offsetLeft,
+      y: layerY - target.offsetTop
+    };
+  }
+  return calculateRelativePositionFromClientXY(source, chart);
+}
+function calculateRelativePositionFromClientXY(source, chart) {
+  var x = source.clientX,
+      y = source.clientY;
   var canvasElement = chart.canvas;
   var devicePixelRatio = chart.currentDevicePixelRatio;
   var boundingRect = canvasElement.getBoundingClientRect();
@@ -6230,7 +6242,7 @@ function isDomSupported() {
 function getCanvas(item) {
   if (isDomSupported() && typeof item === 'string') {
     item = document.getElementById(item);
-  } else if (item.length) {
+  } else if (item && item.length) {
     item = item[0];
   }
   if (item && item.canvas) {
