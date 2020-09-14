@@ -2499,6 +2499,25 @@ function getNearestItems(chart, position, axis, intersect, useFinalPosition) {
 	optimizedEvaluateItems(chart, axis, position, evaluationFunc);
 	return items;
 }
+function getAxisItems(chart, e, options, useFinalPosition) {
+	const position = getRelativePosition(e, chart);
+	const items = [];
+	const axis = options.axis;
+	const rangeMethod = axis === 'x' ? 'inXRange' : 'inYRange';
+	let intersectsItem = false;
+	evaluateAllVisibleItems(chart, (element, datasetIndex, index) => {
+		if (element[rangeMethod](position[axis], useFinalPosition)) {
+			items.push({element, datasetIndex, index});
+		}
+		if (element.inRange(position.x, position.y, useFinalPosition)) {
+			intersectsItem = true;
+		}
+	});
+	if (options.intersect && !intersectsItem) {
+		return [];
+	}
+	return items;
+}
 var Interaction = {
 	modes: {
 		index(chart, e, options, useFinalPosition) {
@@ -2547,38 +2566,12 @@ var Interaction = {
 			return getNearestItems(chart, position, axis, options.intersect, useFinalPosition);
 		},
 		x(chart, e, options, useFinalPosition) {
-			const position = getRelativePosition(e, chart);
-			const items = [];
-			let intersectsItem = false;
-			evaluateAllVisibleItems(chart, (element, datasetIndex, index) => {
-				if (element.inXRange(position.x, useFinalPosition)) {
-					items.push({element, datasetIndex, index});
-				}
-				if (element.inRange(position.x, position.y, useFinalPosition)) {
-					intersectsItem = true;
-				}
-			});
-			if (options.intersect && !intersectsItem) {
-				return [];
-			}
-			return items;
+			options.axis = 'x';
+			return getAxisItems(chart, e, options, useFinalPosition);
 		},
 		y(chart, e, options, useFinalPosition) {
-			const position = getRelativePosition(e, chart);
-			const items = [];
-			let intersectsItem = false;
-			evaluateAllVisibleItems(chart, (element, datasetIndex, index) => {
-				if (element.inYRange(position.y, useFinalPosition)) {
-					items.push({element, datasetIndex, index});
-				}
-				if (element.inRange(position.x, position.y, useFinalPosition)) {
-					intersectsItem = true;
-				}
-			});
-			if (options.intersect && !intersectsItem) {
-				return [];
-			}
-			return items;
+			options.axis = 'y';
+			return getAxisItems(chart, e, options, useFinalPosition);
 		}
 	}
 };
@@ -3030,7 +3023,10 @@ function createProxyAndListen(chart, type, listener) {
 		if (chart.ctx !== null) {
 			listener(fromNativeEvent(event, chart));
 		}
-	}, chart);
+	}, chart, (args) => {
+		const event = args[0];
+		return [event, event.offsetX, event.offsetY];
+	});
 	addListener(canvas, type, proxy);
 	return proxy;
 }
@@ -5190,7 +5186,9 @@ class Chart {
 				delete listeners[type];
 			}
 		};
-		let listener = function(e) {
+		let listener = function(e, x, y) {
+			e.offsetX = x;
+			e.offsetY = y;
 			me._eventHandler(e);
 		};
 		each(me.options.events, (type) => _add(type, listener));

@@ -84,14 +84,17 @@ var requestAnimFrame = function () {
   }
   return window.requestAnimationFrame;
 }();
-function throttled(fn, thisArg) {
+function throttled(fn, thisArg, updateFn) {
+  var updateArgs = updateFn || function (args) {
+    return Array.prototype.slice.call(args);
+  };
   var ticking = false;
   var args = [];
   return function () {
     for (var _len = arguments.length, rest = new Array(_len), _key = 0; _key < _len; _key++) {
       rest[_key] = arguments[_key];
     }
-    args = Array.prototype.slice.call(rest);
+    args = updateArgs(rest);
     if (!ticking) {
       ticking = true;
       requestAnimFrame.call(window, function () {
@@ -928,20 +931,11 @@ function getRelativePosition(evt, chart) {
   var touches = e.touches;
   var source = touches && touches.length ? touches[0] : e;
   var offsetX = source.offsetX,
-      offsetY = source.offsetY,
-      layerX = source.layerX,
-      layerY = source.layerY,
-      target = source.target;
+      offsetY = source.offsetY;
   if (offsetX > 0 || offsetY > 0) {
     return {
       x: offsetX,
       y: offsetY
-    };
-  }
-  if (layerX > 0 || layerY > 0) {
-    return {
-      x: layerX - target.offsetLeft,
-      y: layerY - target.offsetTop
     };
   }
   return calculateRelativePositionFromClientXY(source, chart);
@@ -1162,6 +1156,29 @@ function getNearestItems(chart, position, axis, intersect, useFinalPosition) {
   optimizedEvaluateItems(chart, axis, position, evaluationFunc);
   return items;
 }
+function getAxisItems(chart, e, options, useFinalPosition) {
+  var position = getRelativePosition$1(e, chart);
+  var items = [];
+  var axis = options.axis;
+  var rangeMethod = axis === 'x' ? 'inXRange' : 'inYRange';
+  var intersectsItem = false;
+  evaluateAllVisibleItems(chart, function (element, datasetIndex, index) {
+    if (element[rangeMethod](position[axis], useFinalPosition)) {
+      items.push({
+        element: element,
+        datasetIndex: datasetIndex,
+        index: index
+      });
+    }
+    if (element.inRange(position.x, position.y, useFinalPosition)) {
+      intersectsItem = true;
+    }
+  });
+  if (options.intersect && !intersectsItem) {
+    return [];
+  }
+  return items;
+}
 var Interaction = {
   modes: {
     index: function index(chart, e, options, useFinalPosition) {
@@ -1214,46 +1231,12 @@ var Interaction = {
       return getNearestItems(chart, position, axis, options.intersect, useFinalPosition);
     },
     x: function x(chart, e, options, useFinalPosition) {
-      var position = getRelativePosition$1(e, chart);
-      var items = [];
-      var intersectsItem = false;
-      evaluateAllVisibleItems(chart, function (element, datasetIndex, index) {
-        if (element.inXRange(position.x, useFinalPosition)) {
-          items.push({
-            element: element,
-            datasetIndex: datasetIndex,
-            index: index
-          });
-        }
-        if (element.inRange(position.x, position.y, useFinalPosition)) {
-          intersectsItem = true;
-        }
-      });
-      if (options.intersect && !intersectsItem) {
-        return [];
-      }
-      return items;
+      options.axis = 'x';
+      return getAxisItems(chart, e, options, useFinalPosition);
     },
     y: function y(chart, e, options, useFinalPosition) {
-      var position = getRelativePosition$1(e, chart);
-      var items = [];
-      var intersectsItem = false;
-      evaluateAllVisibleItems(chart, function (element, datasetIndex, index) {
-        if (element.inYRange(position.y, useFinalPosition)) {
-          items.push({
-            element: element,
-            datasetIndex: datasetIndex,
-            index: index
-          });
-        }
-        if (element.inRange(position.x, position.y, useFinalPosition)) {
-          intersectsItem = true;
-        }
-      });
-      if (options.intersect && !intersectsItem) {
-        return [];
-      }
-      return items;
+      options.axis = 'y';
+      return getAxisItems(chart, e, options, useFinalPosition);
     }
   }
 };
@@ -2306,7 +2289,10 @@ function createProxyAndListen(chart, type, listener) {
     if (chart.ctx !== null) {
       listener(fromNativeEvent(event, chart));
     }
-  }, chart);
+  }, chart, function (args) {
+    var event = args[0];
+    return [event, event.offsetX, event.offsetY];
+  });
   addListener(canvas, type, proxy);
   return proxy;
 }
@@ -6825,7 +6811,9 @@ var Chart = function () {
         delete listeners[type];
       }
     };
-    var listener = function listener(e) {
+    var listener = function listener(e, x, y) {
+      e.offsetX = x;
+      e.offsetY = y;
       me._eventHandler(e);
     };
     each(me.options.events, function (type) {
