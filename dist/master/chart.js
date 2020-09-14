@@ -735,13 +735,16 @@ _steppedLineTo: _steppedLineTo,
 _bezierCurveTo: _bezierCurveTo
 });
 
-function _lookup(table, value) {
+function _lookup(table, value, cmp) {
+  cmp = cmp || function (index) {
+    return table[index] < value;
+  };
   var hi = table.length - 1;
   var lo = 0;
   var mid;
   while (hi - lo > 1) {
     mid = lo + hi >> 1;
-    if (table[mid] < value) {
+    if (cmp(mid)) {
       lo = mid;
     } else {
       hi = mid;
@@ -752,40 +755,16 @@ function _lookup(table, value) {
     hi: hi
   };
 }
-function _lookupByKey(table, key, value) {
-  var hi = table.length - 1;
-  var lo = 0;
-  var mid;
-  while (hi - lo > 1) {
-    mid = lo + hi >> 1;
-    if (table[mid][key] < value) {
-      lo = mid;
-    } else {
-      hi = mid;
-    }
-  }
-  return {
-    lo: lo,
-    hi: hi
-  };
-}
-function _rlookupByKey(table, key, value) {
-  var hi = table.length - 1;
-  var lo = 0;
-  var mid;
-  while (hi - lo > 1) {
-    mid = lo + hi >> 1;
-    if (table[mid][key] < value) {
-      hi = mid;
-    } else {
-      lo = mid;
-    }
-  }
-  return {
-    lo: lo,
-    hi: hi
-  };
-}
+var _lookupByKey = function _lookupByKey(table, key, value) {
+  return _lookup(table, value, function (index) {
+    return table[index][key] < value;
+  });
+};
+var _rlookupByKey = function _rlookupByKey(table, key, value) {
+  return _lookup(table, value, function (index) {
+    return table[index][key] >= value;
+  });
+};
 function _filterBetween(values, min, max) {
   var start = 0;
   var end = values.length;
@@ -913,12 +892,6 @@ function getConstraintDimension(domNode, maxStyle, percentageProperty) {
 function getStyle(el, property) {
   return el.currentStyle ? el.currentStyle[property] : document.defaultView.getComputedStyle(el, null).getPropertyValue(property);
 }
-function getConstraintWidth(domNode) {
-  return getConstraintDimension(domNode, 'max-width', 'clientWidth');
-}
-function getConstraintHeight(domNode) {
-  return getConstraintDimension(domNode, 'max-height', 'clientHeight');
-}
 function _calculatePadding(container, padding, parentDimension) {
   padding = getStyle(container, padding);
   if (padding === '') {
@@ -960,30 +933,25 @@ function calculateRelativePositionFromClientXY(source, chart) {
 function fallbackIfNotValid(measure, fallback) {
   return typeof measure === 'number' ? measure : fallback;
 }
-function getMaximumWidth(domNode) {
+function getMax(domNode, prop, fallback, paddings) {
   var container = _getParentNode(domNode);
   if (!container) {
-    return fallbackIfNotValid(domNode.clientWidth, domNode.width);
+    return fallbackIfNotValid(domNode[prop], domNode[fallback]);
   }
-  var clientWidth = container.clientWidth;
-  var paddingLeft = _calculatePadding(container, 'padding-left', clientWidth);
-  var paddingRight = _calculatePadding(container, 'padding-right', clientWidth);
-  var w = clientWidth - paddingLeft - paddingRight;
-  var cw = getConstraintWidth(domNode);
-  return isNaN(cw) ? w : Math.min(w, cw);
+  var value = container[prop];
+  var padding = paddings.reduce(function (acc, cur) {
+    return acc + _calculatePadding(container, 'padding-' + cur, value);
+  }, 0);
+  var v = value - padding;
+  var cv = getConstraintDimension(domNode, 'max-' + fallback, prop);
+  return isNaN(cv) ? v : Math.min(v, cv);
 }
-function getMaximumHeight(domNode) {
-  var container = _getParentNode(domNode);
-  if (!container) {
-    return fallbackIfNotValid(domNode.clientHeight, domNode.height);
-  }
-  var clientHeight = container.clientHeight;
-  var paddingTop = _calculatePadding(container, 'padding-top', clientHeight);
-  var paddingBottom = _calculatePadding(container, 'padding-bottom', clientHeight);
-  var h = clientHeight - paddingTop - paddingBottom;
-  var ch = getConstraintHeight(domNode);
-  return isNaN(ch) ? h : Math.min(h, ch);
-}
+var getMaximumWidth = function getMaximumWidth(domNode) {
+  return getMax(domNode, 'clientWidth', 'width', ['left', 'right']);
+};
+var getMaximumHeight = function getMaximumHeight(domNode) {
+  return getMax(domNode, 'clientHeight', 'height', ['top', 'bottom']);
+};
 function retinaScale(chart, forceRatio) {
   var pixelRatio = chart.currentDevicePixelRatio = forceRatio || typeof window !== 'undefined' && window.devicePixelRatio || 1;
   var canvas = chart.canvas,
@@ -1256,24 +1224,31 @@ function toLineHeight(value, size) {
   }
   return size * value;
 }
-function toPadding(value) {
+var numberOrZero = function numberOrZero(v) {
+  return +v || 0;
+};
+function toTRBL(value) {
   var t, r, b, l;
   if (isObject(value)) {
-    t = +value.top || 0;
-    r = +value.right || 0;
-    b = +value.bottom || 0;
-    l = +value.left || 0;
+    t = numberOrZero(value.top);
+    r = numberOrZero(value.right);
+    b = numberOrZero(value.bottom);
+    l = numberOrZero(value.left);
   } else {
-    t = r = b = l = +value || 0;
+    t = r = b = l = numberOrZero(value);
   }
   return {
     top: t,
     right: r,
     bottom: b,
-    left: l,
-    height: t + b,
-    width: l + r
+    left: l
   };
+}
+function toPadding(value) {
+  var obj = toTRBL(value);
+  obj.width = obj.left + obj.right;
+  obj.height = obj.top + obj.bottom;
+  return obj;
 }
 function toFont(options, fallback) {
   options = options || {};
@@ -1324,6 +1299,7 @@ function resolve(inputs, context, index, info) {
 var options = /*#__PURE__*/Object.freeze({
 __proto__: null,
 toLineHeight: toLineHeight,
+toTRBL: toTRBL,
 toPadding: toPadding,
 toFont: toFont,
 resolve: resolve
@@ -9334,20 +9310,12 @@ function skipOrLimit(skip, value, min, max) {
 function parseBorderWidth(bar, maxW, maxH) {
   var value = bar.options.borderWidth;
   var skip = parseBorderSkipped(bar);
-  var t, r, b, l;
-  if (isObject(value)) {
-    t = +value.top || 0;
-    r = +value.right || 0;
-    b = +value.bottom || 0;
-    l = +value.left || 0;
-  } else {
-    t = r = b = l = +value || 0;
-  }
+  var o = toTRBL(value);
   return {
-    t: skipOrLimit(skip.top, t, 0, maxH),
-    r: skipOrLimit(skip.right, r, 0, maxW),
-    b: skipOrLimit(skip.bottom, b, 0, maxH),
-    l: skipOrLimit(skip.left, l, 0, maxW)
+    t: skipOrLimit(skip.top, o.top, 0, maxH),
+    r: skipOrLimit(skip.right, o.right, 0, maxW),
+    b: skipOrLimit(skip.bottom, o.bottom, 0, maxH),
+    l: skipOrLimit(skip.left, o.left, 0, maxW)
   };
 }
 function boundingRects(bar) {
@@ -9373,7 +9341,8 @@ function boundingRects(bar) {
 function _inRange(bar, x, y, useFinalPosition) {
   var skipX = x === null;
   var skipY = y === null;
-  var bounds = !bar || skipX && skipY ? false : getBarBounds(bar, useFinalPosition);
+  var skipBoth = skipX && skipY;
+  var bounds = bar && !skipBoth && getBarBounds(bar, useFinalPosition);
   return bounds && (skipX || x >= bounds.left && x <= bounds.right) && (skipY || y >= bounds.top && y <= bounds.bottom);
 }
 var Rectangle = function (_Element) {
@@ -12303,7 +12272,7 @@ function drawRadiusLine(scale, gridLineOpts, radius, index) {
   ctx.stroke();
   ctx.restore();
 }
-function numberOrZero(param) {
+function numberOrZero$1(param) {
   return isNumber(param) ? param : 0;
 }
 var RadialLinearScale = function (_LinearScaleBase) {
@@ -12368,10 +12337,10 @@ var RadialLinearScale = function (_LinearScaleBase) {
     var radiusReductionRight = Math.max(furthestLimits.r - me.width, 0) / Math.sin(furthestAngles.r);
     var radiusReductionTop = -furthestLimits.t / Math.cos(furthestAngles.t);
     var radiusReductionBottom = -Math.max(furthestLimits.b - (me.height - me.paddingTop), 0) / Math.cos(furthestAngles.b);
-    radiusReductionLeft = numberOrZero(radiusReductionLeft);
-    radiusReductionRight = numberOrZero(radiusReductionRight);
-    radiusReductionTop = numberOrZero(radiusReductionTop);
-    radiusReductionBottom = numberOrZero(radiusReductionBottom);
+    radiusReductionLeft = numberOrZero$1(radiusReductionLeft);
+    radiusReductionRight = numberOrZero$1(radiusReductionRight);
+    radiusReductionTop = numberOrZero$1(radiusReductionTop);
+    radiusReductionBottom = numberOrZero$1(radiusReductionBottom);
     me.drawingArea = Math.min(Math.floor(largestPossibleRadius - (radiusReductionLeft + radiusReductionRight) / 2), Math.floor(largestPossibleRadius - (radiusReductionTop + radiusReductionBottom) / 2));
     me.setCenterPoint(radiusReductionLeft, radiusReductionRight, radiusReductionTop, radiusReductionBottom);
   };
