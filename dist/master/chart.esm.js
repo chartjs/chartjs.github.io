@@ -11,8 +11,8 @@ import { r as resolve, d as defaults, t as toPadding, a as toFont, b as toTRBL }
 export { d as defaults } from '../helpers/chunks/helpers.options.js';
 import { clipArea, unclipArea, _isPointInArea, _measureText, _alignPixel, clear, _steppedLineTo, _bezierCurveTo, drawPoint, _longestText } from '../helpers/canvas.js';
 import { color, getHoverColor } from '../helpers/color.js';
-import { unlistenArrayEvents, listenArrayEvents, _rlookupByKey, _lookupByKey, _filterBetween, _arrayUnique, _lookup } from '../helpers/collection.js';
-import { sign, _limitValue, isNumber, toRadians, log10, toDegrees, _factorize, getAngleFromPoint, _angleBetween, _normalizeAngle, distanceBetweenPoints, _setMinAndMaxByKey, _decimalPlaces, almostEquals, almostWhole } from '../helpers/math.js';
+import { unlistenArrayEvents, listenArrayEvents, _lookupByKey, _rlookupByKey, _filterBetween, _arrayUnique, _lookup } from '../helpers/collection.js';
+import { sign, _limitValue, isNumber, toRadians, log10, toDegrees, _int32Range, _factorize, getAngleFromPoint, _angleBetween, _normalizeAngle, distanceBetweenPoints, _setMinAndMaxByKey, _decimalPlaces, almostEquals, almostWhole } from '../helpers/math.js';
 import { getRelativePosition as getRelativePosition$1, _getParentNode, readUsedSize, supportsEventListenerOptions, retinaScale, getMaximumWidth, getMaximumHeight } from '../helpers/dom.js';
 import { _steppedInterpolation, _bezierInterpolation, _pointInLine } from '../helpers/interpolation.js';
 import { _computeSegments, _boundSegments, _boundSegment } from '../helpers/segment.js';
@@ -590,6 +590,8 @@ class DatasetController {
 		this._data = undefined;
 		this._objectData = undefined;
 		this._sharedOptions = undefined;
+		this._drawStart = undefined;
+		this._drawCount = undefined;
 		this.enableOptionSharing = false;
 		this.initialize();
 	}
@@ -729,10 +731,11 @@ class DatasetController {
 			} else {
 				parsed = me.parsePrimitiveData(meta, data, start, count);
 			}
+			const isNotInOrderComparedToPrev = () => isNaN(cur[iAxis]) || (prev && cur[iAxis] < prev[iAxis]);
 			for (i = 0; i < count; ++i) {
 				meta._parsed[i + start] = cur = parsed[i];
 				if (sorted) {
-					if (prev && cur[iAxis] < prev[iAxis]) {
+					if (isNotInOrderComparedToPrev()) {
 						sorted = false;
 					}
 					prev = cur;
@@ -832,7 +835,7 @@ class DatasetController {
 			parsed = _parsed[i];
 			value = parsed[scale.axis];
 			otherValue = parsed[otherScale.axis];
-			return (isNaN(value) || otherMin > otherValue || otherMax < otherValue);
+			return (isNaN(value) || isNaN(otherValue) || otherMin > otherValue || otherMax < otherValue);
 		}
 		for (i = 0; i < ilen; ++i) {
 			if (_skip()) {
@@ -898,11 +901,13 @@ class DatasetController {
 		const elements = meta.data || [];
 		const area = chart.chartArea;
 		const active = [];
-		let i, ilen;
+		const start = me._drawStart || 0;
+		const count = me._drawCount || (elements.length - start);
+		let i;
 		if (meta.dataset) {
-			meta.dataset.draw(ctx, area);
+			meta.dataset.draw(ctx, area, start, count);
 		}
-		for (i = 0, ilen = elements.length; i < ilen; ++i) {
+		for (i = start; i < start + count; ++i) {
 			const element = elements[i];
 			if (element.active) {
 				active.push(element);
@@ -910,7 +915,7 @@ class DatasetController {
 				element.draw(ctx, area);
 			}
 		}
-		for (i = 0, ilen = active.length; i < ilen; ++i) {
+		for (i = 0; i < active.length; ++i) {
 			active[i].draw(ctx, area);
 		}
 	}
@@ -1093,9 +1098,9 @@ class DatasetController {
 			meta._parsed.splice(start, 0, ...new Array(count));
 		}
 		me.parse(start, count);
-		me.updateElements(elements, start, 'reset');
+		me.updateElements(data, start, count, 'reset');
 	}
-	updateElements(element, start, mode) {}
+	updateElements(element, start, count, mode) {}
 	_removeElements(start, count) {
 		const me = this;
 		if (me._parsing) {
@@ -1291,9 +1296,9 @@ class BarController extends DatasetController {
 	update(mode) {
 		const me = this;
 		const meta = me._cachedMeta;
-		me.updateElements(meta.data, 0, mode);
+		me.updateElements(meta.data, 0, meta.data.length, mode);
 	}
-	updateElements(rectangles, start, mode) {
+	updateElements(rectangles, start, count, mode) {
 		const me = this;
 		const reset = mode === 'reset';
 		const vscale = me._cachedMeta.vScale;
@@ -1304,11 +1309,10 @@ class BarController extends DatasetController {
 		const sharedOptions = me.getSharedOptions(firstOpts);
 		const includeOptions = me.includeOptions(mode, sharedOptions);
 		me.updateSharedOptions(sharedOptions, mode, firstOpts);
-		for (let i = 0; i < rectangles.length; i++) {
-			const index = start + i;
-			const options = sharedOptions || me.resolveDataElementOptions(index, mode);
-			const vpixels = me._calculateBarValuePixels(index, options);
-			const ipixels = me._calculateBarIndexPixels(index, ruler, options);
+		for (let i = start; i < start + count; i++) {
+			const options = sharedOptions || me.resolveDataElementOptions(i, mode);
+			const vpixels = me._calculateBarValuePixels(i, options);
+			const ipixels = me._calculateBarIndexPixels(i, ruler, options);
 			const properties = {
 				horizontal,
 				base: reset ? base : vpixels.base,
@@ -1320,7 +1324,7 @@ class BarController extends DatasetController {
 			if (includeOptions) {
 				properties.options = options;
 			}
-			me.updateElement(rectangles[i], index, properties, mode);
+			me.updateElement(rectangles[i], i, properties, mode);
 		}
 	}
 	_getStacks(last) {
@@ -1543,19 +1547,18 @@ class BubbleController extends DatasetController {
 	update(mode) {
 		const me = this;
 		const points = me._cachedMeta.data;
-		me.updateElements(points, 0, mode);
+		me.updateElements(points, 0, points.length, mode);
 	}
-	updateElements(points, start, mode) {
+	updateElements(points, start, count, mode) {
 		const me = this;
 		const reset = mode === 'reset';
 		const {xScale, yScale} = me._cachedMeta;
 		const firstOpts = me.resolveDataElementOptions(start, mode);
 		const sharedOptions = me.getSharedOptions(firstOpts);
 		const includeOptions = me.includeOptions(mode, sharedOptions);
-		for (let i = 0; i < points.length; i++) {
+		for (let i = start; i < start + count; i++) {
 			const point = points[i];
-			const index = start + i;
-			const parsed = !reset && me.getParsed(index);
+			const parsed = !reset && me.getParsed(i);
 			const x = reset ? xScale.getPixelForDecimal(0.5) : xScale.getPixelForValue(parsed.x);
 			const y = reset ? yScale.getBasePixel() : yScale.getPixelForValue(parsed.y);
 			const properties = {
@@ -1564,12 +1567,12 @@ class BubbleController extends DatasetController {
 				skip: isNaN(x) || isNaN(y)
 			};
 			if (includeOptions) {
-				properties.options = me.resolveDataElementOptions(index, mode);
+				properties.options = me.resolveDataElementOptions(i, mode);
 				if (reset) {
 					properties.options.radius = 0;
 				}
 			}
-			me.updateElement(point, index, properties, mode);
+			me.updateElement(point, i, properties, mode);
 		}
 		me.updateSharedOptions(sharedOptions, mode, firstOpts);
 	}
@@ -1713,7 +1716,7 @@ class DoughnutController extends DatasetController {
 		meta.total = me.calculateTotal();
 		me.outerRadius = outerRadius - radiusLength * me._getRingWeightOffset(me.index);
 		me.innerRadius = Math.max(me.outerRadius - radiusLength * chartWeight, 0);
-		me.updateElements(arcs, 0, mode);
+		me.updateElements(arcs, 0, arcs.length, mode);
 	}
 	_circumference(i, reset) {
 		const me = this;
@@ -1721,7 +1724,7 @@ class DoughnutController extends DatasetController {
 		const meta = me._cachedMeta;
 		return reset && opts.animation.animateRotate ? 0 : this.chart.getDataVisibility(i) ? me.calculateCircumference(meta._parsed[i] * opts.circumference / DOUBLE_PI) : 0;
 	}
-	updateElements(arcs, start, mode) {
+	updateElements(arcs, start, count, mode) {
 		const me = this;
 		const reset = mode === 'reset';
 		const chart = me.chart;
@@ -1741,9 +1744,8 @@ class DoughnutController extends DatasetController {
 		for (i = 0; i < start; ++i) {
 			startAngle += me._circumference(i, reset);
 		}
-		for (i = 0; i < arcs.length; ++i) {
-			const index = start + i;
-			const circumference = me._circumference(index, reset);
+		for (i = start; i < start + count; ++i) {
+			const circumference = me._circumference(i, reset);
 			const arc = arcs[i];
 			const properties = {
 				x: centerX + me.offsetX,
@@ -1755,10 +1757,10 @@ class DoughnutController extends DatasetController {
 				innerRadius
 			};
 			if (includeOptions) {
-				properties.options = sharedOptions || me.resolveDataElementOptions(index, mode);
+				properties.options = sharedOptions || me.resolveDataElementOptions(i, mode);
 			}
 			startAngle += circumference;
-			me.updateElement(arc, index, properties, mode);
+			me.updateElement(arc, i, properties, mode);
 		}
 		me.updateSharedOptions(sharedOptions, mode, firstOpts);
 	}
@@ -1922,8 +1924,10 @@ class LineController extends DatasetController {
 	update(mode) {
 		const me = this;
 		const meta = me._cachedMeta;
-		const line = meta.dataset;
-		const points = meta.data || [];
+		const {dataset: line, data: points = []} = meta;
+		const {start, count} = getStartAndCountOfVisiblePoints(meta, points);
+		me._drawStart = start;
+		me._drawCount = count;
 		if (mode !== 'resize') {
 			const properties = {
 				points,
@@ -1931,9 +1935,9 @@ class LineController extends DatasetController {
 			};
 			me.updateElement(line, undefined, properties, mode);
 		}
-		me.updateElements(points, 0, mode);
+		me.updateElements(points, start, count, mode);
 	}
-	updateElements(points, start, mode) {
+	updateElements(points, start, count, mode) {
 		const me = this;
 		const reset = mode === 'reset';
 		const {xScale, yScale, _stacked} = me._cachedMeta;
@@ -1942,13 +1946,12 @@ class LineController extends DatasetController {
 		const includeOptions = me.includeOptions(mode, sharedOptions);
 		const spanGaps = valueOrDefault(me._config.spanGaps, me.chart.options.spanGaps);
 		const maxGapLength = isNumber(spanGaps) ? spanGaps : Number.POSITIVE_INFINITY;
-		let prevParsed;
-		for (let i = 0; i < points.length; ++i) {
-			const index = start + i;
+		let prevParsed = start > 0 && me.getParsed(start - 1);
+		for (let i = start; i < start + count; ++i) {
 			const point = points[i];
-			const parsed = me.getParsed(index);
-			const x = xScale.getPixelForValue(parsed.x, index);
-			const y = reset ? yScale.getBasePixel() : yScale.getPixelForValue(_stacked ? me.applyStack(yScale, parsed) : parsed.y, index);
+			const parsed = me.getParsed(i);
+			const x = xScale.getPixelForValue(parsed.x, i);
+			const y = reset ? yScale.getBasePixel() : yScale.getPixelForValue(_stacked ? me.applyStack(yScale, parsed) : parsed.y, i);
 			const properties = {
 				x,
 				y,
@@ -1956,9 +1959,9 @@ class LineController extends DatasetController {
 				stop: i > 0 && (parsed.x - prevParsed.x) > maxGapLength
 			};
 			if (includeOptions) {
-				properties.options = sharedOptions || me.resolveDataElementOptions(index, mode);
+				properties.options = sharedOptions || me.resolveDataElementOptions(i, mode);
 			}
-			me.updateElement(point, index, properties, mode);
+			me.updateElement(point, i, properties, mode);
 			prevParsed = parsed;
 		}
 		me.updateSharedOptions(sharedOptions, mode, firstOpts);
@@ -2039,6 +2042,18 @@ LineController.defaults = {
 		},
 	}
 };
+function getStartAndCountOfVisiblePoints(meta, points) {
+	const pointCount = points.length;
+	let start = 0;
+	let count = pointCount;
+	if (meta._sorted) {
+		const {iScale, _parsed} = meta;
+		const {min, max, minDefined, maxDefined} = iScale.getUserBounds();
+		start = minDefined ? Math.max(0, _lookupByKey(_parsed, iScale.axis, min).lo) : 0;
+		count = (maxDefined ? Math.min(pointCount, _lookupByKey(_parsed, iScale.axis, max).hi + 1) : pointCount) - start;
+	}
+	return {start, count};
+}
 
 function getStartAngleRadians(deg) {
 	return toRadians(deg) - 0.5 * Math.PI;
@@ -2052,7 +2067,7 @@ class PolarAreaController extends DatasetController {
 	update(mode) {
 		const arcs = this._cachedMeta.data;
 		this._updateRadius();
-		this.updateElements(arcs, 0, mode);
+		this.updateElements(arcs, 0, arcs.length, mode);
 	}
 	_updateRadius() {
 		const me = this;
@@ -2066,7 +2081,7 @@ class PolarAreaController extends DatasetController {
 		me.outerRadius = outerRadius - (radiusLength * me.index);
 		me.innerRadius = me.outerRadius - radiusLength;
 	}
-	updateElements(arcs, start, mode) {
+	updateElements(arcs, start, count, mode) {
 		const me = this;
 		const reset = mode === 'reset';
 		const chart = me.chart;
@@ -2083,12 +2098,11 @@ class PolarAreaController extends DatasetController {
 		for (i = 0; i < start; ++i) {
 			angle += me._computeAngle(i);
 		}
-		for (i = 0; i < arcs.length; i++) {
+		for (i = start; i < start + count; i++) {
 			const arc = arcs[i];
-			const index = start + i;
 			let startAngle = angle;
-			let endAngle = angle + me._computeAngle(index);
-			let outerRadius = this.chart.getDataVisibility(index) ? scale.getDistanceFromCenterForValue(dataset.data[index]) : 0;
+			let endAngle = angle + me._computeAngle(i);
+			let outerRadius = this.chart.getDataVisibility(i) ? scale.getDistanceFromCenterForValue(dataset.data[i]) : 0;
 			angle = endAngle;
 			if (reset) {
 				if (animationOpts.animateScale) {
@@ -2106,9 +2120,9 @@ class PolarAreaController extends DatasetController {
 				outerRadius,
 				startAngle,
 				endAngle,
-				options: me.resolveDataElementOptions(index, mode)
+				options: me.resolveDataElementOptions(i, mode)
 			};
-			me.updateElement(arc, index, properties, mode);
+			me.updateElement(arc, i, properties, mode);
 		}
 	}
 	countVisibleElements() {
@@ -2251,19 +2265,17 @@ class RadarController extends DatasetController {
 			};
 			me.updateElement(line, undefined, properties, mode);
 		}
-		me.updateElements(points, 0, mode);
+		me.updateElements(points, 0, points.length, mode);
 	}
-	updateElements(points, start, mode) {
+	updateElements(points, start, count, mode) {
 		const me = this;
 		const dataset = me.getDataset();
 		const scale = me._cachedMeta.rScale;
 		const reset = mode === 'reset';
-		let i;
-		for (i = 0; i < points.length; i++) {
+		for (let i = start; i < start + count; i++) {
 			const point = points[i];
-			const index = start + i;
-			const options = me.resolveDataElementOptions(index, mode);
-			const pointPosition = scale.getPointPositionForValue(index, dataset.data[index]);
+			const options = me.resolveDataElementOptions(i, mode);
+			const pointPosition = scale.getPointPositionForValue(i, dataset.data[i]);
 			const x = reset ? scale.xCenter : pointPosition.x;
 			const y = reset ? scale.yCenter : pointPosition.y;
 			const properties = {
@@ -2273,7 +2285,7 @@ class RadarController extends DatasetController {
 				skip: isNaN(x) || isNaN(y),
 				options
 			};
-			me.updateElement(point, index, properties, mode);
+			me.updateElement(point, i, properties, mode);
 		}
 	}
 	resolveDatasetElementOptions(active) {
@@ -3782,7 +3794,7 @@ class Scale extends Element {
 		if (me._reversePixels) {
 			decimal = 1 - decimal;
 		}
-		return me._startPixel + decimal * me._length;
+		return _int32Range(me._startPixel + decimal * me._length);
 	}
 	getDecimalForPixel(pixel) {
 		const decimal = (pixel - this._startPixel) / this._length;
@@ -5496,13 +5508,23 @@ function getLineMethod(options) {
 	}
 	return lineTo;
 }
-function pathSegment(ctx, line, segment, params) {
-	const {start, end, loop} = segment;
-	const {points, options} = line;
-	const lineMethod = getLineMethod(options);
+function pathVars(points, segment, params) {
+	params = params || {};
 	const count = points.length;
+	const start = Math.max(params.start || 0, segment.start);
+	const end = Math.min(params.end || count - 1, segment.end);
+	return {
+		count,
+		start,
+		loop: segment.loop,
+		ilen: end < start ? count + end - start : end - start
+	};
+}
+function pathSegment(ctx, line, segment, params) {
+	const {points, options} = line;
+	const {count, start, loop, ilen} = pathVars(points, segment, params);
+	const lineMethod = getLineMethod(options);
 	let {move = true, reverse} = params || {};
-	const ilen = end < start ? count + end - start : end - start;
 	let i, point, prev;
 	for (i = 0; i <= ilen; ++i) {
 		point = points[(start + (reverse ? ilen - i : i)) % count];
@@ -5524,10 +5546,8 @@ function pathSegment(ctx, line, segment, params) {
 }
 function fastPathSegment(ctx, line, segment, params) {
 	const points = line.points;
-	const count = points.length;
-	const {start, end} = segment;
+	const {count, start, ilen} = pathVars(points, segment, params);
 	const {move = true, reverse} = params || {};
-	const ilen = end < start ? count + end - start : end - start;
 	let avgX = 0;
 	let countX = 0;
 	let i, point, prevX, minY, maxY, lastY;
@@ -5658,18 +5678,20 @@ class Line extends Element {
 		const segmentMethod = _getSegmentMethod(this);
 		return segmentMethod(ctx, this, segment, params);
 	}
-	path(ctx) {
+	path(ctx, start, count) {
 		const me = this;
 		const segments = me.segments;
 		const ilen = segments.length;
 		const segmentMethod = _getSegmentMethod(me);
 		let loop = me._loop;
+		start = start || 0;
+		count = count || (me.points.length - start);
 		for (let i = 0; i < ilen; ++i) {
-			loop &= segmentMethod(ctx, me, segments[i]);
+			loop &= segmentMethod(ctx, me, segments[i], {start, end: start + count - 1});
 		}
 		return !!loop;
 	}
-	draw(ctx) {
+	draw(ctx, chartArea, start, count) {
 		const options = this.options || {};
 		const points = this.points || [];
 		if (!points.length || !options.borderWidth) {
@@ -5678,7 +5700,7 @@ class Line extends Element {
 		ctx.save();
 		setStyle(ctx, options);
 		ctx.beginPath();
-		if (this.path(ctx)) {
+		if (this.path(ctx, start, count)) {
 			ctx.closePath();
 		}
 		ctx.stroke();
