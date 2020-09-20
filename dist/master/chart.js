@@ -8270,11 +8270,16 @@ var LineController = function (_DatasetController) {
     var line = meta.dataset,
         _meta$data = meta.data,
         points = _meta$data === void 0 ? [] : _meta$data;
-    var _getStartAndCountOfVi = getStartAndCountOfVisiblePoints(meta, points),
+    var animationsDisabled = me.chart._animationsDisabled;
+    var _getStartAndCountOfVi = getStartAndCountOfVisiblePoints(meta, points, animationsDisabled),
         start = _getStartAndCountOfVi.start,
         count = _getStartAndCountOfVi.count;
     me._drawStart = start;
     me._drawCount = count;
+    if (scaleRangesChanged(meta) && !animationsDisabled) {
+      start = 0;
+      count = points.length;
+    }
     if (mode !== 'resize') {
       var properties = {
         points: points,
@@ -8384,25 +8389,50 @@ LineController.defaults = {
     }
   }
 };
-function getStartAndCountOfVisiblePoints(meta, points) {
+function getStartAndCountOfVisiblePoints(meta, points, animationsDisabled) {
   var pointCount = points.length;
   var start = 0;
   var count = pointCount;
   if (meta._sorted) {
     var iScale = meta.iScale,
         _parsed = meta._parsed;
+    var axis = iScale.axis;
     var _iScale$getUserBounds = iScale.getUserBounds(),
         min = _iScale$getUserBounds.min,
         max = _iScale$getUserBounds.max,
         minDefined = _iScale$getUserBounds.minDefined,
         maxDefined = _iScale$getUserBounds.maxDefined;
-    start = minDefined ? Math.max(0, _lookupByKey(_parsed, iScale.axis, min).lo) : 0;
-    count = (maxDefined ? Math.min(pointCount, _lookupByKey(_parsed, iScale.axis, max).hi + 1) : pointCount) - start;
+    if (minDefined) {
+      start = _limitValue(Math.min(_lookupByKey(_parsed, iScale.axis, min).lo, animationsDisabled ? pointCount : _lookupByKey(points, axis, iScale.getPixelForValue(min)).lo), 0, pointCount - 1);
+    }
+    if (maxDefined) {
+      count = _limitValue(Math.max(_lookupByKey(_parsed, iScale.axis, max).hi + 1, animationsDisabled ? 0 : _lookupByKey(points, axis, iScale.getPixelForValue(max)).hi + 1), start, pointCount) - start;
+    } else {
+      count = pointCount - start;
+    }
   }
   return {
     start: start,
     count: count
   };
+}
+function scaleRangesChanged(meta) {
+  var xScale = meta.xScale,
+      yScale = meta.yScale,
+      _scaleRanges = meta._scaleRanges;
+  var newRanges = {
+    xmin: xScale.min,
+    xmax: xScale.max,
+    ymin: yScale.min,
+    ymax: yScale.max
+  };
+  if (!_scaleRanges) {
+    meta._scaleRanges = newRanges;
+    return true;
+  }
+  var changed = _scaleRanges.xmin !== xScale.min || _scaleRanges.xmax !== xScale.max || _scaleRanges.ymin !== yScale.min || _scaleRanges.ymax !== yScale.max;
+  _extends(_scaleRanges, newRanges);
+  return changed;
 }
 
 function getStartAngleRadians(deg) {
