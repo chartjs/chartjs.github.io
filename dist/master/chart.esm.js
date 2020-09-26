@@ -13,7 +13,7 @@ import { clipArea, unclipArea, _isPointInArea, _measureText, _alignPixel, clear,
 import { color, getHoverColor } from '../helpers/color.js';
 import { unlistenArrayEvents, listenArrayEvents, _lookupByKey, _rlookupByKey, _filterBetween, _arrayUnique, _lookup } from '../helpers/collection.js';
 import { sign, _limitValue, isNumber, toRadians, log10, toDegrees, _int32Range, _factorize, getAngleFromPoint, _angleBetween, _normalizeAngle, distanceBetweenPoints, _setMinAndMaxByKey, _decimalPlaces, almostEquals, almostWhole } from '../helpers/math.js';
-import { getRelativePosition as getRelativePosition$1, _getParentNode, readUsedSize, supportsEventListenerOptions, retinaScale, getMaximumWidth, getMaximumHeight } from '../helpers/dom.js';
+import { getRelativePosition as getRelativePosition$1, getMaximumSize, _getParentNode, readUsedSize, supportsEventListenerOptions, retinaScale } from '../helpers/dom.js';
 import { _steppedInterpolation, _bezierInterpolation, _pointInLine } from '../helpers/interpolation.js';
 import { _computeSegments, _boundSegments, _boundSegment } from '../helpers/segment.js';
 import { _updateBezierControlPoints } from '../helpers/curve.js';
@@ -2889,6 +2889,14 @@ class BasePlatform {
 	getDevicePixelRatio() {
 		return 1;
 	}
+	getMaximumSize(element, width, height, aspectRatio) {
+		width = Math.max(0, width || element.width);
+		height = height || element.height;
+		return {
+			width,
+			height: Math.max(0, aspectRatio ? Math.floor(width / aspectRatio) : height)
+		};
+	}
 	isAttached(canvas) {
 		return true;
 	}
@@ -2955,19 +2963,16 @@ function addListener(node, type, listener) {
 function removeListener(chart, type, listener) {
 	chart.canvas.removeEventListener(type, listener, eventListenerOptions);
 }
-function createEvent(type, chart, x, y, nativeEvent) {
+function fromNativeEvent(event, chart) {
+	const type = EVENT_TYPES[event.type] || event.type;
+	const {x, y} = getRelativePosition$1(event, chart);
 	return {
 		type,
 		chart,
-		native: nativeEvent || null,
+		native: event,
 		x: x !== undefined ? x : null,
 		y: y !== undefined ? y : null,
 	};
-}
-function fromNativeEvent(event, chart) {
-	const type = EVENT_TYPES[event.type] || event.type;
-	const pos = getRelativePosition$1(event, chart);
-	return createEvent(type, chart, pos.x, pos.y, event);
 }
 function createAttachObserver(chart, type, listener) {
 	const canvas = chart.canvas;
@@ -3138,6 +3143,9 @@ class DomPlatform extends BasePlatform {
 	}
 	getDevicePixelRatio() {
 		return window.devicePixelRatio;
+	}
+	getMaximumSize(canvas, width, height, aspectRatio) {
+		return getMaximumSize(canvas, width, height, aspectRatio);
 	}
 	isAttached(canvas) {
 		const container = _getParentNode(canvas);
@@ -4700,17 +4708,6 @@ function getCanvas(item) {
 	}
 	return item;
 }
-function computeNewSize(canvas, width, height, aspectRatio) {
-	if (width === undefined || height === undefined) {
-		width = getMaximumWidth(canvas);
-		height = getMaximumHeight(canvas);
-	}
-	width = Math.max(0, Math.floor(width));
-	return {
-		width,
-		height: Math.max(0, Math.floor(aspectRatio ? width / aspectRatio : height))
-	};
-}
 class Chart {
 	constructor(item, config) {
 		const me = this;
@@ -4800,7 +4797,7 @@ class Chart {
 		const options = me.options;
 		const canvas = me.canvas;
 		const aspectRatio = options.maintainAspectRatio && me.aspectRatio;
-		const newSize = computeNewSize(canvas, width, height, aspectRatio);
+		const newSize = me.platform.getMaximumSize(canvas, width, height, aspectRatio);
 		const oldRatio = me.currentDevicePixelRatio;
 		const newRatio = options.devicePixelRatio || me.platform.getDevicePixelRatio();
 		if (me.width === newSize.width && me.height === newSize.height && oldRatio === newRatio) {

@@ -855,9 +855,6 @@ unlistenArrayEvents: unlistenArrayEvents,
 _arrayUnique: _arrayUnique
 });
 
-function isConstrainedValue(value) {
-  return value !== undefined && value !== null && value !== 'none';
-}
 function _getParentNode(domNode) {
   var parent = domNode.parentNode;
   if (parent && parent.toString() === '[object ShadowRoot]') {
@@ -877,81 +874,118 @@ function parseMaxStyle(styleValue, node, parentProperty) {
   }
   return valueInPixels;
 }
-function getConstraintDimension(domNode, maxStyle, percentageProperty) {
-  var view = document.defaultView;
-  var parentNode = _getParentNode(domNode);
-  var constrainedNode = view.getComputedStyle(domNode)[maxStyle];
-  var constrainedContainer = view.getComputedStyle(parentNode)[maxStyle];
-  var hasCNode = isConstrainedValue(constrainedNode);
-  var hasCContainer = isConstrainedValue(constrainedContainer);
-  var infinity = Number.POSITIVE_INFINITY;
-  if (hasCNode || hasCContainer) {
-    return Math.min(hasCNode ? parseMaxStyle(constrainedNode, domNode, percentageProperty) : infinity, hasCContainer ? parseMaxStyle(constrainedContainer, parentNode, percentageProperty) : infinity);
-  }
-}
+var getComputedStyle = function getComputedStyle(element) {
+  return window.getComputedStyle(element, null);
+};
 function getStyle(el, property) {
-  return el.currentStyle ? el.currentStyle[property] : document.defaultView.getComputedStyle(el, null).getPropertyValue(property);
+  return el.currentStyle ? el.currentStyle[property] : getComputedStyle(el).getPropertyValue(property);
 }
-function _calculatePadding(container, padding, parentDimension) {
-  padding = getStyle(container, padding);
-  if (padding === '') {
-    return 0;
+var positions = ['top', 'right', 'bottom', 'left'];
+function getPositionedStyle(styles, style, suffix) {
+  var result = {};
+  suffix = suffix ? '-' + suffix : '';
+  for (var i = 0; i < 4; i++) {
+    var pos = positions[i];
+    result[pos] = parseFloat(styles[style + '-' + pos + suffix]) || 0;
   }
-  return padding.indexOf('%') > -1 ? parentDimension * parseInt(padding, 10) / 100 : parseInt(padding, 10);
+  result.width = result.left + result.right;
+  result.height = result.top + result.bottom;
+  return result;
 }
-function getRelativePosition(evt, chart) {
+function getCanvasPosition(evt, canvas) {
   var e = evt.originalEvent || evt;
   var touches = e.touches;
   var source = touches && touches.length ? touches[0] : e;
   var offsetX = source.offsetX,
       offsetY = source.offsetY;
+  var box = false;
+  var x, y;
   if (offsetX > 0 || offsetY > 0) {
-    return {
-      x: offsetX,
-      y: offsetY
-    };
+    x = offsetX;
+    y = offsetY;
+  } else {
+    var rect = canvas.getBoundingClientRect();
+    x = source.clientX - rect.left;
+    y = source.clientY - rect.top;
+    box = true;
   }
-  return calculateRelativePositionFromClientXY(source, chart);
-}
-function calculateRelativePositionFromClientXY(source, chart) {
-  var x = source.clientX,
-      y = source.clientY;
-  var canvasElement = chart.canvas;
-  var devicePixelRatio = chart.currentDevicePixelRatio;
-  var boundingRect = canvasElement.getBoundingClientRect();
-  var paddingLeft = parseFloat(getStyle(canvasElement, 'padding-left'));
-  var paddingTop = parseFloat(getStyle(canvasElement, 'padding-top'));
-  var paddingRight = parseFloat(getStyle(canvasElement, 'padding-right'));
-  var paddingBottom = parseFloat(getStyle(canvasElement, 'padding-bottom'));
-  var width = boundingRect.right - boundingRect.left - paddingLeft - paddingRight;
-  var height = boundingRect.bottom - boundingRect.top - paddingTop - paddingBottom;
   return {
-    x: Math.round((x - boundingRect.left - paddingLeft) / width * canvasElement.width / devicePixelRatio),
-    y: Math.round((y - boundingRect.top - paddingTop) / height * canvasElement.height / devicePixelRatio)
+    x: x,
+    y: y,
+    box: box
   };
 }
-function fallbackIfNotValid(measure, fallback) {
-  return typeof measure === 'number' ? measure : fallback;
-}
-function getMax(domNode, prop, fallback, paddings) {
-  var container = _getParentNode(domNode);
-  if (!container) {
-    return fallbackIfNotValid(domNode[prop], domNode[fallback]);
+function getRelativePosition(evt, chart) {
+  var canvas = chart.canvas,
+      currentDevicePixelRatio = chart.currentDevicePixelRatio;
+  var style = getComputedStyle(canvas);
+  var borderBox = style.boxSizing === 'border-box';
+  var paddings = getPositionedStyle(style, 'padding');
+  var borders = getPositionedStyle(style, 'border', 'width');
+  var _getCanvasPosition = getCanvasPosition(evt, canvas),
+      x = _getCanvasPosition.x,
+      y = _getCanvasPosition.y,
+      box = _getCanvasPosition.box;
+  var xOffset = paddings.left + (box && borders.left);
+  var yOffset = paddings.top + (box && borders.top);
+  var width = chart.width,
+      height = chart.height;
+  if (borderBox) {
+    width -= paddings.width + borders.width;
+    height -= paddings.height + borders.height;
   }
-  var value = container[prop];
-  var padding = paddings.reduce(function (acc, cur) {
-    return acc + _calculatePadding(container, 'padding-' + cur, value);
-  }, 0);
-  var v = value - padding;
-  var cv = getConstraintDimension(domNode, 'max-' + fallback, prop);
-  return isNaN(cv) ? v : Math.min(v, cv);
+  return {
+    x: Math.round((x - xOffset) / width * canvas.width / currentDevicePixelRatio),
+    y: Math.round((y - yOffset) / height * canvas.height / currentDevicePixelRatio)
+  };
 }
-var getMaximumWidth = function getMaximumWidth(domNode) {
-  return getMax(domNode, 'clientWidth', 'width', ['left', 'right']);
-};
-var getMaximumHeight = function getMaximumHeight(domNode) {
-  return getMax(domNode, 'clientHeight', 'height', ['top', 'bottom']);
-};
+var infinity = Number.POSITIVE_INFINITY;
+function getContainerSize(canvas, width, height) {
+  var maxWidth, maxHeight;
+  if (width === undefined || height === undefined) {
+    var container = _getParentNode(canvas);
+    if (!container) {
+      width = canvas.clientWidth;
+      height = canvas.clientHeight;
+    } else {
+      var rect = container.getBoundingClientRect();
+      var containerStyle = getComputedStyle(container);
+      var containerBorder = getPositionedStyle(containerStyle, 'border', 'width');
+      var contarinerPadding = getPositionedStyle(containerStyle, 'padding');
+      width = rect.width - contarinerPadding.width - containerBorder.width;
+      height = rect.height - contarinerPadding.height - containerBorder.height;
+      maxWidth = parseMaxStyle(containerStyle.maxWidth, container, 'clientWidth');
+      maxHeight = parseMaxStyle(containerStyle.maxHeight, container, 'clientHeight');
+    }
+  }
+  return {
+    width: width,
+    height: height,
+    maxWidth: maxWidth || infinity,
+    maxHeight: maxHeight || infinity
+  };
+}
+function getMaximumSize(canvas, bbWidth, bbHeight, aspectRatio) {
+  var style = getComputedStyle(canvas);
+  var margins = getPositionedStyle(style, 'margin');
+  var maxWidth = parseMaxStyle(style.maxWidth, canvas, 'clientWidth') || infinity;
+  var maxHeight = parseMaxStyle(style.maxHeight, canvas, 'clientHeight') || infinity;
+  var containerSize = getContainerSize(canvas, bbWidth, bbHeight);
+  var width = containerSize.width,
+      height = containerSize.height;
+  if (style.boxSizing === 'content-box') {
+    var borders = getPositionedStyle(style, 'border', 'width');
+    var paddings = getPositionedStyle(style, 'padding');
+    width -= paddings.width + borders.width;
+    height -= paddings.height + borders.height;
+  }
+  width = Math.max(0, width - margins.width);
+  height = Math.max(0, aspectRatio ? Math.floor(width / aspectRatio) : height - margins.height);
+  return {
+    width: Math.min(width, maxWidth, containerSize.maxWidth),
+    height: Math.min(height, maxHeight, containerSize.maxHeight)
+  };
+}
 function retinaScale(chart, forceRatio) {
   var pixelRatio = chart.currentDevicePixelRatio = forceRatio || typeof window !== 'undefined' && window.devicePixelRatio || 1;
   var canvas = chart.canvas,
@@ -991,8 +1025,7 @@ __proto__: null,
 _getParentNode: _getParentNode,
 getStyle: getStyle,
 getRelativePosition: getRelativePosition,
-getMaximumWidth: getMaximumWidth,
-getMaximumHeight: getMaximumHeight,
+getMaximumSize: getMaximumSize,
 retinaScale: retinaScale,
 supportsEventListenerOptions: supportsEventListenerOptions,
 readUsedSize: readUsedSize
@@ -1575,6 +1608,15 @@ var BasePlatform = function () {
     return 1;
   }
   ;
+  _proto.getMaximumSize = function getMaximumSize(element, width, height, aspectRatio) {
+    width = Math.max(0, width || element.width);
+    height = height || element.height;
+    return {
+      width: width,
+      height: Math.max(0, aspectRatio ? Math.floor(width / aspectRatio) : height)
+    };
+  }
+  ;
   _proto.isAttached = function isAttached(canvas) {
     return true;
   };
@@ -2143,19 +2185,18 @@ function addListener(node, type, listener) {
 function removeListener(chart, type, listener) {
   chart.canvas.removeEventListener(type, listener, eventListenerOptions);
 }
-function createEvent(type, chart, x, y, nativeEvent) {
+function fromNativeEvent(event, chart) {
+  var type = EVENT_TYPES[event.type] || event.type;
+  var _getRelativePosition = getRelativePosition(event, chart),
+      x = _getRelativePosition.x,
+      y = _getRelativePosition.y;
   return {
     type: type,
     chart: chart,
-    "native": nativeEvent || null,
+    "native": event,
     x: x !== undefined ? x : null,
     y: y !== undefined ? y : null
   };
-}
-function fromNativeEvent(event, chart) {
-  var type = EVENT_TYPES[event.type] || event.type;
-  var pos = getRelativePosition(event, chart);
-  return createEvent(type, chart, pos.x, pos.y, event);
 }
 function createAttachObserver(chart, type, listener) {
   var canvas = chart.canvas;
@@ -2339,6 +2380,10 @@ var DomPlatform = function (_BasePlatform) {
   };
   _proto.getDevicePixelRatio = function getDevicePixelRatio() {
     return window.devicePixelRatio;
+  }
+  ;
+  _proto.getMaximumSize = function getMaximumSize$1(canvas, width, height, aspectRatio) {
+    return getMaximumSize(canvas, width, height, aspectRatio);
   }
   ;
   _proto.isAttached = function isAttached(canvas) {
@@ -6223,17 +6268,6 @@ function getCanvas(item) {
   }
   return item;
 }
-function computeNewSize(canvas, width, height, aspectRatio) {
-  if (width === undefined || height === undefined) {
-    width = getMaximumWidth(canvas);
-    height = getMaximumHeight(canvas);
-  }
-  width = Math.max(0, Math.floor(width));
-  return {
-    width: width,
-    height: Math.max(0, Math.floor(aspectRatio ? width / aspectRatio : height))
-  };
-}
 var Chart = function () {
   function Chart(item, config) {
     var me = this;
@@ -6325,7 +6359,7 @@ var Chart = function () {
     var options = me.options;
     var canvas = me.canvas;
     var aspectRatio = options.maintainAspectRatio && me.aspectRatio;
-    var newSize = computeNewSize(canvas, width, height, aspectRatio);
+    var newSize = me.platform.getMaximumSize(canvas, width, height, aspectRatio);
     var oldRatio = me.currentDevicePixelRatio;
     var newRatio = options.devicePixelRatio || me.platform.getDevicePixelRatio();
     if (me.width === newSize.width && me.height === newSize.height && oldRatio === newRatio) {
