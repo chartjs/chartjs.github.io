@@ -1,5 +1,5 @@
 /*!
- * Chart.js v3.0.0-beta
+ * Chart.js v3.0.0-beta.3
  * https://www.chartjs.org
  * (c) 2020 Chart.js Contributors
  * Released under the MIT License
@@ -423,28 +423,6 @@ function _capitalize(str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-var coreHelpers = /*#__PURE__*/Object.freeze({
-__proto__: null,
-noop: noop,
-uid: uid,
-isNullOrUndef: isNullOrUndef,
-isArray: isArray,
-isObject: isObject,
-isFinite: isNumberFinite,
-valueOrDefault: valueOrDefault,
-callback: callback,
-each: each,
-_elementsEqual: _elementsEqual,
-clone: clone,
-_merger: _merger,
-merge: merge,
-mergeIf: mergeIf,
-_mergerIf: _mergerIf,
-_deprecated: _deprecated,
-resolveObjectKey: resolveObjectKey,
-_capitalize: _capitalize
-});
-
 function getScope(node, key) {
   if (!key) {
     return node;
@@ -720,21 +698,6 @@ function _bezierCurveTo(ctx, previous, target, flip) {
   ctx.bezierCurveTo(flip ? previous.controlPointPreviousX : previous.controlPointNextX, flip ? previous.controlPointPreviousY : previous.controlPointNextY, flip ? target.controlPointNextX : target.controlPointPreviousX, flip ? target.controlPointNextY : target.controlPointPreviousY, target.x, target.y);
 }
 
-var canvas = /*#__PURE__*/Object.freeze({
-__proto__: null,
-toFontString: toFontString,
-_measureText: _measureText,
-_longestText: _longestText,
-_alignPixel: _alignPixel,
-clear: clear,
-drawPoint: drawPoint,
-_isPointInArea: _isPointInArea,
-clipArea: clipArea,
-unclipArea: unclipArea,
-_steppedLineTo: _steppedLineTo,
-_bezierCurveTo: _bezierCurveTo
-});
-
 function _lookup(table, value, cmp) {
   cmp = cmp || function (index) {
     return table[index] < value;
@@ -843,17 +806,6 @@ function _arrayUnique(items) {
   });
   return result;
 }
-
-var collection = /*#__PURE__*/Object.freeze({
-__proto__: null,
-_lookup: _lookup,
-_lookupByKey: _lookupByKey,
-_rlookupByKey: _rlookupByKey,
-_filterBetween: _filterBetween,
-listenArrayEvents: listenArrayEvents,
-unlistenArrayEvents: unlistenArrayEvents,
-_arrayUnique: _arrayUnique
-});
 
 function _getParentNode(domNode) {
   var parent = domNode.parentNode;
@@ -1019,17 +971,6 @@ function readUsedSize(element, property) {
   var matches = value && value.match(/^(\d+)(\.\d+)?px$/);
   return matches ? +matches[1] : undefined;
 }
-
-var dom = /*#__PURE__*/Object.freeze({
-__proto__: null,
-_getParentNode: _getParentNode,
-getStyle: getStyle,
-getRelativePosition: getRelativePosition,
-getMaximumSize: getMaximumSize,
-retinaScale: retinaScale,
-supportsEventListenerOptions: supportsEventListenerOptions,
-readUsedSize: readUsedSize
-});
 
 function getRelativePosition$1(e, chart) {
   if ('native' in e) {
@@ -1328,15 +1269,6 @@ function resolve(inputs, context, index, info) {
     }
   }
 }
-
-var options = /*#__PURE__*/Object.freeze({
-__proto__: null,
-toLineHeight: toLineHeight,
-toTRBL: toTRBL,
-toPadding: toPadding,
-toFont: toFont,
-resolve: resolve
-});
 
 var STATIC_POSITIONS = ['left', 'top', 'right', 'bottom'];
 function filterByPosition(array, position) {
@@ -3804,27 +3736,6 @@ function _int32Range(value) {
   return _limitValue(value, -2147483648, 2147483647);
 }
 
-var math = /*#__PURE__*/Object.freeze({
-__proto__: null,
-_factorize: _factorize,
-log10: log10,
-isNumber: isNumber,
-almostEquals: almostEquals,
-almostWhole: almostWhole,
-_setMinAndMaxByKey: _setMinAndMaxByKey,
-sign: sign,
-toRadians: toRadians,
-toDegrees: toDegrees,
-_decimalPlaces: _decimalPlaces,
-getAngleFromPoint: getAngleFromPoint,
-distanceBetweenPoints: distanceBetweenPoints,
-_angleDiff: _angleDiff,
-_normalizeAngle: _normalizeAngle,
-_angleBetween: _angleBetween,
-_limitValue: _limitValue,
-_int32Range: _int32Range
-});
-
 function scaleClip(scale, allowedOverflow) {
   var opts = scale && scale.options || {};
   var reverse = opts.reverse;
@@ -4446,9 +4357,9 @@ var DatasetController = function () {
       cacheable: true
     };
     var context = me._getContext(index, active);
-    var datasetAnim = resolve([me._config.animation], context, index, info);
     var chartAnim = resolve([chart.options.animation], context, index, info);
-    var config = mergeIf({}, [datasetAnim, chartAnim]);
+    var datasetAnim = resolve([me._config.animation], context, index, info);
+    var config = chartAnim && mergeIf({}, [datasetAnim, chartAnim]);
     if (config[mode]) {
       config = _extends({}, config, config[mode]);
     }
@@ -6113,7 +6024,7 @@ function createDescriptors(plugins, options) {
   return result;
 }
 
-var version = "3.0.0-beta";
+var version = "3.0.0-beta.3";
 
 function getIndexAxis(type, options) {
   var typeDefaults = defaults[type] || {};
@@ -6933,7 +6844,7 @@ var Chart = function () {
       me._lastEvent = e.type === 'click' ? me._lastEvent : e;
     }
     callback(options.onHover || options.hover.onHover, [e, active, me], me);
-    if (e.type === 'mouseup' || e.type === 'click') {
+    if (e.type === 'mouseup' || e.type === 'click' || e.type === 'contextmenu') {
       if (_isPointInArea(e, me.chartArea)) {
         callback(options.onClick, [e, active, me], me);
       }
@@ -7107,13 +7018,6 @@ function _updateBezierControlPoints(points, options, area, loop) {
   }
 }
 
-var curve = /*#__PURE__*/Object.freeze({
-__proto__: null,
-splineCurve: splineCurve,
-splineCurveMonotone: splineCurveMonotone,
-_updateBezierControlPoints: _updateBezierControlPoints
-});
-
 function _pointInLine(p1, p2, t, mode) {
   return {
     x: p1.x + t * (p2.x - p1.x),
@@ -7142,13 +7046,6 @@ function _bezierInterpolation(p1, p2, t, mode) {
   var e = _pointInLine(b, c, t);
   return _pointInLine(d, e, t);
 }
-
-var interpolation = /*#__PURE__*/Object.freeze({
-__proto__: null,
-_pointInLine: _pointInLine,
-_steppedInterpolation: _steppedInterpolation,
-_bezierInterpolation: _bezierInterpolation
-});
 
 var getRightToLeftAdapter = function getRightToLeftAdapter(rectX, width) {
   return {
@@ -7208,13 +7105,6 @@ function restoreTextDirection(ctx, original) {
     ctx.canvas.style.setProperty('direction', original[0], original[1]);
   }
 }
-
-var rtl = /*#__PURE__*/Object.freeze({
-__proto__: null,
-getRtlAdapter: getRtlAdapter,
-overrideTextDirection: overrideTextDirection,
-restoreTextDirection: restoreTextDirection
-});
 
 function propertyFn(property) {
   if (property === 'angle') {
@@ -7424,30 +7314,90 @@ function _computeSegments(line) {
   return solidSegments(points, start, max, completeLoop);
 }
 
-var segment = /*#__PURE__*/Object.freeze({
+var helpers = /*#__PURE__*/Object.freeze({
 __proto__: null,
+easingEffects: effects,
+color: color,
+getHoverColor: getHoverColor,
+requestAnimFrame: requestAnimFrame,
+fontString: fontString,
+noop: noop,
+uid: uid,
+isNullOrUndef: isNullOrUndef,
+isArray: isArray,
+isObject: isObject,
+isFinite: isNumberFinite,
+valueOrDefault: valueOrDefault,
+callback: callback,
+each: each,
+_elementsEqual: _elementsEqual,
+clone: clone,
+_merger: _merger,
+merge: merge,
+mergeIf: mergeIf,
+_mergerIf: _mergerIf,
+_deprecated: _deprecated,
+resolveObjectKey: resolveObjectKey,
+_capitalize: _capitalize,
+toFontString: toFontString,
+_measureText: _measureText,
+_longestText: _longestText,
+_alignPixel: _alignPixel,
+clear: clear,
+drawPoint: drawPoint,
+_isPointInArea: _isPointInArea,
+clipArea: clipArea,
+unclipArea: unclipArea,
+_steppedLineTo: _steppedLineTo,
+_bezierCurveTo: _bezierCurveTo,
+_lookup: _lookup,
+_lookupByKey: _lookupByKey,
+_rlookupByKey: _rlookupByKey,
+_filterBetween: _filterBetween,
+listenArrayEvents: listenArrayEvents,
+unlistenArrayEvents: unlistenArrayEvents,
+_arrayUnique: _arrayUnique,
+splineCurve: splineCurve,
+splineCurveMonotone: splineCurveMonotone,
+_updateBezierControlPoints: _updateBezierControlPoints,
+_getParentNode: _getParentNode,
+getStyle: getStyle,
+getRelativePosition: getRelativePosition,
+getMaximumSize: getMaximumSize,
+retinaScale: retinaScale,
+supportsEventListenerOptions: supportsEventListenerOptions,
+readUsedSize: readUsedSize,
+_pointInLine: _pointInLine,
+_steppedInterpolation: _steppedInterpolation,
+_bezierInterpolation: _bezierInterpolation,
+toLineHeight: toLineHeight,
+toTRBL: toTRBL,
+toPadding: toPadding,
+toFont: toFont,
+resolve: resolve,
+_factorize: _factorize,
+log10: log10,
+isNumber: isNumber,
+almostEquals: almostEquals,
+almostWhole: almostWhole,
+_setMinAndMaxByKey: _setMinAndMaxByKey,
+sign: sign,
+toRadians: toRadians,
+toDegrees: toDegrees,
+_decimalPlaces: _decimalPlaces,
+getAngleFromPoint: getAngleFromPoint,
+distanceBetweenPoints: distanceBetweenPoints,
+_angleDiff: _angleDiff,
+_normalizeAngle: _normalizeAngle,
+_angleBetween: _angleBetween,
+_limitValue: _limitValue,
+_int32Range: _int32Range,
+getRtlAdapter: getRtlAdapter,
+overrideTextDirection: overrideTextDirection,
+restoreTextDirection: restoreTextDirection,
 _boundSegment: _boundSegment,
 _boundSegments: _boundSegments,
 _computeSegments: _computeSegments
-});
-
-var helpers = _extends({}, coreHelpers, {
-  canvas: canvas,
-  collection: collection,
-  curve: curve,
-  dom: dom,
-  easing: {
-    effects: effects
-  },
-  interpolation: interpolation,
-  options: options,
-  math: math,
-  rtl: rtl,
-  segment: segment,
-  requestAnimFrame: requestAnimFrame,
-  fontString: fontString,
-  color: color,
-  getHoverColor: getHoverColor
 });
 
 function _abstract() {
@@ -13181,7 +13131,7 @@ TimeSeriesScale: TimeSeriesScale
 });
 
 Chart.register(controllers, scales, elements, plugins);
-Chart.helpers = helpers;
+Chart.helpers = _extends({}, helpers);
 Chart._adapters = _adapters;
 Chart.Animation = Animation;
 Chart.Animations = Animations;

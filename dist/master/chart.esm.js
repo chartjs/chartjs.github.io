@@ -1,23 +1,11 @@
 /*!
- * Chart.js v3.0.0-beta
+ * Chart.js v3.0.0-beta.3
  * https://www.chartjs.org
  * (c) 2020 Chart.js Contributors
  * Released under the MIT License
  */
-import { requestAnimFrame, throttled } from '../helpers/extras.js';
-import effects from '../helpers/easing.js';
-import { isObject, noop, valueOrDefault, merge, isArray, resolveObjectKey, _capitalize, mergeIf, _merger, isNullOrUndef, each, isFinite as isNumberFinite, callback, uid, _elementsEqual } from '../helpers/core.js';
-import { r as resolve, d as defaults, t as toPadding, a as toFont, b as toTRBL } from '../helpers/chunks/helpers.options.js';
-export { d as defaults } from '../helpers/chunks/helpers.options.js';
-import { clipArea, unclipArea, _isPointInArea, _measureText, _alignPixel, clear, _steppedLineTo, _bezierCurveTo, drawPoint, _longestText } from '../helpers/canvas.js';
-import { color, getHoverColor } from '../helpers/color.js';
-import { unlistenArrayEvents, listenArrayEvents, _lookupByKey, _rlookupByKey, _filterBetween, _arrayUnique, _lookup } from '../helpers/collection.js';
-import { sign, _limitValue, isNumber, toRadians, log10, toDegrees, _int32Range, _factorize, getAngleFromPoint, _angleBetween, _normalizeAngle, distanceBetweenPoints, _setMinAndMaxByKey, _decimalPlaces, almostEquals, almostWhole } from '../helpers/math.js';
-import { getRelativePosition as getRelativePosition$1, getMaximumSize, _getParentNode, readUsedSize, supportsEventListenerOptions, retinaScale } from '../helpers/dom.js';
-import { _steppedInterpolation, _bezierInterpolation, _pointInLine } from '../helpers/interpolation.js';
-import { _computeSegments, _boundSegments, _boundSegment } from '../helpers/segment.js';
-import { _updateBezierControlPoints } from '../helpers/curve.js';
-import { getRtlAdapter, overrideTextDirection, restoreTextDirection } from '../helpers/rtl.js';
+import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, d as defaults, n as noop, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, m as merge, b as isArray, f as resolveObjectKey, g as getHoverColor, _ as _capitalize, h as mergeIf, s as sign, j as _merger, k as _limitValue, o as clipArea, p as unclipArea, q as isNullOrUndef, t as isNumber, w as _lookupByKey, x as toRadians, y as getRelativePosition$1, z as _isPointInArea, A as _rlookupByKey, B as toPadding, C as each, D as getMaximumSize, E as _getParentNode, F as readUsedSize, G as throttled, H as supportsEventListenerOptions, I as log10, J as isNumberFinite, K as callback, L as toDegrees, M as _measureText, N as _int32Range, O as _alignPixel, P as toFont, Q as _factorize, R as uid, S as retinaScale, T as clear, U as _elementsEqual, V as getAngleFromPoint, W as _angleBetween, X as _updateBezierControlPoints, Y as _computeSegments, Z as _boundSegments, $ as _steppedInterpolation, a0 as _bezierInterpolation, a1 as _pointInLine, a2 as _steppedLineTo, a3 as _bezierCurveTo, a4 as drawPoint, a5 as toTRBL, a6 as _normalizeAngle, a7 as _boundSegment, a8 as getRtlAdapter, a9 as overrideTextDirection, aa as restoreTextDirection, ab as distanceBetweenPoints, ac as _setMinAndMaxByKey, ad as _decimalPlaces, ae as almostEquals, af as almostWhole, ag as _longestText, ah as _filterBetween, ai as _arrayUnique, aj as _lookup } from './chunks/helpers.rtl.js';
+export { d as defaults } from './chunks/helpers.rtl.js';
 
 function drawFPS(chart, count, date, lastDate) {
 	const fps = (1000 / (date - lastDate)) | 0;
@@ -1015,9 +1003,9 @@ class DatasetController {
 		}
 		const info = {cacheable: true};
 		const context = me._getContext(index, active);
-		const datasetAnim = resolve([me._config.animation], context, index, info);
 		const chartAnim = resolve([chart.options.animation], context, index, info);
-		let config = mergeIf({}, [datasetAnim, chartAnim]);
+		const datasetAnim = resolve([me._config.animation], context, index, info);
+		let config = chartAnim && mergeIf({}, [datasetAnim, chartAnim]);
 		if (config[mode]) {
 			config = Object.assign({}, config, config[mode]);
 		}
@@ -4560,7 +4548,7 @@ function createDescriptors(plugins, options) {
 	return result;
 }
 
-var version = "3.0.0-beta";
+var version = "3.0.0-beta.3";
 
 function getIndexAxis(type, options) {
 	const typeDefaults = defaults[type] || {};
@@ -5327,7 +5315,7 @@ class Chart {
 			me._lastEvent = e.type === 'click' ? me._lastEvent : e;
 		}
 		callback(options.onHover || options.hover.onHover, [e, active, me], me);
-		if (e.type === 'mouseup' || e.type === 'click') {
+		if (e.type === 'mouseup' || e.type === 'click' || e.type === 'contextmenu') {
 			if (_isPointInArea(e, me.chartArea)) {
 				callback(options.onClick, [e, active, me], me);
 			}
