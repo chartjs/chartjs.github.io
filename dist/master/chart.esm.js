@@ -555,15 +555,11 @@ function getFirstScaleId(chart, axis) {
 	const scales = chart.scales;
 	return Object.keys(scales).filter(key => scales[key].axis === axis).shift();
 }
-function optionKeys(optionNames) {
-	return isArray(optionNames) ? optionNames : Object.keys(optionNames);
-}
-function optionKey(key, active) {
-	return active ? 'hover' + _capitalize(key) : key;
-}
-function isDirectUpdateMode(mode) {
-	return mode === 'reset' || mode === 'none';
-}
+const optionKeys = (optionNames) => isArray(optionNames) ? optionNames : Object.keys(optionNames);
+const optionKey = (key, active) => active ? 'hover' + _capitalize(key) : key;
+const isDirectUpdateMode = (mode) => mode === 'reset' || mode === 'none';
+const cloneIfNotShared = (cached, shared) => shared ? cached : Object.assign({}, cached);
+const freezeIfShared = (values, shared) => shared ? Object.freeze(values) : values;
 class DatasetController {
 	constructor(chart, datasetIndex) {
 		this.chart = chart;
@@ -953,10 +949,11 @@ class DatasetController {
 		mode = mode || 'default';
 		const me = this;
 		const active = mode === 'active';
-		const cached = me._cachedDataOpts;
+		const cache = me._cachedDataOpts;
+		const cached = cache[mode];
 		const sharing = me.enableOptionSharing;
-		if (cached[mode]) {
-			return cached[mode];
+		if (cached) {
+			return cloneIfNotShared(cached, sharing);
 		}
 		const info = {cacheable: !active};
 		const values = me._resolveOptions(me.dataElementOptions, {
@@ -967,7 +964,7 @@ class DatasetController {
 		});
 		if (info.cacheable) {
 			values.$shared = sharing;
-			cached[mode] = sharing ? Object.freeze(values) : values;
+			cache[mode] = freezeIfShared(values, sharing);
 		}
 		return values;
 	}

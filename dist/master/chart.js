@@ -3871,15 +3871,21 @@ function getFirstScaleId(chart, axis) {
     return scales[key].axis === axis;
   }).shift();
 }
-function optionKeys(optionNames) {
+var optionKeys = function optionKeys(optionNames) {
   return isArray(optionNames) ? optionNames : Object.keys(optionNames);
-}
-function optionKey(key, active) {
+};
+var optionKey = function optionKey(key, active) {
   return active ? 'hover' + _capitalize(key) : key;
-}
-function isDirectUpdateMode(mode) {
+};
+var isDirectUpdateMode = function isDirectUpdateMode(mode) {
   return mode === 'reset' || mode === 'none';
-}
+};
+var cloneIfNotShared = function cloneIfNotShared(cached, shared) {
+  return shared ? cached : _extends({}, cached);
+};
+var freezeIfShared = function freezeIfShared(values, shared) {
+  return shared ? Object.freeze(values) : values;
+};
 var DatasetController = function () {
   function DatasetController(chart, datasetIndex) {
     this.chart = chart;
@@ -4308,10 +4314,11 @@ var DatasetController = function () {
     mode = mode || 'default';
     var me = this;
     var active = mode === 'active';
-    var cached = me._cachedDataOpts;
+    var cache = me._cachedDataOpts;
+    var cached = cache[mode];
     var sharing = me.enableOptionSharing;
-    if (cached[mode]) {
-      return cached[mode];
+    if (cached) {
+      return cloneIfNotShared(cached, sharing);
     }
     var info = {
       cacheable: !active
@@ -4324,7 +4331,7 @@ var DatasetController = function () {
     });
     if (info.cacheable) {
       values.$shared = sharing;
-      cached[mode] = sharing ? Object.freeze(values) : values;
+      cache[mode] = freezeIfShared(values, sharing);
     }
     return values;
   }
