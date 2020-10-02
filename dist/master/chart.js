@@ -1307,8 +1307,13 @@ function setLayoutDims(layouts, params) {
   var i, ilen, layout;
   for (i = 0, ilen = layouts.length; i < ilen; ++i) {
     layout = layouts[i];
-    layout.width = layout.horizontal ? layout.box.fullWidth && params.availableWidth : params.vBoxMaxWidth;
-    layout.height = layout.horizontal && params.hBoxMaxHeight;
+    if (layout.horizontal) {
+      layout.width = layout.box.fullWidth && params.availableWidth;
+      layout.height = params.hBoxMaxHeight;
+    } else {
+      layout.width = params.vBoxMaxWidth;
+      layout.height = layout.box.fullWidth && params.availableHeight;
+    }
   }
 }
 function buildLayoutBoxes(boxes) {
@@ -1418,8 +1423,8 @@ function placeBoxes(boxes, chartArea, params) {
     } else {
       box.left = x;
       box.right = x + box.width;
-      box.top = chartArea.top;
-      box.bottom = chartArea.top + chartArea.h;
+      box.top = box.fullWidth ? userPadding.top : chartArea.top;
+      box.bottom = box.fullWidth ? params.outerHeight - userPadding.right : chartArea.top + chartArea.h;
       box.height = box.bottom - box.top;
       x = box.right;
     }
@@ -1487,6 +1492,7 @@ var layouts = {
       outerHeight: height,
       padding: padding,
       availableWidth: availableWidth,
+      availableHeight: availableHeight,
       vBoxMaxWidth: availableWidth / 2 / verticalBoxes.length,
       hBoxMaxHeight: availableHeight / 2
     });
