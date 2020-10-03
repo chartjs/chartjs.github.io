@@ -4,7 +4,7 @@
  * (c) 2020 Chart.js Contributors
  * Released under the MIT License
  */
-import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, d as defaults, n as noop, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, m as merge, b as isArray, f as resolveObjectKey, g as getHoverColor, _ as _capitalize, h as mergeIf, s as sign, j as _merger, k as _limitValue, o as clipArea, p as unclipArea, q as isNullOrUndef, t as isNumber, w as _lookupByKey, x as toRadians, y as getRelativePosition$1, z as _isPointInArea, A as _rlookupByKey, B as toPadding, C as each, D as getMaximumSize, E as _getParentNode, F as readUsedSize, G as throttled, H as supportsEventListenerOptions, I as log10, J as isNumberFinite, K as callback, L as toDegrees, M as _measureText, N as _int32Range, O as _alignPixel, P as toFont, Q as _factorize, R as uid, S as retinaScale, T as clear, U as _elementsEqual, V as getAngleFromPoint, W as _angleBetween, X as _updateBezierControlPoints, Y as _computeSegments, Z as _boundSegments, $ as _steppedInterpolation, a0 as _bezierInterpolation, a1 as _pointInLine, a2 as _steppedLineTo, a3 as _bezierCurveTo, a4 as drawPoint, a5 as toTRBL, a6 as _normalizeAngle, a7 as _boundSegment, a8 as getRtlAdapter, a9 as overrideTextDirection, aa as restoreTextDirection, ab as distanceBetweenPoints, ac as _setMinAndMaxByKey, ad as _decimalPlaces, ae as almostEquals, af as almostWhole, ag as _longestText, ah as _filterBetween, ai as _arrayUnique, aj as _lookup } from './chunks/helpers.rtl.js';
+import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, d as defaults, n as noop, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, m as merge, b as isArray, f as resolveObjectKey, g as getHoverColor, _ as _capitalize, h as mergeIf, s as sign, j as _merger, k as _limitValue, o as clipArea, p as unclipArea, q as isNullOrUndef, t as toRadians, w as isNumber, x as _lookupByKey, y as getRelativePosition$1, z as _isPointInArea, A as _rlookupByKey, B as toPadding, C as each, D as getMaximumSize, E as _getParentNode, F as readUsedSize, G as throttled, H as supportsEventListenerOptions, I as log10, J as isNumberFinite, K as callback, L as toDegrees, M as _measureText, N as _int32Range, O as _alignPixel, P as toFont, Q as _factorize, R as uid, S as retinaScale, T as clear, U as _elementsEqual, V as getAngleFromPoint, W as _angleBetween, X as _updateBezierControlPoints, Y as _computeSegments, Z as _boundSegments, $ as _steppedInterpolation, a0 as _bezierInterpolation, a1 as _pointInLine, a2 as _steppedLineTo, a3 as _bezierCurveTo, a4 as drawPoint, a5 as toTRBL, a6 as _normalizeAngle, a7 as _boundSegment, a8 as getRtlAdapter, a9 as overrideTextDirection, aa as restoreTextDirection, ab as distanceBetweenPoints, ac as _setMinAndMaxByKey, ad as _decimalPlaces, ae as almostEquals, af as almostWhole, ag as _longestText, ah as _filterBetween, ai as _arrayUnique, aj as _lookup } from './chunks/helpers.rtl.js';
 export { d as defaults } from './chunks/helpers.rtl.js';
 
 function drawFPS(chart, count, date, lastDate) {
@@ -1681,6 +1681,25 @@ class DoughnutController extends DatasetController {
 		}
 		return ringIndex;
 	}
+	_getRotationExtents() {
+		let min = DOUBLE_PI;
+		let max = -DOUBLE_PI;
+		const me = this;
+		const opts = me.chart.options;
+		for (let i = 0; i < me.chart.data.datasets.length; ++i) {
+			if (me.chart.isDatasetVisible(i)) {
+				const dataset = me.chart.data.datasets[i];
+				const rotation = toRadians(valueOrDefault(dataset.rotation, opts.rotation) - 90);
+				const circumference = toRadians(valueOrDefault(dataset.circumference, opts.circumference));
+				min = Math.min(min, rotation);
+				max = Math.max(max, rotation + circumference);
+			}
+		}
+		return {
+			rotation: min,
+			circumference: max - min,
+		};
+	}
 	update(mode) {
 		const me = this;
 		const chart = me.chart;
@@ -1689,7 +1708,8 @@ class DoughnutController extends DatasetController {
 		const arcs = meta.data;
 		const cutout = options.cutoutPercentage / 100 || 0;
 		const chartWeight = me._getRingWeight(me.index);
-		const {ratioX, ratioY, offsetX, offsetY} = getRatioAndOffset(options.rotation, options.circumference, cutout);
+		const {circumference, rotation} = me._getRotationExtents();
+		const {ratioX, ratioY, offsetX, offsetY} = getRatioAndOffset(rotation, circumference, cutout);
 		const spacing = me.getMaxBorderWidth() + me.getMaxOffset(arcs);
 		const maxWidth = (chartArea.right - chartArea.left - spacing) / ratioX;
 		const maxHeight = (chartArea.bottom - chartArea.top - spacing) / ratioY;
@@ -1707,7 +1727,8 @@ class DoughnutController extends DatasetController {
 		const me = this;
 		const opts = me.chart.options;
 		const meta = me._cachedMeta;
-		return reset && opts.animation.animateRotate ? 0 : this.chart.getDataVisibility(i) ? me.calculateCircumference(meta._parsed[i] * opts.circumference / DOUBLE_PI) : 0;
+		const circumference = toRadians(valueOrDefault(me._config.circumference, opts.circumference));
+		return reset && opts.animation.animateRotate ? 0 : this.chart.getDataVisibility(i) ? me.calculateCircumference(meta._parsed[i] * circumference / DOUBLE_PI) : 0;
 	}
 	updateElements(arcs, start, count, mode) {
 		const me = this;
@@ -1724,7 +1745,7 @@ class DoughnutController extends DatasetController {
 		const firstOpts = me.resolveDataElementOptions(start, mode);
 		const sharedOptions = me.getSharedOptions(firstOpts);
 		const includeOptions = me.includeOptions(mode, sharedOptions);
-		let startAngle = opts.rotation;
+		let startAngle = toRadians(valueOrDefault(me._config.rotation, opts.rotation) - 90);
 		let i;
 		for (i = 0; i < start; ++i) {
 			startAngle += me._circumference(i, reset);
@@ -1879,8 +1900,8 @@ DoughnutController.defaults = {
 		}
 	},
 	cutoutPercentage: 50,
-	rotation: -HALF_PI,
-	circumference: DOUBLE_PI,
+	rotation: 0,
+	circumference: 360,
 	tooltips: {
 		callbacks: {
 			title() {

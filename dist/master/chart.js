@@ -8027,6 +8027,26 @@ var DoughnutController = function (_DatasetController) {
     return ringIndex;
   }
   ;
+  _proto._getRotationExtents = function _getRotationExtents() {
+    var min = DOUBLE_PI$1;
+    var max = -DOUBLE_PI$1;
+    var me = this;
+    var opts = me.chart.options;
+    for (var i = 0; i < me.chart.data.datasets.length; ++i) {
+      if (me.chart.isDatasetVisible(i)) {
+        var dataset = me.chart.data.datasets[i];
+        var rotation = toRadians(valueOrDefault(dataset.rotation, opts.rotation) - 90);
+        var circumference = toRadians(valueOrDefault(dataset.circumference, opts.circumference));
+        min = Math.min(min, rotation);
+        max = Math.max(max, rotation + circumference);
+      }
+    }
+    return {
+      rotation: min,
+      circumference: max - min
+    };
+  }
+  ;
   _proto.update = function update(mode) {
     var me = this;
     var chart = me.chart;
@@ -8036,7 +8056,10 @@ var DoughnutController = function (_DatasetController) {
     var arcs = meta.data;
     var cutout = options.cutoutPercentage / 100 || 0;
     var chartWeight = me._getRingWeight(me.index);
-    var _getRatioAndOffset = getRatioAndOffset(options.rotation, options.circumference, cutout),
+    var _me$_getRotationExten = me._getRotationExtents(),
+        circumference = _me$_getRotationExten.circumference,
+        rotation = _me$_getRotationExten.rotation;
+    var _getRatioAndOffset = getRatioAndOffset(rotation, circumference, cutout),
         ratioX = _getRatioAndOffset.ratioX,
         ratioY = _getRatioAndOffset.ratioY,
         offsetX = _getRatioAndOffset.offsetX,
@@ -8059,7 +8082,8 @@ var DoughnutController = function (_DatasetController) {
     var me = this;
     var opts = me.chart.options;
     var meta = me._cachedMeta;
-    return reset && opts.animation.animateRotate ? 0 : this.chart.getDataVisibility(i) ? me.calculateCircumference(meta._parsed[i] * opts.circumference / DOUBLE_PI$1) : 0;
+    var circumference = toRadians(valueOrDefault(me._config.circumference, opts.circumference));
+    return reset && opts.animation.animateRotate ? 0 : this.chart.getDataVisibility(i) ? me.calculateCircumference(meta._parsed[i] * circumference / DOUBLE_PI$1) : 0;
   };
   _proto.updateElements = function updateElements(arcs, start, count, mode) {
     var me = this;
@@ -8076,7 +8100,7 @@ var DoughnutController = function (_DatasetController) {
     var firstOpts = me.resolveDataElementOptions(start, mode);
     var sharedOptions = me.getSharedOptions(firstOpts);
     var includeOptions = me.includeOptions(mode, sharedOptions);
-    var startAngle = opts.rotation;
+    var startAngle = toRadians(valueOrDefault(me._config.rotation, opts.rotation) - 90);
     var i;
     for (i = 0; i < start; ++i) {
       startAngle += me._circumference(i, reset);
@@ -8229,8 +8253,8 @@ DoughnutController.defaults = {
     }
   },
   cutoutPercentage: 50,
-  rotation: -HALF_PI$1,
-  circumference: DOUBLE_PI$1,
+  rotation: 0,
+  circumference: 360,
   tooltips: {
     callbacks: {
       title: function title() {
