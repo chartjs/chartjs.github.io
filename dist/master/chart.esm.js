@@ -4,7 +4,7 @@
  * (c) 2020 Chart.js Contributors
  * Released under the MIT License
  */
-import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, d as defaults, n as noop, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, m as merge, b as isArray, f as resolveObjectKey, g as getHoverColor, _ as _capitalize, h as mergeIf, s as sign, j as _merger, k as _limitValue, o as clipArea, p as unclipArea, q as isNullOrUndef, t as toRadians, w as isNumber, x as _lookupByKey, y as getRelativePosition$1, z as _isPointInArea, A as _rlookupByKey, B as toPadding, C as each, D as getMaximumSize, E as _getParentNode, F as readUsedSize, G as throttled, H as supportsEventListenerOptions, I as log10, J as isNumberFinite, K as callback, L as toDegrees, M as _measureText, N as _int32Range, O as _alignPixel, P as toFont, Q as _factorize, R as uid, S as retinaScale, T as clear, U as _elementsEqual, V as getAngleFromPoint, W as _angleBetween, X as _updateBezierControlPoints, Y as _computeSegments, Z as _boundSegments, $ as _steppedInterpolation, a0 as _bezierInterpolation, a1 as _pointInLine, a2 as _steppedLineTo, a3 as _bezierCurveTo, a4 as drawPoint, a5 as toTRBL, a6 as _normalizeAngle, a7 as _boundSegment, a8 as getRtlAdapter, a9 as overrideTextDirection, aa as restoreTextDirection, ab as distanceBetweenPoints, ac as _setMinAndMaxByKey, ad as _decimalPlaces, ae as almostEquals, af as almostWhole, ag as _longestText, ah as _filterBetween, ai as _arrayUnique, aj as _lookup } from './chunks/helpers.rtl.js';
+import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, d as defaults, n as noop, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, m as merge, b as isArray, f as resolveObjectKey, g as getHoverColor, _ as _capitalize, h as mergeIf, s as sign, j as _merger, k as _limitValue, o as clipArea, p as unclipArea, q as isNullOrUndef, t as toRadians, w as isNumber, x as _lookupByKey, y as getRelativePosition$1, z as _isPointInArea, A as _rlookupByKey, B as toPadding, C as each, D as getMaximumSize, E as _getParentNode, F as readUsedSize, G as throttled, H as supportsEventListenerOptions, I as log10, J as isNumberFinite, K as callback, L as toDegrees, M as _measureText, N as _int16Range, O as _alignPixel, P as toFont, Q as _factorize, R as uid, S as retinaScale, T as clear, U as _elementsEqual, V as getAngleFromPoint, W as _angleBetween, X as _updateBezierControlPoints, Y as _computeSegments, Z as _boundSegments, $ as _steppedInterpolation, a0 as _bezierInterpolation, a1 as _pointInLine, a2 as _steppedLineTo, a3 as _bezierCurveTo, a4 as drawPoint, a5 as toTRBL, a6 as _normalizeAngle, a7 as _boundSegment, a8 as getRtlAdapter, a9 as overrideTextDirection, aa as restoreTextDirection, ab as distanceBetweenPoints, ac as _setMinAndMaxByKey, ad as _decimalPlaces, ae as almostEquals, af as almostWhole, ag as _longestText, ah as _filterBetween, ai as _arrayUnique, aj as _lookup } from './chunks/helpers.rtl.js';
 export { d as defaults } from './chunks/helpers.rtl.js';
 
 function drawFPS(chart, count, date, lastDate) {
@@ -3849,7 +3849,7 @@ class Scale extends Element {
 		if (me._reversePixels) {
 			decimal = 1 - decimal;
 		}
-		return _int32Range(me._startPixel + decimal * me._length);
+		return _int16Range(me._startPixel + decimal * me._length);
 	}
 	getDecimalForPixel(pixel) {
 		const decimal = (pixel - this._startPixel) / this._length;
@@ -4723,6 +4723,13 @@ class Chart {
 		const me = this;
 		config = initConfig(config);
 		const initialCanvas = getCanvas(item);
+		const existingChart = Chart.getChart(initialCanvas);
+		if (existingChart) {
+			throw new Error(
+				'Canvas is already in use. Chart with ID \'' + existingChart.id + '\'' +
+				' must be destroyed before the canvas can be reused.'
+			);
+		}
 		this.platform = me._initializePlatform(initialCanvas, config);
 		const context = me.platform.acquireContext(initialCanvas, config);
 		const canvas = context && context.canvas;
@@ -5354,6 +5361,10 @@ Chart.defaults = defaults;
 Chart.instances = {};
 Chart.registry = registry;
 Chart.version = version;
+Chart.getChart = (key) => {
+	const canvas = getCanvas(key);
+	return Object.values(Chart.instances).filter((c) => c.canvas === canvas).pop();
+};
 const invalidatePlugins = () => each(Chart.instances, (chart) => chart._plugins.invalidate());
 Chart.register = (...items) => {
 	registry.add(...items);

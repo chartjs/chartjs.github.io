@@ -3738,8 +3738,8 @@ function _angleBetween(angle, start, end) {
 function _limitValue(value, min, max) {
   return Math.max(min, Math.min(max, value));
 }
-function _int32Range(value) {
-  return _limitValue(value, -2147483648, 2147483647);
+function _int16Range(value) {
+  return _limitValue(value, -32768, 32767);
 }
 
 function scaleClip(scale, allowedOverflow) {
@@ -5251,7 +5251,7 @@ var Scale = function (_Element) {
     if (me._reversePixels) {
       decimal = 1 - decimal;
     }
-    return _int32Range(me._startPixel + decimal * me._length);
+    return _int16Range(me._startPixel + decimal * me._length);
   }
   ;
   _proto.getDecimalForPixel = function getDecimalForPixel(pixel) {
@@ -6197,6 +6197,10 @@ var Chart = function () {
     var me = this;
     config = initConfig(config);
     var initialCanvas = getCanvas(item);
+    var existingChart = Chart.getChart(initialCanvas);
+    if (existingChart) {
+      throw new Error('Canvas is already in use. Chart with ID \'' + existingChart.id + '\'' + ' must be destroyed before the canvas can be reused.');
+    }
     this.platform = me._initializePlatform(initialCanvas, config);
     var context = me.platform.acquireContext(initialCanvas, config);
     var canvas = context && context.canvas;
@@ -6875,6 +6879,12 @@ Chart.defaults = defaults;
 Chart.instances = {};
 Chart.registry = registry;
 Chart.version = version;
+Chart.getChart = function (key) {
+  var canvas = getCanvas(key);
+  return Object.values(Chart.instances).filter(function (c) {
+    return c.canvas === canvas;
+  }).pop();
+};
 var invalidatePlugins = function invalidatePlugins() {
   return each(Chart.instances, function (chart) {
     return chart._plugins.invalidate();
@@ -7404,7 +7414,7 @@ _angleDiff: _angleDiff,
 _normalizeAngle: _normalizeAngle,
 _angleBetween: _angleBetween,
 _limitValue: _limitValue,
-_int32Range: _int32Range,
+_int16Range: _int16Range,
 getRtlAdapter: getRtlAdapter,
 overrideTextDirection: overrideTextDirection,
 restoreTextDirection: restoreTextDirection,
