@@ -4292,7 +4292,7 @@ var DatasetController = function () {
     return options;
   }
   ;
-  _proto._getContext = function _getContext(index, active) {
+  _proto.getContext = function getContext(index, active) {
     return {
       chart: this.chart,
       dataPoint: this.getParsed(index),
@@ -4345,7 +4345,7 @@ var DatasetController = function () {
     var datasetOpts = me._config;
     var options = me.chart.options.elements[type] || {};
     var values = {};
-    var context = me._getContext(index, active);
+    var context = me.getContext(index, active);
     var keys = optionKeys(optionNames);
     for (var i = 0, ilen = keys.length; i < ilen; ++i) {
       var key = keys[i];
@@ -4369,7 +4369,7 @@ var DatasetController = function () {
     var info = {
       cacheable: true
     };
-    var context = me._getContext(index, active);
+    var context = me.getContext(index, active);
     var chartAnim = resolve([chart.options.animation], context, index, info);
     var datasetAnim = resolve([me._config.animation], context, index, info);
     var config = chartAnim && mergeIf({}, [datasetAnim, chartAnim]);
@@ -5269,6 +5269,16 @@ var Scale = function (_Element) {
     return min < 0 && max < 0 ? max : min > 0 && max > 0 ? min : 0;
   }
   ;
+  _proto.getContext = function getContext(index) {
+    var ticks = this.ticks || [];
+    return {
+      chart: this.chart,
+      scale: this,
+      tick: ticks[index],
+      index: index
+    };
+  }
+  ;
   _proto._autoSkip = function _autoSkip(ticks) {
     var me = this;
     var tickOpts = me.options.ticks;
@@ -5331,12 +5341,7 @@ var Scale = function (_Element) {
     var ticksLength = ticks.length + (offsetGridLines ? 1 : 0);
     var tl = getTickMarkLength(gridLines);
     var items = [];
-    var context = {
-      chart: chart,
-      scale: me,
-      tick: ticks[0],
-      index: 0
-    };
+    var context = this.getContext(0);
     var axisWidth = gridLines.drawBorder ? resolve([gridLines.borderWidth, gridLines.lineWidth, 0], context, 0) : 0;
     var axisHalfWidth = axisWidth / 2;
     var alignBorderValue = function alignBorderValue(pixel) {
@@ -5394,13 +5399,7 @@ var Scale = function (_Element) {
       x2 = chartArea.right;
     }
     for (i = 0; i < ticksLength; ++i) {
-      var tick = ticks[i] || {};
-      context = {
-        chart: chart,
-        scale: me,
-        tick: tick,
-        index: i
-      };
+      context = this.getContext(i);
       var lineWidth = resolve([gridLines.lineWidth], context, i);
       var lineColor = resolve([gridLines.color], context, i);
       var borderDash = gridLines.borderDash || [];
@@ -5518,12 +5517,7 @@ var Scale = function (_Element) {
     var gridLines = me.options.gridLines;
     var ctx = me.ctx;
     var chart = me.chart;
-    var context = {
-      chart: chart,
-      scale: me,
-      tick: me.ticks[0],
-      index: 0
-    };
+    var context = me.getContext(0);
     var axisWidth = gridLines.drawBorder ? resolve([gridLines.borderWidth, gridLines.lineWidth, 0], context, 0) : 0;
     var items = me._gridLineItems || (me._gridLineItems = me._computeGridLineItems(chartArea));
     var i, ilen;
@@ -5556,12 +5550,7 @@ var Scale = function (_Element) {
     }
     if (axisWidth) {
       var firstLineWidth = axisWidth;
-      context = {
-        chart: chart,
-        scale: me,
-        tick: me.ticks[me._ticksLength - 1],
-        index: me._ticksLength - 1
-      };
+      context = me.getContext(me._ticksLength - 1);
       var lastLineWidth = resolve([gridLines.lineWidth, 1], context, me._ticksLength - 1);
       var borderValue = me._borderValue;
       var x1, x2, y1, y2;
@@ -5743,13 +5732,7 @@ var Scale = function (_Element) {
     var me = this;
     var chart = me.chart;
     var options = me.options.ticks;
-    var ticks = me.ticks || [];
-    var context = {
-      chart: chart,
-      scale: me,
-      tick: ticks[index],
-      index: index
-    };
+    var context = me.getContext(index);
     return toFont(resolve([options.font], context), chart.options.font);
   };
   return Scale;
@@ -6820,6 +6803,33 @@ var Chart = function () {
       if (item) {
         this.getDatasetMeta(item.datasetIndex).controller[prefix + 'HoverStyle'](item.element, item.datasetIndex, item.index);
       }
+    }
+  }
+  ;
+  _proto.getActiveElements = function getActiveElements() {
+    return this._active || [];
+  }
+  ;
+  _proto.setActiveElements = function setActiveElements(activeElements) {
+    var me = this;
+    var lastActive = me._active || [];
+    var active = activeElements.map(function (_ref) {
+      var datasetIndex = _ref.datasetIndex,
+          index = _ref.index;
+      var meta = me.getDatasetMeta(datasetIndex);
+      if (!meta) {
+        throw new Error('No dataset found at index ' + datasetIndex);
+      }
+      return {
+        datasetIndex: datasetIndex,
+        element: meta.data[index],
+        index: index
+      };
+    });
+    var changed = !_elementsEqual(active, lastActive);
+    if (changed) {
+      me._active = active;
+      me._updateHoverStyles(active, lastActive);
     }
   }
   ;
@@ -7917,16 +7927,9 @@ var BubbleController = function (_DatasetController) {
   _proto.resolveDataElementOptions = function resolveDataElementOptions(index, mode) {
     var me = this;
     var chart = me.chart;
-    var dataset = me.getDataset();
     var parsed = me.getParsed(index);
     var values = _DatasetController.prototype.resolveDataElementOptions.call(this, index, mode);
-    var context = {
-      chart: chart,
-      dataPoint: parsed,
-      dataIndex: index,
-      dataset: dataset,
-      datasetIndex: me.index
-    };
+    var context = me.getContext(index, mode === 'active');
     if (values.$shared) {
       values = _extends({}, values, {
         $shared: false
@@ -8512,12 +8515,12 @@ var PolarAreaController = function (_DatasetController) {
     var i;
     me._cachedMeta.count = me.countVisibleElements();
     for (i = 0; i < start; ++i) {
-      angle += me._computeAngle(i);
+      angle += me._computeAngle(i, mode);
     }
     for (i = start; i < start + count; i++) {
       var arc = arcs[i];
       var startAngle = angle;
-      var endAngle = angle + me._computeAngle(i);
+      var endAngle = angle + me._computeAngle(i, mode);
       var outerRadius = this.chart.getDataVisibility(i) ? scale.getDistanceFromCenterForValue(dataset.data[i]) : 0;
       angle = endAngle;
       if (reset) {
@@ -8554,7 +8557,7 @@ var PolarAreaController = function (_DatasetController) {
     return count;
   }
   ;
-  _proto._computeAngle = function _computeAngle(index) {
+  _proto._computeAngle = function _computeAngle(index, mode) {
     var me = this;
     var meta = me._cachedMeta;
     var count = meta.count;
@@ -8562,13 +8565,7 @@ var PolarAreaController = function (_DatasetController) {
     if (isNaN(dataset.data[index]) || !this.chart.getDataVisibility(index)) {
       return 0;
     }
-    var context = {
-      chart: me.chart,
-      dataPoint: this.getParsed(index),
-      dataIndex: index,
-      dataset: dataset,
-      datasetIndex: me.index
-    };
+    var context = me.getContext(index, mode === 'active');
     return resolve([me.chart.options.elements.arc.angle, 2 * Math.PI / count], context, index);
   };
   return PolarAreaController;
@@ -11536,6 +11533,35 @@ var Tooltip = function (_Element) {
     }
   }
   ;
+  _proto.getActiveElements = function getActiveElements() {
+    return this._active || [];
+  }
+  ;
+  _proto.setActiveElements = function setActiveElements(activeElements, eventPosition) {
+    var me = this;
+    var lastActive = me._active;
+    var active = activeElements.map(function (_ref) {
+      var datasetIndex = _ref.datasetIndex,
+          index = _ref.index;
+      var meta = me._chart.getDatasetMeta(datasetIndex);
+      if (!meta) {
+        throw new Error('Cannot find a dataset at index ' + datasetIndex);
+      }
+      return {
+        datasetIndex: datasetIndex,
+        element: meta.data[index],
+        index: index
+      };
+    });
+    var changed = !_elementsEqual(lastActive, active);
+    var positionChanged = me._positionChanged(active, eventPosition);
+    if (changed || positionChanged) {
+      me._active = active;
+      me._eventPosition = eventPosition;
+      me.update(true);
+    }
+  }
+  ;
   _proto.handleEvent = function handleEvent(e, replay) {
     var me = this;
     var options = me.options;
@@ -11548,8 +11574,7 @@ var Tooltip = function (_Element) {
         active.reverse();
       }
     }
-    var position = positioners[options.position].call(me, active, e);
-    var positionChanged = this.caretX !== position.x || this.caretY !== position.y;
+    var positionChanged = me._positionChanged(active, e);
     changed = replay || !_elementsEqual(active, lastActive) || positionChanged;
     if (changed) {
       me._active = active;
@@ -11562,6 +11587,12 @@ var Tooltip = function (_Element) {
       }
     }
     return changed;
+  }
+  ;
+  _proto._positionChanged = function _positionChanged(active, e) {
+    var me = this;
+    var position = positioners[me.options.position].call(me, active, e);
+    return me.caretX !== position.x || me.caretY !== position.y;
   };
   return Tooltip;
 }(Element$1);
@@ -12255,12 +12286,7 @@ function fitWithPointLabels(scale) {
   var valueCount = scale.chart.data.labels.length;
   for (i = 0; i < valueCount; i++) {
     pointPosition = scale.getPointPosition(i, scale.drawingArea + 5);
-    var context = {
-      chart: scale.chart,
-      scale: scale,
-      index: i,
-      label: scale.pointLabels[i]
-    };
+    var context = scale.getContext(i);
     var plFont = toFont(resolve([scale.options.pointLabels.font], context, i), scale.chart.options.font);
     scale.ctx.font = plFont.string;
     textSize = measureLabelSize(scale.ctx, plFont.lineHeight, scale.pointLabels[i]);
@@ -12326,12 +12352,7 @@ function drawPointLabels(scale) {
   for (var i = scale.chart.data.labels.length - 1; i >= 0; i--) {
     var extra = i === 0 ? tickBackdropHeight / 2 : 0;
     var pointLabelPosition = scale.getPointPosition(i, outerDistance + extra + 5);
-    var context = {
-      chart: scale.chart,
-      scale: scale,
-      index: i,
-      label: scale.pointLabels[i]
-    };
+    var context = scale.getContext(i);
     var plFont = toFont(resolve([pointLabelOpts.font], context, i), scale.chart.options.font);
     ctx.font = plFont.string;
     ctx.fillStyle = plFont.color;
@@ -12346,12 +12367,7 @@ function drawRadiusLine(scale, gridLineOpts, radius, index) {
   var ctx = scale.ctx;
   var circular = gridLineOpts.circular;
   var valueCount = scale.chart.data.labels.length;
-  var context = {
-    chart: scale.chart,
-    scale: scale,
-    index: index,
-    tick: scale.ticks[index]
-  };
+  var context = scale.getContext(index);
   var lineColor = resolve([gridLineOpts.color], context, index - 1);
   var lineWidth = resolve([gridLineOpts.lineWidth], context, index - 1);
   var pointPosition;
@@ -12524,12 +12540,7 @@ var RadialLinearScale = function (_LinearScaleBase) {
     if (angleLineOpts.display) {
       ctx.save();
       for (i = me.chart.data.labels.length - 1; i >= 0; i--) {
-        var context = {
-          chart: me.chart,
-          scale: me,
-          index: i,
-          label: me.pointLabels[i]
-        };
+        var context = me.getContext(i);
         var lineWidth = resolve([angleLineOpts.lineWidth, gridLineOpts.lineWidth], context, i);
         var color = resolve([angleLineOpts.color, gridLineOpts.color], context, i);
         if (!lineWidth || !color) {
@@ -12568,15 +12579,10 @@ var RadialLinearScale = function (_LinearScaleBase) {
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     me.ticks.forEach(function (tick, index) {
-      var context = {
-        chart: me.chart,
-        scale: me,
-        index: index,
-        tick: tick
-      };
       if (index === 0 && !opts.reverse) {
         return;
       }
+      var context = me.getContext(index);
       var tickFont = me._resolveTickFontOptions(index);
       ctx.font = tickFont.string;
       offset = me.getDistanceFromCenterForValue(me.ticks[index].value);

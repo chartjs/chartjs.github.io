@@ -929,7 +929,7 @@ class DatasetController {
 		}
 		return options;
 	}
-	_getContext(index, active) {
+	getContext(index, active) {
 		return {
 			chart: this.chart,
 			dataPoint: this.getParsed(index),
@@ -974,7 +974,7 @@ class DatasetController {
 		const datasetOpts = me._config;
 		const options = me.chart.options.elements[type] || {};
 		const values = {};
-		const context = me._getContext(index, active);
+		const context = me.getContext(index, active);
 		const keys = optionKeys(optionNames);
 		for (let i = 0, ilen = keys.length; i < ilen; ++i) {
 			const key = keys[i];
@@ -999,7 +999,7 @@ class DatasetController {
 			return cached[mode];
 		}
 		const info = {cacheable: true};
-		const context = me._getContext(index, active);
+		const context = me.getContext(index, active);
 		const chartAnim = resolve([chart.options.animation], context, index, info);
 		const datasetAnim = resolve([me._config.animation], context, index, info);
 		let config = chartAnim && mergeIf({}, [datasetAnim, chartAnim]);
@@ -1564,16 +1564,9 @@ class BubbleController extends DatasetController {
 	resolveDataElementOptions(index, mode) {
 		const me = this;
 		const chart = me.chart;
-		const dataset = me.getDataset();
 		const parsed = me.getParsed(index);
 		let values = super.resolveDataElementOptions(index, mode);
-		const context = {
-			chart,
-			dataPoint: parsed,
-			dataIndex: index,
-			dataset,
-			datasetIndex: me.index
-		};
+		const context = me.getContext(index, mode === 'active');
 		if (values.$shared) {
 			values = Object.assign({}, values, {$shared: false});
 		}
@@ -2139,12 +2132,12 @@ class PolarAreaController extends DatasetController {
 		let i;
 		me._cachedMeta.count = me.countVisibleElements();
 		for (i = 0; i < start; ++i) {
-			angle += me._computeAngle(i);
+			angle += me._computeAngle(i, mode);
 		}
 		for (i = start; i < start + count; i++) {
 			const arc = arcs[i];
 			let startAngle = angle;
-			let endAngle = angle + me._computeAngle(i);
+			let endAngle = angle + me._computeAngle(i, mode);
 			let outerRadius = this.chart.getDataVisibility(i) ? scale.getDistanceFromCenterForValue(dataset.data[i]) : 0;
 			angle = endAngle;
 			if (reset) {
@@ -2179,7 +2172,7 @@ class PolarAreaController extends DatasetController {
 		});
 		return count;
 	}
-	_computeAngle(index) {
+	_computeAngle(index, mode) {
 		const me = this;
 		const meta = me._cachedMeta;
 		const count = meta.count;
@@ -2187,13 +2180,7 @@ class PolarAreaController extends DatasetController {
 		if (isNaN(dataset.data[index]) || !this.chart.getDataVisibility(index)) {
 			return 0;
 		}
-		const context = {
-			chart: me.chart,
-			dataPoint: this.getParsed(index),
-			dataIndex: index,
-			dataset,
-			datasetIndex: me.index
-		};
+		const context = me.getContext(index, mode === 'active');
 		return resolve([
 			me.chart.options.elements.arc.angle,
 			(2 * Math.PI) / count
@@ -3864,6 +3851,15 @@ class Scale extends Element {
 			min > 0 && max > 0 ? min :
 			0;
 	}
+	getContext(index) {
+		const ticks = this.ticks || [];
+		return {
+			chart: this.chart,
+			scale: this,
+			tick: ticks[index],
+			index
+		};
+	}
 	_autoSkip(ticks) {
 		const me = this;
 		const tickOpts = me.options.ticks;
@@ -3924,12 +3920,7 @@ class Scale extends Element {
 		const ticksLength = ticks.length + (offsetGridLines ? 1 : 0);
 		const tl = getTickMarkLength(gridLines);
 		const items = [];
-		let context = {
-			chart,
-			scale: me,
-			tick: ticks[0],
-			index: 0,
-		};
+		let context = this.getContext(0);
 		const axisWidth = gridLines.drawBorder ? resolve([gridLines.borderWidth, gridLines.lineWidth, 0], context, 0) : 0;
 		const axisHalfWidth = axisWidth / 2;
 		const alignBorderValue = function(pixel) {
@@ -3987,13 +3978,7 @@ class Scale extends Element {
 			x2 = chartArea.right;
 		}
 		for (i = 0; i < ticksLength; ++i) {
-			const tick = ticks[i] || {};
-			context = {
-				chart,
-				scale: me,
-				tick,
-				index: i,
-			};
+			context = this.getContext(i);
 			const lineWidth = resolve([gridLines.lineWidth], context, i);
 			const lineColor = resolve([gridLines.color], context, i);
 			const borderDash = gridLines.borderDash || [];
@@ -4108,12 +4093,7 @@ class Scale extends Element {
 		const gridLines = me.options.gridLines;
 		const ctx = me.ctx;
 		const chart = me.chart;
-		let context = {
-			chart,
-			scale: me,
-			tick: me.ticks[0],
-			index: 0,
-		};
+		let context = me.getContext(0);
 		const axisWidth = gridLines.drawBorder ? resolve([gridLines.borderWidth, gridLines.lineWidth, 0], context, 0) : 0;
 		const items = me._gridLineItems || (me._gridLineItems = me._computeGridLineItems(chartArea));
 		let i, ilen;
@@ -4146,12 +4126,7 @@ class Scale extends Element {
 		}
 		if (axisWidth) {
 			const firstLineWidth = axisWidth;
-			context = {
-				chart,
-				scale: me,
-				tick: me.ticks[me._ticksLength - 1],
-				index: me._ticksLength - 1,
-			};
+			context = me.getContext(me._ticksLength - 1);
 			const lastLineWidth = resolve([gridLines.lineWidth, 1], context, me._ticksLength - 1);
 			const borderValue = me._borderValue;
 			let x1, x2, y1, y2;
@@ -4332,13 +4307,7 @@ class Scale extends Element {
 		const me = this;
 		const chart = me.chart;
 		const options = me.options.ticks;
-		const ticks = me.ticks || [];
-		const context = {
-			chart,
-			scale: me,
-			tick: ticks[index],
-			index
-		};
+		const context = me.getContext(index);
 		return toFont(resolve([options.font], context), chart.options.font);
 	}
 }
@@ -5306,6 +5275,29 @@ class Chart {
 			if (item) {
 				this.getDatasetMeta(item.datasetIndex).controller[prefix + 'HoverStyle'](item.element, item.datasetIndex, item.index);
 			}
+		}
+	}
+	getActiveElements() {
+		return this._active || [];
+	}
+	setActiveElements(activeElements) {
+		const me = this;
+		const lastActive = me._active || [];
+		const active = activeElements.map(({datasetIndex, index}) => {
+			const meta = me.getDatasetMeta(datasetIndex);
+			if (!meta) {
+				throw new Error('No dataset found at index ' + datasetIndex);
+			}
+			return {
+				datasetIndex,
+				element: meta.data[index],
+				index,
+			};
+		});
+		const changed = !_elementsEqual(active, lastActive);
+		if (changed) {
+			me._active = active;
+			me._updateHoverStyles(active, lastActive);
 		}
 	}
 	_updateHoverStyles(active, lastActive) {
@@ -7816,6 +7808,31 @@ class Tooltip extends Element {
 			ctx.restore();
 		}
 	}
+	getActiveElements() {
+		return this._active || [];
+	}
+	setActiveElements(activeElements, eventPosition) {
+		const me = this;
+		const lastActive = me._active;
+		const active = activeElements.map(({datasetIndex, index}) => {
+			const meta = me._chart.getDatasetMeta(datasetIndex);
+			if (!meta) {
+				throw new Error('Cannot find a dataset at index ' + datasetIndex);
+			}
+			return {
+				datasetIndex,
+				element: meta.data[index],
+				index,
+			};
+		});
+		const changed = !_elementsEqual(lastActive, active);
+		const positionChanged = me._positionChanged(active, eventPosition);
+		if (changed || positionChanged) {
+			me._active = active;
+			me._eventPosition = eventPosition;
+			me.update(true);
+		}
+	}
 	handleEvent(e, replay) {
 		const me = this;
 		const options = me.options;
@@ -7828,8 +7845,7 @@ class Tooltip extends Element {
 				active.reverse();
 			}
 		}
-		const position = positioners[options.position].call(me, active, e);
-		const positionChanged = this.caretX !== position.x || this.caretY !== position.y;
+		const positionChanged = me._positionChanged(active, e);
 		changed = replay || !_elementsEqual(active, lastActive) || positionChanged;
 		if (changed) {
 			me._active = active;
@@ -7842,6 +7858,11 @@ class Tooltip extends Element {
 			}
 		}
 		return changed;
+	}
+	_positionChanged(active, e) {
+		const me = this;
+		const position = positioners[me.options.position].call(me, active, e);
+		return me.caretX !== position.x || me.caretY !== position.y;
 	}
 }
 Tooltip.positioners = positioners;
@@ -8469,12 +8490,7 @@ function fitWithPointLabels(scale) {
 	const valueCount = scale.chart.data.labels.length;
 	for (i = 0; i < valueCount; i++) {
 		pointPosition = scale.getPointPosition(i, scale.drawingArea + 5);
-		const context = {
-			chart: scale.chart,
-			scale,
-			index: i,
-			label: scale.pointLabels[i]
-		};
+		const context = scale.getContext(i);
 		const plFont = toFont(resolve([scale.options.pointLabels.font], context, i), scale.chart.options.font);
 		scale.ctx.font = plFont.string;
 		textSize = measureLabelSize(scale.ctx, plFont.lineHeight, scale.pointLabels[i]);
@@ -8540,12 +8556,7 @@ function drawPointLabels(scale) {
 	for (let i = scale.chart.data.labels.length - 1; i >= 0; i--) {
 		const extra = (i === 0 ? tickBackdropHeight / 2 : 0);
 		const pointLabelPosition = scale.getPointPosition(i, outerDistance + extra + 5);
-		const context = {
-			chart: scale.chart,
-			scale,
-			index: i,
-			label: scale.pointLabels[i],
-		};
+		const context = scale.getContext(i);
 		const plFont = toFont(resolve([pointLabelOpts.font], context, i), scale.chart.options.font);
 		ctx.font = plFont.string;
 		ctx.fillStyle = plFont.color;
@@ -8560,12 +8571,7 @@ function drawRadiusLine(scale, gridLineOpts, radius, index) {
 	const ctx = scale.ctx;
 	const circular = gridLineOpts.circular;
 	const valueCount = scale.chart.data.labels.length;
-	const context = {
-		chart: scale.chart,
-		scale,
-		index,
-		tick: scale.ticks[index],
-	};
+	const context = scale.getContext(index);
 	const lineColor = resolve([gridLineOpts.color], context, index - 1);
 	const lineWidth = resolve([gridLineOpts.lineWidth], context, index - 1);
 	let pointPosition;
@@ -8731,12 +8737,7 @@ class RadialLinearScale extends LinearScaleBase {
 		if (angleLineOpts.display) {
 			ctx.save();
 			for (i = me.chart.data.labels.length - 1; i >= 0; i--) {
-				const context = {
-					chart: me.chart,
-					scale: me,
-					index: i,
-					label: me.pointLabels[i],
-				};
+				const context = me.getContext(i);
 				const lineWidth = resolve([angleLineOpts.lineWidth, gridLineOpts.lineWidth], context, i);
 				const color = resolve([angleLineOpts.color, gridLineOpts.color], context, i);
 				if (!lineWidth || !color) {
@@ -8774,15 +8775,10 @@ class RadialLinearScale extends LinearScaleBase {
 		ctx.textAlign = 'center';
 		ctx.textBaseline = 'middle';
 		me.ticks.forEach((tick, index) => {
-			const context = {
-				chart: me.chart,
-				scale: me,
-				index,
-				tick,
-			};
 			if (index === 0 && !opts.reverse) {
 				return;
 			}
+			const context = me.getContext(index);
 			const tickFont = me._resolveTickFontOptions(index);
 			ctx.font = tickFont.string;
 			offset = me.getDistanceFromCenterForValue(me.ticks[index].value);
