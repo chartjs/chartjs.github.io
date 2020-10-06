@@ -7490,24 +7490,23 @@ function computeMinSampleSize(scale, pixels) {
   }
   return min;
 }
-function computeFitCategoryTraits(index, ruler, options) {
+function computeFitCategoryTraits(index, ruler, options, stackCount) {
   var thickness = options.barThickness;
-  var count = ruler.stackCount;
   var size, ratio;
   if (isNullOrUndef(thickness)) {
     size = ruler.min * options.categoryPercentage;
     ratio = options.barPercentage;
   } else {
-    size = thickness * count;
+    size = thickness * stackCount;
     ratio = 1;
   }
   return {
-    chunk: size / count,
+    chunk: size / stackCount,
     ratio: ratio,
     start: ruler.pixels[index] - size / 2
   };
 }
-function computeFlexCategoryTraits(index, ruler, options) {
+function computeFlexCategoryTraits(index, ruler, options, stackCount) {
   var pixels = ruler.pixels;
   var curr = pixels[index];
   var prev = index > 0 ? pixels[index - 1] : null;
@@ -7522,7 +7521,7 @@ function computeFlexCategoryTraits(index, ruler, options) {
   var start = curr - (curr - Math.min(prev, next)) / 2 * percent;
   var size = Math.abs(next - prev) / 2 * percent;
   return {
-    chunk: size / ruler.stackCount,
+    chunk: size / stackCount,
     ratio: options.barPercentage,
     start: start
   };
@@ -7673,7 +7672,7 @@ var BarController = function (_DatasetController) {
     }
   }
   ;
-  _proto._getStacks = function _getStacks(last) {
+  _proto._getStacks = function _getStacks(last, dataIndex) {
     var me = this;
     var meta = me._cachedMeta;
     var iScale = meta.iScale;
@@ -7684,6 +7683,12 @@ var BarController = function (_DatasetController) {
     var i, item;
     for (i = 0; i < ilen; ++i) {
       item = metasets[i];
+      if (typeof dataIndex !== 'undefined') {
+        var val = item.controller.getParsed(dataIndex)[item.controller._cachedMeta.vScale.axis];
+        if (isNullOrUndef(val) || isNaN(val)) {
+          continue;
+        }
+      }
       if (stacked === false || stacks.indexOf(item.stack) === -1 || stacked === undefined && item.stack === undefined) {
         stacks.push(item.stack);
       }
@@ -7697,8 +7702,8 @@ var BarController = function (_DatasetController) {
     return stacks;
   }
   ;
-  _proto._getStackCount = function _getStackCount() {
-    return this._getStacks().length;
+  _proto._getStackCount = function _getStackCount(index) {
+    return this._getStacks(undefined, index).length;
   }
   ;
   _proto._getStackIndex = function _getStackIndex(datasetIndex, name) {
@@ -7770,7 +7775,8 @@ var BarController = function (_DatasetController) {
   ;
   _proto._calculateBarIndexPixels = function _calculateBarIndexPixels(index, ruler, options) {
     var me = this;
-    var range = options.barThickness === 'flex' ? computeFlexCategoryTraits(index, ruler, options) : computeFitCategoryTraits(index, ruler, options);
+    var stackCount = me.chart.options.skipNull ? me._getStackCount(index) : ruler.stackCount;
+    var range = options.barThickness === 'flex' ? computeFlexCategoryTraits(index, ruler, options, stackCount) : computeFitCategoryTraits(index, ruler, options, stackCount);
     var stackIndex = me._getStackIndex(me.index, me._cachedMeta.stack);
     var center = range.start + range.chunk * stackIndex + range.chunk / 2;
     var size = Math.min(valueOrDefault(options.maxBarThickness, Infinity), range.chunk * range.ratio);
@@ -10154,6 +10160,11 @@ var Legend = function (_Element) {
     if (labelOpts.filter) {
       legendItems = legendItems.filter(function (item) {
         return labelOpts.filter(item, me.chart.data);
+      });
+    }
+    if (labelOpts.sort) {
+      legendItems = legendItems.sort(function (a, b) {
+        return labelOpts.sort(a, b, me.chart.data);
       });
     }
     if (me.options.reverse) {

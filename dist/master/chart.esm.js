@@ -4,7 +4,7 @@
  * (c) 2020 Chart.js Contributors
  * Released under the MIT License
  */
-import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, d as defaults, n as noop, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, m as merge, b as isArray, f as resolveObjectKey, g as getHoverColor, _ as _capitalize, h as mergeIf, s as sign, j as _merger, k as _limitValue, o as clipArea, p as unclipArea, q as isNullOrUndef, t as toRadians, w as isNumber, x as _lookupByKey, y as getRelativePosition$1, z as _isPointInArea, A as _rlookupByKey, B as toPadding, C as each, D as getMaximumSize, E as _getParentNode, F as readUsedSize, G as throttled, H as supportsEventListenerOptions, I as log10, J as isNumberFinite, K as callback, L as toDegrees, M as _measureText, N as _int16Range, O as _alignPixel, P as toFont, Q as _factorize, R as uid, S as retinaScale, T as clear, U as _elementsEqual, V as getAngleFromPoint, W as _angleBetween, X as _updateBezierControlPoints, Y as _computeSegments, Z as _boundSegments, $ as _steppedInterpolation, a0 as _bezierInterpolation, a1 as _pointInLine, a2 as _steppedLineTo, a3 as _bezierCurveTo, a4 as drawPoint, a5 as toTRBL, a6 as _normalizeAngle, a7 as _boundSegment, a8 as getRtlAdapter, a9 as overrideTextDirection, aa as restoreTextDirection, ab as distanceBetweenPoints, ac as _setMinAndMaxByKey, ad as _decimalPlaces, ae as almostEquals, af as almostWhole, ag as _longestText, ah as _filterBetween, ai as _arrayUnique, aj as _lookup } from './chunks/helpers.rtl.js';
+import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, d as defaults, n as noop, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, m as merge, b as isArray, f as resolveObjectKey, g as getHoverColor, _ as _capitalize, h as mergeIf, s as sign, j as _merger, k as isNullOrUndef, o as _limitValue, p as clipArea, q as unclipArea, t as toRadians, w as isNumber, x as _lookupByKey, y as getRelativePosition$1, z as _isPointInArea, A as _rlookupByKey, B as toPadding, C as each, D as getMaximumSize, E as _getParentNode, F as readUsedSize, G as throttled, H as supportsEventListenerOptions, I as log10, J as isNumberFinite, K as callback, L as toDegrees, M as _measureText, N as _int16Range, O as _alignPixel, P as toFont, Q as _factorize, R as uid, S as retinaScale, T as clear, U as _elementsEqual, V as getAngleFromPoint, W as _angleBetween, X as _updateBezierControlPoints, Y as _computeSegments, Z as _boundSegments, $ as _steppedInterpolation, a0 as _bezierInterpolation, a1 as _pointInLine, a2 as _steppedLineTo, a3 as _bezierCurveTo, a4 as drawPoint, a5 as toTRBL, a6 as _normalizeAngle, a7 as _boundSegment, a8 as getRtlAdapter, a9 as overrideTextDirection, aa as restoreTextDirection, ab as distanceBetweenPoints, ac as _setMinAndMaxByKey, ad as _decimalPlaces, ae as almostEquals, af as almostWhole, ag as _longestText, ah as _filterBetween, ai as _arrayUnique, aj as _lookup } from './chunks/helpers.rtl.js';
 export { d as defaults } from './chunks/helpers.rtl.js';
 
 function drawFPS(chart, count, date, lastDate) {
@@ -1143,24 +1143,23 @@ function computeMinSampleSize(scale, pixels) {
 	}
 	return min;
 }
-function computeFitCategoryTraits(index, ruler, options) {
+function computeFitCategoryTraits(index, ruler, options, stackCount) {
 	const thickness = options.barThickness;
-	const count = ruler.stackCount;
 	let size, ratio;
 	if (isNullOrUndef(thickness)) {
 		size = ruler.min * options.categoryPercentage;
 		ratio = options.barPercentage;
 	} else {
-		size = thickness * count;
+		size = thickness * stackCount;
 		ratio = 1;
 	}
 	return {
-		chunk: size / count,
+		chunk: size / stackCount,
 		ratio,
 		start: ruler.pixels[index] - (size / 2)
 	};
 }
-function computeFlexCategoryTraits(index, ruler, options) {
+function computeFlexCategoryTraits(index, ruler, options, stackCount) {
 	const pixels = ruler.pixels;
 	const curr = pixels[index];
 	let prev = index > 0 ? pixels[index - 1] : null;
@@ -1175,7 +1174,7 @@ function computeFlexCategoryTraits(index, ruler, options) {
 	const start = curr - (curr - Math.min(prev, next)) / 2 * percent;
 	const size = Math.abs(next - prev) / 2 * percent;
 	return {
-		chunk: size / ruler.stackCount,
+		chunk: size / stackCount,
 		ratio: options.barPercentage,
 		start
 	};
@@ -1312,7 +1311,7 @@ class BarController extends DatasetController {
 			me.updateElement(rectangles[i], i, properties, mode);
 		}
 	}
-	_getStacks(last) {
+	_getStacks(last, dataIndex) {
 		const me = this;
 		const meta = me._cachedMeta;
 		const iScale = meta.iScale;
@@ -1323,6 +1322,14 @@ class BarController extends DatasetController {
 		let i, item;
 		for (i = 0; i < ilen; ++i) {
 			item = metasets[i];
+			if (typeof dataIndex !== 'undefined') {
+				const val = item.controller.getParsed(dataIndex)[
+					item.controller._cachedMeta.vScale.axis
+				];
+				if (isNullOrUndef(val) || isNaN(val)) {
+					continue;
+				}
+			}
 			if (stacked === false || stacks.indexOf(item.stack) === -1 ||
 				(stacked === undefined && item.stack === undefined)) {
 				stacks.push(item.stack);
@@ -1336,8 +1343,8 @@ class BarController extends DatasetController {
 		}
 		return stacks;
 	}
-	_getStackCount() {
-		return this._getStacks().length;
+	_getStackCount(index) {
+		return this._getStacks(undefined, index).length;
 	}
 	_getStackIndex(datasetIndex, name) {
 		const stacks = this._getStacks(datasetIndex);
@@ -1411,9 +1418,10 @@ class BarController extends DatasetController {
 	}
 	_calculateBarIndexPixels(index, ruler, options) {
 		const me = this;
+		const stackCount = me.chart.options.skipNull ? me._getStackCount(index) : ruler.stackCount;
 		const range = options.barThickness === 'flex'
-			? computeFlexCategoryTraits(index, ruler, options)
-			: computeFitCategoryTraits(index, ruler, options);
+			? computeFlexCategoryTraits(index, ruler, options, stackCount)
+			: computeFitCategoryTraits(index, ruler, options, stackCount);
 		const stackIndex = me._getStackIndex(me.index, me._cachedMeta.stack);
 		const center = range.start + (range.chunk * stackIndex) + (range.chunk / 2);
 		const size = Math.min(
@@ -1456,7 +1464,7 @@ BarController.defaults = {
 		'barThickness',
 		'categoryPercentage',
 		'maxBarThickness',
-		'minBarLength'
+		'minBarLength',
 	],
 	hover: {
 		mode: 'index'
@@ -6514,6 +6522,9 @@ class Legend extends Element {
 		let legendItems = callback(labelOpts.generateLabels, [me.chart], me) || [];
 		if (labelOpts.filter) {
 			legendItems = legendItems.filter((item) => labelOpts.filter(item, me.chart.data));
+		}
+		if (labelOpts.sort) {
+			legendItems = legendItems.sort((a, b) => labelOpts.sort(a, b, me.chart.data));
 		}
 		if (me.options.reverse) {
 			legendItems.reverse();
