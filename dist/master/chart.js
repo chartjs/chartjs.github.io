@@ -493,12 +493,1817 @@ var Defaults = function () {
 }();
 var defaults = new Defaults();
 
+function _lookup(table, value, cmp) {
+  cmp = cmp || function (index) {
+    return table[index] < value;
+  };
+  var hi = table.length - 1;
+  var lo = 0;
+  var mid;
+  while (hi - lo > 1) {
+    mid = lo + hi >> 1;
+    if (cmp(mid)) {
+      lo = mid;
+    } else {
+      hi = mid;
+    }
+  }
+  return {
+    lo: lo,
+    hi: hi
+  };
+}
+var _lookupByKey = function _lookupByKey(table, key, value) {
+  return _lookup(table, value, function (index) {
+    return table[index][key] < value;
+  });
+};
+var _rlookupByKey = function _rlookupByKey(table, key, value) {
+  return _lookup(table, value, function (index) {
+    return table[index][key] >= value;
+  });
+};
+function _filterBetween(values, min, max) {
+  var start = 0;
+  var end = values.length;
+  while (start < end && values[start] < min) {
+    start++;
+  }
+  while (end > start && values[end - 1] > max) {
+    end--;
+  }
+  return start > 0 || end < values.length ? values.slice(start, end) : values;
+}
+var arrayEvents = ['push', 'pop', 'shift', 'splice', 'unshift'];
+function listenArrayEvents(array, listener) {
+  if (array._chartjs) {
+    array._chartjs.listeners.push(listener);
+    return;
+  }
+  Object.defineProperty(array, '_chartjs', {
+    configurable: true,
+    enumerable: false,
+    value: {
+      listeners: [listener]
+    }
+  });
+  arrayEvents.forEach(function (key) {
+    var method = '_onData' + _capitalize(key);
+    var base = array[key];
+    Object.defineProperty(array, key, {
+      configurable: true,
+      enumerable: false,
+      value: function value() {
+        for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+          args[_key] = arguments[_key];
+        }
+        var res = base.apply(this, args);
+        array._chartjs.listeners.forEach(function (object) {
+          if (typeof object[method] === 'function') {
+            object[method].apply(object, args);
+          }
+        });
+        return res;
+      }
+    });
+  });
+}
+function unlistenArrayEvents(array, listener) {
+  var stub = array._chartjs;
+  if (!stub) {
+    return;
+  }
+  var listeners = stub.listeners;
+  var index = listeners.indexOf(listener);
+  if (index !== -1) {
+    listeners.splice(index, 1);
+  }
+  if (listeners.length > 0) {
+    return;
+  }
+  arrayEvents.forEach(function (key) {
+    delete array[key];
+  });
+  delete array._chartjs;
+}
+function _arrayUnique(items) {
+  var set = new Set();
+  var i, ilen;
+  for (i = 0, ilen = items.length; i < ilen; ++i) {
+    set.add(items[i]);
+  }
+  if (set.size === ilen) {
+    return items;
+  }
+  var result = [];
+  set.forEach(function (item) {
+    result.push(item);
+  });
+  return result;
+}
+
 var PI = Math.PI;
+var TAU = 2 * PI;
+var PITAU = TAU + PI;
+var INFINITY = Number.POSITIVE_INFINITY;
 var RAD_PER_DEG = PI / 180;
-var DOUBLE_PI = PI * 2;
 var HALF_PI = PI / 2;
 var QUARTER_PI = PI / 4;
 var TWO_THIRDS_PI = PI * 2 / 3;
+function _factorize(value) {
+  var result = [];
+  var sqrt = Math.sqrt(value);
+  var i;
+  for (i = 1; i < sqrt; i++) {
+    if (value % i === 0) {
+      result.push(i);
+      result.push(value / i);
+    }
+  }
+  if (sqrt === (sqrt | 0)) {
+    result.push(sqrt);
+  }
+  result.sort(function (a, b) {
+    return a - b;
+  }).pop();
+  return result;
+}
+var log10 = Math.log10 || function (x) {
+  var exponent = Math.log(x) * Math.LOG10E;
+  var powerOf10 = Math.round(exponent);
+  var isPowerOf10 = x === Math.pow(10, powerOf10);
+  return isPowerOf10 ? powerOf10 : exponent;
+};
+function isNumber(n) {
+  return !isNaN(parseFloat(n)) && isFinite(n);
+}
+function almostEquals(x, y, epsilon) {
+  return Math.abs(x - y) < epsilon;
+}
+function almostWhole(x, epsilon) {
+  var rounded = Math.round(x);
+  return rounded - epsilon <= x && rounded + epsilon >= x;
+}
+function _setMinAndMaxByKey(array, target, property) {
+  var i, ilen, value;
+  for (i = 0, ilen = array.length; i < ilen; i++) {
+    value = array[i][property];
+    if (!isNaN(value)) {
+      target.min = Math.min(target.min, value);
+      target.max = Math.max(target.max, value);
+    }
+  }
+}
+var sign = Math.sign ? function (x) {
+  return Math.sign(x);
+} : function (x) {
+  x = +x;
+  if (x === 0 || isNaN(x)) {
+    return x;
+  }
+  return x > 0 ? 1 : -1;
+};
+function toRadians(degrees) {
+  return degrees * (PI / 180);
+}
+function toDegrees(radians) {
+  return radians * (180 / PI);
+}
+function _decimalPlaces(x) {
+  if (!isNumberFinite(x)) {
+    return;
+  }
+  var e = 1;
+  var p = 0;
+  while (Math.round(x * e) / e !== x) {
+    e *= 10;
+    p++;
+  }
+  return p;
+}
+function getAngleFromPoint(centrePoint, anglePoint) {
+  var distanceFromXCenter = anglePoint.x - centrePoint.x;
+  var distanceFromYCenter = anglePoint.y - centrePoint.y;
+  var radialDistanceFromCenter = Math.sqrt(distanceFromXCenter * distanceFromXCenter + distanceFromYCenter * distanceFromYCenter);
+  var angle = Math.atan2(distanceFromYCenter, distanceFromXCenter);
+  if (angle < -0.5 * PI) {
+    angle += TAU;
+  }
+  return {
+    angle: angle,
+    distance: radialDistanceFromCenter
+  };
+}
+function distanceBetweenPoints(pt1, pt2) {
+  return Math.sqrt(Math.pow(pt2.x - pt1.x, 2) + Math.pow(pt2.y - pt1.y, 2));
+}
+function _angleDiff(a, b) {
+  return (a - b + PITAU) % TAU - PI;
+}
+function _normalizeAngle(a) {
+  return (a % TAU + TAU) % TAU;
+}
+function _angleBetween(angle, start, end) {
+  var a = _normalizeAngle(angle);
+  var s = _normalizeAngle(start);
+  var e = _normalizeAngle(end);
+  var angleToStart = _normalizeAngle(s - a);
+  var angleToEnd = _normalizeAngle(e - a);
+  var startToAngle = _normalizeAngle(a - s);
+  var endToAngle = _normalizeAngle(a - e);
+  return a === s || a === e || angleToStart > angleToEnd && startToAngle < endToAngle;
+}
+function _limitValue(value, min, max) {
+  return Math.max(min, Math.min(max, value));
+}
+function _int16Range(value) {
+  return _limitValue(value, -32768, 32767);
+}
+
+var EPSILON = Number.EPSILON || 1e-14;
+function splineCurve(firstPoint, middlePoint, afterPoint, t) {
+  var previous = firstPoint.skip ? middlePoint : firstPoint;
+  var current = middlePoint;
+  var next = afterPoint.skip ? middlePoint : afterPoint;
+  var d01 = Math.sqrt(Math.pow(current.x - previous.x, 2) + Math.pow(current.y - previous.y, 2));
+  var d12 = Math.sqrt(Math.pow(next.x - current.x, 2) + Math.pow(next.y - current.y, 2));
+  var s01 = d01 / (d01 + d12);
+  var s12 = d12 / (d01 + d12);
+  s01 = isNaN(s01) ? 0 : s01;
+  s12 = isNaN(s12) ? 0 : s12;
+  var fa = t * s01;
+  var fb = t * s12;
+  return {
+    previous: {
+      x: current.x - fa * (next.x - previous.x),
+      y: current.y - fa * (next.y - previous.y)
+    },
+    next: {
+      x: current.x + fb * (next.x - previous.x),
+      y: current.y + fb * (next.y - previous.y)
+    }
+  };
+}
+function splineCurveMonotone(points) {
+  var pointsWithTangents = (points || []).map(function (point) {
+    return {
+      model: point,
+      deltaK: 0,
+      mK: 0
+    };
+  });
+  var pointsLen = pointsWithTangents.length;
+  var i, pointBefore, pointCurrent, pointAfter;
+  for (i = 0; i < pointsLen; ++i) {
+    pointCurrent = pointsWithTangents[i];
+    if (pointCurrent.model.skip) {
+      continue;
+    }
+    pointBefore = i > 0 ? pointsWithTangents[i - 1] : null;
+    pointAfter = i < pointsLen - 1 ? pointsWithTangents[i + 1] : null;
+    if (pointAfter && !pointAfter.model.skip) {
+      var slopeDeltaX = pointAfter.model.x - pointCurrent.model.x;
+      pointCurrent.deltaK = slopeDeltaX !== 0 ? (pointAfter.model.y - pointCurrent.model.y) / slopeDeltaX : 0;
+    }
+    if (!pointBefore || pointBefore.model.skip) {
+      pointCurrent.mK = pointCurrent.deltaK;
+    } else if (!pointAfter || pointAfter.model.skip) {
+      pointCurrent.mK = pointBefore.deltaK;
+    } else if (sign(pointBefore.deltaK) !== sign(pointCurrent.deltaK)) {
+      pointCurrent.mK = 0;
+    } else {
+      pointCurrent.mK = (pointBefore.deltaK + pointCurrent.deltaK) / 2;
+    }
+  }
+  var alphaK, betaK, tauK, squaredMagnitude;
+  for (i = 0; i < pointsLen - 1; ++i) {
+    pointCurrent = pointsWithTangents[i];
+    pointAfter = pointsWithTangents[i + 1];
+    if (pointCurrent.model.skip || pointAfter.model.skip) {
+      continue;
+    }
+    if (almostEquals(pointCurrent.deltaK, 0, EPSILON)) {
+      pointCurrent.mK = pointAfter.mK = 0;
+      continue;
+    }
+    alphaK = pointCurrent.mK / pointCurrent.deltaK;
+    betaK = pointAfter.mK / pointCurrent.deltaK;
+    squaredMagnitude = Math.pow(alphaK, 2) + Math.pow(betaK, 2);
+    if (squaredMagnitude <= 9) {
+      continue;
+    }
+    tauK = 3 / Math.sqrt(squaredMagnitude);
+    pointCurrent.mK = alphaK * tauK * pointCurrent.deltaK;
+    pointAfter.mK = betaK * tauK * pointCurrent.deltaK;
+  }
+  var deltaX;
+  for (i = 0; i < pointsLen; ++i) {
+    pointCurrent = pointsWithTangents[i];
+    if (pointCurrent.model.skip) {
+      continue;
+    }
+    pointBefore = i > 0 ? pointsWithTangents[i - 1] : null;
+    pointAfter = i < pointsLen - 1 ? pointsWithTangents[i + 1] : null;
+    if (pointBefore && !pointBefore.model.skip) {
+      deltaX = (pointCurrent.model.x - pointBefore.model.x) / 3;
+      pointCurrent.model.controlPointPreviousX = pointCurrent.model.x - deltaX;
+      pointCurrent.model.controlPointPreviousY = pointCurrent.model.y - deltaX * pointCurrent.mK;
+    }
+    if (pointAfter && !pointAfter.model.skip) {
+      deltaX = (pointAfter.model.x - pointCurrent.model.x) / 3;
+      pointCurrent.model.controlPointNextX = pointCurrent.model.x + deltaX;
+      pointCurrent.model.controlPointNextY = pointCurrent.model.y + deltaX * pointCurrent.mK;
+    }
+  }
+}
+function capControlPoint(pt, min, max) {
+  return Math.max(Math.min(pt, max), min);
+}
+function capBezierPoints(points, area) {
+  var i, ilen, point;
+  for (i = 0, ilen = points.length; i < ilen; ++i) {
+    point = points[i];
+    if (!_isPointInArea(point, area)) {
+      continue;
+    }
+    if (i > 0 && _isPointInArea(points[i - 1], area)) {
+      point.controlPointPreviousX = capControlPoint(point.controlPointPreviousX, area.left, area.right);
+      point.controlPointPreviousY = capControlPoint(point.controlPointPreviousY, area.top, area.bottom);
+    }
+    if (i < points.length - 1 && _isPointInArea(points[i + 1], area)) {
+      point.controlPointNextX = capControlPoint(point.controlPointNextX, area.left, area.right);
+      point.controlPointNextY = capControlPoint(point.controlPointNextY, area.top, area.bottom);
+    }
+  }
+}
+function _updateBezierControlPoints(points, options, area, loop) {
+  var i, ilen, point, controlPoints;
+  if (options.spanGaps) {
+    points = points.filter(function (pt) {
+      return !pt.skip;
+    });
+  }
+  if (options.cubicInterpolationMode === 'monotone') {
+    splineCurveMonotone(points);
+  } else {
+    var prev = loop ? points[points.length - 1] : points[0];
+    for (i = 0, ilen = points.length; i < ilen; ++i) {
+      point = points[i];
+      controlPoints = splineCurve(prev, point, points[Math.min(i + 1, ilen - (loop ? 0 : 1)) % ilen], options.tension);
+      point.controlPointPreviousX = controlPoints.previous.x;
+      point.controlPointPreviousY = controlPoints.previous.y;
+      point.controlPointNextX = controlPoints.next.x;
+      point.controlPointNextY = controlPoints.next.y;
+      prev = point;
+    }
+  }
+  if (options.capBezierPoints) {
+    capBezierPoints(points, area);
+  }
+}
+
+function _getParentNode(domNode) {
+  var parent = domNode.parentNode;
+  if (parent && parent.toString() === '[object ShadowRoot]') {
+    parent = parent.host;
+  }
+  return parent;
+}
+function parseMaxStyle(styleValue, node, parentProperty) {
+  var valueInPixels;
+  if (typeof styleValue === 'string') {
+    valueInPixels = parseInt(styleValue, 10);
+    if (styleValue.indexOf('%') !== -1) {
+      valueInPixels = valueInPixels / 100 * node.parentNode[parentProperty];
+    }
+  } else {
+    valueInPixels = styleValue;
+  }
+  return valueInPixels;
+}
+var getComputedStyle = function getComputedStyle(element) {
+  return window.getComputedStyle(element, null);
+};
+function getStyle(el, property) {
+  return el.currentStyle ? el.currentStyle[property] : getComputedStyle(el).getPropertyValue(property);
+}
+var positions = ['top', 'right', 'bottom', 'left'];
+function getPositionedStyle(styles, style, suffix) {
+  var result = {};
+  suffix = suffix ? '-' + suffix : '';
+  for (var i = 0; i < 4; i++) {
+    var pos = positions[i];
+    result[pos] = parseFloat(styles[style + '-' + pos + suffix]) || 0;
+  }
+  result.width = result.left + result.right;
+  result.height = result.top + result.bottom;
+  return result;
+}
+function getCanvasPosition(evt, canvas) {
+  var e = evt.originalEvent || evt;
+  var touches = e.touches;
+  var source = touches && touches.length ? touches[0] : e;
+  var offsetX = source.offsetX,
+      offsetY = source.offsetY;
+  var box = false;
+  var x, y;
+  if (offsetX > 0 || offsetY > 0) {
+    x = offsetX;
+    y = offsetY;
+  } else {
+    var rect = canvas.getBoundingClientRect();
+    x = source.clientX - rect.left;
+    y = source.clientY - rect.top;
+    box = true;
+  }
+  return {
+    x: x,
+    y: y,
+    box: box
+  };
+}
+function getRelativePosition(evt, chart) {
+  var canvas = chart.canvas,
+      currentDevicePixelRatio = chart.currentDevicePixelRatio;
+  var style = getComputedStyle(canvas);
+  var borderBox = style.boxSizing === 'border-box';
+  var paddings = getPositionedStyle(style, 'padding');
+  var borders = getPositionedStyle(style, 'border', 'width');
+  var _getCanvasPosition = getCanvasPosition(evt, canvas),
+      x = _getCanvasPosition.x,
+      y = _getCanvasPosition.y,
+      box = _getCanvasPosition.box;
+  var xOffset = paddings.left + (box && borders.left);
+  var yOffset = paddings.top + (box && borders.top);
+  var width = chart.width,
+      height = chart.height;
+  if (borderBox) {
+    width -= paddings.width + borders.width;
+    height -= paddings.height + borders.height;
+  }
+  return {
+    x: Math.round((x - xOffset) / width * canvas.width / currentDevicePixelRatio),
+    y: Math.round((y - yOffset) / height * canvas.height / currentDevicePixelRatio)
+  };
+}
+function getContainerSize(canvas, width, height) {
+  var maxWidth, maxHeight;
+  if (width === undefined || height === undefined) {
+    var container = _getParentNode(canvas);
+    if (!container) {
+      width = canvas.clientWidth;
+      height = canvas.clientHeight;
+    } else {
+      var rect = container.getBoundingClientRect();
+      var containerStyle = getComputedStyle(container);
+      var containerBorder = getPositionedStyle(containerStyle, 'border', 'width');
+      var contarinerPadding = getPositionedStyle(containerStyle, 'padding');
+      width = rect.width - contarinerPadding.width - containerBorder.width;
+      height = rect.height - contarinerPadding.height - containerBorder.height;
+      maxWidth = parseMaxStyle(containerStyle.maxWidth, container, 'clientWidth');
+      maxHeight = parseMaxStyle(containerStyle.maxHeight, container, 'clientHeight');
+    }
+  }
+  return {
+    width: width,
+    height: height,
+    maxWidth: maxWidth || INFINITY,
+    maxHeight: maxHeight || INFINITY
+  };
+}
+function getMaximumSize(canvas, bbWidth, bbHeight, aspectRatio) {
+  var style = getComputedStyle(canvas);
+  var margins = getPositionedStyle(style, 'margin');
+  var maxWidth = parseMaxStyle(style.maxWidth, canvas, 'clientWidth') || INFINITY;
+  var maxHeight = parseMaxStyle(style.maxHeight, canvas, 'clientHeight') || INFINITY;
+  var containerSize = getContainerSize(canvas, bbWidth, bbHeight);
+  var width = containerSize.width,
+      height = containerSize.height;
+  if (style.boxSizing === 'content-box') {
+    var borders = getPositionedStyle(style, 'border', 'width');
+    var paddings = getPositionedStyle(style, 'padding');
+    width -= paddings.width + borders.width;
+    height -= paddings.height + borders.height;
+  }
+  width = Math.max(0, width - margins.width);
+  height = Math.max(0, aspectRatio ? Math.floor(width / aspectRatio) : height - margins.height);
+  return {
+    width: Math.min(width, maxWidth, containerSize.maxWidth),
+    height: Math.min(height, maxHeight, containerSize.maxHeight)
+  };
+}
+function retinaScale(chart, forceRatio) {
+  var pixelRatio = chart.currentDevicePixelRatio = forceRatio || typeof window !== 'undefined' && window.devicePixelRatio || 1;
+  var canvas = chart.canvas,
+      width = chart.width,
+      height = chart.height;
+  canvas.height = height * pixelRatio;
+  canvas.width = width * pixelRatio;
+  chart.ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+  if (canvas.style && !canvas.style.height && !canvas.style.width) {
+    canvas.style.height = height + 'px';
+    canvas.style.width = width + 'px';
+  }
+}
+var supportsEventListenerOptions = function () {
+  var passiveSupported = false;
+  try {
+    var options = {
+      get passive() {
+        passiveSupported = true;
+        return false;
+      }
+    };
+    window.addEventListener('test', null, options);
+    window.removeEventListener('test', null, options);
+  } catch (e) {
+  }
+  return passiveSupported;
+}();
+function readUsedSize(element, property) {
+  var value = getStyle(element, property);
+  var matches = value && value.match(/^(\d+)(\.\d+)?px$/);
+  return matches ? +matches[1] : undefined;
+}
+
+var effects = {
+  linear: function linear(t) {
+    return t;
+  },
+  easeInQuad: function easeInQuad(t) {
+    return t * t;
+  },
+  easeOutQuad: function easeOutQuad(t) {
+    return -t * (t - 2);
+  },
+  easeInOutQuad: function easeInOutQuad(t) {
+    if ((t /= 0.5) < 1) {
+      return 0.5 * t * t;
+    }
+    return -0.5 * (--t * (t - 2) - 1);
+  },
+  easeInCubic: function easeInCubic(t) {
+    return t * t * t;
+  },
+  easeOutCubic: function easeOutCubic(t) {
+    return (t -= 1) * t * t + 1;
+  },
+  easeInOutCubic: function easeInOutCubic(t) {
+    if ((t /= 0.5) < 1) {
+      return 0.5 * t * t * t;
+    }
+    return 0.5 * ((t -= 2) * t * t + 2);
+  },
+  easeInQuart: function easeInQuart(t) {
+    return t * t * t * t;
+  },
+  easeOutQuart: function easeOutQuart(t) {
+    return -((t -= 1) * t * t * t - 1);
+  },
+  easeInOutQuart: function easeInOutQuart(t) {
+    if ((t /= 0.5) < 1) {
+      return 0.5 * t * t * t * t;
+    }
+    return -0.5 * ((t -= 2) * t * t * t - 2);
+  },
+  easeInQuint: function easeInQuint(t) {
+    return t * t * t * t * t;
+  },
+  easeOutQuint: function easeOutQuint(t) {
+    return (t -= 1) * t * t * t * t + 1;
+  },
+  easeInOutQuint: function easeInOutQuint(t) {
+    if ((t /= 0.5) < 1) {
+      return 0.5 * t * t * t * t * t;
+    }
+    return 0.5 * ((t -= 2) * t * t * t * t + 2);
+  },
+  easeInSine: function easeInSine(t) {
+    return -Math.cos(t * HALF_PI) + 1;
+  },
+  easeOutSine: function easeOutSine(t) {
+    return Math.sin(t * HALF_PI);
+  },
+  easeInOutSine: function easeInOutSine(t) {
+    return -0.5 * (Math.cos(PI * t) - 1);
+  },
+  easeInExpo: function easeInExpo(t) {
+    return t === 0 ? 0 : Math.pow(2, 10 * (t - 1));
+  },
+  easeOutExpo: function easeOutExpo(t) {
+    return t === 1 ? 1 : -Math.pow(2, -10 * t) + 1;
+  },
+  easeInOutExpo: function easeInOutExpo(t) {
+    if (t === 0) {
+      return 0;
+    }
+    if (t === 1) {
+      return 1;
+    }
+    if ((t /= 0.5) < 1) {
+      return 0.5 * Math.pow(2, 10 * (t - 1));
+    }
+    return 0.5 * (-Math.pow(2, -10 * --t) + 2);
+  },
+  easeInCirc: function easeInCirc(t) {
+    if (t >= 1) {
+      return t;
+    }
+    return -(Math.sqrt(1 - t * t) - 1);
+  },
+  easeOutCirc: function easeOutCirc(t) {
+    return Math.sqrt(1 - (t -= 1) * t);
+  },
+  easeInOutCirc: function easeInOutCirc(t) {
+    if ((t /= 0.5) < 1) {
+      return -0.5 * (Math.sqrt(1 - t * t) - 1);
+    }
+    return 0.5 * (Math.sqrt(1 - (t -= 2) * t) + 1);
+  },
+  easeInElastic: function easeInElastic(t) {
+    var s = 1.70158;
+    var p = 0;
+    var a = 1;
+    if (t === 0) {
+      return 0;
+    }
+    if (t === 1) {
+      return 1;
+    }
+    if (!p) {
+      p = 0.3;
+    }
+    {
+      s = p / TAU * Math.asin(1 / a);
+    }
+    return -(a * Math.pow(2, 10 * (t -= 1)) * Math.sin((t - s) * TAU / p));
+  },
+  easeOutElastic: function easeOutElastic(t) {
+    var s = 1.70158;
+    var p = 0;
+    var a = 1;
+    if (t === 0) {
+      return 0;
+    }
+    if (t === 1) {
+      return 1;
+    }
+    if (!p) {
+      p = 0.3;
+    }
+    {
+      s = p / TAU * Math.asin(1 / a);
+    }
+    return a * Math.pow(2, -10 * t) * Math.sin((t - s) * TAU / p) + 1;
+  },
+  easeInOutElastic: function easeInOutElastic(t) {
+    var s = 1.70158;
+    var p = 0;
+    var a = 1;
+    if (t === 0) {
+      return 0;
+    }
+    if ((t /= 0.5) === 2) {
+      return 1;
+    }
+    if (!p) {
+      p = 0.45;
+    }
+    {
+      s = p / TAU * Math.asin(1 / a);
+    }
+    if (t < 1) {
+      return -0.5 * (a * Math.pow(2, 10 * (t -= 1)) * Math.sin((t - s) * TAU / p));
+    }
+    return a * Math.pow(2, -10 * (t -= 1)) * Math.sin((t - s) * TAU / p) * 0.5 + 1;
+  },
+  easeInBack: function easeInBack(t) {
+    var s = 1.70158;
+    return t * t * ((s + 1) * t - s);
+  },
+  easeOutBack: function easeOutBack(t) {
+    var s = 1.70158;
+    return (t -= 1) * t * ((s + 1) * t + s) + 1;
+  },
+  easeInOutBack: function easeInOutBack(t) {
+    var s = 1.70158;
+    if ((t /= 0.5) < 1) {
+      return 0.5 * (t * t * (((s *= 1.525) + 1) * t - s));
+    }
+    return 0.5 * ((t -= 2) * t * (((s *= 1.525) + 1) * t + s) + 2);
+  },
+  easeInBounce: function easeInBounce(t) {
+    return 1 - effects.easeOutBounce(1 - t);
+  },
+  easeOutBounce: function easeOutBounce(t) {
+    if (t < 1 / 2.75) {
+      return 7.5625 * t * t;
+    }
+    if (t < 2 / 2.75) {
+      return 7.5625 * (t -= 1.5 / 2.75) * t + 0.75;
+    }
+    if (t < 2.5 / 2.75) {
+      return 7.5625 * (t -= 2.25 / 2.75) * t + 0.9375;
+    }
+    return 7.5625 * (t -= 2.625 / 2.75) * t + 0.984375;
+  },
+  easeInOutBounce: function easeInOutBounce(t) {
+    if (t < 0.5) {
+      return effects.easeInBounce(t * 2) * 0.5;
+    }
+    return effects.easeOutBounce(t * 2 - 1) * 0.5 + 0.5;
+  }
+};
+
+function _pointInLine(p1, p2, t, mode) {
+  return {
+    x: p1.x + t * (p2.x - p1.x),
+    y: p1.y + t * (p2.y - p1.y)
+  };
+}
+function _steppedInterpolation(p1, p2, t, mode) {
+  return {
+    x: p1.x + t * (p2.x - p1.x),
+    y: mode === 'middle' ? t < 0.5 ? p1.y : p2.y : mode === 'after' ? t < 1 ? p1.y : p2.y : t > 0 ? p2.y : p1.y
+  };
+}
+function _bezierInterpolation(p1, p2, t, mode) {
+  var cp1 = {
+    x: p1.controlPointNextX,
+    y: p1.controlPointNextY
+  };
+  var cp2 = {
+    x: p2.controlPointPreviousX,
+    y: p2.controlPointPreviousY
+  };
+  var a = _pointInLine(p1, cp1, t);
+  var b = _pointInLine(cp1, cp2, t);
+  var c = _pointInLine(cp2, p2, t);
+  var d = _pointInLine(a, b, t);
+  var e = _pointInLine(b, c, t);
+  return _pointInLine(d, e, t);
+}
+
+function toLineHeight(value, size) {
+  var matches = ('' + value).match(/^(normal|(\d+(?:\.\d+)?)(px|em|%)?)$/);
+  if (!matches || matches[1] === 'normal') {
+    return size * 1.2;
+  }
+  value = +matches[2];
+  switch (matches[3]) {
+    case 'px':
+      return value;
+    case '%':
+      value /= 100;
+      break;
+  }
+  return size * value;
+}
+var numberOrZero = function numberOrZero(v) {
+  return +v || 0;
+};
+function toTRBL(value) {
+  var t, r, b, l;
+  if (isObject(value)) {
+    t = numberOrZero(value.top);
+    r = numberOrZero(value.right);
+    b = numberOrZero(value.bottom);
+    l = numberOrZero(value.left);
+  } else {
+    t = r = b = l = numberOrZero(value);
+  }
+  return {
+    top: t,
+    right: r,
+    bottom: b,
+    left: l
+  };
+}
+function toPadding(value) {
+  var obj = toTRBL(value);
+  obj.width = obj.left + obj.right;
+  obj.height = obj.top + obj.bottom;
+  return obj;
+}
+function toFont(options, fallback) {
+  options = options || {};
+  fallback = fallback || defaults.font;
+  var size = valueOrDefault(options.size, fallback.size);
+  if (typeof size === 'string') {
+    size = parseInt(size, 10);
+  }
+  var font = {
+    color: valueOrDefault(options.color, fallback.color),
+    family: valueOrDefault(options.family, fallback.family),
+    lineHeight: toLineHeight(valueOrDefault(options.lineHeight, fallback.lineHeight), size),
+    lineWidth: valueOrDefault(options.lineWidth, fallback.lineWidth),
+    size: size,
+    style: valueOrDefault(options.style, fallback.style),
+    weight: valueOrDefault(options.weight, fallback.weight),
+    strokeStyle: valueOrDefault(options.strokeStyle, fallback.strokeStyle),
+    string: ''
+  };
+  font.string = toFontString(font);
+  return font;
+}
+function resolve(inputs, context, index, info) {
+  var cacheable = true;
+  var i, ilen, value;
+  for (i = 0, ilen = inputs.length; i < ilen; ++i) {
+    value = inputs[i];
+    if (value === undefined) {
+      continue;
+    }
+    if (context !== undefined && typeof value === 'function') {
+      value = value(context);
+      cacheable = false;
+    }
+    if (index !== undefined && isArray(value)) {
+      value = value[index % value.length];
+      cacheable = false;
+    }
+    if (value !== undefined) {
+      if (info && !cacheable) {
+        info.cacheable = false;
+      }
+      return value;
+    }
+  }
+}
+
+var getRightToLeftAdapter = function getRightToLeftAdapter(rectX, width) {
+  return {
+    x: function x(_x) {
+      return rectX + rectX + width - _x;
+    },
+    setWidth: function setWidth(w) {
+      width = w;
+    },
+    textAlign: function textAlign(align) {
+      if (align === 'center') {
+        return align;
+      }
+      return align === 'right' ? 'left' : 'right';
+    },
+    xPlus: function xPlus(x, value) {
+      return x - value;
+    },
+    leftForLtr: function leftForLtr(x, itemWidth) {
+      return x - itemWidth;
+    }
+  };
+};
+var getLeftToRightAdapter = function getLeftToRightAdapter() {
+  return {
+    x: function x(_x2) {
+      return _x2;
+    },
+    setWidth: function setWidth(w) {
+    },
+    textAlign: function textAlign(align) {
+      return align;
+    },
+    xPlus: function xPlus(x, value) {
+      return x + value;
+    },
+    leftForLtr: function leftForLtr(x, _itemWidth) {
+      return x;
+    }
+  };
+};
+function getRtlAdapter(rtl, rectX, width) {
+  return rtl ? getRightToLeftAdapter(rectX, width) : getLeftToRightAdapter();
+}
+function overrideTextDirection(ctx, direction) {
+  var style, original;
+  if (direction === 'ltr' || direction === 'rtl') {
+    style = ctx.canvas.style;
+    original = [style.getPropertyValue('direction'), style.getPropertyPriority('direction')];
+    style.setProperty('direction', direction, 'important');
+    ctx.prevTextDirection = original;
+  }
+}
+function restoreTextDirection(ctx, original) {
+  if (original !== undefined) {
+    delete ctx.prevTextDirection;
+    ctx.canvas.style.setProperty('direction', original[0], original[1]);
+  }
+}
+
+function propertyFn(property) {
+  if (property === 'angle') {
+    return {
+      between: _angleBetween,
+      compare: _angleDiff,
+      normalize: _normalizeAngle
+    };
+  }
+  return {
+    between: function between(n, s, e) {
+      return n >= s && n <= e;
+    },
+    compare: function compare(a, b) {
+      return a - b;
+    },
+    normalize: function normalize(x) {
+      return x;
+    }
+  };
+}
+function makeSubSegment(start, end, loop, count) {
+  return {
+    start: start % count,
+    end: end % count,
+    loop: loop && (end - start + 1) % count === 0
+  };
+}
+function getSegment(segment, points, bounds) {
+  var property = bounds.property,
+      startBound = bounds.start,
+      endBound = bounds.end;
+  var _propertyFn = propertyFn(property),
+      between = _propertyFn.between,
+      normalize = _propertyFn.normalize;
+  var count = points.length;
+  var start = segment.start,
+      end = segment.end,
+      loop = segment.loop;
+  var i, ilen;
+  if (loop) {
+    start += count;
+    end += count;
+    for (i = 0, ilen = count; i < ilen; ++i) {
+      if (!between(normalize(points[start % count][property]), startBound, endBound)) {
+        break;
+      }
+      start--;
+      end--;
+    }
+    start %= count;
+    end %= count;
+  }
+  if (end < start) {
+    end += count;
+  }
+  return {
+    start: start,
+    end: end,
+    loop: loop
+  };
+}
+function _boundSegment(segment, points, bounds) {
+  if (!bounds) {
+    return [segment];
+  }
+  var property = bounds.property,
+      startBound = bounds.start,
+      endBound = bounds.end;
+  var count = points.length;
+  var _propertyFn2 = propertyFn(property),
+      compare = _propertyFn2.compare,
+      between = _propertyFn2.between,
+      normalize = _propertyFn2.normalize;
+  var _getSegment = getSegment(segment, points, bounds),
+      start = _getSegment.start,
+      end = _getSegment.end,
+      loop = _getSegment.loop;
+  var result = [];
+  var inside = false;
+  var subStart = null;
+  var value, point, prevValue;
+  var startIsBefore = function startIsBefore() {
+    return between(startBound, prevValue, value) && compare(startBound, prevValue) !== 0;
+  };
+  var endIsBefore = function endIsBefore() {
+    return compare(endBound, value) === 0 || between(endBound, prevValue, value);
+  };
+  var shouldStart = function shouldStart() {
+    return inside || startIsBefore();
+  };
+  var shouldStop = function shouldStop() {
+    return !inside || endIsBefore();
+  };
+  for (var i = start, prev = start; i <= end; ++i) {
+    point = points[i % count];
+    if (point.skip) {
+      continue;
+    }
+    value = normalize(point[property]);
+    inside = between(value, startBound, endBound);
+    if (subStart === null && shouldStart()) {
+      subStart = compare(value, startBound) === 0 ? i : prev;
+    }
+    if (subStart !== null && shouldStop()) {
+      result.push(makeSubSegment(subStart, i, loop, count));
+      subStart = null;
+    }
+    prev = i;
+    prevValue = value;
+  }
+  if (subStart !== null) {
+    result.push(makeSubSegment(subStart, end, loop, count));
+  }
+  return result;
+}
+function _boundSegments(line, bounds) {
+  var result = [];
+  var segments = line.segments;
+  for (var i = 0; i < segments.length; i++) {
+    var sub = _boundSegment(segments[i], line.points, bounds);
+    if (sub.length) {
+      result.push.apply(result, sub);
+    }
+  }
+  return result;
+}
+function findStartAndEnd(points, count, loop, spanGaps) {
+  var start = 0;
+  var end = count - 1;
+  if (loop && !spanGaps) {
+    while (start < count && !points[start].skip) {
+      start++;
+    }
+  }
+  while (start < count && points[start].skip) {
+    start++;
+  }
+  start %= count;
+  if (loop) {
+    end += start;
+  }
+  while (end > start && points[end % count].skip) {
+    end--;
+  }
+  end %= count;
+  return {
+    start: start,
+    end: end
+  };
+}
+function solidSegments(points, start, max, loop) {
+  var count = points.length;
+  var result = [];
+  var last = start;
+  var prev = points[start];
+  var end;
+  for (end = start + 1; end <= max; ++end) {
+    var cur = points[end % count];
+    if (cur.skip || cur.stop) {
+      if (!prev.skip) {
+        loop = false;
+        result.push({
+          start: start % count,
+          end: (end - 1) % count,
+          loop: loop
+        });
+        start = last = cur.stop ? end : null;
+      }
+    } else {
+      last = end;
+      if (prev.skip) {
+        start = end;
+      }
+    }
+    prev = cur;
+  }
+  if (last !== null) {
+    result.push({
+      start: start % count,
+      end: last % count,
+      loop: loop
+    });
+  }
+  return result;
+}
+function _computeSegments(line) {
+  var points = line.points;
+  var spanGaps = line.options.spanGaps;
+  var count = points.length;
+  if (!count) {
+    return [];
+  }
+  var loop = !!line._loop;
+  var _findStartAndEnd = findStartAndEnd(points, count, loop, spanGaps),
+      start = _findStartAndEnd.start,
+      end = _findStartAndEnd.end;
+  if (spanGaps === true) {
+    return [{
+      start: start,
+      end: end,
+      loop: loop
+    }];
+  }
+  var max = end < start ? end + count : end;
+  var completeLoop = !!line._fullLoop && start === 0 && end === count - 1;
+  return solidSegments(points, start, max, completeLoop);
+}
+
+/*!
+ * @kurkle/color v0.1.9
+ * https://github.com/kurkle/color#readme
+ * (c) 2020 Jukka Kurkela
+ * Released under the MIT License
+ */
+var map = {
+  0: 0,
+  1: 1,
+  2: 2,
+  3: 3,
+  4: 4,
+  5: 5,
+  6: 6,
+  7: 7,
+  8: 8,
+  9: 9,
+  A: 10,
+  B: 11,
+  C: 12,
+  D: 13,
+  E: 14,
+  F: 15,
+  a: 10,
+  b: 11,
+  c: 12,
+  d: 13,
+  e: 14,
+  f: 15
+};
+var hex = '0123456789ABCDEF';
+var h1 = function h1(b) {
+  return hex[b & 0xF];
+};
+var h2 = function h2(b) {
+  return hex[(b & 0xF0) >> 4] + hex[b & 0xF];
+};
+var eq = function eq(b) {
+  return (b & 0xF0) >> 4 === (b & 0xF);
+};
+function isShort(v) {
+  return eq(v.r) && eq(v.g) && eq(v.b) && eq(v.a);
+}
+function hexParse(str) {
+  var len = str.length;
+  var ret;
+  if (str[0] === '#') {
+    if (len === 4 || len === 5) {
+      ret = {
+        r: 255 & map[str[1]] * 17,
+        g: 255 & map[str[2]] * 17,
+        b: 255 & map[str[3]] * 17,
+        a: len === 5 ? map[str[4]] * 17 : 255
+      };
+    } else if (len === 7 || len === 9) {
+      ret = {
+        r: map[str[1]] << 4 | map[str[2]],
+        g: map[str[3]] << 4 | map[str[4]],
+        b: map[str[5]] << 4 | map[str[6]],
+        a: len === 9 ? map[str[7]] << 4 | map[str[8]] : 255
+      };
+    }
+  }
+  return ret;
+}
+function _hexString(v) {
+  var f = isShort(v) ? h1 : h2;
+  return v ? '#' + f(v.r) + f(v.g) + f(v.b) + (v.a < 255 ? f(v.a) : '') : v;
+}
+function round(v) {
+  return v + 0.5 | 0;
+}
+var lim = function lim(v, l, h) {
+  return Math.max(Math.min(v, h), l);
+};
+function p2b(v) {
+  return lim(round(v * 2.55), 0, 255);
+}
+function n2b(v) {
+  return lim(round(v * 255), 0, 255);
+}
+function b2n(v) {
+  return lim(round(v / 2.55) / 100, 0, 1);
+}
+function n2p(v) {
+  return lim(round(v * 100), 0, 100);
+}
+var RGB_RE = /^rgba?\(\s*([-+.\d]+)(%)?[\s,]+([-+.e\d]+)(%)?[\s,]+([-+.e\d]+)(%)?(?:[\s,/]+([-+.e\d]+)(%)?)?\s*\)$/;
+function rgbParse(str) {
+  var m = RGB_RE.exec(str);
+  var a = 255;
+  var r, g, b;
+  if (!m) {
+    return;
+  }
+  if (m[7] !== r) {
+    var v = +m[7];
+    a = 255 & (m[8] ? p2b(v) : v * 255);
+  }
+  r = +m[1];
+  g = +m[3];
+  b = +m[5];
+  r = 255 & (m[2] ? p2b(r) : r);
+  g = 255 & (m[4] ? p2b(g) : g);
+  b = 255 & (m[6] ? p2b(b) : b);
+  return {
+    r: r,
+    g: g,
+    b: b,
+    a: a
+  };
+}
+function _rgbString(v) {
+  return v && (v.a < 255 ? "rgba(" + v.r + ", " + v.g + ", " + v.b + ", " + b2n(v.a) + ")" : "rgb(" + v.r + ", " + v.g + ", " + v.b + ")");
+}
+var HUE_RE = /^(hsla?|hwb|hsv)\(\s*([-+.e\d]+)(?:deg)?[\s,]+([-+.e\d]+)%[\s,]+([-+.e\d]+)%(?:[\s,]+([-+.e\d]+)(%)?)?\s*\)$/;
+function hsl2rgbn(h, s, l) {
+  var a = s * Math.min(l, 1 - l);
+  var f = function f(n, k) {
+    if (k === void 0) {
+      k = (n + h / 30) % 12;
+    }
+    return l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+  };
+  return [f(0), f(8), f(4)];
+}
+function hsv2rgbn(h, s, v) {
+  var f = function f(n, k) {
+    if (k === void 0) {
+      k = (n + h / 60) % 6;
+    }
+    return v - v * s * Math.max(Math.min(k, 4 - k, 1), 0);
+  };
+  return [f(5), f(3), f(1)];
+}
+function hwb2rgbn(h, w, b) {
+  var rgb = hsl2rgbn(h, 1, 0.5);
+  var i;
+  if (w + b > 1) {
+    i = 1 / (w + b);
+    w *= i;
+    b *= i;
+  }
+  for (i = 0; i < 3; i++) {
+    rgb[i] *= 1 - w - b;
+    rgb[i] += w;
+  }
+  return rgb;
+}
+function rgb2hsl(v) {
+  var range = 255;
+  var r = v.r / range;
+  var g = v.g / range;
+  var b = v.b / range;
+  var max = Math.max(r, g, b);
+  var min = Math.min(r, g, b);
+  var l = (max + min) / 2;
+  var h, s, d;
+  if (max !== min) {
+    d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    h = max === r ? (g - b) / d + (g < b ? 6 : 0) : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
+    h = h * 60 + 0.5;
+  }
+  return [h | 0, s || 0, l];
+}
+function calln(f, a, b, c) {
+  return (Array.isArray(a) ? f(a[0], a[1], a[2]) : f(a, b, c)).map(n2b);
+}
+function hsl2rgb(h, s, l) {
+  return calln(hsl2rgbn, h, s, l);
+}
+function hwb2rgb(h, w, b) {
+  return calln(hwb2rgbn, h, w, b);
+}
+function hsv2rgb(h, s, v) {
+  return calln(hsv2rgbn, h, s, v);
+}
+function hue(h) {
+  return (h % 360 + 360) % 360;
+}
+function hueParse(str) {
+  var m = HUE_RE.exec(str);
+  var a = 255;
+  var v;
+  if (!m) {
+    return;
+  }
+  if (m[5] !== v) {
+    a = m[6] ? p2b(+m[5]) : n2b(+m[5]);
+  }
+  var h = hue(+m[2]);
+  var p1 = +m[3] / 100;
+  var p2 = +m[4] / 100;
+  if (m[1] === 'hwb') {
+    v = hwb2rgb(h, p1, p2);
+  } else if (m[1] === 'hsv') {
+    v = hsv2rgb(h, p1, p2);
+  } else {
+    v = hsl2rgb(h, p1, p2);
+  }
+  return {
+    r: v[0],
+    g: v[1],
+    b: v[2],
+    a: a
+  };
+}
+function _rotate(v, deg) {
+  var h = rgb2hsl(v);
+  h[0] = hue(h[0] + deg);
+  h = hsl2rgb(h);
+  v.r = h[0];
+  v.g = h[1];
+  v.b = h[2];
+}
+function _hslString(v) {
+  if (!v) {
+    return;
+  }
+  var a = rgb2hsl(v);
+  var h = a[0];
+  var s = n2p(a[1]);
+  var l = n2p(a[2]);
+  return v.a < 255 ? "hsla(" + h + ", " + s + "%, " + l + "%, " + b2n(v.a) + ")" : "hsl(" + h + ", " + s + "%, " + l + "%)";
+}
+var map$1 = {
+  x: 'dark',
+  Z: 'light',
+  Y: 're',
+  X: 'blu',
+  W: 'gr',
+  V: 'medium',
+  U: 'slate',
+  A: 'ee',
+  T: 'ol',
+  S: 'or',
+  B: 'ra',
+  C: 'lateg',
+  D: 'ights',
+  R: 'in',
+  Q: 'turquois',
+  E: 'hi',
+  P: 'ro',
+  O: 'al',
+  N: 'le',
+  M: 'de',
+  L: 'yello',
+  F: 'en',
+  K: 'ch',
+  G: 'arks',
+  H: 'ea',
+  I: 'ightg',
+  J: 'wh'
+};
+var names = {
+  OiceXe: 'f0f8ff',
+  antiquewEte: 'faebd7',
+  aqua: 'ffff',
+  aquamarRe: '7fffd4',
+  azuY: 'f0ffff',
+  beige: 'f5f5dc',
+  bisque: 'ffe4c4',
+  black: '0',
+  blanKedOmond: 'ffebcd',
+  Xe: 'ff',
+  XeviTet: '8a2be2',
+  bPwn: 'a52a2a',
+  burlywood: 'deb887',
+  caMtXe: '5f9ea0',
+  KartYuse: '7fff00',
+  KocTate: 'd2691e',
+  cSO: 'ff7f50',
+  cSnflowerXe: '6495ed',
+  cSnsilk: 'fff8dc',
+  crimson: 'dc143c',
+  cyan: 'ffff',
+  xXe: '8b',
+  xcyan: '8b8b',
+  xgTMnPd: 'b8860b',
+  xWay: 'a9a9a9',
+  xgYF: '6400',
+  xgYy: 'a9a9a9',
+  xkhaki: 'bdb76b',
+  xmagFta: '8b008b',
+  xTivegYF: '556b2f',
+  xSange: 'ff8c00',
+  xScEd: '9932cc',
+  xYd: '8b0000',
+  xsOmon: 'e9967a',
+  xsHgYF: '8fbc8f',
+  xUXe: '483d8b',
+  xUWay: '2f4f4f',
+  xUgYy: '2f4f4f',
+  xQe: 'ced1',
+  xviTet: '9400d3',
+  dAppRk: 'ff1493',
+  dApskyXe: 'bfff',
+  dimWay: '696969',
+  dimgYy: '696969',
+  dodgerXe: '1e90ff',
+  fiYbrick: 'b22222',
+  flSOwEte: 'fffaf0',
+  foYstWAn: '228b22',
+  fuKsia: 'ff00ff',
+  gaRsbSo: 'dcdcdc',
+  ghostwEte: 'f8f8ff',
+  gTd: 'ffd700',
+  gTMnPd: 'daa520',
+  Way: '808080',
+  gYF: '8000',
+  gYFLw: 'adff2f',
+  gYy: '808080',
+  honeyMw: 'f0fff0',
+  hotpRk: 'ff69b4',
+  RdianYd: 'cd5c5c',
+  Rdigo: '4b0082',
+  ivSy: 'fffff0',
+  khaki: 'f0e68c',
+  lavFMr: 'e6e6fa',
+  lavFMrXsh: 'fff0f5',
+  lawngYF: '7cfc00',
+  NmoncEffon: 'fffacd',
+  ZXe: 'add8e6',
+  ZcSO: 'f08080',
+  Zcyan: 'e0ffff',
+  ZgTMnPdLw: 'fafad2',
+  ZWay: 'd3d3d3',
+  ZgYF: '90ee90',
+  ZgYy: 'd3d3d3',
+  ZpRk: 'ffb6c1',
+  ZsOmon: 'ffa07a',
+  ZsHgYF: '20b2aa',
+  ZskyXe: '87cefa',
+  ZUWay: '778899',
+  ZUgYy: '778899',
+  ZstAlXe: 'b0c4de',
+  ZLw: 'ffffe0',
+  lime: 'ff00',
+  limegYF: '32cd32',
+  lRF: 'faf0e6',
+  magFta: 'ff00ff',
+  maPon: '800000',
+  VaquamarRe: '66cdaa',
+  VXe: 'cd',
+  VScEd: 'ba55d3',
+  VpurpN: '9370db',
+  VsHgYF: '3cb371',
+  VUXe: '7b68ee',
+  VsprRggYF: 'fa9a',
+  VQe: '48d1cc',
+  VviTetYd: 'c71585',
+  midnightXe: '191970',
+  mRtcYam: 'f5fffa',
+  mistyPse: 'ffe4e1',
+  moccasR: 'ffe4b5',
+  navajowEte: 'ffdead',
+  navy: '80',
+  Tdlace: 'fdf5e6',
+  Tive: '808000',
+  TivedBb: '6b8e23',
+  Sange: 'ffa500',
+  SangeYd: 'ff4500',
+  ScEd: 'da70d6',
+  pOegTMnPd: 'eee8aa',
+  pOegYF: '98fb98',
+  pOeQe: 'afeeee',
+  pOeviTetYd: 'db7093',
+  papayawEp: 'ffefd5',
+  pHKpuff: 'ffdab9',
+  peru: 'cd853f',
+  pRk: 'ffc0cb',
+  plum: 'dda0dd',
+  powMrXe: 'b0e0e6',
+  purpN: '800080',
+  YbeccapurpN: '663399',
+  Yd: 'ff0000',
+  Psybrown: 'bc8f8f',
+  PyOXe: '4169e1',
+  saddNbPwn: '8b4513',
+  sOmon: 'fa8072',
+  sandybPwn: 'f4a460',
+  sHgYF: '2e8b57',
+  sHshell: 'fff5ee',
+  siFna: 'a0522d',
+  silver: 'c0c0c0',
+  skyXe: '87ceeb',
+  UXe: '6a5acd',
+  UWay: '708090',
+  UgYy: '708090',
+  snow: 'fffafa',
+  sprRggYF: 'ff7f',
+  stAlXe: '4682b4',
+  tan: 'd2b48c',
+  teO: '8080',
+  tEstN: 'd8bfd8',
+  tomato: 'ff6347',
+  Qe: '40e0d0',
+  viTet: 'ee82ee',
+  JHt: 'f5deb3',
+  wEte: 'ffffff',
+  wEtesmoke: 'f5f5f5',
+  Lw: 'ffff00',
+  LwgYF: '9acd32'
+};
+function unpack() {
+  var unpacked = {};
+  var keys = Object.keys(names);
+  var tkeys = Object.keys(map$1);
+  var i, j, k, ok, nk;
+  for (i = 0; i < keys.length; i++) {
+    ok = nk = keys[i];
+    for (j = 0; j < tkeys.length; j++) {
+      k = tkeys[j];
+      nk = nk.replace(k, map$1[k]);
+    }
+    k = parseInt(names[ok], 16);
+    unpacked[nk] = [k >> 16 & 0xFF, k >> 8 & 0xFF, k & 0xFF];
+  }
+  return unpacked;
+}
+var names$1;
+function nameParse(str) {
+  if (!names$1) {
+    names$1 = unpack();
+    names$1.transparent = [0, 0, 0, 0];
+  }
+  var a = names$1[str.toLowerCase()];
+  return a && {
+    r: a[0],
+    g: a[1],
+    b: a[2],
+    a: a.length === 4 ? a[3] : 255
+  };
+}
+function modHSL(v, i, ratio) {
+  if (v) {
+    var tmp = rgb2hsl(v);
+    tmp[i] = Math.max(0, Math.min(tmp[i] + tmp[i] * ratio, i === 0 ? 360 : 1));
+    tmp = hsl2rgb(tmp);
+    v.r = tmp[0];
+    v.g = tmp[1];
+    v.b = tmp[2];
+  }
+}
+function clone$1(v, proto) {
+  return v ? _extends(proto || {}, v) : v;
+}
+function fromObject(input) {
+  var v = {
+    r: 0,
+    g: 0,
+    b: 0,
+    a: 255
+  };
+  if (Array.isArray(input)) {
+    if (input.length >= 3) {
+      v = {
+        r: input[0],
+        g: input[1],
+        b: input[2],
+        a: 255
+      };
+      if (input.length > 3) {
+        v.a = n2b(input[3]);
+      }
+    }
+  } else {
+    v = clone$1(input, {
+      r: 0,
+      g: 0,
+      b: 0,
+      a: 1
+    });
+    v.a = n2b(v.a);
+  }
+  return v;
+}
+function functionParse(str) {
+  if (str.charAt(0) === 'r') {
+    return rgbParse(str);
+  }
+  return hueParse(str);
+}
+var Color = function () {
+  function Color(input) {
+    if (input instanceof Color) {
+      return input;
+    }
+    var type = typeof input;
+    var v;
+    if (type === 'object') {
+      v = fromObject(input);
+    } else if (type === 'string') {
+      v = hexParse(input) || nameParse(input) || functionParse(input);
+    }
+    this._rgb = v;
+    this._valid = !!v;
+  }
+  var _proto = Color.prototype;
+  _proto.rgbString = function rgbString() {
+    return this._valid ? _rgbString(this._rgb) : this._rgb;
+  };
+  _proto.hexString = function hexString() {
+    return this._valid ? _hexString(this._rgb) : this._rgb;
+  };
+  _proto.hslString = function hslString() {
+    return this._valid ? _hslString(this._rgb) : this._rgb;
+  };
+  _proto.mix = function mix(color, weight) {
+    var me = this;
+    if (color) {
+      var c1 = me.rgb;
+      var c2 = color.rgb;
+      var w2;
+      var p = weight === w2 ? 0.5 : weight;
+      var w = 2 * p - 1;
+      var a = c1.a - c2.a;
+      var w1 = ((w * a === -1 ? w : (w + a) / (1 + w * a)) + 1) / 2.0;
+      w2 = 1 - w1;
+      c1.r = 0xFF & w1 * c1.r + w2 * c2.r + 0.5;
+      c1.g = 0xFF & w1 * c1.g + w2 * c2.g + 0.5;
+      c1.b = 0xFF & w1 * c1.b + w2 * c2.b + 0.5;
+      c1.a = p * c1.a + (1 - p) * c2.a;
+      me.rgb = c1;
+    }
+    return me;
+  };
+  _proto.clone = function clone() {
+    return new Color(this.rgb);
+  };
+  _proto.alpha = function alpha(a) {
+    this._rgb.a = n2b(a);
+    return this;
+  };
+  _proto.clearer = function clearer(ratio) {
+    var rgb = this._rgb;
+    rgb.a *= 1 - ratio;
+    return this;
+  };
+  _proto.greyscale = function greyscale() {
+    var rgb = this._rgb;
+    var val = round(rgb.r * 0.3 + rgb.g * 0.59 + rgb.b * 0.11);
+    rgb.r = rgb.g = rgb.b = val;
+    return this;
+  };
+  _proto.opaquer = function opaquer(ratio) {
+    var rgb = this._rgb;
+    rgb.a *= 1 + ratio;
+    return this;
+  };
+  _proto.negate = function negate() {
+    var v = this._rgb;
+    v.r = 255 - v.r;
+    v.g = 255 - v.g;
+    v.b = 255 - v.b;
+    return this;
+  };
+  _proto.lighten = function lighten(ratio) {
+    modHSL(this._rgb, 2, ratio);
+    return this;
+  };
+  _proto.darken = function darken(ratio) {
+    modHSL(this._rgb, 2, -ratio);
+    return this;
+  };
+  _proto.saturate = function saturate(ratio) {
+    modHSL(this._rgb, 1, ratio);
+    return this;
+  };
+  _proto.desaturate = function desaturate(ratio) {
+    modHSL(this._rgb, 1, -ratio);
+    return this;
+  };
+  _proto.rotate = function rotate(deg) {
+    _rotate(this._rgb, deg);
+    return this;
+  };
+  _createClass(Color, [{
+    key: "valid",
+    get: function get() {
+      return this._valid;
+    }
+  }, {
+    key: "rgb",
+    get: function get() {
+      var v = clone$1(this._rgb);
+      if (v) {
+        v.a = b2n(v.a);
+      }
+      return v;
+    },
+    set: function set(obj) {
+      this._rgb = fromObject(obj);
+    }
+  }]);
+  return Color;
+}();
+function index_esm(input) {
+  return new Color(input);
+}
+
+var isPatternOrGradient = function isPatternOrGradient(value) {
+  return value instanceof CanvasGradient || value instanceof CanvasPattern;
+};
+function color(value) {
+  return isPatternOrGradient(value) ? value : index_esm(value);
+}
+function getHoverColor(value) {
+  return isPatternOrGradient(value) ? value : index_esm(value).saturate(0.5).darken(0.1).hexString();
+}
+
+var helpers = /*#__PURE__*/Object.freeze({
+__proto__: null,
+easingEffects: effects,
+color: color,
+getHoverColor: getHoverColor,
+requestAnimFrame: requestAnimFrame,
+fontString: fontString,
+noop: noop,
+uid: uid,
+isNullOrUndef: isNullOrUndef,
+isArray: isArray,
+isObject: isObject,
+isFinite: isNumberFinite,
+valueOrDefault: valueOrDefault,
+callback: callback,
+each: each,
+_elementsEqual: _elementsEqual,
+clone: clone,
+_merger: _merger,
+merge: merge,
+mergeIf: mergeIf,
+_mergerIf: _mergerIf,
+_deprecated: _deprecated,
+resolveObjectKey: resolveObjectKey,
+_capitalize: _capitalize,
+toFontString: toFontString,
+_measureText: _measureText,
+_longestText: _longestText,
+_alignPixel: _alignPixel,
+clear: clear,
+drawPoint: drawPoint,
+_isPointInArea: _isPointInArea,
+clipArea: clipArea,
+unclipArea: unclipArea,
+_steppedLineTo: _steppedLineTo,
+_bezierCurveTo: _bezierCurveTo,
+_lookup: _lookup,
+_lookupByKey: _lookupByKey,
+_rlookupByKey: _rlookupByKey,
+_filterBetween: _filterBetween,
+listenArrayEvents: listenArrayEvents,
+unlistenArrayEvents: unlistenArrayEvents,
+_arrayUnique: _arrayUnique,
+splineCurve: splineCurve,
+splineCurveMonotone: splineCurveMonotone,
+_updateBezierControlPoints: _updateBezierControlPoints,
+_getParentNode: _getParentNode,
+getStyle: getStyle,
+getRelativePosition: getRelativePosition,
+getMaximumSize: getMaximumSize,
+retinaScale: retinaScale,
+supportsEventListenerOptions: supportsEventListenerOptions,
+readUsedSize: readUsedSize,
+_pointInLine: _pointInLine,
+_steppedInterpolation: _steppedInterpolation,
+_bezierInterpolation: _bezierInterpolation,
+toLineHeight: toLineHeight,
+toTRBL: toTRBL,
+toPadding: toPadding,
+toFont: toFont,
+resolve: resolve,
+PI: PI,
+TAU: TAU,
+PITAU: PITAU,
+INFINITY: INFINITY,
+RAD_PER_DEG: RAD_PER_DEG,
+HALF_PI: HALF_PI,
+QUARTER_PI: QUARTER_PI,
+TWO_THIRDS_PI: TWO_THIRDS_PI,
+_factorize: _factorize,
+log10: log10,
+isNumber: isNumber,
+almostEquals: almostEquals,
+almostWhole: almostWhole,
+_setMinAndMaxByKey: _setMinAndMaxByKey,
+sign: sign,
+toRadians: toRadians,
+toDegrees: toDegrees,
+_decimalPlaces: _decimalPlaces,
+getAngleFromPoint: getAngleFromPoint,
+distanceBetweenPoints: distanceBetweenPoints,
+_angleDiff: _angleDiff,
+_normalizeAngle: _normalizeAngle,
+_angleBetween: _angleBetween,
+_limitValue: _limitValue,
+_int16Range: _int16Range,
+getRtlAdapter: getRtlAdapter,
+overrideTextDirection: overrideTextDirection,
+restoreTextDirection: restoreTextDirection,
+_boundSegment: _boundSegment,
+_boundSegments: _boundSegments,
+_computeSegments: _computeSegments
+});
+
 function toFontString(font) {
   if (!font || isNullOrUndef(font.size) || isNullOrUndef(font.family)) {
     return null;
@@ -584,7 +2389,7 @@ function drawPoint(ctx, options, x, y) {
   ctx.beginPath();
   switch (style) {
     default:
-      ctx.arc(x, y, radius, 0, DOUBLE_PI);
+      ctx.arc(x, y, radius, 0, TAU);
       ctx.closePath();
       break;
     case 'triangle':
@@ -696,280 +2501,6 @@ function _bezierCurveTo(ctx, previous, target, flip) {
     return ctx.lineTo(target.x, target.y);
   }
   ctx.bezierCurveTo(flip ? previous.controlPointPreviousX : previous.controlPointNextX, flip ? previous.controlPointPreviousY : previous.controlPointNextY, flip ? target.controlPointNextX : target.controlPointPreviousX, flip ? target.controlPointNextY : target.controlPointPreviousY, target.x, target.y);
-}
-
-function _lookup(table, value, cmp) {
-  cmp = cmp || function (index) {
-    return table[index] < value;
-  };
-  var hi = table.length - 1;
-  var lo = 0;
-  var mid;
-  while (hi - lo > 1) {
-    mid = lo + hi >> 1;
-    if (cmp(mid)) {
-      lo = mid;
-    } else {
-      hi = mid;
-    }
-  }
-  return {
-    lo: lo,
-    hi: hi
-  };
-}
-var _lookupByKey = function _lookupByKey(table, key, value) {
-  return _lookup(table, value, function (index) {
-    return table[index][key] < value;
-  });
-};
-var _rlookupByKey = function _rlookupByKey(table, key, value) {
-  return _lookup(table, value, function (index) {
-    return table[index][key] >= value;
-  });
-};
-function _filterBetween(values, min, max) {
-  var start = 0;
-  var end = values.length;
-  while (start < end && values[start] < min) {
-    start++;
-  }
-  while (end > start && values[end - 1] > max) {
-    end--;
-  }
-  return start > 0 || end < values.length ? values.slice(start, end) : values;
-}
-var arrayEvents = ['push', 'pop', 'shift', 'splice', 'unshift'];
-function listenArrayEvents(array, listener) {
-  if (array._chartjs) {
-    array._chartjs.listeners.push(listener);
-    return;
-  }
-  Object.defineProperty(array, '_chartjs', {
-    configurable: true,
-    enumerable: false,
-    value: {
-      listeners: [listener]
-    }
-  });
-  arrayEvents.forEach(function (key) {
-    var method = '_onData' + _capitalize(key);
-    var base = array[key];
-    Object.defineProperty(array, key, {
-      configurable: true,
-      enumerable: false,
-      value: function value() {
-        for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-          args[_key] = arguments[_key];
-        }
-        var res = base.apply(this, args);
-        array._chartjs.listeners.forEach(function (object) {
-          if (typeof object[method] === 'function') {
-            object[method].apply(object, args);
-          }
-        });
-        return res;
-      }
-    });
-  });
-}
-function unlistenArrayEvents(array, listener) {
-  var stub = array._chartjs;
-  if (!stub) {
-    return;
-  }
-  var listeners = stub.listeners;
-  var index = listeners.indexOf(listener);
-  if (index !== -1) {
-    listeners.splice(index, 1);
-  }
-  if (listeners.length > 0) {
-    return;
-  }
-  arrayEvents.forEach(function (key) {
-    delete array[key];
-  });
-  delete array._chartjs;
-}
-function _arrayUnique(items) {
-  var set = new Set();
-  var i, ilen;
-  for (i = 0, ilen = items.length; i < ilen; ++i) {
-    set.add(items[i]);
-  }
-  if (set.size === ilen) {
-    return items;
-  }
-  var result = [];
-  set.forEach(function (item) {
-    result.push(item);
-  });
-  return result;
-}
-
-function _getParentNode(domNode) {
-  var parent = domNode.parentNode;
-  if (parent && parent.toString() === '[object ShadowRoot]') {
-    parent = parent.host;
-  }
-  return parent;
-}
-function parseMaxStyle(styleValue, node, parentProperty) {
-  var valueInPixels;
-  if (typeof styleValue === 'string') {
-    valueInPixels = parseInt(styleValue, 10);
-    if (styleValue.indexOf('%') !== -1) {
-      valueInPixels = valueInPixels / 100 * node.parentNode[parentProperty];
-    }
-  } else {
-    valueInPixels = styleValue;
-  }
-  return valueInPixels;
-}
-var getComputedStyle = function getComputedStyle(element) {
-  return window.getComputedStyle(element, null);
-};
-function getStyle(el, property) {
-  return el.currentStyle ? el.currentStyle[property] : getComputedStyle(el).getPropertyValue(property);
-}
-var positions = ['top', 'right', 'bottom', 'left'];
-function getPositionedStyle(styles, style, suffix) {
-  var result = {};
-  suffix = suffix ? '-' + suffix : '';
-  for (var i = 0; i < 4; i++) {
-    var pos = positions[i];
-    result[pos] = parseFloat(styles[style + '-' + pos + suffix]) || 0;
-  }
-  result.width = result.left + result.right;
-  result.height = result.top + result.bottom;
-  return result;
-}
-function getCanvasPosition(evt, canvas) {
-  var e = evt.originalEvent || evt;
-  var touches = e.touches;
-  var source = touches && touches.length ? touches[0] : e;
-  var offsetX = source.offsetX,
-      offsetY = source.offsetY;
-  var box = false;
-  var x, y;
-  if (offsetX > 0 || offsetY > 0) {
-    x = offsetX;
-    y = offsetY;
-  } else {
-    var rect = canvas.getBoundingClientRect();
-    x = source.clientX - rect.left;
-    y = source.clientY - rect.top;
-    box = true;
-  }
-  return {
-    x: x,
-    y: y,
-    box: box
-  };
-}
-function getRelativePosition(evt, chart) {
-  var canvas = chart.canvas,
-      currentDevicePixelRatio = chart.currentDevicePixelRatio;
-  var style = getComputedStyle(canvas);
-  var borderBox = style.boxSizing === 'border-box';
-  var paddings = getPositionedStyle(style, 'padding');
-  var borders = getPositionedStyle(style, 'border', 'width');
-  var _getCanvasPosition = getCanvasPosition(evt, canvas),
-      x = _getCanvasPosition.x,
-      y = _getCanvasPosition.y,
-      box = _getCanvasPosition.box;
-  var xOffset = paddings.left + (box && borders.left);
-  var yOffset = paddings.top + (box && borders.top);
-  var width = chart.width,
-      height = chart.height;
-  if (borderBox) {
-    width -= paddings.width + borders.width;
-    height -= paddings.height + borders.height;
-  }
-  return {
-    x: Math.round((x - xOffset) / width * canvas.width / currentDevicePixelRatio),
-    y: Math.round((y - yOffset) / height * canvas.height / currentDevicePixelRatio)
-  };
-}
-var infinity = Number.POSITIVE_INFINITY;
-function getContainerSize(canvas, width, height) {
-  var maxWidth, maxHeight;
-  if (width === undefined || height === undefined) {
-    var container = _getParentNode(canvas);
-    if (!container) {
-      width = canvas.clientWidth;
-      height = canvas.clientHeight;
-    } else {
-      var rect = container.getBoundingClientRect();
-      var containerStyle = getComputedStyle(container);
-      var containerBorder = getPositionedStyle(containerStyle, 'border', 'width');
-      var contarinerPadding = getPositionedStyle(containerStyle, 'padding');
-      width = rect.width - contarinerPadding.width - containerBorder.width;
-      height = rect.height - contarinerPadding.height - containerBorder.height;
-      maxWidth = parseMaxStyle(containerStyle.maxWidth, container, 'clientWidth');
-      maxHeight = parseMaxStyle(containerStyle.maxHeight, container, 'clientHeight');
-    }
-  }
-  return {
-    width: width,
-    height: height,
-    maxWidth: maxWidth || infinity,
-    maxHeight: maxHeight || infinity
-  };
-}
-function getMaximumSize(canvas, bbWidth, bbHeight, aspectRatio) {
-  var style = getComputedStyle(canvas);
-  var margins = getPositionedStyle(style, 'margin');
-  var maxWidth = parseMaxStyle(style.maxWidth, canvas, 'clientWidth') || infinity;
-  var maxHeight = parseMaxStyle(style.maxHeight, canvas, 'clientHeight') || infinity;
-  var containerSize = getContainerSize(canvas, bbWidth, bbHeight);
-  var width = containerSize.width,
-      height = containerSize.height;
-  if (style.boxSizing === 'content-box') {
-    var borders = getPositionedStyle(style, 'border', 'width');
-    var paddings = getPositionedStyle(style, 'padding');
-    width -= paddings.width + borders.width;
-    height -= paddings.height + borders.height;
-  }
-  width = Math.max(0, width - margins.width);
-  height = Math.max(0, aspectRatio ? Math.floor(width / aspectRatio) : height - margins.height);
-  return {
-    width: Math.min(width, maxWidth, containerSize.maxWidth),
-    height: Math.min(height, maxHeight, containerSize.maxHeight)
-  };
-}
-function retinaScale(chart, forceRatio) {
-  var pixelRatio = chart.currentDevicePixelRatio = forceRatio || typeof window !== 'undefined' && window.devicePixelRatio || 1;
-  var canvas = chart.canvas,
-      width = chart.width,
-      height = chart.height;
-  canvas.height = height * pixelRatio;
-  canvas.width = width * pixelRatio;
-  chart.ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
-  if (canvas.style && !canvas.style.height && !canvas.style.width) {
-    canvas.style.height = height + 'px';
-    canvas.style.width = width + 'px';
-  }
-}
-var supportsEventListenerOptions = function () {
-  var passiveSupported = false;
-  try {
-    var options = {
-      get passive() {
-        passiveSupported = true;
-        return false;
-      }
-    };
-    window.addEventListener('test', null, options);
-    window.removeEventListener('test', null, options);
-  } catch (e) {
-  }
-  return passiveSupported;
-}();
-function readUsedSize(element, property) {
-  var value = getStyle(element, property);
-  var matches = value && value.match(/^(\d+)(\.\d+)?px$/);
-  return matches ? +matches[1] : undefined;
 }
 
 function getRelativePosition$1(e, chart) {
@@ -1182,93 +2713,6 @@ var Interaction = {
     }
   }
 };
-
-function toLineHeight(value, size) {
-  var matches = ('' + value).match(/^(normal|(\d+(?:\.\d+)?)(px|em|%)?)$/);
-  if (!matches || matches[1] === 'normal') {
-    return size * 1.2;
-  }
-  value = +matches[2];
-  switch (matches[3]) {
-    case 'px':
-      return value;
-    case '%':
-      value /= 100;
-      break;
-  }
-  return size * value;
-}
-var numberOrZero = function numberOrZero(v) {
-  return +v || 0;
-};
-function toTRBL(value) {
-  var t, r, b, l;
-  if (isObject(value)) {
-    t = numberOrZero(value.top);
-    r = numberOrZero(value.right);
-    b = numberOrZero(value.bottom);
-    l = numberOrZero(value.left);
-  } else {
-    t = r = b = l = numberOrZero(value);
-  }
-  return {
-    top: t,
-    right: r,
-    bottom: b,
-    left: l
-  };
-}
-function toPadding(value) {
-  var obj = toTRBL(value);
-  obj.width = obj.left + obj.right;
-  obj.height = obj.top + obj.bottom;
-  return obj;
-}
-function toFont(options, fallback) {
-  options = options || {};
-  fallback = fallback || defaults.font;
-  var size = valueOrDefault(options.size, fallback.size);
-  if (typeof size === 'string') {
-    size = parseInt(size, 10);
-  }
-  var font = {
-    color: valueOrDefault(options.color, fallback.color),
-    family: valueOrDefault(options.family, fallback.family),
-    lineHeight: toLineHeight(valueOrDefault(options.lineHeight, fallback.lineHeight), size),
-    lineWidth: valueOrDefault(options.lineWidth, fallback.lineWidth),
-    size: size,
-    style: valueOrDefault(options.style, fallback.style),
-    weight: valueOrDefault(options.weight, fallback.weight),
-    strokeStyle: valueOrDefault(options.strokeStyle, fallback.strokeStyle),
-    string: ''
-  };
-  font.string = toFontString(font);
-  return font;
-}
-function resolve(inputs, context, index, info) {
-  var cacheable = true;
-  var i, ilen, value;
-  for (i = 0, ilen = inputs.length; i < ilen; ++i) {
-    value = inputs[i];
-    if (value === undefined) {
-      continue;
-    }
-    if (context !== undefined && typeof value === 'function') {
-      value = value(context);
-      cacheable = false;
-    }
-    if (index !== undefined && isArray(value)) {
-      value = value[index % value.length];
-      cacheable = false;
-    }
-    if (value !== undefined) {
-      if (info && !cacheable) {
-        info.cacheable = false;
-      }
-      return value;
-    }
-  }
-}
 
 var STATIC_POSITIONS = ['left', 'top', 'right', 'bottom'];
 function filterByPosition(array, position) {
@@ -2534,807 +3978,6 @@ Promise._unhandledRejectionFn = function _unhandledRejectionFn(err) {
   }
 };
 
-var effects = {
-  linear: function linear(t) {
-    return t;
-  },
-  easeInQuad: function easeInQuad(t) {
-    return t * t;
-  },
-  easeOutQuad: function easeOutQuad(t) {
-    return -t * (t - 2);
-  },
-  easeInOutQuad: function easeInOutQuad(t) {
-    if ((t /= 0.5) < 1) {
-      return 0.5 * t * t;
-    }
-    return -0.5 * (--t * (t - 2) - 1);
-  },
-  easeInCubic: function easeInCubic(t) {
-    return t * t * t;
-  },
-  easeOutCubic: function easeOutCubic(t) {
-    return (t -= 1) * t * t + 1;
-  },
-  easeInOutCubic: function easeInOutCubic(t) {
-    if ((t /= 0.5) < 1) {
-      return 0.5 * t * t * t;
-    }
-    return 0.5 * ((t -= 2) * t * t + 2);
-  },
-  easeInQuart: function easeInQuart(t) {
-    return t * t * t * t;
-  },
-  easeOutQuart: function easeOutQuart(t) {
-    return -((t -= 1) * t * t * t - 1);
-  },
-  easeInOutQuart: function easeInOutQuart(t) {
-    if ((t /= 0.5) < 1) {
-      return 0.5 * t * t * t * t;
-    }
-    return -0.5 * ((t -= 2) * t * t * t - 2);
-  },
-  easeInQuint: function easeInQuint(t) {
-    return t * t * t * t * t;
-  },
-  easeOutQuint: function easeOutQuint(t) {
-    return (t -= 1) * t * t * t * t + 1;
-  },
-  easeInOutQuint: function easeInOutQuint(t) {
-    if ((t /= 0.5) < 1) {
-      return 0.5 * t * t * t * t * t;
-    }
-    return 0.5 * ((t -= 2) * t * t * t * t + 2);
-  },
-  easeInSine: function easeInSine(t) {
-    return -Math.cos(t * (Math.PI / 2)) + 1;
-  },
-  easeOutSine: function easeOutSine(t) {
-    return Math.sin(t * (Math.PI / 2));
-  },
-  easeInOutSine: function easeInOutSine(t) {
-    return -0.5 * (Math.cos(Math.PI * t) - 1);
-  },
-  easeInExpo: function easeInExpo(t) {
-    return t === 0 ? 0 : Math.pow(2, 10 * (t - 1));
-  },
-  easeOutExpo: function easeOutExpo(t) {
-    return t === 1 ? 1 : -Math.pow(2, -10 * t) + 1;
-  },
-  easeInOutExpo: function easeInOutExpo(t) {
-    if (t === 0) {
-      return 0;
-    }
-    if (t === 1) {
-      return 1;
-    }
-    if ((t /= 0.5) < 1) {
-      return 0.5 * Math.pow(2, 10 * (t - 1));
-    }
-    return 0.5 * (-Math.pow(2, -10 * --t) + 2);
-  },
-  easeInCirc: function easeInCirc(t) {
-    if (t >= 1) {
-      return t;
-    }
-    return -(Math.sqrt(1 - t * t) - 1);
-  },
-  easeOutCirc: function easeOutCirc(t) {
-    return Math.sqrt(1 - (t -= 1) * t);
-  },
-  easeInOutCirc: function easeInOutCirc(t) {
-    if ((t /= 0.5) < 1) {
-      return -0.5 * (Math.sqrt(1 - t * t) - 1);
-    }
-    return 0.5 * (Math.sqrt(1 - (t -= 2) * t) + 1);
-  },
-  easeInElastic: function easeInElastic(t) {
-    var s = 1.70158;
-    var p = 0;
-    var a = 1;
-    if (t === 0) {
-      return 0;
-    }
-    if (t === 1) {
-      return 1;
-    }
-    if (!p) {
-      p = 0.3;
-    }
-    {
-      s = p / (2 * Math.PI) * Math.asin(1 / a);
-    }
-    return -(a * Math.pow(2, 10 * (t -= 1)) * Math.sin((t - s) * (2 * Math.PI) / p));
-  },
-  easeOutElastic: function easeOutElastic(t) {
-    var s = 1.70158;
-    var p = 0;
-    var a = 1;
-    if (t === 0) {
-      return 0;
-    }
-    if (t === 1) {
-      return 1;
-    }
-    if (!p) {
-      p = 0.3;
-    }
-    {
-      s = p / (2 * Math.PI) * Math.asin(1 / a);
-    }
-    return a * Math.pow(2, -10 * t) * Math.sin((t - s) * (2 * Math.PI) / p) + 1;
-  },
-  easeInOutElastic: function easeInOutElastic(t) {
-    var s = 1.70158;
-    var p = 0;
-    var a = 1;
-    if (t === 0) {
-      return 0;
-    }
-    if ((t /= 0.5) === 2) {
-      return 1;
-    }
-    if (!p) {
-      p = 0.45;
-    }
-    {
-      s = p / (2 * Math.PI) * Math.asin(1 / a);
-    }
-    if (t < 1) {
-      return -0.5 * (a * Math.pow(2, 10 * (t -= 1)) * Math.sin((t - s) * (2 * Math.PI) / p));
-    }
-    return a * Math.pow(2, -10 * (t -= 1)) * Math.sin((t - s) * (2 * Math.PI) / p) * 0.5 + 1;
-  },
-  easeInBack: function easeInBack(t) {
-    var s = 1.70158;
-    return t * t * ((s + 1) * t - s);
-  },
-  easeOutBack: function easeOutBack(t) {
-    var s = 1.70158;
-    return (t -= 1) * t * ((s + 1) * t + s) + 1;
-  },
-  easeInOutBack: function easeInOutBack(t) {
-    var s = 1.70158;
-    if ((t /= 0.5) < 1) {
-      return 0.5 * (t * t * (((s *= 1.525) + 1) * t - s));
-    }
-    return 0.5 * ((t -= 2) * t * (((s *= 1.525) + 1) * t + s) + 2);
-  },
-  easeInBounce: function easeInBounce(t) {
-    return 1 - effects.easeOutBounce(1 - t);
-  },
-  easeOutBounce: function easeOutBounce(t) {
-    if (t < 1 / 2.75) {
-      return 7.5625 * t * t;
-    }
-    if (t < 2 / 2.75) {
-      return 7.5625 * (t -= 1.5 / 2.75) * t + 0.75;
-    }
-    if (t < 2.5 / 2.75) {
-      return 7.5625 * (t -= 2.25 / 2.75) * t + 0.9375;
-    }
-    return 7.5625 * (t -= 2.625 / 2.75) * t + 0.984375;
-  },
-  easeInOutBounce: function easeInOutBounce(t) {
-    if (t < 0.5) {
-      return effects.easeInBounce(t * 2) * 0.5;
-    }
-    return effects.easeOutBounce(t * 2 - 1) * 0.5 + 0.5;
-  }
-};
-
-/*!
- * @kurkle/color v0.1.9
- * https://github.com/kurkle/color#readme
- * (c) 2020 Jukka Kurkela
- * Released under the MIT License
- */
-var map = {
-  0: 0,
-  1: 1,
-  2: 2,
-  3: 3,
-  4: 4,
-  5: 5,
-  6: 6,
-  7: 7,
-  8: 8,
-  9: 9,
-  A: 10,
-  B: 11,
-  C: 12,
-  D: 13,
-  E: 14,
-  F: 15,
-  a: 10,
-  b: 11,
-  c: 12,
-  d: 13,
-  e: 14,
-  f: 15
-};
-var hex = '0123456789ABCDEF';
-var h1 = function h1(b) {
-  return hex[b & 0xF];
-};
-var h2 = function h2(b) {
-  return hex[(b & 0xF0) >> 4] + hex[b & 0xF];
-};
-var eq = function eq(b) {
-  return (b & 0xF0) >> 4 === (b & 0xF);
-};
-function isShort(v) {
-  return eq(v.r) && eq(v.g) && eq(v.b) && eq(v.a);
-}
-function hexParse(str) {
-  var len = str.length;
-  var ret;
-  if (str[0] === '#') {
-    if (len === 4 || len === 5) {
-      ret = {
-        r: 255 & map[str[1]] * 17,
-        g: 255 & map[str[2]] * 17,
-        b: 255 & map[str[3]] * 17,
-        a: len === 5 ? map[str[4]] * 17 : 255
-      };
-    } else if (len === 7 || len === 9) {
-      ret = {
-        r: map[str[1]] << 4 | map[str[2]],
-        g: map[str[3]] << 4 | map[str[4]],
-        b: map[str[5]] << 4 | map[str[6]],
-        a: len === 9 ? map[str[7]] << 4 | map[str[8]] : 255
-      };
-    }
-  }
-  return ret;
-}
-function _hexString(v) {
-  var f = isShort(v) ? h1 : h2;
-  return v ? '#' + f(v.r) + f(v.g) + f(v.b) + (v.a < 255 ? f(v.a) : '') : v;
-}
-function round(v) {
-  return v + 0.5 | 0;
-}
-var lim = function lim(v, l, h) {
-  return Math.max(Math.min(v, h), l);
-};
-function p2b(v) {
-  return lim(round(v * 2.55), 0, 255);
-}
-function n2b(v) {
-  return lim(round(v * 255), 0, 255);
-}
-function b2n(v) {
-  return lim(round(v / 2.55) / 100, 0, 1);
-}
-function n2p(v) {
-  return lim(round(v * 100), 0, 100);
-}
-var RGB_RE = /^rgba?\(\s*([-+.\d]+)(%)?[\s,]+([-+.e\d]+)(%)?[\s,]+([-+.e\d]+)(%)?(?:[\s,/]+([-+.e\d]+)(%)?)?\s*\)$/;
-function rgbParse(str) {
-  var m = RGB_RE.exec(str);
-  var a = 255;
-  var r, g, b;
-  if (!m) {
-    return;
-  }
-  if (m[7] !== r) {
-    var v = +m[7];
-    a = 255 & (m[8] ? p2b(v) : v * 255);
-  }
-  r = +m[1];
-  g = +m[3];
-  b = +m[5];
-  r = 255 & (m[2] ? p2b(r) : r);
-  g = 255 & (m[4] ? p2b(g) : g);
-  b = 255 & (m[6] ? p2b(b) : b);
-  return {
-    r: r,
-    g: g,
-    b: b,
-    a: a
-  };
-}
-function _rgbString(v) {
-  return v && (v.a < 255 ? "rgba(" + v.r + ", " + v.g + ", " + v.b + ", " + b2n(v.a) + ")" : "rgb(" + v.r + ", " + v.g + ", " + v.b + ")");
-}
-var HUE_RE = /^(hsla?|hwb|hsv)\(\s*([-+.e\d]+)(?:deg)?[\s,]+([-+.e\d]+)%[\s,]+([-+.e\d]+)%(?:[\s,]+([-+.e\d]+)(%)?)?\s*\)$/;
-function hsl2rgbn(h, s, l) {
-  var a = s * Math.min(l, 1 - l);
-  var f = function f(n, k) {
-    if (k === void 0) {
-      k = (n + h / 30) % 12;
-    }
-    return l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
-  };
-  return [f(0), f(8), f(4)];
-}
-function hsv2rgbn(h, s, v) {
-  var f = function f(n, k) {
-    if (k === void 0) {
-      k = (n + h / 60) % 6;
-    }
-    return v - v * s * Math.max(Math.min(k, 4 - k, 1), 0);
-  };
-  return [f(5), f(3), f(1)];
-}
-function hwb2rgbn(h, w, b) {
-  var rgb = hsl2rgbn(h, 1, 0.5);
-  var i;
-  if (w + b > 1) {
-    i = 1 / (w + b);
-    w *= i;
-    b *= i;
-  }
-  for (i = 0; i < 3; i++) {
-    rgb[i] *= 1 - w - b;
-    rgb[i] += w;
-  }
-  return rgb;
-}
-function rgb2hsl(v) {
-  var range = 255;
-  var r = v.r / range;
-  var g = v.g / range;
-  var b = v.b / range;
-  var max = Math.max(r, g, b);
-  var min = Math.min(r, g, b);
-  var l = (max + min) / 2;
-  var h, s, d;
-  if (max !== min) {
-    d = max - min;
-    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-    h = max === r ? (g - b) / d + (g < b ? 6 : 0) : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
-    h = h * 60 + 0.5;
-  }
-  return [h | 0, s || 0, l];
-}
-function calln(f, a, b, c) {
-  return (Array.isArray(a) ? f(a[0], a[1], a[2]) : f(a, b, c)).map(n2b);
-}
-function hsl2rgb(h, s, l) {
-  return calln(hsl2rgbn, h, s, l);
-}
-function hwb2rgb(h, w, b) {
-  return calln(hwb2rgbn, h, w, b);
-}
-function hsv2rgb(h, s, v) {
-  return calln(hsv2rgbn, h, s, v);
-}
-function hue(h) {
-  return (h % 360 + 360) % 360;
-}
-function hueParse(str) {
-  var m = HUE_RE.exec(str);
-  var a = 255;
-  var v;
-  if (!m) {
-    return;
-  }
-  if (m[5] !== v) {
-    a = m[6] ? p2b(+m[5]) : n2b(+m[5]);
-  }
-  var h = hue(+m[2]);
-  var p1 = +m[3] / 100;
-  var p2 = +m[4] / 100;
-  if (m[1] === 'hwb') {
-    v = hwb2rgb(h, p1, p2);
-  } else if (m[1] === 'hsv') {
-    v = hsv2rgb(h, p1, p2);
-  } else {
-    v = hsl2rgb(h, p1, p2);
-  }
-  return {
-    r: v[0],
-    g: v[1],
-    b: v[2],
-    a: a
-  };
-}
-function _rotate(v, deg) {
-  var h = rgb2hsl(v);
-  h[0] = hue(h[0] + deg);
-  h = hsl2rgb(h);
-  v.r = h[0];
-  v.g = h[1];
-  v.b = h[2];
-}
-function _hslString(v) {
-  if (!v) {
-    return;
-  }
-  var a = rgb2hsl(v);
-  var h = a[0];
-  var s = n2p(a[1]);
-  var l = n2p(a[2]);
-  return v.a < 255 ? "hsla(" + h + ", " + s + "%, " + l + "%, " + b2n(v.a) + ")" : "hsl(" + h + ", " + s + "%, " + l + "%)";
-}
-var map$1 = {
-  x: 'dark',
-  Z: 'light',
-  Y: 're',
-  X: 'blu',
-  W: 'gr',
-  V: 'medium',
-  U: 'slate',
-  A: 'ee',
-  T: 'ol',
-  S: 'or',
-  B: 'ra',
-  C: 'lateg',
-  D: 'ights',
-  R: 'in',
-  Q: 'turquois',
-  E: 'hi',
-  P: 'ro',
-  O: 'al',
-  N: 'le',
-  M: 'de',
-  L: 'yello',
-  F: 'en',
-  K: 'ch',
-  G: 'arks',
-  H: 'ea',
-  I: 'ightg',
-  J: 'wh'
-};
-var names = {
-  OiceXe: 'f0f8ff',
-  antiquewEte: 'faebd7',
-  aqua: 'ffff',
-  aquamarRe: '7fffd4',
-  azuY: 'f0ffff',
-  beige: 'f5f5dc',
-  bisque: 'ffe4c4',
-  black: '0',
-  blanKedOmond: 'ffebcd',
-  Xe: 'ff',
-  XeviTet: '8a2be2',
-  bPwn: 'a52a2a',
-  burlywood: 'deb887',
-  caMtXe: '5f9ea0',
-  KartYuse: '7fff00',
-  KocTate: 'd2691e',
-  cSO: 'ff7f50',
-  cSnflowerXe: '6495ed',
-  cSnsilk: 'fff8dc',
-  crimson: 'dc143c',
-  cyan: 'ffff',
-  xXe: '8b',
-  xcyan: '8b8b',
-  xgTMnPd: 'b8860b',
-  xWay: 'a9a9a9',
-  xgYF: '6400',
-  xgYy: 'a9a9a9',
-  xkhaki: 'bdb76b',
-  xmagFta: '8b008b',
-  xTivegYF: '556b2f',
-  xSange: 'ff8c00',
-  xScEd: '9932cc',
-  xYd: '8b0000',
-  xsOmon: 'e9967a',
-  xsHgYF: '8fbc8f',
-  xUXe: '483d8b',
-  xUWay: '2f4f4f',
-  xUgYy: '2f4f4f',
-  xQe: 'ced1',
-  xviTet: '9400d3',
-  dAppRk: 'ff1493',
-  dApskyXe: 'bfff',
-  dimWay: '696969',
-  dimgYy: '696969',
-  dodgerXe: '1e90ff',
-  fiYbrick: 'b22222',
-  flSOwEte: 'fffaf0',
-  foYstWAn: '228b22',
-  fuKsia: 'ff00ff',
-  gaRsbSo: 'dcdcdc',
-  ghostwEte: 'f8f8ff',
-  gTd: 'ffd700',
-  gTMnPd: 'daa520',
-  Way: '808080',
-  gYF: '8000',
-  gYFLw: 'adff2f',
-  gYy: '808080',
-  honeyMw: 'f0fff0',
-  hotpRk: 'ff69b4',
-  RdianYd: 'cd5c5c',
-  Rdigo: '4b0082',
-  ivSy: 'fffff0',
-  khaki: 'f0e68c',
-  lavFMr: 'e6e6fa',
-  lavFMrXsh: 'fff0f5',
-  lawngYF: '7cfc00',
-  NmoncEffon: 'fffacd',
-  ZXe: 'add8e6',
-  ZcSO: 'f08080',
-  Zcyan: 'e0ffff',
-  ZgTMnPdLw: 'fafad2',
-  ZWay: 'd3d3d3',
-  ZgYF: '90ee90',
-  ZgYy: 'd3d3d3',
-  ZpRk: 'ffb6c1',
-  ZsOmon: 'ffa07a',
-  ZsHgYF: '20b2aa',
-  ZskyXe: '87cefa',
-  ZUWay: '778899',
-  ZUgYy: '778899',
-  ZstAlXe: 'b0c4de',
-  ZLw: 'ffffe0',
-  lime: 'ff00',
-  limegYF: '32cd32',
-  lRF: 'faf0e6',
-  magFta: 'ff00ff',
-  maPon: '800000',
-  VaquamarRe: '66cdaa',
-  VXe: 'cd',
-  VScEd: 'ba55d3',
-  VpurpN: '9370db',
-  VsHgYF: '3cb371',
-  VUXe: '7b68ee',
-  VsprRggYF: 'fa9a',
-  VQe: '48d1cc',
-  VviTetYd: 'c71585',
-  midnightXe: '191970',
-  mRtcYam: 'f5fffa',
-  mistyPse: 'ffe4e1',
-  moccasR: 'ffe4b5',
-  navajowEte: 'ffdead',
-  navy: '80',
-  Tdlace: 'fdf5e6',
-  Tive: '808000',
-  TivedBb: '6b8e23',
-  Sange: 'ffa500',
-  SangeYd: 'ff4500',
-  ScEd: 'da70d6',
-  pOegTMnPd: 'eee8aa',
-  pOegYF: '98fb98',
-  pOeQe: 'afeeee',
-  pOeviTetYd: 'db7093',
-  papayawEp: 'ffefd5',
-  pHKpuff: 'ffdab9',
-  peru: 'cd853f',
-  pRk: 'ffc0cb',
-  plum: 'dda0dd',
-  powMrXe: 'b0e0e6',
-  purpN: '800080',
-  YbeccapurpN: '663399',
-  Yd: 'ff0000',
-  Psybrown: 'bc8f8f',
-  PyOXe: '4169e1',
-  saddNbPwn: '8b4513',
-  sOmon: 'fa8072',
-  sandybPwn: 'f4a460',
-  sHgYF: '2e8b57',
-  sHshell: 'fff5ee',
-  siFna: 'a0522d',
-  silver: 'c0c0c0',
-  skyXe: '87ceeb',
-  UXe: '6a5acd',
-  UWay: '708090',
-  UgYy: '708090',
-  snow: 'fffafa',
-  sprRggYF: 'ff7f',
-  stAlXe: '4682b4',
-  tan: 'd2b48c',
-  teO: '8080',
-  tEstN: 'd8bfd8',
-  tomato: 'ff6347',
-  Qe: '40e0d0',
-  viTet: 'ee82ee',
-  JHt: 'f5deb3',
-  wEte: 'ffffff',
-  wEtesmoke: 'f5f5f5',
-  Lw: 'ffff00',
-  LwgYF: '9acd32'
-};
-function unpack() {
-  var unpacked = {};
-  var keys = Object.keys(names);
-  var tkeys = Object.keys(map$1);
-  var i, j, k, ok, nk;
-  for (i = 0; i < keys.length; i++) {
-    ok = nk = keys[i];
-    for (j = 0; j < tkeys.length; j++) {
-      k = tkeys[j];
-      nk = nk.replace(k, map$1[k]);
-    }
-    k = parseInt(names[ok], 16);
-    unpacked[nk] = [k >> 16 & 0xFF, k >> 8 & 0xFF, k & 0xFF];
-  }
-  return unpacked;
-}
-var names$1;
-function nameParse(str) {
-  if (!names$1) {
-    names$1 = unpack();
-    names$1.transparent = [0, 0, 0, 0];
-  }
-  var a = names$1[str.toLowerCase()];
-  return a && {
-    r: a[0],
-    g: a[1],
-    b: a[2],
-    a: a.length === 4 ? a[3] : 255
-  };
-}
-function modHSL(v, i, ratio) {
-  if (v) {
-    var tmp = rgb2hsl(v);
-    tmp[i] = Math.max(0, Math.min(tmp[i] + tmp[i] * ratio, i === 0 ? 360 : 1));
-    tmp = hsl2rgb(tmp);
-    v.r = tmp[0];
-    v.g = tmp[1];
-    v.b = tmp[2];
-  }
-}
-function clone$1(v, proto) {
-  return v ? _extends(proto || {}, v) : v;
-}
-function fromObject(input) {
-  var v = {
-    r: 0,
-    g: 0,
-    b: 0,
-    a: 255
-  };
-  if (Array.isArray(input)) {
-    if (input.length >= 3) {
-      v = {
-        r: input[0],
-        g: input[1],
-        b: input[2],
-        a: 255
-      };
-      if (input.length > 3) {
-        v.a = n2b(input[3]);
-      }
-    }
-  } else {
-    v = clone$1(input, {
-      r: 0,
-      g: 0,
-      b: 0,
-      a: 1
-    });
-    v.a = n2b(v.a);
-  }
-  return v;
-}
-function functionParse(str) {
-  if (str.charAt(0) === 'r') {
-    return rgbParse(str);
-  }
-  return hueParse(str);
-}
-var Color = function () {
-  function Color(input) {
-    if (input instanceof Color) {
-      return input;
-    }
-    var type = typeof input;
-    var v;
-    if (type === 'object') {
-      v = fromObject(input);
-    } else if (type === 'string') {
-      v = hexParse(input) || nameParse(input) || functionParse(input);
-    }
-    this._rgb = v;
-    this._valid = !!v;
-  }
-  var _proto = Color.prototype;
-  _proto.rgbString = function rgbString() {
-    return this._valid ? _rgbString(this._rgb) : this._rgb;
-  };
-  _proto.hexString = function hexString() {
-    return this._valid ? _hexString(this._rgb) : this._rgb;
-  };
-  _proto.hslString = function hslString() {
-    return this._valid ? _hslString(this._rgb) : this._rgb;
-  };
-  _proto.mix = function mix(color, weight) {
-    var me = this;
-    if (color) {
-      var c1 = me.rgb;
-      var c2 = color.rgb;
-      var w2;
-      var p = weight === w2 ? 0.5 : weight;
-      var w = 2 * p - 1;
-      var a = c1.a - c2.a;
-      var w1 = ((w * a === -1 ? w : (w + a) / (1 + w * a)) + 1) / 2.0;
-      w2 = 1 - w1;
-      c1.r = 0xFF & w1 * c1.r + w2 * c2.r + 0.5;
-      c1.g = 0xFF & w1 * c1.g + w2 * c2.g + 0.5;
-      c1.b = 0xFF & w1 * c1.b + w2 * c2.b + 0.5;
-      c1.a = p * c1.a + (1 - p) * c2.a;
-      me.rgb = c1;
-    }
-    return me;
-  };
-  _proto.clone = function clone() {
-    return new Color(this.rgb);
-  };
-  _proto.alpha = function alpha(a) {
-    this._rgb.a = n2b(a);
-    return this;
-  };
-  _proto.clearer = function clearer(ratio) {
-    var rgb = this._rgb;
-    rgb.a *= 1 - ratio;
-    return this;
-  };
-  _proto.greyscale = function greyscale() {
-    var rgb = this._rgb;
-    var val = round(rgb.r * 0.3 + rgb.g * 0.59 + rgb.b * 0.11);
-    rgb.r = rgb.g = rgb.b = val;
-    return this;
-  };
-  _proto.opaquer = function opaquer(ratio) {
-    var rgb = this._rgb;
-    rgb.a *= 1 + ratio;
-    return this;
-  };
-  _proto.negate = function negate() {
-    var v = this._rgb;
-    v.r = 255 - v.r;
-    v.g = 255 - v.g;
-    v.b = 255 - v.b;
-    return this;
-  };
-  _proto.lighten = function lighten(ratio) {
-    modHSL(this._rgb, 2, ratio);
-    return this;
-  };
-  _proto.darken = function darken(ratio) {
-    modHSL(this._rgb, 2, -ratio);
-    return this;
-  };
-  _proto.saturate = function saturate(ratio) {
-    modHSL(this._rgb, 1, ratio);
-    return this;
-  };
-  _proto.desaturate = function desaturate(ratio) {
-    modHSL(this._rgb, 1, -ratio);
-    return this;
-  };
-  _proto.rotate = function rotate(deg) {
-    _rotate(this._rgb, deg);
-    return this;
-  };
-  _createClass(Color, [{
-    key: "valid",
-    get: function get() {
-      return this._valid;
-    }
-  }, {
-    key: "rgb",
-    get: function get() {
-      var v = clone$1(this._rgb);
-      if (v) {
-        v.a = b2n(v.a);
-      }
-      return v;
-    },
-    set: function set(obj) {
-      this._rgb = fromObject(obj);
-    }
-  }]);
-  return Color;
-}();
-function index_esm(input) {
-  return new Color(input);
-}
-
-var isPatternOrGradient = function isPatternOrGradient(value) {
-  return value instanceof CanvasGradient || value instanceof CanvasPattern;
-};
-function color(value) {
-  return isPatternOrGradient(value) ? value : index_esm(value);
-}
-function getHoverColor(value) {
-  return isPatternOrGradient(value) ? value : index_esm(value).saturate(0.5).darken(0.1).hexString();
-}
-
 var transparent = 'transparent';
 var interpolators = {
   "boolean": function boolean(from, to, factor) {
@@ -3627,119 +4270,6 @@ function resolveTargetOptions(target, newOptions) {
     });
   }
   return options;
-}
-
-var PI$1 = Math.PI;
-var TAU = 2 * PI$1;
-var PITAU = TAU + PI$1;
-function _factorize(value) {
-  var result = [];
-  var sqrt = Math.sqrt(value);
-  var i;
-  for (i = 1; i < sqrt; i++) {
-    if (value % i === 0) {
-      result.push(i);
-      result.push(value / i);
-    }
-  }
-  if (sqrt === (sqrt | 0)) {
-    result.push(sqrt);
-  }
-  result.sort(function (a, b) {
-    return a - b;
-  }).pop();
-  return result;
-}
-var log10 = Math.log10 || function (x) {
-  var exponent = Math.log(x) * Math.LOG10E;
-  var powerOf10 = Math.round(exponent);
-  var isPowerOf10 = x === Math.pow(10, powerOf10);
-  return isPowerOf10 ? powerOf10 : exponent;
-};
-function isNumber(n) {
-  return !isNaN(parseFloat(n)) && isFinite(n);
-}
-function almostEquals(x, y, epsilon) {
-  return Math.abs(x - y) < epsilon;
-}
-function almostWhole(x, epsilon) {
-  var rounded = Math.round(x);
-  return rounded - epsilon <= x && rounded + epsilon >= x;
-}
-function _setMinAndMaxByKey(array, target, property) {
-  var i, ilen, value;
-  for (i = 0, ilen = array.length; i < ilen; i++) {
-    value = array[i][property];
-    if (!isNaN(value)) {
-      target.min = Math.min(target.min, value);
-      target.max = Math.max(target.max, value);
-    }
-  }
-}
-var sign = Math.sign ? function (x) {
-  return Math.sign(x);
-} : function (x) {
-  x = +x;
-  if (x === 0 || isNaN(x)) {
-    return x;
-  }
-  return x > 0 ? 1 : -1;
-};
-function toRadians(degrees) {
-  return degrees * (PI$1 / 180);
-}
-function toDegrees(radians) {
-  return radians * (180 / PI$1);
-}
-function _decimalPlaces(x) {
-  if (!isNumberFinite(x)) {
-    return;
-  }
-  var e = 1;
-  var p = 0;
-  while (Math.round(x * e) / e !== x) {
-    e *= 10;
-    p++;
-  }
-  return p;
-}
-function getAngleFromPoint(centrePoint, anglePoint) {
-  var distanceFromXCenter = anglePoint.x - centrePoint.x;
-  var distanceFromYCenter = anglePoint.y - centrePoint.y;
-  var radialDistanceFromCenter = Math.sqrt(distanceFromXCenter * distanceFromXCenter + distanceFromYCenter * distanceFromYCenter);
-  var angle = Math.atan2(distanceFromYCenter, distanceFromXCenter);
-  if (angle < -0.5 * PI$1) {
-    angle += TAU;
-  }
-  return {
-    angle: angle,
-    distance: radialDistanceFromCenter
-  };
-}
-function distanceBetweenPoints(pt1, pt2) {
-  return Math.sqrt(Math.pow(pt2.x - pt1.x, 2) + Math.pow(pt2.y - pt1.y, 2));
-}
-function _angleDiff(a, b) {
-  return (a - b + PITAU) % TAU - PI$1;
-}
-function _normalizeAngle(a) {
-  return (a % TAU + TAU) % TAU;
-}
-function _angleBetween(angle, start, end) {
-  var a = _normalizeAngle(angle);
-  var s = _normalizeAngle(start);
-  var e = _normalizeAngle(end);
-  var angleToStart = _normalizeAngle(s - a);
-  var angleToEnd = _normalizeAngle(e - a);
-  var startToAngle = _normalizeAngle(a - s);
-  var endToAngle = _normalizeAngle(a - e);
-  return a === s || a === e || angleToStart > angleToEnd && startToAngle < endToAngle;
-}
-function _limitValue(value, min, max) {
-  return Math.max(min, Math.min(max, value));
-}
-function _int16Range(value) {
-  return _limitValue(value, -32768, 32767);
 }
 
 function scaleClip(scale, allowedOverflow) {
@@ -5664,7 +6194,7 @@ var Scale = function (_Element) {
           scaleLabelY = me.top + me.height / 2;
           textAlign = 'center';
       }
-      rotation = isLeft ? -0.5 * Math.PI : 0.5 * Math.PI;
+      rotation = isLeft ? -HALF_PI : HALF_PI;
     }
     ctx.save();
     ctx.translate(scaleLabelX, scaleLabelY);
@@ -6909,530 +7439,6 @@ Chart.unregister = function () {
   invalidatePlugins();
 };
 
-var EPSILON = Number.EPSILON || 1e-14;
-function splineCurve(firstPoint, middlePoint, afterPoint, t) {
-  var previous = firstPoint.skip ? middlePoint : firstPoint;
-  var current = middlePoint;
-  var next = afterPoint.skip ? middlePoint : afterPoint;
-  var d01 = Math.sqrt(Math.pow(current.x - previous.x, 2) + Math.pow(current.y - previous.y, 2));
-  var d12 = Math.sqrt(Math.pow(next.x - current.x, 2) + Math.pow(next.y - current.y, 2));
-  var s01 = d01 / (d01 + d12);
-  var s12 = d12 / (d01 + d12);
-  s01 = isNaN(s01) ? 0 : s01;
-  s12 = isNaN(s12) ? 0 : s12;
-  var fa = t * s01;
-  var fb = t * s12;
-  return {
-    previous: {
-      x: current.x - fa * (next.x - previous.x),
-      y: current.y - fa * (next.y - previous.y)
-    },
-    next: {
-      x: current.x + fb * (next.x - previous.x),
-      y: current.y + fb * (next.y - previous.y)
-    }
-  };
-}
-function splineCurveMonotone(points) {
-  var pointsWithTangents = (points || []).map(function (point) {
-    return {
-      model: point,
-      deltaK: 0,
-      mK: 0
-    };
-  });
-  var pointsLen = pointsWithTangents.length;
-  var i, pointBefore, pointCurrent, pointAfter;
-  for (i = 0; i < pointsLen; ++i) {
-    pointCurrent = pointsWithTangents[i];
-    if (pointCurrent.model.skip) {
-      continue;
-    }
-    pointBefore = i > 0 ? pointsWithTangents[i - 1] : null;
-    pointAfter = i < pointsLen - 1 ? pointsWithTangents[i + 1] : null;
-    if (pointAfter && !pointAfter.model.skip) {
-      var slopeDeltaX = pointAfter.model.x - pointCurrent.model.x;
-      pointCurrent.deltaK = slopeDeltaX !== 0 ? (pointAfter.model.y - pointCurrent.model.y) / slopeDeltaX : 0;
-    }
-    if (!pointBefore || pointBefore.model.skip) {
-      pointCurrent.mK = pointCurrent.deltaK;
-    } else if (!pointAfter || pointAfter.model.skip) {
-      pointCurrent.mK = pointBefore.deltaK;
-    } else if (sign(pointBefore.deltaK) !== sign(pointCurrent.deltaK)) {
-      pointCurrent.mK = 0;
-    } else {
-      pointCurrent.mK = (pointBefore.deltaK + pointCurrent.deltaK) / 2;
-    }
-  }
-  var alphaK, betaK, tauK, squaredMagnitude;
-  for (i = 0; i < pointsLen - 1; ++i) {
-    pointCurrent = pointsWithTangents[i];
-    pointAfter = pointsWithTangents[i + 1];
-    if (pointCurrent.model.skip || pointAfter.model.skip) {
-      continue;
-    }
-    if (almostEquals(pointCurrent.deltaK, 0, EPSILON)) {
-      pointCurrent.mK = pointAfter.mK = 0;
-      continue;
-    }
-    alphaK = pointCurrent.mK / pointCurrent.deltaK;
-    betaK = pointAfter.mK / pointCurrent.deltaK;
-    squaredMagnitude = Math.pow(alphaK, 2) + Math.pow(betaK, 2);
-    if (squaredMagnitude <= 9) {
-      continue;
-    }
-    tauK = 3 / Math.sqrt(squaredMagnitude);
-    pointCurrent.mK = alphaK * tauK * pointCurrent.deltaK;
-    pointAfter.mK = betaK * tauK * pointCurrent.deltaK;
-  }
-  var deltaX;
-  for (i = 0; i < pointsLen; ++i) {
-    pointCurrent = pointsWithTangents[i];
-    if (pointCurrent.model.skip) {
-      continue;
-    }
-    pointBefore = i > 0 ? pointsWithTangents[i - 1] : null;
-    pointAfter = i < pointsLen - 1 ? pointsWithTangents[i + 1] : null;
-    if (pointBefore && !pointBefore.model.skip) {
-      deltaX = (pointCurrent.model.x - pointBefore.model.x) / 3;
-      pointCurrent.model.controlPointPreviousX = pointCurrent.model.x - deltaX;
-      pointCurrent.model.controlPointPreviousY = pointCurrent.model.y - deltaX * pointCurrent.mK;
-    }
-    if (pointAfter && !pointAfter.model.skip) {
-      deltaX = (pointAfter.model.x - pointCurrent.model.x) / 3;
-      pointCurrent.model.controlPointNextX = pointCurrent.model.x + deltaX;
-      pointCurrent.model.controlPointNextY = pointCurrent.model.y + deltaX * pointCurrent.mK;
-    }
-  }
-}
-function capControlPoint(pt, min, max) {
-  return Math.max(Math.min(pt, max), min);
-}
-function capBezierPoints(points, area) {
-  var i, ilen, point;
-  for (i = 0, ilen = points.length; i < ilen; ++i) {
-    point = points[i];
-    if (!_isPointInArea(point, area)) {
-      continue;
-    }
-    if (i > 0 && _isPointInArea(points[i - 1], area)) {
-      point.controlPointPreviousX = capControlPoint(point.controlPointPreviousX, area.left, area.right);
-      point.controlPointPreviousY = capControlPoint(point.controlPointPreviousY, area.top, area.bottom);
-    }
-    if (i < points.length - 1 && _isPointInArea(points[i + 1], area)) {
-      point.controlPointNextX = capControlPoint(point.controlPointNextX, area.left, area.right);
-      point.controlPointNextY = capControlPoint(point.controlPointNextY, area.top, area.bottom);
-    }
-  }
-}
-function _updateBezierControlPoints(points, options, area, loop) {
-  var i, ilen, point, controlPoints;
-  if (options.spanGaps) {
-    points = points.filter(function (pt) {
-      return !pt.skip;
-    });
-  }
-  if (options.cubicInterpolationMode === 'monotone') {
-    splineCurveMonotone(points);
-  } else {
-    var prev = loop ? points[points.length - 1] : points[0];
-    for (i = 0, ilen = points.length; i < ilen; ++i) {
-      point = points[i];
-      controlPoints = splineCurve(prev, point, points[Math.min(i + 1, ilen - (loop ? 0 : 1)) % ilen], options.tension);
-      point.controlPointPreviousX = controlPoints.previous.x;
-      point.controlPointPreviousY = controlPoints.previous.y;
-      point.controlPointNextX = controlPoints.next.x;
-      point.controlPointNextY = controlPoints.next.y;
-      prev = point;
-    }
-  }
-  if (options.capBezierPoints) {
-    capBezierPoints(points, area);
-  }
-}
-
-function _pointInLine(p1, p2, t, mode) {
-  return {
-    x: p1.x + t * (p2.x - p1.x),
-    y: p1.y + t * (p2.y - p1.y)
-  };
-}
-function _steppedInterpolation(p1, p2, t, mode) {
-  return {
-    x: p1.x + t * (p2.x - p1.x),
-    y: mode === 'middle' ? t < 0.5 ? p1.y : p2.y : mode === 'after' ? t < 1 ? p1.y : p2.y : t > 0 ? p2.y : p1.y
-  };
-}
-function _bezierInterpolation(p1, p2, t, mode) {
-  var cp1 = {
-    x: p1.controlPointNextX,
-    y: p1.controlPointNextY
-  };
-  var cp2 = {
-    x: p2.controlPointPreviousX,
-    y: p2.controlPointPreviousY
-  };
-  var a = _pointInLine(p1, cp1, t);
-  var b = _pointInLine(cp1, cp2, t);
-  var c = _pointInLine(cp2, p2, t);
-  var d = _pointInLine(a, b, t);
-  var e = _pointInLine(b, c, t);
-  return _pointInLine(d, e, t);
-}
-
-var getRightToLeftAdapter = function getRightToLeftAdapter(rectX, width) {
-  return {
-    x: function x(_x) {
-      return rectX + rectX + width - _x;
-    },
-    setWidth: function setWidth(w) {
-      width = w;
-    },
-    textAlign: function textAlign(align) {
-      if (align === 'center') {
-        return align;
-      }
-      return align === 'right' ? 'left' : 'right';
-    },
-    xPlus: function xPlus(x, value) {
-      return x - value;
-    },
-    leftForLtr: function leftForLtr(x, itemWidth) {
-      return x - itemWidth;
-    }
-  };
-};
-var getLeftToRightAdapter = function getLeftToRightAdapter() {
-  return {
-    x: function x(_x2) {
-      return _x2;
-    },
-    setWidth: function setWidth(w) {
-    },
-    textAlign: function textAlign(align) {
-      return align;
-    },
-    xPlus: function xPlus(x, value) {
-      return x + value;
-    },
-    leftForLtr: function leftForLtr(x, _itemWidth) {
-      return x;
-    }
-  };
-};
-function getRtlAdapter(rtl, rectX, width) {
-  return rtl ? getRightToLeftAdapter(rectX, width) : getLeftToRightAdapter();
-}
-function overrideTextDirection(ctx, direction) {
-  var style, original;
-  if (direction === 'ltr' || direction === 'rtl') {
-    style = ctx.canvas.style;
-    original = [style.getPropertyValue('direction'), style.getPropertyPriority('direction')];
-    style.setProperty('direction', direction, 'important');
-    ctx.prevTextDirection = original;
-  }
-}
-function restoreTextDirection(ctx, original) {
-  if (original !== undefined) {
-    delete ctx.prevTextDirection;
-    ctx.canvas.style.setProperty('direction', original[0], original[1]);
-  }
-}
-
-function propertyFn(property) {
-  if (property === 'angle') {
-    return {
-      between: _angleBetween,
-      compare: _angleDiff,
-      normalize: _normalizeAngle
-    };
-  }
-  return {
-    between: function between(n, s, e) {
-      return n >= s && n <= e;
-    },
-    compare: function compare(a, b) {
-      return a - b;
-    },
-    normalize: function normalize(x) {
-      return x;
-    }
-  };
-}
-function makeSubSegment(start, end, loop, count) {
-  return {
-    start: start % count,
-    end: end % count,
-    loop: loop && (end - start + 1) % count === 0
-  };
-}
-function getSegment(segment, points, bounds) {
-  var property = bounds.property,
-      startBound = bounds.start,
-      endBound = bounds.end;
-  var _propertyFn = propertyFn(property),
-      between = _propertyFn.between,
-      normalize = _propertyFn.normalize;
-  var count = points.length;
-  var start = segment.start,
-      end = segment.end,
-      loop = segment.loop;
-  var i, ilen;
-  if (loop) {
-    start += count;
-    end += count;
-    for (i = 0, ilen = count; i < ilen; ++i) {
-      if (!between(normalize(points[start % count][property]), startBound, endBound)) {
-        break;
-      }
-      start--;
-      end--;
-    }
-    start %= count;
-    end %= count;
-  }
-  if (end < start) {
-    end += count;
-  }
-  return {
-    start: start,
-    end: end,
-    loop: loop
-  };
-}
-function _boundSegment(segment, points, bounds) {
-  if (!bounds) {
-    return [segment];
-  }
-  var property = bounds.property,
-      startBound = bounds.start,
-      endBound = bounds.end;
-  var count = points.length;
-  var _propertyFn2 = propertyFn(property),
-      compare = _propertyFn2.compare,
-      between = _propertyFn2.between,
-      normalize = _propertyFn2.normalize;
-  var _getSegment = getSegment(segment, points, bounds),
-      start = _getSegment.start,
-      end = _getSegment.end,
-      loop = _getSegment.loop;
-  var result = [];
-  var inside = false;
-  var subStart = null;
-  var value, point, prevValue;
-  var startIsBefore = function startIsBefore() {
-    return between(startBound, prevValue, value) && compare(startBound, prevValue) !== 0;
-  };
-  var endIsBefore = function endIsBefore() {
-    return compare(endBound, value) === 0 || between(endBound, prevValue, value);
-  };
-  var shouldStart = function shouldStart() {
-    return inside || startIsBefore();
-  };
-  var shouldStop = function shouldStop() {
-    return !inside || endIsBefore();
-  };
-  for (var i = start, prev = start; i <= end; ++i) {
-    point = points[i % count];
-    if (point.skip) {
-      continue;
-    }
-    value = normalize(point[property]);
-    inside = between(value, startBound, endBound);
-    if (subStart === null && shouldStart()) {
-      subStart = compare(value, startBound) === 0 ? i : prev;
-    }
-    if (subStart !== null && shouldStop()) {
-      result.push(makeSubSegment(subStart, i, loop, count));
-      subStart = null;
-    }
-    prev = i;
-    prevValue = value;
-  }
-  if (subStart !== null) {
-    result.push(makeSubSegment(subStart, end, loop, count));
-  }
-  return result;
-}
-function _boundSegments(line, bounds) {
-  var result = [];
-  var segments = line.segments;
-  for (var i = 0; i < segments.length; i++) {
-    var sub = _boundSegment(segments[i], line.points, bounds);
-    if (sub.length) {
-      result.push.apply(result, sub);
-    }
-  }
-  return result;
-}
-function findStartAndEnd(points, count, loop, spanGaps) {
-  var start = 0;
-  var end = count - 1;
-  if (loop && !spanGaps) {
-    while (start < count && !points[start].skip) {
-      start++;
-    }
-  }
-  while (start < count && points[start].skip) {
-    start++;
-  }
-  start %= count;
-  if (loop) {
-    end += start;
-  }
-  while (end > start && points[end % count].skip) {
-    end--;
-  }
-  end %= count;
-  return {
-    start: start,
-    end: end
-  };
-}
-function solidSegments(points, start, max, loop) {
-  var count = points.length;
-  var result = [];
-  var last = start;
-  var prev = points[start];
-  var end;
-  for (end = start + 1; end <= max; ++end) {
-    var cur = points[end % count];
-    if (cur.skip || cur.stop) {
-      if (!prev.skip) {
-        loop = false;
-        result.push({
-          start: start % count,
-          end: (end - 1) % count,
-          loop: loop
-        });
-        start = last = cur.stop ? end : null;
-      }
-    } else {
-      last = end;
-      if (prev.skip) {
-        start = end;
-      }
-    }
-    prev = cur;
-  }
-  if (last !== null) {
-    result.push({
-      start: start % count,
-      end: last % count,
-      loop: loop
-    });
-  }
-  return result;
-}
-function _computeSegments(line) {
-  var points = line.points;
-  var spanGaps = line.options.spanGaps;
-  var count = points.length;
-  if (!count) {
-    return [];
-  }
-  var loop = !!line._loop;
-  var _findStartAndEnd = findStartAndEnd(points, count, loop, spanGaps),
-      start = _findStartAndEnd.start,
-      end = _findStartAndEnd.end;
-  if (spanGaps === true) {
-    return [{
-      start: start,
-      end: end,
-      loop: loop
-    }];
-  }
-  var max = end < start ? end + count : end;
-  var completeLoop = !!line._fullLoop && start === 0 && end === count - 1;
-  return solidSegments(points, start, max, completeLoop);
-}
-
-var helpers = /*#__PURE__*/Object.freeze({
-__proto__: null,
-easingEffects: effects,
-color: color,
-getHoverColor: getHoverColor,
-requestAnimFrame: requestAnimFrame,
-fontString: fontString,
-noop: noop,
-uid: uid,
-isNullOrUndef: isNullOrUndef,
-isArray: isArray,
-isObject: isObject,
-isFinite: isNumberFinite,
-valueOrDefault: valueOrDefault,
-callback: callback,
-each: each,
-_elementsEqual: _elementsEqual,
-clone: clone,
-_merger: _merger,
-merge: merge,
-mergeIf: mergeIf,
-_mergerIf: _mergerIf,
-_deprecated: _deprecated,
-resolveObjectKey: resolveObjectKey,
-_capitalize: _capitalize,
-toFontString: toFontString,
-_measureText: _measureText,
-_longestText: _longestText,
-_alignPixel: _alignPixel,
-clear: clear,
-drawPoint: drawPoint,
-_isPointInArea: _isPointInArea,
-clipArea: clipArea,
-unclipArea: unclipArea,
-_steppedLineTo: _steppedLineTo,
-_bezierCurveTo: _bezierCurveTo,
-_lookup: _lookup,
-_lookupByKey: _lookupByKey,
-_rlookupByKey: _rlookupByKey,
-_filterBetween: _filterBetween,
-listenArrayEvents: listenArrayEvents,
-unlistenArrayEvents: unlistenArrayEvents,
-_arrayUnique: _arrayUnique,
-splineCurve: splineCurve,
-splineCurveMonotone: splineCurveMonotone,
-_updateBezierControlPoints: _updateBezierControlPoints,
-_getParentNode: _getParentNode,
-getStyle: getStyle,
-getRelativePosition: getRelativePosition,
-getMaximumSize: getMaximumSize,
-retinaScale: retinaScale,
-supportsEventListenerOptions: supportsEventListenerOptions,
-readUsedSize: readUsedSize,
-_pointInLine: _pointInLine,
-_steppedInterpolation: _steppedInterpolation,
-_bezierInterpolation: _bezierInterpolation,
-toLineHeight: toLineHeight,
-toTRBL: toTRBL,
-toPadding: toPadding,
-toFont: toFont,
-resolve: resolve,
-_factorize: _factorize,
-log10: log10,
-isNumber: isNumber,
-almostEquals: almostEquals,
-almostWhole: almostWhole,
-_setMinAndMaxByKey: _setMinAndMaxByKey,
-sign: sign,
-toRadians: toRadians,
-toDegrees: toDegrees,
-_decimalPlaces: _decimalPlaces,
-getAngleFromPoint: getAngleFromPoint,
-distanceBetweenPoints: distanceBetweenPoints,
-_angleDiff: _angleDiff,
-_normalizeAngle: _normalizeAngle,
-_angleBetween: _angleBetween,
-_limitValue: _limitValue,
-_int16Range: _int16Range,
-getRtlAdapter: getRtlAdapter,
-overrideTextDirection: overrideTextDirection,
-restoreTextDirection: restoreTextDirection,
-_boundSegment: _boundSegment,
-_boundSegments: _boundSegments,
-_computeSegments: _computeSegments
-});
-
 function _abstract() {
   throw new Error('This method is not implemented: either no adapter can be found or an incomplete integration was provided.');
 }
@@ -7976,26 +7982,23 @@ BubbleController.defaults = {
   }
 };
 
-var PI$2 = Math.PI;
-var DOUBLE_PI$1 = PI$2 * 2;
-var HALF_PI$1 = PI$2 / 2;
 function getRatioAndOffset(rotation, circumference, cutout) {
   var ratioX = 1;
   var ratioY = 1;
   var offsetX = 0;
   var offsetY = 0;
-  if (circumference < DOUBLE_PI$1) {
-    var startAngle = rotation % DOUBLE_PI$1;
-    startAngle += startAngle >= PI$2 ? -DOUBLE_PI$1 : startAngle < -PI$2 ? DOUBLE_PI$1 : 0;
+  if (circumference < TAU) {
+    var startAngle = rotation % TAU;
+    startAngle += startAngle >= PI ? -TAU : startAngle < -PI ? TAU : 0;
     var endAngle = startAngle + circumference;
     var startX = Math.cos(startAngle);
     var startY = Math.sin(startAngle);
     var endX = Math.cos(endAngle);
     var endY = Math.sin(endAngle);
-    var contains0 = startAngle <= 0 && endAngle >= 0 || endAngle >= DOUBLE_PI$1;
-    var contains90 = startAngle <= HALF_PI$1 && endAngle >= HALF_PI$1 || endAngle >= DOUBLE_PI$1 + HALF_PI$1;
-    var contains180 = startAngle === -PI$2 || endAngle >= PI$2;
-    var contains270 = startAngle <= -HALF_PI$1 && endAngle >= -HALF_PI$1 || endAngle >= PI$2 + HALF_PI$1;
+    var contains0 = startAngle <= 0 && endAngle >= 0 || endAngle >= TAU;
+    var contains90 = startAngle <= HALF_PI && endAngle >= HALF_PI || endAngle >= TAU + HALF_PI;
+    var contains180 = startAngle === -PI || endAngle >= PI;
+    var contains270 = startAngle <= -HALF_PI && endAngle >= -HALF_PI || endAngle >= PI + HALF_PI;
     var minX = contains180 ? -1 : Math.min(startX, startX * cutout, endX, endX * cutout);
     var minY = contains270 ? -1 : Math.min(startY, startY * cutout, endY, endY * cutout);
     var maxX = contains0 ? 1 : Math.max(startX, startX * cutout, endX, endX * cutout);
@@ -8047,8 +8050,8 @@ var DoughnutController = function (_DatasetController) {
   }
   ;
   _proto._getRotationExtents = function _getRotationExtents() {
-    var min = DOUBLE_PI$1;
-    var max = -DOUBLE_PI$1;
+    var min = TAU;
+    var max = -TAU;
     var me = this;
     var opts = me.chart.options;
     for (var i = 0; i < me.chart.data.datasets.length; ++i) {
@@ -8102,7 +8105,7 @@ var DoughnutController = function (_DatasetController) {
     var opts = me.chart.options;
     var meta = me._cachedMeta;
     var circumference = toRadians(valueOrDefault(me._config.circumference, opts.circumference));
-    return reset && opts.animation.animateRotate ? 0 : this.chart.getDataVisibility(i) ? me.calculateCircumference(meta._parsed[i] * circumference / DOUBLE_PI$1) : 0;
+    return reset && opts.animation.animateRotate ? 0 : this.chart.getDataVisibility(i) ? me.calculateCircumference(meta._parsed[i] * circumference / TAU) : 0;
   };
   _proto.updateElements = function updateElements(arcs, start, count, mode) {
     var me = this;
@@ -8160,7 +8163,7 @@ var DoughnutController = function (_DatasetController) {
   _proto.calculateCircumference = function calculateCircumference(value) {
     var total = this._cachedMeta.total;
     if (total > 0 && !isNaN(value)) {
-      return DOUBLE_PI$1 * (Math.abs(value) / total);
+      return TAU * (Math.abs(value) / total);
     }
     return 0;
   };
@@ -8476,7 +8479,7 @@ function scaleRangesChanged(meta) {
 }
 
 function getStartAngleRadians(deg) {
-  return toRadians(deg) - 0.5 * Math.PI;
+  return toRadians(deg) - 0.5 * PI;
 }
 var PolarAreaController = function (_DatasetController) {
   _inheritsLoose(PolarAreaController, _DatasetController);
@@ -8572,7 +8575,7 @@ var PolarAreaController = function (_DatasetController) {
       return 0;
     }
     var context = me.getContext(index, mode === 'active');
-    return resolve([me.chart.options.elements.arc.angle, 2 * Math.PI / count], context, index);
+    return resolve([me.chart.options.elements.arc.angle, TAU / count], context, index);
   };
   return PolarAreaController;
 }(DatasetController);
@@ -8808,7 +8811,6 @@ RadarController: RadarController,
 ScatterController: ScatterController
 });
 
-var TAU$1 = Math.PI * 2;
 function clipArc(ctx, element) {
   var startAngle = element.startAngle,
       endAngle = element.endAngle,
@@ -8824,7 +8826,7 @@ function clipArc(ctx, element) {
     angleMargin = pixelMargin / innerRadius;
     ctx.arc(x, y, innerRadius, endAngle + angleMargin, startAngle - angleMargin, true);
   } else {
-    ctx.arc(x, y, pixelMargin, endAngle + Math.PI / 2, startAngle - Math.PI / 2);
+    ctx.arc(x, y, pixelMargin, endAngle + HALF_PI, startAngle - HALF_PI);
   }
   ctx.closePath();
   ctx.clip();
@@ -8844,12 +8846,12 @@ function pathArc(ctx, element) {
 }
 function drawArc(ctx, element) {
   if (element.fullCircles) {
-    element.endAngle = element.startAngle + TAU$1;
+    element.endAngle = element.startAngle + TAU;
     pathArc(ctx, element);
     for (var i = 0; i < element.fullCircles; ++i) {
       ctx.fill();
     }
-    element.endAngle = element.startAngle + element.circumference % TAU$1;
+    element.endAngle = element.startAngle + element.circumference % TAU;
   }
   pathArc(ctx, element);
   ctx.fill();
@@ -8864,21 +8866,21 @@ function drawFullCircleBorders(ctx, element, inner) {
   var innerRadius = element.innerRadius + pixelMargin;
   var i;
   if (inner) {
-    element.endAngle = element.startAngle + TAU$1;
+    element.endAngle = element.startAngle + TAU;
     clipArc(ctx, element);
     element.endAngle = endAngle;
     if (element.endAngle === element.startAngle) {
-      element.endAngle += TAU$1;
+      element.endAngle += TAU;
       element.fullCircles--;
     }
   }
   ctx.beginPath();
-  ctx.arc(x, y, innerRadius, startAngle + TAU$1, startAngle, true);
+  ctx.arc(x, y, innerRadius, startAngle + TAU, startAngle, true);
   for (i = 0; i < element.fullCircles; ++i) {
     ctx.stroke();
   }
   ctx.beginPath();
-  ctx.arc(x, y, outerRadius, startAngle, startAngle + TAU$1);
+  ctx.arc(x, y, outerRadius, startAngle, startAngle + TAU);
   for (i = 0; i < element.fullCircles; ++i) {
     ctx.stroke();
   }
@@ -8948,7 +8950,7 @@ var Arc = function (_Element) {
         innerRadius = _this$getProps.innerRadius,
         outerRadius = _this$getProps.outerRadius,
         circumference = _this$getProps.circumference;
-    var betweenAngles = circumference >= TAU$1 || _angleBetween(angle, startAngle, endAngle);
+    var betweenAngles = circumference >= TAU || _angleBetween(angle, startAngle, endAngle);
     var withinRadius = distance >= innerRadius && distance <= outerRadius;
     return betweenAngles && withinRadius;
   }
@@ -8977,12 +8979,12 @@ var Arc = function (_Element) {
     var options = me.options;
     var offset = options.offset || 0;
     me.pixelMargin = options.borderAlign === 'inner' ? 0.33 : 0;
-    me.fullCircles = Math.floor(me.circumference / TAU$1);
+    me.fullCircles = Math.floor(me.circumference / TAU);
     if (me.circumference === 0) {
       return;
     }
     ctx.save();
-    if (offset && me.circumference < TAU$1) {
+    if (offset && me.circumference < TAU) {
       var halfAngle = (me.startAngle + me.endAngle) / 2;
       ctx.translate(Math.cos(halfAngle) * offset, Math.sin(halfAngle) * offset);
     }
@@ -9602,7 +9604,7 @@ var simpleArc = function () {
         radius = this.radius;
     bounds = bounds || {
       start: 0,
-      end: Math.PI * 2
+      end: TAU
     };
     if (opts.reverse) {
       ctx.arc(x, y, radius, bounds.end, bounds.start, true);
@@ -10252,8 +10254,8 @@ var Legend = function (_Element) {
       columnHeights.push(currentColHeight);
       minSize.width += totalWidth;
     }
-    me.width = minSize.width;
-    me.height = minSize.height;
+    me.width = Math.min(minSize.width, opts.maxWidth || INFINITY);
+    me.height = Math.min(minSize.height, opts.maxHeight || INFINITY);
   };
   _proto.afterFit = function afterFit() {}
   ;
@@ -10752,7 +10754,7 @@ var Title = function (_Element) {
           break;
       }
       maxWidth = bottom - top;
-      rotation = Math.PI * (opts.position === 'left' ? -0.5 : 0.5);
+      rotation = PI * (opts.position === 'left' ? -0.5 : 0.5);
     }
     ctx.save();
     ctx.fillStyle = fontOpts.color;
@@ -12152,6 +12154,7 @@ var LogarithmicScale = function (_Scale) {
   _proto.parse = function parse(raw, index) {
     var value = LinearScaleBase.prototype.parse.apply(this, [raw, index]);
     if (value === 0) {
+      this._zero = true;
       return undefined;
     }
     return isNumberFinite(value) && value > 0 ? value : NaN;
@@ -12185,6 +12188,9 @@ var LogarithmicScale = function (_Scale) {
     }
     if (max <= 0) {
       max = Math.pow(10, Math.floor(log10(min)) + 1);
+    }
+    if (!me._userMin && me._zero && min === Math.pow(10, Math.floor(log10(me.min)))) {
+      min = Math.pow(10, Math.floor(log10(min)) - 1);
     }
     me.min = min;
     me.max = max;
@@ -12223,6 +12229,7 @@ var LogarithmicScale = function (_Scale) {
     _Scale.prototype.configure.call(this);
     me._startValue = log10(start);
     me._valueRange = log10(me.max) - log10(start);
+    me._zero = me.options.beginAtZero;
   };
   _proto.getPixelForValue = function getPixelForValue(value) {
     var me = this;
@@ -12394,7 +12401,7 @@ function drawRadiusLine(scale, gridLineOpts, radius, index) {
   }
   ctx.beginPath();
   if (circular) {
-    ctx.arc(scale.xCenter, scale.yCenter, radius, 0, Math.PI * 2);
+    ctx.arc(scale.xCenter, scale.yCenter, radius, 0, TAU);
   } else {
     pointPosition = scale.getPointPosition(0, radius);
     ctx.moveTo(pointPosition.x, pointPosition.y);
@@ -12490,7 +12497,7 @@ var RadialLinearScale = function (_LinearScaleBase) {
   };
   _proto.getIndexAngle = function getIndexAngle(index) {
     var chart = this.chart;
-    var angleMultiplier = Math.PI * 2 / chart.data.labels.length;
+    var angleMultiplier = TAU / chart.data.labels.length;
     var options = chart.options || {};
     var startAngle = options.startAngle || 0;
     return _normalizeAngle(index * angleMultiplier + toRadians(startAngle));
@@ -12516,7 +12523,7 @@ var RadialLinearScale = function (_LinearScaleBase) {
   };
   _proto.getPointPosition = function getPointPosition(index, distanceFromCenter) {
     var me = this;
-    var angle = me.getIndexAngle(index) - Math.PI / 2;
+    var angle = me.getIndexAngle(index) - HALF_PI;
     return {
       x: Math.cos(angle) * distanceFromCenter + me.xCenter,
       y: Math.sin(angle) * distanceFromCenter + me.yCenter,

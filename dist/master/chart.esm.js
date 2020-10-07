@@ -4,8 +4,8 @@
  * (c) 2020 Chart.js Contributors
  * Released under the MIT License
  */
-import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, d as defaults, n as noop, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, m as merge, b as isArray, f as resolveObjectKey, g as getHoverColor, _ as _capitalize, h as mergeIf, s as sign, j as _merger, k as isNullOrUndef, o as _limitValue, p as clipArea, q as unclipArea, t as toRadians, w as isNumber, x as _lookupByKey, y as getRelativePosition$1, z as _isPointInArea, A as _rlookupByKey, B as toPadding, C as each, D as getMaximumSize, E as _getParentNode, F as readUsedSize, G as throttled, H as supportsEventListenerOptions, I as log10, J as isNumberFinite, K as callback, L as toDegrees, M as _measureText, N as _int16Range, O as _alignPixel, P as toFont, Q as _factorize, R as uid, S as retinaScale, T as clear, U as _elementsEqual, V as getAngleFromPoint, W as _angleBetween, X as _updateBezierControlPoints, Y as _computeSegments, Z as _boundSegments, $ as _steppedInterpolation, a0 as _bezierInterpolation, a1 as _pointInLine, a2 as _steppedLineTo, a3 as _bezierCurveTo, a4 as drawPoint, a5 as toTRBL, a6 as _normalizeAngle, a7 as _boundSegment, a8 as getRtlAdapter, a9 as overrideTextDirection, aa as restoreTextDirection, ab as distanceBetweenPoints, ac as _setMinAndMaxByKey, ad as _decimalPlaces, ae as almostEquals, af as almostWhole, ag as _longestText, ah as _filterBetween, ai as _arrayUnique, aj as _lookup } from './chunks/helpers.rtl.js';
-export { d as defaults } from './chunks/helpers.rtl.js';
+import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, d as defaults, n as noop, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, m as merge, b as isArray, f as resolveObjectKey, g as getHoverColor, _ as _capitalize, h as mergeIf, s as sign, j as _merger, k as isNullOrUndef, o as _limitValue, p as clipArea, q as unclipArea, t as toRadians, T as TAU, H as HALF_PI, P as PI, w as isNumber, x as _lookupByKey, y as getRelativePosition$1, z as _isPointInArea, A as _rlookupByKey, B as toPadding, C as each, D as getMaximumSize, E as _getParentNode, F as readUsedSize, G as throttled, I as supportsEventListenerOptions, J as log10, K as isNumberFinite, L as callback, M as toDegrees, N as _measureText, O as _int16Range, Q as _alignPixel, R as toFont, S as _factorize, U as uid, V as retinaScale, W as clear, X as _elementsEqual, Y as getAngleFromPoint, Z as _angleBetween, $ as _updateBezierControlPoints, a0 as _computeSegments, a1 as _boundSegments, a2 as _steppedInterpolation, a3 as _bezierInterpolation, a4 as _pointInLine, a5 as _steppedLineTo, a6 as _bezierCurveTo, a7 as drawPoint, a8 as toTRBL, a9 as _normalizeAngle, aa as _boundSegment, ab as INFINITY, ac as getRtlAdapter, ad as overrideTextDirection, ae as restoreTextDirection, af as distanceBetweenPoints, ag as _setMinAndMaxByKey, ah as _decimalPlaces, ai as almostEquals, aj as almostWhole, ak as _longestText, al as _filterBetween, am as _arrayUnique, an as _lookup } from './chunks/helpers.easing.js';
+export { d as defaults } from './chunks/helpers.easing.js';
 
 function drawFPS(chart, count, date, lastDate) {
 	const fps = (1000 / (date - lastDate)) | 0;
@@ -1624,24 +1624,21 @@ BubbleController.defaults = {
 	}
 };
 
-const PI = Math.PI;
-const DOUBLE_PI = PI * 2;
-const HALF_PI = PI / 2;
 function getRatioAndOffset(rotation, circumference, cutout) {
 	let ratioX = 1;
 	let ratioY = 1;
 	let offsetX = 0;
 	let offsetY = 0;
-	if (circumference < DOUBLE_PI) {
-		let startAngle = rotation % DOUBLE_PI;
-		startAngle += startAngle >= PI ? -DOUBLE_PI : startAngle < -PI ? DOUBLE_PI : 0;
+	if (circumference < TAU) {
+		let startAngle = rotation % TAU;
+		startAngle += startAngle >= PI ? -TAU : startAngle < -PI ? TAU : 0;
 		const endAngle = startAngle + circumference;
 		const startX = Math.cos(startAngle);
 		const startY = Math.sin(startAngle);
 		const endX = Math.cos(endAngle);
 		const endY = Math.sin(endAngle);
-		const contains0 = (startAngle <= 0 && endAngle >= 0) || endAngle >= DOUBLE_PI;
-		const contains90 = (startAngle <= HALF_PI && endAngle >= HALF_PI) || endAngle >= DOUBLE_PI + HALF_PI;
+		const contains0 = (startAngle <= 0 && endAngle >= 0) || endAngle >= TAU;
+		const contains90 = (startAngle <= HALF_PI && endAngle >= HALF_PI) || endAngle >= TAU + HALF_PI;
 		const contains180 = startAngle === -PI || endAngle >= PI;
 		const contains270 = (startAngle <= -HALF_PI && endAngle >= -HALF_PI) || endAngle >= PI + HALF_PI;
 		const minX = contains180 ? -1 : Math.min(startX, startX * cutout, endX, endX * cutout);
@@ -1683,8 +1680,8 @@ class DoughnutController extends DatasetController {
 		return ringIndex;
 	}
 	_getRotationExtents() {
-		let min = DOUBLE_PI;
-		let max = -DOUBLE_PI;
+		let min = TAU;
+		let max = -TAU;
 		const me = this;
 		const opts = me.chart.options;
 		for (let i = 0; i < me.chart.data.datasets.length; ++i) {
@@ -1729,7 +1726,7 @@ class DoughnutController extends DatasetController {
 		const opts = me.chart.options;
 		const meta = me._cachedMeta;
 		const circumference = toRadians(valueOrDefault(me._config.circumference, opts.circumference));
-		return reset && opts.animation.animateRotate ? 0 : this.chart.getDataVisibility(i) ? me.calculateCircumference(meta._parsed[i] * circumference / DOUBLE_PI) : 0;
+		return reset && opts.animation.animateRotate ? 0 : this.chart.getDataVisibility(i) ? me.calculateCircumference(meta._parsed[i] * circumference / TAU) : 0;
 	}
 	updateElements(arcs, start, count, mode) {
 		const me = this;
@@ -1787,7 +1784,7 @@ class DoughnutController extends DatasetController {
 	calculateCircumference(value) {
 		const total = this._cachedMeta.total;
 		if (total > 0 && !isNaN(value)) {
-			return DOUBLE_PI * (Math.abs(value) / total);
+			return TAU * (Math.abs(value) / total);
 		}
 		return 0;
 	}
@@ -2100,7 +2097,7 @@ function scaleRangesChanged(meta) {
 }
 
 function getStartAngleRadians(deg) {
-	return toRadians(deg) - 0.5 * Math.PI;
+	return toRadians(deg) - 0.5 * PI;
 }
 class PolarAreaController extends DatasetController {
 	constructor(chart, datasetIndex) {
@@ -2191,7 +2188,7 @@ class PolarAreaController extends DatasetController {
 		const context = me.getContext(index, mode === 'active');
 		return resolve([
 			me.chart.options.elements.arc.angle,
-			(2 * Math.PI) / count
+			TAU / count
 		], context, index);
 	}
 }
@@ -4250,7 +4247,7 @@ class Scale extends Element {
 				scaleLabelY = me.top + me.height / 2;
 				textAlign = 'center';
 			}
-			rotation = isLeft ? -0.5 * Math.PI : 0.5 * Math.PI;
+			rotation = isLeft ? -HALF_PI : HALF_PI;
 		}
 		ctx.save();
 		ctx.translate(scaleLabelX, scaleLabelY);
@@ -5375,7 +5372,6 @@ Chart.unregister = (...items) => {
 	invalidatePlugins();
 };
 
-const TAU = Math.PI * 2;
 function clipArc(ctx, element) {
 	const {startAngle, endAngle, pixelMargin, x, y, outerRadius, innerRadius} = element;
 	let angleMargin = pixelMargin / outerRadius;
@@ -5385,7 +5381,7 @@ function clipArc(ctx, element) {
 		angleMargin = pixelMargin / innerRadius;
 		ctx.arc(x, y, innerRadius, endAngle + angleMargin, startAngle - angleMargin, true);
 	} else {
-		ctx.arc(x, y, pixelMargin, endAngle + Math.PI / 2, startAngle - Math.PI / 2);
+		ctx.arc(x, y, pixelMargin, endAngle + HALF_PI, startAngle - HALF_PI);
 	}
 	ctx.closePath();
 	ctx.clip();
@@ -6054,7 +6050,7 @@ class simpleArc {
 	}
 	pathSegment(ctx, bounds, opts) {
 		const {x, y, radius} = this;
-		bounds = bounds || {start: 0, end: Math.PI * 2};
+		bounds = bounds || {start: 0, end: TAU};
 		if (opts.reverse) {
 			ctx.arc(x, y, radius, bounds.end, bounds.start, true);
 		} else {
@@ -6611,8 +6607,8 @@ class Legend extends Element {
 			columnHeights.push(currentColHeight);
 			minSize.width += totalWidth;
 		}
-		me.width = minSize.width;
-		me.height = minSize.height;
+		me.width = Math.min(minSize.width, opts.maxWidth || INFINITY);
+		me.height = Math.min(minSize.height, opts.maxHeight || INFINITY);
 	}
 	afterFit() {}
 	isHorizontal() {
@@ -7098,7 +7094,7 @@ class Title extends Element {
 				break;
 			}
 			maxWidth = bottom - top;
-			rotation = Math.PI * (opts.position === 'left' ? -0.5 : 0.5);
+			rotation = PI * (opts.position === 'left' ? -0.5 : 0.5);
 		}
 		ctx.save();
 		ctx.fillStyle = fontOpts.color;
@@ -8359,6 +8355,7 @@ class LogarithmicScale extends Scale {
 	parse(raw, index) {
 		const value = LinearScaleBase.prototype.parse.apply(this, [raw, index]);
 		if (value === 0) {
+			this._zero = true;
 			return undefined;
 		}
 		return isNumberFinite(value) && value > 0 ? value : NaN;
@@ -8390,6 +8387,9 @@ class LogarithmicScale extends Scale {
 		}
 		if (max <= 0) {
 			max = Math.pow(10, Math.floor(log10(min)) + 1);
+		}
+		if (!me._userMin && me._zero && min === Math.pow(10, Math.floor(log10(me.min)))) {
+			min = Math.pow(10, Math.floor(log10(min)) - 1);
 		}
 		me.min = min;
 		me.max = max;
@@ -8426,6 +8426,7 @@ class LogarithmicScale extends Scale {
 		super.configure();
 		me._startValue = log10(start);
 		me._valueRange = log10(me.max) - log10(start);
+		me._zero = me.options.beginAtZero;
 	}
 	getPixelForValue(value) {
 		const me = this;
@@ -8598,7 +8599,7 @@ function drawRadiusLine(scale, gridLineOpts, radius, index) {
 	}
 	ctx.beginPath();
 	if (circular) {
-		ctx.arc(scale.xCenter, scale.yCenter, radius, 0, Math.PI * 2);
+		ctx.arc(scale.xCenter, scale.yCenter, radius, 0, TAU);
 	} else {
 		pointPosition = scale.getPointPosition(0, radius);
 		ctx.moveTo(pointPosition.x, pointPosition.y);
@@ -8688,7 +8689,7 @@ class RadialLinearScale extends LinearScaleBase {
 	}
 	getIndexAngle(index) {
 		const chart = this.chart;
-		const angleMultiplier = Math.PI * 2 / chart.data.labels.length;
+		const angleMultiplier = TAU / chart.data.labels.length;
 		const options = chart.options || {};
 		const startAngle = options.startAngle || 0;
 		return _normalizeAngle(index * angleMultiplier + toRadians(startAngle));
@@ -8714,7 +8715,7 @@ class RadialLinearScale extends LinearScaleBase {
 	}
 	getPointPosition(index, distanceFromCenter) {
 		const me = this;
-		const angle = me.getIndexAngle(index) - (Math.PI / 2);
+		const angle = me.getIndexAngle(index) - HALF_PI;
 		return {
 			x: Math.cos(angle) * distanceFromCenter + me.xCenter,
 			y: Math.sin(angle) * distanceFromCenter + me.yCenter,
