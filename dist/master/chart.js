@@ -5167,7 +5167,8 @@ defaults.set('scale', {
     labelOffset: 0,
     callback: Ticks.formatters.values,
     minor: {},
-    major: {}
+    major: {},
+    alignment: 'center'
   }
 });
 function sample(arr, numItems) {
@@ -5636,6 +5637,12 @@ var Scale = function (_Element) {
         if (isRotated) {
           paddingLeft = labelsBelowTicks ? cosRotation * firstLabelSize.width + sinRotation * firstLabelSize.offset : sinRotation * (firstLabelSize.height - firstLabelSize.offset);
           paddingRight = labelsBelowTicks ? sinRotation * (lastLabelSize.height - lastLabelSize.offset) : cosRotation * lastLabelSize.width + sinRotation * lastLabelSize.offset;
+        } else if (tickOpts.alignment === 'start') {
+          paddingLeft = 0;
+          paddingRight = lastLabelSize.width;
+        } else if (tickOpts.alignment === 'end') {
+          paddingLeft = firstLabelSize.width;
+          paddingRight = 0;
         } else {
           paddingLeft = firstLabelSize.width / 2;
           paddingRight = lastLabelSize.width / 2;
@@ -5646,8 +5653,17 @@ var Scale = function (_Element) {
         var labelWidth = tickOpts.mirror ? 0 :
         widestLabelSize.width + tickPadding + lineSpace;
         minSize.width = Math.min(me.maxWidth, minSize.width + labelWidth);
-        me.paddingTop = lastLabelSize.height / 2;
-        me.paddingBottom = firstLabelSize.height / 2;
+        var paddingTop = lastLabelSize.height / 2;
+        var paddingBottom = firstLabelSize.height / 2;
+        if (tickOpts.alignment === 'start') {
+          paddingTop = 0;
+          paddingBottom = firstLabelSize.height;
+        } else if (tickOpts.alignment === 'end') {
+          paddingTop = lastLabelSize.height;
+          paddingBottom = 0;
+        }
+        me.paddingTop = paddingTop;
+        me.paddingBottom = paddingBottom;
       }
     }
     me._handleMargins();
@@ -5978,12 +5994,13 @@ var Scale = function (_Element) {
     var rotation = -toRadians(me.labelRotation);
     var items = [];
     var i, ilen, tick, label, x, y, textAlign, pixel, font, lineHeight, lineCount, textOffset;
+    var textBaseline = 'middle';
     if (position === 'top') {
       y = me.bottom - tl - tickPadding;
-      textAlign = !rotation ? 'center' : 'left';
+      textAlign = me._getXAxisLabelAlignment();
     } else if (position === 'bottom') {
       y = me.top + tl + tickPadding;
-      textAlign = !rotation ? 'center' : 'right';
+      textAlign = me._getXAxisLabelAlignment();
     } else if (position === 'left') {
       x = me.right - (isMirrored ? 0 : tl) - tickPadding;
       textAlign = isMirrored ? 'left' : 'right';
@@ -5998,7 +6015,7 @@ var Scale = function (_Element) {
         var value = position[positionAxisID];
         y = me.chart.scales[positionAxisID].getPixelForValue(value) + tl + tickPadding;
       }
-      textAlign = !rotation ? 'center' : 'right';
+      textAlign = me._getXAxisLabelAlignment();
     } else if (axis === 'y') {
       if (position === 'center') {
         x = (chartArea.left + chartArea.right) / 2 - tl - tickPadding;
@@ -6008,6 +6025,13 @@ var Scale = function (_Element) {
         x = me.chart.scales[_positionAxisID2].getPixelForValue(_value2);
       }
       textAlign = 'right';
+    }
+    if (axis === 'y') {
+      if (optionTicks.alignment === 'start') {
+        textBaseline = 'top';
+      } else if (optionTicks.alignment === 'end') {
+        textBaseline = 'bottom';
+      }
     }
     for (i = 0, ilen = ticks.length; i < ilen; ++i) {
       tick = ticks[i];
@@ -6036,10 +6060,28 @@ var Scale = function (_Element) {
         label: label,
         font: font,
         textOffset: textOffset,
-        textAlign: textAlign
+        textAlign: textAlign,
+        textBaseline: textBaseline
       });
     }
     return items;
+  };
+  _proto._getXAxisLabelAlignment = function _getXAxisLabelAlignment() {
+    var me = this;
+    var _me$options = me.options,
+        position = _me$options.position,
+        ticks = _me$options.ticks;
+    var rotation = -toRadians(me.labelRotation);
+    if (rotation) {
+      return position === 'top' ? 'left' : 'right';
+    }
+    var align = 'center';
+    if (ticks.alignment === 'start') {
+      align = 'left';
+    } else if (ticks.alignment === 'end') {
+      align = 'right';
+    }
+    return align;
   }
   ;
   _proto.drawGrid = function drawGrid(chartArea) {
@@ -6120,8 +6162,8 @@ var Scale = function (_Element) {
       ctx.rotate(item.rotation);
       ctx.font = tickFont.string;
       ctx.fillStyle = tickFont.color;
-      ctx.textBaseline = 'middle';
       ctx.textAlign = item.textAlign;
+      ctx.textBaseline = item.textBaseline;
       if (useStroke) {
         ctx.strokeStyle = tickFont.strokeStyle;
         ctx.lineWidth = tickFont.lineWidth;
