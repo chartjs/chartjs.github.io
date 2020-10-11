@@ -957,9 +957,9 @@ function getContainerSize(canvas, width, height) {
       var rect = container.getBoundingClientRect();
       var containerStyle = getComputedStyle(container);
       var containerBorder = getPositionedStyle(containerStyle, 'border', 'width');
-      var contarinerPadding = getPositionedStyle(containerStyle, 'padding');
-      width = rect.width - contarinerPadding.width - containerBorder.width;
-      height = rect.height - contarinerPadding.height - containerBorder.height;
+      var containerPadding = getPositionedStyle(containerStyle, 'padding');
+      width = rect.width - containerPadding.width - containerBorder.width;
+      height = rect.height - containerPadding.height - containerBorder.height;
       maxWidth = parseMaxStyle(containerStyle.maxWidth, container, 'clientWidth');
       maxHeight = parseMaxStyle(containerStyle.maxHeight, container, 'clientHeight');
     }
