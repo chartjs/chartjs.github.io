@@ -2190,10 +2190,10 @@ class PolarAreaController extends DatasetController {
 			return 0;
 		}
 		const context = me.getContext(index, mode === 'active');
-		return resolve([
+		return toRadians(resolve([
 			me.chart.options.elements.arc.angle,
-			TAU / count
-		], context, index);
+			360 / count
+		], context, index));
 	}
 }
 PolarAreaController.id = 'polarArea';

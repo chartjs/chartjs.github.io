@@ -8695,7 +8695,7 @@ var PolarAreaController = function (_DatasetController) {
       return 0;
     }
     var context = me.getContext(index, mode === 'active');
-    return resolve([me.chart.options.elements.arc.angle, TAU / count], context, index);
+    return toRadians(resolve([me.chart.options.elements.arc.angle, 360 / count], context, index));
   };
   return PolarAreaController;
 }(DatasetController);
