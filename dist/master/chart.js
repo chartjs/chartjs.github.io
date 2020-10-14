@@ -5168,8 +5168,8 @@ defaults.set('scale', {
     callback: Ticks.formatters.values,
     minor: {},
     major: {},
-    alignment: 'center',
-    crossAlignment: 'near'
+    align: 'center',
+    crossAlign: 'near'
   }
 });
 function sample(arr, numItems) {
@@ -5638,10 +5638,10 @@ var Scale = function (_Element) {
         if (isRotated) {
           paddingLeft = labelsBelowTicks ? cosRotation * firstLabelSize.width + sinRotation * firstLabelSize.offset : sinRotation * (firstLabelSize.height - firstLabelSize.offset);
           paddingRight = labelsBelowTicks ? sinRotation * (lastLabelSize.height - lastLabelSize.offset) : cosRotation * lastLabelSize.width + sinRotation * lastLabelSize.offset;
-        } else if (tickOpts.alignment === 'start') {
+        } else if (tickOpts.align === 'start') {
           paddingLeft = 0;
           paddingRight = lastLabelSize.width;
-        } else if (tickOpts.alignment === 'end') {
+        } else if (tickOpts.align === 'end') {
           paddingLeft = firstLabelSize.width;
           paddingRight = 0;
         } else {
@@ -5656,10 +5656,10 @@ var Scale = function (_Element) {
         minSize.width = Math.min(me.maxWidth, minSize.width + labelWidth);
         var paddingTop = lastLabelSize.height / 2;
         var paddingBottom = firstLabelSize.height / 2;
-        if (tickOpts.alignment === 'start') {
+        if (tickOpts.align === 'start') {
           paddingTop = 0;
           paddingBottom = firstLabelSize.height;
-        } else if (tickOpts.alignment === 'end') {
+        } else if (tickOpts.align === 'end') {
           paddingTop = lastLabelSize.height;
           paddingBottom = 0;
         }
@@ -5989,8 +5989,8 @@ var Scale = function (_Element) {
         optionTicks = options.ticks;
     var isHorizontal = me.isHorizontal();
     var ticks = me.ticks;
-    var alignment = optionTicks.alignment,
-        crossAlignment = optionTicks.crossAlignment,
+    var align = optionTicks.align,
+        crossAlign = optionTicks.crossAlign,
         padding = optionTicks.padding;
     var tl = getTickMarkLength(options.gridLines);
     var tickAndPadding = tl + padding;
@@ -6032,9 +6032,9 @@ var Scale = function (_Element) {
       textAlign = this._getYAxisLabelAlignment(tl).textAlign;
     }
     if (axis === 'y') {
-      if (alignment === 'start') {
+      if (align === 'start') {
         textBaseline = 'top';
-      } else if (alignment === 'end') {
+      } else if (align === 'end') {
         textBaseline = 'bottom';
       }
     }
@@ -6050,20 +6050,20 @@ var Scale = function (_Element) {
       if (isHorizontal) {
         x = pixel;
         if (position === 'top') {
-          if (crossAlignment === 'near' || rotation !== 0) {
+          if (crossAlign === 'near' || rotation !== 0) {
             textOffset = (Math.sin(rotation) * halfCount + 0.5) * lineHeight;
             textOffset -= (rotation === 0 ? lineCount - 0.5 : Math.cos(rotation) * halfCount) * lineHeight;
-          } else if (crossAlignment === 'center') {
+          } else if (crossAlign === 'center') {
             textOffset = -1 * (labelSizes.highest.height / 2);
             textOffset -= halfCount * lineHeight;
           } else {
             textOffset = -1 * labelSizes.highest.height + 0.5 * lineHeight;
           }
         } else if (position === 'bottom') {
-          if (crossAlignment === 'near' || rotation !== 0) {
+          if (crossAlign === 'near' || rotation !== 0) {
             textOffset = Math.sin(rotation) * halfCount * lineHeight;
             textOffset += (rotation === 0 ? 0.5 : Math.cos(rotation) * halfCount) * lineHeight;
-          } else if (crossAlignment === 'center') {
+          } else if (crossAlign === 'center') {
             textOffset = labelSizes.highest.height / 2;
             textOffset -= halfCount * lineHeight;
           } else {
@@ -6097,9 +6097,9 @@ var Scale = function (_Element) {
       return position === 'top' ? 'left' : 'right';
     }
     var align = 'center';
-    if (ticks.alignment === 'start') {
+    if (ticks.align === 'start') {
       align = 'left';
-    } else if (ticks.alignment === 'end') {
+    } else if (ticks.align === 'end') {
       align = 'right';
     }
     return align;
@@ -6109,7 +6109,7 @@ var Scale = function (_Element) {
     var _me$options2 = me.options,
         position = _me$options2.position,
         ticks = _me$options2.ticks;
-    var crossAlignment = ticks.crossAlignment,
+    var crossAlign = ticks.crossAlign,
         mirror = ticks.mirror,
         padding = ticks.padding;
     var labelSizes = me._getLabelSizes();
@@ -6123,9 +6123,9 @@ var Scale = function (_Element) {
         x = me.right - padding;
       } else {
         x = me.right - tickAndPadding;
-        if (crossAlignment === 'near') {
+        if (crossAlign === 'near') {
           textAlign = 'right';
-        } else if (crossAlignment === 'center') {
+        } else if (crossAlign === 'center') {
           textAlign = 'center';
           x -= widest / 2;
         } else {
@@ -6139,9 +6139,9 @@ var Scale = function (_Element) {
         x = me.left + padding;
       } else {
         x = me.left + tickAndPadding;
-        if (crossAlignment === 'near') {
+        if (crossAlign === 'near') {
           textAlign = 'left';
-        } else if (crossAlignment === 'center') {
+        } else if (crossAlign === 'center') {
           textAlign = 'center';
           x += widest / 2;
         } else {
