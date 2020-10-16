@@ -8493,6 +8493,9 @@ class LogarithmicScale extends Scale {
 		const {min, max} = me.getMinMax(true);
 		me.min = isNumberFinite(min) ? Math.max(0, min) : null;
 		me.max = isNumberFinite(max) ? Math.max(0, max) : null;
+		if (me.options.beginAtZero) {
+			me._zero = true;
+		}
 		me.handleTickRangeOptions();
 	}
 	handleTickRangeOptions() {
@@ -8554,7 +8557,6 @@ class LogarithmicScale extends Scale {
 		super.configure();
 		me._startValue = log10(start);
 		me._valueRange = log10(me.max) - log10(start);
-		me._zero = me.options.beginAtZero;
 	}
 	getPixelForValue(value) {
 		const me = this;

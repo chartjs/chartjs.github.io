@@ -12307,6 +12307,9 @@ var LogarithmicScale = function (_Scale) {
         max = _me$getMinMax.max;
     me.min = isNumberFinite(min) ? Math.max(0, min) : null;
     me.max = isNumberFinite(max) ? Math.max(0, max) : null;
+    if (me.options.beginAtZero) {
+      me._zero = true;
+    }
     me.handleTickRangeOptions();
   };
   _proto.handleTickRangeOptions = function handleTickRangeOptions() {
@@ -12370,7 +12373,6 @@ var LogarithmicScale = function (_Scale) {
     _Scale.prototype.configure.call(this);
     me._startValue = log10(start);
     me._valueRange = log10(me.max) - log10(start);
-    me._zero = me.options.beginAtZero;
   };
   _proto.getPixelForValue = function getPixelForValue(value) {
     var me = this;
