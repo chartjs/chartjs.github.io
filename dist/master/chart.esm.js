@@ -4,7 +4,7 @@
  * (c) 2020 Chart.js Contributors
  * Released under the MIT License
  */
-import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, d as defaults, n as noop, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, m as merge, b as isArray, f as resolveObjectKey, g as getHoverColor, _ as _capitalize, h as mergeIf, s as sign, j as _merger, k as isNullOrUndef, o as _limitValue, p as clipArea, q as unclipArea, t as toRadians, T as TAU, H as HALF_PI, P as PI, w as isNumber, x as _lookupByKey, y as getRelativePosition$1, z as _isPointInArea, A as _rlookupByKey, B as toPadding, C as each, D as getMaximumSize, E as _getParentNode, F as readUsedSize, G as throttled, I as supportsEventListenerOptions, J as log10, K as isNumberFinite, L as callback, M as toDegrees, N as _measureText, O as _int16Range, Q as _alignPixel, R as toFont, S as _factorize, U as uid, V as retinaScale, W as clear, X as _elementsEqual, Y as getAngleFromPoint, Z as _angleBetween, $ as _updateBezierControlPoints, a0 as _computeSegments, a1 as _boundSegments, a2 as _steppedInterpolation, a3 as _bezierInterpolation, a4 as _pointInLine, a5 as _steppedLineTo, a6 as _bezierCurveTo, a7 as drawPoint, a8 as toTRBL, a9 as _normalizeAngle, aa as _boundSegment, ab as INFINITY, ac as getRtlAdapter, ad as overrideTextDirection, ae as restoreTextDirection, af as distanceBetweenPoints, ag as _setMinAndMaxByKey, ah as _decimalPlaces, ai as almostEquals, aj as almostWhole, ak as _longestText, al as _filterBetween, am as _arrayUnique, an as _lookup } from './chunks/helpers.segment.js';
+import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, d as defaults, n as noop, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, m as merge, b as isArray, f as resolveObjectKey, g as getHoverColor, _ as _capitalize, h as mergeIf, s as sign, j as _merger, k as isNullOrUndef, o as _limitValue, p as clipArea, q as unclipArea, t as _arrayUnique, w as toRadians, T as TAU, H as HALF_PI, P as PI, x as isNumber, y as _lookupByKey, z as getRelativePosition$1, A as _isPointInArea, B as _rlookupByKey, C as toPadding, D as each, E as getMaximumSize, F as _getParentNode, G as readUsedSize, I as throttled, J as supportsEventListenerOptions, K as log10, L as isNumberFinite, M as callback, N as toDegrees, O as _measureText, Q as _int16Range, R as _alignPixel, S as toFont, U as _factorize, V as uid, W as retinaScale, X as clear, Y as _elementsEqual, Z as getAngleFromPoint, $ as _angleBetween, a0 as _updateBezierControlPoints, a1 as _computeSegments, a2 as _boundSegments, a3 as _steppedInterpolation, a4 as _bezierInterpolation, a5 as _pointInLine, a6 as _steppedLineTo, a7 as _bezierCurveTo, a8 as drawPoint, a9 as toTRBL, aa as _normalizeAngle, ab as _boundSegment, ac as INFINITY, ad as getRtlAdapter, ae as overrideTextDirection, af as restoreTextDirection, ag as distanceBetweenPoints, ah as _setMinAndMaxByKey, ai as _decimalPlaces, aj as almostEquals, ak as almostWhole, al as _longestText, am as _filterBetween, an as _lookup } from './chunks/helpers.segment.js';
 export { d as defaults } from './chunks/helpers.segment.js';
 
 function drawFPS(chart, count, date, lastDate) {
@@ -1130,16 +1130,32 @@ DatasetController.prototype.dataElementOptions = [
 	'pointStyle'
 ];
 
-function computeMinSampleSize(scale, pixels) {
+function getAllScaleValues(scale) {
+	if (!scale._cache.$bar) {
+		const metas = scale.getMatchingVisibleMetas('bar');
+		let values = [];
+		for (let i = 0, ilen = metas.length; i < ilen; i++) {
+			values = values.concat(metas[i].controller.getAllParsedValues(scale));
+		}
+		scale._cache.$bar = _arrayUnique(values.sort((a, b) => a - b));
+	}
+	return scale._cache.$bar;
+}
+function computeMinSampleSize(scale) {
+	const values = getAllScaleValues(scale);
 	let min = scale._length;
-	let prev, curr, i, ilen;
-	for (i = 1, ilen = pixels.length; i < ilen; ++i) {
-		min = Math.min(min, Math.abs(pixels[i] - pixels[i - 1]));
+	let i, ilen, curr, prev;
+	const updateMinAndPrev = () => {
+		min = Math.min(min, i && Math.abs(curr - prev) || min);
+		prev = curr;
+	};
+	for (i = 0, ilen = values.length; i < ilen; ++i) {
+		curr = scale.getPixelForValue(values[i]);
+		updateMinAndPrev();
 	}
 	for (i = 0, ilen = scale.ticks.length; i < ilen; ++i) {
 		curr = scale.getPixelForTick(i);
-		min = i > 0 ? Math.min(min, Math.abs(curr - prev)) : min;
-		prev = curr;
+		updateMinAndPrev();
 	}
 	return min;
 }
@@ -1364,7 +1380,7 @@ class BarController extends DatasetController {
 		for (i = 0, ilen = meta.data.length; i < ilen; ++i) {
 			pixels.push(iScale.getPixelForValue(me.getParsed(i)[iScale.axis], i));
 		}
-		const min = computeMinSampleSize(iScale, pixels);
+		const min = computeMinSampleSize(iScale);
 		return {
 			min,
 			pixels,
@@ -3451,6 +3467,7 @@ class Scale extends Element {
 		this._userMin = undefined;
 		this._ticksLength = 0;
 		this._borderValue = 0;
+		this._cache = {};
 	}
 	init(options) {
 		const me = this;
@@ -3492,7 +3509,9 @@ class Scale extends Element {
 		}
 		return {min, max};
 	}
-	invalidateCaches() {}
+	invalidateCaches() {
+		this._cache = {};
+	}
 	getPadding() {
 		const me = this;
 		return {

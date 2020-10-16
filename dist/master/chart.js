@@ -4816,6 +4816,7 @@ var Scale = function (_Element) {
     _this._userMin = undefined;
     _this._ticksLength = 0;
     _this._borderValue = 0;
+    _this._cache = {};
     return _this;
   }
   var _proto = Scale.prototype;
@@ -4877,7 +4878,9 @@ var Scale = function (_Element) {
       max: max
     };
   };
-  _proto.invalidateCaches = function invalidateCaches() {}
+  _proto.invalidateCaches = function invalidateCaches() {
+    this._cache = {};
+  }
   ;
   _proto.getPadding = function getPadding() {
     var me = this;
@@ -7599,16 +7602,34 @@ var _adapters = {
   _date: DateAdapter
 };
 
-function computeMinSampleSize(scale, pixels) {
+function getAllScaleValues(scale) {
+  if (!scale._cache.$bar) {
+    var metas = scale.getMatchingVisibleMetas('bar');
+    var values = [];
+    for (var i = 0, ilen = metas.length; i < ilen; i++) {
+      values = values.concat(metas[i].controller.getAllParsedValues(scale));
+    }
+    scale._cache.$bar = _arrayUnique(values.sort(function (a, b) {
+      return a - b;
+    }));
+  }
+  return scale._cache.$bar;
+}
+function computeMinSampleSize(scale) {
+  var values = getAllScaleValues(scale);
   var min = scale._length;
-  var prev, curr, i, ilen;
-  for (i = 1, ilen = pixels.length; i < ilen; ++i) {
-    min = Math.min(min, Math.abs(pixels[i] - pixels[i - 1]));
+  var i, ilen, curr, prev;
+  var updateMinAndPrev = function updateMinAndPrev() {
+    min = Math.min(min, i && Math.abs(curr - prev) || min);
+    prev = curr;
+  };
+  for (i = 0, ilen = values.length; i < ilen; ++i) {
+    curr = scale.getPixelForValue(values[i]);
+    updateMinAndPrev();
   }
   for (i = 0, ilen = scale.ticks.length; i < ilen; ++i) {
     curr = scale.getPixelForTick(i);
-    min = i > 0 ? Math.min(min, Math.abs(curr - prev)) : min;
-    prev = curr;
+    updateMinAndPrev();
   }
   return min;
 }
@@ -7843,7 +7864,7 @@ var BarController = function (_DatasetController) {
     for (i = 0, ilen = meta.data.length; i < ilen; ++i) {
       pixels.push(iScale.getPixelForValue(me.getParsed(i)[iScale.axis], i));
     }
-    var min = computeMinSampleSize(iScale, pixels);
+    var min = computeMinSampleSize(iScale);
     return {
       min: min,
       pixels: pixels,
