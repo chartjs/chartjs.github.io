@@ -1394,9 +1394,10 @@ class BarController extends DatasetController {
 		const me = this;
 		const meta = me._cachedMeta;
 		const vScale = meta.vScale;
-		const minBarLength = options.minBarLength;
+		const {base: baseValue, minBarLength} = options;
 		const parsed = me.getParsed(index);
 		const custom = parsed._custom;
+		const floating = isFloatBar(custom);
 		let value = parsed[vScale.axis];
 		let start = 0;
 		let length = meta._stacked ? me.applyStack(vScale, parsed) : value;
@@ -1405,7 +1406,7 @@ class BarController extends DatasetController {
 			start = length - value;
 			length = value;
 		}
-		if (isFloatBar(custom)) {
+		if (floating) {
 			value = custom.barStart;
 			length = custom.barEnd - custom.barStart;
 			if (value !== 0 && sign(value) !== sign(custom.barEnd)) {
@@ -1413,7 +1414,8 @@ class BarController extends DatasetController {
 			}
 			start += value;
 		}
-		let base = _limitValue(vScale.getPixelForValue(start),
+		const startValue = !isNullOrUndef(baseValue) && !floating ? baseValue : start;
+		let base = _limitValue(vScale.getPixelForValue(startValue),
 			vScale._startPixel - 10,
 			vScale._endPixel + 10);
 		if (this.chart.getDataVisibility(index)) {
@@ -1482,6 +1484,7 @@ BarController.defaults = {
 		'borderWidth',
 		'barPercentage',
 		'barThickness',
+		'base',
 		'categoryPercentage',
 		'maxBarThickness',
 		'minBarLength',

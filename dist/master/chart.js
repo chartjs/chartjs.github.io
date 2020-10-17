@@ -7858,9 +7858,11 @@ var BarController = function (_DatasetController) {
     var me = this;
     var meta = me._cachedMeta;
     var vScale = meta.vScale;
-    var minBarLength = options.minBarLength;
+    var baseValue = options.base,
+        minBarLength = options.minBarLength;
     var parsed = me.getParsed(index);
     var custom = parsed._custom;
+    var floating = isFloatBar(custom);
     var value = parsed[vScale.axis];
     var start = 0;
     var length = meta._stacked ? me.applyStack(vScale, parsed) : value;
@@ -7869,7 +7871,7 @@ var BarController = function (_DatasetController) {
       start = length - value;
       length = value;
     }
-    if (isFloatBar(custom)) {
+    if (floating) {
       value = custom.barStart;
       length = custom.barEnd - custom.barStart;
       if (value !== 0 && sign(value) !== sign(custom.barEnd)) {
@@ -7877,7 +7879,8 @@ var BarController = function (_DatasetController) {
       }
       start += value;
     }
-    var base = _limitValue(vScale.getPixelForValue(start), vScale._startPixel - 10, vScale._endPixel + 10);
+    var startValue = !isNullOrUndef(baseValue) && !floating ? baseValue : start;
+    var base = _limitValue(vScale.getPixelForValue(startValue), vScale._startPixel - 10, vScale._endPixel + 10);
     if (this.chart.getDataVisibility(index)) {
       head = vScale.getPixelForValue(start + length);
     } else {
@@ -7935,7 +7938,7 @@ BarController.id = 'bar';
 BarController.defaults = {
   datasetElementType: false,
   dataElementType: 'rectangle',
-  dataElementOptions: ['backgroundColor', 'borderColor', 'borderSkipped', 'borderWidth', 'barPercentage', 'barThickness', 'categoryPercentage', 'maxBarThickness', 'minBarLength'],
+  dataElementOptions: ['backgroundColor', 'borderColor', 'borderSkipped', 'borderWidth', 'barPercentage', 'barThickness', 'base', 'categoryPercentage', 'maxBarThickness', 'minBarLength'],
   hover: {
     mode: 'index'
   },
