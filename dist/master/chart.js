@@ -265,7 +265,7 @@ var Animator = function () {
   }
   ;
   _proto.remove = function remove(chart) {
-    return this._charts["delete"](chart);
+    return this._charts.delete(chart);
   };
   return Animator;
 }();
@@ -1724,7 +1724,7 @@ var MapShim = function () {
           this.__entries__.push([key, value]);
         }
       };
-      class_1.prototype["delete"] = function (key) {
+      class_1.prototype.delete = function (key) {
         var entries = this.__entries__;
         var index = getIndex(entries, key);
         if (~index) {
@@ -2108,7 +2108,7 @@ function () {
     if (!observations.has(target)) {
       return;
     }
-    observations["delete"](target);
+    observations.delete(target);
     if (!observations.size) {
       this.controller_.removeObserver(this);
     }
@@ -2242,7 +2242,7 @@ function fromNativeEvent(event, chart) {
   return {
     type: type,
     chart: chart,
-    "native": event,
+    native: event,
     x: x !== undefined ? x : null,
     y: y !== undefined ? y : null
   };
@@ -2310,7 +2310,7 @@ function listenDevicePixelRatioChanges(chart, resize) {
   drpListeningCharts.set(chart, resize);
 }
 function unlistenDevicePixelRatioChanges(chart) {
-  drpListeningCharts["delete"](chart);
+  drpListeningCharts.delete(chart);
   if (!drpListeningCharts.size) {
     window.removeEventListener('resize', onWindowResize);
   }
@@ -3448,7 +3448,7 @@ function getHoverColor(value) {
 
 var transparent = 'transparent';
 var interpolators = {
-  "boolean": function boolean(from, to, factor) {
+  boolean: function boolean(from, to, factor) {
     return factor > 0.5 ? to : from;
   },
   color: function color$1(from, to, factor) {
@@ -4530,10 +4530,10 @@ var Element$1 = function () {
     return isNumber(this.x) && isNumber(this.y);
   }
   ;
-  _proto.getProps = function getProps(props, _final) {
+  _proto.getProps = function getProps(props, final) {
     var me = this;
     var anims = this.$animations;
-    if (!_final || !anims) {
+    if (!final || !anims) {
       return me;
     }
     var ret = {};
@@ -7558,7 +7558,7 @@ _boundSegments: _boundSegments,
 _computeSegments: _computeSegments
 });
 
-function _abstract() {
+function abstract() {
   throw new Error('This method is not implemented: either no adapter can be found or an incomplete integration was provided.');
 }
 var DateAdapter = function () {
@@ -7567,31 +7567,31 @@ var DateAdapter = function () {
   }
   var _proto = DateAdapter.prototype;
   _proto.formats = function formats() {
-    return _abstract();
+    return abstract();
   }
   ;
   _proto.parse = function parse(value, format) {
-    return _abstract();
+    return abstract();
   }
   ;
   _proto.format = function format(timestamp, _format) {
-    return _abstract();
+    return abstract();
   }
   ;
   _proto.add = function add(timestamp, amount, unit) {
-    return _abstract();
+    return abstract();
   }
   ;
   _proto.diff = function diff(a, b, unit) {
-    return _abstract();
+    return abstract();
   }
   ;
   _proto.startOf = function startOf(timestamp, unit, weekday) {
-    return _abstract();
+    return abstract();
   }
   ;
   _proto.endOf = function endOf(timestamp, unit) {
-    return _abstract();
+    return abstract();
   };
   return DateAdapter;
 }();
