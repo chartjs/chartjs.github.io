@@ -5233,24 +5233,12 @@ class Chart {
 		unclipArea(ctx);
 		me._plugins.notify(me, 'afterDatasetDraw', [args]);
 	}
-	getElementAtEvent(e) {
-		return Interaction.modes.nearest(this, e, {intersect: true});
-	}
-	getElementsAtEvent(e) {
-		return Interaction.modes.index(this, e, {intersect: true});
-	}
-	getElementsAtXAxis(e) {
-		return Interaction.modes.index(this, e, {intersect: false});
-	}
 	getElementsAtEventForMode(e, mode, options, useFinalPosition) {
 		const method = Interaction.modes[mode];
 		if (typeof method === 'function') {
 			return method(this, e, options, useFinalPosition);
 		}
 		return [];
-	}
-	getDatasetAtEvent(e) {
-		return Interaction.modes.dataset(this, e, {intersect: true});
 	}
 	getDatasetMeta(datasetIndex) {
 		const me = this;

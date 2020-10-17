@@ -6722,22 +6722,6 @@ var Chart = function () {
     meta.controller.draw();
     unclipArea(ctx);
     me._plugins.notify(me, 'afterDatasetDraw', [args]);
-  }
-  ;
-  _proto.getElementAtEvent = function getElementAtEvent(e) {
-    return Interaction.modes.nearest(this, e, {
-      intersect: true
-    });
-  };
-  _proto.getElementsAtEvent = function getElementsAtEvent(e) {
-    return Interaction.modes.index(this, e, {
-      intersect: true
-    });
-  };
-  _proto.getElementsAtXAxis = function getElementsAtXAxis(e) {
-    return Interaction.modes.index(this, e, {
-      intersect: false
-    });
   };
   _proto.getElementsAtEventForMode = function getElementsAtEventForMode(e, mode, options, useFinalPosition) {
     var method = Interaction.modes[mode];
@@ -6745,11 +6729,6 @@ var Chart = function () {
       return method(this, e, options, useFinalPosition);
     }
     return [];
-  };
-  _proto.getDatasetAtEvent = function getDatasetAtEvent(e) {
-    return Interaction.modes.dataset(this, e, {
-      intersect: true
-    });
   };
   _proto.getDatasetMeta = function getDatasetMeta(datasetIndex) {
     var me = this;
