@@ -6127,7 +6127,9 @@ function parseFillOption(line) {
 function decodeFill(line, index, count) {
 	const fill = parseFillOption(line);
 	let target = parseFloat(fill);
-	if (isNumberFinite(target) && Math.floor(target) === target) {
+	if (isObject(fill)) {
+		return isNaN(fill.value) ? false : fill;
+	} else if (isNumberFinite(target) && Math.floor(target) === target) {
 		if (fill[0] === '-' || fill[0] === '+') {
 			target = index + target;
 		}
@@ -6146,6 +6148,8 @@ function computeLinearBoundary(source) {
 		target = scale.bottom;
 	} else if (fill === 'end') {
 		target = scale.top;
+	} else if (isObject(fill)) {
+		target = scale.getPixelForValue(fill.value);
 	} else if (scale.getBasePixel) {
 		target = scale.getBasePixel();
 	}
@@ -6193,8 +6197,16 @@ function computeCircularBoundary(source) {
 	const target = [];
 	const start = options.reverse ? scale.max : scale.min;
 	const end = options.reverse ? scale.min : scale.max;
-	const value = fill === 'start' ? start : fill === 'end' ? end : scale.getBaseValue();
-	let i, center;
+	let i, center, value;
+	if (fill === 'start') {
+		value = start;
+	} else if (fill === 'end') {
+		value = end;
+	} else if (isObject(fill)) {
+		value = fill.value;
+	} else {
+		value = scale.getBaseValue();
+	}
 	if (options.gridLines.circular) {
 		center = scale.getPointPositionForValue(0, start);
 		return new simpleArc({
