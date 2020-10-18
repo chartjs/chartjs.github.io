@@ -11122,9 +11122,9 @@ function determineAlignment(chart, options, size) {
   var chartArea = chart.chartArea;
   var xAlign = 'center';
   var yAlign = 'center';
-  if (y < height) {
+  if (y < height / 2) {
     yAlign = 'top';
-  } else if (y > chart.height - height) {
+  } else if (y > chart.height - height / 2) {
     yAlign = 'bottom';
   }
   var lf, rf;

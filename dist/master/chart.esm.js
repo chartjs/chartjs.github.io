@@ -7444,9 +7444,9 @@ function determineAlignment(chart, options, size) {
 	const chartArea = chart.chartArea;
 	let xAlign = 'center';
 	let yAlign = 'center';
-	if (y < height) {
+	if (y < height / 2) {
 		yAlign = 'top';
-	} else if (y > (chart.height - height)) {
+	} else if (y > (chart.height - height / 2)) {
 		yAlign = 'bottom';
 	}
 	let lf, rf;
