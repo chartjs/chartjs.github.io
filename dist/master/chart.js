@@ -5196,6 +5196,8 @@ var Scale = function (_Element) {
     var widths = [];
     var heights = [];
     var offsets = [];
+    var widestLabelSize = 0;
+    var highestLabelSize = 0;
     var ticks = me.ticks;
     if (sampleSize < ticks.length) {
       ticks = sample(ticks, sampleSize);
@@ -5227,10 +5229,12 @@ var Scale = function (_Element) {
       widths.push(width);
       heights.push(height);
       offsets.push(lineHeight / 2);
+      widestLabelSize = Math.max(width, widestLabelSize);
+      highestLabelSize = Math.max(height, highestLabelSize);
     }
     garbageCollect(caches, length);
-    var widest = widths.indexOf(Math.max.apply(null, widths));
-    var highest = heights.indexOf(Math.max.apply(null, heights));
+    var widest = widths.indexOf(widestLabelSize);
+    var highest = heights.indexOf(highestLabelSize);
     function valueAt(idx) {
       return {
         width: widths[idx] || 0,
