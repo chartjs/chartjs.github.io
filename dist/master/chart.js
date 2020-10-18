@@ -9458,18 +9458,16 @@ var Point = function (_Element) {
     var borderWidth = radius && options.borderWidth || 0;
     return (radius + borderWidth) * 2;
   };
-  _proto.draw = function draw(ctx, chartArea) {
+  _proto.draw = function draw(ctx) {
     var me = this;
     var options = me.options;
     if (me.skip || options.radius <= 0) {
       return;
     }
-    if (chartArea === undefined || _isPointInArea(me, chartArea)) {
-      ctx.strokeStyle = options.borderColor;
-      ctx.lineWidth = options.borderWidth;
-      ctx.fillStyle = options.backgroundColor;
-      drawPoint(ctx, options, me.x, me.y);
-    }
+    ctx.strokeStyle = options.borderColor;
+    ctx.lineWidth = options.borderWidth;
+    ctx.fillStyle = options.backgroundColor;
+    drawPoint(ctx, options, me.x, me.y);
   };
   _proto.getRange = function getRange() {
     var options = this.options || {};

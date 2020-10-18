@@ -5933,18 +5933,16 @@ class Point extends Element {
 		const borderWidth = radius && options.borderWidth || 0;
 		return (radius + borderWidth) * 2;
 	}
-	draw(ctx, chartArea) {
+	draw(ctx) {
 		const me = this;
 		const options = me.options;
 		if (me.skip || options.radius <= 0) {
 			return;
 		}
-		if (chartArea === undefined || _isPointInArea(me, chartArea)) {
-			ctx.strokeStyle = options.borderColor;
-			ctx.lineWidth = options.borderWidth;
-			ctx.fillStyle = options.backgroundColor;
-			drawPoint(ctx, options, me.x, me.y);
-		}
+		ctx.strokeStyle = options.borderColor;
+		ctx.lineWidth = options.borderWidth;
+		ctx.fillStyle = options.backgroundColor;
+		drawPoint(ctx, options, me.x, me.y);
 	}
 	getRange() {
 		const options = this.options || {};
