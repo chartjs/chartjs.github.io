@@ -345,7 +345,7 @@ function clone(source) {
     return source.map(clone);
   }
   if (isObject(source)) {
-    var target = {};
+    var target = Object.create(null);
     var keys = Object.keys(source);
     var klen = keys.length;
     var k = 0;
@@ -430,7 +430,7 @@ function getScope(node, key) {
   var keys = key.split('.');
   for (var i = 0, n = keys.length; i < n; ++i) {
     var k = keys[i];
-    node = node[k] || (node[k] = {});
+    node = node[k] || (node[k] = Object.create(null));
   }
   return node;
 }
@@ -1449,6 +1449,9 @@ function getCombinedMax(maxPadding, chartArea, a, b) {
 function updateDims(chartArea, params, layout) {
   var box = layout.box;
   var maxPadding = chartArea.maxPadding;
+  if (isObject(layout.pos)) {
+    return;
+  }
   if (layout.size) {
     chartArea[layout.pos] -= layout.size;
   }
@@ -4011,7 +4014,7 @@ var DatasetController = function () {
   ;
   _proto.configure = function configure() {
     var me = this;
-    me._config = merge({}, [me.chart.options[me._type].datasets, me.getDataset()], {
+    me._config = merge(Object.create(null), [me.chart.options[me._type].datasets, me.getDataset()], {
       merger: function merger(key, target, source) {
         if (key !== 'data') {
           _merger(key, target, source);
@@ -6169,21 +6172,21 @@ function mergeScaleConfig(config, options) {
   };
   var configScales = options.scales || {};
   var chartIndexAxis = getIndexAxis(config.type, options);
-  var firstIDs = {};
-  var scales = {};
+  var firstIDs = Object.create(null);
+  var scales = Object.create(null);
   Object.keys(configScales).forEach(function (id) {
     var scaleConf = configScales[id];
     var axis = determineAxis(id, scaleConf);
     var defaultId = getDefaultScaleIDFromAxis(axis, chartIndexAxis);
     firstIDs[axis] = firstIDs[axis] || id;
-    scales[id] = mergeIf({
+    scales[id] = mergeIf(Object.create(null), [{
       axis: axis
-    }, [scaleConf, chartDefaults.scales[axis], chartDefaults.scales[defaultId]]);
+    }, scaleConf, chartDefaults.scales[axis], chartDefaults.scales[defaultId]]);
   });
   if (options.scale) {
-    scales[options.scale.id || 'r'] = mergeIf({
+    scales[options.scale.id || 'r'] = mergeIf(Object.create(null), [{
       axis: 'r'
-    }, [options.scale, chartDefaults.scales.r]);
+    }, options.scale, chartDefaults.scales.r]);
     firstIDs.r = firstIDs.r || options.scale.id || 'r';
   }
   config.data.datasets.forEach(function (dataset) {
@@ -6194,7 +6197,7 @@ function mergeScaleConfig(config, options) {
     Object.keys(defaultScaleOptions).forEach(function (defaultID) {
       var axis = getAxisFromDefaultScaleID(defaultID, indexAxis);
       var id = dataset[axis + 'AxisID'] || firstIDs[axis] || axis;
-      scales[id] = scales[id] || {};
+      scales[id] = scales[id] || Object.create(null);
       mergeIf(scales[id], [{
         axis: axis
       }, configScales[id], defaultScaleOptions[defaultID]]);
@@ -6211,7 +6214,7 @@ function mergeConfig()
   for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
     args[_key] = arguments[_key];
   }
-  return merge({}, args, {
+  return merge(Object.create(null), args, {
     merger: function merger(key, target, source, options) {
       if (key !== 'scales' && key !== 'scale') {
         _merger(key, target, source, options);
@@ -6230,8 +6233,8 @@ function initConfig(config) {
   var scaleConfig = mergeScaleConfig(config, config.options);
   var options = config.options = mergeConfig(defaults, defaults[config.type], config.options || {});
   options.scales = scaleConfig;
-  options.title = options.title !== false && merge({}, [defaults.plugins.title, options.title]);
-  options.tooltips = options.tooltips !== false && merge({}, [defaults.plugins.tooltip, options.tooltips]);
+  options.title = options.title !== false && merge(Object.create(null), [defaults.plugins.title, options.title]);
+  options.tooltips = options.tooltips !== false && merge(Object.create(null), [defaults.plugins.tooltip, options.tooltips]);
   return config;
 }
 function isAnimationDisabled(config) {
@@ -9682,10 +9685,11 @@ function parseFillOption(line) {
 }
 function decodeFill(line, index, count) {
   var fill = parseFillOption(line);
-  var target = parseFloat(fill);
   if (isObject(fill)) {
     return isNaN(fill.value) ? false : fill;
-  } else if (isNumberFinite(target) && Math.floor(target) === target) {
+  }
+  var target = parseFloat(fill);
+  if (isNumberFinite(target) && Math.floor(target) === target) {
     if (fill[0] === '-' || fill[0] === '+') {
       target = index + target;
     }
@@ -10655,7 +10659,7 @@ var Legend = function (_Element) {
   return Legend;
 }(Element$1);
 function resolveOptions(options) {
-  return options !== false && merge({}, [defaults.plugins.legend, options]);
+  return options !== false && merge(Object.create(null), [defaults.plugins.legend, options]);
 }
 function createNewLegendAndAttach(chart, legendOpts) {
   var legend = new Legend({
@@ -11049,7 +11053,7 @@ function createTooltipItem(chart, item) {
   };
 }
 function resolveOptions$1(options, fallbackFont) {
-  options = merge({}, [defaults.plugins.tooltip, options]);
+  options = merge(Object.create(null), [defaults.plugins.tooltip, options]);
   options.bodyFont = toFont(options.bodyFont, fallbackFont);
   options.titleFont = toFont(options.titleFont, fallbackFont);
   options.footerFont = toFont(options.footerFont, fallbackFont);

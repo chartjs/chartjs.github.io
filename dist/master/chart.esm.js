@@ -681,7 +681,7 @@ class DatasetController {
 	}
 	configure() {
 		const me = this;
-		me._config = merge({}, [
+		me._config = merge(Object.create(null), [
 			me.chart.options[me._type].datasets,
 			me.getDataset(),
 		], {
@@ -2712,6 +2712,9 @@ function getCombinedMax(maxPadding, chartArea, a, b) {
 function updateDims(chartArea, params, layout) {
 	const box = layout.box;
 	const maxPadding = chartArea.maxPadding;
+	if (isObject(layout.pos)) {
+		return;
+	}
 	if (layout.size) {
 		chartArea[layout.pos] -= layout.size;
 	}
@@ -4705,17 +4708,17 @@ function mergeScaleConfig(config, options) {
 	const chartDefaults = defaults[config.type] || {scales: {}};
 	const configScales = options.scales || {};
 	const chartIndexAxis = getIndexAxis(config.type, options);
-	const firstIDs = {};
-	const scales = {};
+	const firstIDs = Object.create(null);
+	const scales = Object.create(null);
 	Object.keys(configScales).forEach(id => {
 		const scaleConf = configScales[id];
 		const axis = determineAxis(id, scaleConf);
 		const defaultId = getDefaultScaleIDFromAxis(axis, chartIndexAxis);
 		firstIDs[axis] = firstIDs[axis] || id;
-		scales[id] = mergeIf({axis}, [scaleConf, chartDefaults.scales[axis], chartDefaults.scales[defaultId]]);
+		scales[id] = mergeIf(Object.create(null), [{axis}, scaleConf, chartDefaults.scales[axis], chartDefaults.scales[defaultId]]);
 	});
 	if (options.scale) {
-		scales[options.scale.id || 'r'] = mergeIf({axis: 'r'}, [options.scale, chartDefaults.scales.r]);
+		scales[options.scale.id || 'r'] = mergeIf(Object.create(null), [{axis: 'r'}, options.scale, chartDefaults.scales.r]);
 		firstIDs.r = firstIDs.r || options.scale.id || 'r';
 	}
 	config.data.datasets.forEach(dataset => {
@@ -4726,7 +4729,7 @@ function mergeScaleConfig(config, options) {
 		Object.keys(defaultScaleOptions).forEach(defaultID => {
 			const axis = getAxisFromDefaultScaleID(defaultID, indexAxis);
 			const id = dataset[axis + 'AxisID'] || firstIDs[axis] || axis;
-			scales[id] = scales[id] || {};
+			scales[id] = scales[id] || Object.create(null);
 			mergeIf(scales[id], [{axis}, configScales[id], defaultScaleOptions[defaultID]]);
 		});
 	});
@@ -4737,7 +4740,7 @@ function mergeScaleConfig(config, options) {
 	return scales;
 }
 function mergeConfig(...args) {
-	return merge({}, args, {
+	return merge(Object.create(null), args, {
 		merger(key, target, source, options) {
 			if (key !== 'scales' && key !== 'scale') {
 				_merger(key, target, source, options);
@@ -4756,8 +4759,8 @@ function initConfig(config) {
 		defaults[config.type],
 		config.options || {});
 	options.scales = scaleConfig;
-	options.title = (options.title !== false) && merge({}, [defaults.plugins.title, options.title]);
-	options.tooltips = (options.tooltips !== false) && merge({}, [defaults.plugins.tooltip, options.tooltips]);
+	options.title = (options.title !== false) && merge(Object.create(null), [defaults.plugins.title, options.title]);
+	options.tooltips = (options.tooltips !== false) && merge(Object.create(null), [defaults.plugins.tooltip, options.tooltips]);
 	return config;
 }
 function isAnimationDisabled(config) {
@@ -6131,10 +6134,11 @@ function parseFillOption(line) {
 }
 function decodeFill(line, index, count) {
 	const fill = parseFillOption(line);
-	let target = parseFloat(fill);
 	if (isObject(fill)) {
 		return isNaN(fill.value) ? false : fill;
-	} else if (isNumberFinite(target) && Math.floor(target) === target) {
+	}
+	let target = parseFloat(fill);
+	if (isNumberFinite(target) && Math.floor(target) === target) {
 		if (fill[0] === '-' || fill[0] === '+') {
 			target = index + target;
 		}
@@ -6997,7 +7001,7 @@ class Legend extends Element {
 	}
 }
 function resolveOptions(options) {
-	return options !== false && merge({}, [defaults.plugins.legend, options]);
+	return options !== false && merge(Object.create(null), [defaults.plugins.legend, options]);
 }
 function createNewLegendAndAttach(chart, legendOpts) {
 	const legend = new Legend({
@@ -7380,7 +7384,7 @@ function createTooltipItem(chart, item) {
 	};
 }
 function resolveOptions$1(options, fallbackFont) {
-	options = merge({}, [defaults.plugins.tooltip, options]);
+	options = merge(Object.create(null), [defaults.plugins.tooltip, options]);
 	options.bodyFont = toFont(options.bodyFont, fallbackFont);
 	options.titleFont = toFont(options.titleFont, fallbackFont);
 	options.footerFont = toFont(options.footerFont, fallbackFont);
