@@ -356,7 +356,13 @@ function clone(source) {
   }
   return source;
 }
+function isValidKey(key) {
+  return ['__proto__', 'prototype', 'constructor'].indexOf(key) === -1;
+}
 function _merger(key, target, source, options) {
+  if (!isValidKey(key)) {
+    return;
+  }
   var tval = target[key];
   var sval = source[key];
   if (isObject(tval) && isObject(sval)) {
@@ -391,6 +397,9 @@ function mergeIf(target, source) {
   });
 }
 function _mergerIf(key, target, source) {
+  if (!isValidKey(key)) {
+    return;
+  }
   var tval = target[key];
   var sval = source[key];
   if (isObject(tval) && isObject(sval)) {
