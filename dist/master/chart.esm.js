@@ -1489,9 +1489,10 @@ BarController.defaults = {
 		'maxBarThickness',
 		'minBarLength',
 	],
-	hover: {
+	interaction: {
 		mode: 'index'
 	},
+	hover: {},
 	datasets: {
 		categoryPercentage: 0.8,
 		barPercentage: 0.9,
@@ -2062,9 +2063,10 @@ LineController.defaults = {
 	},
 	showLines: true,
 	spanGaps: false,
-	hover: {
+	interaction: {
 		mode: 'index'
 	},
+	hover: {},
 	scales: {
 		_index_: {
 			type: 'category',
@@ -4758,9 +4760,23 @@ function initConfig(config) {
 		defaults,
 		defaults[config.type],
 		config.options || {});
+	options.hover = merge(Object.create(null), [
+		defaults.interaction,
+		defaults.hover,
+		options.interaction,
+		options.hover
+	]);
 	options.scales = scaleConfig;
-	options.title = (options.title !== false) && merge(Object.create(null), [defaults.plugins.title, options.title]);
-	options.tooltips = (options.tooltips !== false) && merge(Object.create(null), [defaults.plugins.tooltip, options.tooltips]);
+	options.title = (options.title !== false) && merge(Object.create(null), [
+		defaults.plugins.title,
+		options.title
+	]);
+	options.tooltips = (options.tooltips !== false) && merge(Object.create(null), [
+		defaults.interaction,
+		defaults.plugins.tooltip,
+		options.interaction,
+		options.tooltips
+	]);
 	return config;
 }
 function isAnimationDisabled(config) {
@@ -8052,9 +8068,7 @@ var plugin_tooltip = {
 	defaults: {
 		enabled: true,
 		custom: null,
-		mode: 'nearest',
 		position: 'average',
-		intersect: true,
 		backgroundColor: 'rgba(0,0,0,0.8)',
 		titleFont: {
 			style: 'bold',

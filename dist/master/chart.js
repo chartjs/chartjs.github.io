@@ -458,12 +458,15 @@ var Defaults = function () {
       lineWidth: 0,
       strokeStyle: undefined
     };
-    this.hover = {
-      onHover: null,
+    this.interaction = {
       mode: 'nearest',
       intersect: true
     };
+    this.hover = {
+      onHover: null
+    };
     this.maintainAspectRatio = true;
+    this.onHover = null;
     this.onClick = null;
     this.responsive = true;
     this.showLines = true;
@@ -6241,9 +6244,10 @@ function initConfig(config) {
   data.labels = data.labels || [];
   var scaleConfig = mergeScaleConfig(config, config.options);
   var options = config.options = mergeConfig(defaults, defaults[config.type], config.options || {});
+  options.hover = merge(Object.create(null), [defaults.interaction, defaults.hover, options.interaction, options.hover]);
   options.scales = scaleConfig;
   options.title = options.title !== false && merge(Object.create(null), [defaults.plugins.title, options.title]);
-  options.tooltips = options.tooltips !== false && merge(Object.create(null), [defaults.plugins.tooltip, options.tooltips]);
+  options.tooltips = options.tooltips !== false && merge(Object.create(null), [defaults.interaction, defaults.plugins.tooltip, options.interaction, options.tooltips]);
   return config;
 }
 function isAnimationDisabled(config) {
@@ -7955,9 +7959,10 @@ BarController.defaults = {
   datasetElementType: false,
   dataElementType: 'rectangle',
   dataElementOptions: ['backgroundColor', 'borderColor', 'borderSkipped', 'borderWidth', 'barPercentage', 'barThickness', 'base', 'categoryPercentage', 'maxBarThickness', 'minBarLength'],
-  hover: {
+  interaction: {
     mode: 'index'
   },
+  hover: {},
   datasets: {
     categoryPercentage: 0.8,
     barPercentage: 0.9,
@@ -8559,9 +8564,10 @@ LineController.defaults = {
   },
   showLines: true,
   spanGaps: false,
-  hover: {
+  interaction: {
     mode: 'index'
   },
+  hover: {},
   scales: {
     _index_: {
       type: 'category'
@@ -11804,9 +11810,7 @@ var plugin_tooltip = {
   defaults: {
     enabled: true,
     custom: null,
-    mode: 'nearest',
     position: 'average',
-    intersect: true,
     backgroundColor: 'rgba(0,0,0,0.8)',
     titleFont: {
       style: 'bold',
