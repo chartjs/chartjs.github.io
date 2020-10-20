@@ -7784,7 +7784,7 @@ var BarController = function (_DatasetController) {
     var meta = me._cachedMeta;
     me.updateElements(meta.data, 0, meta.data.length, mode);
   };
-  _proto.updateElements = function updateElements(rectangles, start, count, mode) {
+  _proto.updateElements = function updateElements(bars, start, count, mode) {
     var me = this;
     var reset = mode === 'reset';
     var vscale = me._cachedMeta.vScale;
@@ -7810,7 +7810,7 @@ var BarController = function (_DatasetController) {
       if (includeOptions) {
         properties.options = options;
       }
-      me.updateElement(rectangles[i], i, properties, mode);
+      me.updateElement(bars[i], i, properties, mode);
     }
   }
   ;
@@ -7957,7 +7957,7 @@ var BarController = function (_DatasetController) {
 BarController.id = 'bar';
 BarController.defaults = {
   datasetElementType: false,
-  dataElementType: 'rectangle',
+  dataElementType: 'bar',
   dataElementOptions: ['backgroundColor', 'borderColor', 'borderSkipped', 'borderWidth', 'barPercentage', 'barThickness', 'base', 'categoryPercentage', 'maxBarThickness', 'minBarLength'],
   interaction: {
     mode: 'index'
@@ -9062,9 +9062,9 @@ function drawBorder(ctx, element) {
   ctx.closePath();
   ctx.stroke();
 }
-var Arc = function (_Element) {
-  _inheritsLoose(Arc, _Element);
-  function Arc(cfg) {
+var ArcElement = function (_Element) {
+  _inheritsLoose(ArcElement, _Element);
+  function ArcElement(cfg) {
     var _this;
     _this = _Element.call(this) || this;
     _this.options = undefined;
@@ -9080,7 +9080,7 @@ var Arc = function (_Element) {
     }
     return _this;
   }
-  var _proto = Arc.prototype;
+  var _proto = ArcElement.prototype;
   _proto.inRange = function inRange(chartX, chartY, useFinalPosition) {
     var point = this.getProps(['x', 'y'], useFinalPosition);
     var _getAngleFromPoint = getAngleFromPoint(point, {
@@ -9139,16 +9139,16 @@ var Arc = function (_Element) {
     drawBorder(ctx, me);
     ctx.restore();
   };
-  return Arc;
+  return ArcElement;
 }(Element$1);
-Arc.id = 'arc';
-Arc.defaults = {
+ArcElement.id = 'arc';
+ArcElement.defaults = {
   borderAlign: 'center',
   borderColor: '#fff',
   borderWidth: 2,
   offset: 0
 };
-Arc.defaultRoutes = {
+ArcElement.defaultRoutes = {
   backgroundColor: 'color'
 };
 
@@ -9284,9 +9284,9 @@ function _getInterpolationMethod(options) {
   }
   return _pointInLine;
 }
-var Line = function (_Element) {
-  _inheritsLoose(Line, _Element);
-  function Line(cfg) {
+var LineElement = function (_Element) {
+  _inheritsLoose(LineElement, _Element);
+  function LineElement(cfg) {
     var _this;
     _this = _Element.call(this) || this;
     _this.options = undefined;
@@ -9300,7 +9300,7 @@ var Line = function (_Element) {
     }
     return _this;
   }
-  var _proto = Line.prototype;
+  var _proto = LineElement.prototype;
   _proto.updateControlPoints = function updateControlPoints(chartArea) {
     var me = this;
     var options = me.options;
@@ -9395,7 +9395,7 @@ var Line = function (_Element) {
     ctx.restore();
     this._pointsUpdated = false;
   };
-  _createClass(Line, [{
+  _createClass(LineElement, [{
     key: "points",
     set: function set(points) {
       this._points = points;
@@ -9410,10 +9410,10 @@ var Line = function (_Element) {
       return this._segments || (this._segments = _computeSegments(this));
     }
   }]);
-  return Line;
+  return LineElement;
 }(Element$1);
-Line.id = 'line';
-Line.defaults = {
+LineElement.id = 'line';
+LineElement.defaults = {
   borderCapStyle: 'butt',
   borderDash: [],
   borderDashOffset: 0,
@@ -9423,14 +9423,14 @@ Line.defaults = {
   fill: true,
   tension: 0
 };
-Line.defaultRoutes = {
+LineElement.defaultRoutes = {
   backgroundColor: 'color',
   borderColor: 'color'
 };
 
-var Point = function (_Element) {
-  _inheritsLoose(Point, _Element);
-  function Point(cfg) {
+var PointElement = function (_Element) {
+  _inheritsLoose(PointElement, _Element);
+  function PointElement(cfg) {
     var _this;
     _this = _Element.call(this) || this;
     _this.options = undefined;
@@ -9441,7 +9441,7 @@ var Point = function (_Element) {
     }
     return _this;
   }
-  var _proto = Point.prototype;
+  var _proto = PointElement.prototype;
   _proto.inRange = function inRange(mouseX, mouseY, useFinalPosition) {
     var options = this.options;
     var _this$getProps = this.getProps(['x', 'y'], useFinalPosition),
@@ -9491,10 +9491,10 @@ var Point = function (_Element) {
     var options = this.options || {};
     return options.radius + options.hitRadius;
   };
-  return Point;
+  return PointElement;
 }(Element$1);
-Point.id = 'point';
-Point.defaults = {
+PointElement.id = 'point';
+PointElement.defaults = {
   borderWidth: 1,
   hitRadius: 1,
   hoverBorderWidth: 1,
@@ -9502,7 +9502,7 @@ Point.defaults = {
   pointStyle: 'circle',
   radius: 3
 };
-Point.defaultRoutes = {
+PointElement.defaultRoutes = {
   backgroundColor: 'color',
   borderColor: 'color'
 };
@@ -9601,9 +9601,9 @@ function _inRange(bar, x, y, useFinalPosition) {
   var bounds = bar && !skipBoth && getBarBounds(bar, useFinalPosition);
   return bounds && (skipX || x >= bounds.left && x <= bounds.right) && (skipY || y >= bounds.top && y <= bounds.bottom);
 }
-var Rectangle = function (_Element) {
-  _inheritsLoose(Rectangle, _Element);
-  function Rectangle(cfg) {
+var BarElement = function (_Element) {
+  _inheritsLoose(BarElement, _Element);
+  function BarElement(cfg) {
     var _this;
     _this = _Element.call(this) || this;
     _this.options = undefined;
@@ -9616,7 +9616,7 @@ var Rectangle = function (_Element) {
     }
     return _this;
   }
-  var _proto = Rectangle.prototype;
+  var _proto = BarElement.prototype;
   _proto.draw = function draw(ctx) {
     var options = this.options;
     var _boundingRects = boundingRects(this),
@@ -9658,24 +9658,24 @@ var Rectangle = function (_Element) {
   _proto.getRange = function getRange(axis) {
     return axis === 'x' ? this.width / 2 : this.height / 2;
   };
-  return Rectangle;
+  return BarElement;
 }(Element$1);
-Rectangle.id = 'rectangle';
-Rectangle.defaults = {
+BarElement.id = 'bar';
+BarElement.defaults = {
   borderSkipped: 'start',
   borderWidth: 0
 };
-Rectangle.defaultRoutes = {
+BarElement.defaultRoutes = {
   backgroundColor: 'color',
   borderColor: 'color'
 };
 
 var elements = /*#__PURE__*/Object.freeze({
 __proto__: null,
-Arc: Arc,
-Line: Line,
-Point: Point,
-Rectangle: Rectangle
+ArcElement: ArcElement,
+LineElement: LineElement,
+PointElement: PointElement,
+BarElement: BarElement
 });
 
 function getLineByIndex(chart, index) {
@@ -9866,7 +9866,7 @@ function buildStackLine(source) {
       addPointsBelow(points, sourcePoints[j], linesBelow);
     }
   }
-  return new Line({
+  return new LineElement({
     points: points,
     options: {}
   });
@@ -9961,7 +9961,7 @@ function createBoundaryLine(boundary, line) {
   } else {
     points = pointsFromSegments(boundary, line);
   }
-  return points.length ? new Line({
+  return points.length ? new LineElement({
     points: points,
     options: {
       tension: 0
@@ -10157,7 +10157,7 @@ var plugin_filler = {
       meta = chart.getDatasetMeta(i);
       line = meta.dataset;
       source = null;
-      if (line && line.options && line instanceof Line) {
+      if (line && line.options && line instanceof LineElement) {
         source = {
           visible: chart.isDatasetVisible(i),
           index: i,

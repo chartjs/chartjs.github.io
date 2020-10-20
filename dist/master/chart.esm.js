@@ -1298,7 +1298,7 @@ class BarController extends DatasetController {
 		const meta = me._cachedMeta;
 		me.updateElements(meta.data, 0, meta.data.length, mode);
 	}
-	updateElements(rectangles, start, count, mode) {
+	updateElements(bars, start, count, mode) {
 		const me = this;
 		const reset = mode === 'reset';
 		const vscale = me._cachedMeta.vScale;
@@ -1324,7 +1324,7 @@ class BarController extends DatasetController {
 			if (includeOptions) {
 				properties.options = options;
 			}
-			me.updateElement(rectangles[i], i, properties, mode);
+			me.updateElement(bars[i], i, properties, mode);
 		}
 	}
 	_getStacks(last, dataIndex) {
@@ -1476,7 +1476,7 @@ class BarController extends DatasetController {
 BarController.id = 'bar';
 BarController.defaults = {
 	datasetElementType: false,
-	dataElementType: 'rectangle',
+	dataElementType: 'bar',
 	dataElementOptions: [
 		'backgroundColor',
 		'borderColor',
@@ -5601,7 +5601,7 @@ function drawBorder(ctx, element) {
 	ctx.closePath();
 	ctx.stroke();
 }
-class Arc extends Element {
+class ArcElement extends Element {
 	constructor(cfg) {
 		super();
 		this.options = undefined;
@@ -5670,14 +5670,14 @@ class Arc extends Element {
 		ctx.restore();
 	}
 }
-Arc.id = 'arc';
-Arc.defaults = {
+ArcElement.id = 'arc';
+ArcElement.defaults = {
 	borderAlign: 'center',
 	borderColor: '#fff',
 	borderWidth: 2,
 	offset: 0
 };
-Arc.defaultRoutes = {
+ArcElement.defaultRoutes = {
 	backgroundColor: 'color'
 };
 
@@ -5797,7 +5797,7 @@ function _getInterpolationMethod(options) {
 	}
 	return _pointInLine;
 }
-class Line extends Element {
+class LineElement extends Element {
 	constructor(cfg) {
 		super();
 		this.options = undefined;
@@ -5901,8 +5901,8 @@ class Line extends Element {
 		this._pointsUpdated = false;
 	}
 }
-Line.id = 'line';
-Line.defaults = {
+LineElement.id = 'line';
+LineElement.defaults = {
 	borderCapStyle: 'butt',
 	borderDash: [],
 	borderDashOffset: 0,
@@ -5912,12 +5912,12 @@ Line.defaults = {
 	fill: true,
 	tension: 0
 };
-Line.defaultRoutes = {
+LineElement.defaultRoutes = {
 	backgroundColor: 'color',
 	borderColor: 'color'
 };
 
-class Point extends Element {
+class PointElement extends Element {
 	constructor(cfg) {
 		super();
 		this.options = undefined;
@@ -5968,8 +5968,8 @@ class Point extends Element {
 		return options.radius + options.hitRadius;
 	}
 }
-Point.id = 'point';
-Point.defaults = {
+PointElement.id = 'point';
+PointElement.defaults = {
 	borderWidth: 1,
 	hitRadius: 1,
 	hoverBorderWidth: 1,
@@ -5977,7 +5977,7 @@ Point.defaults = {
 	pointStyle: 'circle',
 	radius: 3
 };
-Point.defaultRoutes = {
+PointElement.defaultRoutes = {
 	backgroundColor: 'color',
 	borderColor: 'color'
 };
@@ -6070,7 +6070,7 @@ function inRange(bar, x, y, useFinalPosition) {
 		&& (skipX || x >= bounds.left && x <= bounds.right)
 		&& (skipY || y >= bounds.top && y <= bounds.bottom);
 }
-class Rectangle extends Element {
+class BarElement extends Element {
 	constructor(cfg) {
 		super();
 		this.options = undefined;
@@ -6118,12 +6118,12 @@ class Rectangle extends Element {
 		return axis === 'x' ? this.width / 2 : this.height / 2;
 	}
 }
-Rectangle.id = 'rectangle';
-Rectangle.defaults = {
+BarElement.id = 'bar';
+BarElement.defaults = {
 	borderSkipped: 'start',
 	borderWidth: 0
 };
-Rectangle.defaultRoutes = {
+BarElement.defaultRoutes = {
 	backgroundColor: 'color',
 	borderColor: 'color'
 };
@@ -6282,7 +6282,7 @@ function buildStackLine(source) {
 			addPointsBelow(points, sourcePoints[j], linesBelow);
 		}
 	}
-	return new Line({points, options: {}});
+	return new LineElement({points, options: {}});
 }
 const isLineAndNotInHideAnimation = (meta) => meta.type === 'line' && !meta.hidden;
 function getLinesBelow(chart, index) {
@@ -6363,7 +6363,7 @@ function createBoundaryLine(boundary, line) {
 	} else {
 		points = pointsFromSegments(boundary, line);
 	}
-	return points.length ? new Line({
+	return points.length ? new LineElement({
 		points,
 		options: {tension: 0},
 		_loop,
@@ -6523,7 +6523,7 @@ var plugin_filler = {
 			meta = chart.getDatasetMeta(i);
 			line = meta.dataset;
 			source = null;
-			if (line && line.options && line instanceof Line) {
+			if (line && line.options && line instanceof LineElement) {
 				source = {
 					visible: chart.isDatasetVisible(i),
 					index: i,
@@ -9455,4 +9455,4 @@ class TimeSeriesScale extends TimeScale {
 TimeSeriesScale.id = 'timeseries';
 TimeSeriesScale.defaults = TimeScale.defaults;
 
-export { Animation, Animations, Arc, BarController, BasePlatform, BasicPlatform, BubbleController, CategoryScale, Chart, DatasetController, DomPlatform, DoughnutController, Element, plugin_filler as Filler, Interaction, plugin_legend as Legend, Line, LineController, LinearScale, LogarithmicScale, PieController, Point, PolarAreaController, RadarController, RadialLinearScale, Rectangle, Scale, ScatterController, Ticks, TimeScale, TimeSeriesScale, plugin_title as Title, plugin_tooltip as Tooltip, adapters as _adapters, animator, layouts, PluginService as plugins, registry };
+export { Animation, Animations, ArcElement, BarController, BarElement, BasePlatform, BasicPlatform, BubbleController, CategoryScale, Chart, DatasetController, DomPlatform, DoughnutController, Element, plugin_filler as Filler, Interaction, plugin_legend as Legend, LineController, LineElement, LinearScale, LogarithmicScale, PieController, PointElement, PolarAreaController, RadarController, RadialLinearScale, Scale, ScatterController, Ticks, TimeScale, TimeSeriesScale, plugin_title as Title, plugin_tooltip as Tooltip, adapters as _adapters, animator, layouts, PluginService as plugins, registry };
