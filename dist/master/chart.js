@@ -469,7 +469,7 @@ var Defaults = function () {
     this.onHover = null;
     this.onClick = null;
     this.responsive = true;
-    this.showLines = true;
+    this.showLine = true;
     this.plugins = {};
     this.scale = undefined;
     this.doughnut = undefined;
@@ -8515,7 +8515,7 @@ var LineController = function (_DatasetController) {
     var options = me.chart.options;
     var lineOptions = options.elements.line;
     var values = _DatasetController.prototype.resolveDatasetElementOptions.call(this, active);
-    var showLine = valueOrDefault(config.showLine, options.showLines);
+    var showLine = valueOrDefault(config.showLine, options.showLine);
     values.spanGaps = valueOrDefault(config.spanGaps, options.spanGaps);
     values.tension = valueOrDefault(config.lineTension, lineOptions.tension);
     values.stepped = resolve([config.stepped, lineOptions.stepped]);
@@ -8562,7 +8562,7 @@ LineController.defaults = {
     radius: 'pointRadius',
     rotation: 'pointRotation'
   },
-  showLines: true,
+  showLine: true,
   spanGaps: false,
   interaction: {
     mode: 'index'
@@ -8865,7 +8865,7 @@ var RadarController = function (_DatasetController) {
     var config = me._config;
     var options = me.chart.options;
     var values = _DatasetController.prototype.resolveDatasetElementOptions.call(this, active);
-    var showLine = valueOrDefault(config.showLine, options.showLines);
+    var showLine = valueOrDefault(config.showLine, options.showLine);
     values.spanGaps = valueOrDefault(config.spanGaps, options.spanGaps);
     values.tension = valueOrDefault(config.lineTension, options.elements.line.tension);
     if (!showLine) {

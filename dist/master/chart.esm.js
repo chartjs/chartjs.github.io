@@ -2005,7 +2005,7 @@ class LineController extends DatasetController {
 		const options = me.chart.options;
 		const lineOptions = options.elements.line;
 		const values = super.resolveDatasetElementOptions(active);
-		const showLine = valueOrDefault(config.showLine, options.showLines);
+		const showLine = valueOrDefault(config.showLine, options.showLine);
 		values.spanGaps = valueOrDefault(config.spanGaps, options.spanGaps);
 		values.tension = valueOrDefault(config.lineTension, lineOptions.tension);
 		values.stepped = resolve([config.stepped, lineOptions.stepped]);
@@ -2061,7 +2061,7 @@ LineController.defaults = {
 		radius: 'pointRadius',
 		rotation: 'pointRotation'
 	},
-	showLines: true,
+	showLine: true,
 	spanGaps: false,
 	interaction: {
 		mode: 'index'
@@ -2353,7 +2353,7 @@ class RadarController extends DatasetController {
 		const config = me._config;
 		const options = me.chart.options;
 		const values = super.resolveDatasetElementOptions(active);
-		const showLine = valueOrDefault(config.showLine, options.showLines);
+		const showLine = valueOrDefault(config.showLine, options.showLine);
 		values.spanGaps = valueOrDefault(config.spanGaps, options.spanGaps);
 		values.tension = valueOrDefault(config.lineTension, options.elements.line.tension);
 		if (!showLine) {
