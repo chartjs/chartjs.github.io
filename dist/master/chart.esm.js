@@ -4641,7 +4641,7 @@ class PluginService {
 		if (this._cache) {
 			return this._cache;
 		}
-		const config = (chart && chart.config) || {};
+		const config = chart && chart.config;
 		const options = (config.options && config.options.plugins) || {};
 		const plugins = allPlugins(config);
 		const descriptors = createDescriptors(plugins, options);
@@ -4684,8 +4684,6 @@ function createDescriptors(plugins, options) {
 	return result;
 }
 
-var version = "3.0.0-beta.3";
-
 function getIndexAxis(type, options) {
 	const typeDefaults = defaults[type] || {};
 	const datasetDefaults = typeDefaults.datasets || {};
@@ -4704,6 +4702,20 @@ function getAxisFromDefaultScaleID(id, indexAxis) {
 }
 function getDefaultScaleIDFromAxis(axis, indexAxis) {
 	return axis === indexAxis ? '_index_' : '_value_';
+}
+function axisFromPosition(position) {
+	if (position === 'top' || position === 'bottom') {
+		return 'x';
+	}
+	if (position === 'left' || position === 'right') {
+		return 'y';
+	}
+}
+function determineAxis(id, scaleOptions) {
+	if (id === 'x' || id === 'y' || id === 'r') {
+		return id;
+	}
+	return scaleOptions.axis || axisFromPosition(scaleOptions.position) || id.charAt(0).toLowerCase();
 }
 function mergeScaleConfig(config, options) {
 	options = options || {};
@@ -4750,16 +4762,19 @@ function mergeConfig(...args) {
 		}
 	});
 }
+function includeDefaults(options, type) {
+	return mergeConfig(
+		defaults,
+		defaults[type],
+		options || {});
+}
 function initConfig(config) {
 	config = config || {};
 	const data = config.data = config.data || {datasets: [], labels: []};
 	data.datasets = data.datasets || [];
 	data.labels = data.labels || [];
 	const scaleConfig = mergeScaleConfig(config, config.options);
-	const options = config.options = mergeConfig(
-		defaults,
-		defaults[config.type],
-		config.options || {});
+	const options = config.options = includeDefaults(config.options, config.type);
 	options.hover = merge(Object.create(null), [
 		defaults.interaction,
 		defaults.hover,
@@ -4779,40 +4794,39 @@ function initConfig(config) {
 	]);
 	return config;
 }
-function isAnimationDisabled(config) {
-	return !config.animation;
+class Config {
+	constructor(config) {
+		this._config = initConfig(config);
+	}
+	get type() {
+		return this._config.type;
+	}
+	get data() {
+		return this._config.data;
+	}
+	set data(data) {
+		this._config.data = data;
+	}
+	get options() {
+		return this._config.options;
+	}
+	get plugins() {
+		return this._config.plugins;
+	}
+	update(options) {
+		const config = this._config;
+		const scaleConfig = mergeScaleConfig(config, options);
+		options = includeDefaults(options, config.type);
+		options.scales = scaleConfig;
+		config.options = options;
+	}
 }
-function updateConfig(chart) {
-	let newOptions = chart.options;
-	each(chart.scales, (scale) => {
-		layouts.removeBox(chart, scale);
-	});
-	const scaleConfig = mergeScaleConfig(chart.config, newOptions);
-	newOptions = mergeConfig(
-		defaults,
-		defaults[chart.config.type],
-		newOptions);
-	chart.options = chart.config.options = newOptions;
-	chart.options.scales = scaleConfig;
-	chart._animationsDisabled = isAnimationDisabled(newOptions);
-}
+
+var version = "3.0.0-beta.3";
+
 const KNOWN_POSITIONS = ['top', 'bottom', 'left', 'right', 'chartArea'];
 function positionIsHorizontal(position, axis) {
 	return position === 'top' || position === 'bottom' || (KNOWN_POSITIONS.indexOf(position) === -1 && axis === 'x');
-}
-function axisFromPosition(position) {
-	if (position === 'top' || position === 'bottom') {
-		return 'x';
-	}
-	if (position === 'left' || position === 'right') {
-		return 'y';
-	}
-}
-function determineAxis(id, scaleOptions) {
-	if (id === 'x' || id === 'y' || id === 'r') {
-		return id;
-	}
-	return scaleOptions.axis || axisFromPosition(scaleOptions.position) || id.charAt(0).toLowerCase();
 }
 function compare2Level(l1, l2) {
 	return function(a, b) {
@@ -4849,7 +4863,7 @@ function getCanvas(item) {
 class Chart {
 	constructor(item, config) {
 		const me = this;
-		config = initConfig(config);
+		this.config = config = new Config(config);
 		const initialCanvas = getCanvas(item);
 		const existingChart = Chart.getChart(initialCanvas);
 		if (existingChart) {
@@ -4866,7 +4880,6 @@ class Chart {
 		this.id = uid();
 		this.ctx = context;
 		this.canvas = canvas;
-		this.config = config;
 		this.width = width;
 		this.height = height;
 		this.aspectRatio = height ? width / height : null;
@@ -4877,7 +4890,6 @@ class Chart {
 		this.boxes = [];
 		this.currentDevicePixelRatio = undefined;
 		this.chartArea = undefined;
-		this.data = undefined;
 		this._active = [];
 		this._lastEvent = undefined;
 		this._listeners = {};
@@ -4889,15 +4901,8 @@ class Chart {
 		this.$proxies = {};
 		this._hiddenIndices = {};
 		this.attached = false;
+		this._animationsDisabled = undefined;
 		Chart.instances[me.id] = me;
-		Object.defineProperty(me, 'data', {
-			get() {
-				return me.config.data;
-			},
-			set(value) {
-				me.config.data = value;
-			}
-		});
 		if (!context || !canvas) {
 			console.error("Failed to create chart: can't acquire context from the given item");
 			return;
@@ -4908,6 +4913,12 @@ class Chart {
 		if (me.attached) {
 			me.update();
 		}
+	}
+	get data() {
+		return this.config.data;
+	}
+	set data(data) {
+		this.config.data = data;
 	}
 	_initialize() {
 		const me = this;
@@ -5114,7 +5125,12 @@ class Chart {
 		const args = {mode};
 		let i, ilen;
 		me._updating = true;
-		updateConfig(me);
+		each(me.scales, (scale) => {
+			layouts.removeBox(me, scale);
+		});
+		me.config.update(me.options);
+		me.options = me.config.options;
+		me._animationsDisabled = !me.options.animation;
 		me.ensureScalesHaveIDs();
 		me.buildOrUpdateScales();
 		me._plugins.invalidate();

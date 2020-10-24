@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>&quot;helpers/helpers.color&quot; | Chart.js - v3.0.0-beta.3</title>
+	<title>&quot;core/core.config&quot; | Chart.js - v3.0.0-beta.3</title>
 	<meta name="description" content="Documentation for Chart.js - v3.0.0-beta.3">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -52,10 +52,10 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="_helpers_helpers_color_.html">&quot;helpers/helpers.color&quot;</a>
+					<a href="_core_core_config_.html">&quot;core/core.config&quot;</a>
 				</li>
 			</ul>
-			<h1>Module &quot;helpers/helpers.color&quot;</h1>
+			<h1>Module &quot;core/core.config&quot;</h1>
 		</div>
 	</div>
 </header>
@@ -67,10 +67,16 @@
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
 						<section class="tsd-index-section ">
+							<h3>Classes</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_core_core_config_.config.html" class="tsd-kind-icon">Config</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
 							<h3>Functions</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_helpers_helpers_color_.html#color" class="tsd-kind-icon">color</a></li>
-								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_helpers_helpers_color_.html#gethovercolor" class="tsd-kind-icon">get<wbr>Hover<wbr>Color</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_core_core_config_.html#determineaxis" class="tsd-kind-icon">determine<wbr>Axis</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_core_core_config_.html#getindexaxis" class="tsd-kind-icon">get<wbr>Index<wbr>Axis</a></li>
 							</ul>
 						</section>
 					</div>
@@ -79,22 +85,25 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Functions</h2>
 				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
-					<a name="color" class="tsd-anchor"></a>
-					<h3>color</h3>
+					<a name="determineaxis" class="tsd-anchor"></a>
+					<h3>determine<wbr>Axis</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
-						<li class="tsd-signature tsd-kind-icon">color<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
+						<li class="tsd-signature tsd-kind-icon">determine<wbr>Axis<span class="tsd-signature-symbol">(</span>id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, scaleOptions<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/6dbb7e7/src/helpers/helpers.color.js#L5">helpers/helpers.color.js:5</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/6dbb7e7/src/core/core.config.js#L36">core/core.config.js:36</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>value: <span class="tsd-signature-type">any</span></h5>
+									<h5>id: <span class="tsd-signature-type">any</span></h5>
+								</li>
+								<li>
+									<h5>scaleOptions: <span class="tsd-signature-type">any</span></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
@@ -102,22 +111,25 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
-					<a name="gethovercolor" class="tsd-anchor"></a>
-					<h3>get<wbr>Hover<wbr>Color</h3>
+					<a name="getindexaxis" class="tsd-anchor"></a>
+					<h3>get<wbr>Index<wbr>Axis</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>Hover<wbr>Color<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Index<wbr>Axis<span class="tsd-signature-symbol">(</span>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, options<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/6dbb7e7/src/helpers/helpers.color.js#L9">helpers/helpers.color.js:9</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/6dbb7e7/src/core/core.config.js#L5">core/core.config.js:5</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>value: <span class="tsd-signature-type">any</span></h5>
+									<h5>type: <span class="tsd-signature-type">any</span></h5>
+								</li>
+								<li>
+									<h5>options: <span class="tsd-signature-type">any</span></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
@@ -133,17 +145,20 @@
 						<a href="../globals.html"><em>Globals</em></a>
 					</li>
 					<li class="current tsd-kind-module">
-						<a href="_helpers_helpers_color_.html">&quot;helpers/helpers.color&quot;</a>
+						<a href="_core_core_config_.html">&quot;core/core.config&quot;</a>
 					</li>
 				</ul>
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
-					<li class=" tsd-kind-function tsd-parent-kind-module">
-						<a href="_helpers_helpers_color_.html#color" class="tsd-kind-icon">color</a>
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/_core_core_config_.config.html" class="tsd-kind-icon">Config</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-module">
-						<a href="_helpers_helpers_color_.html#gethovercolor" class="tsd-kind-icon">get<wbr>Hover<wbr>Color</a>
+						<a href="_core_core_config_.html#determineaxis" class="tsd-kind-icon">determine<wbr>Axis</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="_core_core_config_.html#getindexaxis" class="tsd-kind-icon">get<wbr>Index<wbr>Axis</a>
 					</li>
 				</ul>
 			</nav>
