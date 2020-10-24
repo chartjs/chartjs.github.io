@@ -6579,13 +6579,16 @@ var Chart = function () {
   };
   _proto.update = function update(mode) {
     var me = this;
+    var args = {
+      mode: mode
+    };
     var i, ilen;
     me._updating = true;
     updateConfig(me);
     me.ensureScalesHaveIDs();
     me.buildOrUpdateScales();
     me._plugins.invalidate();
-    if (me._plugins.notify(me, 'beforeUpdate') === false) {
+    if (me._plugins.notify(me, 'beforeUpdate', [args]) === false) {
       return;
     }
     var newControllers = me.buildOrUpdateControllers();
@@ -6597,7 +6600,7 @@ var Chart = function () {
       controller.reset();
     });
     me._updateDatasets(mode);
-    me._plugins.notify(me, 'afterUpdate');
+    me._plugins.notify(me, 'afterUpdate', [args]);
     me._layers.sort(compare2Level('z', '_idx'));
     if (me._lastEvent) {
       me._eventHandler(me._lastEvent, true);
@@ -6629,7 +6632,10 @@ var Chart = function () {
   _proto._updateDatasets = function _updateDatasets(mode) {
     var me = this;
     var isFunction = typeof mode === 'function';
-    if (me._plugins.notify(me, 'beforeDatasetsUpdate') === false) {
+    var args = {
+      mode: mode
+    };
+    if (me._plugins.notify(me, 'beforeDatasetsUpdate', [args]) === false) {
       return;
     }
     for (var i = 0, ilen = me.data.datasets.length; i < ilen; ++i) {
@@ -6637,7 +6643,7 @@ var Chart = function () {
         datasetIndex: i
       }) : mode);
     }
-    me._plugins.notify(me, 'afterDatasetsUpdate');
+    me._plugins.notify(me, 'afterDatasetsUpdate', [args]);
   }
   ;
   _proto._updateDataset = function _updateDataset(index, mode) {
@@ -10148,7 +10154,7 @@ function doFill(ctx, cfg) {
 }
 var plugin_filler = {
   id: 'filler',
-  afterDatasetsUpdate: function afterDatasetsUpdate(chart, options) {
+  afterDatasetsUpdate: function afterDatasetsUpdate(chart, _args, options) {
     var count = (chart.data.datasets || []).length;
     var propagate = options.propagate;
     var sources = [];

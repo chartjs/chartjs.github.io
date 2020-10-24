@@ -5111,13 +5111,14 @@ class Chart {
 	}
 	update(mode) {
 		const me = this;
+		const args = {mode};
 		let i, ilen;
 		me._updating = true;
 		updateConfig(me);
 		me.ensureScalesHaveIDs();
 		me.buildOrUpdateScales();
 		me._plugins.invalidate();
-		if (me._plugins.notify(me, 'beforeUpdate') === false) {
+		if (me._plugins.notify(me, 'beforeUpdate', [args]) === false) {
 			return;
 		}
 		const newControllers = me.buildOrUpdateControllers();
@@ -5129,7 +5130,7 @@ class Chart {
 			controller.reset();
 		});
 		me._updateDatasets(mode);
-		me._plugins.notify(me, 'afterUpdate');
+		me._plugins.notify(me, 'afterUpdate', [args]);
 		me._layers.sort(compare2Level('z', '_idx'));
 		if (me._lastEvent) {
 			me._eventHandler(me._lastEvent, true);
@@ -5158,13 +5159,14 @@ class Chart {
 	_updateDatasets(mode) {
 		const me = this;
 		const isFunction = typeof mode === 'function';
-		if (me._plugins.notify(me, 'beforeDatasetsUpdate') === false) {
+		const args = {mode};
+		if (me._plugins.notify(me, 'beforeDatasetsUpdate', [args]) === false) {
 			return;
 		}
 		for (let i = 0, ilen = me.data.datasets.length; i < ilen; ++i) {
 			me._updateDataset(i, isFunction ? mode({datasetIndex: i}) : mode);
 		}
-		me._plugins.notify(me, 'afterDatasetsUpdate');
+		me._plugins.notify(me, 'afterDatasetsUpdate', [args]);
 	}
 	_updateDataset(index, mode) {
 		const me = this;
@@ -6514,7 +6516,7 @@ function doFill(ctx, cfg) {
 }
 var plugin_filler = {
 	id: 'filler',
-	afterDatasetsUpdate(chart, options) {
+	afterDatasetsUpdate(chart, _args, options) {
 		const count = (chart.data.datasets || []).length;
 		const propagate = options.propagate;
 		const sources = [];
