@@ -12366,10 +12366,19 @@ var LogarithmicScale = function (_Scale) {
   };
   _proto.handleTickRangeOptions = function handleTickRangeOptions() {
     var me = this;
+    var _me$options = me.options,
+        suggestedMax = _me$options.suggestedMax,
+        suggestedMin = _me$options.suggestedMin;
     var DEFAULT_MIN = 1;
     var DEFAULT_MAX = 10;
     var min = me.min;
     var max = me.max;
+    if (!isNullOrUndef(suggestedMin)) {
+      min = Math.min(min, suggestedMin);
+    }
+    if (!isNullOrUndef(suggestedMax)) {
+      max = Math.max(max, suggestedMax);
+    }
     if (min === max) {
       if (min <= 0) {
         min = DEFAULT_MIN;

@@ -8541,10 +8541,17 @@ class LogarithmicScale extends Scale {
 	}
 	handleTickRangeOptions() {
 		const me = this;
+		const {suggestedMax, suggestedMin} = me.options;
 		const DEFAULT_MIN = 1;
 		const DEFAULT_MAX = 10;
 		let min = me.min;
 		let max = me.max;
+		if (!isNullOrUndef(suggestedMin)) {
+			min = Math.min(min, suggestedMin);
+		}
+		if (!isNullOrUndef(suggestedMax)) {
+			max = Math.max(max, suggestedMax);
+		}
 		if (min === max) {
 			if (min <= 0) {
 				min = DEFAULT_MIN;
