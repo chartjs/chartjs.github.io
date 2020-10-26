@@ -10785,8 +10785,9 @@ var plugin_legend = {
       padding: 10,
       generateLabels: function generateLabels(chart) {
         var datasets = chart.data.datasets;
-        var options = chart.options.legend || {};
-        var usePointStyle = options.labels && options.labels.usePointStyle;
+        var labels = chart.legend.options.labels;
+        var usePointStyle = labels.usePointStyle;
+        var overrideStyle = labels.pointStyle;
         return chart._getSortedDatasetMetas().map(function (meta) {
           var style = meta.controller.getStyle(usePointStyle ? 0 : undefined);
           return {
@@ -10799,7 +10800,7 @@ var plugin_legend = {
             lineJoin: style.borderJoinStyle,
             lineWidth: style.borderWidth,
             strokeStyle: style.borderColor,
-            pointStyle: style.pointStyle,
+            pointStyle: overrideStyle || style.pointStyle,
             rotation: style.rotation,
             datasetIndex: meta.index
           };
