@@ -74,6 +74,7 @@
 								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_helpers_helpers_options_.html#tolineheight" class="tsd-kind-icon">to<wbr>Line<wbr>Height</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_helpers_helpers_options_.html#topadding" class="tsd-kind-icon">to<wbr>Padding</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_helpers_helpers_options_.html#totrbl" class="tsd-kind-icon">toTRBL</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_helpers_helpers_options_.html#totrblcorners" class="tsd-kind-icon">toTRBLCorners</a></li>
 							</ul>
 						</section>
 					</div>
@@ -91,7 +92,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/4ed650a/src/helpers/helpers.options.js#L127">helpers/helpers.options.js:127</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/495c359/src/helpers/helpers.options.js#L154">helpers/helpers.options.js:154</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -138,7 +139,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/4ed650a/src/helpers/helpers.options.js#L90">helpers/helpers.options.js:90</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/495c359/src/helpers/helpers.options.js#L117">helpers/helpers.options.js:117</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -173,7 +174,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/4ed650a/src/helpers/helpers.options.js#L17">helpers/helpers.options.js:17</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/495c359/src/helpers/helpers.options.js#L17">helpers/helpers.options.js:17</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -219,7 +220,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/4ed650a/src/helpers/helpers.options.js#L74">helpers/helpers.options.js:74</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/495c359/src/helpers/helpers.options.js#L101">helpers/helpers.options.js:101</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -257,7 +258,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/4ed650a/src/helpers/helpers.options.js#L47">helpers/helpers.options.js:47</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/495c359/src/helpers/helpers.options.js#L47">helpers/helpers.options.js:47</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -282,6 +283,44 @@
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
 							<p>The padding values (top, right, bottom, left)</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="totrblcorners" class="tsd-anchor"></a>
+					<h3>toTRBLCorners</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">toTRBLCorners<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/495c359/src/helpers/helpers.options.js#L74">helpers/helpers.options.js:74</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Converts the given value into a TRBL corners object (similar with css border-radius).</p>
+								</div>
+								<dl class="tsd-comment-tags">
+									<dt>since</dt>
+									<dd><p>3.0.0</p>
+									</dd>
+								</dl>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>value: <span class="tsd-signature-type">any</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>If a number, set the value to all TRBL corner components,
+										else, if an object, use defined properties and sets undefined ones to 0.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
+							<p>The TRBL corner values (topLeft, topRight, bottomLeft, bottomRight)</p>
 						</li>
 					</ul>
 				</section>
@@ -314,6 +353,9 @@
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-module">
 						<a href="_helpers_helpers_options_.html#totrbl" class="tsd-kind-icon">toTRBL</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="_helpers_helpers_options_.html#totrblcorners" class="tsd-kind-icon">toTRBLCorners</a>
 					</li>
 				</ul>
 			</nav>

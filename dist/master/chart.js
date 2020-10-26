@@ -1341,6 +1341,23 @@ function toTRBL(value) {
     left: l
   };
 }
+function toTRBLCorners(value) {
+  var tl, tr, bl, br;
+  if (isObject(value)) {
+    tl = numberOrZero(value.topLeft);
+    tr = numberOrZero(value.topRight);
+    bl = numberOrZero(value.bottomLeft);
+    br = numberOrZero(value.bottomRight);
+  } else {
+    tl = tr = bl = br = numberOrZero(value);
+  }
+  return {
+    topLeft: tl,
+    topRight: tr,
+    bottomLeft: bl,
+    bottomRight: br
+  };
+}
 function toPadding(value) {
   var obj = toTRBL(value);
   obj.width = obj.left + obj.right;
@@ -7560,6 +7577,7 @@ _steppedInterpolation: _steppedInterpolation,
 _bezierInterpolation: _bezierInterpolation,
 toLineHeight: toLineHeight,
 toTRBL: toTRBL,
+toTRBLCorners: toTRBLCorners,
 toPadding: toPadding,
 toFont: toFont,
 resolve: resolve,
@@ -7997,7 +8015,7 @@ BarController.id = 'bar';
 BarController.defaults = {
   datasetElementType: false,
   dataElementType: 'bar',
-  dataElementOptions: ['backgroundColor', 'borderColor', 'borderSkipped', 'borderWidth', 'barPercentage', 'barThickness', 'base', 'categoryPercentage', 'maxBarThickness', 'minBarLength'],
+  dataElementOptions: ['backgroundColor', 'borderColor', 'borderSkipped', 'borderWidth', 'borderRadius', 'barPercentage', 'barThickness', 'base', 'categoryPercentage', 'maxBarThickness', 'minBarLength'],
   interaction: {
     mode: 'index'
   },
@@ -9613,23 +9631,43 @@ function parseBorderWidth(bar, maxW, maxH) {
     l: skipOrLimit(skip.left, o.left, 0, maxW)
   };
 }
+function parseBorderRadius(bar, maxW, maxH) {
+  var value = bar.options.borderRadius;
+  var o = toTRBLCorners(value);
+  var maxR = Math.min(maxW, maxH);
+  var skip = parseBorderSkipped(bar);
+  return {
+    topLeft: skipOrLimit(skip.top || skip.left, o.topLeft, 0, maxR),
+    topRight: skipOrLimit(skip.top || skip.right, o.topRight, 0, maxR),
+    bottomLeft: skipOrLimit(skip.bottom || skip.left, o.bottomLeft, 0, maxR),
+    bottomRight: skipOrLimit(skip.bottom || skip.right, o.bottomRight, 0, maxR)
+  };
+}
 function boundingRects(bar) {
   var bounds = getBarBounds(bar);
   var width = bounds.right - bounds.left;
   var height = bounds.bottom - bounds.top;
   var border = parseBorderWidth(bar, width / 2, height / 2);
+  var radius = parseBorderRadius(bar, width / 2, height / 2);
   return {
     outer: {
       x: bounds.left,
       y: bounds.top,
       w: width,
-      h: height
+      h: height,
+      radius: radius
     },
     inner: {
       x: bounds.left + border.l,
       y: bounds.top + border.t,
       w: width - border.l - border.r,
-      h: height - border.t - border.b
+      h: height - border.t - border.b,
+      radius: {
+        topLeft: Math.max(0, radius.topLeft - Math.max(border.t, border.l)),
+        topRight: Math.max(0, radius.topRight - Math.max(border.t, border.r)),
+        bottomLeft: Math.max(0, radius.bottomLeft - Math.max(border.b, border.l)),
+        bottomRight: Math.max(0, radius.bottomRight - Math.max(border.b, border.r))
+      }
     }
   };
 }
@@ -9639,6 +9677,27 @@ function _inRange(bar, x, y, useFinalPosition) {
   var skipBoth = skipX && skipY;
   var bounds = bar && !skipBoth && getBarBounds(bar, useFinalPosition);
   return bounds && (skipX || x >= bounds.left && x <= bounds.right) && (skipY || y >= bounds.top && y <= bounds.bottom);
+}
+function hasRadius(radius) {
+  return radius.topLeft || radius.topRight || radius.bottomLeft || radius.bottomRight;
+}
+function addRoundedRectPath(ctx, rect) {
+  var x = rect.x,
+      y = rect.y,
+      w = rect.w,
+      h = rect.h,
+      radius = rect.radius;
+  ctx.arc(x + radius.topLeft, y + radius.topLeft, radius.topLeft, -HALF_PI, PI, true);
+  ctx.lineTo(x, y + h - radius.bottomLeft);
+  ctx.arc(x + radius.bottomLeft, y + h - radius.bottomLeft, radius.bottomLeft, PI, HALF_PI, true);
+  ctx.lineTo(x + w - radius.bottomRight, y + h);
+  ctx.arc(x + w - radius.bottomRight, y + h - radius.bottomRight, radius.bottomRight, HALF_PI, 0, true);
+  ctx.lineTo(x + w, y + radius.topRight);
+  ctx.arc(x + w - radius.topRight, y + radius.topRight, radius.topRight, 0, -HALF_PI, true);
+  ctx.lineTo(x + radius.topLeft, y);
+}
+function addNormalRectPath(ctx, rect) {
+  ctx.rect(rect.x, rect.y, rect.w, rect.h);
 }
 var BarElement = function (_Element) {
   _inheritsLoose(BarElement, _Element);
@@ -9661,17 +9720,20 @@ var BarElement = function (_Element) {
     var _boundingRects = boundingRects(this),
         inner = _boundingRects.inner,
         outer = _boundingRects.outer;
+    var addRectPath = hasRadius(outer.radius) ? addRoundedRectPath : addNormalRectPath;
     ctx.save();
     if (outer.w !== inner.w || outer.h !== inner.h) {
       ctx.beginPath();
-      ctx.rect(outer.x, outer.y, outer.w, outer.h);
+      addRectPath(ctx, outer);
       ctx.clip();
-      ctx.rect(inner.x, inner.y, inner.w, inner.h);
+      addRectPath(ctx, inner);
       ctx.fillStyle = options.borderColor;
       ctx.fill('evenodd');
     }
+    ctx.beginPath();
+    addRectPath(ctx, inner);
     ctx.fillStyle = options.backgroundColor;
-    ctx.fillRect(inner.x, inner.y, inner.w, inner.h);
+    ctx.fill();
     ctx.restore();
   };
   _proto.inRange = function inRange(mouseX, mouseY, useFinalPosition) {
@@ -9702,7 +9764,8 @@ var BarElement = function (_Element) {
 BarElement.id = 'bar';
 BarElement.defaults = {
   borderSkipped: 'start',
-  borderWidth: 0
+  borderWidth: 0,
+  borderRadius: 0
 };
 BarElement.defaultRoutes = {
   backgroundColor: 'color',

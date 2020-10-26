@@ -4,7 +4,7 @@
  * (c) 2020 Chart.js Contributors
  * Released under the MIT License
  */
-import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, d as defaults, n as noop, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, m as merge, b as isArray, f as resolveObjectKey, g as getHoverColor, _ as _capitalize, h as mergeIf, s as sign, j as _merger, k as isNullOrUndef, o as _limitValue, p as clipArea, q as unclipArea, t as _arrayUnique, w as toRadians, T as TAU, H as HALF_PI, P as PI, x as isNumber, y as _lookupByKey, z as getRelativePosition$1, A as _isPointInArea, B as _rlookupByKey, C as toPadding, D as each, E as getMaximumSize, F as _getParentNode, G as readUsedSize, I as throttled, J as supportsEventListenerOptions, K as log10, L as isNumberFinite, M as callback, N as toDegrees, O as _measureText, Q as _int16Range, R as _alignPixel, S as toFont, U as _factorize, V as uid, W as retinaScale, X as clear, Y as _elementsEqual, Z as getAngleFromPoint, $ as _angleBetween, a0 as _updateBezierControlPoints, a1 as _computeSegments, a2 as _boundSegments, a3 as _steppedInterpolation, a4 as _bezierInterpolation, a5 as _pointInLine, a6 as _steppedLineTo, a7 as _bezierCurveTo, a8 as drawPoint, a9 as toTRBL, aa as _normalizeAngle, ab as _boundSegment, ac as INFINITY, ad as getRtlAdapter, ae as overrideTextDirection, af as restoreTextDirection, ag as distanceBetweenPoints, ah as _setMinAndMaxByKey, ai as _decimalPlaces, aj as almostEquals, ak as almostWhole, al as _longestText, am as _filterBetween, an as _lookup } from './chunks/helpers.segment.js';
+import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, d as defaults, n as noop, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, m as merge, b as isArray, f as resolveObjectKey, g as getHoverColor, _ as _capitalize, h as mergeIf, s as sign, j as _merger, k as isNullOrUndef, o as _limitValue, p as clipArea, q as unclipArea, t as _arrayUnique, w as toRadians, T as TAU, H as HALF_PI, P as PI, x as isNumber, y as _lookupByKey, z as getRelativePosition$1, A as _isPointInArea, B as _rlookupByKey, C as toPadding, D as each, E as getMaximumSize, F as _getParentNode, G as readUsedSize, I as throttled, J as supportsEventListenerOptions, K as log10, L as isNumberFinite, M as callback, N as toDegrees, O as _measureText, Q as _int16Range, R as _alignPixel, S as toFont, U as _factorize, V as uid, W as retinaScale, X as clear, Y as _elementsEqual, Z as getAngleFromPoint, $ as _angleBetween, a0 as _updateBezierControlPoints, a1 as _computeSegments, a2 as _boundSegments, a3 as _steppedInterpolation, a4 as _bezierInterpolation, a5 as _pointInLine, a6 as _steppedLineTo, a7 as _bezierCurveTo, a8 as drawPoint, a9 as toTRBL, aa as toTRBLCorners, ab as _normalizeAngle, ac as _boundSegment, ad as INFINITY, ae as getRtlAdapter, af as overrideTextDirection, ag as restoreTextDirection, ah as distanceBetweenPoints, ai as _setMinAndMaxByKey, aj as _decimalPlaces, ak as almostEquals, al as almostWhole, am as _longestText, an as _filterBetween, ao as _lookup } from './chunks/helpers.segment.js';
 export { d as defaults } from './chunks/helpers.segment.js';
 
 function drawFPS(chart, count, date, lastDate) {
@@ -1482,6 +1482,7 @@ BarController.defaults = {
 		'borderColor',
 		'borderSkipped',
 		'borderWidth',
+		'borderRadius',
 		'barPercentage',
 		'barThickness',
 		'base',
@@ -6059,23 +6060,43 @@ function parseBorderWidth(bar, maxW, maxH) {
 		l: skipOrLimit(skip.left, o.left, 0, maxW)
 	};
 }
+function parseBorderRadius(bar, maxW, maxH) {
+	const value = bar.options.borderRadius;
+	const o = toTRBLCorners(value);
+	const maxR = Math.min(maxW, maxH);
+	const skip = parseBorderSkipped(bar);
+	return {
+		topLeft: skipOrLimit(skip.top || skip.left, o.topLeft, 0, maxR),
+		topRight: skipOrLimit(skip.top || skip.right, o.topRight, 0, maxR),
+		bottomLeft: skipOrLimit(skip.bottom || skip.left, o.bottomLeft, 0, maxR),
+		bottomRight: skipOrLimit(skip.bottom || skip.right, o.bottomRight, 0, maxR)
+	};
+}
 function boundingRects(bar) {
 	const bounds = getBarBounds(bar);
 	const width = bounds.right - bounds.left;
 	const height = bounds.bottom - bounds.top;
 	const border = parseBorderWidth(bar, width / 2, height / 2);
+	const radius = parseBorderRadius(bar, width / 2, height / 2);
 	return {
 		outer: {
 			x: bounds.left,
 			y: bounds.top,
 			w: width,
-			h: height
+			h: height,
+			radius
 		},
 		inner: {
 			x: bounds.left + border.l,
 			y: bounds.top + border.t,
 			w: width - border.l - border.r,
-			h: height - border.t - border.b
+			h: height - border.t - border.b,
+			radius: {
+				topLeft: Math.max(0, radius.topLeft - Math.max(border.t, border.l)),
+				topRight: Math.max(0, radius.topRight - Math.max(border.t, border.r)),
+				bottomLeft: Math.max(0, radius.bottomLeft - Math.max(border.b, border.l)),
+				bottomRight: Math.max(0, radius.bottomRight - Math.max(border.b, border.r)),
+			}
 		}
 	};
 }
@@ -6087,6 +6108,23 @@ function inRange(bar, x, y, useFinalPosition) {
 	return bounds
 		&& (skipX || x >= bounds.left && x <= bounds.right)
 		&& (skipY || y >= bounds.top && y <= bounds.bottom);
+}
+function hasRadius(radius) {
+	return radius.topLeft || radius.topRight || radius.bottomLeft || radius.bottomRight;
+}
+function addRoundedRectPath(ctx, rect) {
+	const {x, y, w, h, radius} = rect;
+	ctx.arc(x + radius.topLeft, y + radius.topLeft, radius.topLeft, -HALF_PI, PI, true);
+	ctx.lineTo(x, y + h - radius.bottomLeft);
+	ctx.arc(x + radius.bottomLeft, y + h - radius.bottomLeft, radius.bottomLeft, PI, HALF_PI, true);
+	ctx.lineTo(x + w - radius.bottomRight, y + h);
+	ctx.arc(x + w - radius.bottomRight, y + h - radius.bottomRight, radius.bottomRight, HALF_PI, 0, true);
+	ctx.lineTo(x + w, y + radius.topRight);
+	ctx.arc(x + w - radius.topRight, y + radius.topRight, radius.topRight, 0, -HALF_PI, true);
+	ctx.lineTo(x + radius.topLeft, y);
+}
+function addNormalRectPath(ctx, rect) {
+	ctx.rect(rect.x, rect.y, rect.w, rect.h);
 }
 class BarElement extends Element {
 	constructor(cfg) {
@@ -6103,17 +6141,20 @@ class BarElement extends Element {
 	draw(ctx) {
 		const options = this.options;
 		const {inner, outer} = boundingRects(this);
+		const addRectPath = hasRadius(outer.radius) ? addRoundedRectPath : addNormalRectPath;
 		ctx.save();
 		if (outer.w !== inner.w || outer.h !== inner.h) {
 			ctx.beginPath();
-			ctx.rect(outer.x, outer.y, outer.w, outer.h);
+			addRectPath(ctx, outer);
 			ctx.clip();
-			ctx.rect(inner.x, inner.y, inner.w, inner.h);
+			addRectPath(ctx, inner);
 			ctx.fillStyle = options.borderColor;
 			ctx.fill('evenodd');
 		}
+		ctx.beginPath();
+		addRectPath(ctx, inner);
 		ctx.fillStyle = options.backgroundColor;
-		ctx.fillRect(inner.x, inner.y, inner.w, inner.h);
+		ctx.fill();
 		ctx.restore();
 	}
 	inRange(mouseX, mouseY, useFinalPosition) {
@@ -6139,7 +6180,8 @@ class BarElement extends Element {
 BarElement.id = 'bar';
 BarElement.defaults = {
 	borderSkipped: 'start',
-	borderWidth: 0
+	borderWidth: 0,
+	borderRadius: 0
 };
 BarElement.defaultRoutes = {
 	backgroundColor: 'color',
