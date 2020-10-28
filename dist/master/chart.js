@@ -1624,7 +1624,10 @@ var layouts = {
       return;
     }
     var layoutOptions = chart.options.layout || {};
-    var padding = toPadding(layoutOptions.padding);
+    var context = {
+      chart: chart
+    };
+    var padding = toPadding(resolve([layoutOptions.padding], context));
     var availableWidth = width - padding.width;
     var availableHeight = height - padding.height;
     var boxes = buildLayoutBoxes(chart.boxes);

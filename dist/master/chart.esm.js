@@ -2862,7 +2862,8 @@ var layouts = {
 			return;
 		}
 		const layoutOptions = chart.options.layout || {};
-		const padding = toPadding(layoutOptions.padding);
+		const context = {chart};
+		const padding = toPadding(resolve([layoutOptions.padding], context));
 		const availableWidth = width - padding.width;
 		const availableHeight = height - padding.height;
 		const boxes = buildLayoutBoxes(chart.boxes);
