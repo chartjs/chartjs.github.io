@@ -7154,6 +7154,7 @@ var plugin_legend = {
 				const overrideStyle = labels.pointStyle;
 				return chart._getSortedDatasetMetas().map((meta) => {
 					const style = meta.controller.getStyle(usePointStyle ? 0 : undefined);
+					const borderWidth = isObject(style.borderWidth) ? (valueOrDefault(style.borderWidth.top, 0) + valueOrDefault(style.borderWidth.left, 0) + valueOrDefault(style.borderWidth.bottom, 0) + valueOrDefault(style.borderWidth.right, 0)) / 4 : style.borderWidth;
 					return {
 						text: datasets[meta.index].label,
 						fillStyle: style.backgroundColor,
@@ -7162,7 +7163,7 @@ var plugin_legend = {
 						lineDash: style.borderDash,
 						lineDashOffset: style.borderDashOffset,
 						lineJoin: style.borderJoinStyle,
-						lineWidth: style.borderWidth,
+						lineWidth: borderWidth,
 						strokeStyle: style.borderColor,
 						pointStyle: overrideStyle || style.pointStyle,
 						rotation: style.rotation,
