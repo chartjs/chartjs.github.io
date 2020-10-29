@@ -7644,6 +7644,7 @@ class Tooltip extends Element {
 		this.caretX = undefined;
 		this.caretY = undefined;
 		this.labelColors = undefined;
+		this.labelPointStyles = undefined;
 		this.labelTextColors = undefined;
 		this.initialize();
 	}
@@ -7719,6 +7720,7 @@ class Tooltip extends Element {
 		const options = me.options;
 		const data = me._chart.data;
 		const labelColors = [];
+		const labelPointStyles = [];
 		const labelTextColors = [];
 		let tooltipItems = [];
 		let i, len;
@@ -7733,9 +7735,11 @@ class Tooltip extends Element {
 		}
 		each(tooltipItems, (context) => {
 			labelColors.push(options.callbacks.labelColor.call(me, context));
+			labelPointStyles.push(options.callbacks.labelPointStyle.call(me, context));
 			labelTextColors.push(options.callbacks.labelTextColor.call(me, context));
 		});
 		me.labelColors = labelColors;
+		me.labelPointStyles = labelPointStyles;
 		me.labelTextColors = labelTextColors;
 		me.dataPoints = tooltipItems;
 		return tooltipItems;
@@ -7859,18 +7863,36 @@ class Tooltip extends Element {
 		const me = this;
 		const options = me.options;
 		const labelColors = me.labelColors[i];
+		const labelPointStyle = me.labelPointStyles[i];
 		const {boxHeight, boxWidth, bodyFont} = options;
 		const colorX = getAlignedX(me, 'left');
 		const rtlColorX = rtlHelper.x(colorX);
 		const yOffSet = boxHeight < bodyFont.size ? (bodyFont.size - boxHeight) / 2 : 0;
 		const colorY = pt.y + yOffSet;
-		ctx.fillStyle = options.multiKeyBackground;
-		ctx.fillRect(rtlHelper.leftForLtr(rtlColorX, boxWidth), colorY, boxWidth, boxHeight);
-		ctx.lineWidth = 1;
-		ctx.strokeStyle = labelColors.borderColor;
-		ctx.strokeRect(rtlHelper.leftForLtr(rtlColorX, boxWidth), colorY, boxWidth, boxHeight);
-		ctx.fillStyle = labelColors.backgroundColor;
-		ctx.fillRect(rtlHelper.leftForLtr(rtlHelper.xPlus(rtlColorX, 1), boxWidth - 2), colorY + 1, boxWidth - 2, boxHeight - 2);
+		if (options.usePointStyle) {
+			const drawOptions = {
+				radius: Math.min(boxWidth, boxHeight) / 2,
+				pointStyle: labelPointStyle.pointStyle,
+				rotation: labelPointStyle.rotation,
+				borderWidth: 1
+			};
+			const centerX = rtlHelper.leftForLtr(rtlColorX, boxWidth) + boxWidth / 2;
+			const centerY = colorY + boxHeight / 2;
+			ctx.strokeStyle = options.multiKeyBackground;
+			ctx.fillStyle = options.multiKeyBackground;
+			drawPoint(ctx, drawOptions, centerX, centerY);
+			ctx.strokeStyle = labelColors.borderColor;
+			ctx.fillStyle = labelColors.backgroundColor;
+			drawPoint(ctx, drawOptions, centerX, centerY);
+		} else {
+			ctx.fillStyle = options.multiKeyBackground;
+			ctx.fillRect(rtlHelper.leftForLtr(rtlColorX, boxWidth), colorY, boxWidth, boxHeight);
+			ctx.lineWidth = 1;
+			ctx.strokeStyle = labelColors.borderColor;
+			ctx.strokeRect(rtlHelper.leftForLtr(rtlColorX, boxWidth), colorY, boxWidth, boxHeight);
+			ctx.fillStyle = labelColors.backgroundColor;
+			ctx.fillRect(rtlHelper.leftForLtr(rtlHelper.xPlus(rtlColorX, 1), boxWidth - 2), colorY + 1, boxWidth - 2, boxHeight - 2);
+		}
 		ctx.fillStyle = me.labelTextColors[i];
 	}
 	drawBody(pt, ctx) {
@@ -8212,6 +8234,14 @@ var plugin_tooltip = {
 			},
 			labelTextColor() {
 				return this.options.bodyFont.color;
+			},
+			labelPointStyle(tooltipItem) {
+				const meta = tooltipItem.chart.getDatasetMeta(tooltipItem.datasetIndex);
+				const options = meta.controller.getStyle(tooltipItem.dataIndex);
+				return {
+					pointStyle: options.pointStyle,
+					rotation: options.rotation,
+				};
 			},
 			afterLabel: noop,
 			afterBody: noop,
