@@ -4045,8 +4045,9 @@ var DatasetController = function () {
   }
   ;
   _proto.configure = function configure() {
+    var _me$chart$options$me$;
     var me = this;
-    me._config = merge(Object.create(null), [me.chart.options[me._type].datasets, me.getDataset()], {
+    me._config = merge(Object.create(null), [defaults.controllers[me._type].datasets, (_me$chart$options$me$ = me.chart.options[me._type]) == null ? void 0 : _me$chart$options$me$.datasets, me.getDataset()], {
       merger: function merger(key, target, source) {
         if (key !== 'data') {
           _merger(key, target, source);
@@ -5970,7 +5971,7 @@ function isIChartComponent(proto) {
 
 var Registry = function () {
   function Registry() {
-    this.controllers = new TypedRegistry(DatasetController, '');
+    this.controllers = new TypedRegistry(DatasetController, 'controllers');
     this.elements = new TypedRegistry(Element$1, 'elements');
     this.plugins = new TypedRegistry(Object, 'plugins');
     this.scales = new TypedRegistry(Scale, 'scales');
@@ -6177,7 +6178,7 @@ function createDescriptors(plugins, options) {
 }
 
 function getIndexAxis(type, options) {
-  var typeDefaults = defaults[type] || {};
+  var typeDefaults = defaults.controllers[type] || {};
   var datasetDefaults = typeDefaults.datasets || {};
   var typeOptions = options[type] || {};
   var datasetOptions = typeOptions.datasets || {};
@@ -6211,7 +6212,7 @@ function determineAxis(id, scaleOptions) {
 }
 function mergeScaleConfig(config, options) {
   options = options || {};
-  var chartDefaults = defaults[config.type] || {
+  var chartDefaults = defaults.controllers[config.type] || {
     scales: {}
   };
   var configScales = options.scales || {};
@@ -6236,7 +6237,7 @@ function mergeScaleConfig(config, options) {
   config.data.datasets.forEach(function (dataset) {
     var type = dataset.type || config.type;
     var indexAxis = dataset.indexAxis || getIndexAxis(type, options);
-    var datasetDefaults = defaults[type] || {};
+    var datasetDefaults = defaults.controllers[type] || {};
     var defaultScaleOptions = datasetDefaults.scales || {};
     Object.keys(defaultScaleOptions).forEach(function (defaultID) {
       var axis = getAxisFromDefaultScaleID(defaultID, indexAxis);
@@ -6260,14 +6261,14 @@ function mergeConfig()
   }
   return merge(Object.create(null), args, {
     merger: function merger(key, target, source, options) {
-      if (key !== 'scales' && key !== 'scale') {
+      if (key !== 'scales' && key !== 'scale' && key !== 'controllers') {
         _merger(key, target, source, options);
       }
     }
   });
 }
 function includeDefaults(options, type) {
-  return mergeConfig(defaults, defaults[type], options || {});
+  return mergeConfig(defaults, defaults.controllers[type], options || {});
 }
 function initConfig(config) {
   config = config || {};
@@ -6589,7 +6590,7 @@ var Chart = function () {
         meta.controller.updateIndex(i);
         meta.controller.linkScales();
       } else {
-        var controllerDefaults = defaults[type];
+        var controllerDefaults = defaults.controllers[type];
         var ControllerClass = registry.getController(type);
         _extends(ControllerClass.prototype, {
           dataElementType: registry.getElement(controllerDefaults.dataElementType),

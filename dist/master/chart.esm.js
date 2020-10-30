@@ -682,7 +682,8 @@ class DatasetController {
 	configure() {
 		const me = this;
 		me._config = merge(Object.create(null), [
-			me.chart.options[me._type].datasets,
+			defaults.controllers[me._type].datasets,
+			me.chart.options[me._type]?.datasets,
 			me.getDataset(),
 		], {
 			merger(key, target, source) {
@@ -4532,7 +4533,7 @@ function isIChartComponent(proto) {
 
 class Registry {
 	constructor() {
-		this.controllers = new TypedRegistry(DatasetController, '');
+		this.controllers = new TypedRegistry(DatasetController, 'controllers');
 		this.elements = new TypedRegistry(Element, 'elements');
 		this.plugins = new TypedRegistry(Object, 'plugins');
 		this.scales = new TypedRegistry(Scale, 'scales');
@@ -4687,7 +4688,7 @@ function createDescriptors(plugins, options) {
 }
 
 function getIndexAxis(type, options) {
-	const typeDefaults = defaults[type] || {};
+	const typeDefaults = defaults.controllers[type] || {};
 	const datasetDefaults = typeDefaults.datasets || {};
 	const typeOptions = options[type] || {};
 	const datasetOptions = typeOptions.datasets || {};
@@ -4721,7 +4722,7 @@ function determineAxis(id, scaleOptions) {
 }
 function mergeScaleConfig(config, options) {
 	options = options || {};
-	const chartDefaults = defaults[config.type] || {scales: {}};
+	const chartDefaults = defaults.controllers[config.type] || {scales: {}};
 	const configScales = options.scales || {};
 	const chartIndexAxis = getIndexAxis(config.type, options);
 	const firstIDs = Object.create(null);
@@ -4740,7 +4741,7 @@ function mergeScaleConfig(config, options) {
 	config.data.datasets.forEach(dataset => {
 		const type = dataset.type || config.type;
 		const indexAxis = dataset.indexAxis || getIndexAxis(type, options);
-		const datasetDefaults = defaults[type] || {};
+		const datasetDefaults = defaults.controllers[type] || {};
 		const defaultScaleOptions = datasetDefaults.scales || {};
 		Object.keys(defaultScaleOptions).forEach(defaultID => {
 			const axis = getAxisFromDefaultScaleID(defaultID, indexAxis);
@@ -4758,7 +4759,7 @@ function mergeScaleConfig(config, options) {
 function mergeConfig(...args) {
 	return merge(Object.create(null), args, {
 		merger(key, target, source, options) {
-			if (key !== 'scales' && key !== 'scale') {
+			if (key !== 'scales' && key !== 'scale' && key !== 'controllers') {
 				_merger(key, target, source, options);
 			}
 		}
@@ -4767,7 +4768,7 @@ function mergeConfig(...args) {
 function includeDefaults(options, type) {
 	return mergeConfig(
 		defaults,
-		defaults[type],
+		defaults.controllers[type],
 		options || {});
 }
 function initConfig(config) {
@@ -5097,7 +5098,7 @@ class Chart {
 				meta.controller.updateIndex(i);
 				meta.controller.linkScales();
 			} else {
-				const controllerDefaults = defaults[type];
+				const controllerDefaults = defaults.controllers[type];
 				const ControllerClass = registry.getController(type);
 				Object.assign(ControllerClass.prototype, {
 					dataElementType: registry.getElement(controllerDefaults.dataElementType),
