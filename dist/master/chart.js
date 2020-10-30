@@ -11396,6 +11396,7 @@ var Tooltip = function (_Element) {
     var me = this;
     var chartOpts = me._chart.options;
     me.options = resolveOptions$1(chartOpts.tooltips, chartOpts.font);
+    me._cachedAnimations = undefined;
   }
   ;
   _proto._resolveAnimations = function _resolveAnimations() {

@@ -7653,6 +7653,7 @@ class Tooltip extends Element {
 		const me = this;
 		const chartOpts = me._chart.options;
 		me.options = resolveOptions$1(chartOpts.tooltips, chartOpts.font);
+		me._cachedAnimations = undefined;
 	}
 	_resolveAnimations() {
 		const me = this;
