@@ -2009,7 +2009,7 @@ class LineController extends DatasetController {
 		const values = super.resolveDatasetElementOptions(active);
 		const showLine = valueOrDefault(config.showLine, options.showLine);
 		values.spanGaps = valueOrDefault(config.spanGaps, options.spanGaps);
-		values.tension = valueOrDefault(config.lineTension, lineOptions.tension);
+		values.tension = valueOrDefault(config.tension, lineOptions.tension);
 		values.stepped = resolve([config.stepped, lineOptions.stepped]);
 		if (!showLine) {
 			values.borderWidth = 0;
@@ -2357,7 +2357,7 @@ class RadarController extends DatasetController {
 		const values = super.resolveDatasetElementOptions(active);
 		const showLine = valueOrDefault(config.showLine, options.showLine);
 		values.spanGaps = valueOrDefault(config.spanGaps, options.spanGaps);
-		values.tension = valueOrDefault(config.lineTension, options.elements.line.tension);
+		values.tension = valueOrDefault(config.tension, options.elements.line.tension);
 		if (!showLine) {
 			values.borderWidth = 0;
 		}
