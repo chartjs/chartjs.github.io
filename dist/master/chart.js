@@ -6830,8 +6830,12 @@ var Chart = function () {
     return this.getSortedVisibleDatasetMetas().length;
   };
   _proto.isDatasetVisible = function isDatasetVisible(datasetIndex) {
+    var dataset = this.data.datasets[datasetIndex];
+    if (!dataset) {
+      return false;
+    }
     var meta = this.getDatasetMeta(datasetIndex);
-    return typeof meta.hidden === 'boolean' ? !meta.hidden : !this.data.datasets[datasetIndex].hidden;
+    return typeof meta.hidden === 'boolean' ? !meta.hidden : !dataset.hidden;
   };
   _proto.setDatasetVisibility = function setDatasetVisibility(datasetIndex, visible) {
     var meta = this.getDatasetMeta(datasetIndex);

@@ -5314,8 +5314,12 @@ class Chart {
 		return this.getSortedVisibleDatasetMetas().length;
 	}
 	isDatasetVisible(datasetIndex) {
+		const dataset = this.data.datasets[datasetIndex];
+		if (!dataset) {
+			return false;
+		}
 		const meta = this.getDatasetMeta(datasetIndex);
-		return typeof meta.hidden === 'boolean' ? !meta.hidden : !this.data.datasets[datasetIndex].hidden;
+		return typeof meta.hidden === 'boolean' ? !meta.hidden : !dataset.hidden;
 	}
 	setDatasetVisibility(datasetIndex, visible) {
 		const meta = this.getDatasetMeta(datasetIndex);
