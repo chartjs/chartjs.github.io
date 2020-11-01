@@ -3904,6 +3904,47 @@ function getFirstScaleId(chart, axis) {
     return scales[key].axis === axis;
   }).shift();
 }
+function createDatasetContext(parent, index, dataset) {
+  return Object.create(parent, {
+    active: {
+      writable: true,
+      value: false
+    },
+    dataset: {
+      value: dataset
+    },
+    datasetIndex: {
+      value: index
+    },
+    index: {
+      get: function get() {
+        return this.datasetIndex;
+      }
+    }
+  });
+}
+function createDataContext(parent, index, point, element) {
+  return Object.create(parent, {
+    active: {
+      writable: true,
+      value: false
+    },
+    dataIndex: {
+      value: index
+    },
+    dataPoint: {
+      value: point
+    },
+    element: {
+      value: element
+    },
+    index: {
+      get: function get() {
+        return this.dataIndex;
+      }
+    }
+  });
+}
 var optionKeys = function optionKeys(optionNames) {
   return isArray(optionNames) ? optionNames : Object.keys(optionNames);
 };
@@ -3936,6 +3977,7 @@ var DatasetController = function () {
     this._drawStart = undefined;
     this._drawCount = undefined;
     this.enableOptionSharing = false;
+    this.$context = undefined;
     this.initialize();
   }
   var _proto = DatasetController.prototype;
@@ -4161,6 +4203,10 @@ var DatasetController = function () {
     return this._cachedMeta._parsed[index];
   }
   ;
+  _proto.getDataElement = function getDataElement(index) {
+    return this._cachedMeta.data[index];
+  }
+  ;
   _proto.applyStack = function applyStack(scale, parsed) {
     var chart = this.chart;
     var meta = this._cachedMeta;
@@ -4327,14 +4373,16 @@ var DatasetController = function () {
   }
   ;
   _proto.getContext = function getContext(index, active) {
-    return {
-      chart: this.chart,
-      dataPoint: this.getParsed(index),
-      dataIndex: index,
-      dataset: this.getDataset(),
-      datasetIndex: this.index,
-      active: active
-    };
+    var me = this;
+    var context;
+    if (index >= 0 && index < me._cachedMeta.data.length) {
+      var element = me._cachedMeta.data[index];
+      context = element.$context || (element.$context = createDataContext(me.getContext(), index, me.getParsed(index), element));
+    } else {
+      context = me.$context || (me.$context = createDatasetContext(me.chart.getContext(), me.index, me.getDataset()));
+    }
+    context.active = !!active;
+    return context;
   }
   ;
   _proto.resolveDatasetElementOptions = function resolveDatasetElementOptions(active) {
@@ -4807,6 +4855,23 @@ function skip(ticks, newTicks, spacing, majorStart, majorEnd) {
     }
   }
 }
+function createScaleContext(parent, scale) {
+  return Object.create(parent, {
+    scale: {
+      value: scale
+    }
+  });
+}
+function createTickContext(parent, index, tick) {
+  return Object.create(parent, {
+    tick: {
+      value: tick
+    },
+    index: {
+      value: index
+    }
+  });
+}
 var Scale = function (_Element) {
   _inheritsLoose(Scale, _Element);
   function Scale(cfg) {
@@ -4853,6 +4918,7 @@ var Scale = function (_Element) {
     _this._ticksLength = 0;
     _this._borderValue = 0;
     _this._cache = {};
+    _this.$context = undefined;
     return _this;
   }
   var _proto = Scale.prototype;
@@ -5328,13 +5394,13 @@ var Scale = function (_Element) {
   }
   ;
   _proto.getContext = function getContext(index) {
-    var ticks = this.ticks || [];
-    return {
-      chart: this.chart,
-      scale: this,
-      tick: ticks[index],
-      index: index
-    };
+    var me = this;
+    var ticks = me.ticks || [];
+    if (index >= 0 && index < ticks.length) {
+      var tick = ticks[index];
+      return tick.$context || (tick.$context = createTickContext(me.getContext(), index, tick));
+    }
+    return me.$context || (me.$context = createScaleContext(me.chart.getContext(), me));
   }
   ;
   _proto._autoSkip = function _autoSkip(ticks) {
@@ -6400,6 +6466,7 @@ var Chart = function () {
     this._hiddenIndices = {};
     this.attached = false;
     this._animationsDisabled = undefined;
+    this.$context = undefined;
     Chart.instances[me.id] = me;
     if (!context || !canvas) {
       console.error("Failed to create chart: can't acquire context from the given item");
@@ -6825,6 +6892,13 @@ var Chart = function () {
       };
     }
     return meta;
+  };
+  _proto.getContext = function getContext() {
+    return this.$context || (this.$context = Object.create(null, {
+      chart: {
+        value: this
+      }
+    }));
   };
   _proto.getVisibleDatasetCount = function getVisibleDatasetCount() {
     return this.getSortedVisibleDatasetMetas().length;

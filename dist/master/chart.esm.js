@@ -555,6 +555,47 @@ function getFirstScaleId(chart, axis) {
 	const scales = chart.scales;
 	return Object.keys(scales).filter(key => scales[key].axis === axis).shift();
 }
+function createDatasetContext(parent, index, dataset) {
+	return Object.create(parent, {
+		active: {
+			writable: true,
+			value: false
+		},
+		dataset: {
+			value: dataset
+		},
+		datasetIndex: {
+			value: index
+		},
+		index: {
+			get() {
+				return this.datasetIndex;
+			}
+		}
+	});
+}
+function createDataContext(parent, index, point, element) {
+	return Object.create(parent, {
+		active: {
+			writable: true,
+			value: false
+		},
+		dataIndex: {
+			value: index
+		},
+		dataPoint: {
+			value: point
+		},
+		element: {
+			value: element
+		},
+		index: {
+			get() {
+				return this.dataIndex;
+			}
+		}
+	});
+}
 const optionKeys = (optionNames) => isArray(optionNames) ? optionNames : Object.keys(optionNames);
 const optionKey = (key, active) => active ? 'hover' + _capitalize(key) : key;
 const isDirectUpdateMode = (mode) => mode === 'reset' || mode === 'none';
@@ -577,6 +618,7 @@ class DatasetController {
 		this._drawStart = undefined;
 		this._drawCount = undefined;
 		this.enableOptionSharing = false;
+		this.$context = undefined;
 		this.initialize();
 	}
 	initialize() {
@@ -783,6 +825,9 @@ class DatasetController {
 	getParsed(index) {
 		return this._cachedMeta._parsed[index];
 	}
+	getDataElement(index) {
+		return this._cachedMeta.data[index];
+	}
 	applyStack(scale, parsed) {
 		const chart = this.chart;
 		const meta = this._cachedMeta;
@@ -931,14 +976,17 @@ class DatasetController {
 		return options;
 	}
 	getContext(index, active) {
-		return {
-			chart: this.chart,
-			dataPoint: this.getParsed(index),
-			dataIndex: index,
-			dataset: this.getDataset(),
-			datasetIndex: this.index,
-			active
-		};
+		const me = this;
+		let context;
+		if (index >= 0 && index < me._cachedMeta.data.length) {
+			const element = me._cachedMeta.data[index];
+			context = element.$context ||
+				(element.$context = createDataContext(me.getContext(), index, me.getParsed(index), element));
+		} else {
+			context = me.$context || (me.$context = createDatasetContext(me.chart.getContext(), me.index, me.getDataset()));
+		}
+		context.active = !!active;
+		return context;
 	}
 	resolveDatasetElementOptions(active) {
 		return this._resolveOptions(this.datasetElementOptions, {
@@ -3435,6 +3483,23 @@ function skip(ticks, newTicks, spacing, majorStart, majorEnd) {
 		}
 	}
 }
+function createScaleContext(parent, scale) {
+	return Object.create(parent, {
+		scale: {
+			value: scale
+		},
+	});
+}
+function createTickContext(parent, index, tick) {
+	return Object.create(parent, {
+		tick: {
+			value: tick
+		},
+		index: {
+			value: index
+		}
+	});
+}
 class Scale extends Element {
 	constructor(cfg) {
 		super();
@@ -3479,6 +3544,7 @@ class Scale extends Element {
 		this._ticksLength = 0;
 		this._borderValue = 0;
 		this._cache = {};
+		this.$context = undefined;
 	}
 	init(options) {
 		const me = this;
@@ -3912,13 +3978,15 @@ class Scale extends Element {
 			0;
 	}
 	getContext(index) {
-		const ticks = this.ticks || [];
-		return {
-			chart: this.chart,
-			scale: this,
-			tick: ticks[index],
-			index
-		};
+		const me = this;
+		const ticks = me.ticks || [];
+		if (index >= 0 && index < ticks.length) {
+			const tick = ticks[index];
+			return tick.$context ||
+				(tick.$context = createTickContext(me.getContext(), index, tick));
+		}
+		return me.$context ||
+			(me.$context = createScaleContext(me.chart.getContext(), me));
 	}
 	_autoSkip(ticks) {
 		const me = this;
@@ -4905,6 +4973,7 @@ class Chart {
 		this._hiddenIndices = {};
 		this.attached = false;
 		this._animationsDisabled = undefined;
+		this.$context = undefined;
 		Chart.instances[me.id] = me;
 		if (!context || !canvas) {
 			console.error("Failed to create chart: can't acquire context from the given item");
@@ -5309,6 +5378,13 @@ class Chart {
 			};
 		}
 		return meta;
+	}
+	getContext() {
+		return this.$context || (this.$context = Object.create(null, {
+			chart: {
+				value: this
+			}
+		}));
 	}
 	getVisibleDatasetCount() {
 		return this.getSortedVisibleDatasetMetas().length;
