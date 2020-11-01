@@ -22,6 +22,9 @@
 		}, {
 			title: 'Floating',
 			path: 'charts/bar/float.html'
+		}, {
+			title: 'Border Radius',
+			path: 'charts/bar/border-radius.html'
 		}]
 	}, {
 		title: 'Line charts',
@@ -202,6 +205,9 @@
 		}, {
 			title: 'Border',
 			path: 'tooltips/border.html'
+		}, {
+			title: 'Point style',
+			path: 'tooltips/point-style.html'
 		}, {
 			title: 'HTML tooltips (line)',
 			path: 'tooltips/custom-line.html'
