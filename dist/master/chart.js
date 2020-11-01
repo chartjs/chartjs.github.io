@@ -6448,7 +6448,6 @@ var Chart = function () {
     this.height = height;
     this.aspectRatio = height ? width / height : null;
     this.options = config.options;
-    this._bufferedRender = false;
     this._layers = [];
     this._metasets = [];
     this.boxes = [];
@@ -6458,7 +6457,6 @@ var Chart = function () {
     this._lastEvent = undefined;
     this._listeners = {};
     this._sortedMetasets = [];
-    this._updating = false;
     this.scales = {};
     this.scale = undefined;
     this._plugins = new PluginService();
@@ -6484,7 +6482,7 @@ var Chart = function () {
     var me = this;
     me._plugins.notify(me, 'beforeInit');
     if (me.options.responsive) {
-      me.resize(true);
+      me.resize();
     } else {
       retinaScale(me, me.options.devicePixelRatio);
     }
@@ -6509,7 +6507,17 @@ var Chart = function () {
     animator.stop(this);
     return this;
   };
-  _proto.resize = function resize(silent, width, height) {
+  _proto.resize = function resize(width, height) {
+    if (!animator.running(this)) {
+      this._resize(width, height);
+    } else {
+      this._resizeBeforeDraw = {
+        width: width,
+        height: height
+      };
+    }
+  };
+  _proto._resize = function _resize(width, height) {
     var me = this;
     var options = me.options;
     var canvas = me.canvas;
@@ -6527,12 +6535,10 @@ var Chart = function () {
       canvas.style.height = newSize.height + 'px';
     }
     retinaScale(me, newRatio);
-    if (!silent) {
-      me._plugins.notify(me, 'resize', [newSize]);
-      callback(options.onResize, [newSize], me);
-      if (me.attached) {
-        me.update('resize');
-      }
+    me._plugins.notify(me, 'resize', [newSize]);
+    callback(options.onResize, [newSize], me);
+    if (me.attached) {
+      me.update('resize');
     }
   };
   _proto.ensureScalesHaveIDs = function ensureScalesHaveIDs() {
@@ -6690,7 +6696,6 @@ var Chart = function () {
       mode: mode
     };
     var i, ilen;
-    me._updating = true;
     each(me.scales, function (scale) {
       layouts.removeBox(me, scale);
     });
@@ -6718,7 +6723,6 @@ var Chart = function () {
       me._eventHandler(me._lastEvent, true);
     }
     me.render();
-    me._updating = false;
   }
   ;
   _proto._updateLayout = function _updateLayout() {
@@ -6791,6 +6795,13 @@ var Chart = function () {
   _proto.draw = function draw() {
     var me = this;
     var i;
+    if (me._resizeBeforeDraw) {
+      var _me$_resizeBeforeDraw = me._resizeBeforeDraw,
+          width = _me$_resizeBeforeDraw.width,
+          height = _me$_resizeBeforeDraw.height;
+      me._resize(width, height);
+      me._resizeBeforeDraw = null;
+    }
     me.clear();
     if (me.width <= 0 || me.height <= 0) {
       return;
@@ -6999,7 +7010,7 @@ var Chart = function () {
     if (me.options.responsive) {
       listener = function listener(width, height) {
         if (me.canvas) {
-          me.resize(false, width, height);
+          me.resize(width, height);
         }
       };
       var detached;
