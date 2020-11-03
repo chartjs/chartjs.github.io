@@ -4087,9 +4087,8 @@ var DatasetController = function () {
   }
   ;
   _proto.configure = function configure() {
-    var _me$chart$options$me$;
     var me = this;
-    me._config = merge(Object.create(null), [defaults.controllers[me._type].datasets, (_me$chart$options$me$ = me.chart.options[me._type]) == null ? void 0 : _me$chart$options$me$.datasets, me.getDataset()], {
+    me._config = merge(Object.create(null), [defaults.controllers[me._type].datasets, (me.chart.options[me._type] || {}).datasets, me.getDataset()], {
       merger: function merger(key, target, source) {
         if (key !== 'data') {
           _merger(key, target, source);
