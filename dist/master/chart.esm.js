@@ -4833,19 +4833,12 @@ function mergeConfig(...args) {
 		}
 	});
 }
-function includeDefaults(options, type) {
-	return mergeConfig(
+function includeDefaults(config, options) {
+	const scaleConfig = mergeScaleConfig(config, options);
+	options = mergeConfig(
 		defaults,
-		defaults.controllers[type],
+		defaults.controllers[config.type],
 		options || {});
-}
-function initConfig(config) {
-	config = config || {};
-	const data = config.data = config.data || {datasets: [], labels: []};
-	data.datasets = data.datasets || [];
-	data.labels = data.labels || [];
-	const scaleConfig = mergeScaleConfig(config, config.options);
-	const options = config.options = includeDefaults(config.options, config.type);
 	options.hover = merge(Object.create(null), [
 		defaults.interaction,
 		defaults.hover,
@@ -4863,6 +4856,14 @@ function initConfig(config) {
 		options.interaction,
 		options.tooltips
 	]);
+	return options;
+}
+function initConfig(config) {
+	config = config || {};
+	const data = config.data = config.data || {datasets: [], labels: []};
+	data.datasets = data.datasets || [];
+	data.labels = data.labels || [];
+	config.options = includeDefaults(config, config.options);
 	return config;
 }
 class Config {
@@ -4886,10 +4887,7 @@ class Config {
 	}
 	update(options) {
 		const config = this._config;
-		const scaleConfig = mergeScaleConfig(config, options);
-		options = includeDefaults(options, config.type);
-		options.scales = scaleConfig;
-		config.options = options;
+		config.options = includeDefaults(config, options);
 	}
 }
 

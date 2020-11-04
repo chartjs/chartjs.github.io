@@ -6374,8 +6374,14 @@ function mergeConfig()
     }
   });
 }
-function includeDefaults(options, type) {
-  return mergeConfig(defaults, defaults.controllers[type], options || {});
+function includeDefaults(config, options) {
+  var scaleConfig = mergeScaleConfig(config, options);
+  options = mergeConfig(defaults, defaults.controllers[config.type], options || {});
+  options.hover = merge(Object.create(null), [defaults.interaction, defaults.hover, options.interaction, options.hover]);
+  options.scales = scaleConfig;
+  options.title = options.title !== false && merge(Object.create(null), [defaults.plugins.title, options.title]);
+  options.tooltips = options.tooltips !== false && merge(Object.create(null), [defaults.interaction, defaults.plugins.tooltip, options.interaction, options.tooltips]);
+  return options;
 }
 function initConfig(config) {
   config = config || {};
@@ -6385,12 +6391,7 @@ function initConfig(config) {
   };
   data.datasets = data.datasets || [];
   data.labels = data.labels || [];
-  var scaleConfig = mergeScaleConfig(config, config.options);
-  var options = config.options = includeDefaults(config.options, config.type);
-  options.hover = merge(Object.create(null), [defaults.interaction, defaults.hover, options.interaction, options.hover]);
-  options.scales = scaleConfig;
-  options.title = options.title !== false && merge(Object.create(null), [defaults.plugins.title, options.title]);
-  options.tooltips = options.tooltips !== false && merge(Object.create(null), [defaults.interaction, defaults.plugins.tooltip, options.interaction, options.tooltips]);
+  config.options = includeDefaults(config, config.options);
   return config;
 }
 var Config = function () {
@@ -6400,10 +6401,7 @@ var Config = function () {
   var _proto = Config.prototype;
   _proto.update = function update(options) {
     var config = this._config;
-    var scaleConfig = mergeScaleConfig(config, options);
-    options = includeDefaults(options, config.type);
-    options.scales = scaleConfig;
-    config.options = options;
+    config.options = includeDefaults(config, options);
   };
   _createClass(Config, [{
     key: "type",
