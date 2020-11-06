@@ -4,7 +4,7 @@
  * (c) 2020 Chart.js Contributors
  * Released under the MIT License
  */
-import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, d as defaults, n as noop, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, m as merge, b as isArray, f as resolveObjectKey, g as getHoverColor, _ as _capitalize, h as mergeIf, s as sign, j as _merger, k as isNullOrUndef, o as _limitValue, p as clipArea, q as unclipArea, t as _arrayUnique, w as toRadians, T as TAU, H as HALF_PI, P as PI, x as isNumber, y as _lookupByKey, z as getRelativePosition$1, A as _isPointInArea, B as _rlookupByKey, C as toPadding, D as each, E as getMaximumSize, F as _getParentNode, G as readUsedSize, I as throttled, J as supportsEventListenerOptions, K as log10, L as isNumberFinite, M as callback, N as toDegrees, O as _measureText, Q as _int16Range, R as _alignPixel, S as toFont, U as _factorize, V as uid, W as retinaScale, X as clear, Y as _elementsEqual, Z as getAngleFromPoint, $ as _angleBetween, a0 as _updateBezierControlPoints, a1 as _computeSegments, a2 as _boundSegments, a3 as _steppedInterpolation, a4 as _bezierInterpolation, a5 as _pointInLine, a6 as _steppedLineTo, a7 as _bezierCurveTo, a8 as drawPoint, a9 as toTRBL, aa as toTRBLCorners, ab as _normalizeAngle, ac as _boundSegment, ad as INFINITY, ae as getRtlAdapter, af as overrideTextDirection, ag as restoreTextDirection, ah as distanceBetweenPoints, ai as _setMinAndMaxByKey, aj as _decimalPlaces, ak as almostEquals, al as almostWhole, am as _longestText, an as _filterBetween, ao as _lookup } from './chunks/helpers.segment.js';
+import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, d as defaults, n as noop, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, m as merge, b as isArray, f as resolveObjectKey, g as getHoverColor, _ as _capitalize, h as mergeIf, s as sign, j as _merger, k as isNullOrUndef, o as clipArea, p as unclipArea, q as _arrayUnique, t as toRadians, T as TAU, H as HALF_PI, P as PI, w as isNumber, x as _limitValue, y as _lookupByKey, z as getRelativePosition$1, A as _isPointInArea, B as _rlookupByKey, C as toPadding, D as each, E as getMaximumSize, F as _getParentNode, G as readUsedSize, I as throttled, J as supportsEventListenerOptions, K as log10, L as isNumberFinite, M as callback, N as toDegrees, O as _measureText, Q as _int16Range, R as _alignPixel, S as toFont, U as _factorize, V as uid, W as retinaScale, X as clear, Y as _elementsEqual, Z as getAngleFromPoint, $ as _angleBetween, a0 as _updateBezierControlPoints, a1 as _computeSegments, a2 as _boundSegments, a3 as _steppedInterpolation, a4 as _bezierInterpolation, a5 as _pointInLine, a6 as _steppedLineTo, a7 as _bezierCurveTo, a8 as drawPoint, a9 as toTRBL, aa as toTRBLCorners, ab as _normalizeAngle, ac as _boundSegment, ad as INFINITY, ae as getRtlAdapter, af as overrideTextDirection, ag as restoreTextDirection, ah as distanceBetweenPoints, ai as _setMinAndMaxByKey, aj as _decimalPlaces, ak as almostEquals, al as almostWhole, am as _longestText, an as _filterBetween, ao as _lookup } from './chunks/helpers.segment.js';
 export { d as defaults } from './chunks/helpers.segment.js';
 
 function drawFPS(chart, count, date, lastDate) {
@@ -1474,9 +1474,7 @@ class BarController extends DatasetController {
 			start += value;
 		}
 		const startValue = !isNullOrUndef(baseValue) && !floating ? baseValue : start;
-		let base = _limitValue(vScale.getPixelForValue(startValue),
-			vScale._startPixel - 10,
-			vScale._endPixel + 10);
+		let base = vScale.getPixelForValue(startValue);
 		if (this.chart.getDataVisibility(index)) {
 			head = vScale.getPixelForValue(start + length);
 		} else {

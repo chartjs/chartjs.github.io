@@ -8112,7 +8112,7 @@ var BarController = function (_DatasetController) {
       start += value;
     }
     var startValue = !isNullOrUndef(baseValue) && !floating ? baseValue : start;
-    var base = _limitValue(vScale.getPixelForValue(startValue), vScale._startPixel - 10, vScale._endPixel + 10);
+    var base = vScale.getPixelForValue(startValue);
     if (this.chart.getDataVisibility(index)) {
       head = vScale.getPixelForValue(start + length);
     } else {
