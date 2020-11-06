@@ -596,6 +596,12 @@ function createDataContext(parent, index, point, element) {
 		}
 	});
 }
+function clearStacks(meta, items) {
+	items = items || meta._parsed;
+	items.forEach((parsed) => {
+		delete parsed._stacks[meta.vScale.id][meta.index];
+	});
+}
 const optionKeys = (optionNames) => isArray(optionNames) ? optionNames : Object.keys(optionNames);
 const optionKey = (key, active) => active ? 'hover' + _capitalize(key) : key;
 const isDirectUpdateMode = (mode) => mode === 'reset' || mode === 'none';
@@ -669,8 +675,12 @@ class DatasetController {
 		this._update('reset');
 	}
 	_destroy() {
+		const meta = this._cachedMeta;
 		if (this._data) {
 			unlistenArrayEvents(this._data, this);
+		}
+		if (meta._stacked) {
+			clearStacks(meta);
 		}
 	}
 	_dataCheck() {
@@ -711,9 +721,7 @@ class DatasetController {
 		meta._stacked = isStacked(meta.vScale, meta);
 		if (meta.stack !== dataset.stack) {
 			stackChanged = true;
-			meta._parsed.forEach((parsed) => {
-				delete parsed._stacks[meta.vScale.id][meta.index];
-			});
+			clearStacks(meta);
 			meta.stack = dataset.stack;
 		}
 		me._resyncElements();
@@ -1107,14 +1115,12 @@ class DatasetController {
 	}
 	_resyncElements() {
 		const me = this;
-		const meta = me._cachedMeta;
-		const numMeta = meta.data.length;
+		const numMeta = me._cachedMeta.data.length;
 		const numData = me._data.length;
 		if (numData > numMeta) {
 			me._insertElements(numMeta, numData - numMeta);
 		} else if (numData < numMeta) {
-			meta.data.splice(numData, numMeta - numData);
-			meta._parsed.splice(numData, numMeta - numData);
+			me._removeElements(numData, numMeta - numData);
 		}
 		me.parse(0, Math.min(numData, numMeta));
 	}
@@ -1137,10 +1143,14 @@ class DatasetController {
 	updateElements(element, start, count, mode) {}
 	_removeElements(start, count) {
 		const me = this;
+		const meta = me._cachedMeta;
 		if (me._parsing) {
-			me._cachedMeta._parsed.splice(start, count);
+			const removed = meta._parsed.splice(start, count);
+			if (meta._stacked) {
+				clearStacks(meta, removed);
+			}
 		}
-		me._cachedMeta.data.splice(start, count);
+		meta.data.splice(start, count);
 	}
 	_onDataPush() {
 		const count = arguments.length;
@@ -5145,11 +5155,21 @@ class Chart {
 		}
 		me._sortedMetasets = metasets.slice(0).sort(compare2Level('order', 'index'));
 	}
+	_removeUnreferencedMetasets() {
+		const me = this;
+		const datasets = me.data.datasets;
+		me._metasets.forEach((meta, index) => {
+			if (datasets.filter(x => x === meta._dataset).length === 0) {
+				me._destroyDatasetMeta(index);
+			}
+		});
+	}
 	buildOrUpdateControllers() {
 		const me = this;
 		const newControllers = [];
 		const datasets = me.data.datasets;
 		let i, ilen;
+		me._removeUnreferencedMetasets();
 		for (i = 0, ilen = datasets.length; i < ilen; i++) {
 			const dataset = datasets[i];
 			let meta = me.getDatasetMeta(i);
@@ -5364,7 +5384,7 @@ class Chart {
 		const me = this;
 		const dataset = me.data.datasets[datasetIndex];
 		const metasets = me._metasets;
-		let meta = metasets.filter(x => x._dataset === dataset).pop();
+		let meta = metasets.filter(x => x && x._dataset === dataset).pop();
 		if (!meta) {
 			meta = metasets[datasetIndex] = {
 				type: null,
