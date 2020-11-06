@@ -8405,16 +8405,23 @@ var DoughnutController = function (_DatasetController) {
     return ringIndex;
   }
   ;
+  _proto._getRotation = function _getRotation() {
+    return toRadians(valueOrDefault(this._config.rotation, this.chart.options.rotation) - 90);
+  }
+  ;
+  _proto._getCircumference = function _getCircumference() {
+    return toRadians(valueOrDefault(this._config.circumference, this.chart.options.circumference));
+  }
+  ;
   _proto._getRotationExtents = function _getRotationExtents() {
     var min = TAU;
     var max = -TAU;
     var me = this;
-    var opts = me.chart.options;
     for (var i = 0; i < me.chart.data.datasets.length; ++i) {
       if (me.chart.isDatasetVisible(i)) {
-        var dataset = me.chart.data.datasets[i];
-        var rotation = toRadians(valueOrDefault(dataset.rotation, opts.rotation) - 90);
-        var circumference = toRadians(valueOrDefault(dataset.circumference, opts.circumference));
+        var controller = me.chart.getDatasetMeta(i).controller;
+        var rotation = controller._getRotation();
+        var circumference = controller._getCircumference();
         min = Math.min(min, rotation);
         max = Math.max(max, rotation + circumference);
       }
@@ -8460,7 +8467,7 @@ var DoughnutController = function (_DatasetController) {
     var me = this;
     var opts = me.chart.options;
     var meta = me._cachedMeta;
-    var circumference = toRadians(valueOrDefault(me._config.circumference, opts.circumference));
+    var circumference = me._getCircumference();
     return reset && opts.animation.animateRotate ? 0 : this.chart.getDataVisibility(i) ? me.calculateCircumference(meta._parsed[i] * circumference / TAU) : 0;
   };
   _proto.updateElements = function updateElements(arcs, start, count, mode) {
@@ -8478,7 +8485,7 @@ var DoughnutController = function (_DatasetController) {
     var firstOpts = me.resolveDataElementOptions(start, mode);
     var sharedOptions = me.getSharedOptions(firstOpts);
     var includeOptions = me.includeOptions(mode, sharedOptions);
-    var startAngle = toRadians(valueOrDefault(me._config.rotation, opts.rotation) - 90);
+    var startAngle = me._getRotation();
     var i;
     for (i = 0; i < start; ++i) {
       startAngle += me._circumference(i, reset);
