@@ -571,6 +571,9 @@ function createDatasetContext(parent, index, dataset) {
 			get() {
 				return this.datasetIndex;
 			}
+		},
+		type: {
+			value: 'dataset'
 		}
 	});
 }
@@ -593,6 +596,9 @@ function createDataContext(parent, index, point, element) {
 			get() {
 				return this.dataIndex;
 			}
+		},
+		type: {
+			value: 'data',
 		}
 	});
 }
@@ -3501,6 +3507,9 @@ function createScaleContext(parent, scale) {
 		scale: {
 			value: scale
 		},
+		type: {
+			value: 'scale'
+		}
 	});
 }
 function createTickContext(parent, index, tick) {
@@ -3510,6 +3519,9 @@ function createTickContext(parent, index, tick) {
 		},
 		index: {
 			value: index
+		},
+		type: {
+			value: 'tick'
 		}
 	});
 }
@@ -5410,6 +5422,9 @@ class Chart {
 		return this.$context || (this.$context = Object.create(null, {
 			chart: {
 				value: this
+			},
+			type: {
+				value: 'chart'
 			}
 		}));
 	}
