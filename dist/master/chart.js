@@ -472,9 +472,8 @@ var Defaults = function () {
     this.showLine = true;
     this.plugins = {};
     this.scale = undefined;
-    this.doughnut = undefined;
     this.scales = {};
-    this.controllers = undefined;
+    this.controllers = {};
   }
   var _proto = Defaults.prototype;
   _proto.set = function set(scope, values) {
