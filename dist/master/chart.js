@@ -8250,10 +8250,10 @@ var BubbleController = function (_DatasetController) {
   _proto.getMaxOverflow = function getMaxOverflow() {
     var me = this;
     var meta = me._cachedMeta;
-    var i = (meta.data || []).length - 1;
+    var data = meta.data;
     var max = 0;
-    for (; i >= 0; --i) {
-      max = Math.max(max, me.getStyle(i, true).radius);
+    for (var i = data.length - 1; i >= 0; --i) {
+      max = Math.max(max, data[i].size());
     }
     return max > 0 && max;
   }
