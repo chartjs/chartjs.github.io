@@ -12162,7 +12162,9 @@ var plugin_tooltip = {
           var item = tooltipItems[0];
           var labels = item.chart.data.labels;
           var labelCount = labels ? labels.length : 0;
-          if (item.label) {
+          if (this && this.options && this.options.mode === 'dataset') {
+            return item.dataset.label || '';
+          } else if (item.label) {
             return item.label;
           } else if (labelCount > 0 && item.dataIndex < labelCount) {
             return labels[item.dataIndex];
@@ -12174,6 +12176,9 @@ var plugin_tooltip = {
       beforeBody: noop,
       beforeLabel: noop,
       label: function label(tooltipItem) {
+        if (this && this.options && this.options.mode === 'dataset') {
+          return tooltipItem.label + ': ' + tooltipItem.formattedValue || tooltipItem.formattedValue;
+        }
         var label = tooltipItem.dataset.label || '';
         if (label) {
           label += ': ';
