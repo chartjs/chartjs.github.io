@@ -414,17 +414,19 @@ function _deprecated(scope, value, previous, current) {
   }
 }
 function resolveObjectKey(obj, key) {
-  if (key.length < 3) {
-    return obj[key];
+  if (key === 'x') {
+    return obj.x;
+  }
+  if (key === 'y') {
+    return obj.y;
   }
   var keys = key.split('.');
-  for (var i = 0, n = keys.length; i < n; ++i) {
+  for (var i = 0, n = keys.length; i < n && obj; ++i) {
     var k = keys[i];
-    if (k in obj) {
-      obj = obj[k];
-    } else {
-      return;
+    if (!k) {
+      break;
     }
+    obj = obj[k];
   }
   return obj;
 }
