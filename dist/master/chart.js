@@ -12226,6 +12226,14 @@ Title: plugin_title,
 Tooltip: plugin_tooltip
 });
 
+function findOrAddLabel(labels, raw, index) {
+  var first = labels.indexOf(raw);
+  if (first === -1) {
+    return typeof raw === 'string' ? labels.push(raw) - 1 : index;
+  }
+  var last = labels.lastIndexOf(raw);
+  return first !== last ? index : first;
+}
 var CategoryScale = function (_Scale) {
   _inheritsLoose(CategoryScale, _Scale);
   function CategoryScale(cfg) {
@@ -12238,12 +12246,7 @@ var CategoryScale = function (_Scale) {
   var _proto = CategoryScale.prototype;
   _proto.parse = function parse(raw, index) {
     var labels = this.getLabels();
-    if (labels[index] === raw) {
-      return index;
-    }
-    var first = labels.indexOf(raw);
-    var last = labels.lastIndexOf(raw);
-    return first === -1 || first !== last ? index : first;
+    return isFinite(index) && labels[index] === raw ? index : findOrAddLabel(labels, raw, index);
   };
   _proto.determineDataLimits = function determineDataLimits() {
     var me = this;
