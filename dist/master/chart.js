@@ -6053,9 +6053,6 @@ var TypedRegistry = function () {
     if (id in items) {
       return scope;
     }
-    if (Object.keys(defaults.get(scope)).length) {
-      throw new Error('Can not register "' + id + '", because "defaults.' + scope + '" would collide with existing defaults');
-    }
     items[id] = item;
     registerDefaults(item, scope, parentScope);
     return scope;
@@ -6081,7 +6078,7 @@ var TypedRegistry = function () {
   return TypedRegistry;
 }();
 function registerDefaults(item, scope, parentScope) {
-  var itemDefaults = parentScope ? _extends({}, defaults.get(parentScope), item.defaults) : item.defaults;
+  var itemDefaults = _extends(Object.create(null), parentScope && defaults.get(parentScope), item.defaults, defaults.get(scope));
   defaults.set(scope, itemDefaults);
   if (item.defaultRoutes) {
     routeDefaults(scope, item.defaultRoutes);
