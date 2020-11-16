@@ -297,6 +297,9 @@ function isObject(value) {
 var isNumberFinite = function isNumberFinite(value) {
   return (typeof value === 'number' || value instanceof Number) && isFinite(+value);
 };
+function finiteOrDefault(value, defaultValue) {
+  return isNumberFinite(value) ? value : defaultValue;
+}
 function valueOrDefault(value, defaultValue) {
   return typeof value === 'undefined' ? defaultValue : value;
 }
@@ -4979,6 +4982,8 @@ var Scale = function (_Element) {
     _this._reversePixels = false;
     _this._userMax = undefined;
     _this._userMin = undefined;
+    _this._suggestedMax = undefined;
+    _this._suggestedMin = undefined;
     _this._ticksLength = 0;
     _this._borderValue = 0;
     _this._cache = {};
@@ -4992,6 +4997,8 @@ var Scale = function (_Element) {
     me.axis = me.isHorizontal() ? 'x' : 'y';
     me._userMin = me.parse(options.min);
     me._userMax = me.parse(options.max);
+    me._suggestedMin = me.parse(options.suggestedMin);
+    me._suggestedMax = me.parse(options.suggestedMax);
   }
   ;
   _proto.parse = function parse(raw, index) {
@@ -4999,19 +5006,19 @@ var Scale = function (_Element) {
   }
   ;
   _proto.getUserBounds = function getUserBounds() {
-    var min = this._userMin;
-    var max = this._userMax;
-    if (isNullOrUndef(min) || isNaN(min)) {
-      min = Number.POSITIVE_INFINITY;
-    }
-    if (isNullOrUndef(max) || isNaN(max)) {
-      max = Number.NEGATIVE_INFINITY;
-    }
+    var _userMin = this._userMin,
+        _userMax = this._userMax,
+        _suggestedMin = this._suggestedMin,
+        _suggestedMax = this._suggestedMax;
+    _userMin = finiteOrDefault(_userMin, Number.POSITIVE_INFINITY);
+    _userMax = finiteOrDefault(_userMax, Number.NEGATIVE_INFINITY);
+    _suggestedMin = finiteOrDefault(_suggestedMin, Number.POSITIVE_INFINITY);
+    _suggestedMax = finiteOrDefault(_suggestedMax, Number.NEGATIVE_INFINITY);
     return {
-      min: min,
-      max: max,
-      minDefined: isNumberFinite(min),
-      maxDefined: isNumberFinite(max)
+      min: finiteOrDefault(_userMin, _suggestedMin),
+      max: finiteOrDefault(_userMax, _suggestedMax),
+      minDefined: isNumberFinite(_userMin),
+      maxDefined: isNumberFinite(_userMax)
     };
   }
   ;
@@ -5040,8 +5047,8 @@ var Scale = function (_Element) {
       }
     }
     return {
-      min: min,
-      max: max
+      min: finiteOrDefault(min, finiteOrDefault(max, min)),
+      max: finiteOrDefault(max, finiteOrDefault(min, max))
     };
   };
   _proto.invalidateCaches = function invalidateCaches() {
@@ -7702,6 +7709,7 @@ isNullOrUndef: isNullOrUndef,
 isArray: isArray,
 isObject: isObject,
 isFinite: isNumberFinite,
+finiteOrDefault: finiteOrDefault,
 valueOrDefault: valueOrDefault,
 callback: callback,
 each: each,
@@ -12419,51 +12427,37 @@ var LinearScaleBase = function (_Scale) {
   };
   _proto.handleTickRangeOptions = function handleTickRangeOptions() {
     var me = this;
-    var opts = me.options;
-    if (opts.beginAtZero) {
-      var minSign = sign(me.min);
-      var maxSign = sign(me.max);
+    var _me$options = me.options,
+        beginAtZero = _me$options.beginAtZero,
+        stacked = _me$options.stacked;
+    var _me$getUserBounds = me.getUserBounds(),
+        minDefined = _me$getUserBounds.minDefined,
+        maxDefined = _me$getUserBounds.maxDefined;
+    var min = me.min,
+        max = me.max;
+    var setMin = function setMin(v) {
+      return min = minDefined ? min : v;
+    };
+    var setMax = function setMax(v) {
+      return max = maxDefined ? max : v;
+    };
+    if (beginAtZero || stacked) {
+      var minSign = sign(min);
+      var maxSign = sign(max);
       if (minSign < 0 && maxSign < 0) {
-        me.max = 0;
+        setMax(0);
       } else if (minSign > 0 && maxSign > 0) {
-        me.min = 0;
+        setMin(0);
       }
     }
-    var setMin = opts.min !== undefined || opts.suggestedMin !== undefined;
-    var setMax = opts.max !== undefined || opts.suggestedMax !== undefined;
-    if (opts.min !== undefined) {
-      me.min = opts.min;
-    } else if (opts.suggestedMin !== undefined) {
-      if (me.min === null) {
-        me.min = opts.suggestedMin;
-      } else {
-        me.min = Math.min(me.min, opts.suggestedMin);
+    if (min === max) {
+      setMax(max + 1);
+      if (!beginAtZero) {
+        setMin(min - 1);
       }
     }
-    if (opts.max !== undefined) {
-      me.max = opts.max;
-    } else if (opts.suggestedMax !== undefined) {
-      if (me.max === null) {
-        me.max = opts.suggestedMax;
-      } else {
-        me.max = Math.max(me.max, opts.suggestedMax);
-      }
-    }
-    if (setMin !== setMax) {
-      if (me.min >= me.max) {
-        if (setMin) {
-          me.max = me.min + 1;
-        } else {
-          me.min = me.max - 1;
-        }
-      }
-    }
-    if (me.min === me.max) {
-      me.max++;
-      if (!opts.beginAtZero) {
-        me.min--;
-      }
-    }
+    me.min = min;
+    me.max = max;
   };
   _proto.getTickLimit = function getTickLimit() {
     var me = this;
@@ -12541,15 +12535,11 @@ var LinearScale = function (_LinearScaleBase) {
   var _proto = LinearScale.prototype;
   _proto.determineDataLimits = function determineDataLimits() {
     var me = this;
-    var options = me.options;
     var _me$getMinMax = me.getMinMax(true),
         min = _me$getMinMax.min,
         max = _me$getMinMax.max;
-    me.min = isNumberFinite(min) ? min : valueOrDefault(options.suggestedMin, 0);
-    me.max = isNumberFinite(max) ? max : valueOrDefault(options.suggestedMax, 1);
-    if (options.stacked && min > 0) {
-      me.min = 0;
-    }
+    me.min = isNumberFinite(min) ? min : 0;
+    me.max = isNumberFinite(max) ? max : 1;
     me.handleTickRangeOptions();
   }
   ;
@@ -12563,8 +12553,7 @@ var LinearScale = function (_LinearScaleBase) {
   }
   ;
   _proto.getPixelForValue = function getPixelForValue(value) {
-    var me = this;
-    return me.getPixelForDecimal((value - me._startValue) / me._valueRange);
+    return this.getPixelForDecimal((value - this._startValue) / this._valueRange);
   };
   _proto.getValueForPixel = function getValueForPixel(pixel) {
     return this._startValue + this.getDecimalForPixel(pixel) * this._valueRange;
@@ -12581,9 +12570,6 @@ LinearScale.defaults = {
 function isMajor(tickVal) {
   var remain = tickVal / Math.pow(10, Math.floor(log10(tickVal)));
   return remain === 1;
-}
-function finiteOrDefault(value, def) {
-  return isNumberFinite(value) ? value : def;
 }
 function generateTicks$1(generationOptions, dataRange) {
   var endExp = Math.floor(log10(dataRange.max));
@@ -12647,36 +12633,37 @@ var LogarithmicScale = function (_Scale) {
   };
   _proto.handleTickRangeOptions = function handleTickRangeOptions() {
     var me = this;
-    var _me$options = me.options,
-        suggestedMax = _me$options.suggestedMax,
-        suggestedMin = _me$options.suggestedMin;
-    var DEFAULT_MIN = 1;
-    var DEFAULT_MAX = 10;
+    var _me$getUserBounds = me.getUserBounds(),
+        minDefined = _me$getUserBounds.minDefined,
+        maxDefined = _me$getUserBounds.maxDefined;
     var min = me.min;
     var max = me.max;
-    if (!isNullOrUndef(suggestedMin)) {
-      min = Math.min(min, suggestedMin);
-    }
-    if (!isNullOrUndef(suggestedMax)) {
-      max = Math.max(max, suggestedMax);
-    }
+    var setMin = function setMin(v) {
+      return min = minDefined ? min : v;
+    };
+    var setMax = function setMax(v) {
+      return max = maxDefined ? max : v;
+    };
+    var exp = function exp(v, m) {
+      return Math.pow(10, Math.floor(log10(v)) + m);
+    };
     if (min === max) {
       if (min <= 0) {
-        min = DEFAULT_MIN;
-        max = DEFAULT_MAX;
+        setMin(1);
+        setMax(10);
       } else {
-        min = Math.pow(10, Math.floor(log10(min)) - 1);
-        max = Math.pow(10, Math.floor(log10(max)) + 1);
+        setMin(exp(min, -1));
+        setMax(exp(max, +1));
       }
     }
     if (min <= 0) {
-      min = Math.pow(10, Math.floor(log10(max)) - 1);
+      setMin(exp(max, -1));
     }
     if (max <= 0) {
-      max = Math.pow(10, Math.floor(log10(min)) + 1);
+      setMax(exp(min, +1));
     }
-    if (!me._userMin && me._zero && min === Math.pow(10, Math.floor(log10(me.min)))) {
-      min = Math.pow(10, Math.floor(log10(min)) - 1);
+    if (me._zero && me.min !== me._suggestedMin && min === exp(me.min, 0)) {
+      setMin(exp(min, -1));
     }
     me.min = min;
     me.max = max;

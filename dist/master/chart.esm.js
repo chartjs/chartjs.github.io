@@ -4,7 +4,7 @@
  * (c) 2020 Chart.js Contributors
  * Released under the MIT License
  */
-import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, d as defaults, n as noop, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, m as merge, b as isArray, f as resolveObjectKey, g as getHoverColor, _ as _capitalize, h as mergeIf, s as sign, j as _merger, k as isNullOrUndef, o as clipArea, p as unclipArea, q as _arrayUnique, t as toRadians, T as TAU, H as HALF_PI, P as PI, w as isNumber, x as _limitValue, y as _lookupByKey, z as getRelativePosition$1, A as _isPointInArea, B as _rlookupByKey, C as toPadding, D as each, E as getMaximumSize, F as _getParentNode, G as readUsedSize, I as throttled, J as supportsEventListenerOptions, K as log10, L as isNumberFinite, M as callback, N as toDegrees, O as _measureText, Q as _int16Range, R as _alignPixel, S as toFont, U as _factorize, V as uid, W as retinaScale, X as clear, Y as _elementsEqual, Z as getAngleFromPoint, $ as _angleBetween, a0 as _updateBezierControlPoints, a1 as _computeSegments, a2 as _boundSegments, a3 as _steppedInterpolation, a4 as _bezierInterpolation, a5 as _pointInLine, a6 as _steppedLineTo, a7 as _bezierCurveTo, a8 as drawPoint, a9 as toTRBL, aa as toTRBLCorners, ab as _normalizeAngle, ac as _boundSegment, ad as INFINITY, ae as getRtlAdapter, af as overrideTextDirection, ag as restoreTextDirection, ah as distanceBetweenPoints, ai as _setMinAndMaxByKey, aj as _decimalPlaces, ak as almostEquals, al as almostWhole, am as _longestText, an as _filterBetween, ao as _lookup } from './chunks/helpers.segment.js';
+import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, d as defaults, n as noop, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, m as merge, b as isArray, f as resolveObjectKey, g as getHoverColor, _ as _capitalize, h as mergeIf, s as sign, j as _merger, k as isNullOrUndef, o as clipArea, p as unclipArea, q as _arrayUnique, t as toRadians, T as TAU, H as HALF_PI, P as PI, w as isNumber, x as _limitValue, y as _lookupByKey, z as getRelativePosition$1, A as _isPointInArea, B as _rlookupByKey, C as toPadding, D as each, E as getMaximumSize, F as _getParentNode, G as readUsedSize, I as throttled, J as supportsEventListenerOptions, K as log10, L as finiteOrDefault, M as isNumberFinite, N as callback, O as toDegrees, Q as _measureText, R as _int16Range, S as _alignPixel, U as toFont, V as _factorize, W as uid, X as retinaScale, Y as clear, Z as _elementsEqual, $ as getAngleFromPoint, a0 as _angleBetween, a1 as _updateBezierControlPoints, a2 as _computeSegments, a3 as _boundSegments, a4 as _steppedInterpolation, a5 as _bezierInterpolation, a6 as _pointInLine, a7 as _steppedLineTo, a8 as _bezierCurveTo, a9 as drawPoint, aa as toTRBL, ab as toTRBLCorners, ac as _normalizeAngle, ad as _boundSegment, ae as INFINITY, af as getRtlAdapter, ag as overrideTextDirection, ah as restoreTextDirection, ai as distanceBetweenPoints, aj as _setMinAndMaxByKey, ak as _decimalPlaces, al as almostEquals, am as almostWhole, an as _longestText, ao as _filterBetween, ap as _lookup } from './chunks/helpers.segment.js';
 export { d as defaults } from './chunks/helpers.segment.js';
 
 function drawFPS(chart, count, date, lastDate) {
@@ -3566,6 +3566,8 @@ class Scale extends Element {
 		this._reversePixels = false;
 		this._userMax = undefined;
 		this._userMin = undefined;
+		this._suggestedMax = undefined;
+		this._suggestedMin = undefined;
 		this._ticksLength = 0;
 		this._borderValue = 0;
 		this._cache = {};
@@ -3577,20 +3579,24 @@ class Scale extends Element {
 		me.axis = me.isHorizontal() ? 'x' : 'y';
 		me._userMin = me.parse(options.min);
 		me._userMax = me.parse(options.max);
+		me._suggestedMin = me.parse(options.suggestedMin);
+		me._suggestedMax = me.parse(options.suggestedMax);
 	}
 	parse(raw, index) {
 		return raw;
 	}
 	getUserBounds() {
-		let min = this._userMin;
-		let max = this._userMax;
-		if (isNullOrUndef(min) || isNaN(min)) {
-			min = Number.POSITIVE_INFINITY;
-		}
-		if (isNullOrUndef(max) || isNaN(max)) {
-			max = Number.NEGATIVE_INFINITY;
-		}
-		return {min, max, minDefined: isNumberFinite(min), maxDefined: isNumberFinite(max)};
+		let {_userMin, _userMax, _suggestedMin, _suggestedMax} = this;
+		_userMin = finiteOrDefault(_userMin, Number.POSITIVE_INFINITY);
+		_userMax = finiteOrDefault(_userMax, Number.NEGATIVE_INFINITY);
+		_suggestedMin = finiteOrDefault(_suggestedMin, Number.POSITIVE_INFINITY);
+		_suggestedMax = finiteOrDefault(_suggestedMax, Number.NEGATIVE_INFINITY);
+		return {
+			min: finiteOrDefault(_userMin, _suggestedMin),
+			max: finiteOrDefault(_userMax, _suggestedMax),
+			minDefined: isNumberFinite(_userMin),
+			maxDefined: isNumberFinite(_userMax)
+		};
 	}
 	getMinMax(canStack) {
 		const me = this;
@@ -3609,7 +3615,10 @@ class Scale extends Element {
 				max = Math.max(max, range.max);
 			}
 		}
-		return {min, max};
+		return {
+			min: finiteOrDefault(min, finiteOrDefault(max, min)),
+			max: finiteOrDefault(max, finiteOrDefault(min, max))
+		};
 	}
 	invalidateCaches() {
 		this._cache = {};
@@ -8549,51 +8558,28 @@ class LinearScaleBase extends Scale {
 	}
 	handleTickRangeOptions() {
 		const me = this;
-		const opts = me.options;
-		if (opts.beginAtZero) {
-			const minSign = sign(me.min);
-			const maxSign = sign(me.max);
+		const {beginAtZero, stacked} = me.options;
+		const {minDefined, maxDefined} = me.getUserBounds();
+		let {min, max} = me;
+		const setMin = v => (min = minDefined ? min : v);
+		const setMax = v => (max = maxDefined ? max : v);
+		if (beginAtZero || stacked) {
+			const minSign = sign(min);
+			const maxSign = sign(max);
 			if (minSign < 0 && maxSign < 0) {
-				me.max = 0;
+				setMax(0);
 			} else if (minSign > 0 && maxSign > 0) {
-				me.min = 0;
+				setMin(0);
 			}
 		}
-		const setMin = opts.min !== undefined || opts.suggestedMin !== undefined;
-		const setMax = opts.max !== undefined || opts.suggestedMax !== undefined;
-		if (opts.min !== undefined) {
-			me.min = opts.min;
-		} else if (opts.suggestedMin !== undefined) {
-			if (me.min === null) {
-				me.min = opts.suggestedMin;
-			} else {
-				me.min = Math.min(me.min, opts.suggestedMin);
+		if (min === max) {
+			setMax(max + 1);
+			if (!beginAtZero) {
+				setMin(min - 1);
 			}
 		}
-		if (opts.max !== undefined) {
-			me.max = opts.max;
-		} else if (opts.suggestedMax !== undefined) {
-			if (me.max === null) {
-				me.max = opts.suggestedMax;
-			} else {
-				me.max = Math.max(me.max, opts.suggestedMax);
-			}
-		}
-		if (setMin !== setMax) {
-			if (me.min >= me.max) {
-				if (setMin) {
-					me.max = me.min + 1;
-				} else {
-					me.min = me.max - 1;
-				}
-			}
-		}
-		if (me.min === me.max) {
-			me.max++;
-			if (!opts.beginAtZero) {
-				me.min--;
-			}
-		}
+		me.min = min;
+		me.max = max;
 	}
 	getTickLimit() {
 		const me = this;
@@ -8662,13 +8648,9 @@ class LinearScaleBase extends Scale {
 class LinearScale extends LinearScaleBase {
 	determineDataLimits() {
 		const me = this;
-		const options = me.options;
 		const {min, max} = me.getMinMax(true);
-		me.min = isNumberFinite(min) ? min : valueOrDefault(options.suggestedMin, 0);
-		me.max = isNumberFinite(max) ? max : valueOrDefault(options.suggestedMax, 1);
-		if (options.stacked && min > 0) {
-			me.min = 0;
-		}
+		me.min = isNumberFinite(min) ? min : 0;
+		me.max = isNumberFinite(max) ? max : 1;
 		me.handleTickRangeOptions();
 	}
 	computeTickLimit() {
@@ -8680,8 +8662,7 @@ class LinearScale extends LinearScaleBase {
 		return Math.ceil(me.height / tickFont.lineHeight);
 	}
 	getPixelForValue(value) {
-		const me = this;
-		return me.getPixelForDecimal((value - me._startValue) / me._valueRange);
+		return this.getPixelForDecimal((value - this._startValue) / this._valueRange);
 	}
 	getValueForPixel(pixel) {
 		return this._startValue + this.getDecimalForPixel(pixel) * this._valueRange;
@@ -8697,9 +8678,6 @@ LinearScale.defaults = {
 function isMajor(tickVal) {
 	const remain = tickVal / (Math.pow(10, Math.floor(log10(tickVal))));
 	return remain === 1;
-}
-function finiteOrDefault(value, def) {
-	return isNumberFinite(value) ? value : def;
 }
 function generateTicks$1(generationOptions, dataRange) {
 	const endExp = Math.floor(log10(dataRange.max));
@@ -8751,34 +8729,29 @@ class LogarithmicScale extends Scale {
 	}
 	handleTickRangeOptions() {
 		const me = this;
-		const {suggestedMax, suggestedMin} = me.options;
-		const DEFAULT_MIN = 1;
-		const DEFAULT_MAX = 10;
+		const {minDefined, maxDefined} = me.getUserBounds();
 		let min = me.min;
 		let max = me.max;
-		if (!isNullOrUndef(suggestedMin)) {
-			min = Math.min(min, suggestedMin);
-		}
-		if (!isNullOrUndef(suggestedMax)) {
-			max = Math.max(max, suggestedMax);
-		}
+		const setMin = v => (min = minDefined ? min : v);
+		const setMax = v => (max = maxDefined ? max : v);
+		const exp = (v, m) => Math.pow(10, Math.floor(log10(v)) + m);
 		if (min === max) {
 			if (min <= 0) {
-				min = DEFAULT_MIN;
-				max = DEFAULT_MAX;
+				setMin(1);
+				setMax(10);
 			} else {
-				min = Math.pow(10, Math.floor(log10(min)) - 1);
-				max = Math.pow(10, Math.floor(log10(max)) + 1);
+				setMin(exp(min, -1));
+				setMax(exp(max, +1));
 			}
 		}
 		if (min <= 0) {
-			min = Math.pow(10, Math.floor(log10(max)) - 1);
+			setMin(exp(max, -1));
 		}
 		if (max <= 0) {
-			max = Math.pow(10, Math.floor(log10(min)) + 1);
+			setMax(exp(min, +1));
 		}
-		if (!me._userMin && me._zero && min === Math.pow(10, Math.floor(log10(me.min)))) {
-			min = Math.pow(10, Math.floor(log10(min)) - 1);
+		if (me._zero && me.min !== me._suggestedMin && min === exp(me.min, 0)) {
+			setMin(exp(min, -1));
 		}
 		me.min = min;
 		me.max = max;
