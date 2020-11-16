@@ -7003,9 +7003,7 @@ class Legend extends Element {
 			ctx.lineJoin = valueOrDefault(legendItem.lineJoin, 'miter');
 			ctx.lineWidth = lineWidth;
 			ctx.strokeStyle = valueOrDefault(legendItem.strokeStyle, defaultColor);
-			if (ctx.setLineDash) {
-				ctx.setLineDash(valueOrDefault(legendItem.lineDash, []));
-			}
+			ctx.setLineDash(valueOrDefault(legendItem.lineDash, []));
 			if (labelOpts && labelOpts.usePointStyle) {
 				const drawOptions = {
 					radius: boxWidth * Math.SQRT2 / 2,
