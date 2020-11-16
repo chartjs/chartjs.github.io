@@ -3696,6 +3696,7 @@ defaults.set('scale', {
 	offset: false,
 	reverse: false,
 	beginAtZero: false,
+	bounds: 'ticks',
 	gridLines: {
 		display: true,
 		color: 'rgba(0,0,0,0.1)',
@@ -10632,9 +10633,18 @@ class CategoryScale extends Scale {
 	}
 	determineDataLimits() {
 		const me = this;
-		const max = me.getLabels().length - 1;
-		me.min = Math.max(me._userMin || 0, 0);
-		me.max = Math.min(me._userMax || max, max);
+		const {minDefined, maxDefined} = me.getUserBounds();
+		let {min, max} = me.getMinMax(true);
+		if (me.options.bounds === 'ticks') {
+			if (!minDefined) {
+				min = 0;
+			}
+			if (!maxDefined) {
+				max = me.getLabels().length - 1;
+			}
+		}
+		me.min = min;
+		me.max = max;
 	}
 	buildTicks() {
 		const me = this;
@@ -10833,7 +10843,9 @@ class LinearScaleBase extends Scale {
 			stepSize: valueOrDefault(tickOpts.fixedStepSize, tickOpts.stepSize)
 		};
 		const ticks = generateTicks(numericGeneratorOptions, me);
-		_setMinAndMaxByKey(ticks, me, 'value');
+		if (opts.bounds === 'ticks') {
+			_setMinAndMaxByKey(ticks, me, 'value');
+		}
 		if (opts.reverse) {
 			ticks.reverse();
 			me.start = me.max;
@@ -10983,7 +10995,9 @@ class LogarithmicScale extends Scale {
 			max: me._userMax
 		};
 		const ticks = generateTicks$1(generationOptions, me);
-		_setMinAndMaxByKey(ticks, me, 'value');
+		if (opts.bounds === 'ticks') {
+			_setMinAndMaxByKey(ticks, me, 'value');
+		}
 		if (opts.reverse) {
 			ticks.reverse();
 			me.start = me.max;
