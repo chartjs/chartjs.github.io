@@ -400,7 +400,10 @@ class Defaults {
 		this.controllers = {};
 	}
 	set(scope, values) {
-		return merge(getScope(this, scope), values);
+		if (typeof scope === 'string') {
+			return merge(getScope(this, scope), values);
+		}
+		return merge(getScope(this, ''), scope);
 	}
 	get(scope) {
 		return getScope(this, scope);
