@@ -363,7 +363,10 @@ function getScope(node, key) {
 }
 class Defaults {
 	constructor() {
-		this.color = 'rgba(0,0,0,0.1)';
+		this.backgroundColor = 'rgba(0,0,0,0.1)';
+		this.borderColor = 'rgba(0,0,0,0.1)';
+		this.color = '#666';
+		this.controllers = {};
 		this.elements = {};
 		this.events = [
 			'mousemove',
@@ -373,31 +376,27 @@ class Defaults {
 			'touchmove'
 		];
 		this.font = {
-			color: '#666',
 			family: "'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
 			size: 12,
 			style: 'normal',
 			lineHeight: 1.2,
-			weight: null,
-			lineWidth: 0,
-			strokeStyle: undefined
+			weight: null
+		};
+		this.hover = {
+			onHover: null
 		};
 		this.interaction = {
 			mode: 'nearest',
 			intersect: true
 		};
-		this.hover = {
-			onHover: null
-		};
 		this.maintainAspectRatio = true;
 		this.onHover = null;
 		this.onClick = null;
-		this.responsive = true;
-		this.showLine = true;
 		this.plugins = {};
+		this.responsive = true;
 		this.scale = undefined;
 		this.scales = {};
-		this.controllers = {};
+		this.showLine = true;
 	}
 	set(scope, values) {
 		if (typeof scope === 'string') {
@@ -1246,14 +1245,11 @@ function toFont(options, fallback) {
 		size = parseInt(size, 10);
 	}
 	const font = {
-		color: valueOrDefault(options.color, fallback.color),
 		family: valueOrDefault(options.family, fallback.family),
 		lineHeight: toLineHeight(valueOrDefault(options.lineHeight, fallback.lineHeight), size),
-		lineWidth: valueOrDefault(options.lineWidth, fallback.lineWidth),
 		size,
 		style: valueOrDefault(options.style, fallback.style),
 		weight: valueOrDefault(options.weight, fallback.weight),
-		strokeStyle: valueOrDefault(options.strokeStyle, fallback.strokeStyle),
 		string: ''
 	};
 	font.string = toFontString(font);
@@ -3702,7 +3698,6 @@ defaults.set('scale', {
 	bounds: 'ticks',
 	gridLines: {
 		display: true,
-		color: 'rgba(0,0,0,0.1)',
 		lineWidth: 1,
 		drawBorder: true,
 		drawOnChartArea: true,
@@ -3738,6 +3733,9 @@ defaults.set('scale', {
 		crossAlign: 'near',
 	}
 });
+defaults.route('scale.ticks', 'color', '', 'color');
+defaults.route('scale.gridLines', 'color', '', 'borderColor');
+defaults.route('scale.scaleLabel', 'color', '', 'color');
 function sample(arr, numItems) {
 	const result = [];
 	const increment = arr.length / numItems;
@@ -4637,6 +4635,7 @@ class Scale extends Element {
 				rotation,
 				label,
 				font,
+				color: optionTicks.color,
 				textOffset,
 				textAlign,
 				textBaseline,
@@ -4776,17 +4775,17 @@ class Scale extends Element {
 		for (i = 0, ilen = items.length; i < ilen; ++i) {
 			const item = items[i];
 			const tickFont = item.font;
-			const useStroke = tickFont.lineWidth > 0 && tickFont.strokeStyle !== '';
+			const useStroke = optionTicks.textStrokeWidth > 0 && optionTicks.textStrokeColor !== '';
 			ctx.save();
 			ctx.translate(item.x, item.y);
 			ctx.rotate(item.rotation);
 			ctx.font = tickFont.string;
-			ctx.fillStyle = tickFont.color;
+			ctx.fillStyle = item.color;
 			ctx.textAlign = item.textAlign;
 			ctx.textBaseline = item.textBaseline;
 			if (useStroke) {
-				ctx.strokeStyle = tickFont.strokeStyle;
-				ctx.lineWidth = tickFont.lineWidth;
+				ctx.strokeStyle = optionTicks.textStrokeColor;
+				ctx.lineWidth = optionTicks.textStrokeWidth;
 			}
 			const label = item.label;
 			let y = item.textOffset;
@@ -4866,7 +4865,7 @@ class Scale extends Element {
 		ctx.rotate(rotation);
 		ctx.textAlign = textAlign;
 		ctx.textBaseline = 'middle';
-		ctx.fillStyle = scaleLabelFont.color;
+		ctx.fillStyle = scaleLabel.color;
 		ctx.font = scaleLabelFont.string;
 		ctx.fillText(scaleLabel.labelString, 0, 0);
 		ctx.restore();
@@ -4990,10 +4989,13 @@ function registerDefaults(item, scope, parentScope) {
 }
 function routeDefaults(scope, routes) {
 	Object.keys(routes).forEach(property => {
+		const propertyParts = property.split('.');
+		const sourceName = propertyParts.pop();
+		const sourceScope = [scope].concat(propertyParts).join('.');
 		const parts = routes[property].split('.');
 		const targetName = parts.pop();
 		const targetScope = parts.join('.');
-		defaults.route(scope, property, targetScope, targetName);
+		defaults.route(sourceScope, sourceName, targetScope, targetName);
 	});
 }
 function isIChartComponent(proto) {
@@ -8041,7 +8043,7 @@ ArcElement.defaults = {
 	offset: 0
 };
 ArcElement.defaultRoutes = {
-	backgroundColor: 'color'
+	backgroundColor: 'backgroundColor'
 };
 
 function setStyle(ctx, vm) {
@@ -8276,8 +8278,8 @@ LineElement.defaults = {
 	tension: 0
 };
 LineElement.defaultRoutes = {
-	backgroundColor: 'color',
-	borderColor: 'color'
+	backgroundColor: 'backgroundColor',
+	borderColor: 'borderColor'
 };
 
 class PointElement extends Element {
@@ -8341,8 +8343,8 @@ PointElement.defaults = {
 	radius: 3
 };
 PointElement.defaultRoutes = {
-	backgroundColor: 'color',
-	borderColor: 'color'
+	backgroundColor: 'backgroundColor',
+	borderColor: 'borderColor'
 };
 
 function getBarBounds(bar, useFinalPosition) {
@@ -8528,8 +8530,8 @@ BarElement.defaults = {
 	borderRadius: 0
 };
 BarElement.defaultRoutes = {
-	backgroundColor: 'color',
-	borderColor: 'color'
+	backgroundColor: 'backgroundColor',
+	borderColor: 'borderColor'
 };
 
 var elements = /*#__PURE__*/Object.freeze({
@@ -9195,7 +9197,7 @@ class Legend extends Element {
 		const rtlHelper = getRtlAdapter(opts.rtl, me.left, me._minSize.width);
 		const ctx = me.ctx;
 		const labelFont = toFont(labelOpts.font, me.chart.options.font);
-		const fontColor = labelFont.color;
+		const fontColor = labelOpts.color;
 		const fontSize = labelFont.size;
 		let cursor;
 		ctx.textAlign = rtlHelper.textAlign('left');
@@ -9368,8 +9370,8 @@ class Legend extends Element {
 		}
 		ctx.textAlign = rtlHelper.textAlign(textAlign);
 		ctx.textBaseline = 'middle';
-		ctx.strokeStyle = titleFont.color;
-		ctx.fillStyle = titleFont.color;
+		ctx.strokeStyle = titleOpts.color;
+		ctx.fillStyle = titleOpts.color;
 		ctx.font = titleFont.string;
 		ctx.fillText(titleOpts.text, x, y);
 	}
@@ -9662,7 +9664,7 @@ class Title extends Element {
 			rotation = PI * (opts.position === 'left' ? -0.5 : 0.5);
 		}
 		ctx.save();
-		ctx.fillStyle = fontOpts.color;
+		ctx.fillStyle = opts.color;
 		ctx.font = fontOpts.string;
 		ctx.translate(titleX, titleY);
 		ctx.rotate(rotation);
@@ -9727,6 +9729,9 @@ var plugin_title = {
 		position: 'top',
 		text: '',
 		weight: 2000
+	},
+	defaultRoutes: {
+		color: 'color'
 	}
 };
 
@@ -10198,7 +10203,7 @@ class Tooltip extends Element {
 			ctx.textBaseline = 'middle';
 			titleFont = options.titleFont;
 			titleSpacing = options.titleSpacing;
-			ctx.fillStyle = options.titleFont.color;
+			ctx.fillStyle = options.titleColor;
 			ctx.font = titleFont.string;
 			for (i = 0; i < length; ++i) {
 				ctx.fillText(title[i], rtlHelper.x(pt.x), pt.y + titleFont.size / 2);
@@ -10262,7 +10267,7 @@ class Tooltip extends Element {
 		ctx.textBaseline = 'middle';
 		ctx.font = bodyFont.string;
 		pt.x = getAlignedX(me, bodyAlignForCalculation);
-		ctx.fillStyle = bodyFont.color;
+		ctx.fillStyle = options.bodyColor;
 		each(me.beforeBody, fillLineOfText);
 		xLinePadding = displayColors && bodyAlignForCalculation !== 'right'
 			? bodyAlign === 'center' ? (boxWidth / 2 + 1) : (boxWidth + 2)
@@ -10301,7 +10306,7 @@ class Tooltip extends Element {
 			ctx.textAlign = rtlHelper.textAlign(options.footerAlign);
 			ctx.textBaseline = 'middle';
 			footerFont = options.footerFont;
-			ctx.fillStyle = options.footerFont.color;
+			ctx.fillStyle = options.footerColor;
 			ctx.font = footerFont.string;
 			for (i = 0; i < length; ++i) {
 				ctx.fillText(footer[i], rtlHelper.x(pt.x), pt.y + footerFont.size / 2);
@@ -10505,22 +10510,22 @@ var plugin_tooltip = {
 		custom: null,
 		position: 'average',
 		backgroundColor: 'rgba(0,0,0,0.8)',
+		titleColor: '#fff',
 		titleFont: {
 			style: 'bold',
-			color: '#fff',
 		},
 		titleSpacing: 2,
 		titleMarginBottom: 6,
 		titleAlign: 'left',
+		bodyColor: '#fff',
 		bodySpacing: 2,
 		bodyFont: {
-			color: '#fff',
 		},
 		bodyAlign: 'left',
+		footerColor: '#fff',
 		footerSpacing: 2,
 		footerMarginTop: 6,
 		footerFont: {
-			color: '#fff',
 			style: 'bold',
 		},
 		footerAlign: 'left',
@@ -10588,7 +10593,7 @@ var plugin_tooltip = {
 				};
 			},
 			labelTextColor() {
-				return this.options.bodyFont.color;
+				return this.options.bodyColor;
 			},
 			labelPointStyle(tooltipItem) {
 				const meta = tooltipItem.chart.getDatasetMeta(tooltipItem.datasetIndex);
@@ -11164,7 +11169,7 @@ function drawPointLabels(scale) {
 		const context = scale.getContext(i);
 		const plFont = toFont(resolve([pointLabelOpts.font], context, i), scale.chart.options.font);
 		ctx.font = plFont.string;
-		ctx.fillStyle = plFont.color;
+		ctx.fillStyle = pointLabelOpts.color;
 		const angle = toDegrees(scale.getIndexAngle(i));
 		ctx.textAlign = getTextAlignForAngle(angle);
 		adjustPointPositionForLabelHeight(angle, scale._pointLabelSizes[i], pointLabelPosition);
@@ -11398,7 +11403,7 @@ class RadialLinearScale extends LinearScaleBase {
 					tickFont.size + tickOpts.backdropPaddingY * 2
 				);
 			}
-			ctx.fillStyle = tickFont.color;
+			ctx.fillStyle = tickOpts.color;
 			ctx.fillText(tick.label, 0, -offset);
 		});
 		ctx.restore();
@@ -11412,7 +11417,6 @@ RadialLinearScale.defaults = {
 	position: 'chartArea',
 	angleLines: {
 		display: true,
-		color: 'rgba(0,0,0,0.1)',
 		lineWidth: 1,
 		borderDash: [],
 		borderDashOffset: 0.0
@@ -11436,6 +11440,11 @@ RadialLinearScale.defaults = {
 			return label;
 		}
 	}
+};
+RadialLinearScale.defaultRoutes = {
+	'angleLines.color': 'borderColor',
+	'pointLabels.color': 'color',
+	'ticks.color': 'color'
 };
 
 const MAX_INTEGER = Number.MAX_SAFE_INTEGER || 9007199254740991;
