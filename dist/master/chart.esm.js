@@ -4752,9 +4752,9 @@ class PluginService {
 			return this._cache;
 		}
 		const config = chart && chart.config;
-		const options = (config.options && config.options.plugins) || {};
+		const options = valueOrDefault(config.options && config.options.plugins, {});
 		const plugins = allPlugins(config);
-		const descriptors = createDescriptors(plugins, options);
+		const descriptors = options === false ? [] : createDescriptors(plugins, options);
 		this._cache = descriptors;
 		return descriptors;
 	}
