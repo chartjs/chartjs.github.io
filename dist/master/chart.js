@@ -5189,7 +5189,6 @@ function determineAxis(id, scaleOptions) {
 	return scaleOptions.axis || axisFromPosition(scaleOptions.position) || id.charAt(0).toLowerCase();
 }
 function mergeScaleConfig(config, options) {
-	options = options || {};
 	const chartDefaults = defaults.controllers[config.type] || {scales: {}};
 	const configScales = options.scales || {};
 	const chartIndexAxis = getIndexAxis(config.type, options);
@@ -5234,12 +5233,14 @@ function mergeConfig(...args) {
 	});
 }
 function includeDefaults(config, options) {
+	options = options || {};
 	const scaleConfig = mergeScaleConfig(config, options);
+	const hoverEanbled = options.interaction !== false && options.hover !== false;
 	options = mergeConfig(
 		defaults,
 		defaults.controllers[config.type],
-		options || {});
-	options.hover = merge(Object.create(null), [
+		options);
+	options.hover = hoverEanbled && merge(Object.create(null), [
 		defaults.interaction,
 		defaults.hover,
 		options.interaction,
