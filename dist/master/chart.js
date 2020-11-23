@@ -874,9 +874,7 @@ function parseMaxStyle(styleValue, node, parentProperty) {
 }
 const getComputedStyle = (element) => window.getComputedStyle(element, null);
 function getStyle(el, property) {
-	return el.currentStyle ?
-		el.currentStyle[property] :
-		getComputedStyle(el).getPropertyValue(property);
+	return getComputedStyle(el).getPropertyValue(property);
 }
 const positions = ['top', 'right', 'bottom', 'left'];
 function getPositionedStyle(styles, style, suffix) {
@@ -4971,8 +4969,6 @@ class TypedRegistry {
 		}
 		if (scope && id in defaults[scope]) {
 			delete defaults[scope][id];
-		} else if (id in defaults) {
-			delete defaults[id];
 		}
 	}
 }

@@ -4608,8 +4608,6 @@ class TypedRegistry {
 		}
 		if (scope && id in defaults[scope]) {
 			delete defaults[scope][id];
-		} else if (id in defaults) {
-			delete defaults[id];
 		}
 	}
 }
