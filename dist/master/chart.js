@@ -3158,7 +3158,7 @@ class DatasetController {
 		const me = this;
 		me._config = merge(Object.create(null), [
 			defaults.controllers[me._type].datasets,
-			(me.chart.options[me._type] || {}).datasets,
+			(me.chart.options.datasets || {})[me._type],
 			me.getDataset(),
 		], {
 			merger(key, target, source) {
@@ -5158,9 +5158,9 @@ function createDescriptors(plugins, options) {
 function getIndexAxis(type, options) {
 	const typeDefaults = defaults.controllers[type] || {};
 	const datasetDefaults = typeDefaults.datasets || {};
-	const typeOptions = options[type] || {};
-	const datasetOptions = typeOptions.datasets || {};
-	return datasetOptions.indexAxis || options.indexAxis || datasetDefaults.indexAxis || 'x';
+	const datasetOptions = options.datasets || {};
+	const typeOptions = datasetOptions[type] || {};
+	return typeOptions.indexAxis || options.indexAxis || datasetDefaults.indexAxis || 'x';
 }
 function getAxisFromDefaultScaleID(id, indexAxis) {
 	let axis = id;
