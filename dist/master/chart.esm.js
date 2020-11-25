@@ -1703,10 +1703,12 @@ BubbleController.defaults = {
 			type: 'linear'
 		}
 	},
-	tooltips: {
-		callbacks: {
-			title() {
-				return '';
+	plugins: {
+		tooltip: {
+			callbacks: {
+				title() {
+					return '';
+				}
 			}
 		}
 	}
@@ -1964,50 +1966,52 @@ DoughnutController.defaults = {
 		animateScale: false
 	},
 	aspectRatio: 1,
-	legend: {
-		labels: {
-			generateLabels(chart) {
-				const data = chart.data;
-				if (data.labels.length && data.datasets.length) {
-					return data.labels.map((label, i) => {
-						const meta = chart.getDatasetMeta(0);
-						const style = meta.controller.getStyle(i);
-						return {
-							text: label,
-							fillStyle: style.backgroundColor,
-							strokeStyle: style.borderColor,
-							lineWidth: style.borderWidth,
-							hidden: !chart.getDataVisibility(i),
-							index: i
-						};
-					});
-				}
-				return [];
-			}
-		},
-		onClick(e, legendItem, legend) {
-			legend.chart.toggleDataVisibility(legendItem.index);
-			legend.chart.update();
-		}
-	},
 	cutoutPercentage: 50,
 	rotation: 0,
 	circumference: 360,
-	tooltips: {
-		callbacks: {
-			title() {
-				return '';
-			},
-			label(tooltipItem) {
-				let dataLabel = tooltipItem.label;
-				const value = ': ' + tooltipItem.formattedValue;
-				if (isArray(dataLabel)) {
-					dataLabel = dataLabel.slice();
-					dataLabel[0] += value;
-				} else {
-					dataLabel += value;
+	plugins: {
+		legend: {
+			labels: {
+				generateLabels(chart) {
+					const data = chart.data;
+					if (data.labels.length && data.datasets.length) {
+						return data.labels.map((label, i) => {
+							const meta = chart.getDatasetMeta(0);
+							const style = meta.controller.getStyle(i);
+							return {
+								text: label,
+								fillStyle: style.backgroundColor,
+								strokeStyle: style.borderColor,
+								lineWidth: style.borderWidth,
+								hidden: !chart.getDataVisibility(i),
+								index: i
+							};
+						});
+					}
+					return [];
 				}
-				return dataLabel;
+			},
+			onClick(e, legendItem, legend) {
+				legend.chart.toggleDataVisibility(legendItem.index);
+				legend.chart.update();
+			}
+		},
+		tooltip: {
+			callbacks: {
+				title() {
+					return '';
+				},
+				label(tooltipItem) {
+					let dataLabel = tooltipItem.label;
+					const value = ': ' + tooltipItem.formattedValue;
+					if (isArray(dataLabel)) {
+						dataLabel = dataLabel.slice();
+						dataLabel[0] += value;
+					} else {
+						dataLabel += value;
+					}
+					return dataLabel;
+				}
 			}
 		}
 	}
@@ -2324,39 +2328,41 @@ PolarAreaController.defaults = {
 		}
 	},
 	startAngle: 0,
-	legend: {
-		labels: {
-			generateLabels(chart) {
-				const data = chart.data;
-				if (data.labels.length && data.datasets.length) {
-					return data.labels.map((label, i) => {
-						const meta = chart.getDatasetMeta(0);
-						const style = meta.controller.getStyle(i);
-						return {
-							text: label,
-							fillStyle: style.backgroundColor,
-							strokeStyle: style.borderColor,
-							lineWidth: style.borderWidth,
-							hidden: !chart.getDataVisibility(i),
-							index: i
-						};
-					});
+	plugins: {
+		legend: {
+			labels: {
+				generateLabels(chart) {
+					const data = chart.data;
+					if (data.labels.length && data.datasets.length) {
+						return data.labels.map((label, i) => {
+							const meta = chart.getDatasetMeta(0);
+							const style = meta.controller.getStyle(i);
+							return {
+								text: label,
+								fillStyle: style.backgroundColor,
+								strokeStyle: style.borderColor,
+								lineWidth: style.borderWidth,
+								hidden: !chart.getDataVisibility(i),
+								index: i
+							};
+						});
+					}
+					return [];
 				}
-				return [];
+			},
+			onClick(e, legendItem, legend) {
+				legend.chart.toggleDataVisibility(legendItem.index);
+				legend.chart.update();
 			}
 		},
-		onClick(e, legendItem, legend) {
-			legend.chart.toggleDataVisibility(legendItem.index);
-			legend.chart.update();
-		}
-	},
-	tooltips: {
-		callbacks: {
-			title() {
-				return '';
-			},
-			label(context) {
-				return context.chart.data.labels[context.dataIndex] + ': ' + context.formattedValue;
+		tooltip: {
+			callbacks: {
+				title() {
+					return '';
+				},
+				label(context) {
+					return context.chart.data.labels[context.dataIndex] + ': ' + context.formattedValue;
+				}
 			}
 		}
 	}
@@ -2492,13 +2498,15 @@ ScatterController.defaults = {
 		showLine: false,
 		fill: false
 	},
-	tooltips: {
-		callbacks: {
-			title() {
-				return '';
-			},
-			label(item) {
-				return '(' + item.label + ', ' + item.formattedValue + ')';
+	plugins: {
+		tooltip: {
+			callbacks: {
+				title() {
+					return '';
+				},
+				label(item) {
+					return '(' + item.label + ', ' + item.formattedValue + ')';
+				}
 			}
 		}
 	}
@@ -4871,6 +4879,19 @@ function mergeConfig(...args) {
 		}
 	});
 }
+function includePluginDefaults(options) {
+	options.plugins = options.plugins || {};
+	options.plugins.title = (options.plugins.title !== false) && merge(Object.create(null), [
+		defaults.plugins.title,
+		options.plugins.title
+	]);
+	options.plugins.tooltip = (options.plugins.tooltip !== false) && merge(Object.create(null), [
+		defaults.interaction,
+		defaults.plugins.tooltip,
+		options.interaction,
+		options.plugins.tooltip
+	]);
+}
 function includeDefaults(config, options) {
 	options = options || {};
 	const scaleConfig = mergeScaleConfig(config, options);
@@ -4886,16 +4907,9 @@ function includeDefaults(config, options) {
 		options.hover
 	]);
 	options.scales = scaleConfig;
-	options.title = (options.title !== false) && merge(Object.create(null), [
-		defaults.plugins.title,
-		options.title
-	]);
-	options.tooltips = (options.tooltips !== false) && merge(Object.create(null), [
-		defaults.interaction,
-		defaults.plugins.tooltip,
-		options.interaction,
-		options.tooltips
-	]);
+	if (options.plugins !== false) {
+		includePluginDefaults(options);
+	}
 	return options;
 }
 function initConfig(config) {
@@ -7232,13 +7246,13 @@ var plugin_legend = {
 	id: 'legend',
 	_element: Legend,
 	beforeInit(chart) {
-		const legendOpts = resolveOptions(chart.options.legend);
+		const legendOpts = resolveOptions(chart.options.plugins.legend);
 		if (legendOpts) {
 			createNewLegendAndAttach(chart, legendOpts);
 		}
 	},
 	beforeUpdate(chart) {
-		const legendOpts = resolveOptions(chart.options.legend);
+		const legendOpts = resolveOptions(chart.options.plugins.legend);
 		const legend = chart.legend;
 		if (legendOpts) {
 			if (legend) {
@@ -7484,13 +7498,13 @@ var plugin_title = {
 	id: 'title',
 	_element: Title,
 	beforeInit(chart) {
-		const titleOpts = chart.options.title;
+		const titleOpts = chart.options.plugins.title;
 		if (titleOpts) {
 			createNewTitleBlockAndAttach(chart, titleOpts);
 		}
 	},
 	beforeUpdate(chart) {
-		const titleOpts = chart.options.title;
+		const titleOpts = chart.options.plugins.title;
 		const titleBlock = chart.titleBlock;
 		if (titleOpts) {
 			mergeIf(titleOpts, defaults.plugins.title);
@@ -7792,7 +7806,7 @@ class Tooltip extends Element {
 	initialize() {
 		const me = this;
 		const chartOpts = me._chart.options;
-		me.options = resolveOptions$1(chartOpts.tooltips, chartOpts.font);
+		me.options = resolveOptions$1(chartOpts.plugins.tooltip, chartOpts.font);
 		me._cachedAnimations = undefined;
 	}
 	_resolveAnimations() {
@@ -8258,7 +8272,7 @@ var plugin_tooltip = {
 	_element: Tooltip,
 	positioners,
 	afterInit(chart) {
-		const tooltipOpts = chart.options.tooltips;
+		const tooltipOpts = chart.options.plugins.tooltip;
 		if (tooltipOpts) {
 			chart.tooltip = new Tooltip({_chart: chart});
 		}
