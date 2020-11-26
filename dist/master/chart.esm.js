@@ -7333,6 +7333,8 @@ var plugin_legend = {
 	}
 };
 
+const toLeftRightCenter = (align) => align === 'start' ? 'left' : align === 'end' ? 'right' : 'center';
+const alignStartEnd = (align, start, end) => align === 'start' ? start : align === 'end' ? end : (start + end) / 2;
 class Title extends Element {
 	constructor(config) {
 		super();
@@ -7354,26 +7356,14 @@ class Title extends Element {
 		this.weight = undefined;
 		this.fullWidth = undefined;
 	}
-	beforeUpdate() {}
 	update(maxWidth, maxHeight, margins) {
 		const me = this;
-		me.beforeUpdate();
 		me.maxWidth = maxWidth;
 		me.maxHeight = maxHeight;
 		me._margins = margins;
-		me.beforeSetDimensions();
 		me.setDimensions();
-		me.afterSetDimensions();
-		me.beforeBuildLabels();
-		me.buildLabels();
-		me.afterBuildLabels();
-		me.beforeFit();
 		me.fit();
-		me.afterFit();
-		me.afterUpdate();
 	}
-	afterUpdate() {}
-	beforeSetDimensions() {}
 	setDimensions() {
 		const me = this;
 		if (me.isHorizontal()) {
@@ -7386,11 +7376,6 @@ class Title extends Element {
 			me.bottom = me.height;
 		}
 	}
-	afterSetDimensions() {}
-	beforeBuildLabels() {}
-	buildLabels() {}
-	afterBuildLabels() {}
-	beforeFit() {}
 	fit() {
 		const me = this;
 		const opts = me.options;
@@ -7406,10 +7391,32 @@ class Title extends Element {
 		me.width = minSize.width = isHorizontal ? me.maxWidth : textSize;
 		me.height = minSize.height = isHorizontal ? textSize : me.maxHeight;
 	}
-	afterFit() {}
 	isHorizontal() {
 		const pos = this.options.position;
 		return pos === 'top' || pos === 'bottom';
+	}
+	_drawArgs(offset) {
+		const {top, left, bottom, right, options} = this;
+		const align = options.align;
+		let rotation = 0;
+		let maxWidth, titleX, titleY;
+		if (this.isHorizontal()) {
+			titleX = alignStartEnd(align, left, right);
+			titleY = top + offset;
+			maxWidth = right - left;
+		} else {
+			if (options.position === 'left') {
+				titleX = left + offset;
+				titleY = alignStartEnd(align, bottom, top);
+				rotation = PI * -0.5;
+			} else {
+				titleX = right - offset;
+				titleY = alignStartEnd(align, top, bottom);
+				rotation = PI * 0.5;
+			}
+			maxWidth = bottom - top;
+		}
+		return {titleX, titleY, maxWidth, rotation};
 	}
 	draw() {
 		const me = this;
@@ -7421,55 +7428,13 @@ class Title extends Element {
 		const fontOpts = toFont(opts.font, me.chart.options.font);
 		const lineHeight = fontOpts.lineHeight;
 		const offset = lineHeight / 2 + me._padding.top;
-		let rotation = 0;
-		const top = me.top;
-		const left = me.left;
-		const bottom = me.bottom;
-		const right = me.right;
-		let maxWidth, titleX, titleY;
-		let align;
-		if (me.isHorizontal()) {
-			switch (opts.align) {
-			case 'start':
-				titleX = left;
-				align = 'left';
-				break;
-			case 'end':
-				titleX = right;
-				align = 'right';
-				break;
-			default:
-				titleX = left + ((right - left) / 2);
-				align = 'center';
-				break;
-			}
-			titleY = top + offset;
-			maxWidth = right - left;
-		} else {
-			titleX = opts.position === 'left' ? left + offset : right - offset;
-			switch (opts.align) {
-			case 'start':
-				titleY = opts.position === 'left' ? bottom : top;
-				align = 'left';
-				break;
-			case 'end':
-				titleY = opts.position === 'left' ? top : bottom;
-				align = 'right';
-				break;
-			default:
-				titleY = top + ((bottom - top) / 2);
-				align = 'center';
-				break;
-			}
-			maxWidth = bottom - top;
-			rotation = PI * (opts.position === 'left' ? -0.5 : 0.5);
-		}
+		const {titleX, titleY, maxWidth, rotation} = me._drawArgs(offset);
 		ctx.save();
 		ctx.fillStyle = opts.color;
 		ctx.font = fontOpts.string;
 		ctx.translate(titleX, titleY);
 		ctx.rotate(rotation);
-		ctx.textAlign = align;
+		ctx.textAlign = toLeftRightCenter(opts.align);
 		ctx.textBaseline = 'middle';
 		const text = opts.text;
 		if (isArray(text)) {
@@ -7484,7 +7449,7 @@ class Title extends Element {
 		ctx.restore();
 	}
 }
-function createNewTitleBlockAndAttach(chart, titleOpts) {
+function createTitle(chart, titleOpts) {
 	const title = new Title({
 		ctx: chart.ctx,
 		options: titleOpts,
@@ -7494,29 +7459,33 @@ function createNewTitleBlockAndAttach(chart, titleOpts) {
 	layouts.addBox(chart, title);
 	chart.titleBlock = title;
 }
+function removeTitle(chart) {
+	const title = chart.titleBlock;
+	if (title) {
+		layouts.removeBox(chart, title);
+		delete chart.titleBlock;
+	}
+}
+function createOrUpdateTitle(chart, options) {
+	const title = chart.titleBlock;
+	if (title) {
+		layouts.configure(chart, title, options);
+		title.options = options;
+	} else {
+		createTitle(chart, options);
+	}
+}
 var plugin_title = {
 	id: 'title',
 	_element: Title,
-	beforeInit(chart) {
-		const titleOpts = chart.options.plugins.title;
-		if (titleOpts) {
-			createNewTitleBlockAndAttach(chart, titleOpts);
-		}
+	beforeInit(chart, options) {
+		createTitle(chart, options);
 	},
-	beforeUpdate(chart) {
-		const titleOpts = chart.options.plugins.title;
-		const titleBlock = chart.titleBlock;
-		if (titleOpts) {
-			mergeIf(titleOpts, defaults.plugins.title);
-			if (titleBlock) {
-				layouts.configure(chart, titleBlock, titleOpts);
-				titleBlock.options = titleOpts;
-			} else {
-				createNewTitleBlockAndAttach(chart, titleOpts);
-			}
-		} else if (titleBlock) {
-			layouts.removeBox(chart, titleBlock);
-			delete chart.titleBlock;
+	beforeUpdate(chart, args, options) {
+		if (options === false) {
+			removeTitle(chart);
+		} else {
+			createOrUpdateTitle(chart, options);
 		}
 	},
 	defaults: {
