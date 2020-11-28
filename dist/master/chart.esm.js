@@ -6087,7 +6087,7 @@ LineElement.defaults = {
 	borderJoinStyle: 'miter',
 	borderWidth: 3,
 	capBezierPoints: true,
-	fill: true,
+	fill: false,
 	tension: 0
 };
 LineElement.defaultRoutes = {
