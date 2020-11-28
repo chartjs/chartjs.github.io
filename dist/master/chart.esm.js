@@ -4737,14 +4737,14 @@ var registry = new Registry();
 
 class PluginService {
 	notify(chart, hook, args) {
+		args = args || {};
 		const descriptors = this._descriptors(chart);
 		for (let i = 0; i < descriptors.length; ++i) {
 			const descriptor = descriptors[i];
 			const plugin = descriptor.plugin;
 			const method = plugin[hook];
 			if (typeof method === 'function') {
-				const params = [chart].concat(args || []);
-				params.push(descriptor.options);
+				const params = [chart, args, descriptor.options];
 				if (method.apply(plugin, params) === false) {
 					return false;
 				}
@@ -4961,7 +4961,7 @@ function compare2Level(l1, l2) {
 function onAnimationsComplete(context) {
 	const chart = context.chart;
 	const animationOptions = chart.options.animation;
-	chart._plugins.notify(chart, 'afterRender');
+	chart.notifyPlugins('afterRender');
 	callback(animationOptions && animationOptions.onComplete, [context], chart);
 }
 function onAnimationProgress(context) {
@@ -5044,14 +5044,14 @@ class Chart {
 	}
 	_initialize() {
 		const me = this;
-		me._plugins.notify(me, 'beforeInit');
+		me.notifyPlugins('beforeInit');
 		if (me.options.responsive) {
 			me.resize();
 		} else {
 			retinaScale(me, me.options.devicePixelRatio);
 		}
 		me.bindEvents();
-		me._plugins.notify(me, 'afterInit');
+		me.notifyPlugins('afterInit');
 		return me;
 	}
 	_initializePlatform(canvas, config) {
@@ -5095,7 +5095,7 @@ class Chart {
 			canvas.style.height = newSize.height + 'px';
 		}
 		retinaScale(me, newRatio);
-		me._plugins.notify(me, 'resize', [newSize]);
+		me.notifyPlugins('resize', {size: newSize});
 		callback(options.onResize, [newSize], me);
 		if (me.attached) {
 			me.update('resize');
@@ -5255,7 +5255,7 @@ class Chart {
 	}
 	reset() {
 		this._resetElements();
-		this._plugins.notify(this, 'reset');
+		this.notifyPlugins('reset');
 	}
 	update(mode) {
 		const me = this;
@@ -5270,7 +5270,7 @@ class Chart {
 		me.ensureScalesHaveIDs();
 		me.buildOrUpdateScales();
 		me._plugins.invalidate();
-		if (me._plugins.notify(me, 'beforeUpdate', [args]) === false) {
+		if (me.notifyPlugins('beforeUpdate', args) === false) {
 			return;
 		}
 		const newControllers = me.buildOrUpdateControllers();
@@ -5282,7 +5282,7 @@ class Chart {
 			controller.reset();
 		});
 		me._updateDatasets(mode);
-		me._plugins.notify(me, 'afterUpdate', [args]);
+		me.notifyPlugins('afterUpdate', args);
 		me._layers.sort(compare2Level('z', '_idx'));
 		if (me._lastEvent) {
 			me._eventHandler(me._lastEvent, true);
@@ -5291,7 +5291,7 @@ class Chart {
 	}
 	_updateLayout() {
 		const me = this;
-		if (me._plugins.notify(me, 'beforeLayout') === false) {
+		if (me.notifyPlugins('beforeLayout') === false) {
 			return;
 		}
 		layouts.update(me, me.width, me.height);
@@ -5305,33 +5305,33 @@ class Chart {
 		me._layers.forEach((item, index) => {
 			item._idx = index;
 		});
-		me._plugins.notify(me, 'afterLayout');
+		me.notifyPlugins('afterLayout');
 	}
 	_updateDatasets(mode) {
 		const me = this;
 		const isFunction = typeof mode === 'function';
 		const args = {mode};
-		if (me._plugins.notify(me, 'beforeDatasetsUpdate', [args]) === false) {
+		if (me.notifyPlugins('beforeDatasetsUpdate', args) === false) {
 			return;
 		}
 		for (let i = 0, ilen = me.data.datasets.length; i < ilen; ++i) {
 			me._updateDataset(i, isFunction ? mode({datasetIndex: i}) : mode);
 		}
-		me._plugins.notify(me, 'afterDatasetsUpdate', [args]);
+		me.notifyPlugins('afterDatasetsUpdate', args);
 	}
 	_updateDataset(index, mode) {
 		const me = this;
 		const meta = me.getDatasetMeta(index);
 		const args = {meta, index, mode};
-		if (me._plugins.notify(me, 'beforeDatasetUpdate', [args]) === false) {
+		if (me.notifyPlugins('beforeDatasetUpdate', args) === false) {
 			return;
 		}
 		meta.controller._update(mode);
-		me._plugins.notify(me, 'afterDatasetUpdate', [args]);
+		me.notifyPlugins('afterDatasetUpdate', args);
 	}
 	render() {
 		const me = this;
-		if (me._plugins.notify(me, 'beforeRender') === false) {
+		if (me.notifyPlugins('beforeRender') === false) {
 			return;
 		}
 		if (animator.has(me)) {
@@ -5355,7 +5355,7 @@ class Chart {
 		if (me.width <= 0 || me.height <= 0) {
 			return;
 		}
-		if (me._plugins.notify(me, 'beforeDraw') === false) {
+		if (me.notifyPlugins('beforeDraw') === false) {
 			return;
 		}
 		const layers = me._layers;
@@ -5366,7 +5366,7 @@ class Chart {
 		for (; i < layers.length; ++i) {
 			layers[i].draw(me.chartArea);
 		}
-		me._plugins.notify(me, 'afterDraw');
+		me.notifyPlugins('afterDraw');
 	}
 	_getSortedDatasetMetas(filterVisible) {
 		const me = this;
@@ -5386,14 +5386,14 @@ class Chart {
 	}
 	_drawDatasets() {
 		const me = this;
-		if (me._plugins.notify(me, 'beforeDatasetsDraw') === false) {
+		if (me.notifyPlugins('beforeDatasetsDraw') === false) {
 			return;
 		}
 		const metasets = me.getSortedVisibleDatasetMetas();
 		for (let i = metasets.length - 1; i >= 0; --i) {
 			me._drawDataset(metasets[i]);
 		}
-		me._plugins.notify(me, 'afterDatasetsDraw');
+		me.notifyPlugins('afterDatasetsDraw');
 	}
 	_drawDataset(meta) {
 		const me = this;
@@ -5404,7 +5404,7 @@ class Chart {
 			meta,
 			index: meta.index,
 		};
-		if (me._plugins.notify(me, 'beforeDatasetDraw', [args]) === false) {
+		if (me.notifyPlugins('beforeDatasetDraw', args) === false) {
 			return;
 		}
 		clipArea(ctx, {
@@ -5415,7 +5415,7 @@ class Chart {
 		});
 		meta.controller.draw();
 		unclipArea(ctx);
-		me._plugins.notify(me, 'afterDatasetDraw', [args]);
+		me.notifyPlugins('afterDatasetDraw', args);
 	}
 	getElementsAtEventForMode(e, mode, options, useFinalPosition) {
 		const method = Interaction.modes[mode];
@@ -5517,7 +5517,7 @@ class Chart {
 			me.canvas = null;
 			me.ctx = null;
 		}
-		me._plugins.notify(me, 'destroy');
+		me.notifyPlugins('destroy');
 		delete Chart.instances[me.id];
 	}
 	toBase64Image(...args) {
@@ -5619,6 +5619,9 @@ class Chart {
 			me._updateHoverStyles(active, lastActive);
 		}
 	}
+	notifyPlugins(hook, args) {
+		return this._plugins.notify(this, hook, args);
+	}
 	_updateHoverStyles(active, lastActive) {
 		const me = this;
 		const options = me.options || {};
@@ -5632,11 +5635,12 @@ class Chart {
 	}
 	_eventHandler(e, replay) {
 		const me = this;
-		if (me._plugins.notify(me, 'beforeEvent', [e, replay]) === false) {
+		const args = {event: e, replay};
+		if (me.notifyPlugins('beforeEvent', args) === false) {
 			return;
 		}
 		const changed = me._handleEvent(e, replay);
-		me._plugins.notify(me, 'afterEvent', [e, replay]);
+		me.notifyPlugins('afterEvent', args);
 		if (changed) {
 			me.render();
 		}
@@ -7271,10 +7275,10 @@ var plugin_legend = {
 			chart.legend.buildLabels();
 		}
 	},
-	afterEvent(chart, e) {
+	afterEvent(chart, args) {
 		const legend = chart.legend;
 		if (legend) {
-			legend.handleEvent(e);
+			legend.handleEvent(args.event);
 		}
 	},
 	defaults: {
@@ -8261,18 +8265,18 @@ var plugin_tooltip = {
 		const args = {
 			tooltip
 		};
-		if (chart._plugins.notify(chart, 'beforeTooltipDraw', [args]) === false) {
+		if (chart.notifyPlugins('beforeTooltipDraw', args) === false) {
 			return;
 		}
 		if (tooltip) {
 			tooltip.draw(chart.ctx);
 		}
-		chart._plugins.notify(chart, 'afterTooltipDraw', [args]);
+		chart.notifyPlugins('afterTooltipDraw', args);
 	},
-	afterEvent(chart, e, replay) {
+	afterEvent(chart, args) {
 		if (chart.tooltip) {
-			const useFinalPosition = replay;
-			chart.tooltip.handleEvent(e, useFinalPosition);
+			const useFinalPosition = args.replay;
+			chart.tooltip.handleEvent(args.event, useFinalPosition);
 		}
 	},
 	defaults: {
