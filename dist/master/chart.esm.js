@@ -4736,35 +4736,59 @@ class Registry {
 var registry = new Registry();
 
 class PluginService {
+	constructor() {
+		this._init = [];
+	}
 	notify(chart, hook, args) {
+		const me = this;
+		if (hook === 'beforeInit') {
+			me._init = me._createDescriptors(chart, true);
+			me._notify(me._init, chart, 'install');
+		}
+		const descriptors = me._descriptors(chart);
+		const result = me._notify(descriptors, chart, hook, args);
+		if (hook === 'destroy') {
+			me._notify(descriptors, chart, 'stop');
+			me._notify(me._init, chart, 'uninstall');
+		}
+		return result;
+	}
+	_notify(descriptors, chart, hook, args) {
 		args = args || {};
-		const descriptors = this._descriptors(chart);
-		for (let i = 0; i < descriptors.length; ++i) {
-			const descriptor = descriptors[i];
+		for (const descriptor of descriptors) {
 			const plugin = descriptor.plugin;
 			const method = plugin[hook];
-			if (typeof method === 'function') {
-				const params = [chart, args, descriptor.options];
-				if (method.apply(plugin, params) === false) {
-					return false;
-				}
+			const params = [chart, args, descriptor.options];
+			if (callback(method, params, plugin) === false) {
+				return false;
 			}
 		}
 		return true;
 	}
 	invalidate() {
+		this._oldCache = this._cache;
 		this._cache = undefined;
 	}
 	_descriptors(chart) {
 		if (this._cache) {
 			return this._cache;
 		}
+		const descriptors = this._cache = this._createDescriptors(chart);
+		this._notifyStateChanges(chart);
+		return descriptors;
+	}
+	_createDescriptors(chart, all) {
 		const config = chart && chart.config;
 		const options = valueOrDefault(config.options && config.options.plugins, {});
 		const plugins = allPlugins(config);
-		const descriptors = options === false ? [] : createDescriptors(plugins, options);
-		this._cache = descriptors;
-		return descriptors;
+		return options === false && !all ? [] : createDescriptors(plugins, options, all);
+	}
+	_notifyStateChanges(chart) {
+		const previousDescriptors = this._oldCache || [];
+		const descriptors = this._cache;
+		const diff = (a, b) => a.filter(x => !b.some(y => x.plugin.id === y.plugin.id));
+		this._notify(diff(previousDescriptors, descriptors), chart, 'stop');
+		this._notify(diff(descriptors, previousDescriptors), chart, 'start');
 	}
 }
 function allPlugins(config) {
@@ -4782,17 +4806,23 @@ function allPlugins(config) {
 	}
 	return plugins;
 }
-function createDescriptors(plugins, options) {
+function getOpts(options, all) {
+	if (!all && options === false) {
+		return null;
+	}
+	if (options === true) {
+		return {};
+	}
+	return options;
+}
+function createDescriptors(plugins, options, all) {
 	const result = [];
 	for (let i = 0; i < plugins.length; i++) {
 		const plugin = plugins[i];
 		const id = plugin.id;
-		let opts = options[id];
-		if (opts === false) {
+		const opts = getOpts(options[id], all);
+		if (opts === null) {
 			continue;
-		}
-		if (opts === true) {
-			opts = {};
 		}
 		result.push({
 			plugin,
@@ -7249,11 +7279,13 @@ function createNewLegendAndAttach(chart, legendOpts) {
 var plugin_legend = {
 	id: 'legend',
 	_element: Legend,
-	beforeInit(chart) {
+	start(chart) {
 		const legendOpts = resolveOptions(chart.options.plugins.legend);
-		if (legendOpts) {
-			createNewLegendAndAttach(chart, legendOpts);
-		}
+		createNewLegendAndAttach(chart, legendOpts);
+	},
+	stop(chart) {
+		layouts.removeBox(chart, chart.legend);
+		delete chart.legend;
 	},
 	beforeUpdate(chart) {
 		const legendOpts = resolveOptions(chart.options.plugins.legend);
@@ -7482,10 +7514,15 @@ function createOrUpdateTitle(chart, options) {
 var plugin_title = {
 	id: 'title',
 	_element: Title,
-	beforeInit(chart, options) {
+	start(chart, _args, options) {
 		createTitle(chart, options);
 	},
-	beforeUpdate(chart, args, options) {
+	stop(chart) {
+		const titleBlock = chart.titleBlock;
+		layouts.removeBox(chart, titleBlock);
+		delete chart.titleBlock;
+	},
+	beforeUpdate(chart, _args, options) {
 		if (options === false) {
 			removeTitle(chart);
 		} else {
