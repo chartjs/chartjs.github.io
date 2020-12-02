@@ -4089,21 +4089,26 @@ class Scale extends Element {
 	afterSetDimensions() {
 		callback(this.options.afterSetDimensions, [this]);
 	}
+	_callHooks(name) {
+		const me = this;
+		me.chart.notifyPlugins(name, me.getContext());
+		callback(me.options[name], [me]);
+	}
 	beforeDataLimits() {
-		callback(this.options.beforeDataLimits, [this]);
+		this._callHooks('beforeDataLimits');
 	}
 	determineDataLimits() {}
 	afterDataLimits() {
-		callback(this.options.afterDataLimits, [this]);
+		this._callHooks('afterDataLimits');
 	}
 	beforeBuildTicks() {
-		callback(this.options.beforeBuildTicks, [this]);
+		this._callHooks('beforeBuildTicks');
 	}
 	buildTicks() {
 		return [];
 	}
 	afterBuildTicks() {
-		callback(this.options.afterBuildTicks, [this]);
+		this._callHooks('afterBuildTicks');
 	}
 	beforeTickToLabelConversion() {
 		callback(this.options.beforeTickToLabelConversion, [this]);
@@ -5112,7 +5117,7 @@ class PluginService {
 			const plugin = descriptor.plugin;
 			const method = plugin[hook];
 			const params = [chart, args, descriptor.options];
-			if (callback(method, params, plugin) === false) {
+			if (callback(method, params, plugin) === false && args.cancelable) {
 				return false;
 			}
 		}
@@ -5642,7 +5647,6 @@ class Chart {
 	}
 	update(mode) {
 		const me = this;
-		const args = {mode};
 		let i, ilen;
 		each(me.scales, (scale) => {
 			layouts.removeBox(me, scale);
@@ -5653,7 +5657,7 @@ class Chart {
 		me.ensureScalesHaveIDs();
 		me.buildOrUpdateScales();
 		me._plugins.invalidate();
-		if (me.notifyPlugins('beforeUpdate', args) === false) {
+		if (me.notifyPlugins('beforeUpdate', {mode, cancelable: true}) === false) {
 			return;
 		}
 		const newControllers = me.buildOrUpdateControllers();
@@ -5665,7 +5669,7 @@ class Chart {
 			controller.reset();
 		});
 		me._updateDatasets(mode);
-		me.notifyPlugins('afterUpdate', args);
+		me.notifyPlugins('afterUpdate', {mode});
 		me._layers.sort(compare2Level('z', '_idx'));
 		if (me._lastEvent) {
 			me._eventHandler(me._lastEvent, true);
@@ -5674,7 +5678,7 @@ class Chart {
 	}
 	_updateLayout() {
 		const me = this;
-		if (me.notifyPlugins('beforeLayout') === false) {
+		if (me.notifyPlugins('beforeLayout', {cancelable: true}) === false) {
 			return;
 		}
 		layouts.update(me, me.width, me.height);
@@ -5693,28 +5697,28 @@ class Chart {
 	_updateDatasets(mode) {
 		const me = this;
 		const isFunction = typeof mode === 'function';
-		const args = {mode};
-		if (me.notifyPlugins('beforeDatasetsUpdate', args) === false) {
+		if (me.notifyPlugins('beforeDatasetsUpdate', {mode, cancelable: true}) === false) {
 			return;
 		}
 		for (let i = 0, ilen = me.data.datasets.length; i < ilen; ++i) {
 			me._updateDataset(i, isFunction ? mode({datasetIndex: i}) : mode);
 		}
-		me.notifyPlugins('afterDatasetsUpdate', args);
+		me.notifyPlugins('afterDatasetsUpdate', {mode});
 	}
 	_updateDataset(index, mode) {
 		const me = this;
 		const meta = me.getDatasetMeta(index);
-		const args = {meta, index, mode};
+		const args = {meta, index, mode, cancelable: true};
 		if (me.notifyPlugins('beforeDatasetUpdate', args) === false) {
 			return;
 		}
 		meta.controller._update(mode);
+		args.cancelable = false;
 		me.notifyPlugins('afterDatasetUpdate', args);
 	}
 	render() {
 		const me = this;
-		if (me.notifyPlugins('beforeRender') === false) {
+		if (me.notifyPlugins('beforeRender', {cancelable: true}) === false) {
 			return;
 		}
 		if (animator.has(me)) {
@@ -5738,7 +5742,7 @@ class Chart {
 		if (me.width <= 0 || me.height <= 0) {
 			return;
 		}
-		if (me.notifyPlugins('beforeDraw') === false) {
+		if (me.notifyPlugins('beforeDraw', {cancelable: true}) === false) {
 			return;
 		}
 		const layers = me._layers;
@@ -5769,7 +5773,7 @@ class Chart {
 	}
 	_drawDatasets() {
 		const me = this;
-		if (me.notifyPlugins('beforeDatasetsDraw') === false) {
+		if (me.notifyPlugins('beforeDatasetsDraw', {cancelable: true}) === false) {
 			return;
 		}
 		const metasets = me.getSortedVisibleDatasetMetas();
@@ -5786,6 +5790,7 @@ class Chart {
 		const args = {
 			meta,
 			index: meta.index,
+			cancelable: true
 		};
 		if (me.notifyPlugins('beforeDatasetDraw', args) === false) {
 			return;
@@ -5798,6 +5803,7 @@ class Chart {
 		});
 		meta.controller.draw();
 		unclipArea(ctx);
+		args.cancelable = false;
 		me.notifyPlugins('afterDatasetDraw', args);
 	}
 	getElementsAtEventForMode(e, mode, options, useFinalPosition) {
@@ -6018,11 +6024,12 @@ class Chart {
 	}
 	_eventHandler(e, replay) {
 		const me = this;
-		const args = {event: e, replay};
+		const args = {event: e, replay, cancelable: true};
 		if (me.notifyPlugins('beforeEvent', args) === false) {
 			return;
 		}
 		const changed = me._handleEvent(e, replay);
+		args.cancelable = false;
 		me.notifyPlugins('afterEvent', args);
 		if (changed) {
 			me.render();
@@ -10723,8 +10730,7 @@ class CategoryScale extends Scale {
 	}
 	getValueForPixel(pixel) {
 		const me = this;
-		const value = Math.round(me._startValue + me.getDecimalForPixel(pixel) * me._valueRange);
-		return Math.min(Math.max(value, 0), me.ticks.length - 1);
+		return Math.round(me._startValue + me.getDecimalForPixel(pixel) * me._valueRange);
 	}
 	getBasePixel() {
 		return this.bottom;
