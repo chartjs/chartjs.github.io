@@ -38,30 +38,33 @@
 					borderColor: window.chartColors.red,
 					backgroundColor: 'rgba(0, 0, 0, 0)',
 					fill: false,
-					cubicInterpolationMode: 'monotone'
+					cubicInterpolationMode: 'monotone',
+					tension: 0.4
 				}, {
-					label: 'Cubic interpolation (default)',
+					label: 'Cubic interpolation',
 					data: datapoints,
 					borderColor: window.chartColors.blue,
 					backgroundColor: 'rgba(0, 0, 0, 0)',
 					fill: false,
+					tension: 0.4
 				}, {
-					label: 'Linear interpolation',
+					label: 'Linear interpolation (default)',
 					data: datapoints,
 					borderColor: window.chartColors.green,
 					backgroundColor: 'rgba(0, 0, 0, 0)',
-					fill: false,
-					tension: 0
+					fill: false
 				}]
 			},
 			options: {
 				responsive: true,
-				title: {
-					display: true,
-					text: 'Chart.js Line Chart - Cubic interpolation mode'
-				},
-				tooltips: {
-					mode: 'index'
+				plugins: {
+					title: {
+						display: true,
+						text: 'Chart.js Line Chart - Cubic interpolation mode'
+					},
+					tooltip: {
+						mode: 'index'
+					}
 				},
 				scales: {
 					x: {

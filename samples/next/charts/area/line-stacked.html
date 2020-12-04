@@ -44,6 +44,7 @@
 						randomScalingFactor(),
 						randomScalingFactor()
 					],
+					fill: true
 				}, {
 					label: 'My Second dataset',
 					borderColor: window.chartColors.blue,
@@ -57,6 +58,7 @@
 						randomScalingFactor(),
 						randomScalingFactor()
 					],
+					fill: true
 				}, {
 					label: 'My Third dataset',
 					borderColor: window.chartColors.green,
@@ -70,6 +72,7 @@
 						randomScalingFactor(),
 						randomScalingFactor()
 					],
+					fill: true
 				}, {
 					label: 'My Fourth dataset',
 					borderColor: window.chartColors.yellow,
@@ -83,16 +86,19 @@
 						randomScalingFactor(),
 						randomScalingFactor()
 					],
+					fill: true
 				}]
 			},
 			options: {
 				responsive: true,
-				title: {
-					display: true,
-					text: 'Chart.js Line Chart - Stacked Area'
-				},
-				tooltips: {
-					mode: 'index',
+				plugins: {
+					title: {
+						display: true,
+						text: 'Chart.js Line Chart - Stacked Area'
+					},
+					tooltip: {
+						mode: 'index',
+					}
 				},
 				hover: {
 					mode: 'index'

@@ -15,6 +15,10 @@
 			width: 500px;
 			margin-left: 40px;
 			margin-right: 40px;
+			box-sizing: content-box;
+			border: 1px solid rgb(240, 240, 240);
+			border-radius: 4px;
+			margin: 4px;
 		}
 		.container {
 			display: flex;
@@ -45,6 +49,24 @@
 		<div class="chart-container">
 			<canvas id="chart-title-left-end"></canvas>
 		</div>
+		<div class="chart-container">
+			<canvas id="chart-title-bottom-start"></canvas>
+		</div>
+		<div class="chart-container">
+			<canvas id="chart-title-bottom-center"></canvas>
+		</div>
+		<div class="chart-container">
+			<canvas id="chart-title-bottom-end"></canvas>
+		</div>
+		<div class="chart-container">
+			<canvas id="chart-title-right-start"></canvas>
+		</div>
+		<div class="chart-container">
+			<canvas id="chart-title-right-center"></canvas>
+		</div>
+		<div class="chart-container">
+			<canvas id="chart-title-right-end"></canvas>
+		</div>
 	</div>
 	<script>
 		var color = Chart.helpers.color;
@@ -71,8 +93,16 @@
 				},
 				options: {
 					responsive: true,
-					legend: {
-						display: false,
+					plugins: {
+						legend: {
+							display: false
+						},
+						title: {
+							align: titleAlignment,
+							display: true,
+							position: titlePosition,
+							text: 'Title Position: ' + titlePosition + ', Align: ' + titleAlignment
+						}
 					},
 					scales: {
 						x: {
@@ -89,12 +119,6 @@
 								labelString: 'Value'
 							}
 						}
-					},
-					title: {
-						align: titleAlignment,
-						display: true,
-						position: titlePosition,
-						text: 'Title Position: ' + titlePosition + ', Align: ' + titleAlignment
 					}
 				}
 			};
@@ -130,6 +154,36 @@
 				id: 'chart-title-left-end',
 				titleAlignment: 'end',
 				titlePosition: 'left',
+				color: 'purple'
+			}, {
+				id: 'chart-title-bottom-start',
+				titleAlignment: 'start',
+				titlePosition: 'bottom',
+				color: 'red'
+			}, {
+				id: 'chart-title-bottom-center',
+				titleAlignment: 'center',
+				titlePosition: 'bottom',
+				color: 'orange'
+			}, {
+				id: 'chart-title-bottom-end',
+				titleAlignment: 'end',
+				titlePosition: 'bottom',
+				color: 'yellow'
+			}, {
+				id: 'chart-title-right-start',
+				titleAlignment: 'start',
+				titlePosition: 'right',
+				color: 'green'
+			}, {
+				id: 'chart-title-right-center',
+				titleAlignment: 'center',
+				titlePosition: 'right',
+				color: 'blue'
+			}, {
+				id: 'chart-title-right-end',
+				titleAlignment: 'end',
+				titlePosition: 'right',
 				color: 'purple'
 			}].forEach(function(details) {
 				var ctx = document.getElementById(details.id).getContext('2d');

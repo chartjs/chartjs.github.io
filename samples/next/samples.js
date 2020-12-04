@@ -92,6 +92,9 @@
 			title: 'Radar',
 			path: 'charts/radar.html'
 		}, {
+			title: 'Radar skip points',
+			path: 'charts/radar-skip-points.html'
+		}, {
 			title: 'Combo bar/line',
 			path: 'charts/combo-bar-line.html'
 		}]
@@ -195,7 +198,7 @@
 			path: 'tooltips/positioning.html'
 		}, {
 			title: 'Custom Positioning',
-			path: 'tooltips/position-custom.html'
+			path: 'tooltips/positioning-custom.html'
 		}, {
 			title: 'Interactions',
 			path: 'tooltips/interactions.html'
