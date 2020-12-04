@@ -1,5 +1,5 @@
 /*!
- * Chart.js v3.0.0-master
+ * Chart.js v3.0.0-beta.6
  * https://www.chartjs.org
  * (c) 2020 Chart.js Contributors
  * Released under the MIT License
@@ -4980,7 +4980,7 @@ class Config {
 	}
 }
 
-var version = "3.0.0-master";
+var version = "3.0.0-beta.6";
 
 const KNOWN_POSITIONS = ['top', 'bottom', 'left', 'right', 'chartArea'];
 function positionIsHorizontal(position, axis) {
