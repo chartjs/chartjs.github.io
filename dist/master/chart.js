@@ -7296,9 +7296,10 @@ class DoughnutController extends DatasetController {
 		const meta = me._cachedMeta;
 		const chart = me.chart;
 		const labels = chart.data.labels || [];
+		const value = new Intl.NumberFormat(chart.options.locale).format(meta._parsed[index]);
 		return {
 			label: labels[index] || '',
-			value: meta._parsed[index],
+			value,
 		};
 	}
 	getMaxBorderWidth(arcs) {
