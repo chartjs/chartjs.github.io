@@ -9157,6 +9157,11 @@ class Legend extends Element {
 		const opts = me.options;
 		const labelOpts = opts.labels;
 		const display = opts.display;
+		const minSize = me._minSize;
+		if (!display) {
+			me.width = minSize.width = me.height = minSize.height = 0;
+			return;
+		}
 		const ctx = me.ctx;
 		const labelFont = toFont(labelOpts.font, me.chart.options.font);
 		const fontSize = labelFont.size;
@@ -9164,7 +9169,6 @@ class Legend extends Element {
 		const boxHeight = getBoxHeight(labelOpts, fontSize);
 		const itemHeight = Math.max(boxHeight, fontSize);
 		const hitboxes = me.legendHitBoxes = [];
-		const minSize = me._minSize;
 		const isHorizontal = me.isHorizontal();
 		const titleHeight = me._computeTitleHeight();
 		if (isHorizontal) {
@@ -9173,10 +9177,6 @@ class Legend extends Element {
 		} else {
 			minSize.width = display ? 10 : 0;
 			minSize.height = me.maxHeight;
-		}
-		if (!display) {
-			me.width = minSize.width = me.height = minSize.height = 0;
-			return;
 		}
 		ctx.font = labelFont.string;
 		if (isHorizontal) {
