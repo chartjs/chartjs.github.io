@@ -4,7 +4,7 @@
  * (c) 2020 Chart.js Contributors
  * Released under the MIT License
  */
-import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, d as defaults, n as noop, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, m as merge, b as isArray, f as resolveObjectKey, g as getHoverColor, _ as _capitalize, h as mergeIf, s as sign, j as _merger, k as isNullOrUndef, o as clipArea, p as unclipArea, q as _arrayUnique, t as toRadians, T as TAU, H as HALF_PI, P as PI, w as isNumber, x as _limitValue, y as _lookupByKey, z as getRelativePosition$1, A as _isPointInArea, B as _rlookupByKey, C as toPadding, D as each, E as getMaximumSize, F as _getParentNode, G as readUsedSize, I as throttled, J as supportsEventListenerOptions, K as log10, L as finiteOrDefault, M as isNumberFinite, N as callback, O as toDegrees, Q as _measureText, R as _int16Range, S as _alignPixel, U as toFont, V as _factorize, W as uid, X as retinaScale, Y as clear, Z as _elementsEqual, $ as getAngleFromPoint, a0 as _angleBetween, a1 as _updateBezierControlPoints, a2 as _computeSegments, a3 as _boundSegments, a4 as _steppedInterpolation, a5 as _bezierInterpolation, a6 as _pointInLine, a7 as _steppedLineTo, a8 as _bezierCurveTo, a9 as drawPoint, aa as toTRBL, ab as toTRBLCorners, ac as _normalizeAngle, ad as _boundSegment, ae as INFINITY, af as getRtlAdapter, ag as overrideTextDirection, ah as restoreTextDirection, ai as distanceBetweenPoints, aj as _setMinAndMaxByKey, ak as _decimalPlaces, al as almostEquals, am as almostWhole, an as _longestText, ao as _filterBetween, ap as _lookup } from './chunks/helpers.segment.js';
+import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, d as defaults, n as noop, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, m as merge, b as isArray, f as resolveObjectKey, g as getHoverColor, _ as _capitalize, h as mergeIf, s as sign, j as _merger, k as isNullOrUndef, o as clipArea, p as unclipArea, q as _arrayUnique, t as toRadians, T as TAU, H as HALF_PI, P as PI, w as isNumber, x as _limitValue, y as _lookupByKey, z as getRelativePosition$1, A as _isPointInArea, B as _rlookupByKey, C as toPadding, D as each, E as getMaximumSize, F as _getParentNode, G as readUsedSize, I as throttled, J as supportsEventListenerOptions, K as log10, L as finiteOrDefault, M as isNumberFinite, N as callback, O as toDegrees, Q as _measureText, R as _int16Range, S as _alignPixel, U as toFont, V as _factorize, W as uid, X as retinaScale, Y as clear, Z as _elementsEqual, $ as getAngleFromPoint, a0 as _angleBetween, a1 as _updateBezierControlPoints, a2 as _computeSegments, a3 as _boundSegments, a4 as _steppedInterpolation, a5 as _bezierInterpolation, a6 as _pointInLine, a7 as _steppedLineTo, a8 as _bezierCurveTo, a9 as drawPoint, aa as toTRBL, ab as toTRBLCorners, ac as _normalizeAngle, ad as _boundSegment, ae as INFINITY, af as getRtlAdapter, ag as _alignStartEnd, ah as overrideTextDirection, ai as restoreTextDirection, aj as _toLeftRightCenter, ak as distanceBetweenPoints, al as _setMinAndMaxByKey, am as _decimalPlaces, an as almostEquals, ao as almostWhole, ap as _longestText, aq as _filterBetween, ar as _lookup } from './chunks/helpers.segment.js';
 export { d as defaults } from './chunks/helpers.segment.js';
 
 function drawFPS(chart, count, date, lastDate) {
@@ -6838,22 +6838,22 @@ var plugin_filler = {
 	}
 };
 
-function getBoxWidth(labelOpts, fontSize) {
-	const {boxWidth} = labelOpts;
-	return (labelOpts.usePointStyle && boxWidth > fontSize) || isNullOrUndef(boxWidth) ?
-		fontSize :
-		boxWidth;
-}
-function getBoxHeight(labelOpts, fontSize) {
-	const {boxHeight} = labelOpts;
-	return (labelOpts.usePointStyle && boxHeight > fontSize) || isNullOrUndef(boxHeight) ?
-		fontSize :
-		boxHeight;
-}
+const getBoxSize = (labelOpts, fontSize) => {
+	let {boxHeight = fontSize, boxWidth = fontSize} = labelOpts;
+	if (labelOpts.usePointStyle) {
+		boxHeight = Math.min(boxHeight, fontSize);
+		boxWidth = Math.min(boxWidth, fontSize);
+	}
+	return {
+		boxWidth,
+		boxHeight,
+		itemHeight: Math.max(fontSize, boxHeight)
+	};
+};
 class Legend extends Element {
 	constructor(config) {
 		super();
-		Object.assign(this, config);
+		this._added = false;
 		this.legendHitBoxes = [];
 		this._hoveredItem = null;
 		this.doughnutMode = false;
@@ -6861,10 +6861,8 @@ class Legend extends Element {
 		this.options = config.options;
 		this.ctx = config.ctx;
 		this.legendItems = undefined;
-		this.columnWidths = undefined;
-		this.columnHeights = undefined;
+		this.columnSizes = undefined;
 		this.lineWidths = undefined;
-		this._minSize = undefined;
 		this.maxHeight = undefined;
 		this.maxWidth = undefined;
 		this.top = undefined;
@@ -6874,34 +6872,19 @@ class Legend extends Element {
 		this.height = undefined;
 		this.width = undefined;
 		this._margins = undefined;
-		this.paddingTop = undefined;
-		this.paddingBottom = undefined;
-		this.paddingLeft = undefined;
-		this.paddingRight = undefined;
 		this.position = undefined;
 		this.weight = undefined;
 		this.fullWidth = undefined;
 	}
-	beforeUpdate() {}
 	update(maxWidth, maxHeight, margins) {
 		const me = this;
-		me.beforeUpdate();
 		me.maxWidth = maxWidth;
 		me.maxHeight = maxHeight;
 		me._margins = margins;
-		me.beforeSetDimensions();
 		me.setDimensions();
-		me.afterSetDimensions();
-		me.beforeBuildLabels();
 		me.buildLabels();
-		me.afterBuildLabels();
-		me.beforeFit();
 		me.fit();
-		me.afterFit();
-		me.afterUpdate();
 	}
-	afterUpdate() {}
-	beforeSetDimensions() {}
 	setDimensions() {
 		const me = this;
 		if (me.isHorizontal()) {
@@ -6913,17 +6896,7 @@ class Legend extends Element {
 			me.top = 0;
 			me.bottom = me.height;
 		}
-		me.paddingLeft = 0;
-		me.paddingTop = 0;
-		me.paddingRight = 0;
-		me.paddingBottom = 0;
-		me._minSize = {
-			width: 0,
-			height: 0
-		};
 	}
-	afterSetDimensions() {}
-	beforeBuildLabels() {}
 	buildLabels() {
 		const me = this;
 		const labelOpts = me.options.labels || {};
@@ -6939,122 +6912,101 @@ class Legend extends Element {
 		}
 		me.legendItems = legendItems;
 	}
-	afterBuildLabels() {}
-	beforeFit() {}
 	fit() {
 		const me = this;
-		const opts = me.options;
-		const labelOpts = opts.labels;
-		const display = opts.display;
-		const minSize = me._minSize;
-		if (!display) {
-			me.width = minSize.width = me.height = minSize.height = 0;
+		const {options, ctx} = me;
+		if (!options.display) {
+			me.width = me.height = 0;
 			return;
 		}
-		const ctx = me.ctx;
+		const labelOpts = options.labels;
 		const labelFont = toFont(labelOpts.font, me.chart.options.font);
 		const fontSize = labelFont.size;
-		const boxWidth = getBoxWidth(labelOpts, fontSize);
-		const boxHeight = getBoxHeight(labelOpts, fontSize);
-		const itemHeight = Math.max(boxHeight, fontSize);
-		const hitboxes = me.legendHitBoxes = [];
-		const isHorizontal = me.isHorizontal();
 		const titleHeight = me._computeTitleHeight();
-		if (isHorizontal) {
-			minSize.width = me.maxWidth;
-			minSize.height = display ? 10 : 0;
-		} else {
-			minSize.width = display ? 10 : 0;
-			minSize.height = me.maxHeight;
-		}
+		const {boxWidth, itemHeight} = getBoxSize(labelOpts, fontSize);
+		let width, height;
 		ctx.font = labelFont.string;
-		if (isHorizontal) {
-			const lineWidths = me.lineWidths = [0];
-			let totalHeight = titleHeight;
-			ctx.textAlign = 'left';
-			ctx.textBaseline = 'middle';
-			me.legendItems.forEach((legendItem, i) => {
-				const width = boxWidth + (fontSize / 2) + ctx.measureText(legendItem.text).width;
-				if (i === 0 || lineWidths[lineWidths.length - 1] + width + 2 * labelOpts.padding > minSize.width) {
-					totalHeight += itemHeight + labelOpts.padding;
-					lineWidths[lineWidths.length - (i > 0 ? 0 : 1)] = 0;
-				}
-				hitboxes[i] = {
-					left: 0,
-					top: 0,
-					width,
-					height: itemHeight
-				};
-				lineWidths[lineWidths.length - 1] += width + labelOpts.padding;
-			});
-			minSize.height += totalHeight;
+		if (me.isHorizontal()) {
+			width = me.maxWidth;
+			height = me._fitRows(titleHeight, fontSize, boxWidth, itemHeight) + 10;
 		} else {
-			const vPadding = labelOpts.padding;
-			const columnWidths = me.columnWidths = [];
-			const columnHeights = me.columnHeights = [];
-			let totalWidth = labelOpts.padding;
-			let currentColWidth = 0;
-			let currentColHeight = 0;
-			const heightLimit = minSize.height - titleHeight;
-			me.legendItems.forEach((legendItem, i) => {
-				const itemWidth = boxWidth + (fontSize / 2) + ctx.measureText(legendItem.text).width;
-				if (i > 0 && currentColHeight + fontSize + 2 * vPadding > heightLimit) {
-					totalWidth += currentColWidth + labelOpts.padding;
-					columnWidths.push(currentColWidth);
-					columnHeights.push(currentColHeight);
-					currentColWidth = 0;
-					currentColHeight = 0;
-				}
-				currentColWidth = Math.max(currentColWidth, itemWidth);
-				currentColHeight += fontSize + vPadding;
-				hitboxes[i] = {
-					left: 0,
-					top: 0,
-					width: itemWidth,
-					height: itemHeight,
-				};
-			});
-			totalWidth += currentColWidth;
-			columnWidths.push(currentColWidth);
-			columnHeights.push(currentColHeight);
-			minSize.width += totalWidth;
+			height = me.maxHeight;
+			width = me._fitCols(titleHeight, fontSize, boxWidth, itemHeight) + 10;
 		}
-		me.width = Math.min(minSize.width, opts.maxWidth || INFINITY);
-		me.height = Math.min(minSize.height, opts.maxHeight || INFINITY);
+		me.width = Math.min(width, options.maxWidth || INFINITY);
+		me.height = Math.min(height, options.maxHeight || INFINITY);
 	}
-	afterFit() {}
+	_fitRows(titleHeight, fontSize, boxWidth, itemHeight) {
+		const me = this;
+		const {ctx, maxWidth} = me;
+		const padding = me.options.labels.padding;
+		const hitboxes = me.legendHitBoxes = [];
+		const lineWidths = me.lineWidths = [0];
+		let totalHeight = titleHeight;
+		ctx.textAlign = 'left';
+		ctx.textBaseline = 'middle';
+		me.legendItems.forEach((legendItem, i) => {
+			const itemWidth = boxWidth + (fontSize / 2) + ctx.measureText(legendItem.text).width;
+			if (i === 0 || lineWidths[lineWidths.length - 1] + itemWidth + 2 * padding > maxWidth) {
+				totalHeight += itemHeight + padding;
+				lineWidths[lineWidths.length - (i > 0 ? 0 : 1)] = 0;
+			}
+			hitboxes[i] = {left: 0,	top: 0,	width: itemWidth, height: itemHeight};
+			lineWidths[lineWidths.length - 1] += itemWidth + padding;
+		});
+		return totalHeight;
+	}
+	_fitCols(titleHeight, fontSize, boxWidth, itemHeight) {
+		const me = this;
+		const {ctx, maxHeight} = me;
+		const padding = me.options.labels.padding;
+		const hitboxes = me.legendHitBoxes = [];
+		const columnSizes = me.columnSizes = [];
+		let totalWidth = padding;
+		let currentColWidth = 0;
+		let currentColHeight = 0;
+		const heightLimit = maxHeight - titleHeight;
+		me.legendItems.forEach((legendItem, i) => {
+			const itemWidth = boxWidth + (fontSize / 2) + ctx.measureText(legendItem.text).width;
+			if (i > 0 && currentColHeight + fontSize + 2 * padding > heightLimit) {
+				totalWidth += currentColWidth + padding;
+				columnSizes.push({width: currentColWidth, height: currentColHeight});
+				currentColWidth = currentColHeight = 0;
+			}
+			currentColWidth = Math.max(currentColWidth, itemWidth);
+			currentColHeight += fontSize + padding;
+			hitboxes[i] = {left: 0,	top: 0,	width: itemWidth, height: itemHeight};
+		});
+		totalWidth += currentColWidth;
+		columnSizes.push({width: currentColWidth, height: currentColHeight});
+		return totalWidth;
+	}
 	isHorizontal() {
 		return this.options.position === 'top' || this.options.position === 'bottom';
 	}
 	draw() {
-		const me = this;
-		const opts = me.options;
-		const labelOpts = opts.labels;
-		const defaultColor = defaults.color;
-		const legendHeight = me.height;
-		const columnHeights = me.columnHeights;
-		const legendWidth = me.width;
-		const lineWidths = me.lineWidths;
-		if (!opts.display) {
-			return;
+		if (this.options.display) {
+			this._draw();
 		}
-		me.drawTitle();
-		const rtlHelper = getRtlAdapter(opts.rtl, me.left, me._minSize.width);
-		const ctx = me.ctx;
+	}
+	_draw() {
+		const me = this;
+		const {options: opts, height: legendHeight, width: legendWidth, columnSizes, lineWidths, ctx, legendHitBoxes} = me;
+		const {align, labels: labelOpts} = opts;
+		const defaultColor = defaults.color;
+		const rtlHelper = getRtlAdapter(opts.rtl, me.left, me.width);
 		const labelFont = toFont(labelOpts.font, me.chart.options.font);
-		const fontColor = labelOpts.color || defaultColor;
+		const {color: fontColor, padding} = labelOpts;
 		const fontSize = labelFont.size;
 		let cursor;
+		me.drawTitle();
 		ctx.textAlign = rtlHelper.textAlign('left');
 		ctx.textBaseline = 'middle';
 		ctx.lineWidth = 0.5;
 		ctx.strokeStyle = fontColor;
 		ctx.fillStyle = fontColor;
 		ctx.font = labelFont.string;
-		const boxWidth = getBoxWidth(labelOpts, fontSize);
-		const boxHeight = getBoxHeight(labelOpts, fontSize);
-		const height = Math.max(fontSize, boxHeight);
-		const hitboxes = me.legendHitBoxes;
+		const {boxWidth, boxHeight, itemHeight} = getBoxSize(labelOpts, fontSize);
 		const drawLegendBox = function(x, y, legendItem) {
 			if (isNaN(boxWidth) || boxWidth <= 0 || isNaN(boxHeight) || boxHeight < 0) {
 				return;
@@ -7068,7 +7020,7 @@ class Legend extends Element {
 			ctx.lineWidth = lineWidth;
 			ctx.strokeStyle = valueOrDefault(legendItem.strokeStyle, defaultColor);
 			ctx.setLineDash(valueOrDefault(legendItem.lineDash, []));
-			if (labelOpts && labelOpts.usePointStyle) {
+			if (labelOpts.usePointStyle) {
 				const drawOptions = {
 					radius: boxWidth * Math.SQRT2 / 2,
 					pointStyle: legendItem.pointStyle,
@@ -7090,7 +7042,7 @@ class Legend extends Element {
 		const fillText = function(x, y, legendItem, textWidth) {
 			const halfFontSize = fontSize / 2;
 			const xLeft = rtlHelper.xPlus(x, boxWidth + halfFontSize);
-			const yMiddle = y + (height / 2);
+			const yMiddle = y + (itemHeight / 2);
 			ctx.fillText(legendItem.text, xLeft, yMiddle);
 			if (legendItem.hidden) {
 				ctx.beginPath();
@@ -7100,59 +7052,49 @@ class Legend extends Element {
 				ctx.stroke();
 			}
 		};
-		const alignmentOffset = function(dimension, blockSize) {
-			switch (opts.align) {
-			case 'start':
-				return labelOpts.padding;
-			case 'end':
-				return dimension - blockSize;
-			default:
-				return (dimension - blockSize + labelOpts.padding) / 2;
-			}
-		};
 		const isHorizontal = me.isHorizontal();
 		const titleHeight = this._computeTitleHeight();
 		if (isHorizontal) {
 			cursor = {
-				x: me.left + alignmentOffset(legendWidth, lineWidths[0]),
-				y: me.top + labelOpts.padding + titleHeight,
+				x: me.left + _alignStartEnd(align, padding, legendWidth - lineWidths[0]),
+				y: me.top + padding + titleHeight,
 				line: 0
 			};
 		} else {
 			cursor = {
-				x: me.left + labelOpts.padding,
-				y: me.top + alignmentOffset(legendHeight, columnHeights[0]) + titleHeight,
+				x: me.left + padding,
+				y: me.top + _alignStartEnd(align, padding, legendHeight - columnSizes[0].height) + titleHeight,
 				line: 0
 			};
 		}
 		overrideTextDirection(me.ctx, opts.textDirection);
-		const itemHeight = height + labelOpts.padding;
+		const lineHeight = itemHeight + padding;
 		me.legendItems.forEach((legendItem, i) => {
 			const textWidth = ctx.measureText(legendItem.text).width;
 			const width = boxWidth + (fontSize / 2) + textWidth;
 			let x = cursor.x;
 			let y = cursor.y;
-			rtlHelper.setWidth(me._minSize.width);
+			rtlHelper.setWidth(me.width);
 			if (isHorizontal) {
-				if (i > 0 && x + width + labelOpts.padding > me.left + me._minSize.width) {
-					y = cursor.y += itemHeight;
+				if (i > 0 && x + width + padding > me.right) {
+					y = cursor.y += lineHeight;
 					cursor.line++;
-					x = cursor.x = me.left + alignmentOffset(legendWidth, lineWidths[cursor.line]);
+					x = cursor.x = me.left + _alignStartEnd(align, padding, legendWidth - lineWidths[cursor.line]);
 				}
-			} else if (i > 0 && y + itemHeight > me.top + me._minSize.height) {
-				x = cursor.x = x + me.columnWidths[cursor.line] + labelOpts.padding;
+			} else if (i > 0 && y + lineHeight > me.bottom) {
+				x = cursor.x = x + columnSizes[cursor.line].width + padding;
 				cursor.line++;
-				y = cursor.y = me.top + alignmentOffset(legendHeight, columnHeights[cursor.line]);
+				y = cursor.y = me.top + _alignStartEnd(align, padding, legendHeight - columnSizes[cursor.line].height);
 			}
 			const realX = rtlHelper.x(x);
 			drawLegendBox(realX, y, legendItem);
-			hitboxes[i].left = rtlHelper.leftForLtr(realX, hitboxes[i].width);
-			hitboxes[i].top = y;
+			legendHitBoxes[i].left = rtlHelper.leftForLtr(realX, legendHitBoxes[i].width);
+			legendHitBoxes[i].top = y;
 			fillText(realX, y, legendItem, textWidth);
 			if (isHorizontal) {
-				cursor.x += width + labelOpts.padding;
+				cursor.x += width + padding;
 			} else {
-				cursor.y += itemHeight;
+				cursor.y += lineHeight;
 			}
 		});
 		restoreTextDirection(me.ctx, opts.textDirection);
@@ -7166,54 +7108,22 @@ class Legend extends Element {
 		if (!titleOpts.display) {
 			return;
 		}
-		const rtlHelper = getRtlAdapter(opts.rtl, me.left, me._minSize.width);
+		const rtlHelper = getRtlAdapter(opts.rtl, me.left, me.width);
 		const ctx = me.ctx;
 		const position = titleOpts.position;
-		let x, textAlign;
 		const halfFontSize = titleFont.size / 2;
 		let y = me.top + titlePadding.top + halfFontSize;
 		let left = me.left;
 		let maxWidth = me.width;
 		if (this.isHorizontal()) {
 			maxWidth = Math.max(...me.lineWidths);
-			switch (opts.align) {
-			case 'start':
-				break;
-			case 'end':
-				left = me.right - maxWidth;
-				break;
-			default:
-				left = ((me.left + me.right) / 2) - (maxWidth / 2);
-				break;
-			}
+			left = _alignStartEnd(opts.align, left, me.right - maxWidth);
 		} else {
-			const maxHeight = Math.max(...me.columnHeights);
-			switch (opts.align) {
-			case 'start':
-				break;
-			case 'end':
-				y += me.height - maxHeight;
-				break;
-			default:
-				y += (me.height - maxHeight) / 2;
-				break;
-			}
+			const maxHeight = me.columnSizes.reduce((acc, size) => Math.max(acc, size.height), 0);
+			y = _alignStartEnd(opts.align, y, me.height - maxHeight);
 		}
-		switch (position) {
-		case 'start':
-			x = left;
-			textAlign = 'left';
-			break;
-		case 'end':
-			x = left + maxWidth;
-			textAlign = 'right';
-			break;
-		default:
-			x = left + (maxWidth / 2);
-			textAlign = 'center';
-			break;
-		}
-		ctx.textAlign = rtlHelper.textAlign(textAlign);
+		const x = _alignStartEnd(position, left, left + maxWidth);
+		ctx.textAlign = rtlHelper.textAlign(_toLeftRightCenter(position));
 		ctx.textBaseline = 'middle';
 		ctx.strokeStyle = titleOpts.color;
 		ctx.fillStyle = titleOpts.color;
@@ -7243,85 +7153,55 @@ class Legend extends Element {
 	handleEvent(e) {
 		const me = this;
 		const opts = me.options;
-		const type = e.type === 'mouseup' ? 'click' : e.type;
-		if (type === 'mousemove') {
-			if (!opts.onHover && !opts.onLeave) {
-				return;
-			}
-		} else if (type === 'click') {
-			if (!opts.onClick) {
-				return;
-			}
-		} else {
+		if (!isListened(e.type, opts)) {
 			return;
 		}
 		const hoveredItem = me._getLegendItemAt(e.x, e.y);
-		if (type === 'click') {
-			if (hoveredItem) {
-				callback(opts.onClick, [e, hoveredItem, me], me);
+		if (e.type === 'mousemove') {
+			const previous = me._hoveredItem;
+			if (previous && previous !== hoveredItem) {
+				callback(opts.onLeave, [e, previous, me], me);
 			}
-		} else {
-			if (opts.onLeave && hoveredItem !== me._hoveredItem) {
-				if (me._hoveredItem) {
-					callback(opts.onLeave, [e, me._hoveredItem, me], me);
-				}
-				me._hoveredItem = hoveredItem;
-			}
+			me._hoveredItem = hoveredItem;
 			if (hoveredItem) {
 				callback(opts.onHover, [e, hoveredItem, me], me);
 			}
+		} else if (hoveredItem) {
+			callback(opts.onClick, [e, hoveredItem, me], me);
 		}
 	}
 }
-function resolveOptions(options) {
-	return options !== false && merge(Object.create(null), [defaults.plugins.legend, options]);
-}
-function createNewLegendAndAttach(chart, legendOpts) {
-	const legend = new Legend({
-		ctx: chart.ctx,
-		options: legendOpts,
-		chart
-	});
-	layouts.configure(chart, legend, legendOpts);
-	layouts.addBox(chart, legend);
-	chart.legend = legend;
+function isListened(type, opts) {
+	if (type === 'mousemove' && (opts.onHover || opts.onLeave)) {
+		return true;
+	}
+	if (opts.onClick && (type === 'click' || type === 'mouseup')) {
+		return true;
+	}
+	return false;
 }
 var plugin_legend = {
 	id: 'legend',
 	_element: Legend,
-	start(chart) {
-		const legendOpts = resolveOptions(chart.options.plugins.legend);
-		createNewLegendAndAttach(chart, legendOpts);
+	start(chart, _args, options) {
+		const legend = chart.legend = new Legend({ctx: chart.ctx, options, chart});
+		layouts.configure(chart, legend, options);
+		layouts.addBox(chart, legend);
 	},
 	stop(chart) {
 		layouts.removeBox(chart, chart.legend);
 		delete chart.legend;
 	},
-	beforeUpdate(chart) {
-		const legendOpts = resolveOptions(chart.options.plugins.legend);
+	beforeUpdate(chart, _args, options) {
 		const legend = chart.legend;
-		if (legendOpts) {
-			if (legend) {
-				layouts.configure(chart, legend, legendOpts);
-				legend.options = legendOpts;
-			} else {
-				createNewLegendAndAttach(chart, legendOpts);
-			}
-		} else if (legend) {
-			layouts.removeBox(chart, legend);
-			delete chart.legend;
-		}
+		layouts.configure(chart, legend, options);
+		legend.options = options;
 	},
 	afterUpdate(chart) {
-		if (chart.legend) {
-			chart.legend.buildLabels();
-		}
+		chart.legend.buildLabels();
 	},
 	afterEvent(chart, args) {
-		const legend = chart.legend;
-		if (legend) {
-			legend.handleEvent(args.event);
-		}
+		chart.legend.handleEvent(args.event);
 	},
 	defaults: {
 		display: true,
@@ -7379,16 +7259,12 @@ var plugin_legend = {
 	}
 };
 
-const toLeftRightCenter = (align) => align === 'start' ? 'left' : align === 'end' ? 'right' : 'center';
-const alignStartEnd = (align, start, end) => align === 'start' ? start : align === 'end' ? end : (start + end) / 2;
 class Title extends Element {
 	constructor(config) {
 		super();
-		Object.assign(this, config);
 		this.chart = config.chart;
 		this.options = config.options;
 		this.ctx = config.ctx;
-		this._margins = undefined;
 		this._padding = undefined;
 		this.top = undefined;
 		this.bottom = undefined;
@@ -7396,46 +7272,29 @@ class Title extends Element {
 		this.right = undefined;
 		this.width = undefined;
 		this.height = undefined;
-		this.maxWidth = undefined;
-		this.maxHeight = undefined;
 		this.position = undefined;
 		this.weight = undefined;
 		this.fullWidth = undefined;
 	}
-	update(maxWidth, maxHeight, margins) {
-		const me = this;
-		me.maxWidth = maxWidth;
-		me.maxHeight = maxHeight;
-		me._margins = margins;
-		me.setDimensions();
-		me.fit();
-	}
-	setDimensions() {
-		const me = this;
-		if (me.isHorizontal()) {
-			me.width = me.maxWidth;
-			me.left = 0;
-			me.right = me.width;
-		} else {
-			me.height = me.maxHeight;
-			me.top = 0;
-			me.bottom = me.height;
-		}
-	}
-	fit() {
+	update(maxWidth, maxHeight) {
 		const me = this;
 		const opts = me.options;
-		const minSize = {};
-		const isHorizontal = me.isHorizontal();
+		me.left = 0;
+		me.top = 0;
 		if (!opts.display) {
-			me.width = minSize.width = me.height = minSize.height = 0;
+			me.width = me.height = me.right = me.bottom = 0;
 			return;
 		}
+		me.width = me.right = maxWidth;
+		me.height = me.bottom = maxHeight;
 		const lineCount = isArray(opts.text) ? opts.text.length : 1;
 		me._padding = toPadding(opts.padding);
 		const textSize = lineCount * toFont(opts.font, me.chart.options.font).lineHeight + me._padding.height;
-		me.width = minSize.width = isHorizontal ? me.maxWidth : textSize;
-		me.height = minSize.height = isHorizontal ? textSize : me.maxHeight;
+		if (me.isHorizontal()) {
+			me.height = textSize;
+		} else {
+			me.width = textSize;
+		}
 	}
 	isHorizontal() {
 		const pos = this.options.position;
@@ -7447,17 +7306,17 @@ class Title extends Element {
 		let rotation = 0;
 		let maxWidth, titleX, titleY;
 		if (this.isHorizontal()) {
-			titleX = alignStartEnd(align, left, right);
+			titleX = _alignStartEnd(align, left, right);
 			titleY = top + offset;
 			maxWidth = right - left;
 		} else {
 			if (options.position === 'left') {
 				titleX = left + offset;
-				titleY = alignStartEnd(align, bottom, top);
+				titleY = _alignStartEnd(align, bottom, top);
 				rotation = PI * -0.5;
 			} else {
 				titleX = right - offset;
-				titleY = alignStartEnd(align, top, bottom);
+				titleY = _alignStartEnd(align, top, bottom);
 				rotation = PI * 0.5;
 			}
 			maxWidth = bottom - top;
@@ -7480,7 +7339,7 @@ class Title extends Element {
 		ctx.font = fontOpts.string;
 		ctx.translate(titleX, titleY);
 		ctx.rotate(rotation);
-		ctx.textAlign = toLeftRightCenter(opts.align);
+		ctx.textAlign = _toLeftRightCenter(opts.align);
 		ctx.textBaseline = 'middle';
 		const text = opts.text;
 		if (isArray(text)) {
@@ -7637,7 +7496,7 @@ function createTooltipItem(chart, item) {
 		element
 	};
 }
-function resolveOptions$1(options, fallbackFont) {
+function resolveOptions(options, fallbackFont) {
 	options = merge(Object.create(null), [defaults.plugins.tooltip, options]);
 	options.bodyFont = toFont(options.bodyFont, fallbackFont);
 	options.titleFont = toFont(options.titleFont, fallbackFont);
@@ -7826,7 +7685,7 @@ class Tooltip extends Element {
 	initialize() {
 		const me = this;
 		const chartOpts = me._chart.options;
-		me.options = resolveOptions$1(chartOpts.plugins.tooltip, chartOpts.font);
+		me.options = resolveOptions(chartOpts.plugins.tooltip, chartOpts.font);
 		me._cachedAnimations = undefined;
 	}
 	_resolveAnimations() {

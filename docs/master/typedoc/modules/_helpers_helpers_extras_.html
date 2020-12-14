@@ -75,6 +75,8 @@
 						<section class="tsd-index-section ">
 							<h3>Functions</h3>
 							<ul class="tsd-index-list">
+								<li class="tsd-kind-function tsd-parent-kind-module tsd-is-private"><a href="_helpers_helpers_extras_.html#_alignstartend" class="tsd-kind-icon">_align<wbr>Start<wbr>End</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module tsd-is-private"><a href="_helpers_helpers_extras_.html#_toleftrightcenter" class="tsd-kind-icon">_to<wbr>Left<wbr>Right<wbr>Center</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_helpers_helpers_extras_.html#fontstring" class="tsd-kind-icon">font<wbr>String</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_helpers_helpers_extras_.html#throttled" class="tsd-kind-icon">throttled</a></li>
 							</ul>
@@ -90,7 +92,7 @@
 					<div class="tsd-signature tsd-kind-icon">request<wbr>Anim<wbr>Frame<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">(Anonymous function)</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">requestAnimationFrame</span><span class="tsd-signature-symbol"> &amp; </span><span class="tsd-signature-type">requestAnimationFrame</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> = (function() {if (typeof window &#x3D;&#x3D;&#x3D; &#x27;undefined&#x27;) {return function(callback) {return callback();};}return window.requestAnimationFrame;}())</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/5ed422a/src/helpers/helpers.extras.js#L8">helpers/helpers.extras.js:8</a></li>
+							<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/e1a3303/src/helpers/helpers.extras.js#L8">helpers/helpers.extras.js:8</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -102,6 +104,88 @@
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Functions</h2>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module tsd-is-private">
+					<a name="_alignstartend" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> <span class="tsd-flag ts-flagConst">Const</span> _align<wbr>Start<wbr>End</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module tsd-is-private">
+						<li class="tsd-signature tsd-kind-icon">_align<wbr>Start<wbr>End<span class="tsd-signature-symbol">(</span>align<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, start<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, end<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/e1a3303/src/helpers/helpers.extras.js#L57">helpers/helpers.extras.js:57</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns <code>start</code>, <code>end</code> or <code>(start + end) / 2</code> depending on <code>align</code></p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>align: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+											<p>start, end, center</p>
+										</div>
+									</div>
+								</li>
+								<li>
+									<h5>start: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+											<p>value for start</p>
+										</div>
+									</div>
+								</li>
+								<li>
+									<h5>end: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+											<p>value for end</p>
+										</div>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module tsd-is-private">
+					<a name="_toleftrightcenter" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> <span class="tsd-flag ts-flagConst">Const</span> _to<wbr>Left<wbr>Right<wbr>Center</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module tsd-is-private">
+						<li class="tsd-signature tsd-kind-icon">_to<wbr>Left<wbr>Right<wbr>Center<span class="tsd-signature-symbol">(</span>align<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">"left"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"right"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"center"</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/e1a3303/src/helpers/helpers.extras.js#L48">helpers/helpers.extras.js:48</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Converts &#39;start&#39; to &#39;left&#39;, &#39;end&#39; to &#39;right&#39; and others to &#39;center&#39;</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>align: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+											<p>start, end, center</p>
+										</div>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">"left"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"right"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"center"</span></h4>
+						</li>
+					</ul>
+				</section>
 				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
 					<a name="fontstring" class="tsd-anchor"></a>
 					<h3>font<wbr>String</h3>
@@ -112,7 +196,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/5ed422a/src/helpers/helpers.extras.js#L1">helpers/helpers.extras.js:1</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/e1a3303/src/helpers/helpers.extras.js#L1">helpers/helpers.extras.js:1</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -141,7 +225,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/5ed422a/src/helpers/helpers.extras.js#L24">helpers/helpers.extras.js:24</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/e1a3303/src/helpers/helpers.extras.js#L24">helpers/helpers.extras.js:24</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -183,6 +267,12 @@
 				<ul class="before-current">
 					<li class=" tsd-kind-variable tsd-parent-kind-module">
 						<a href="_helpers_helpers_extras_.html#requestanimframe" class="tsd-kind-icon">request<wbr>Anim<wbr>Frame</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module tsd-is-private">
+						<a href="_helpers_helpers_extras_.html#_alignstartend" class="tsd-kind-icon">_align<wbr>Start<wbr>End</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-module tsd-is-private">
+						<a href="_helpers_helpers_extras_.html#_toleftrightcenter" class="tsd-kind-icon">_to<wbr>Left<wbr>Right<wbr>Center</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-module">
 						<a href="_helpers_helpers_extras_.html#fontstring" class="tsd-kind-icon">font<wbr>String</a>

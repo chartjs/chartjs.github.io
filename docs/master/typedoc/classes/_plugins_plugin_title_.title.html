@@ -93,11 +93,9 @@
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_plugins_plugin_title_.title.html#_drawargs" class="tsd-kind-icon">_draw<wbr>Args</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_plugins_plugin_title_.title.html#draw" class="tsd-kind-icon">draw</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_plugins_plugin_title_.title.html#fit" class="tsd-kind-icon">fit</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="_plugins_plugin_title_.title.html#getprops" class="tsd-kind-icon">get<wbr>Props</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="_plugins_plugin_title_.title.html#hasvalue" class="tsd-kind-icon">has<wbr>Value</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_plugins_plugin_title_.title.html#ishorizontal" class="tsd-kind-icon">is<wbr>Horizontal</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_plugins_plugin_title_.title.html#setdimensions" class="tsd-kind-icon">set<wbr>Dimensions</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="_plugins_plugin_title_.title.html#tooltipposition" class="tsd-kind-icon">tooltip<wbr>Position</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_plugins_plugin_title_.title.html#update" class="tsd-kind-icon">update</a></li>
 							</ul>
@@ -111,20 +109,37 @@
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Title<span class="tsd-signature-symbol">(</span>config<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_plugins_plugin_title_.title.html" class="tsd-signature-type">Title</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Title<span class="tsd-signature-symbol">(</span>config<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>chart<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>ctx<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>options<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_plugins_plugin_title_.title.html" class="tsd-signature-type">Title</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<p>Overrides <a href="_core_core_element_.element.html">Element</a>.<a href="_core_core_element_.element.html#constructor">constructor</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/5ed422a/src/plugins/plugin.title.js#L8">plugins/plugin.title.js:8</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/e1a3303/src/plugins/plugin.title.js#L6">plugins/plugin.title.js:6</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>config: <span class="tsd-signature-type">any</span></h5>
+									<h5>config: <span class="tsd-signature-symbol">{ </span>chart<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>ctx<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>options<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> }</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+										</div>
+									</div>
+									<ul class="tsd-parameters">
+										<li class="tsd-parameter">
+											<h5>chart<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></h5>
+										</li>
+										<li class="tsd-parameter">
+											<h5>ctx<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></h5>
+										</li>
+										<li class="tsd-parameter">
+											<h5>options<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></h5>
+										</li>
+									</ul>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="_plugins_plugin_title_.title.html" class="tsd-signature-type">Title</a></h4>
@@ -144,7 +159,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/5ed422a/src/plugins/plugin.title.js#L84">plugins/plugin.title.js:84</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/e1a3303/src/plugins/plugin.title.js#L59">plugins/plugin.title.js:59</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -181,24 +196,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/5ed422a/src/plugins/plugin.title.js#L109">plugins/plugin.title.js:109</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="fit" class="tsd-anchor"></a>
-					<h3>fit</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">fit<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/5ed422a/src/plugins/plugin.title.js#L61">plugins/plugin.title.js:61</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/e1a3303/src/plugins/plugin.title.js#L84">plugins/plugin.title.js:84</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -216,7 +214,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_core_core_element_.element.html">Element</a>.<a href="_core_core_element_.element.html#getprops">getProps</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/5ed422a/src/core/core.element.js#L31">core/core.element.js:31</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/e1a3303/src/core/core.element.js#L31">core/core.element.js:31</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -251,7 +249,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_core_core_element_.element.html">Element</a>.<a href="_core_core_element_.element.html#hasvalue">hasValue</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/5ed422a/src/core/core.element.js#L21">core/core.element.js:21</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/e1a3303/src/core/core.element.js#L21">core/core.element.js:21</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
@@ -268,27 +266,10 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/5ed422a/src/plugins/plugin.title.js#L79">plugins/plugin.title.js:79</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/e1a3303/src/plugins/plugin.title.js#L54">plugins/plugin.title.js:54</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="setdimensions" class="tsd-anchor"></a>
-					<h3>set<wbr>Dimensions</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">set<wbr>Dimensions<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/5ed422a/src/plugins/plugin.title.js#L44">plugins/plugin.title.js:44</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -303,7 +284,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="_core_core_element_.element.html">Element</a>.<a href="_core_core_element_.element.html#tooltipposition">tooltipPosition</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/5ed422a/src/core/core.element.js#L16">core/core.element.js:16</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/e1a3303/src/core/core.element.js#L16">core/core.element.js:16</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -330,13 +311,13 @@
 					<a name="update" class="tsd-anchor"></a>
 					<h3>update</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">update<span class="tsd-signature-symbol">(</span>maxWidth<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, maxHeight<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, margins<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">update<span class="tsd-signature-symbol">(</span>maxWidth<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, maxHeight<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/5ed422a/src/plugins/plugin.title.js#L32">plugins/plugin.title.js:32</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/e1a3303/src/plugins/plugin.title.js#L28">plugins/plugin.title.js:28</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -346,9 +327,6 @@
 								</li>
 								<li>
 									<h5>maxHeight: <span class="tsd-signature-type">any</span></h5>
-								</li>
-								<li>
-									<h5>margins: <span class="tsd-signature-type">any</span></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -384,9 +362,6 @@
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="_plugins_plugin_title_.title.html#draw" class="tsd-kind-icon">draw</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="_plugins_plugin_title_.title.html#fit" class="tsd-kind-icon">fit</a>
-							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 								<a href="_plugins_plugin_title_.title.html#getprops" class="tsd-kind-icon">get<wbr>Props</a>
 							</li>
@@ -395,9 +370,6 @@
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="_plugins_plugin_title_.title.html#ishorizontal" class="tsd-kind-icon">is<wbr>Horizontal</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="_plugins_plugin_title_.title.html#setdimensions" class="tsd-kind-icon">set<wbr>Dimensions</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 								<a href="_plugins_plugin_title_.title.html#tooltipposition" class="tsd-kind-icon">tooltip<wbr>Position</a>
