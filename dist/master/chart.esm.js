@@ -7256,6 +7256,10 @@ var plugin_legend = {
 			position: 'center',
 			text: '',
 		}
+	},
+	defaultRoutes: {
+		'labels.color': 'color',
+		'title.color': 'color'
 	}
 };
 
