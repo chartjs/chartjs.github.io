@@ -4772,8 +4772,10 @@ class PluginService {
 		return true;
 	}
 	invalidate() {
-		this._oldCache = this._cache;
-		this._cache = undefined;
+		if (!isNullOrUndef(this._cache)) {
+			this._oldCache = this._cache;
+			this._cache = undefined;
+		}
 	}
 	_descriptors(chart) {
 		if (this._cache) {

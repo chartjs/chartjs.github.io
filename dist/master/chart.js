@@ -5093,6 +5093,491 @@ class Registry {
 }
 var registry = new Registry();
 
+const EPSILON = Number.EPSILON || 1e-14;
+function splineCurve(firstPoint, middlePoint, afterPoint, t) {
+	const previous = firstPoint.skip ? middlePoint : firstPoint;
+	const current = middlePoint;
+	const next = afterPoint.skip ? middlePoint : afterPoint;
+	const d01 = Math.sqrt(Math.pow(current.x - previous.x, 2) + Math.pow(current.y - previous.y, 2));
+	const d12 = Math.sqrt(Math.pow(next.x - current.x, 2) + Math.pow(next.y - current.y, 2));
+	let s01 = d01 / (d01 + d12);
+	let s12 = d12 / (d01 + d12);
+	s01 = isNaN(s01) ? 0 : s01;
+	s12 = isNaN(s12) ? 0 : s12;
+	const fa = t * s01;
+	const fb = t * s12;
+	return {
+		previous: {
+			x: current.x - fa * (next.x - previous.x),
+			y: current.y - fa * (next.y - previous.y)
+		},
+		next: {
+			x: current.x + fb * (next.x - previous.x),
+			y: current.y + fb * (next.y - previous.y)
+		}
+	};
+}
+function splineCurveMonotone(points) {
+	const pointsWithTangents = (points || []).map((point) => ({
+		model: point,
+		deltaK: 0,
+		mK: 0
+	}));
+	const pointsLen = pointsWithTangents.length;
+	let i, pointBefore, pointCurrent, pointAfter;
+	for (i = 0; i < pointsLen; ++i) {
+		pointCurrent = pointsWithTangents[i];
+		if (pointCurrent.model.skip) {
+			continue;
+		}
+		pointBefore = i > 0 ? pointsWithTangents[i - 1] : null;
+		pointAfter = i < pointsLen - 1 ? pointsWithTangents[i + 1] : null;
+		if (pointAfter && !pointAfter.model.skip) {
+			const slopeDeltaX = (pointAfter.model.x - pointCurrent.model.x);
+			pointCurrent.deltaK = slopeDeltaX !== 0 ? (pointAfter.model.y - pointCurrent.model.y) / slopeDeltaX : 0;
+		}
+		if (!pointBefore || pointBefore.model.skip) {
+			pointCurrent.mK = pointCurrent.deltaK;
+		} else if (!pointAfter || pointAfter.model.skip) {
+			pointCurrent.mK = pointBefore.deltaK;
+		} else if (sign(pointBefore.deltaK) !== sign(pointCurrent.deltaK)) {
+			pointCurrent.mK = 0;
+		} else {
+			pointCurrent.mK = (pointBefore.deltaK + pointCurrent.deltaK) / 2;
+		}
+	}
+	let alphaK, betaK, tauK, squaredMagnitude;
+	for (i = 0; i < pointsLen - 1; ++i) {
+		pointCurrent = pointsWithTangents[i];
+		pointAfter = pointsWithTangents[i + 1];
+		if (pointCurrent.model.skip || pointAfter.model.skip) {
+			continue;
+		}
+		if (almostEquals(pointCurrent.deltaK, 0, EPSILON)) {
+			pointCurrent.mK = pointAfter.mK = 0;
+			continue;
+		}
+		alphaK = pointCurrent.mK / pointCurrent.deltaK;
+		betaK = pointAfter.mK / pointCurrent.deltaK;
+		squaredMagnitude = Math.pow(alphaK, 2) + Math.pow(betaK, 2);
+		if (squaredMagnitude <= 9) {
+			continue;
+		}
+		tauK = 3 / Math.sqrt(squaredMagnitude);
+		pointCurrent.mK = alphaK * tauK * pointCurrent.deltaK;
+		pointAfter.mK = betaK * tauK * pointCurrent.deltaK;
+	}
+	let deltaX;
+	for (i = 0; i < pointsLen; ++i) {
+		pointCurrent = pointsWithTangents[i];
+		if (pointCurrent.model.skip) {
+			continue;
+		}
+		pointBefore = i > 0 ? pointsWithTangents[i - 1] : null;
+		pointAfter = i < pointsLen - 1 ? pointsWithTangents[i + 1] : null;
+		if (pointBefore && !pointBefore.model.skip) {
+			deltaX = (pointCurrent.model.x - pointBefore.model.x) / 3;
+			pointCurrent.model.controlPointPreviousX = pointCurrent.model.x - deltaX;
+			pointCurrent.model.controlPointPreviousY = pointCurrent.model.y - deltaX * pointCurrent.mK;
+		}
+		if (pointAfter && !pointAfter.model.skip) {
+			deltaX = (pointAfter.model.x - pointCurrent.model.x) / 3;
+			pointCurrent.model.controlPointNextX = pointCurrent.model.x + deltaX;
+			pointCurrent.model.controlPointNextY = pointCurrent.model.y + deltaX * pointCurrent.mK;
+		}
+	}
+}
+function capControlPoint(pt, min, max) {
+	return Math.max(Math.min(pt, max), min);
+}
+function capBezierPoints(points, area) {
+	let i, ilen, point;
+	for (i = 0, ilen = points.length; i < ilen; ++i) {
+		point = points[i];
+		if (!_isPointInArea(point, area)) {
+			continue;
+		}
+		if (i > 0 && _isPointInArea(points[i - 1], area)) {
+			point.controlPointPreviousX = capControlPoint(point.controlPointPreviousX, area.left, area.right);
+			point.controlPointPreviousY = capControlPoint(point.controlPointPreviousY, area.top, area.bottom);
+		}
+		if (i < points.length - 1 && _isPointInArea(points[i + 1], area)) {
+			point.controlPointNextX = capControlPoint(point.controlPointNextX, area.left, area.right);
+			point.controlPointNextY = capControlPoint(point.controlPointNextY, area.top, area.bottom);
+		}
+	}
+}
+function _updateBezierControlPoints(points, options, area, loop) {
+	let i, ilen, point, controlPoints;
+	if (options.spanGaps) {
+		points = points.filter((pt) => !pt.skip);
+	}
+	if (options.cubicInterpolationMode === 'monotone') {
+		splineCurveMonotone(points);
+	} else {
+		let prev = loop ? points[points.length - 1] : points[0];
+		for (i = 0, ilen = points.length; i < ilen; ++i) {
+			point = points[i];
+			controlPoints = splineCurve(
+				prev,
+				point,
+				points[Math.min(i + 1, ilen - (loop ? 0 : 1)) % ilen],
+				options.tension
+			);
+			point.controlPointPreviousX = controlPoints.previous.x;
+			point.controlPointPreviousY = controlPoints.previous.y;
+			point.controlPointNextX = controlPoints.next.x;
+			point.controlPointNextY = controlPoints.next.y;
+			prev = point;
+		}
+	}
+	if (options.capBezierPoints) {
+		capBezierPoints(points, area);
+	}
+}
+
+function _pointInLine(p1, p2, t, mode) {
+	return {
+		x: p1.x + t * (p2.x - p1.x),
+		y: p1.y + t * (p2.y - p1.y)
+	};
+}
+function _steppedInterpolation(p1, p2, t, mode) {
+	return {
+		x: p1.x + t * (p2.x - p1.x),
+		y: mode === 'middle' ? t < 0.5 ? p1.y : p2.y
+		: mode === 'after' ? t < 1 ? p1.y : p2.y
+		: t > 0 ? p2.y : p1.y
+	};
+}
+function _bezierInterpolation(p1, p2, t, mode) {
+	const cp1 = {x: p1.controlPointNextX, y: p1.controlPointNextY};
+	const cp2 = {x: p2.controlPointPreviousX, y: p2.controlPointPreviousY};
+	const a = _pointInLine(p1, cp1, t);
+	const b = _pointInLine(cp1, cp2, t);
+	const c = _pointInLine(cp2, p2, t);
+	const d = _pointInLine(a, b, t);
+	const e = _pointInLine(b, c, t);
+	return _pointInLine(d, e, t);
+}
+
+const getRightToLeftAdapter = function(rectX, width) {
+	return {
+		x(x) {
+			return rectX + rectX + width - x;
+		},
+		setWidth(w) {
+			width = w;
+		},
+		textAlign(align) {
+			if (align === 'center') {
+				return align;
+			}
+			return align === 'right' ? 'left' : 'right';
+		},
+		xPlus(x, value) {
+			return x - value;
+		},
+		leftForLtr(x, itemWidth) {
+			return x - itemWidth;
+		},
+	};
+};
+const getLeftToRightAdapter = function() {
+	return {
+		x(x) {
+			return x;
+		},
+		setWidth(w) {
+		},
+		textAlign(align) {
+			return align;
+		},
+		xPlus(x, value) {
+			return x + value;
+		},
+		leftForLtr(x, _itemWidth) {
+			return x;
+		},
+	};
+};
+function getRtlAdapter(rtl, rectX, width) {
+	return rtl ? getRightToLeftAdapter(rectX, width) : getLeftToRightAdapter();
+}
+function overrideTextDirection(ctx, direction) {
+	let style, original;
+	if (direction === 'ltr' || direction === 'rtl') {
+		style = ctx.canvas.style;
+		original = [
+			style.getPropertyValue('direction'),
+			style.getPropertyPriority('direction'),
+		];
+		style.setProperty('direction', direction, 'important');
+		ctx.prevTextDirection = original;
+	}
+}
+function restoreTextDirection(ctx, original) {
+	if (original !== undefined) {
+		delete ctx.prevTextDirection;
+		ctx.canvas.style.setProperty('direction', original[0], original[1]);
+	}
+}
+
+function propertyFn(property) {
+	if (property === 'angle') {
+		return {
+			between: _angleBetween,
+			compare: _angleDiff,
+			normalize: _normalizeAngle,
+		};
+	}
+	return {
+		between: (n, s, e) => n >= s && n <= e,
+		compare: (a, b) => a - b,
+		normalize: x => x
+	};
+}
+function makeSubSegment(start, end, loop, count) {
+	return {
+		start: start % count,
+		end: end % count,
+		loop: loop && (end - start + 1) % count === 0
+	};
+}
+function getSegment(segment, points, bounds) {
+	const {property, start: startBound, end: endBound} = bounds;
+	const {between, normalize} = propertyFn(property);
+	const count = points.length;
+	let {start, end, loop} = segment;
+	let i, ilen;
+	if (loop) {
+		start += count;
+		end += count;
+		for (i = 0, ilen = count; i < ilen; ++i) {
+			if (!between(normalize(points[start % count][property]), startBound, endBound)) {
+				break;
+			}
+			start--;
+			end--;
+		}
+		start %= count;
+		end %= count;
+	}
+	if (end < start) {
+		end += count;
+	}
+	return {start, end, loop};
+}
+function _boundSegment(segment, points, bounds) {
+	if (!bounds) {
+		return [segment];
+	}
+	const {property, start: startBound, end: endBound} = bounds;
+	const count = points.length;
+	const {compare, between, normalize} = propertyFn(property);
+	const {start, end, loop} = getSegment(segment, points, bounds);
+	const result = [];
+	let inside = false;
+	let subStart = null;
+	let value, point, prevValue;
+	const startIsBefore = () => between(startBound, prevValue, value) && compare(startBound, prevValue) !== 0;
+	const endIsBefore = () => compare(endBound, value) === 0 || between(endBound, prevValue, value);
+	const shouldStart = () => inside || startIsBefore();
+	const shouldStop = () => !inside || endIsBefore();
+	for (let i = start, prev = start; i <= end; ++i) {
+		point = points[i % count];
+		if (point.skip) {
+			continue;
+		}
+		value = normalize(point[property]);
+		inside = between(value, startBound, endBound);
+		if (subStart === null && shouldStart()) {
+			subStart = compare(value, startBound) === 0 ? i : prev;
+		}
+		if (subStart !== null && shouldStop()) {
+			result.push(makeSubSegment(subStart, i, loop, count));
+			subStart = null;
+		}
+		prev = i;
+		prevValue = value;
+	}
+	if (subStart !== null) {
+		result.push(makeSubSegment(subStart, end, loop, count));
+	}
+	return result;
+}
+function _boundSegments(line, bounds) {
+	const result = [];
+	const segments = line.segments;
+	for (let i = 0; i < segments.length; i++) {
+		const sub = _boundSegment(segments[i], line.points, bounds);
+		if (sub.length) {
+			result.push(...sub);
+		}
+	}
+	return result;
+}
+function findStartAndEnd(points, count, loop, spanGaps) {
+	let start = 0;
+	let end = count - 1;
+	if (loop && !spanGaps) {
+		while (start < count && !points[start].skip) {
+			start++;
+		}
+	}
+	while (start < count && points[start].skip) {
+		start++;
+	}
+	start %= count;
+	if (loop) {
+		end += start;
+	}
+	while (end > start && points[end % count].skip) {
+		end--;
+	}
+	end %= count;
+	return {start, end};
+}
+function solidSegments(points, start, max, loop) {
+	const count = points.length;
+	const result = [];
+	let last = start;
+	let prev = points[start];
+	let end;
+	for (end = start + 1; end <= max; ++end) {
+		const cur = points[end % count];
+		if (cur.skip || cur.stop) {
+			if (!prev.skip) {
+				loop = false;
+				result.push({start: start % count, end: (end - 1) % count, loop});
+				start = last = cur.stop ? end : null;
+			}
+		} else {
+			last = end;
+			if (prev.skip) {
+				start = end;
+			}
+		}
+		prev = cur;
+	}
+	if (last !== null) {
+		result.push({start: start % count, end: last % count, loop});
+	}
+	return result;
+}
+function _computeSegments(line) {
+	const points = line.points;
+	const spanGaps = line.options.spanGaps;
+	const count = points.length;
+	if (!count) {
+		return [];
+	}
+	const loop = !!line._loop;
+	const {start, end} = findStartAndEnd(points, count, loop, spanGaps);
+	if (spanGaps === true) {
+		return [{start, end, loop}];
+	}
+	const max = end < start ? end + count : end;
+	const completeLoop = !!line._fullLoop && start === 0 && end === count - 1;
+	return solidSegments(points, start, max, completeLoop);
+}
+
+var helpers = /*#__PURE__*/Object.freeze({
+__proto__: null,
+easingEffects: effects,
+color: color,
+getHoverColor: getHoverColor,
+requestAnimFrame: requestAnimFrame,
+fontString: fontString,
+noop: noop,
+uid: uid,
+isNullOrUndef: isNullOrUndef,
+isArray: isArray,
+isObject: isObject,
+isFinite: isNumberFinite,
+finiteOrDefault: finiteOrDefault,
+valueOrDefault: valueOrDefault,
+callback: callback,
+each: each,
+_elementsEqual: _elementsEqual,
+clone: clone,
+_merger: _merger,
+merge: merge,
+mergeIf: mergeIf,
+_mergerIf: _mergerIf,
+_deprecated: _deprecated,
+resolveObjectKey: resolveObjectKey,
+_capitalize: _capitalize,
+toFontString: toFontString,
+_measureText: _measureText,
+_longestText: _longestText,
+_alignPixel: _alignPixel,
+clear: clear,
+drawPoint: drawPoint,
+_isPointInArea: _isPointInArea,
+clipArea: clipArea,
+unclipArea: unclipArea,
+_steppedLineTo: _steppedLineTo,
+_bezierCurveTo: _bezierCurveTo,
+_lookup: _lookup,
+_lookupByKey: _lookupByKey,
+_rlookupByKey: _rlookupByKey,
+_filterBetween: _filterBetween,
+listenArrayEvents: listenArrayEvents,
+unlistenArrayEvents: unlistenArrayEvents,
+_arrayUnique: _arrayUnique,
+splineCurve: splineCurve,
+splineCurveMonotone: splineCurveMonotone,
+_updateBezierControlPoints: _updateBezierControlPoints,
+_getParentNode: _getParentNode,
+getStyle: getStyle,
+getRelativePosition: getRelativePosition,
+getMaximumSize: getMaximumSize,
+retinaScale: retinaScale,
+supportsEventListenerOptions: supportsEventListenerOptions,
+readUsedSize: readUsedSize,
+_pointInLine: _pointInLine,
+_steppedInterpolation: _steppedInterpolation,
+_bezierInterpolation: _bezierInterpolation,
+toLineHeight: toLineHeight,
+toTRBL: toTRBL,
+toTRBLCorners: toTRBLCorners,
+toPadding: toPadding,
+toFont: toFont,
+resolve: resolve,
+PI: PI,
+TAU: TAU,
+PITAU: PITAU,
+INFINITY: INFINITY,
+RAD_PER_DEG: RAD_PER_DEG,
+HALF_PI: HALF_PI,
+QUARTER_PI: QUARTER_PI,
+TWO_THIRDS_PI: TWO_THIRDS_PI,
+_factorize: _factorize,
+log10: log10,
+isNumber: isNumber,
+almostEquals: almostEquals,
+almostWhole: almostWhole,
+_setMinAndMaxByKey: _setMinAndMaxByKey,
+sign: sign,
+toRadians: toRadians,
+toDegrees: toDegrees,
+_decimalPlaces: _decimalPlaces,
+getAngleFromPoint: getAngleFromPoint,
+distanceBetweenPoints: distanceBetweenPoints,
+_angleDiff: _angleDiff,
+_normalizeAngle: _normalizeAngle,
+_angleBetween: _angleBetween,
+_limitValue: _limitValue,
+_int16Range: _int16Range,
+getRtlAdapter: getRtlAdapter,
+overrideTextDirection: overrideTextDirection,
+restoreTextDirection: restoreTextDirection,
+_boundSegment: _boundSegment,
+_boundSegments: _boundSegments,
+_computeSegments: _computeSegments
+});
+
 class PluginService {
 	constructor() {
 		this._init = [];
@@ -5124,8 +5609,10 @@ class PluginService {
 		return true;
 	}
 	invalidate() {
-		this._oldCache = this._cache;
-		this._cache = undefined;
+		if (!isNullOrUndef(this._cache)) {
+			this._oldCache = this._cache;
+			this._cache = undefined;
+		}
 	}
 	_descriptors(chart) {
 		if (this._cache) {
@@ -6081,491 +6568,6 @@ Chart.unregister = (...items) => {
 	registry.remove(...items);
 	invalidatePlugins();
 };
-
-const EPSILON = Number.EPSILON || 1e-14;
-function splineCurve(firstPoint, middlePoint, afterPoint, t) {
-	const previous = firstPoint.skip ? middlePoint : firstPoint;
-	const current = middlePoint;
-	const next = afterPoint.skip ? middlePoint : afterPoint;
-	const d01 = Math.sqrt(Math.pow(current.x - previous.x, 2) + Math.pow(current.y - previous.y, 2));
-	const d12 = Math.sqrt(Math.pow(next.x - current.x, 2) + Math.pow(next.y - current.y, 2));
-	let s01 = d01 / (d01 + d12);
-	let s12 = d12 / (d01 + d12);
-	s01 = isNaN(s01) ? 0 : s01;
-	s12 = isNaN(s12) ? 0 : s12;
-	const fa = t * s01;
-	const fb = t * s12;
-	return {
-		previous: {
-			x: current.x - fa * (next.x - previous.x),
-			y: current.y - fa * (next.y - previous.y)
-		},
-		next: {
-			x: current.x + fb * (next.x - previous.x),
-			y: current.y + fb * (next.y - previous.y)
-		}
-	};
-}
-function splineCurveMonotone(points) {
-	const pointsWithTangents = (points || []).map((point) => ({
-		model: point,
-		deltaK: 0,
-		mK: 0
-	}));
-	const pointsLen = pointsWithTangents.length;
-	let i, pointBefore, pointCurrent, pointAfter;
-	for (i = 0; i < pointsLen; ++i) {
-		pointCurrent = pointsWithTangents[i];
-		if (pointCurrent.model.skip) {
-			continue;
-		}
-		pointBefore = i > 0 ? pointsWithTangents[i - 1] : null;
-		pointAfter = i < pointsLen - 1 ? pointsWithTangents[i + 1] : null;
-		if (pointAfter && !pointAfter.model.skip) {
-			const slopeDeltaX = (pointAfter.model.x - pointCurrent.model.x);
-			pointCurrent.deltaK = slopeDeltaX !== 0 ? (pointAfter.model.y - pointCurrent.model.y) / slopeDeltaX : 0;
-		}
-		if (!pointBefore || pointBefore.model.skip) {
-			pointCurrent.mK = pointCurrent.deltaK;
-		} else if (!pointAfter || pointAfter.model.skip) {
-			pointCurrent.mK = pointBefore.deltaK;
-		} else if (sign(pointBefore.deltaK) !== sign(pointCurrent.deltaK)) {
-			pointCurrent.mK = 0;
-		} else {
-			pointCurrent.mK = (pointBefore.deltaK + pointCurrent.deltaK) / 2;
-		}
-	}
-	let alphaK, betaK, tauK, squaredMagnitude;
-	for (i = 0; i < pointsLen - 1; ++i) {
-		pointCurrent = pointsWithTangents[i];
-		pointAfter = pointsWithTangents[i + 1];
-		if (pointCurrent.model.skip || pointAfter.model.skip) {
-			continue;
-		}
-		if (almostEquals(pointCurrent.deltaK, 0, EPSILON)) {
-			pointCurrent.mK = pointAfter.mK = 0;
-			continue;
-		}
-		alphaK = pointCurrent.mK / pointCurrent.deltaK;
-		betaK = pointAfter.mK / pointCurrent.deltaK;
-		squaredMagnitude = Math.pow(alphaK, 2) + Math.pow(betaK, 2);
-		if (squaredMagnitude <= 9) {
-			continue;
-		}
-		tauK = 3 / Math.sqrt(squaredMagnitude);
-		pointCurrent.mK = alphaK * tauK * pointCurrent.deltaK;
-		pointAfter.mK = betaK * tauK * pointCurrent.deltaK;
-	}
-	let deltaX;
-	for (i = 0; i < pointsLen; ++i) {
-		pointCurrent = pointsWithTangents[i];
-		if (pointCurrent.model.skip) {
-			continue;
-		}
-		pointBefore = i > 0 ? pointsWithTangents[i - 1] : null;
-		pointAfter = i < pointsLen - 1 ? pointsWithTangents[i + 1] : null;
-		if (pointBefore && !pointBefore.model.skip) {
-			deltaX = (pointCurrent.model.x - pointBefore.model.x) / 3;
-			pointCurrent.model.controlPointPreviousX = pointCurrent.model.x - deltaX;
-			pointCurrent.model.controlPointPreviousY = pointCurrent.model.y - deltaX * pointCurrent.mK;
-		}
-		if (pointAfter && !pointAfter.model.skip) {
-			deltaX = (pointAfter.model.x - pointCurrent.model.x) / 3;
-			pointCurrent.model.controlPointNextX = pointCurrent.model.x + deltaX;
-			pointCurrent.model.controlPointNextY = pointCurrent.model.y + deltaX * pointCurrent.mK;
-		}
-	}
-}
-function capControlPoint(pt, min, max) {
-	return Math.max(Math.min(pt, max), min);
-}
-function capBezierPoints(points, area) {
-	let i, ilen, point;
-	for (i = 0, ilen = points.length; i < ilen; ++i) {
-		point = points[i];
-		if (!_isPointInArea(point, area)) {
-			continue;
-		}
-		if (i > 0 && _isPointInArea(points[i - 1], area)) {
-			point.controlPointPreviousX = capControlPoint(point.controlPointPreviousX, area.left, area.right);
-			point.controlPointPreviousY = capControlPoint(point.controlPointPreviousY, area.top, area.bottom);
-		}
-		if (i < points.length - 1 && _isPointInArea(points[i + 1], area)) {
-			point.controlPointNextX = capControlPoint(point.controlPointNextX, area.left, area.right);
-			point.controlPointNextY = capControlPoint(point.controlPointNextY, area.top, area.bottom);
-		}
-	}
-}
-function _updateBezierControlPoints(points, options, area, loop) {
-	let i, ilen, point, controlPoints;
-	if (options.spanGaps) {
-		points = points.filter((pt) => !pt.skip);
-	}
-	if (options.cubicInterpolationMode === 'monotone') {
-		splineCurveMonotone(points);
-	} else {
-		let prev = loop ? points[points.length - 1] : points[0];
-		for (i = 0, ilen = points.length; i < ilen; ++i) {
-			point = points[i];
-			controlPoints = splineCurve(
-				prev,
-				point,
-				points[Math.min(i + 1, ilen - (loop ? 0 : 1)) % ilen],
-				options.tension
-			);
-			point.controlPointPreviousX = controlPoints.previous.x;
-			point.controlPointPreviousY = controlPoints.previous.y;
-			point.controlPointNextX = controlPoints.next.x;
-			point.controlPointNextY = controlPoints.next.y;
-			prev = point;
-		}
-	}
-	if (options.capBezierPoints) {
-		capBezierPoints(points, area);
-	}
-}
-
-function _pointInLine(p1, p2, t, mode) {
-	return {
-		x: p1.x + t * (p2.x - p1.x),
-		y: p1.y + t * (p2.y - p1.y)
-	};
-}
-function _steppedInterpolation(p1, p2, t, mode) {
-	return {
-		x: p1.x + t * (p2.x - p1.x),
-		y: mode === 'middle' ? t < 0.5 ? p1.y : p2.y
-		: mode === 'after' ? t < 1 ? p1.y : p2.y
-		: t > 0 ? p2.y : p1.y
-	};
-}
-function _bezierInterpolation(p1, p2, t, mode) {
-	const cp1 = {x: p1.controlPointNextX, y: p1.controlPointNextY};
-	const cp2 = {x: p2.controlPointPreviousX, y: p2.controlPointPreviousY};
-	const a = _pointInLine(p1, cp1, t);
-	const b = _pointInLine(cp1, cp2, t);
-	const c = _pointInLine(cp2, p2, t);
-	const d = _pointInLine(a, b, t);
-	const e = _pointInLine(b, c, t);
-	return _pointInLine(d, e, t);
-}
-
-const getRightToLeftAdapter = function(rectX, width) {
-	return {
-		x(x) {
-			return rectX + rectX + width - x;
-		},
-		setWidth(w) {
-			width = w;
-		},
-		textAlign(align) {
-			if (align === 'center') {
-				return align;
-			}
-			return align === 'right' ? 'left' : 'right';
-		},
-		xPlus(x, value) {
-			return x - value;
-		},
-		leftForLtr(x, itemWidth) {
-			return x - itemWidth;
-		},
-	};
-};
-const getLeftToRightAdapter = function() {
-	return {
-		x(x) {
-			return x;
-		},
-		setWidth(w) {
-		},
-		textAlign(align) {
-			return align;
-		},
-		xPlus(x, value) {
-			return x + value;
-		},
-		leftForLtr(x, _itemWidth) {
-			return x;
-		},
-	};
-};
-function getRtlAdapter(rtl, rectX, width) {
-	return rtl ? getRightToLeftAdapter(rectX, width) : getLeftToRightAdapter();
-}
-function overrideTextDirection(ctx, direction) {
-	let style, original;
-	if (direction === 'ltr' || direction === 'rtl') {
-		style = ctx.canvas.style;
-		original = [
-			style.getPropertyValue('direction'),
-			style.getPropertyPriority('direction'),
-		];
-		style.setProperty('direction', direction, 'important');
-		ctx.prevTextDirection = original;
-	}
-}
-function restoreTextDirection(ctx, original) {
-	if (original !== undefined) {
-		delete ctx.prevTextDirection;
-		ctx.canvas.style.setProperty('direction', original[0], original[1]);
-	}
-}
-
-function propertyFn(property) {
-	if (property === 'angle') {
-		return {
-			between: _angleBetween,
-			compare: _angleDiff,
-			normalize: _normalizeAngle,
-		};
-	}
-	return {
-		between: (n, s, e) => n >= s && n <= e,
-		compare: (a, b) => a - b,
-		normalize: x => x
-	};
-}
-function makeSubSegment(start, end, loop, count) {
-	return {
-		start: start % count,
-		end: end % count,
-		loop: loop && (end - start + 1) % count === 0
-	};
-}
-function getSegment(segment, points, bounds) {
-	const {property, start: startBound, end: endBound} = bounds;
-	const {between, normalize} = propertyFn(property);
-	const count = points.length;
-	let {start, end, loop} = segment;
-	let i, ilen;
-	if (loop) {
-		start += count;
-		end += count;
-		for (i = 0, ilen = count; i < ilen; ++i) {
-			if (!between(normalize(points[start % count][property]), startBound, endBound)) {
-				break;
-			}
-			start--;
-			end--;
-		}
-		start %= count;
-		end %= count;
-	}
-	if (end < start) {
-		end += count;
-	}
-	return {start, end, loop};
-}
-function _boundSegment(segment, points, bounds) {
-	if (!bounds) {
-		return [segment];
-	}
-	const {property, start: startBound, end: endBound} = bounds;
-	const count = points.length;
-	const {compare, between, normalize} = propertyFn(property);
-	const {start, end, loop} = getSegment(segment, points, bounds);
-	const result = [];
-	let inside = false;
-	let subStart = null;
-	let value, point, prevValue;
-	const startIsBefore = () => between(startBound, prevValue, value) && compare(startBound, prevValue) !== 0;
-	const endIsBefore = () => compare(endBound, value) === 0 || between(endBound, prevValue, value);
-	const shouldStart = () => inside || startIsBefore();
-	const shouldStop = () => !inside || endIsBefore();
-	for (let i = start, prev = start; i <= end; ++i) {
-		point = points[i % count];
-		if (point.skip) {
-			continue;
-		}
-		value = normalize(point[property]);
-		inside = between(value, startBound, endBound);
-		if (subStart === null && shouldStart()) {
-			subStart = compare(value, startBound) === 0 ? i : prev;
-		}
-		if (subStart !== null && shouldStop()) {
-			result.push(makeSubSegment(subStart, i, loop, count));
-			subStart = null;
-		}
-		prev = i;
-		prevValue = value;
-	}
-	if (subStart !== null) {
-		result.push(makeSubSegment(subStart, end, loop, count));
-	}
-	return result;
-}
-function _boundSegments(line, bounds) {
-	const result = [];
-	const segments = line.segments;
-	for (let i = 0; i < segments.length; i++) {
-		const sub = _boundSegment(segments[i], line.points, bounds);
-		if (sub.length) {
-			result.push(...sub);
-		}
-	}
-	return result;
-}
-function findStartAndEnd(points, count, loop, spanGaps) {
-	let start = 0;
-	let end = count - 1;
-	if (loop && !spanGaps) {
-		while (start < count && !points[start].skip) {
-			start++;
-		}
-	}
-	while (start < count && points[start].skip) {
-		start++;
-	}
-	start %= count;
-	if (loop) {
-		end += start;
-	}
-	while (end > start && points[end % count].skip) {
-		end--;
-	}
-	end %= count;
-	return {start, end};
-}
-function solidSegments(points, start, max, loop) {
-	const count = points.length;
-	const result = [];
-	let last = start;
-	let prev = points[start];
-	let end;
-	for (end = start + 1; end <= max; ++end) {
-		const cur = points[end % count];
-		if (cur.skip || cur.stop) {
-			if (!prev.skip) {
-				loop = false;
-				result.push({start: start % count, end: (end - 1) % count, loop});
-				start = last = cur.stop ? end : null;
-			}
-		} else {
-			last = end;
-			if (prev.skip) {
-				start = end;
-			}
-		}
-		prev = cur;
-	}
-	if (last !== null) {
-		result.push({start: start % count, end: last % count, loop});
-	}
-	return result;
-}
-function _computeSegments(line) {
-	const points = line.points;
-	const spanGaps = line.options.spanGaps;
-	const count = points.length;
-	if (!count) {
-		return [];
-	}
-	const loop = !!line._loop;
-	const {start, end} = findStartAndEnd(points, count, loop, spanGaps);
-	if (spanGaps === true) {
-		return [{start, end, loop}];
-	}
-	const max = end < start ? end + count : end;
-	const completeLoop = !!line._fullLoop && start === 0 && end === count - 1;
-	return solidSegments(points, start, max, completeLoop);
-}
-
-var helpers = /*#__PURE__*/Object.freeze({
-__proto__: null,
-easingEffects: effects,
-color: color,
-getHoverColor: getHoverColor,
-requestAnimFrame: requestAnimFrame,
-fontString: fontString,
-noop: noop,
-uid: uid,
-isNullOrUndef: isNullOrUndef,
-isArray: isArray,
-isObject: isObject,
-isFinite: isNumberFinite,
-finiteOrDefault: finiteOrDefault,
-valueOrDefault: valueOrDefault,
-callback: callback,
-each: each,
-_elementsEqual: _elementsEqual,
-clone: clone,
-_merger: _merger,
-merge: merge,
-mergeIf: mergeIf,
-_mergerIf: _mergerIf,
-_deprecated: _deprecated,
-resolveObjectKey: resolveObjectKey,
-_capitalize: _capitalize,
-toFontString: toFontString,
-_measureText: _measureText,
-_longestText: _longestText,
-_alignPixel: _alignPixel,
-clear: clear,
-drawPoint: drawPoint,
-_isPointInArea: _isPointInArea,
-clipArea: clipArea,
-unclipArea: unclipArea,
-_steppedLineTo: _steppedLineTo,
-_bezierCurveTo: _bezierCurveTo,
-_lookup: _lookup,
-_lookupByKey: _lookupByKey,
-_rlookupByKey: _rlookupByKey,
-_filterBetween: _filterBetween,
-listenArrayEvents: listenArrayEvents,
-unlistenArrayEvents: unlistenArrayEvents,
-_arrayUnique: _arrayUnique,
-splineCurve: splineCurve,
-splineCurveMonotone: splineCurveMonotone,
-_updateBezierControlPoints: _updateBezierControlPoints,
-_getParentNode: _getParentNode,
-getStyle: getStyle,
-getRelativePosition: getRelativePosition,
-getMaximumSize: getMaximumSize,
-retinaScale: retinaScale,
-supportsEventListenerOptions: supportsEventListenerOptions,
-readUsedSize: readUsedSize,
-_pointInLine: _pointInLine,
-_steppedInterpolation: _steppedInterpolation,
-_bezierInterpolation: _bezierInterpolation,
-toLineHeight: toLineHeight,
-toTRBL: toTRBL,
-toTRBLCorners: toTRBLCorners,
-toPadding: toPadding,
-toFont: toFont,
-resolve: resolve,
-PI: PI,
-TAU: TAU,
-PITAU: PITAU,
-INFINITY: INFINITY,
-RAD_PER_DEG: RAD_PER_DEG,
-HALF_PI: HALF_PI,
-QUARTER_PI: QUARTER_PI,
-TWO_THIRDS_PI: TWO_THIRDS_PI,
-_factorize: _factorize,
-log10: log10,
-isNumber: isNumber,
-almostEquals: almostEquals,
-almostWhole: almostWhole,
-_setMinAndMaxByKey: _setMinAndMaxByKey,
-sign: sign,
-toRadians: toRadians,
-toDegrees: toDegrees,
-_decimalPlaces: _decimalPlaces,
-getAngleFromPoint: getAngleFromPoint,
-distanceBetweenPoints: distanceBetweenPoints,
-_angleDiff: _angleDiff,
-_normalizeAngle: _normalizeAngle,
-_angleBetween: _angleBetween,
-_limitValue: _limitValue,
-_int16Range: _int16Range,
-getRtlAdapter: getRtlAdapter,
-overrideTextDirection: overrideTextDirection,
-restoreTextDirection: restoreTextDirection,
-_boundSegment: _boundSegment,
-_boundSegments: _boundSegments,
-_computeSegments: _computeSegments
-});
 
 function abstract() {
 	throw new Error('This method is not implemented: either no adapter can be found or an incomplete integration was provided.');
