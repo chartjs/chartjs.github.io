@@ -6316,7 +6316,7 @@ class Chart {
 				hidden: null,
 				xAxisID: null,
 				yAxisID: null,
-				order: dataset.order || 0,
+				order: dataset && dataset.order || 0,
 				index: datasetIndex,
 				_dataset: dataset,
 				_parsed: [],
@@ -6374,7 +6374,7 @@ class Chart {
 	_destroyDatasetMeta(datasetIndex) {
 		const me = this;
 		const meta = me._metasets && me._metasets[datasetIndex];
-		if (meta) {
+		if (meta && meta.controller) {
 			meta.controller._destroy();
 			delete me._metasets[datasetIndex];
 		}
@@ -6469,8 +6469,9 @@ class Chart {
 		}
 		for (i = 0, ilen = items.length; i < ilen; ++i) {
 			item = items[i];
-			if (item) {
-				this.getDatasetMeta(item.datasetIndex).controller[prefix + 'HoverStyle'](item.element, item.datasetIndex, item.index);
+			const controller = item && this.getDatasetMeta(item.datasetIndex).controller;
+			if (controller) {
+				controller[prefix + 'HoverStyle'](item.element, item.datasetIndex, item.index);
 			}
 		}
 	}
