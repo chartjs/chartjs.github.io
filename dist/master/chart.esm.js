@@ -5668,11 +5668,14 @@ class Chart {
 		const me = this;
 		const options = me.options || {};
 		const hoverOptions = options.hover;
-		if (lastActive.length) {
-			me.updateHoverStyle(lastActive, hoverOptions.mode, false);
+		const diff = (a, b) => a.filter(x => !b.some(y => x.datasetIndex === y.datasetIndex && x.index === y.index));
+		const deactivated = diff(lastActive, active);
+		const activated = diff(active, lastActive);
+		if (deactivated.length) {
+			me.updateHoverStyle(deactivated, hoverOptions.mode, false);
 		}
-		if (active.length && hoverOptions.mode) {
-			me.updateHoverStyle(active, hoverOptions.mode, true);
+		if (activated.length && hoverOptions.mode) {
+			me.updateHoverStyle(activated, hoverOptions.mode, true);
 		}
 	}
 	_eventHandler(e, replay) {
