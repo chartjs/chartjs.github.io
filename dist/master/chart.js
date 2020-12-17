@@ -2617,6 +2617,7 @@ class Animation {
 	update(cfg, to, date) {
 		const me = this;
 		if (me._active) {
+			me._notify(false);
 			const currentValue = me._target[me._prop];
 			const elapsed = date - me._start;
 			const remain = me._duration - elapsed;
@@ -2778,6 +2779,7 @@ class Animations {
 		if (newOptions.$shared && !options.$shared) {
 			awaitAll(target.options.$animations, newOptions).then(() => {
 				target.options = newOptions;
+			}, () => {
 			});
 		}
 		return animations;
