@@ -1353,7 +1353,7 @@ function updateDims(chartArea, params, layout) {
 	if (layout.size) {
 		chartArea[layout.pos] -= layout.size;
 	}
-	layout.size = layout.horizontal ? box.height : box.width;
+	layout.size = layout.horizontal ? Math.min(layout.height, box.height) : Math.min(layout.width, box.width);
 	chartArea[layout.pos] += layout.size;
 	if (box.getPadding) {
 		const boxPadding = box.getPadding();
@@ -1362,8 +1362,8 @@ function updateDims(chartArea, params, layout) {
 		maxPadding.bottom = Math.max(maxPadding.bottom, boxPadding.bottom);
 		maxPadding.right = Math.max(maxPadding.right, boxPadding.right);
 	}
-	const newWidth = params.outerWidth - getCombinedMax(maxPadding, chartArea, 'left', 'right');
-	const newHeight = params.outerHeight - getCombinedMax(maxPadding, chartArea, 'top', 'bottom');
+	const newWidth = Math.max(0, params.outerWidth - getCombinedMax(maxPadding, chartArea, 'left', 'right'));
+	const newHeight = Math.max(0, params.outerHeight - getCombinedMax(maxPadding, chartArea, 'top', 'bottom'));
 	if (newWidth !== chartArea.w || newHeight !== chartArea.h) {
 		chartArea.w = newWidth;
 		chartArea.h = newHeight;
@@ -6173,8 +6173,13 @@ class Chart {
 			return;
 		}
 		layouts.update(me, me.width, me.height);
+		const area = me.chartArea;
+		const noArea = area.width <= 0 || area.height <= 0;
 		me._layers = [];
 		each(me.boxes, (box) => {
+			if (noArea && box.position === 'chartArea') {
+				return;
+			}
 			if (box.configure) {
 				box.configure();
 			}
@@ -9152,8 +9157,8 @@ class Legend extends Element {
 			height = me.maxHeight;
 			width = me._fitCols(titleHeight, fontSize, boxWidth, itemHeight) + 10;
 		}
-		me.width = Math.min(width, options.maxWidth || INFINITY);
-		me.height = Math.min(height, options.maxHeight || INFINITY);
+		me.width = Math.min(width, options.maxWidth || me.maxWidth);
+		me.height = Math.min(height, options.maxHeight || me.maxHeight);
 	}
 	_fitRows(titleHeight, fontSize, boxWidth, itemHeight) {
 		const me = this;
@@ -9204,8 +9209,12 @@ class Legend extends Element {
 		return this.options.position === 'top' || this.options.position === 'bottom';
 	}
 	draw() {
-		if (this.options.display) {
-			this._draw();
+		const me = this;
+		if (me.options.display) {
+			const ctx = me.ctx;
+			clipArea(ctx, me);
+			me._draw();
+			unclipArea(ctx);
 		}
 	}
 	_draw() {

@@ -4,7 +4,7 @@
  * (c) 2020 Chart.js Contributors
  * Released under the MIT License
  */
-import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, d as defaults, n as noop, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, m as merge, b as isArray, f as resolveObjectKey, g as getHoverColor, _ as _capitalize, h as mergeIf, s as sign, j as _merger, k as isNullOrUndef, o as clipArea, p as unclipArea, q as _arrayUnique, t as toRadians, T as TAU, H as HALF_PI, P as PI, w as isNumber, x as _limitValue, y as _lookupByKey, z as getRelativePosition$1, A as _isPointInArea, B as _rlookupByKey, C as toPadding, D as each, E as getMaximumSize, F as _getParentNode, G as readUsedSize, I as throttled, J as supportsEventListenerOptions, K as log10, L as finiteOrDefault, M as isNumberFinite, N as callback, O as toDegrees, Q as _measureText, R as _int16Range, S as _alignPixel, U as toFont, V as _factorize, W as uid, X as retinaScale, Y as clear, Z as _elementsEqual, $ as getAngleFromPoint, a0 as _angleBetween, a1 as _updateBezierControlPoints, a2 as _computeSegments, a3 as _boundSegments, a4 as _steppedInterpolation, a5 as _bezierInterpolation, a6 as _pointInLine, a7 as _steppedLineTo, a8 as _bezierCurveTo, a9 as drawPoint, aa as toTRBL, ab as toTRBLCorners, ac as _normalizeAngle, ad as _boundSegment, ae as INFINITY, af as getRtlAdapter, ag as _alignStartEnd, ah as overrideTextDirection, ai as restoreTextDirection, aj as _toLeftRightCenter, ak as distanceBetweenPoints, al as _setMinAndMaxByKey, am as _decimalPlaces, an as almostEquals, ao as almostWhole, ap as _longestText, aq as _filterBetween, ar as _lookup } from './chunks/helpers.segment.js';
+import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, d as defaults, n as noop, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, m as merge, b as isArray, f as resolveObjectKey, g as getHoverColor, _ as _capitalize, h as mergeIf, s as sign, j as _merger, k as isNullOrUndef, o as clipArea, p as unclipArea, q as _arrayUnique, t as toRadians, T as TAU, H as HALF_PI, P as PI, w as isNumber, x as _limitValue, y as _lookupByKey, z as getRelativePosition$1, A as _isPointInArea, B as _rlookupByKey, C as toPadding, D as each, E as getMaximumSize, F as _getParentNode, G as readUsedSize, I as throttled, J as supportsEventListenerOptions, K as log10, L as finiteOrDefault, M as isNumberFinite, N as callback, O as toDegrees, Q as _measureText, R as _int16Range, S as _alignPixel, U as toFont, V as _factorize, W as uid, X as retinaScale, Y as clear, Z as _elementsEqual, $ as getAngleFromPoint, a0 as _angleBetween, a1 as _updateBezierControlPoints, a2 as _computeSegments, a3 as _boundSegments, a4 as _steppedInterpolation, a5 as _bezierInterpolation, a6 as _pointInLine, a7 as _steppedLineTo, a8 as _bezierCurveTo, a9 as drawPoint, aa as toTRBL, ab as toTRBLCorners, ac as _normalizeAngle, ad as _boundSegment, ae as getRtlAdapter, af as _alignStartEnd, ag as overrideTextDirection, ah as restoreTextDirection, ai as _toLeftRightCenter, aj as distanceBetweenPoints, ak as _setMinAndMaxByKey, al as _decimalPlaces, am as almostEquals, an as almostWhole, ao as _longestText, ap as _filterBetween, aq as _lookup } from './chunks/helpers.segment.js';
 export { d as defaults } from './chunks/helpers.segment.js';
 
 function drawFPS(chart, count, date, lastDate) {
@@ -2800,7 +2800,7 @@ function updateDims(chartArea, params, layout) {
 	if (layout.size) {
 		chartArea[layout.pos] -= layout.size;
 	}
-	layout.size = layout.horizontal ? box.height : box.width;
+	layout.size = layout.horizontal ? Math.min(layout.height, box.height) : Math.min(layout.width, box.width);
 	chartArea[layout.pos] += layout.size;
 	if (box.getPadding) {
 		const boxPadding = box.getPadding();
@@ -2809,8 +2809,8 @@ function updateDims(chartArea, params, layout) {
 		maxPadding.bottom = Math.max(maxPadding.bottom, boxPadding.bottom);
 		maxPadding.right = Math.max(maxPadding.right, boxPadding.right);
 	}
-	const newWidth = params.outerWidth - getCombinedMax(maxPadding, chartArea, 'left', 'right');
-	const newHeight = params.outerHeight - getCombinedMax(maxPadding, chartArea, 'top', 'bottom');
+	const newWidth = Math.max(0, params.outerWidth - getCombinedMax(maxPadding, chartArea, 'left', 'right'));
+	const newHeight = Math.max(0, params.outerHeight - getCombinedMax(maxPadding, chartArea, 'top', 'bottom'));
 	if (newWidth !== chartArea.w || newHeight !== chartArea.h) {
 		chartArea.w = newWidth;
 		chartArea.h = newHeight;
@@ -5334,8 +5334,13 @@ class Chart {
 			return;
 		}
 		layouts.update(me, me.width, me.height);
+		const area = me.chartArea;
+		const noArea = area.width <= 0 || area.height <= 0;
 		me._layers = [];
 		each(me.boxes, (box) => {
+			if (noArea && box.position === 'chartArea') {
+				return;
+			}
 			if (box.configure) {
 				box.configure();
 			}
@@ -6939,8 +6944,8 @@ class Legend extends Element {
 			height = me.maxHeight;
 			width = me._fitCols(titleHeight, fontSize, boxWidth, itemHeight) + 10;
 		}
-		me.width = Math.min(width, options.maxWidth || INFINITY);
-		me.height = Math.min(height, options.maxHeight || INFINITY);
+		me.width = Math.min(width, options.maxWidth || me.maxWidth);
+		me.height = Math.min(height, options.maxHeight || me.maxHeight);
 	}
 	_fitRows(titleHeight, fontSize, boxWidth, itemHeight) {
 		const me = this;
@@ -6991,8 +6996,12 @@ class Legend extends Element {
 		return this.options.position === 'top' || this.options.position === 'bottom';
 	}
 	draw() {
-		if (this.options.display) {
-			this._draw();
+		const me = this;
+		if (me.options.display) {
+			const ctx = me.ctx;
+			clipArea(ctx, me);
+			me._draw();
+			unclipArea(ctx);
 		}
 	}
 	_draw() {
