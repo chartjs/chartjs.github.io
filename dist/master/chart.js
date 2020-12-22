@@ -4618,6 +4618,7 @@ class Scale extends Element {
 			lineHeight = font.lineHeight;
 			lineCount = isArray(label) ? label.length : 1;
 			const halfCount = lineCount / 2;
+			const color = resolve([optionTicks.color], me.getContext(i), i);
 			if (isHorizontal) {
 				x = pixel;
 				if (position === 'top') {
@@ -4651,7 +4652,7 @@ class Scale extends Element {
 				rotation,
 				label,
 				font,
-				color: optionTicks.color,
+				color,
 				textOffset,
 				textAlign,
 				textBaseline,
