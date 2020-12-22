@@ -3705,7 +3705,7 @@ defaults.set('scale', {
 		drawBorder: true,
 		drawOnChartArea: true,
 		drawTicks: true,
-		tickMarkLength: 10,
+		tickLength: 10,
 		offsetGridLines: false,
 		borderDash: [],
 		borderDashOffset: 0.0
@@ -3786,7 +3786,7 @@ function garbageCollect(caches, length) {
 	});
 }
 function getTickMarkLength(options) {
-	return options.drawTicks ? options.tickMarkLength : 0;
+	return options.drawTicks ? options.tickLength : 0;
 }
 function getScaleLabelHeight(options, fallback) {
 	if (!options.display) {
@@ -4518,6 +4518,10 @@ class Scale extends Element {
 			const lineColor = resolve([gridLines.color], context, i);
 			const borderDash = gridLines.borderDash || [];
 			const borderDashOffset = resolve([gridLines.borderDashOffset], context, i);
+			const tickWidth = resolve([gridLines.tickWidth, lineWidth], context, i);
+			const tickColor = resolve([gridLines.tickColor, lineColor], context, i);
+			const tickBorderDash = gridLines.tickBorderDash || borderDash;
+			const tickBorderDashOffset = resolve([gridLines.tickBorderDashOffset, borderDashOffset], context, i);
 			lineValue = getPixelForGridLine(me, i, offsetGridLines);
 			if (lineValue === undefined) {
 				continue;
@@ -4541,6 +4545,10 @@ class Scale extends Element {
 				color: lineColor,
 				borderDash,
 				borderDashOffset,
+				tickWidth,
+				tickColor,
+				tickBorderDash,
+				tickBorderDashOffset,
 			});
 		}
 		me._ticksLength = ticksLength;
@@ -4724,9 +4732,8 @@ class Scale extends Element {
 		if (gridLines.display) {
 			for (i = 0, ilen = items.length; i < ilen; ++i) {
 				const item = items[i];
-				const width = item.width;
-				const color = item.color;
-				if (width && color) {
+				const {color, tickColor, tickWidth, width} = item;
+				if (width && color && gridLines.drawOnChartArea) {
 					ctx.save();
 					ctx.lineWidth = width;
 					ctx.strokeStyle = color;
@@ -4735,14 +4742,22 @@ class Scale extends Element {
 						ctx.lineDashOffset = item.borderDashOffset;
 					}
 					ctx.beginPath();
-					if (gridLines.drawTicks) {
-						ctx.moveTo(item.tx1, item.ty1);
-						ctx.lineTo(item.tx2, item.ty2);
+					ctx.moveTo(item.x1, item.y1);
+					ctx.lineTo(item.x2, item.y2);
+					ctx.stroke();
+					ctx.restore();
+				}
+				if (tickWidth && tickColor && gridLines.drawTicks) {
+					ctx.save();
+					ctx.lineWidth = tickWidth;
+					ctx.strokeStyle = tickColor;
+					if (ctx.setLineDash) {
+						ctx.setLineDash(item.tickBorderDash);
+						ctx.lineDashOffset = item.tickBorderDashOffset;
 					}
-					if (gridLines.drawOnChartArea) {
-						ctx.moveTo(item.x1, item.y1);
-						ctx.lineTo(item.x2, item.y2);
-					}
+					ctx.beginPath();
+					ctx.moveTo(item.tx1, item.ty1);
+					ctx.lineTo(item.tx2, item.ty2);
 					ctx.stroke();
 					ctx.restore();
 				}
