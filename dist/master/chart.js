@@ -4630,7 +4630,7 @@ class Scale extends Element {
 					} else {
 						textOffset = (-1 * labelSizes.highest.height) + (0.5 * lineHeight);
 					}
-				} else if (position === 'bottom') {
+				} else {
 					if (crossAlign === 'near' || rotation !== 0) {
 						textOffset = Math.sin(rotation) * halfCount * lineHeight;
 						textOffset += (rotation === 0 ? 0.5 : Math.cos(rotation) * halfCount) * lineHeight;
