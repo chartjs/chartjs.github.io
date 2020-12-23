@@ -5740,8 +5740,9 @@ function mergeScaleConfig(config, options) {
 		const scaleConf = configScales[id];
 		const axis = determineAxis(id, scaleConf);
 		const defaultId = getDefaultScaleIDFromAxis(axis, chartIndexAxis);
+		const defaultScaleOptions = chartDefaults.scales || {};
 		firstIDs[axis] = firstIDs[axis] || id;
-		scales[id] = mergeIf(Object.create(null), [{axis}, scaleConf, chartDefaults.scales[axis], chartDefaults.scales[defaultId]]);
+		scales[id] = mergeIf(Object.create(null), [{axis}, scaleConf, defaultScaleOptions[axis], defaultScaleOptions[defaultId]]);
 	});
 	if (options.scale) {
 		scales[options.scale.id || 'r'] = mergeIf(Object.create(null), [{axis: 'r'}, options.scale, chartDefaults.scales.r]);
@@ -5821,6 +5822,9 @@ class Config {
 	}
 	get type() {
 		return this._config.type;
+	}
+	set type(type) {
+		this._config.type = type;
 	}
 	get data() {
 		return this._config.data;
