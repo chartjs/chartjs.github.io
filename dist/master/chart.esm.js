@@ -4,7 +4,7 @@
  * (c) 2020 Chart.js Contributors
  * Released under the MIT License
  */
-import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, d as defaults, n as noop, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, m as merge, b as isArray, f as resolveObjectKey, g as getHoverColor, _ as _capitalize, h as mergeIf, s as sign, j as _merger, k as isNullOrUndef, o as clipArea, p as unclipArea, q as _arrayUnique, t as toRadians, T as TAU, H as HALF_PI, P as PI, w as isNumber, x as _limitValue, y as _lookupByKey, z as getRelativePosition$1, A as _isPointInArea, B as _rlookupByKey, C as toPadding, D as each, E as getMaximumSize, F as _getParentNode, G as readUsedSize, I as throttled, J as supportsEventListenerOptions, K as log10, L as finiteOrDefault, M as isNumberFinite, N as callback, O as toDegrees, Q as _measureText, R as _int16Range, S as _alignPixel, U as toFont, V as _factorize, W as uid, X as retinaScale, Y as clear, Z as _elementsEqual, $ as getAngleFromPoint, a0 as _angleBetween, a1 as _updateBezierControlPoints, a2 as _computeSegments, a3 as _boundSegments, a4 as _steppedInterpolation, a5 as _bezierInterpolation, a6 as _pointInLine, a7 as _steppedLineTo, a8 as _bezierCurveTo, a9 as drawPoint, aa as toTRBL, ab as toTRBLCorners, ac as _normalizeAngle, ad as _boundSegment, ae as getRtlAdapter, af as _alignStartEnd, ag as overrideTextDirection, ah as restoreTextDirection, ai as _toLeftRightCenter, aj as distanceBetweenPoints, ak as _setMinAndMaxByKey, al as _decimalPlaces, am as almostEquals, an as almostWhole, ao as _longestText, ap as _filterBetween, aq as _lookup } from './chunks/helpers.segment.js';
+import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, d as defaults, n as noop, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, m as merge, b as isArray, f as resolveObjectKey, g as getHoverColor, _ as _capitalize, h as mergeIf, s as sign, j as _merger, k as isNullOrUndef, o as clipArea, p as unclipArea, q as _arrayUnique, t as toRadians, T as TAU, H as HALF_PI, P as PI, w as isNumber, x as _limitValue, y as _lookupByKey, z as getRelativePosition$1, A as _isPointInArea, B as _rlookupByKey, C as toPadding, D as each, E as getMaximumSize, F as _getParentNode, G as readUsedSize, I as throttled, J as supportsEventListenerOptions, K as log10, L as finiteOrDefault, M as isNumberFinite, N as callback, O as toDegrees, Q as _measureText, R as _int16Range, S as _alignPixel, U as renderText, V as toFont, W as _factorize, X as uid, Y as retinaScale, Z as clear, $ as _elementsEqual, a0 as getAngleFromPoint, a1 as _angleBetween, a2 as _updateBezierControlPoints, a3 as _computeSegments, a4 as _boundSegments, a5 as _steppedInterpolation, a6 as _bezierInterpolation, a7 as _pointInLine, a8 as _steppedLineTo, a9 as _bezierCurveTo, aa as drawPoint, ab as toTRBL, ac as toTRBLCorners, ad as _normalizeAngle, ae as _boundSegment, af as getRtlAdapter, ag as _alignStartEnd, ah as overrideTextDirection, ai as restoreTextDirection, aj as _toLeftRightCenter, ak as distanceBetweenPoints, al as _setMinAndMaxByKey, am as _decimalPlaces, an as almostEquals, ao as almostWhole, ap as _longestText, aq as _filterBetween, ar as _lookup } from './chunks/helpers.segment.js';
 export { d as defaults } from './chunks/helpers.segment.js';
 
 function drawFPS(chart, count, date, lastDate) {
@@ -4265,6 +4265,8 @@ class Scale extends Element {
 			lineCount = isArray(label) ? label.length : 1;
 			const halfCount = lineCount / 2;
 			const color = resolve([optionTicks.color], me.getContext(i), i);
+			const strokeColor = resolve([optionTicks.textStrokeColor], me.getContext(i), i);
+			const strokeWidth = resolve([optionTicks.textStrokeWidth], me.getContext(i), i);
 			if (isHorizontal) {
 				x = pixel;
 				if (position === 'top') {
@@ -4293,15 +4295,16 @@ class Scale extends Element {
 				textOffset = (1 - lineCount) * lineHeight / 2;
 			}
 			items.push({
-				x,
-				y,
 				rotation,
 				label,
 				font,
 				color,
+				strokeColor,
+				strokeWidth,
 				textOffset,
 				textAlign,
 				textBaseline,
+				translation: [x, y]
 			});
 		}
 		return items;
@@ -4441,39 +4444,13 @@ class Scale extends Element {
 		}
 		const ctx = me.ctx;
 		const items = me._labelItems || (me._labelItems = me._computeLabelItems(chartArea));
-		let i, j, ilen, jlen;
+		let i, ilen;
 		for (i = 0, ilen = items.length; i < ilen; ++i) {
 			const item = items[i];
 			const tickFont = item.font;
-			const useStroke = optionTicks.textStrokeWidth > 0 && optionTicks.textStrokeColor !== '';
-			ctx.save();
-			ctx.translate(item.x, item.y);
-			ctx.rotate(item.rotation);
-			ctx.font = tickFont.string;
-			ctx.fillStyle = item.color;
-			ctx.textAlign = item.textAlign;
-			ctx.textBaseline = item.textBaseline;
-			if (useStroke) {
-				ctx.strokeStyle = optionTicks.textStrokeColor;
-				ctx.lineWidth = optionTicks.textStrokeWidth;
-			}
 			const label = item.label;
 			let y = item.textOffset;
-			if (isArray(label)) {
-				for (j = 0, jlen = label.length; j < jlen; ++j) {
-					if (useStroke) {
-						ctx.strokeText('' + label[j], 0, y);
-					}
-					ctx.fillText('' + label[j], 0, y);
-					y += tickFont.lineHeight;
-				}
-			} else {
-				if (useStroke) {
-					ctx.strokeText(label, 0, y);
-				}
-				ctx.fillText(label, 0, y);
-			}
-			ctx.restore();
+			renderText(ctx, label, 0, y, tickFont, item);
 		}
 	}
 	drawTitle(chartArea) {
@@ -4530,15 +4507,13 @@ class Scale extends Element {
 			}
 			rotation = isLeft ? -HALF_PI : HALF_PI;
 		}
-		ctx.save();
-		ctx.translate(scaleLabelX, scaleLabelY);
-		ctx.rotate(rotation);
-		ctx.textAlign = textAlign;
-		ctx.textBaseline = 'middle';
-		ctx.fillStyle = scaleLabel.color;
-		ctx.font = scaleLabelFont.string;
-		ctx.fillText(scaleLabel.labelString, 0, 0);
-		ctx.restore();
+		renderText(ctx, scaleLabel.labelString, 0, 0, scaleLabelFont, {
+			color: scaleLabel.color,
+			rotation,
+			textAlign,
+			textBaseline: 'middle',
+			translation: [scaleLabelX, scaleLabelY],
+		});
 	}
 	draw(chartArea) {
 		const me = this;
@@ -7074,18 +7049,10 @@ class Legend extends Element {
 			}
 			ctx.restore();
 		};
-		const fillText = function(x, y, legendItem, textWidth) {
+		const fillText = function(x, y, legendItem) {
 			const halfFontSize = fontSize / 2;
 			const xLeft = rtlHelper.xPlus(x, boxWidth + halfFontSize);
-			const yMiddle = y + (itemHeight / 2);
-			ctx.fillText(legendItem.text, xLeft, yMiddle);
-			if (legendItem.hidden) {
-				ctx.beginPath();
-				ctx.lineWidth = 2;
-				ctx.moveTo(xLeft, yMiddle);
-				ctx.lineTo(rtlHelper.xPlus(xLeft, textWidth), yMiddle);
-				ctx.stroke();
-			}
+			renderText(ctx, legendItem.text, xLeft, y + (itemHeight / 2), labelFont, {strikethrough: legendItem.hidden});
 		};
 		const isHorizontal = me.isHorizontal();
 		const titleHeight = this._computeTitleHeight();
@@ -7125,7 +7092,7 @@ class Legend extends Element {
 			drawLegendBox(realX, y, legendItem);
 			legendHitBoxes[i].left = rtlHelper.leftForLtr(realX, legendHitBoxes[i].width);
 			legendHitBoxes[i].top = y;
-			fillText(realX, y, legendItem, textWidth);
+			fillText(realX, y, legendItem);
 			if (isHorizontal) {
 				cursor.x += width + padding;
 			} else {
@@ -7165,7 +7132,7 @@ class Legend extends Element {
 		ctx.strokeStyle = titleOpts.color;
 		ctx.fillStyle = titleOpts.color;
 		ctx.font = titleFont.string;
-		ctx.fillText(titleOpts.text, x, y);
+		renderText(ctx, titleOpts.text, x, y, titleFont);
 	}
 	_computeTitleHeight() {
 		const titleOpts = this.options.title;
@@ -7375,24 +7342,14 @@ class Title extends Element {
 		const lineHeight = fontOpts.lineHeight;
 		const offset = lineHeight / 2 + me._padding.top;
 		const {titleX, titleY, maxWidth, rotation} = me._drawArgs(offset);
-		ctx.save();
-		ctx.fillStyle = opts.color;
-		ctx.font = fontOpts.string;
-		ctx.translate(titleX, titleY);
-		ctx.rotate(rotation);
-		ctx.textAlign = _toLeftRightCenter(opts.align);
-		ctx.textBaseline = 'middle';
-		const text = opts.text;
-		if (isArray(text)) {
-			let y = 0;
-			for (let i = 0; i < text.length; ++i) {
-				ctx.fillText(text[i], 0, y, maxWidth);
-				y += lineHeight;
-			}
-		} else {
-			ctx.fillText(text, 0, 0, maxWidth);
-		}
-		ctx.restore();
+		renderText(ctx, opts.text, 0, 0, fontOpts, {
+			color: opts.color,
+			maxWidth,
+			rotation,
+			textAlign: _toLeftRightCenter(opts.align),
+			textBaseline: 'middle',
+			translation: [titleX, titleY],
+		});
 	}
 }
 function createTitle(chart, titleOpts) {
@@ -8848,18 +8805,6 @@ function getTextAlignForAngle(angle) {
 	}
 	return 'right';
 }
-function fillText(ctx, text, position, lineHeight) {
-	let y = position.y + lineHeight / 2;
-	let i, ilen;
-	if (isArray(text)) {
-		for (i = 0, ilen = text.length; i < ilen; ++i) {
-			ctx.fillText(text[i], position.x, y);
-			y += lineHeight;
-		}
-	} else {
-		ctx.fillText(text, position.x, y);
-	}
-}
 function adjustPointPositionForLabelHeight(angle, textSize, position) {
 	if (angle === 90 || angle === 270) {
 		position.y -= (textSize.h / 2);
@@ -8880,12 +8825,19 @@ function drawPointLabels(scale) {
 		const pointLabelPosition = scale.getPointPosition(i, outerDistance + extra + 5);
 		const context = scale.getContext(i);
 		const plFont = toFont(resolve([pointLabelOpts.font], context, i), scale.chart.options.font);
-		ctx.font = plFont.string;
-		ctx.fillStyle = resolve([pointLabelOpts.color], context, i);
 		const angle = toDegrees(scale.getIndexAngle(i));
-		ctx.textAlign = getTextAlignForAngle(angle);
 		adjustPointPositionForLabelHeight(angle, scale._pointLabelSizes[i], pointLabelPosition);
-		fillText(ctx, scale.pointLabels[i], pointLabelPosition, plFont.lineHeight);
+		renderText(
+			ctx,
+			scale.pointLabels[i],
+			pointLabelPosition.x,
+			pointLabelPosition.y + (plFont.lineHeight / 2),
+			plFont,
+			{
+				color: resolve([pointLabelOpts.color], context, i),
+				textAlign: getTextAlignForAngle(angle),
+			}
+		);
 	}
 	ctx.restore();
 }
@@ -9102,7 +9054,6 @@ class RadialLinearScale extends LinearScaleBase {
 			}
 			const context = me.getContext(index);
 			const tickFont = me._resolveTickFontOptions(index);
-			ctx.font = tickFont.string;
 			offset = me.getDistanceFromCenterForValue(me.ticks[index].value);
 			const showLabelBackdrop = resolve([tickOpts.showLabelBackdrop], context, index);
 			if (showLabelBackdrop) {
@@ -9115,8 +9066,9 @@ class RadialLinearScale extends LinearScaleBase {
 					tickFont.size + tickOpts.backdropPaddingY * 2
 				);
 			}
-			ctx.fillStyle = tickOpts.color;
-			ctx.fillText(tick.label, 0, -offset);
+			renderText(ctx, tick.label, 0, -offset, tickFont, {
+				color: tickOpts.color,
+			});
 		});
 		ctx.restore();
 	}

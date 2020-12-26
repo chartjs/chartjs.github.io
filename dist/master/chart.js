@@ -757,6 +757,57 @@ function _bezierCurveTo(ctx, previous, target, flip) {
 		target.x,
 		target.y);
 }
+function renderText(ctx, text, x, y, font, opts = {}) {
+	const lines = isArray(text) ? text : [text];
+	const stroke = opts.strokeWidth > 0 && opts.strokeColor !== '';
+	let i, line;
+	ctx.save();
+	if (opts.translation) {
+		ctx.translate(opts.translation[0], opts.translation[1]);
+	}
+	if (!isNullOrUndef(opts.rotation)) {
+		ctx.rotate(opts.rotation);
+	}
+	ctx.font = font.fontString;
+	if (opts.color) {
+		ctx.fillStyle = opts.color;
+	}
+	if (opts.textAlign) {
+		ctx.textAlign = opts.textAlign;
+	}
+	if (opts.textBaseline) {
+		ctx.textBaseline = opts.textBaseline;
+	}
+	for (i = 0; i < lines.length; ++i) {
+		line = lines[i];
+		if (stroke) {
+			if (opts.strokeColor) {
+				ctx.strokeStyle = opts.strokeColor;
+			}
+			if (!isNullOrUndef(opts.strokeWidth)) {
+				ctx.lineWidth = opts.strokeWidth;
+			}
+			ctx.strokeText(line, x, y, opts.maxWidth);
+		}
+		ctx.fillText(line, x, y, opts.maxWidth);
+		if (opts.strikethrough || opts.underline) {
+			const metrics = ctx.measureText(line);
+			const left = x - metrics.actualBoundingBoxLeft;
+			const right = x + metrics.actualBoundingBoxRight;
+			const top = y - metrics.actualBoundingBoxAscent;
+			const bottom = y + metrics.actualBoundingBoxDescent;
+			const yDecoration = opts.strikethrough ? (top + bottom) / 2 : bottom;
+			ctx.strokeStyle = ctx.fillStyle;
+			ctx.beginPath();
+			ctx.lineWidth = opts.decorationWidth || 2;
+			ctx.moveTo(left, yDecoration);
+			ctx.lineTo(right, yDecoration);
+			ctx.stroke();
+		}
+		y += font.lineHeight;
+	}
+	ctx.restore();
+}
 
 function _lookup(table, value, cmp) {
 	cmp = cmp || ((index) => table[index] < value);
@@ -4619,6 +4670,8 @@ class Scale extends Element {
 			lineCount = isArray(label) ? label.length : 1;
 			const halfCount = lineCount / 2;
 			const color = resolve([optionTicks.color], me.getContext(i), i);
+			const strokeColor = resolve([optionTicks.textStrokeColor], me.getContext(i), i);
+			const strokeWidth = resolve([optionTicks.textStrokeWidth], me.getContext(i), i);
 			if (isHorizontal) {
 				x = pixel;
 				if (position === 'top') {
@@ -4647,15 +4700,16 @@ class Scale extends Element {
 				textOffset = (1 - lineCount) * lineHeight / 2;
 			}
 			items.push({
-				x,
-				y,
 				rotation,
 				label,
 				font,
 				color,
+				strokeColor,
+				strokeWidth,
 				textOffset,
 				textAlign,
 				textBaseline,
+				translation: [x, y]
 			});
 		}
 		return items;
@@ -4795,39 +4849,13 @@ class Scale extends Element {
 		}
 		const ctx = me.ctx;
 		const items = me._labelItems || (me._labelItems = me._computeLabelItems(chartArea));
-		let i, j, ilen, jlen;
+		let i, ilen;
 		for (i = 0, ilen = items.length; i < ilen; ++i) {
 			const item = items[i];
 			const tickFont = item.font;
-			const useStroke = optionTicks.textStrokeWidth > 0 && optionTicks.textStrokeColor !== '';
-			ctx.save();
-			ctx.translate(item.x, item.y);
-			ctx.rotate(item.rotation);
-			ctx.font = tickFont.string;
-			ctx.fillStyle = item.color;
-			ctx.textAlign = item.textAlign;
-			ctx.textBaseline = item.textBaseline;
-			if (useStroke) {
-				ctx.strokeStyle = optionTicks.textStrokeColor;
-				ctx.lineWidth = optionTicks.textStrokeWidth;
-			}
 			const label = item.label;
 			let y = item.textOffset;
-			if (isArray(label)) {
-				for (j = 0, jlen = label.length; j < jlen; ++j) {
-					if (useStroke) {
-						ctx.strokeText('' + label[j], 0, y);
-					}
-					ctx.fillText('' + label[j], 0, y);
-					y += tickFont.lineHeight;
-				}
-			} else {
-				if (useStroke) {
-					ctx.strokeText(label, 0, y);
-				}
-				ctx.fillText(label, 0, y);
-			}
-			ctx.restore();
+			renderText(ctx, label, 0, y, tickFont, item);
 		}
 	}
 	drawTitle(chartArea) {
@@ -4884,15 +4912,13 @@ class Scale extends Element {
 			}
 			rotation = isLeft ? -HALF_PI : HALF_PI;
 		}
-		ctx.save();
-		ctx.translate(scaleLabelX, scaleLabelY);
-		ctx.rotate(rotation);
-		ctx.textAlign = textAlign;
-		ctx.textBaseline = 'middle';
-		ctx.fillStyle = scaleLabel.color;
-		ctx.font = scaleLabelFont.string;
-		ctx.fillText(scaleLabel.labelString, 0, 0);
-		ctx.restore();
+		renderText(ctx, scaleLabel.labelString, 0, 0, scaleLabelFont, {
+			color: scaleLabel.color,
+			rotation,
+			textAlign,
+			textBaseline: 'middle',
+			translation: [scaleLabelX, scaleLabelY],
+		});
 	}
 	draw(chartArea) {
 		const me = this;
@@ -5539,6 +5565,7 @@ clipArea: clipArea,
 unclipArea: unclipArea,
 _steppedLineTo: _steppedLineTo,
 _bezierCurveTo: _bezierCurveTo,
+renderText: renderText,
 _lookup: _lookup,
 _lookupByKey: _lookupByKey,
 _rlookupByKey: _rlookupByKey,
@@ -9287,18 +9314,10 @@ class Legend extends Element {
 			}
 			ctx.restore();
 		};
-		const fillText = function(x, y, legendItem, textWidth) {
+		const fillText = function(x, y, legendItem) {
 			const halfFontSize = fontSize / 2;
 			const xLeft = rtlHelper.xPlus(x, boxWidth + halfFontSize);
-			const yMiddle = y + (itemHeight / 2);
-			ctx.fillText(legendItem.text, xLeft, yMiddle);
-			if (legendItem.hidden) {
-				ctx.beginPath();
-				ctx.lineWidth = 2;
-				ctx.moveTo(xLeft, yMiddle);
-				ctx.lineTo(rtlHelper.xPlus(xLeft, textWidth), yMiddle);
-				ctx.stroke();
-			}
+			renderText(ctx, legendItem.text, xLeft, y + (itemHeight / 2), labelFont, {strikethrough: legendItem.hidden});
 		};
 		const isHorizontal = me.isHorizontal();
 		const titleHeight = this._computeTitleHeight();
@@ -9338,7 +9357,7 @@ class Legend extends Element {
 			drawLegendBox(realX, y, legendItem);
 			legendHitBoxes[i].left = rtlHelper.leftForLtr(realX, legendHitBoxes[i].width);
 			legendHitBoxes[i].top = y;
-			fillText(realX, y, legendItem, textWidth);
+			fillText(realX, y, legendItem);
 			if (isHorizontal) {
 				cursor.x += width + padding;
 			} else {
@@ -9378,7 +9397,7 @@ class Legend extends Element {
 		ctx.strokeStyle = titleOpts.color;
 		ctx.fillStyle = titleOpts.color;
 		ctx.font = titleFont.string;
-		ctx.fillText(titleOpts.text, x, y);
+		renderText(ctx, titleOpts.text, x, y, titleFont);
 	}
 	_computeTitleHeight() {
 		const titleOpts = this.options.title;
@@ -9588,24 +9607,14 @@ class Title extends Element {
 		const lineHeight = fontOpts.lineHeight;
 		const offset = lineHeight / 2 + me._padding.top;
 		const {titleX, titleY, maxWidth, rotation} = me._drawArgs(offset);
-		ctx.save();
-		ctx.fillStyle = opts.color;
-		ctx.font = fontOpts.string;
-		ctx.translate(titleX, titleY);
-		ctx.rotate(rotation);
-		ctx.textAlign = _toLeftRightCenter(opts.align);
-		ctx.textBaseline = 'middle';
-		const text = opts.text;
-		if (isArray(text)) {
-			let y = 0;
-			for (let i = 0; i < text.length; ++i) {
-				ctx.fillText(text[i], 0, y, maxWidth);
-				y += lineHeight;
-			}
-		} else {
-			ctx.fillText(text, 0, 0, maxWidth);
-		}
-		ctx.restore();
+		renderText(ctx, opts.text, 0, 0, fontOpts, {
+			color: opts.color,
+			maxWidth,
+			rotation,
+			textAlign: _toLeftRightCenter(opts.align),
+			textBaseline: 'middle',
+			translation: [titleX, titleY],
+		});
 	}
 }
 function createTitle(chart, titleOpts) {
@@ -11069,18 +11078,6 @@ function getTextAlignForAngle(angle) {
 	}
 	return 'right';
 }
-function fillText(ctx, text, position, lineHeight) {
-	let y = position.y + lineHeight / 2;
-	let i, ilen;
-	if (isArray(text)) {
-		for (i = 0, ilen = text.length; i < ilen; ++i) {
-			ctx.fillText(text[i], position.x, y);
-			y += lineHeight;
-		}
-	} else {
-		ctx.fillText(text, position.x, y);
-	}
-}
 function adjustPointPositionForLabelHeight(angle, textSize, position) {
 	if (angle === 90 || angle === 270) {
 		position.y -= (textSize.h / 2);
@@ -11101,12 +11098,19 @@ function drawPointLabels(scale) {
 		const pointLabelPosition = scale.getPointPosition(i, outerDistance + extra + 5);
 		const context = scale.getContext(i);
 		const plFont = toFont(resolve([pointLabelOpts.font], context, i), scale.chart.options.font);
-		ctx.font = plFont.string;
-		ctx.fillStyle = resolve([pointLabelOpts.color], context, i);
 		const angle = toDegrees(scale.getIndexAngle(i));
-		ctx.textAlign = getTextAlignForAngle(angle);
 		adjustPointPositionForLabelHeight(angle, scale._pointLabelSizes[i], pointLabelPosition);
-		fillText(ctx, scale.pointLabels[i], pointLabelPosition, plFont.lineHeight);
+		renderText(
+			ctx,
+			scale.pointLabels[i],
+			pointLabelPosition.x,
+			pointLabelPosition.y + (plFont.lineHeight / 2),
+			plFont,
+			{
+				color: resolve([pointLabelOpts.color], context, i),
+				textAlign: getTextAlignForAngle(angle),
+			}
+		);
 	}
 	ctx.restore();
 }
@@ -11323,7 +11327,6 @@ class RadialLinearScale extends LinearScaleBase {
 			}
 			const context = me.getContext(index);
 			const tickFont = me._resolveTickFontOptions(index);
-			ctx.font = tickFont.string;
 			offset = me.getDistanceFromCenterForValue(me.ticks[index].value);
 			const showLabelBackdrop = resolve([tickOpts.showLabelBackdrop], context, index);
 			if (showLabelBackdrop) {
@@ -11336,8 +11339,9 @@ class RadialLinearScale extends LinearScaleBase {
 					tickFont.size + tickOpts.backdropPaddingY * 2
 				);
 			}
-			ctx.fillStyle = tickOpts.color;
-			ctx.fillText(tick.label, 0, -offset);
+			renderText(ctx, tick.label, 0, -offset, tickFont, {
+				color: tickOpts.color,
+			});
 		});
 		ctx.restore();
 	}
