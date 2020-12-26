@@ -755,7 +755,7 @@ class DatasetController {
 	parse(start, count) {
 		const me = this;
 		const {_cachedMeta: meta, _data: data} = me;
-		const {iScale, vScale, _stacked} = meta;
+		const {iScale, _stacked} = meta;
 		const iAxis = iScale.axis;
 		let sorted = true;
 		let i, parsed, cur, prev;
@@ -789,8 +789,6 @@ class DatasetController {
 		if (_stacked) {
 			updateStacks(me, parsed);
 		}
-		iScale.invalidateCaches();
-		vScale.invalidateCaches();
 	}
 	parsePrimitiveData(meta, data, start, count) {
 		const {iScale, vScale} = meta;
@@ -2948,6 +2946,11 @@ var layouts = {
 		const boxes = buildLayoutBoxes(chart.boxes);
 		const verticalBoxes = boxes.vertical;
 		const horizontalBoxes = boxes.horizontal;
+		each(chart.boxes, box => {
+			if (typeof box.beforeLayout === 'function') {
+				box.beforeLayout();
+			}
+		});
 		const params = Object.freeze({
 			outerWidth: width,
 			outerHeight: height,
@@ -3585,6 +3588,7 @@ class Scale extends Element {
 		this._ticksLength = 0;
 		this._borderValue = 0;
 		this._cache = {};
+		this._dataLimitsCached = false;
 		this.$context = undefined;
 	}
 	init(options) {
@@ -3634,9 +3638,6 @@ class Scale extends Element {
 			max: finiteOrDefault(max, finiteOrDefault(min, max))
 		};
 	}
-	invalidateCaches() {
-		this._cache = {};
-	}
 	getPadding() {
 		const me = this;
 		return {
@@ -3652,6 +3653,10 @@ class Scale extends Element {
 	getLabels() {
 		const data = this.chart.data;
 		return this.options.labels || (this.isHorizontal() ? data.xLabels : data.yLabels) || data.labels || [];
+	}
+	beforeLayout() {
+		this._cache = {};
+		this._dataLimitsCached = false;
 	}
 	beforeUpdate() {
 		callback(this.options.beforeUpdate, [this]);
@@ -3676,9 +3681,12 @@ class Scale extends Element {
 		me.beforeSetDimensions();
 		me.setDimensions();
 		me.afterSetDimensions();
-		me.beforeDataLimits();
-		me.determineDataLimits();
-		me.afterDataLimits();
+		if (!me._dataLimitsCached) {
+			me.beforeDataLimits();
+			me.determineDataLimits();
+			me.afterDataLimits();
+			me._dataLimitsCached = true;
+		}
 		me.beforeBuildTicks();
 		me.ticks = me.buildTicks() || [];
 		me.afterBuildTicks();
@@ -9243,7 +9251,8 @@ class TimeScale extends Scale {
 		}
 		return parse(this, raw);
 	}
-	invalidateCaches() {
+	beforeLayout() {
+		super.beforeLayout();
 		this._cache = {
 			data: [],
 			labels: [],
