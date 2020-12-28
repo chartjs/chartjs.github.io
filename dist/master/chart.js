@@ -1233,8 +1233,9 @@ var Interaction = {
 	}
 };
 
+const LINE_HEIGHT = new RegExp(/^(normal|(\d+(?:\.\d+)?)(px|em|%)?)$/);
 function toLineHeight(value, size) {
-	const matches = ('' + value).match(/^(normal|(\d+(?:\.\d+)?)(px|em|%)?)$/);
+	const matches = ('' + value).match(LINE_HEIGHT);
 	if (!matches || matches[1] === 'normal') {
 		return size * 1.2;
 	}
