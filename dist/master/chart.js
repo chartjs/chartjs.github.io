@@ -3710,6 +3710,20 @@ Element.defaults = {};
 Element.defaultRoutes = undefined;
 
 const intlCache = new Map();
+function getNumberFormat(locale, options) {
+	options = options || {};
+	const cacheKey = locale + JSON.stringify(options);
+	let formatter = intlCache.get(cacheKey);
+	if (!formatter) {
+		formatter = new Intl.NumberFormat(locale, options);
+		intlCache.set(cacheKey, formatter);
+	}
+	return formatter;
+}
+function formatNumber(num, locale, options) {
+	return getNumberFormat(locale, options).format(num);
+}
+
 const formatters = {
 	values(value) {
 		return isArray(value) ? value : '' + value;
@@ -3732,13 +3746,7 @@ const formatters = {
 		const numDecimal = Math.max(Math.min(-1 * Math.floor(logDelta), 20), 0);
 		const options = {notation, minimumFractionDigits: numDecimal, maximumFractionDigits: numDecimal};
 		Object.assign(options, this.options.ticks.format);
-		const cacheKey = locale + JSON.stringify(options);
-		let formatter = intlCache.get(cacheKey);
-		if (!formatter) {
-			formatter = new Intl.NumberFormat(locale, options);
-			intlCache.set(cacheKey, formatter);
-		}
-		return formatter.format(tickValue);
+		return formatNumber(tickValue, locale, options);
 	}
 };
 formatters.logarithmic = function(tickValue, index, ticks) {
@@ -7372,7 +7380,7 @@ class DoughnutController extends DatasetController {
 		const meta = me._cachedMeta;
 		const chart = me.chart;
 		const labels = chart.data.labels || [];
-		const value = new Intl.NumberFormat(chart.options.locale).format(meta._parsed[index]);
+		const value = formatNumber(meta._parsed[index], chart.options.locale);
 		return {
 			label: labels[index] || '',
 			value,
@@ -10844,7 +10852,7 @@ class LinearScaleBase extends Scale {
 		me._valueRange = end - start;
 	}
 	getLabelForValue(value) {
-		return new Intl.NumberFormat(this.options.locale).format(value);
+		return formatNumber(value, this.options.locale);
 	}
 }
 
@@ -10981,7 +10989,7 @@ class LogarithmicScale extends Scale {
 		return ticks;
 	}
 	getLabelForValue(value) {
-		return value === undefined ? '0' : new Intl.NumberFormat(this.options.locale).format(value);
+		return value === undefined ? '0' : formatNumber(value, this.options.locale);
 	}
 	configure() {
 		const me = this;

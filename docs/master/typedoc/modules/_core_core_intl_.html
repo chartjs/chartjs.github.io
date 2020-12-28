@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>&quot;core/core.config&quot; | Chart.js - v3.0.0-beta.7</title>
+	<title>&quot;core/core.intl&quot; | Chart.js - v3.0.0-beta.7</title>
 	<meta name="description" content="Documentation for Chart.js - v3.0.0-beta.7">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -52,10 +52,10 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="_core_core_config_.html">&quot;core/core.config&quot;</a>
+					<a href="_core_core_intl_.html">&quot;core/core.intl&quot;</a>
 				</li>
 			</ul>
-			<h1>Module &quot;core/core.config&quot;</h1>
+			<h1>Module &quot;core/core.intl&quot;</h1>
 		</div>
 	</div>
 </header>
@@ -67,16 +67,10 @@
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
 						<section class="tsd-index-section ">
-							<h3>Classes</h3>
-							<ul class="tsd-index-list">
-								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/_core_core_config_.config.html" class="tsd-kind-icon">Config</a></li>
-							</ul>
-						</section>
-						<section class="tsd-index-section ">
 							<h3>Functions</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_core_core_config_.html#determineaxis" class="tsd-kind-icon">determine<wbr>Axis</a></li>
-								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_core_core_config_.html#getindexaxis" class="tsd-kind-icon">get<wbr>Index<wbr>Axis</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_core_core_intl_.html#formatnumber" class="tsd-kind-icon">format<wbr>Number</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="_core_core_intl_.html#getnumberformat" class="tsd-kind-icon">get<wbr>Number<wbr>Format</a></li>
 							</ul>
 						</section>
 					</div>
@@ -85,25 +79,28 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Functions</h2>
 				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
-					<a name="determineaxis" class="tsd-anchor"></a>
-					<h3>determine<wbr>Axis</h3>
+					<a name="formatnumber" class="tsd-anchor"></a>
+					<h3>format<wbr>Number</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
-						<li class="tsd-signature tsd-kind-icon">determine<wbr>Axis<span class="tsd-signature-symbol">(</span>id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, scaleOptions<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
+						<li class="tsd-signature tsd-kind-icon">format<wbr>Number<span class="tsd-signature-symbol">(</span>num<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, locale<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, options<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/59000ab/src/core/core.config.js#L35">core/core.config.js:35</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/59000ab/src/core/core.intl.js#L15">core/core.intl.js:15</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>id: <span class="tsd-signature-type">any</span></h5>
+									<h5>num: <span class="tsd-signature-type">any</span></h5>
 								</li>
 								<li>
-									<h5>scaleOptions: <span class="tsd-signature-type">any</span></h5>
+									<h5>locale: <span class="tsd-signature-type">any</span></h5>
+								</li>
+								<li>
+									<h5>options: <span class="tsd-signature-type">any</span></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
@@ -111,22 +108,22 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
-					<a name="getindexaxis" class="tsd-anchor"></a>
-					<h3>get<wbr>Index<wbr>Axis</h3>
+					<a name="getnumberformat" class="tsd-anchor"></a>
+					<h3>get<wbr>Number<wbr>Format</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>Index<wbr>Axis<span class="tsd-signature-symbol">(</span>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, options<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Number<wbr>Format<span class="tsd-signature-symbol">(</span>locale<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, options<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/59000ab/src/core/core.config.js#L4">core/core.config.js:4</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/59000ab/src/core/core.intl.js#L4">core/core.intl.js:4</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>type: <span class="tsd-signature-type">any</span></h5>
+									<h5>locale: <span class="tsd-signature-type">any</span></h5>
 								</li>
 								<li>
 									<h5>options: <span class="tsd-signature-type">any</span></h5>
@@ -145,20 +142,17 @@
 						<a href="../globals.html"><em>Globals</em></a>
 					</li>
 					<li class="current tsd-kind-module">
-						<a href="_core_core_config_.html">&quot;core/core.config&quot;</a>
+						<a href="_core_core_intl_.html">&quot;core/core.intl&quot;</a>
 					</li>
 				</ul>
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
-					<li class=" tsd-kind-class tsd-parent-kind-module">
-						<a href="../classes/_core_core_config_.config.html" class="tsd-kind-icon">Config</a>
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="_core_core_intl_.html#formatnumber" class="tsd-kind-icon">format<wbr>Number</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-module">
-						<a href="_core_core_config_.html#determineaxis" class="tsd-kind-icon">determine<wbr>Axis</a>
-					</li>
-					<li class=" tsd-kind-function tsd-parent-kind-module">
-						<a href="_core_core_config_.html#getindexaxis" class="tsd-kind-icon">get<wbr>Index<wbr>Axis</a>
+						<a href="_core_core_intl_.html#getnumberformat" class="tsd-kind-icon">get<wbr>Number<wbr>Format</a>
 					</li>
 				</ul>
 			</nav>
