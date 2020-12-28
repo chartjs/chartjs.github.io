@@ -38,6 +38,10 @@ function throttled(fn, thisArg, updateFn) {
 }
 const _toLeftRightCenter = (align) => align === 'start' ? 'left' : align === 'end' ? 'right' : 'center';
 const _alignStartEnd = (align, start, end) => align === 'start' ? start : align === 'end' ? end : (start + end) / 2;
+function _coordsAnimated(element) {
+	const anims = element && element.$animations;
+	return anims && ((anims.x && anims.x.active) || (anims.y && anims.y.active));
+}
 
 function drawFPS(chart, count, date, lastDate) {
 	const fps = (1000 / (date - lastDate)) | 0;
@@ -8294,6 +8298,7 @@ class LineElement extends Element {
 		this.options = undefined;
 		this._loop = undefined;
 		this._fullLoop = undefined;
+		this._path = undefined;
 		this._points = undefined;
 		this._segments = undefined;
 		this._pointsUpdated = false;
@@ -8313,6 +8318,7 @@ class LineElement extends Element {
 	set points(points) {
 		this._points = points;
 		delete this._segments;
+		delete this._path;
 	}
 	get points() {
 		return this._points;
@@ -8383,13 +8389,19 @@ class LineElement extends Element {
 		}
 		ctx.save();
 		setStyle(ctx, options);
-		ctx.beginPath();
-		if (this.path(ctx, start, count)) {
-			ctx.closePath();
+		let path = this._path;
+		if (!path) {
+			path = this._path = new Path2D();
+			if (this.path(path, start, count)) {
+				path.closePath();
+			}
 		}
-		ctx.stroke();
+		ctx.stroke(path);
 		ctx.restore();
-		this._pointsUpdated = false;
+		if (_coordsAnimated(points[0]) || _coordsAnimated(points[points.length - 1])) {
+			this._pointsUpdated = false;
+			this._path = undefined;
+		}
 	}
 }
 LineElement.id = 'line';
