@@ -611,8 +611,9 @@ function _alignPixel(chart, pixel, width) {
 	const halfWidth = width / 2;
 	return Math.round((pixel - halfWidth) * devicePixelRatio) / devicePixelRatio + halfWidth;
 }
-function clear(chart) {
-	chart.ctx.clearRect(0, 0, chart.width, chart.height);
+function clearCanvas(canvas, ctx) {
+	ctx = ctx || canvas.getContext('2d');
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 function drawPoint(ctx, options, x, y) {
 	let type, xOffset, yOffset, size, cornerRadius;
@@ -5567,7 +5568,7 @@ toFontString: toFontString,
 _measureText: _measureText,
 _longestText: _longestText,
 _alignPixel: _alignPixel,
-clear: clear,
+clearCanvas: clearCanvas,
 drawPoint: drawPoint,
 _isPointInArea: _isPointInArea,
 clipArea: clipArea,
@@ -5998,7 +5999,7 @@ class Chart {
 		return new DomPlatform();
 	}
 	clear() {
-		clear(this);
+		clearCanvas(this.canvas, this.ctx);
 		return this;
 	}
 	stop() {
@@ -6444,7 +6445,7 @@ class Chart {
 	}
 	destroy() {
 		const me = this;
-		const canvas = me.canvas;
+		const {canvas, ctx} = me;
 		let i, ilen;
 		me.stop();
 		animator.remove(me);
@@ -6453,8 +6454,8 @@ class Chart {
 		}
 		if (canvas) {
 			me.unbindEvents();
-			clear(me);
-			me.platform.releaseContext(me.ctx);
+			clearCanvas(canvas, ctx);
+			me.platform.releaseContext(ctx);
 			me.canvas = null;
 			me.ctx = null;
 		}
