@@ -614,7 +614,6 @@ const optionKeys = (optionNames) => isArray(optionNames) ? optionNames : Object.
 const optionKey = (key, active) => active ? 'hover' + _capitalize(key) : key;
 const isDirectUpdateMode = (mode) => mode === 'reset' || mode === 'none';
 const cloneIfNotShared = (cached, shared) => shared ? cached : Object.assign({}, cached);
-const freezeIfShared = (values, shared) => shared ? Object.freeze(values) : values;
 class DatasetController {
 	constructor(chart, datasetIndex) {
 		this.chart = chart;
@@ -1027,7 +1026,7 @@ class DatasetController {
 		});
 		if (info.cacheable) {
 			values.$shared = sharing;
-			cache[mode] = freezeIfShared(values, sharing);
+			cache[mode] = Object.freeze(Object.assign({}, values));
 		}
 		return values;
 	}
