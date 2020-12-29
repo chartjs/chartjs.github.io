@@ -1081,7 +1081,7 @@ class DatasetController {
 		return this._sharedOptions || (this._sharedOptions = Object.assign({}, options));
 	}
 	includeOptions(mode, sharedOptions) {
-		return !sharedOptions || isDirectUpdateMode(mode);
+		return !sharedOptions || isDirectUpdateMode(mode) || this.chart._animationsDisabled;
 	}
 	updateElement(element, index, properties, mode) {
 		if (isDirectUpdateMode(mode)) {
@@ -5315,7 +5315,7 @@ class Chart {
 		});
 		me.config.update(me.options);
 		me.options = me.config.options;
-		me._animationsDisabled = !me.options.animation;
+		const animsDisabled = me._animationsDisabled = !me.options.animation;
 		me.ensureScalesHaveIDs();
 		me.buildOrUpdateScales();
 		me._plugins.invalidate();
@@ -5327,9 +5327,11 @@ class Chart {
 			me.getDatasetMeta(i).controller.buildOrUpdateElements();
 		}
 		me._updateLayout();
-		each(newControllers, (controller) => {
-			controller.reset();
-		});
+		if (!animsDisabled) {
+			each(newControllers, (controller) => {
+				controller.reset();
+			});
+		}
 		me._updateDatasets(mode);
 		me.notifyPlugins('afterUpdate', {mode});
 		me._layers.sort(compare2Level('z', '_idx'));
