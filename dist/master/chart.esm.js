@@ -5701,7 +5701,7 @@ class Chart {
 		const changed = me._handleEvent(e, replay);
 		args.cancellable = false;
 		me.notifyPlugins('afterEvent', args);
-		if (changed) {
+		if (changed || args.changed) {
 			me.render();
 		}
 		return me;
@@ -8202,7 +8202,9 @@ var plugin_tooltip = {
 	afterEvent(chart, args) {
 		if (chart.tooltip) {
 			const useFinalPosition = args.replay;
-			chart.tooltip.handleEvent(args.event, useFinalPosition);
+			if (chart.tooltip.handleEvent(args.event, useFinalPosition)) {
+				args.changed = true;
+			}
 		}
 	},
 	defaults: {
