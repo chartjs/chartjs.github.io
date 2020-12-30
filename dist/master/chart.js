@@ -40,7 +40,7 @@ const _toLeftRightCenter = (align) => align === 'start' ? 'left' : align === 'en
 const _alignStartEnd = (align, start, end) => align === 'start' ? start : align === 'end' ? end : (start + end) / 2;
 function _coordsAnimated(element) {
 	const anims = element && element.$animations;
-	return anims && ((anims.x && anims.x.active) || (anims.y && anims.y.active));
+	return anims && ((anims.x && anims.x.active()) || (anims.y && anims.y.active()));
 }
 
 function drawFPS(chart, count, date, lastDate) {
@@ -3700,7 +3700,7 @@ class Element {
 		}
 		const ret = {};
 		props.forEach(prop => {
-			ret[prop] = anims[prop] && anims[prop].active ? anims[prop]._to : me[prop];
+			ret[prop] = anims[prop] && anims[prop].active() ? anims[prop]._to : me[prop];
 		});
 		return ret;
 	}
@@ -6578,13 +6578,13 @@ class Chart {
 	notifyPlugins(hook, args) {
 		return this._plugins.notify(this, hook, args);
 	}
-	_updateHoverStyles(active, lastActive) {
+	_updateHoverStyles(active, lastActive, replay) {
 		const me = this;
 		const options = me.options || {};
 		const hoverOptions = options.hover;
 		const diff = (a, b) => a.filter(x => !b.some(y => x.datasetIndex === y.datasetIndex && x.index === y.index));
 		const deactivated = diff(lastActive, active);
-		const activated = diff(active, lastActive);
+		const activated = replay ? active : diff(active, lastActive);
 		if (deactivated.length) {
 			me.updateHoverStyle(deactivated, hoverOptions.mode, false);
 		}
@@ -6629,7 +6629,7 @@ class Chart {
 		changed = !_elementsEqual(active, lastActive);
 		if (changed || replay) {
 			me._active = active;
-			me._updateHoverStyles(active, lastActive);
+			me._updateHoverStyles(active, lastActive, replay);
 		}
 		return changed;
 	}
