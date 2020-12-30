@@ -7528,12 +7528,9 @@ class LineController extends DatasetController {
 			start = 0;
 			count = points.length;
 		}
+		line.points = points;
 		if (mode !== 'resize') {
-			const properties = {
-				points,
-				options: me.resolveDatasetElementOptions()
-			};
-			me.updateElement(line, undefined, properties, mode);
+			me.updateElement(line, undefined, {options: me.resolveDatasetElementOptions()}, mode);
 		}
 		me.updateElements(points, start, count, mode);
 	}
