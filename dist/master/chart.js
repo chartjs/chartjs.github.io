@@ -419,12 +419,18 @@ class Defaults {
 		const privateName = '_' + name;
 		Object.defineProperties(scopeObject, {
 			[privateName]: {
+				value: scopeObject[name],
 				writable: true
 			},
 			[name]: {
 				enumerable: true,
 				get() {
-					return valueOrDefault(this[privateName], targetScopeObject[targetName]);
+					const local = this[privateName];
+					const target = targetScopeObject[targetName];
+					if (isObject(local)) {
+						return Object.assign({}, target, local);
+					}
+					return valueOrDefault(local, target);
 				},
 				set(value) {
 					this[privateName] = value;
@@ -9787,15 +9793,6 @@ function createTooltipItem(chart, item) {
 		element
 	};
 }
-function resolveOptions(options, fallbackFont) {
-	options = merge(Object.create(null), [defaults.plugins.tooltip, options]);
-	options.bodyFont = toFont(options.bodyFont, fallbackFont);
-	options.titleFont = toFont(options.titleFont, fallbackFont);
-	options.footerFont = toFont(options.footerFont, fallbackFont);
-	options.boxHeight = valueOrDefault(options.boxHeight, options.bodyFont.size);
-	options.boxWidth = valueOrDefault(options.boxWidth, options.bodyFont.size);
-	return options;
-}
 function getTooltipSize(tooltip) {
 	const ctx = tooltip._chart.ctx;
 	const {body, footer, options, title} = tooltip;
@@ -9828,9 +9825,9 @@ function getTooltipSize(tooltip) {
 		width = Math.max(width, ctx.measureText(line).width + widthPadding);
 	};
 	ctx.save();
-	ctx.font = titleFont.string;
+	ctx.font = toFontString(titleFont);
 	each(tooltip.title, maxLineWidth);
-	ctx.font = bodyFont.string;
+	ctx.font = toFontString(bodyFont);
 	each(tooltip.beforeBody.concat(tooltip.afterBody), maxLineWidth);
 	widthPadding = options.displayColors ? (boxWidth + 2) : 0;
 	each(body, (bodyItem) => {
@@ -9839,7 +9836,7 @@ function getTooltipSize(tooltip) {
 		each(bodyItem.after, maxLineWidth);
 	});
 	widthPadding = 0;
-	ctx.font = footerFont.string;
+	ctx.font = toFontString(footerFont);
 	each(tooltip.footer, maxLineWidth);
 	ctx.restore();
 	width += 2 * options.xPadding;
@@ -9953,7 +9950,7 @@ class Tooltip extends Element {
 		this._size = undefined;
 		this._cachedAnimations = undefined;
 		this.$animations = undefined;
-		this.options = undefined;
+		this.options = config.options;
 		this.dataPoints = undefined;
 		this.title = undefined;
 		this.beforeBody = undefined;
@@ -9971,13 +9968,13 @@ class Tooltip extends Element {
 		this.labelColors = undefined;
 		this.labelPointStyles = undefined;
 		this.labelTextColors = undefined;
-		this.initialize();
 	}
-	initialize() {
-		const me = this;
-		const chartOpts = me._chart.options;
-		me.options = resolveOptions(chartOpts.plugins.tooltip, chartOpts.font);
-		me._cachedAnimations = undefined;
+	initialize(options) {
+		const defaultSize = options.bodyFont.size;
+		options.boxHeight = valueOrDefault(options.boxHeight, defaultSize);
+		options.boxWidth = valueOrDefault(options.boxWidth, defaultSize);
+		this.options = options;
+		this._cachedAnimations = undefined;
 	}
 	_resolveAnimations() {
 		const me = this;
@@ -10175,7 +10172,7 @@ class Tooltip extends Element {
 			titleFont = options.titleFont;
 			titleSpacing = options.titleSpacing;
 			ctx.fillStyle = options.titleColor;
-			ctx.font = titleFont.string;
+			ctx.font = toFontString(titleFont);
 			for (i = 0; i < length; ++i) {
 				ctx.fillText(title[i], rtlHelper.x(pt.x), pt.y + titleFont.size / 2);
 				pt.y += titleFont.size + titleSpacing;
@@ -10236,7 +10233,7 @@ class Tooltip extends Element {
 		let bodyItem, textColor, lines, i, j, ilen, jlen;
 		ctx.textAlign = bodyAlign;
 		ctx.textBaseline = 'middle';
-		ctx.font = bodyFont.string;
+		ctx.font = toFontString(bodyFont);
 		pt.x = getAlignedX(me, bodyAlignForCalculation);
 		ctx.fillStyle = options.bodyColor;
 		each(me.beforeBody, fillLineOfText);
@@ -10278,7 +10275,7 @@ class Tooltip extends Element {
 			ctx.textBaseline = 'middle';
 			footerFont = options.footerFont;
 			ctx.fillStyle = options.footerColor;
-			ctx.font = footerFont.string;
+			ctx.font = toFontString(footerFont);
 			for (i = 0; i < length; ++i) {
 				ctx.fillText(footer[i], rtlHelper.x(pt.x), pt.y + footerFont.size / 2);
 				pt.y += footerFont.size + options.footerSpacing;
@@ -10441,20 +10438,19 @@ var plugin_tooltip = {
 	id: 'tooltip',
 	_element: Tooltip,
 	positioners,
-	afterInit(chart) {
-		const tooltipOpts = chart.options.plugins.tooltip;
-		if (tooltipOpts) {
-			chart.tooltip = new Tooltip({_chart: chart});
+	afterInit(chart, _args, options) {
+		if (options) {
+			chart.tooltip = new Tooltip({_chart: chart, options});
 		}
 	},
-	beforeUpdate(chart) {
+	beforeUpdate(chart, _args, options) {
 		if (chart.tooltip) {
-			chart.tooltip.initialize();
+			chart.tooltip.initialize(options);
 		}
 	},
-	reset(chart) {
+	reset(chart, _args, options) {
 		if (chart.tooltip) {
-			chart.tooltip.initialize();
+			chart.tooltip.initialize(options);
 		}
 	},
 	afterDraw(chart) {
@@ -10583,6 +10579,11 @@ var plugin_tooltip = {
 			afterFooter: noop
 		}
 	},
+	defaultRoutes: {
+		bodyFont: 'font',
+		footerFont: 'font',
+		titleFont: 'font'
+	}
 };
 
 var plugins = /*#__PURE__*/Object.freeze({

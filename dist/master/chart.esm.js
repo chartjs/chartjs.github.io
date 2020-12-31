@@ -4,7 +4,7 @@
  * (c) 2020 Chart.js Contributors
  * Released under the MIT License
  */
-import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, d as defaults, n as noop, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, m as merge, b as isArray, f as resolveObjectKey, g as getHoverColor, _ as _capitalize, h as mergeIf, s as sign, j as _merger, k as isNullOrUndef, o as clipArea, p as unclipArea, q as _arrayUnique, t as toRadians, T as TAU, H as HALF_PI, P as PI, w as isNumber, x as _limitValue, y as _lookupByKey, z as getRelativePosition$1, A as _isPointInArea, B as _rlookupByKey, C as toPadding, D as each, E as getMaximumSize, F as _getParentNode, G as readUsedSize, I as throttled, J as supportsEventListenerOptions, K as log10, L as finiteOrDefault, M as isNumberFinite, N as callback, O as toDegrees, Q as _measureText, R as _int16Range, S as _alignPixel, U as renderText, V as toFont, W as _factorize, X as uid, Y as retinaScale, Z as clearCanvas, $ as _elementsEqual, a0 as getAngleFromPoint, a1 as _angleBetween, a2 as _updateBezierControlPoints, a3 as _computeSegments, a4 as _boundSegments, a5 as _coordsAnimated, a6 as _steppedInterpolation, a7 as _bezierInterpolation, a8 as _pointInLine, a9 as _steppedLineTo, aa as _bezierCurveTo, ab as drawPoint, ac as toTRBL, ad as toTRBLCorners, ae as _normalizeAngle, af as _boundSegment, ag as getRtlAdapter, ah as _alignStartEnd, ai as overrideTextDirection, aj as restoreTextDirection, ak as _toLeftRightCenter, al as distanceBetweenPoints, am as _setMinAndMaxByKey, an as _decimalPlaces, ao as almostEquals, ap as almostWhole, aq as _longestText, ar as _filterBetween, as as _lookup } from './chunks/helpers.segment.js';
+import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, d as defaults, n as noop, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, m as merge, b as isArray, f as resolveObjectKey, g as getHoverColor, _ as _capitalize, h as mergeIf, s as sign, j as _merger, k as isNullOrUndef, o as clipArea, p as unclipArea, q as _arrayUnique, t as toRadians, T as TAU, H as HALF_PI, P as PI, w as isNumber, x as _limitValue, y as _lookupByKey, z as getRelativePosition$1, A as _isPointInArea, B as _rlookupByKey, C as toPadding, D as each, E as getMaximumSize, F as _getParentNode, G as readUsedSize, I as throttled, J as supportsEventListenerOptions, K as log10, L as finiteOrDefault, M as isNumberFinite, N as callback, O as toDegrees, Q as _measureText, R as _int16Range, S as _alignPixel, U as renderText, V as toFont, W as _factorize, X as uid, Y as retinaScale, Z as clearCanvas, $ as _elementsEqual, a0 as getAngleFromPoint, a1 as _angleBetween, a2 as _updateBezierControlPoints, a3 as _computeSegments, a4 as _boundSegments, a5 as _coordsAnimated, a6 as _steppedInterpolation, a7 as _bezierInterpolation, a8 as _pointInLine, a9 as _steppedLineTo, aa as _bezierCurveTo, ab as drawPoint, ac as toTRBL, ad as toTRBLCorners, ae as _normalizeAngle, af as _boundSegment, ag as getRtlAdapter, ah as _alignStartEnd, ai as overrideTextDirection, aj as restoreTextDirection, ak as _toLeftRightCenter, al as distanceBetweenPoints, am as toFontString, an as _setMinAndMaxByKey, ao as _decimalPlaces, ap as almostEquals, aq as almostWhole, ar as _longestText, as as _filterBetween, at as _lookup } from './chunks/helpers.segment.js';
 export { d as defaults } from './chunks/helpers.segment.js';
 
 function drawFPS(chart, count, date, lastDate) {
@@ -7516,15 +7516,6 @@ function createTooltipItem(chart, item) {
 		element
 	};
 }
-function resolveOptions(options, fallbackFont) {
-	options = merge(Object.create(null), [defaults.plugins.tooltip, options]);
-	options.bodyFont = toFont(options.bodyFont, fallbackFont);
-	options.titleFont = toFont(options.titleFont, fallbackFont);
-	options.footerFont = toFont(options.footerFont, fallbackFont);
-	options.boxHeight = valueOrDefault(options.boxHeight, options.bodyFont.size);
-	options.boxWidth = valueOrDefault(options.boxWidth, options.bodyFont.size);
-	return options;
-}
 function getTooltipSize(tooltip) {
 	const ctx = tooltip._chart.ctx;
 	const {body, footer, options, title} = tooltip;
@@ -7557,9 +7548,9 @@ function getTooltipSize(tooltip) {
 		width = Math.max(width, ctx.measureText(line).width + widthPadding);
 	};
 	ctx.save();
-	ctx.font = titleFont.string;
+	ctx.font = toFontString(titleFont);
 	each(tooltip.title, maxLineWidth);
-	ctx.font = bodyFont.string;
+	ctx.font = toFontString(bodyFont);
 	each(tooltip.beforeBody.concat(tooltip.afterBody), maxLineWidth);
 	widthPadding = options.displayColors ? (boxWidth + 2) : 0;
 	each(body, (bodyItem) => {
@@ -7568,7 +7559,7 @@ function getTooltipSize(tooltip) {
 		each(bodyItem.after, maxLineWidth);
 	});
 	widthPadding = 0;
-	ctx.font = footerFont.string;
+	ctx.font = toFontString(footerFont);
 	each(tooltip.footer, maxLineWidth);
 	ctx.restore();
 	width += 2 * options.xPadding;
@@ -7682,7 +7673,7 @@ class Tooltip extends Element {
 		this._size = undefined;
 		this._cachedAnimations = undefined;
 		this.$animations = undefined;
-		this.options = undefined;
+		this.options = config.options;
 		this.dataPoints = undefined;
 		this.title = undefined;
 		this.beforeBody = undefined;
@@ -7700,13 +7691,13 @@ class Tooltip extends Element {
 		this.labelColors = undefined;
 		this.labelPointStyles = undefined;
 		this.labelTextColors = undefined;
-		this.initialize();
 	}
-	initialize() {
-		const me = this;
-		const chartOpts = me._chart.options;
-		me.options = resolveOptions(chartOpts.plugins.tooltip, chartOpts.font);
-		me._cachedAnimations = undefined;
+	initialize(options) {
+		const defaultSize = options.bodyFont.size;
+		options.boxHeight = valueOrDefault(options.boxHeight, defaultSize);
+		options.boxWidth = valueOrDefault(options.boxWidth, defaultSize);
+		this.options = options;
+		this._cachedAnimations = undefined;
 	}
 	_resolveAnimations() {
 		const me = this;
@@ -7904,7 +7895,7 @@ class Tooltip extends Element {
 			titleFont = options.titleFont;
 			titleSpacing = options.titleSpacing;
 			ctx.fillStyle = options.titleColor;
-			ctx.font = titleFont.string;
+			ctx.font = toFontString(titleFont);
 			for (i = 0; i < length; ++i) {
 				ctx.fillText(title[i], rtlHelper.x(pt.x), pt.y + titleFont.size / 2);
 				pt.y += titleFont.size + titleSpacing;
@@ -7965,7 +7956,7 @@ class Tooltip extends Element {
 		let bodyItem, textColor, lines, i, j, ilen, jlen;
 		ctx.textAlign = bodyAlign;
 		ctx.textBaseline = 'middle';
-		ctx.font = bodyFont.string;
+		ctx.font = toFontString(bodyFont);
 		pt.x = getAlignedX(me, bodyAlignForCalculation);
 		ctx.fillStyle = options.bodyColor;
 		each(me.beforeBody, fillLineOfText);
@@ -8007,7 +7998,7 @@ class Tooltip extends Element {
 			ctx.textBaseline = 'middle';
 			footerFont = options.footerFont;
 			ctx.fillStyle = options.footerColor;
-			ctx.font = footerFont.string;
+			ctx.font = toFontString(footerFont);
 			for (i = 0; i < length; ++i) {
 				ctx.fillText(footer[i], rtlHelper.x(pt.x), pt.y + footerFont.size / 2);
 				pt.y += footerFont.size + options.footerSpacing;
@@ -8170,20 +8161,19 @@ var plugin_tooltip = {
 	id: 'tooltip',
 	_element: Tooltip,
 	positioners,
-	afterInit(chart) {
-		const tooltipOpts = chart.options.plugins.tooltip;
-		if (tooltipOpts) {
-			chart.tooltip = new Tooltip({_chart: chart});
+	afterInit(chart, _args, options) {
+		if (options) {
+			chart.tooltip = new Tooltip({_chart: chart, options});
 		}
 	},
-	beforeUpdate(chart) {
+	beforeUpdate(chart, _args, options) {
 		if (chart.tooltip) {
-			chart.tooltip.initialize();
+			chart.tooltip.initialize(options);
 		}
 	},
-	reset(chart) {
+	reset(chart, _args, options) {
 		if (chart.tooltip) {
-			chart.tooltip.initialize();
+			chart.tooltip.initialize(options);
 		}
 	},
 	afterDraw(chart) {
@@ -8312,6 +8302,11 @@ var plugin_tooltip = {
 			afterFooter: noop
 		}
 	},
+	defaultRoutes: {
+		bodyFont: 'font',
+		footerFont: 'font',
+		titleFont: 'font'
+	}
 };
 
 function findOrAddLabel(labels, raw, index) {
