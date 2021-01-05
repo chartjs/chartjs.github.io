@@ -7888,9 +7888,9 @@ class RadarController extends DatasetController {
 		const line = meta.dataset;
 		const points = meta.data || [];
 		const labels = meta.iScale.getLabels();
+		line.points = points;
 		if (mode !== 'resize') {
 			const properties = {
-				points,
 				_loop: true,
 				_fullLoop: labels.length === points.length,
 				options: me.resolveDatasetElementOptions()
@@ -8328,9 +8328,11 @@ class LineElement extends Element {
 		}
 	}
 	set points(points) {
-		this._points = points;
-		delete this._segments;
-		delete this._path;
+		const me = this;
+		me._points = points;
+		delete me._segments;
+		delete me._path;
+		me._pointsUpdated = false;
 	}
 	get points() {
 		return this._points;
