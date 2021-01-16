@@ -4776,7 +4776,7 @@ class PluginService {
 			const plugin = descriptor.plugin;
 			const method = plugin[hook];
 			const params = [chart, args, descriptor.options];
-			if (callback(method, params, plugin) === false && args.cancellable) {
+			if (callback(method, params, plugin) === false && args.cancelable) {
 				return false;
 			}
 		}
@@ -5322,7 +5322,7 @@ class Chart {
 		me.ensureScalesHaveIDs();
 		me.buildOrUpdateScales();
 		me._plugins.invalidate();
-		if (me.notifyPlugins('beforeUpdate', {mode, cancellable: true}) === false) {
+		if (me.notifyPlugins('beforeUpdate', {mode, cancelable: true}) === false) {
 			return;
 		}
 		const newControllers = me.buildOrUpdateControllers();
@@ -5345,7 +5345,7 @@ class Chart {
 	}
 	_updateLayout() {
 		const me = this;
-		if (me.notifyPlugins('beforeLayout', {cancellable: true}) === false) {
+		if (me.notifyPlugins('beforeLayout', {cancelable: true}) === false) {
 			return;
 		}
 		layouts.update(me, me.width, me.height);
@@ -5369,7 +5369,7 @@ class Chart {
 	_updateDatasets(mode) {
 		const me = this;
 		const isFunction = typeof mode === 'function';
-		if (me.notifyPlugins('beforeDatasetsUpdate', {mode, cancellable: true}) === false) {
+		if (me.notifyPlugins('beforeDatasetsUpdate', {mode, cancelable: true}) === false) {
 			return;
 		}
 		for (let i = 0, ilen = me.data.datasets.length; i < ilen; ++i) {
@@ -5380,17 +5380,17 @@ class Chart {
 	_updateDataset(index, mode) {
 		const me = this;
 		const meta = me.getDatasetMeta(index);
-		const args = {meta, index, mode, cancellable: true};
+		const args = {meta, index, mode, cancelable: true};
 		if (me.notifyPlugins('beforeDatasetUpdate', args) === false) {
 			return;
 		}
 		meta.controller._update(mode);
-		args.cancellable = false;
+		args.cancelable = false;
 		me.notifyPlugins('afterDatasetUpdate', args);
 	}
 	render() {
 		const me = this;
-		if (me.notifyPlugins('beforeRender', {cancellable: true}) === false) {
+		if (me.notifyPlugins('beforeRender', {cancelable: true}) === false) {
 			return;
 		}
 		if (animator.has(me)) {
@@ -5414,7 +5414,7 @@ class Chart {
 		if (me.width <= 0 || me.height <= 0) {
 			return;
 		}
-		if (me.notifyPlugins('beforeDraw', {cancellable: true}) === false) {
+		if (me.notifyPlugins('beforeDraw', {cancelable: true}) === false) {
 			return;
 		}
 		const layers = me._layers;
@@ -5445,7 +5445,7 @@ class Chart {
 	}
 	_drawDatasets() {
 		const me = this;
-		if (me.notifyPlugins('beforeDatasetsDraw', {cancellable: true}) === false) {
+		if (me.notifyPlugins('beforeDatasetsDraw', {cancelable: true}) === false) {
 			return;
 		}
 		const metasets = me.getSortedVisibleDatasetMetas();
@@ -5462,7 +5462,7 @@ class Chart {
 		const args = {
 			meta,
 			index: meta.index,
-			cancellable: true
+			cancelable: true
 		};
 		if (me.notifyPlugins('beforeDatasetDraw', args) === false) {
 			return;
@@ -5475,7 +5475,7 @@ class Chart {
 		});
 		meta.controller.draw();
 		unclipArea(ctx);
-		args.cancellable = false;
+		args.cancelable = false;
 		me.notifyPlugins('afterDatasetDraw', args);
 	}
 	getElementsAtEventForMode(e, mode, options, useFinalPosition) {
@@ -5700,12 +5700,12 @@ class Chart {
 	}
 	_eventHandler(e, replay) {
 		const me = this;
-		const args = {event: e, replay, cancellable: true};
+		const args = {event: e, replay, cancelable: true};
 		if (me.notifyPlugins('beforeEvent', args) === false) {
 			return;
 		}
 		const changed = me._handleEvent(e, replay);
-		args.cancellable = false;
+		args.cancelable = false;
 		me.notifyPlugins('afterEvent', args);
 		if (changed || args.changed) {
 			me.render();
