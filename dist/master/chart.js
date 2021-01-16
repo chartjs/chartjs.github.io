@@ -38,10 +38,6 @@ function throttled(fn, thisArg, updateFn) {
 }
 const _toLeftRightCenter = (align) => align === 'start' ? 'left' : align === 'end' ? 'right' : 'center';
 const _alignStartEnd = (align, start, end) => align === 'start' ? start : align === 'end' ? end : (start + end) / 2;
-function _coordsAnimated(element) {
-	const anims = element && element.$animations;
-	return anims && ((anims.x && anims.x.active()) || (anims.y && anims.y.active()));
-}
 
 function drawFPS(chart, count, date, lastDate) {
 	const fps = (1000 / (date - lastDate)) | 0;
@@ -7539,7 +7535,10 @@ class LineController extends DatasetController {
 		}
 		line.points = points;
 		if (mode !== 'resize') {
-			me.updateElement(line, undefined, {options: me.resolveDatasetElementOptions()}, mode);
+			me.updateElement(line, undefined, {
+				animated: !animationsDisabled,
+				options: me.resolveDatasetElementOptions()
+			}, mode);
 		}
 		me.updateElements(points, start, count, mode);
 	}
@@ -8310,6 +8309,7 @@ function _getInterpolationMethod(options) {
 class LineElement extends Element {
 	constructor(cfg) {
 		super();
+		this.animated = true;
 		this.options = undefined;
 		this._loop = undefined;
 		this._fullLoop = undefined;
@@ -8399,25 +8399,26 @@ class LineElement extends Element {
 		return !!loop;
 	}
 	draw(ctx, chartArea, start, count) {
-		const options = this.options || {};
-		const points = this.points || [];
+		const me = this;
+		const options = me.options || {};
+		const points = me.points || [];
 		if (!points.length || !options.borderWidth) {
 			return;
 		}
 		ctx.save();
 		setStyle(ctx, options);
-		let path = this._path;
+		let path = me._path;
 		if (!path) {
-			path = this._path = new Path2D();
-			if (this.path(path, start, count)) {
+			path = me._path = new Path2D();
+			if (me.path(path, start, count)) {
 				path.closePath();
 			}
 		}
 		ctx.stroke(path);
 		ctx.restore();
-		if (_coordsAnimated(points[0]) || _coordsAnimated(points[points.length - 1])) {
-			this._pointsUpdated = false;
-			this._path = undefined;
+		if (me.animated) {
+			me._pointsUpdated = false;
+			me._path = undefined;
 		}
 	}
 }
