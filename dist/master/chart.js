@@ -619,7 +619,10 @@ function _alignPixel(chart, pixel, width) {
 }
 function clearCanvas(canvas, ctx) {
 	ctx = ctx || canvas.getContext('2d');
+	ctx.save();
+	ctx.resetTransform();
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	ctx.restore();
 }
 function drawPoint(ctx, options, x, y) {
 	let type, xOffset, yOffset, size, cornerRadius;
