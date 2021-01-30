@@ -7053,6 +7053,7 @@ BarController.defaults = {
 		'categoryPercentage',
 		'maxBarThickness',
 		'minBarLength',
+		'pointStyle'
 	],
 	interaction: {
 		mode: 'index'
