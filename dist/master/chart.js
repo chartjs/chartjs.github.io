@@ -8001,6 +8001,9 @@ ScatterController.defaults = {
 		showLine: false,
 		fill: false
 	},
+	interaction: {
+		mode: 'point'
+	},
 	plugins: {
 		tooltip: {
 			callbacks: {
