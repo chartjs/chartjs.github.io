@@ -4765,6 +4765,7 @@ class Scale extends Element {
 		const labelSizes = me._getLabelSizes();
 		const tickAndPadding = tl + padding;
 		const widest = labelSizes.widest.width;
+		const lineSpace = labelSizes.highest.offset * 0.8;
 		let textAlign;
 		let x;
 		if (position === 'left') {
@@ -4780,7 +4781,7 @@ class Scale extends Element {
 					x -= (widest / 2);
 				} else {
 					textAlign = 'left';
-					x -= widest;
+					x = me.left + lineSpace;
 				}
 			}
 		} else if (position === 'right') {
@@ -4796,13 +4797,24 @@ class Scale extends Element {
 					x += widest / 2;
 				} else {
 					textAlign = 'right';
-					x += widest;
+					x = me.right - lineSpace;
 				}
 			}
 		} else {
 			textAlign = 'right';
 		}
 		return {textAlign, x};
+	}
+	_computeLabelArea() {
+		const me = this;
+		const chart = me.chart;
+		const position = me.options.position;
+		if (position === 'left' || position === 'right') {
+			return {top: 0, left: me.left, bottom: chart.height, right: me.right};
+		} if (position === 'top' || position === 'bottom') {
+			return {top: me.top, left: 0, bottom: me.bottom, right: chart.width};
+		}
+		return null;
 	}
 	drawGrid(chartArea) {
 		const me = this;
@@ -4877,6 +4889,10 @@ class Scale extends Element {
 			return;
 		}
 		const ctx = me.ctx;
+		const area = me._computeLabelArea();
+		if (area) {
+			clipArea(ctx, area);
+		}
 		const items = me._labelItems || (me._labelItems = me._computeLabelItems(chartArea));
 		let i, ilen;
 		for (i = 0, ilen = items.length; i < ilen; ++i) {
@@ -4885,6 +4901,9 @@ class Scale extends Element {
 			const label = item.label;
 			let y = item.textOffset;
 			renderText(ctx, label, 0, y, tickFont, item);
+		}
+		if (area) {
+			unclipArea(ctx);
 		}
 	}
 	drawTitle(chartArea) {
