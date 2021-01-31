@@ -1379,11 +1379,11 @@ function setLayoutDims(layouts, params) {
 	for (i = 0, ilen = layouts.length; i < ilen; ++i) {
 		layout = layouts[i];
 		if (layout.horizontal) {
-			layout.width = layout.box.fullWidth && params.availableWidth;
+			layout.width = layout.box.fullSize && params.availableWidth;
 			layout.height = params.hBoxMaxHeight;
 		} else {
 			layout.width = params.vBoxMaxWidth;
-			layout.height = layout.box.fullWidth && params.availableHeight;
+			layout.height = layout.box.fullSize && params.availableHeight;
 		}
 	}
 }
@@ -1474,7 +1474,7 @@ function fitBoxes(boxes, chartArea, params) {
 				refit = true;
 			}
 		}
-		if (!box.fullWidth) {
+		if (!box.fullSize) {
 			refitBoxes.push(layout);
 		}
 	}
@@ -1489,8 +1489,8 @@ function placeBoxes(boxes, chartArea, params) {
 		layout = boxes[i];
 		box = layout.box;
 		if (layout.horizontal) {
-			box.left = box.fullWidth ? userPadding.left : chartArea.left;
-			box.right = box.fullWidth ? params.outerWidth - userPadding.right : chartArea.left + chartArea.w;
+			box.left = box.fullSize ? userPadding.left : chartArea.left;
+			box.right = box.fullSize ? params.outerWidth - userPadding.right : chartArea.left + chartArea.w;
 			box.top = y;
 			box.bottom = y + box.height;
 			box.width = box.right - box.left;
@@ -1498,8 +1498,8 @@ function placeBoxes(boxes, chartArea, params) {
 		} else {
 			box.left = x;
 			box.right = x + box.width;
-			box.top = box.fullWidth ? userPadding.top : chartArea.top;
-			box.bottom = box.fullWidth ? params.outerHeight - userPadding.right : chartArea.top + chartArea.h;
+			box.top = box.fullSize ? userPadding.top : chartArea.top;
+			box.bottom = box.fullSize ? params.outerHeight - userPadding.right : chartArea.top + chartArea.h;
 			box.height = box.bottom - box.top;
 			x = box.right;
 		}
@@ -1520,7 +1520,7 @@ var layouts = {
 		if (!chart.boxes) {
 			chart.boxes = [];
 		}
-		item.fullWidth = item.fullWidth || false;
+		item.fullSize = item.fullSize || false;
 		item.position = item.position || 'top';
 		item.weight = item.weight || 0;
 		item._layers = item._layers || function() {
@@ -1540,7 +1540,7 @@ var layouts = {
 		}
 	},
 	configure(chart, item, options) {
-		const props = ['fullWidth', 'position', 'weight'];
+		const props = ['fullSize', 'position', 'weight'];
 		const ilen = props.length;
 		let i = 0;
 		let prop;
@@ -4355,8 +4355,8 @@ class Scale extends Element {
 		const {axis, position} = this.options;
 		return position === 'top' || position === 'bottom' || axis === 'x';
 	}
-	isFullWidth() {
-		return this.options.fullWidth;
+	isFullSize() {
+		return this.options.fullSize;
 	}
 	_convertTicksToLabels(ticks) {
 		const me = this;
@@ -6126,7 +6126,7 @@ class Chart {
 		});
 		me.scales = scales;
 		each(scales, (scale) => {
-			scale.fullWidth = scale.options.fullWidth;
+			scale.fullSize = scale.options.fullSize;
 			scale.position = scale.options.position;
 			scale.weight = scale.options.weight;
 			layouts.addBox(me, scale);
@@ -9192,7 +9192,7 @@ class Legend extends Element {
 		this._margins = undefined;
 		this.position = undefined;
 		this.weight = undefined;
-		this.fullWidth = undefined;
+		this.fullSize = undefined;
 	}
 	update(maxWidth, maxHeight, margins) {
 		const me = this;
@@ -9523,7 +9523,7 @@ var plugin_legend = {
 		display: true,
 		position: 'top',
 		align: 'center',
-		fullWidth: true,
+		fullSize: true,
 		reverse: false,
 		weight: 1000,
 		onClick(e, legendItem, legend) {
@@ -9594,7 +9594,7 @@ class Title extends Element {
 		this.height = undefined;
 		this.position = undefined;
 		this.weight = undefined;
-		this.fullWidth = undefined;
+		this.fullSize = undefined;
 	}
 	update(maxWidth, maxHeight) {
 		const me = this;
@@ -9714,7 +9714,7 @@ var plugin_title = {
 		font: {
 			style: 'bold',
 		},
-		fullWidth: true,
+		fullSize: true,
 		padding: 10,
 		position: 'top',
 		text: '',
