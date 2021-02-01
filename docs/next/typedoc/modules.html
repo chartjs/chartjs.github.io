@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Chart.js - v3.0.0-beta.9</title>
-	<meta name="description" content="Documentation for Chart.js - v3.0.0-beta.9">
+	<title>Chart.js - v3.0.0-beta.10</title>
+	<meta name="description" content="Documentation for Chart.js - v3.0.0-beta.10">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="assets/css/main.css">
 	<script async src="assets/js/search.js" id="search-script"></script>
@@ -23,7 +23,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="index.html" class="title">Chart.js - v3.0.0-beta.9</a>
+					<a href="index.html" class="title">Chart.js - v3.0.0-beta.10</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -48,7 +48,7 @@
 	</div>
 	<div class="tsd-page-title">
 		<div class="container">
-			<h1>Project Chart.js - v3.0.0-beta.9</h1>
+			<h1>Project Chart.js - v3.0.0-beta.10</h1>
 		</div>
 	</div>
 </header>
@@ -121,6 +121,7 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
+								<li class="tsd-kind-property"><a href="modules.html#decimation" class="tsd-kind-icon">Decimation</a></li>
 								<li class="tsd-kind-property"><a href="modules.html#filler" class="tsd-kind-icon">Filler</a></li>
 								<li class="tsd-kind-property"><a href="modules.html#interaction" class="tsd-kind-icon">Interaction</a></li>
 								<li class="tsd-kind-property"><a href="modules.html#legend" class="tsd-kind-icon">Legend</a></li>
@@ -139,6 +140,81 @@
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
+				<section class="tsd-panel tsd-member tsd-kind-property">
+					<a name="decimation" class="tsd-anchor"></a>
+					<h3>Decimation</h3>
+					<div class="tsd-signature tsd-kind-icon">Decimation<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>beforeElementsUpdate<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span>chart<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, args<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, options<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">; </span>defaults<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>algorithm<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>enabled<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">; </span>id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>destroy<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> }</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter">
+								<h5>before<wbr>Elements<wbr>Update<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span>chart<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, args<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, options<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></h5>
+								<ul class="tsd-parameters">
+									<li class="tsd-parameter-signature">
+										<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-type-literal">
+											<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>chart<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, args<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, options<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+										</ul>
+										<ul class="tsd-descriptions">
+											<li class="tsd-description">
+												<h4 class="tsd-parameters-title">Parameters</h4>
+												<ul class="tsd-parameters">
+													<li>
+														<h5>chart: <span class="tsd-signature-type">any</span></h5>
+													</li>
+													<li>
+														<h5>args: <span class="tsd-signature-type">any</span></h5>
+													</li>
+													<li>
+														<h5>options: <span class="tsd-signature-type">any</span></h5>
+													</li>
+												</ul>
+												<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+											</li>
+										</ul>
+									</li>
+								</ul>
+							</li>
+							<li class="tsd-parameter">
+								<h5>defaults<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>algorithm<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>enabled<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> }</span></h5>
+								<ul class="tsd-parameters">
+									<li class="tsd-parameter">
+										<h5>algorithm<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+									</li>
+									<li class="tsd-parameter">
+										<h5>enabled<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h5>
+									</li>
+								</ul>
+							</li>
+							<li class="tsd-parameter">
+								<h5>id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>destroy<span class="tsd-signature-symbol">: </span>function</h5>
+								<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-type-literal">
+									<li class="tsd-signature tsd-kind-icon">destroy<span class="tsd-signature-symbol">(</span>chart<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<aside class="tsd-sources">
+											<ul>
+												<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/650956b/src/plugins/plugin.decimation.js#L125">plugins/plugin.decimation.js:125</a></li>
+											</ul>
+										</aside>
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5>chart: <span class="tsd-signature-type">any</span></h5>
+											</li>
+										</ul>
+										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property">
 					<a name="filler" class="tsd-anchor"></a>
 					<h3>Filler</h3>
@@ -168,7 +244,7 @@
 									<li class="tsd-description">
 										<aside class="tsd-sources">
 											<ul>
-												<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/eb88909/src/plugins/plugin.filler.js#L528">plugins/plugin.filler.js:528</a></li>
+												<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/650956b/src/plugins/plugin.filler.js#L528">plugins/plugin.filler.js:528</a></li>
 											</ul>
 										</aside>
 										<h4 class="tsd-parameters-title">Parameters</h4>
@@ -196,7 +272,7 @@
 									<li class="tsd-description">
 										<aside class="tsd-sources">
 											<ul>
-												<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/eb88909/src/plugins/plugin.filler.js#L578">plugins/plugin.filler.js:578</a></li>
+												<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/650956b/src/plugins/plugin.filler.js#L578">plugins/plugin.filler.js:578</a></li>
 											</ul>
 										</aside>
 										<h4 class="tsd-parameters-title">Parameters</h4>
@@ -221,7 +297,7 @@
 									<li class="tsd-description">
 										<aside class="tsd-sources">
 											<ul>
-												<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/eb88909/src/plugins/plugin.filler.js#L564">plugins/plugin.filler.js:564</a></li>
+												<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/650956b/src/plugins/plugin.filler.js#L564">plugins/plugin.filler.js:564</a></li>
 											</ul>
 										</aside>
 										<h4 class="tsd-parameters-title">Parameters</h4>
@@ -258,7 +334,7 @@
 											<li class="tsd-description">
 												<aside class="tsd-sources">
 													<ul>
-														<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/eb88909/src/core/core.interaction.js#L262">core/core.interaction.js:262</a></li>
+														<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/650956b/src/core/core.interaction.js#L262">core/core.interaction.js:262</a></li>
 													</ul>
 												</aside>
 												<div class="tsd-comment tsd-typography">
@@ -312,7 +388,7 @@
 											<li class="tsd-description">
 												<aside class="tsd-sources">
 													<ul>
-														<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/eb88909/src/core/core.interaction.js#L226">core/core.interaction.js:226</a></li>
+														<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/650956b/src/core/core.interaction.js#L226">core/core.interaction.js:226</a></li>
 													</ul>
 												</aside>
 												<div class="tsd-comment tsd-typography">
@@ -369,7 +445,7 @@
 											<li class="tsd-description">
 												<aside class="tsd-sources">
 													<ul>
-														<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/eb88909/src/core/core.interaction.js#L306">core/core.interaction.js:306</a></li>
+														<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/650956b/src/core/core.interaction.js#L306">core/core.interaction.js:306</a></li>
 													</ul>
 												</aside>
 												<div class="tsd-comment tsd-typography">
@@ -422,7 +498,7 @@
 											<li class="tsd-description">
 												<aside class="tsd-sources">
 													<ul>
-														<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/eb88909/src/core/core.interaction.js#L291">core/core.interaction.js:291</a></li>
+														<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/650956b/src/core/core.interaction.js#L291">core/core.interaction.js:291</a></li>
 													</ul>
 												</aside>
 												<div class="tsd-comment tsd-typography">
@@ -476,7 +552,7 @@
 											<li class="tsd-description">
 												<aside class="tsd-sources">
 													<ul>
-														<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/eb88909/src/core/core.interaction.js#L321">core/core.interaction.js:321</a></li>
+														<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/650956b/src/core/core.interaction.js#L321">core/core.interaction.js:321</a></li>
 													</ul>
 												</aside>
 												<div class="tsd-comment tsd-typography">
@@ -529,7 +605,7 @@
 											<li class="tsd-description">
 												<aside class="tsd-sources">
 													<ul>
-														<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/eb88909/src/core/core.interaction.js#L335">core/core.interaction.js:335</a></li>
+														<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/650956b/src/core/core.interaction.js#L335">core/core.interaction.js:335</a></li>
 													</ul>
 												</aside>
 												<div class="tsd-comment tsd-typography">
@@ -581,7 +657,7 @@
 				<section class="tsd-panel tsd-member tsd-kind-property">
 					<a name="legend" class="tsd-anchor"></a>
 					<h3>Legend</h3>
-					<div class="tsd-signature tsd-kind-icon">Legend<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>_element<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">typeof </span><span class="tsd-signature-type">Legend</span><span class="tsd-signature-symbol">; </span>defaultRoutes<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>labels.color<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>title.color<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">; </span>defaults<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>align<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>display<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>fullWidth<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>labels<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>boxWidth<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>padding<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>generateLabels<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">; </span>onHover<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>onLeave<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>position<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>reverse<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>title<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>display<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>position<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>text<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">; </span>weight<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>onClick<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">; </span>id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>afterEvent<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>afterUpdate<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>beforeUpdate<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>start<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>stop<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> }</span></div>
+					<div class="tsd-signature tsd-kind-icon">Legend<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>_element<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">typeof </span><span class="tsd-signature-type">Legend</span><span class="tsd-signature-symbol">; </span>defaultRoutes<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>labels.color<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>title.color<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">; </span>defaults<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>align<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>display<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>fullSize<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>labels<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>boxWidth<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>padding<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>generateLabels<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">; </span>onHover<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>onLeave<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>position<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>reverse<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>title<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>display<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>position<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>text<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">; </span>weight<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>onClick<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">; </span>id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>afterEvent<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>afterUpdate<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>beforeUpdate<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>start<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>stop<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> }</span></div>
 					<aside class="tsd-sources">
 					</aside>
 					<div class="tsd-type-declaration">
@@ -602,7 +678,7 @@
 								</ul>
 							</li>
 							<li class="tsd-parameter">
-								<h5>defaults<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>align<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>display<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>fullWidth<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>labels<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>boxWidth<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>padding<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>generateLabels<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">; </span>onHover<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>onLeave<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>position<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>reverse<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>title<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>display<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>position<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>text<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">; </span>weight<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>onClick<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> }</span></h5>
+								<h5>defaults<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>align<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>display<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>fullSize<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>labels<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>boxWidth<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>padding<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>generateLabels<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">; </span>onHover<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>onLeave<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>position<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>reverse<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>title<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>display<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>position<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>text<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">; </span>weight<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>onClick<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> }</span></h5>
 								<ul class="tsd-parameters">
 									<li class="tsd-parameter">
 										<h5>align<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
@@ -611,7 +687,7 @@
 										<h5>display<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h5>
 									</li>
 									<li class="tsd-parameter">
-										<h5>full<wbr>Width<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h5>
+										<h5>full<wbr>Size<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h5>
 									</li>
 									<li class="tsd-parameter">
 										<h5>labels<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>boxWidth<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>padding<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>generateLabels<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> }</span></h5>
@@ -631,7 +707,7 @@
 													<li class="tsd-description">
 														<aside class="tsd-sources">
 															<ul>
-																<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/eb88909/src/plugins/plugin.legend.js#L577">plugins/plugin.legend.js:577</a></li>
+																<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/650956b/src/plugins/plugin.legend.js#L577">plugins/plugin.legend.js:577</a></li>
 															</ul>
 														</aside>
 														<h4 class="tsd-parameters-title">Parameters</h4>
@@ -684,7 +760,7 @@
 											<li class="tsd-description">
 												<aside class="tsd-sources">
 													<ul>
-														<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/eb88909/src/plugins/plugin.legend.js#L548">plugins/plugin.legend.js:548</a></li>
+														<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/650956b/src/plugins/plugin.legend.js#L548">plugins/plugin.legend.js:548</a></li>
 													</ul>
 												</aside>
 												<h4 class="tsd-parameters-title">Parameters</h4>
@@ -717,7 +793,7 @@
 									<li class="tsd-description">
 										<aside class="tsd-sources">
 											<ul>
-												<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/eb88909/src/plugins/plugin.legend.js#L535">plugins/plugin.legend.js:535</a></li>
+												<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/650956b/src/plugins/plugin.legend.js#L535">plugins/plugin.legend.js:535</a></li>
 											</ul>
 										</aside>
 										<h4 class="tsd-parameters-title">Parameters</h4>
@@ -742,7 +818,7 @@
 									<li class="tsd-description">
 										<aside class="tsd-sources">
 											<ul>
-												<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/eb88909/src/plugins/plugin.legend.js#L530">plugins/plugin.legend.js:530</a></li>
+												<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/650956b/src/plugins/plugin.legend.js#L530">plugins/plugin.legend.js:530</a></li>
 											</ul>
 										</aside>
 										<h4 class="tsd-parameters-title">Parameters</h4>
@@ -764,7 +840,7 @@
 									<li class="tsd-description">
 										<aside class="tsd-sources">
 											<ul>
-												<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/eb88909/src/plugins/plugin.legend.js#L522">plugins/plugin.legend.js:522</a></li>
+												<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/650956b/src/plugins/plugin.legend.js#L522">plugins/plugin.legend.js:522</a></li>
 											</ul>
 										</aside>
 										<h4 class="tsd-parameters-title">Parameters</h4>
@@ -792,7 +868,7 @@
 									<li class="tsd-description">
 										<aside class="tsd-sources">
 											<ul>
-												<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/eb88909/src/plugins/plugin.legend.js#L508">plugins/plugin.legend.js:508</a></li>
+												<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/650956b/src/plugins/plugin.legend.js#L508">plugins/plugin.legend.js:508</a></li>
 											</ul>
 										</aside>
 										<h4 class="tsd-parameters-title">Parameters</h4>
@@ -820,7 +896,7 @@
 									<li class="tsd-description">
 										<aside class="tsd-sources">
 											<ul>
-												<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/eb88909/src/plugins/plugin.legend.js#L514">plugins/plugin.legend.js:514</a></li>
+												<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/650956b/src/plugins/plugin.legend.js#L514">plugins/plugin.legend.js:514</a></li>
 											</ul>
 										</aside>
 										<h4 class="tsd-parameters-title">Parameters</h4>
@@ -857,7 +933,7 @@
 											<li class="tsd-description">
 												<aside class="tsd-sources">
 													<ul>
-														<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/eb88909/src/core/core.ticks.js#L28">core/core.ticks.js:28</a></li>
+														<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/650956b/src/core/core.ticks.js#L28">core/core.ticks.js:28</a></li>
 													</ul>
 												</aside>
 												<div class="tsd-comment tsd-typography">
@@ -905,7 +981,7 @@
 											<li class="tsd-description">
 												<aside class="tsd-sources">
 													<ul>
-														<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/eb88909/src/core/core.ticks.js#L16">core/core.ticks.js:16</a></li>
+														<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/650956b/src/core/core.ticks.js#L16">core/core.ticks.js:16</a></li>
 													</ul>
 												</aside>
 												<div class="tsd-comment tsd-typography">
@@ -940,7 +1016,7 @@
 				<section class="tsd-panel tsd-member tsd-kind-property">
 					<a name="title" class="tsd-anchor"></a>
 					<h3>Title</h3>
-					<div class="tsd-signature tsd-kind-icon">Title<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>_element<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">typeof </span><span class="tsd-signature-type">Title</span><span class="tsd-signature-symbol">; </span>defaultRoutes<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>color<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">; </span>defaults<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>align<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>display<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>font<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>style<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">; </span>fullWidth<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>padding<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>position<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>text<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>weight<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">; </span>id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>beforeUpdate<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>start<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>stop<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> }</span></div>
+					<div class="tsd-signature tsd-kind-icon">Title<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>_element<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">typeof </span><span class="tsd-signature-type">Title</span><span class="tsd-signature-symbol">; </span>defaultRoutes<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>color<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">; </span>defaults<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>align<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>display<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>font<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>style<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">; </span>fullSize<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>padding<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>position<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>text<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>weight<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">; </span>id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>beforeUpdate<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>start<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>stop<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> }</span></div>
 					<aside class="tsd-sources">
 					</aside>
 					<div class="tsd-type-declaration">
@@ -958,7 +1034,7 @@
 								</ul>
 							</li>
 							<li class="tsd-parameter">
-								<h5>defaults<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>align<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>display<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>font<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>style<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">; </span>fullWidth<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>padding<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>position<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>text<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>weight<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span></h5>
+								<h5>defaults<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>align<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>display<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>font<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>style<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">; </span>fullSize<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>padding<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>position<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>text<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>weight<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span></h5>
 								<ul class="tsd-parameters">
 									<li class="tsd-parameter">
 										<h5>align<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
@@ -975,7 +1051,7 @@
 										</ul>
 									</li>
 									<li class="tsd-parameter">
-										<h5>full<wbr>Width<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h5>
+										<h5>full<wbr>Size<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h5>
 									</li>
 									<li class="tsd-parameter">
 										<h5>padding<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
@@ -1003,7 +1079,7 @@
 									<li class="tsd-description">
 										<aside class="tsd-sources">
 											<ul>
-												<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/eb88909/src/plugins/plugin.title.js#L159">plugins/plugin.title.js:159</a></li>
+												<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/650956b/src/plugins/plugin.title.js#L159">plugins/plugin.title.js:159</a></li>
 											</ul>
 										</aside>
 										<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1031,7 +1107,7 @@
 									<li class="tsd-description">
 										<aside class="tsd-sources">
 											<ul>
-												<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/eb88909/src/plugins/plugin.title.js#L149">plugins/plugin.title.js:149</a></li>
+												<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/650956b/src/plugins/plugin.title.js#L149">plugins/plugin.title.js:149</a></li>
 											</ul>
 										</aside>
 										<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1059,7 +1135,7 @@
 									<li class="tsd-description">
 										<aside class="tsd-sources">
 											<ul>
-												<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/eb88909/src/plugins/plugin.title.js#L153">plugins/plugin.title.js:153</a></li>
+												<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/650956b/src/plugins/plugin.title.js#L153">plugins/plugin.title.js:153</a></li>
 											</ul>
 										</aside>
 										<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1352,7 +1428,7 @@
 													<li class="tsd-description">
 														<aside class="tsd-sources">
 															<ul>
-																<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/eb88909/src/plugins/plugin.tooltip.js#L1147">plugins/plugin.tooltip.js:1147</a></li>
+																<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/650956b/src/plugins/plugin.tooltip.js#L1147">plugins/plugin.tooltip.js:1147</a></li>
 															</ul>
 														</aside>
 														<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1374,7 +1450,7 @@
 													<li class="tsd-description">
 														<aside class="tsd-sources">
 															<ul>
-																<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/eb88909/src/plugins/plugin.tooltip.js#L1163">plugins/plugin.tooltip.js:1163</a></li>
+																<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/650956b/src/plugins/plugin.tooltip.js#L1163">plugins/plugin.tooltip.js:1163</a></li>
 															</ul>
 														</aside>
 														<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1404,7 +1480,7 @@
 													<li class="tsd-description">
 														<aside class="tsd-sources">
 															<ul>
-																<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/eb88909/src/plugins/plugin.tooltip.js#L1174">plugins/plugin.tooltip.js:1174</a></li>
+																<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/650956b/src/plugins/plugin.tooltip.js#L1174">plugins/plugin.tooltip.js:1174</a></li>
 															</ul>
 														</aside>
 														<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1434,7 +1510,7 @@
 													<li class="tsd-description">
 														<aside class="tsd-sources">
 															<ul>
-																<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/eb88909/src/plugins/plugin.tooltip.js#L1171">plugins/plugin.tooltip.js:1171</a></li>
+																<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/650956b/src/plugins/plugin.tooltip.js#L1171">plugins/plugin.tooltip.js:1171</a></li>
 															</ul>
 														</aside>
 														<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
@@ -1450,7 +1526,7 @@
 													<li class="tsd-description">
 														<aside class="tsd-sources">
 															<ul>
-																<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/eb88909/src/plugins/plugin.tooltip.js#L1123">plugins/plugin.tooltip.js:1123</a></li>
+																<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/650956b/src/plugins/plugin.tooltip.js#L1123">plugins/plugin.tooltip.js:1123</a></li>
 															</ul>
 														</aside>
 														<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1552,7 +1628,7 @@
 											<li class="tsd-description">
 												<aside class="tsd-sources">
 													<ul>
-														<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/eb88909/src/plugins/plugin.tooltip.js#L19">plugins/plugin.tooltip.js:19</a></li>
+														<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/650956b/src/plugins/plugin.tooltip.js#L19">plugins/plugin.tooltip.js:19</a></li>
 													</ul>
 												</aside>
 												<div class="tsd-comment tsd-typography">
@@ -1588,7 +1664,7 @@
 											<li class="tsd-description">
 												<aside class="tsd-sources">
 													<ul>
-														<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/eb88909/src/plugins/plugin.tooltip.js#L52">plugins/plugin.tooltip.js:52</a></li>
+														<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/650956b/src/plugins/plugin.tooltip.js#L52">plugins/plugin.tooltip.js:52</a></li>
 													</ul>
 												</aside>
 												<div class="tsd-comment tsd-typography">
@@ -1632,7 +1708,7 @@
 									<li class="tsd-description">
 										<aside class="tsd-sources">
 											<ul>
-												<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/eb88909/src/plugins/plugin.tooltip.js#L1046">plugins/plugin.tooltip.js:1046</a></li>
+												<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/650956b/src/plugins/plugin.tooltip.js#L1046">plugins/plugin.tooltip.js:1046</a></li>
 											</ul>
 										</aside>
 										<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1654,7 +1730,7 @@
 									<li class="tsd-description">
 										<aside class="tsd-sources">
 											<ul>
-												<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/eb88909/src/plugins/plugin.tooltip.js#L1064">plugins/plugin.tooltip.js:1064</a></li>
+												<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/650956b/src/plugins/plugin.tooltip.js#L1064">plugins/plugin.tooltip.js:1064</a></li>
 											</ul>
 										</aside>
 										<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1679,7 +1755,7 @@
 									<li class="tsd-description">
 										<aside class="tsd-sources">
 											<ul>
-												<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/eb88909/src/plugins/plugin.tooltip.js#L1028">plugins/plugin.tooltip.js:1028</a></li>
+												<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/650956b/src/plugins/plugin.tooltip.js#L1028">plugins/plugin.tooltip.js:1028</a></li>
 											</ul>
 										</aside>
 										<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1707,7 +1783,7 @@
 									<li class="tsd-description">
 										<aside class="tsd-sources">
 											<ul>
-												<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/eb88909/src/plugins/plugin.tooltip.js#L1034">plugins/plugin.tooltip.js:1034</a></li>
+												<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/650956b/src/plugins/plugin.tooltip.js#L1034">plugins/plugin.tooltip.js:1034</a></li>
 											</ul>
 										</aside>
 										<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1735,7 +1811,7 @@
 									<li class="tsd-description">
 										<aside class="tsd-sources">
 											<ul>
-												<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/eb88909/src/plugins/plugin.tooltip.js#L1040">plugins/plugin.tooltip.js:1040</a></li>
+												<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/650956b/src/plugins/plugin.tooltip.js#L1040">plugins/plugin.tooltip.js:1040</a></li>
 											</ul>
 										</aside>
 										<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1804,7 +1880,7 @@
 									<li class="tsd-description">
 										<aside class="tsd-sources">
 											<ul>
-												<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/eb88909/src/core/core.layouts.js#L246">core/core.layouts.js:246</a></li>
+												<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/650956b/src/core/core.layouts.js#L246">core/core.layouts.js:246</a></li>
 											</ul>
 										</aside>
 										<div class="tsd-comment tsd-typography">
@@ -1841,7 +1917,7 @@
 									<li class="tsd-description">
 										<aside class="tsd-sources">
 											<ul>
-												<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/eb88909/src/core/core.layouts.js#L286">core/core.layouts.js:286</a></li>
+												<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/650956b/src/core/core.layouts.js#L286">core/core.layouts.js:286</a></li>
 											</ul>
 										</aside>
 										<div class="tsd-comment tsd-typography">
@@ -1883,7 +1959,7 @@
 									<li class="tsd-description">
 										<aside class="tsd-sources">
 											<ul>
-												<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/eb88909/src/core/core.layouts.js#L273">core/core.layouts.js:273</a></li>
+												<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/650956b/src/core/core.layouts.js#L273">core/core.layouts.js:273</a></li>
 											</ul>
 										</aside>
 										<div class="tsd-comment tsd-typography">
@@ -1919,7 +1995,7 @@
 									<li class="tsd-description">
 										<aside class="tsd-sources">
 											<ul>
-												<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/eb88909/src/core/core.layouts.js#L307">core/core.layouts.js:307</a></li>
+												<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/650956b/src/core/core.layouts.js#L299">core/core.layouts.js:299</a></li>
 											</ul>
 										</aside>
 										<div class="tsd-comment tsd-typography">
@@ -2058,6 +2134,9 @@
 					</li>
 					<li class=" tsd-kind-class">
 						<a href="classes/plugins.html" class="tsd-kind-icon">plugins</a>
+					</li>
+					<li class=" tsd-kind-property">
+						<a href="modules.html#decimation" class="tsd-kind-icon">Decimation</a>
 					</li>
 					<li class=" tsd-kind-property">
 						<a href="modules.html#filler" class="tsd-kind-icon">Filler</a>
