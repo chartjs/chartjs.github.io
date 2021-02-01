@@ -3194,16 +3194,11 @@ class DatasetController {
 		const me = this;
 		const meta = me._cachedMeta;
 		me._dataCheck();
-		const data = me._data;
-		const metaData = meta.data = new Array(data.length);
-		for (let i = 0, ilen = data.length; i < ilen; ++i) {
-			metaData[i] = new me.dataElementType();
-		}
 		if (me.datasetElementType) {
 			meta.dataset = new me.datasetElementType();
 		}
 	}
-	buildOrUpdateElements() {
+	buildOrUpdateElements(resetNewElements) {
 		const me = this;
 		const meta = me._cachedMeta;
 		const dataset = me.getDataset();
@@ -3215,7 +3210,7 @@ class DatasetController {
 			clearStacks(meta);
 			meta.stack = dataset.stack;
 		}
-		me._resyncElements();
+		me._resyncElements(resetNewElements);
 		if (stackChanged) {
 			updateStacks(me, meta._parsed);
 		}
@@ -3228,7 +3223,7 @@ class DatasetController {
 			me.getDataset(),
 		], {
 			merger(key, target, source) {
-				if (key !== 'data') {
+				if (key !== 'data' && key.charAt(0) !== '_') {
 					_merger(key, target, source);
 				}
 			}
@@ -3240,12 +3235,9 @@ class DatasetController {
 		const {_cachedMeta: meta, _data: data} = me;
 		const {iScale, _stacked} = meta;
 		const iAxis = iScale.axis;
-		let sorted = true;
-		let i, parsed, cur, prev;
-		if (start > 0) {
-			sorted = meta._sorted;
-			prev = meta._parsed[start - 1];
-		}
+		let sorted = start === 0 && count === data.length ? true : meta._sorted;
+		let prev = start > 0 && meta._parsed[start - 1];
+		let i, cur, parsed;
 		if (me._parsing === false) {
 			meta._parsed = data;
 			meta._sorted = true;
@@ -3602,18 +3594,18 @@ class DatasetController {
 			this._setStyle(element, undefined, 'active', true);
 		}
 	}
-	_resyncElements() {
+	_resyncElements(resetNewElements) {
 		const me = this;
 		const numMeta = me._cachedMeta.data.length;
 		const numData = me._data.length;
 		if (numData > numMeta) {
-			me._insertElements(numMeta, numData - numMeta);
+			me._insertElements(numMeta, numData - numMeta, resetNewElements);
 		} else if (numData < numMeta) {
 			me._removeElements(numData, numMeta - numData);
 		}
 		me.parse(0, Math.min(numData, numMeta));
 	}
-	_insertElements(start, count) {
+	_insertElements(start, count, resetNewElements = true) {
 		const me = this;
 		const elements = new Array(count);
 		const meta = me._cachedMeta;
@@ -3627,7 +3619,9 @@ class DatasetController {
 			meta._parsed.splice(start, 0, ...new Array(count));
 		}
 		me.parse(start, count);
-		me.updateElements(data, start, count, 'reset');
+		if (resetNewElements) {
+			me.updateElements(data, start, count, 'reset');
+		}
 	}
 	updateElements(element, start, count, mode) {}
 	_removeElements(start, count) {
@@ -6238,8 +6232,11 @@ class Chart {
 			return;
 		}
 		const newControllers = me.buildOrUpdateControllers();
+		me.notifyPlugins('beforeElementsUpdate');
 		for (i = 0, ilen = me.data.datasets.length; i < ilen; i++) {
-			me.getDatasetMeta(i).controller.buildOrUpdateElements();
+			const {controller} = me.getDatasetMeta(i);
+			const reset = !animsDisabled && newControllers.indexOf(controller) === -1;
+			controller.buildOrUpdateElements(reset);
 		}
 		me._updateLayout();
 		if (!animsDisabled) {
@@ -8715,6 +8712,108 @@ PointElement: PointElement,
 BarElement: BarElement
 });
 
+function minMaxDecimation(data, availableWidth) {
+	let i, point, x, y, prevX, minIndex, maxIndex, minY, maxY;
+	const decimated = [];
+	const xMin = data[0].x;
+	const xMax = data[data.length - 1].x;
+	const dx = xMax - xMin;
+	for (i = 0; i < data.length; ++i) {
+		point = data[i];
+		x = (point.x - xMin) / dx * availableWidth;
+		y = point.y;
+		const truncX = x | 0;
+		if (truncX === prevX) {
+			if (y < minY) {
+				minY = y;
+				minIndex = i;
+			} else if (y > maxY) {
+				maxY = y;
+				maxIndex = i;
+			}
+		} else {
+			if (minIndex && maxIndex) {
+				decimated.push(data[minIndex], data[maxIndex]);
+			}
+			if (i > 0) {
+				decimated.push(data[i - 1]);
+			}
+			decimated.push(point);
+			prevX = truncX;
+			minY = maxY = y;
+			minIndex = maxIndex = i;
+		}
+	}
+	return decimated;
+}
+var plugin_decimation = {
+	id: 'decimation',
+	defaults: {
+		algorithm: 'min-max',
+		enabled: false,
+	},
+	beforeElementsUpdate: (chart, args, options) => {
+		if (!options.enabled) {
+			return;
+		}
+		const availableWidth = chart.width;
+		chart.data.datasets.forEach((dataset, datasetIndex) => {
+			const {_data, indexAxis} = dataset;
+			const meta = chart.getDatasetMeta(datasetIndex);
+			const data = _data || dataset.data;
+			if (resolve([indexAxis, chart.options.indexAxis]) === 'y') {
+				return;
+			}
+			if (meta.type !== 'line') {
+				return;
+			}
+			const xAxis = chart.scales[meta.xAxisID];
+			if (xAxis.type !== 'linear' && xAxis.type !== 'time') {
+				return;
+			}
+			if (chart.options.parsing) {
+				return;
+			}
+			if (data.length <= 4 * availableWidth) {
+				return;
+			}
+			if (isNullOrUndef(_data)) {
+				dataset._data = data;
+				delete dataset.data;
+				Object.defineProperty(dataset, 'data', {
+					configurable: true,
+					enumerable: true,
+					get: function() {
+						return this._decimated;
+					},
+					set: function(d) {
+						this._data = d;
+					}
+				});
+			}
+			let decimated;
+			switch (options.algorithm) {
+			case 'min-max':
+				decimated = minMaxDecimation(data, availableWidth);
+				break;
+			default:
+				throw new Error(`Unsupported decimation algorithm '${options.algorithm}'`);
+			}
+			dataset._decimated = decimated;
+		});
+	},
+	destroy(chart) {
+		chart.data.datasets.forEach((dataset) => {
+			if (dataset._decimated) {
+				const data = dataset._data;
+				delete dataset._decimated;
+				delete dataset._data;
+				Object.defineProperty(dataset, 'data', {value: data});
+			}
+		});
+	}
+};
+
 function getLineByIndex(chart, index) {
 	const meta = chart.getDatasetMeta(index);
 	const visible = meta && chart.isDatasetVisible(index);
@@ -10611,6 +10710,7 @@ var plugin_tooltip = {
 
 var plugins = /*#__PURE__*/Object.freeze({
 __proto__: null,
+Decimation: plugin_decimation,
 Filler: plugin_filler,
 Legend: plugin_legend,
 Title: plugin_title,
