@@ -2944,16 +2944,9 @@ var layouts = {
 		}
 	},
 	configure(chart, item, options) {
-		const props = ['fullSize', 'position', 'weight'];
-		const ilen = props.length;
-		let i = 0;
-		let prop;
-		for (; i < ilen; ++i) {
-			prop = props[i];
-			if (Object.prototype.hasOwnProperty.call(options, prop)) {
-				item[prop] = options[prop];
-			}
-		}
+		item.fullSize = options.fullSize;
+		item.position = options.position;
+		item.weight = options.weight;
 	},
 	update(chart, width, height) {
 		if (!chart) {
@@ -5247,9 +5240,7 @@ class Chart {
 		});
 		me.scales = scales;
 		each(scales, (scale) => {
-			scale.fullSize = scale.options.fullSize;
-			scale.position = scale.options.position;
-			scale.weight = scale.options.weight;
+			layouts.configure(me, scale, scale.options);
 			layouts.addBox(me, scale);
 		});
 	}
