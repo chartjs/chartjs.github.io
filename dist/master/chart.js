@@ -5819,10 +5819,6 @@ function mergeScaleConfig(config, options) {
 		firstIDs[axis] = firstIDs[axis] || id;
 		scales[id] = mergeIf(Object.create(null), [{axis}, scaleConf, defaultScaleOptions[axis], defaultScaleOptions[defaultId]]);
 	});
-	if (options.scale) {
-		scales[options.scale.id || 'r'] = mergeIf(Object.create(null), [{axis: 'r'}, options.scale, chartDefaults.scales.r]);
-		firstIDs.r = firstIDs.r || options.scale.id || 'r';
-	}
 	config.data.datasets.forEach(dataset => {
 		const type = dataset.type || config.type;
 		const indexAxis = dataset.indexAxis || getIndexAxis(type, options);
@@ -6134,9 +6130,6 @@ class Chart {
 				scales[scale.id] = scale;
 			}
 			scale.init(scaleOptions, options);
-			if (item.isDefault) {
-				me.scale = scale;
-			}
 		});
 		each(updated, (hasUpdated, id) => {
 			if (!hasUpdated) {
