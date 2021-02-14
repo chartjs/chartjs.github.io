@@ -558,53 +558,26 @@ function getFirstScaleId(chart, axis) {
   return Object.keys(scales).filter(key => scales[key].axis === axis).shift();
 }
 function createDatasetContext(parent, index, dataset) {
-  return Object.create(parent, {
-    active: {
-      writable: true,
-      value: false
-    },
-    dataset: {
-      value: dataset
-    },
-    datasetIndex: {
-      value: index
-    },
-    index: {
-      get() {
-        return this.datasetIndex;
-      }
-    },
-    type: {
-      value: 'dataset'
+  return Object.assign(Object.create(parent),
+    {
+      active: false,
+      dataset,
+      datasetIndex: index,
+      index,
+      type: 'dataset'
     }
-  });
+  );
 }
 function createDataContext(parent, index, point, raw, element) {
-  return Object.create(parent, {
-    active: {
-      writable: true,
-      value: false
-    },
-    dataIndex: {
-      value: index
-    },
-    parsed: {
-      value: point
-    },
-    raw: {
-      value: raw
-    },
-    element: {
-      value: element
-    },
-    index: {
-      get() {
-        return this.dataIndex;
-      }
-    },
-    type: {
-      value: 'data',
-    }
+  return Object.assign(Object.create(parent), {
+    active: false,
+    dataIndex: index,
+    parsed: point,
+    raw,
+    element,
+    index,
+    mode: 'default',
+    type: 'data'
   });
 }
 function clearStacks(meta, items) {
@@ -3530,26 +3503,16 @@ function skip(ticks, newTicks, spacing, majorStart, majorEnd) {
   }
 }
 function createScaleContext(parent, scale) {
-  return Object.create(parent, {
-    scale: {
-      value: scale
-    },
-    type: {
-      value: 'scale'
-    }
+  return Object.assign(Object.create(parent), {
+    scale,
+    type: 'scale'
   });
 }
 function createTickContext(parent, index, tick) {
-  return Object.create(parent, {
-    tick: {
-      value: tick
-    },
-    index: {
-      value: index
-    },
-    type: {
-      value: 'tick'
-    }
+  return Object.assign(Object.create(parent), {
+    tick,
+    index,
+    type: 'tick'
   });
 }
 class Scale extends Element {
@@ -5516,14 +5479,7 @@ class Chart {
     return meta;
   }
   getContext() {
-    return this.$context || (this.$context = Object.create(null, {
-      chart: {
-        value: this
-      },
-      type: {
-        value: 'chart'
-      }
-    }));
+    return this.$context || (this.$context = {chart: this, type: 'chart'});
   }
   getVisibleDatasetCount() {
     return this.getSortedVisibleDatasetMetas().length;
