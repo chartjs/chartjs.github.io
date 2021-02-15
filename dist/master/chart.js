@@ -189,6 +189,571 @@ class Animator {
 }
 var animator = new Animator();
 
+/*!
+ * @kurkle/color v0.1.9
+ * https://github.com/kurkle/color#readme
+ * (c) 2020 Jukka Kurkela
+ * Released under the MIT License
+ */
+const map = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, A: 10, B: 11, C: 12, D: 13, E: 14, F: 15, a: 10, b: 11, c: 12, d: 13, e: 14, f: 15};
+const hex = '0123456789ABCDEF';
+const h1 = (b) => hex[b & 0xF];
+const h2 = (b) => hex[(b & 0xF0) >> 4] + hex[b & 0xF];
+const eq = (b) => (((b & 0xF0) >> 4) === (b & 0xF));
+function isShort(v) {
+	return eq(v.r) && eq(v.g) && eq(v.b) && eq(v.a);
+}
+function hexParse(str) {
+	var len = str.length;
+	var ret;
+	if (str[0] === '#') {
+		if (len === 4 || len === 5) {
+			ret = {
+				r: 255 & map[str[1]] * 17,
+				g: 255 & map[str[2]] * 17,
+				b: 255 & map[str[3]] * 17,
+				a: len === 5 ? map[str[4]] * 17 : 255
+			};
+		} else if (len === 7 || len === 9) {
+			ret = {
+				r: map[str[1]] << 4 | map[str[2]],
+				g: map[str[3]] << 4 | map[str[4]],
+				b: map[str[5]] << 4 | map[str[6]],
+				a: len === 9 ? (map[str[7]] << 4 | map[str[8]]) : 255
+			};
+		}
+	}
+	return ret;
+}
+function hexString(v) {
+	var f = isShort(v) ? h1 : h2;
+	return v
+		? '#' + f(v.r) + f(v.g) + f(v.b) + (v.a < 255 ? f(v.a) : '')
+		: v;
+}
+function round(v) {
+	return v + 0.5 | 0;
+}
+const lim = (v, l, h) => Math.max(Math.min(v, h), l);
+function p2b(v) {
+	return lim(round(v * 2.55), 0, 255);
+}
+function n2b(v) {
+	return lim(round(v * 255), 0, 255);
+}
+function b2n(v) {
+	return lim(round(v / 2.55) / 100, 0, 1);
+}
+function n2p(v) {
+	return lim(round(v * 100), 0, 100);
+}
+const RGB_RE = /^rgba?\(\s*([-+.\d]+)(%)?[\s,]+([-+.e\d]+)(%)?[\s,]+([-+.e\d]+)(%)?(?:[\s,/]+([-+.e\d]+)(%)?)?\s*\)$/;
+function rgbParse(str) {
+	const m = RGB_RE.exec(str);
+	let a = 255;
+	let r, g, b;
+	if (!m) {
+		return;
+	}
+	if (m[7] !== r) {
+		const v = +m[7];
+		a = 255 & (m[8] ? p2b(v) : v * 255);
+	}
+	r = +m[1];
+	g = +m[3];
+	b = +m[5];
+	r = 255 & (m[2] ? p2b(r) : r);
+	g = 255 & (m[4] ? p2b(g) : g);
+	b = 255 & (m[6] ? p2b(b) : b);
+	return {
+		r: r,
+		g: g,
+		b: b,
+		a: a
+	};
+}
+function rgbString(v) {
+	return v && (
+		v.a < 255
+			? `rgba(${v.r}, ${v.g}, ${v.b}, ${b2n(v.a)})`
+			: `rgb(${v.r}, ${v.g}, ${v.b})`
+	);
+}
+const HUE_RE = /^(hsla?|hwb|hsv)\(\s*([-+.e\d]+)(?:deg)?[\s,]+([-+.e\d]+)%[\s,]+([-+.e\d]+)%(?:[\s,]+([-+.e\d]+)(%)?)?\s*\)$/;
+function hsl2rgbn(h, s, l) {
+	const a = s * Math.min(l, 1 - l);
+	const f = (n, k = (n + h / 30) % 12) => l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+	return [f(0), f(8), f(4)];
+}
+function hsv2rgbn(h, s, v) {
+	const f = (n, k = (n + h / 60) % 6) => v - v * s * Math.max(Math.min(k, 4 - k, 1), 0);
+	return [f(5), f(3), f(1)];
+}
+function hwb2rgbn(h, w, b) {
+	const rgb = hsl2rgbn(h, 1, 0.5);
+	let i;
+	if (w + b > 1) {
+		i = 1 / (w + b);
+		w *= i;
+		b *= i;
+	}
+	for (i = 0; i < 3; i++) {
+		rgb[i] *= 1 - w - b;
+		rgb[i] += w;
+	}
+	return rgb;
+}
+function rgb2hsl(v) {
+	const range = 255;
+	const r = v.r / range;
+	const g = v.g / range;
+	const b = v.b / range;
+	const max = Math.max(r, g, b);
+	const min = Math.min(r, g, b);
+	const l = (max + min) / 2;
+	let h, s, d;
+	if (max !== min) {
+		d = max - min;
+		s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+		h = max === r
+			? ((g - b) / d) + (g < b ? 6 : 0)
+			: max === g
+				? (b - r) / d + 2
+				: (r - g) / d + 4;
+		h = h * 60 + 0.5;
+	}
+	return [h | 0, s || 0, l];
+}
+function calln(f, a, b, c) {
+	return (
+		Array.isArray(a)
+			? f(a[0], a[1], a[2])
+			: f(a, b, c)
+	).map(n2b);
+}
+function hsl2rgb(h, s, l) {
+	return calln(hsl2rgbn, h, s, l);
+}
+function hwb2rgb(h, w, b) {
+	return calln(hwb2rgbn, h, w, b);
+}
+function hsv2rgb(h, s, v) {
+	return calln(hsv2rgbn, h, s, v);
+}
+function hue(h) {
+	return (h % 360 + 360) % 360;
+}
+function hueParse(str) {
+	const m = HUE_RE.exec(str);
+	let a = 255;
+	let v;
+	if (!m) {
+		return;
+	}
+	if (m[5] !== v) {
+		a = m[6] ? p2b(+m[5]) : n2b(+m[5]);
+	}
+	const h = hue(+m[2]);
+	const p1 = +m[3] / 100;
+	const p2 = +m[4] / 100;
+	if (m[1] === 'hwb') {
+		v = hwb2rgb(h, p1, p2);
+	} else if (m[1] === 'hsv') {
+		v = hsv2rgb(h, p1, p2);
+	} else {
+		v = hsl2rgb(h, p1, p2);
+	}
+	return {
+		r: v[0],
+		g: v[1],
+		b: v[2],
+		a: a
+	};
+}
+function rotate(v, deg) {
+	var h = rgb2hsl(v);
+	h[0] = hue(h[0] + deg);
+	h = hsl2rgb(h);
+	v.r = h[0];
+	v.g = h[1];
+	v.b = h[2];
+}
+function hslString(v) {
+	if (!v) {
+		return;
+	}
+	const a = rgb2hsl(v);
+	const h = a[0];
+	const s = n2p(a[1]);
+	const l = n2p(a[2]);
+	return v.a < 255
+		? `hsla(${h}, ${s}%, ${l}%, ${b2n(v.a)})`
+		: `hsl(${h}, ${s}%, ${l}%)`;
+}
+const map$1 = {
+	x: 'dark',
+	Z: 'light',
+	Y: 're',
+	X: 'blu',
+	W: 'gr',
+	V: 'medium',
+	U: 'slate',
+	A: 'ee',
+	T: 'ol',
+	S: 'or',
+	B: 'ra',
+	C: 'lateg',
+	D: 'ights',
+	R: 'in',
+	Q: 'turquois',
+	E: 'hi',
+	P: 'ro',
+	O: 'al',
+	N: 'le',
+	M: 'de',
+	L: 'yello',
+	F: 'en',
+	K: 'ch',
+	G: 'arks',
+	H: 'ea',
+	I: 'ightg',
+	J: 'wh'
+};
+const names = {
+	OiceXe: 'f0f8ff',
+	antiquewEte: 'faebd7',
+	aqua: 'ffff',
+	aquamarRe: '7fffd4',
+	azuY: 'f0ffff',
+	beige: 'f5f5dc',
+	bisque: 'ffe4c4',
+	black: '0',
+	blanKedOmond: 'ffebcd',
+	Xe: 'ff',
+	XeviTet: '8a2be2',
+	bPwn: 'a52a2a',
+	burlywood: 'deb887',
+	caMtXe: '5f9ea0',
+	KartYuse: '7fff00',
+	KocTate: 'd2691e',
+	cSO: 'ff7f50',
+	cSnflowerXe: '6495ed',
+	cSnsilk: 'fff8dc',
+	crimson: 'dc143c',
+	cyan: 'ffff',
+	xXe: '8b',
+	xcyan: '8b8b',
+	xgTMnPd: 'b8860b',
+	xWay: 'a9a9a9',
+	xgYF: '6400',
+	xgYy: 'a9a9a9',
+	xkhaki: 'bdb76b',
+	xmagFta: '8b008b',
+	xTivegYF: '556b2f',
+	xSange: 'ff8c00',
+	xScEd: '9932cc',
+	xYd: '8b0000',
+	xsOmon: 'e9967a',
+	xsHgYF: '8fbc8f',
+	xUXe: '483d8b',
+	xUWay: '2f4f4f',
+	xUgYy: '2f4f4f',
+	xQe: 'ced1',
+	xviTet: '9400d3',
+	dAppRk: 'ff1493',
+	dApskyXe: 'bfff',
+	dimWay: '696969',
+	dimgYy: '696969',
+	dodgerXe: '1e90ff',
+	fiYbrick: 'b22222',
+	flSOwEte: 'fffaf0',
+	foYstWAn: '228b22',
+	fuKsia: 'ff00ff',
+	gaRsbSo: 'dcdcdc',
+	ghostwEte: 'f8f8ff',
+	gTd: 'ffd700',
+	gTMnPd: 'daa520',
+	Way: '808080',
+	gYF: '8000',
+	gYFLw: 'adff2f',
+	gYy: '808080',
+	honeyMw: 'f0fff0',
+	hotpRk: 'ff69b4',
+	RdianYd: 'cd5c5c',
+	Rdigo: '4b0082',
+	ivSy: 'fffff0',
+	khaki: 'f0e68c',
+	lavFMr: 'e6e6fa',
+	lavFMrXsh: 'fff0f5',
+	lawngYF: '7cfc00',
+	NmoncEffon: 'fffacd',
+	ZXe: 'add8e6',
+	ZcSO: 'f08080',
+	Zcyan: 'e0ffff',
+	ZgTMnPdLw: 'fafad2',
+	ZWay: 'd3d3d3',
+	ZgYF: '90ee90',
+	ZgYy: 'd3d3d3',
+	ZpRk: 'ffb6c1',
+	ZsOmon: 'ffa07a',
+	ZsHgYF: '20b2aa',
+	ZskyXe: '87cefa',
+	ZUWay: '778899',
+	ZUgYy: '778899',
+	ZstAlXe: 'b0c4de',
+	ZLw: 'ffffe0',
+	lime: 'ff00',
+	limegYF: '32cd32',
+	lRF: 'faf0e6',
+	magFta: 'ff00ff',
+	maPon: '800000',
+	VaquamarRe: '66cdaa',
+	VXe: 'cd',
+	VScEd: 'ba55d3',
+	VpurpN: '9370db',
+	VsHgYF: '3cb371',
+	VUXe: '7b68ee',
+	VsprRggYF: 'fa9a',
+	VQe: '48d1cc',
+	VviTetYd: 'c71585',
+	midnightXe: '191970',
+	mRtcYam: 'f5fffa',
+	mistyPse: 'ffe4e1',
+	moccasR: 'ffe4b5',
+	navajowEte: 'ffdead',
+	navy: '80',
+	Tdlace: 'fdf5e6',
+	Tive: '808000',
+	TivedBb: '6b8e23',
+	Sange: 'ffa500',
+	SangeYd: 'ff4500',
+	ScEd: 'da70d6',
+	pOegTMnPd: 'eee8aa',
+	pOegYF: '98fb98',
+	pOeQe: 'afeeee',
+	pOeviTetYd: 'db7093',
+	papayawEp: 'ffefd5',
+	pHKpuff: 'ffdab9',
+	peru: 'cd853f',
+	pRk: 'ffc0cb',
+	plum: 'dda0dd',
+	powMrXe: 'b0e0e6',
+	purpN: '800080',
+	YbeccapurpN: '663399',
+	Yd: 'ff0000',
+	Psybrown: 'bc8f8f',
+	PyOXe: '4169e1',
+	saddNbPwn: '8b4513',
+	sOmon: 'fa8072',
+	sandybPwn: 'f4a460',
+	sHgYF: '2e8b57',
+	sHshell: 'fff5ee',
+	siFna: 'a0522d',
+	silver: 'c0c0c0',
+	skyXe: '87ceeb',
+	UXe: '6a5acd',
+	UWay: '708090',
+	UgYy: '708090',
+	snow: 'fffafa',
+	sprRggYF: 'ff7f',
+	stAlXe: '4682b4',
+	tan: 'd2b48c',
+	teO: '8080',
+	tEstN: 'd8bfd8',
+	tomato: 'ff6347',
+	Qe: '40e0d0',
+	viTet: 'ee82ee',
+	JHt: 'f5deb3',
+	wEte: 'ffffff',
+	wEtesmoke: 'f5f5f5',
+	Lw: 'ffff00',
+	LwgYF: '9acd32'
+};
+function unpack() {
+	const unpacked = {};
+	const keys = Object.keys(names);
+	const tkeys = Object.keys(map$1);
+	let i, j, k, ok, nk;
+	for (i = 0; i < keys.length; i++) {
+		ok = nk = keys[i];
+		for (j = 0; j < tkeys.length; j++) {
+			k = tkeys[j];
+			nk = nk.replace(k, map$1[k]);
+		}
+		k = parseInt(names[ok], 16);
+		unpacked[nk] = [k >> 16 & 0xFF, k >> 8 & 0xFF, k & 0xFF];
+	}
+	return unpacked;
+}
+let names$1;
+function nameParse(str) {
+	if (!names$1) {
+		names$1 = unpack();
+		names$1.transparent = [0, 0, 0, 0];
+	}
+	const a = names$1[str.toLowerCase()];
+	return a && {
+		r: a[0],
+		g: a[1],
+		b: a[2],
+		a: a.length === 4 ? a[3] : 255
+	};
+}
+function modHSL(v, i, ratio) {
+	if (v) {
+		let tmp = rgb2hsl(v);
+		tmp[i] = Math.max(0, Math.min(tmp[i] + tmp[i] * ratio, i === 0 ? 360 : 1));
+		tmp = hsl2rgb(tmp);
+		v.r = tmp[0];
+		v.g = tmp[1];
+		v.b = tmp[2];
+	}
+}
+function clone(v, proto) {
+	return v ? Object.assign(proto || {}, v) : v;
+}
+function fromObject(input) {
+	var v = {r: 0, g: 0, b: 0, a: 255};
+	if (Array.isArray(input)) {
+		if (input.length >= 3) {
+			v = {r: input[0], g: input[1], b: input[2], a: 255};
+			if (input.length > 3) {
+				v.a = n2b(input[3]);
+			}
+		}
+	} else {
+		v = clone(input, {r: 0, g: 0, b: 0, a: 1});
+		v.a = n2b(v.a);
+	}
+	return v;
+}
+function functionParse(str) {
+	if (str.charAt(0) === 'r') {
+		return rgbParse(str);
+	}
+	return hueParse(str);
+}
+class Color {
+	constructor(input) {
+		if (input instanceof Color) {
+			return input;
+		}
+		const type = typeof input;
+		let v;
+		if (type === 'object') {
+			v = fromObject(input);
+		} else if (type === 'string') {
+			v = hexParse(input) || nameParse(input) || functionParse(input);
+		}
+		this._rgb = v;
+		this._valid = !!v;
+	}
+	get valid() {
+		return this._valid;
+	}
+	get rgb() {
+		var v = clone(this._rgb);
+		if (v) {
+			v.a = b2n(v.a);
+		}
+		return v;
+	}
+	set rgb(obj) {
+		this._rgb = fromObject(obj);
+	}
+	rgbString() {
+		return this._valid ? rgbString(this._rgb) : this._rgb;
+	}
+	hexString() {
+		return this._valid ? hexString(this._rgb) : this._rgb;
+	}
+	hslString() {
+		return this._valid ? hslString(this._rgb) : this._rgb;
+	}
+	mix(color, weight) {
+		const me = this;
+		if (color) {
+			const c1 = me.rgb;
+			const c2 = color.rgb;
+			let w2;
+			const p = weight === w2 ? 0.5 : weight;
+			const w = 2 * p - 1;
+			const a = c1.a - c2.a;
+			const w1 = ((w * a === -1 ? w : (w + a) / (1 + w * a)) + 1) / 2.0;
+			w2 = 1 - w1;
+			c1.r = 0xFF & w1 * c1.r + w2 * c2.r + 0.5;
+			c1.g = 0xFF & w1 * c1.g + w2 * c2.g + 0.5;
+			c1.b = 0xFF & w1 * c1.b + w2 * c2.b + 0.5;
+			c1.a = p * c1.a + (1 - p) * c2.a;
+			me.rgb = c1;
+		}
+		return me;
+	}
+	clone() {
+		return new Color(this.rgb);
+	}
+	alpha(a) {
+		this._rgb.a = n2b(a);
+		return this;
+	}
+	clearer(ratio) {
+		const rgb = this._rgb;
+		rgb.a *= 1 - ratio;
+		return this;
+	}
+	greyscale() {
+		const rgb = this._rgb;
+		const val = round(rgb.r * 0.3 + rgb.g * 0.59 + rgb.b * 0.11);
+		rgb.r = rgb.g = rgb.b = val;
+		return this;
+	}
+	opaquer(ratio) {
+		const rgb = this._rgb;
+		rgb.a *= 1 + ratio;
+		return this;
+	}
+	negate() {
+		const v = this._rgb;
+		v.r = 255 - v.r;
+		v.g = 255 - v.g;
+		v.b = 255 - v.b;
+		return this;
+	}
+	lighten(ratio) {
+		modHSL(this._rgb, 2, ratio);
+		return this;
+	}
+	darken(ratio) {
+		modHSL(this._rgb, 2, -ratio);
+		return this;
+	}
+	saturate(ratio) {
+		modHSL(this._rgb, 1, ratio);
+		return this;
+	}
+	desaturate(ratio) {
+		modHSL(this._rgb, 1, -ratio);
+		return this;
+	}
+	rotate(deg) {
+		rotate(this._rgb, deg);
+		return this;
+	}
+}
+function index_esm(input) {
+	return new Color(input);
+}
+
+const isPatternOrGradient = (value) => value instanceof CanvasGradient || value instanceof CanvasPattern;
+function color(value) {
+  return isPatternOrGradient(value) ? value : index_esm(value);
+}
+function getHoverColor(value) {
+  return isPatternOrGradient(value)
+    ? value
+    : index_esm(value).saturate(0.5).darken(0.1).hexString();
+}
+
 function noop() {}
 const uid = (function() {
   let id = 0;
@@ -259,9 +824,9 @@ function _elementsEqual(a0, a1) {
   }
   return true;
 }
-function clone(source) {
+function clone$1(source) {
   if (isArray(source)) {
-    return source.map(clone);
+    return source.map(clone$1);
   }
   if (isObject(source)) {
     const target = Object.create(null);
@@ -269,7 +834,7 @@ function clone(source) {
     const klen = keys.length;
     let k = 0;
     for (; k < klen; ++k) {
-      target[keys[k]] = clone(source[keys[k]]);
+      target[keys[k]] = clone$1(source[keys[k]]);
     }
     return target;
   }
@@ -287,7 +852,7 @@ function _merger(key, target, source, options) {
   if (isObject(tval) && isObject(sval)) {
     merge(tval, sval, options);
   } else {
-    target[key] = clone(sval);
+    target[key] = clone$1(sval);
   }
 }
 function merge(target, source, options) {
@@ -322,7 +887,7 @@ function _mergerIf(key, target, source) {
   if (isObject(tval) && isObject(sval)) {
     mergeIf(tval, sval);
   } else if (!Object.prototype.hasOwnProperty.call(target, key)) {
-    target[key] = clone(sval);
+    target[key] = clone$1(sval);
   }
 }
 function _deprecated(scope, value, previous, current) {
@@ -351,7 +916,10 @@ function resolveObjectKey(obj, key) {
 function _capitalize(str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
+const defined = (value) => typeof value !== 'undefined';
+const isFunction = (value) => typeof value === 'function';
 
+const privateSymbol = Symbol('private');
 function getScope(node, key) {
   if (!key) {
     return node;
@@ -364,11 +932,13 @@ function getScope(node, key) {
   return node;
 }
 class Defaults {
-  constructor() {
+  constructor(descriptors) {
+    this.animation = undefined;
     this.backgroundColor = 'rgba(0,0,0,0.1)';
     this.borderColor = 'rgba(0,0,0,0.1)';
     this.color = '#666';
     this.controllers = {};
+    this.devicePixelRatio = (context) => context.chart.platform.getDevicePixelRatio();
     this.elements = {};
     this.events = [
       'mousemove',
@@ -387,6 +957,10 @@ class Defaults {
     this.hover = {
       onHover: null
     };
+    this.hoverBackgroundColor = (ctx, options) => getHoverColor(options.backgroundColor);
+    this.hoverBorderColor = (ctx, options) => getHoverColor(options.borderColor);
+    this.hoverColor = (ctx, options) => getHoverColor(options.color);
+    this.indexAxis = 'x';
     this.interaction = {
       mode: 'nearest',
       intersect: true
@@ -394,11 +968,17 @@ class Defaults {
     this.maintainAspectRatio = true;
     this.onHover = null;
     this.onClick = null;
+    this.parsing = true;
     this.plugins = {};
     this.responsive = true;
     this.scale = undefined;
     this.scales = {};
     this.showLine = true;
+    Object.defineProperty(this, privateSymbol, {
+      value: Object.create(null),
+      writable: false
+    });
+    this.describe(descriptors);
   }
   set(scope, values) {
     if (typeof scope === 'string') {
@@ -408,6 +988,16 @@ class Defaults {
   }
   get(scope) {
     return getScope(this, scope);
+  }
+  describe(scope, values) {
+    const root = this[privateSymbol];
+    if (typeof scope === 'string') {
+      return merge(getScope(root, scope), values);
+    }
+    return merge(getScope(root, ''), scope);
+  }
+  get descriptors() {
+    return this[privateSymbol];
   }
   route(scope, name, targetScope, targetName) {
     const scopeObject = getScope(this, scope);
@@ -435,7 +1025,17 @@ class Defaults {
     });
   }
 }
-var defaults = new Defaults();
+var defaults = new Defaults({
+  _scriptable: (name) => name !== 'onClick' && name !== 'onHover',
+  _indexable: (name) => name !== 'events',
+  hover: {
+    _fallback: 'interaction'
+  },
+  interaction: {
+    _scriptable: false,
+    _indexable: false,
+  }
+});
 
 const PI = Math.PI;
 const TAU = 2 * PI;
@@ -1548,9 +2148,7 @@ var layouts = {
     if (!chart) {
       return;
     }
-    const layoutOptions = chart.options.layout || {};
-    const context = {chart};
-    const padding = toPadding(resolve([layoutOptions.padding], context));
+    const padding = toPadding(chart.options.layout.padding);
     const availableWidth = width - padding.width;
     const availableHeight = height - padding.height;
     const boxes = buildLayoutBoxes(chart.boxes);
@@ -1604,7 +2202,7 @@ var layouts = {
 };
 
 class BasePlatform {
-  acquireContext(canvas, options) {}
+  acquireContext(canvas, aspectRatio) {}
   releaseContext(context) {
     return false;
   }
@@ -1645,7 +2243,7 @@ const EVENT_TYPES = {
   pointerout: 'mouseout'
 };
 const isNullOrEmpty = value => value === null || value === '';
-function initCanvas(canvas, config) {
+function initCanvas(canvas, aspectRatio) {
   const style = canvas.style;
   const renderHeight = canvas.getAttribute('height');
   const renderWidth = canvas.getAttribute('width');
@@ -1670,7 +2268,7 @@ function initCanvas(canvas, config) {
   }
   if (isNullOrEmpty(renderHeight)) {
     if (canvas.style.height === '') {
-      canvas.height = canvas.width / (config.options.aspectRatio || 2);
+      canvas.height = canvas.width / (aspectRatio || 2);
     } else {
       const displayHeight = readUsedSize(canvas, 'height');
       if (displayHeight !== undefined) {
@@ -1809,10 +2407,10 @@ function createProxyAndListen(chart, type, listener) {
   return proxy;
 }
 class DomPlatform extends BasePlatform {
-  acquireContext(canvas, config) {
+  acquireContext(canvas, aspectRatio) {
     const context = canvas && canvas.getContext && canvas.getContext('2d');
     if (context && context.canvas === canvas) {
-      initCanvas(canvas, config);
+      initCanvas(canvas, aspectRatio);
       return context;
     }
     return null;
@@ -2073,571 +2671,6 @@ const effects = {
   }
 };
 
-/*!
- * @kurkle/color v0.1.9
- * https://github.com/kurkle/color#readme
- * (c) 2020 Jukka Kurkela
- * Released under the MIT License
- */
-const map = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, A: 10, B: 11, C: 12, D: 13, E: 14, F: 15, a: 10, b: 11, c: 12, d: 13, e: 14, f: 15};
-const hex = '0123456789ABCDEF';
-const h1 = (b) => hex[b & 0xF];
-const h2 = (b) => hex[(b & 0xF0) >> 4] + hex[b & 0xF];
-const eq = (b) => (((b & 0xF0) >> 4) === (b & 0xF));
-function isShort(v) {
-	return eq(v.r) && eq(v.g) && eq(v.b) && eq(v.a);
-}
-function hexParse(str) {
-	var len = str.length;
-	var ret;
-	if (str[0] === '#') {
-		if (len === 4 || len === 5) {
-			ret = {
-				r: 255 & map[str[1]] * 17,
-				g: 255 & map[str[2]] * 17,
-				b: 255 & map[str[3]] * 17,
-				a: len === 5 ? map[str[4]] * 17 : 255
-			};
-		} else if (len === 7 || len === 9) {
-			ret = {
-				r: map[str[1]] << 4 | map[str[2]],
-				g: map[str[3]] << 4 | map[str[4]],
-				b: map[str[5]] << 4 | map[str[6]],
-				a: len === 9 ? (map[str[7]] << 4 | map[str[8]]) : 255
-			};
-		}
-	}
-	return ret;
-}
-function hexString(v) {
-	var f = isShort(v) ? h1 : h2;
-	return v
-		? '#' + f(v.r) + f(v.g) + f(v.b) + (v.a < 255 ? f(v.a) : '')
-		: v;
-}
-function round(v) {
-	return v + 0.5 | 0;
-}
-const lim = (v, l, h) => Math.max(Math.min(v, h), l);
-function p2b(v) {
-	return lim(round(v * 2.55), 0, 255);
-}
-function n2b(v) {
-	return lim(round(v * 255), 0, 255);
-}
-function b2n(v) {
-	return lim(round(v / 2.55) / 100, 0, 1);
-}
-function n2p(v) {
-	return lim(round(v * 100), 0, 100);
-}
-const RGB_RE = /^rgba?\(\s*([-+.\d]+)(%)?[\s,]+([-+.e\d]+)(%)?[\s,]+([-+.e\d]+)(%)?(?:[\s,/]+([-+.e\d]+)(%)?)?\s*\)$/;
-function rgbParse(str) {
-	const m = RGB_RE.exec(str);
-	let a = 255;
-	let r, g, b;
-	if (!m) {
-		return;
-	}
-	if (m[7] !== r) {
-		const v = +m[7];
-		a = 255 & (m[8] ? p2b(v) : v * 255);
-	}
-	r = +m[1];
-	g = +m[3];
-	b = +m[5];
-	r = 255 & (m[2] ? p2b(r) : r);
-	g = 255 & (m[4] ? p2b(g) : g);
-	b = 255 & (m[6] ? p2b(b) : b);
-	return {
-		r: r,
-		g: g,
-		b: b,
-		a: a
-	};
-}
-function rgbString(v) {
-	return v && (
-		v.a < 255
-			? `rgba(${v.r}, ${v.g}, ${v.b}, ${b2n(v.a)})`
-			: `rgb(${v.r}, ${v.g}, ${v.b})`
-	);
-}
-const HUE_RE = /^(hsla?|hwb|hsv)\(\s*([-+.e\d]+)(?:deg)?[\s,]+([-+.e\d]+)%[\s,]+([-+.e\d]+)%(?:[\s,]+([-+.e\d]+)(%)?)?\s*\)$/;
-function hsl2rgbn(h, s, l) {
-	const a = s * Math.min(l, 1 - l);
-	const f = (n, k = (n + h / 30) % 12) => l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
-	return [f(0), f(8), f(4)];
-}
-function hsv2rgbn(h, s, v) {
-	const f = (n, k = (n + h / 60) % 6) => v - v * s * Math.max(Math.min(k, 4 - k, 1), 0);
-	return [f(5), f(3), f(1)];
-}
-function hwb2rgbn(h, w, b) {
-	const rgb = hsl2rgbn(h, 1, 0.5);
-	let i;
-	if (w + b > 1) {
-		i = 1 / (w + b);
-		w *= i;
-		b *= i;
-	}
-	for (i = 0; i < 3; i++) {
-		rgb[i] *= 1 - w - b;
-		rgb[i] += w;
-	}
-	return rgb;
-}
-function rgb2hsl(v) {
-	const range = 255;
-	const r = v.r / range;
-	const g = v.g / range;
-	const b = v.b / range;
-	const max = Math.max(r, g, b);
-	const min = Math.min(r, g, b);
-	const l = (max + min) / 2;
-	let h, s, d;
-	if (max !== min) {
-		d = max - min;
-		s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-		h = max === r
-			? ((g - b) / d) + (g < b ? 6 : 0)
-			: max === g
-				? (b - r) / d + 2
-				: (r - g) / d + 4;
-		h = h * 60 + 0.5;
-	}
-	return [h | 0, s || 0, l];
-}
-function calln(f, a, b, c) {
-	return (
-		Array.isArray(a)
-			? f(a[0], a[1], a[2])
-			: f(a, b, c)
-	).map(n2b);
-}
-function hsl2rgb(h, s, l) {
-	return calln(hsl2rgbn, h, s, l);
-}
-function hwb2rgb(h, w, b) {
-	return calln(hwb2rgbn, h, w, b);
-}
-function hsv2rgb(h, s, v) {
-	return calln(hsv2rgbn, h, s, v);
-}
-function hue(h) {
-	return (h % 360 + 360) % 360;
-}
-function hueParse(str) {
-	const m = HUE_RE.exec(str);
-	let a = 255;
-	let v;
-	if (!m) {
-		return;
-	}
-	if (m[5] !== v) {
-		a = m[6] ? p2b(+m[5]) : n2b(+m[5]);
-	}
-	const h = hue(+m[2]);
-	const p1 = +m[3] / 100;
-	const p2 = +m[4] / 100;
-	if (m[1] === 'hwb') {
-		v = hwb2rgb(h, p1, p2);
-	} else if (m[1] === 'hsv') {
-		v = hsv2rgb(h, p1, p2);
-	} else {
-		v = hsl2rgb(h, p1, p2);
-	}
-	return {
-		r: v[0],
-		g: v[1],
-		b: v[2],
-		a: a
-	};
-}
-function rotate(v, deg) {
-	var h = rgb2hsl(v);
-	h[0] = hue(h[0] + deg);
-	h = hsl2rgb(h);
-	v.r = h[0];
-	v.g = h[1];
-	v.b = h[2];
-}
-function hslString(v) {
-	if (!v) {
-		return;
-	}
-	const a = rgb2hsl(v);
-	const h = a[0];
-	const s = n2p(a[1]);
-	const l = n2p(a[2]);
-	return v.a < 255
-		? `hsla(${h}, ${s}%, ${l}%, ${b2n(v.a)})`
-		: `hsl(${h}, ${s}%, ${l}%)`;
-}
-const map$1 = {
-	x: 'dark',
-	Z: 'light',
-	Y: 're',
-	X: 'blu',
-	W: 'gr',
-	V: 'medium',
-	U: 'slate',
-	A: 'ee',
-	T: 'ol',
-	S: 'or',
-	B: 'ra',
-	C: 'lateg',
-	D: 'ights',
-	R: 'in',
-	Q: 'turquois',
-	E: 'hi',
-	P: 'ro',
-	O: 'al',
-	N: 'le',
-	M: 'de',
-	L: 'yello',
-	F: 'en',
-	K: 'ch',
-	G: 'arks',
-	H: 'ea',
-	I: 'ightg',
-	J: 'wh'
-};
-const names = {
-	OiceXe: 'f0f8ff',
-	antiquewEte: 'faebd7',
-	aqua: 'ffff',
-	aquamarRe: '7fffd4',
-	azuY: 'f0ffff',
-	beige: 'f5f5dc',
-	bisque: 'ffe4c4',
-	black: '0',
-	blanKedOmond: 'ffebcd',
-	Xe: 'ff',
-	XeviTet: '8a2be2',
-	bPwn: 'a52a2a',
-	burlywood: 'deb887',
-	caMtXe: '5f9ea0',
-	KartYuse: '7fff00',
-	KocTate: 'd2691e',
-	cSO: 'ff7f50',
-	cSnflowerXe: '6495ed',
-	cSnsilk: 'fff8dc',
-	crimson: 'dc143c',
-	cyan: 'ffff',
-	xXe: '8b',
-	xcyan: '8b8b',
-	xgTMnPd: 'b8860b',
-	xWay: 'a9a9a9',
-	xgYF: '6400',
-	xgYy: 'a9a9a9',
-	xkhaki: 'bdb76b',
-	xmagFta: '8b008b',
-	xTivegYF: '556b2f',
-	xSange: 'ff8c00',
-	xScEd: '9932cc',
-	xYd: '8b0000',
-	xsOmon: 'e9967a',
-	xsHgYF: '8fbc8f',
-	xUXe: '483d8b',
-	xUWay: '2f4f4f',
-	xUgYy: '2f4f4f',
-	xQe: 'ced1',
-	xviTet: '9400d3',
-	dAppRk: 'ff1493',
-	dApskyXe: 'bfff',
-	dimWay: '696969',
-	dimgYy: '696969',
-	dodgerXe: '1e90ff',
-	fiYbrick: 'b22222',
-	flSOwEte: 'fffaf0',
-	foYstWAn: '228b22',
-	fuKsia: 'ff00ff',
-	gaRsbSo: 'dcdcdc',
-	ghostwEte: 'f8f8ff',
-	gTd: 'ffd700',
-	gTMnPd: 'daa520',
-	Way: '808080',
-	gYF: '8000',
-	gYFLw: 'adff2f',
-	gYy: '808080',
-	honeyMw: 'f0fff0',
-	hotpRk: 'ff69b4',
-	RdianYd: 'cd5c5c',
-	Rdigo: '4b0082',
-	ivSy: 'fffff0',
-	khaki: 'f0e68c',
-	lavFMr: 'e6e6fa',
-	lavFMrXsh: 'fff0f5',
-	lawngYF: '7cfc00',
-	NmoncEffon: 'fffacd',
-	ZXe: 'add8e6',
-	ZcSO: 'f08080',
-	Zcyan: 'e0ffff',
-	ZgTMnPdLw: 'fafad2',
-	ZWay: 'd3d3d3',
-	ZgYF: '90ee90',
-	ZgYy: 'd3d3d3',
-	ZpRk: 'ffb6c1',
-	ZsOmon: 'ffa07a',
-	ZsHgYF: '20b2aa',
-	ZskyXe: '87cefa',
-	ZUWay: '778899',
-	ZUgYy: '778899',
-	ZstAlXe: 'b0c4de',
-	ZLw: 'ffffe0',
-	lime: 'ff00',
-	limegYF: '32cd32',
-	lRF: 'faf0e6',
-	magFta: 'ff00ff',
-	maPon: '800000',
-	VaquamarRe: '66cdaa',
-	VXe: 'cd',
-	VScEd: 'ba55d3',
-	VpurpN: '9370db',
-	VsHgYF: '3cb371',
-	VUXe: '7b68ee',
-	VsprRggYF: 'fa9a',
-	VQe: '48d1cc',
-	VviTetYd: 'c71585',
-	midnightXe: '191970',
-	mRtcYam: 'f5fffa',
-	mistyPse: 'ffe4e1',
-	moccasR: 'ffe4b5',
-	navajowEte: 'ffdead',
-	navy: '80',
-	Tdlace: 'fdf5e6',
-	Tive: '808000',
-	TivedBb: '6b8e23',
-	Sange: 'ffa500',
-	SangeYd: 'ff4500',
-	ScEd: 'da70d6',
-	pOegTMnPd: 'eee8aa',
-	pOegYF: '98fb98',
-	pOeQe: 'afeeee',
-	pOeviTetYd: 'db7093',
-	papayawEp: 'ffefd5',
-	pHKpuff: 'ffdab9',
-	peru: 'cd853f',
-	pRk: 'ffc0cb',
-	plum: 'dda0dd',
-	powMrXe: 'b0e0e6',
-	purpN: '800080',
-	YbeccapurpN: '663399',
-	Yd: 'ff0000',
-	Psybrown: 'bc8f8f',
-	PyOXe: '4169e1',
-	saddNbPwn: '8b4513',
-	sOmon: 'fa8072',
-	sandybPwn: 'f4a460',
-	sHgYF: '2e8b57',
-	sHshell: 'fff5ee',
-	siFna: 'a0522d',
-	silver: 'c0c0c0',
-	skyXe: '87ceeb',
-	UXe: '6a5acd',
-	UWay: '708090',
-	UgYy: '708090',
-	snow: 'fffafa',
-	sprRggYF: 'ff7f',
-	stAlXe: '4682b4',
-	tan: 'd2b48c',
-	teO: '8080',
-	tEstN: 'd8bfd8',
-	tomato: 'ff6347',
-	Qe: '40e0d0',
-	viTet: 'ee82ee',
-	JHt: 'f5deb3',
-	wEte: 'ffffff',
-	wEtesmoke: 'f5f5f5',
-	Lw: 'ffff00',
-	LwgYF: '9acd32'
-};
-function unpack() {
-	const unpacked = {};
-	const keys = Object.keys(names);
-	const tkeys = Object.keys(map$1);
-	let i, j, k, ok, nk;
-	for (i = 0; i < keys.length; i++) {
-		ok = nk = keys[i];
-		for (j = 0; j < tkeys.length; j++) {
-			k = tkeys[j];
-			nk = nk.replace(k, map$1[k]);
-		}
-		k = parseInt(names[ok], 16);
-		unpacked[nk] = [k >> 16 & 0xFF, k >> 8 & 0xFF, k & 0xFF];
-	}
-	return unpacked;
-}
-let names$1;
-function nameParse(str) {
-	if (!names$1) {
-		names$1 = unpack();
-		names$1.transparent = [0, 0, 0, 0];
-	}
-	const a = names$1[str.toLowerCase()];
-	return a && {
-		r: a[0],
-		g: a[1],
-		b: a[2],
-		a: a.length === 4 ? a[3] : 255
-	};
-}
-function modHSL(v, i, ratio) {
-	if (v) {
-		let tmp = rgb2hsl(v);
-		tmp[i] = Math.max(0, Math.min(tmp[i] + tmp[i] * ratio, i === 0 ? 360 : 1));
-		tmp = hsl2rgb(tmp);
-		v.r = tmp[0];
-		v.g = tmp[1];
-		v.b = tmp[2];
-	}
-}
-function clone$1(v, proto) {
-	return v ? Object.assign(proto || {}, v) : v;
-}
-function fromObject(input) {
-	var v = {r: 0, g: 0, b: 0, a: 255};
-	if (Array.isArray(input)) {
-		if (input.length >= 3) {
-			v = {r: input[0], g: input[1], b: input[2], a: 255};
-			if (input.length > 3) {
-				v.a = n2b(input[3]);
-			}
-		}
-	} else {
-		v = clone$1(input, {r: 0, g: 0, b: 0, a: 1});
-		v.a = n2b(v.a);
-	}
-	return v;
-}
-function functionParse(str) {
-	if (str.charAt(0) === 'r') {
-		return rgbParse(str);
-	}
-	return hueParse(str);
-}
-class Color {
-	constructor(input) {
-		if (input instanceof Color) {
-			return input;
-		}
-		const type = typeof input;
-		let v;
-		if (type === 'object') {
-			v = fromObject(input);
-		} else if (type === 'string') {
-			v = hexParse(input) || nameParse(input) || functionParse(input);
-		}
-		this._rgb = v;
-		this._valid = !!v;
-	}
-	get valid() {
-		return this._valid;
-	}
-	get rgb() {
-		var v = clone$1(this._rgb);
-		if (v) {
-			v.a = b2n(v.a);
-		}
-		return v;
-	}
-	set rgb(obj) {
-		this._rgb = fromObject(obj);
-	}
-	rgbString() {
-		return this._valid ? rgbString(this._rgb) : this._rgb;
-	}
-	hexString() {
-		return this._valid ? hexString(this._rgb) : this._rgb;
-	}
-	hslString() {
-		return this._valid ? hslString(this._rgb) : this._rgb;
-	}
-	mix(color, weight) {
-		const me = this;
-		if (color) {
-			const c1 = me.rgb;
-			const c2 = color.rgb;
-			let w2;
-			const p = weight === w2 ? 0.5 : weight;
-			const w = 2 * p - 1;
-			const a = c1.a - c2.a;
-			const w1 = ((w * a === -1 ? w : (w + a) / (1 + w * a)) + 1) / 2.0;
-			w2 = 1 - w1;
-			c1.r = 0xFF & w1 * c1.r + w2 * c2.r + 0.5;
-			c1.g = 0xFF & w1 * c1.g + w2 * c2.g + 0.5;
-			c1.b = 0xFF & w1 * c1.b + w2 * c2.b + 0.5;
-			c1.a = p * c1.a + (1 - p) * c2.a;
-			me.rgb = c1;
-		}
-		return me;
-	}
-	clone() {
-		return new Color(this.rgb);
-	}
-	alpha(a) {
-		this._rgb.a = n2b(a);
-		return this;
-	}
-	clearer(ratio) {
-		const rgb = this._rgb;
-		rgb.a *= 1 - ratio;
-		return this;
-	}
-	greyscale() {
-		const rgb = this._rgb;
-		const val = round(rgb.r * 0.3 + rgb.g * 0.59 + rgb.b * 0.11);
-		rgb.r = rgb.g = rgb.b = val;
-		return this;
-	}
-	opaquer(ratio) {
-		const rgb = this._rgb;
-		rgb.a *= 1 + ratio;
-		return this;
-	}
-	negate() {
-		const v = this._rgb;
-		v.r = 255 - v.r;
-		v.g = 255 - v.g;
-		v.b = 255 - v.b;
-		return this;
-	}
-	lighten(ratio) {
-		modHSL(this._rgb, 2, ratio);
-		return this;
-	}
-	darken(ratio) {
-		modHSL(this._rgb, 2, -ratio);
-		return this;
-	}
-	saturate(ratio) {
-		modHSL(this._rgb, 1, ratio);
-		return this;
-	}
-	desaturate(ratio) {
-		modHSL(this._rgb, 1, -ratio);
-		return this;
-	}
-	rotate(deg) {
-		rotate(this._rgb, deg);
-		return this;
-	}
-}
-function index_esm(input) {
-	return new Color(input);
-}
-
-const isPatternOrGradient = (value) => value instanceof CanvasGradient || value instanceof CanvasPattern;
-function color(value) {
-  return isPatternOrGradient(value) ? value : index_esm(value);
-}
-function getHoverColor(value) {
-  return isPatternOrGradient(value)
-    ? value
-    : index_esm(value).saturate(0.5).darken(0.1).hexString();
-}
-
 const transparent = 'transparent';
 const interpolators = {
   boolean(from, to, factor) {
@@ -2737,11 +2770,12 @@ class Animation {
 
 const numbers = ['x', 'y', 'borderWidth', 'radius', 'tension'];
 const colors = ['borderColor', 'backgroundColor'];
+const animationOptions = ['duration', 'easing', 'from', 'to', 'type', 'easing', 'loop', 'fn'];
 defaults.set('animation', {
   duration: 1000,
   easing: 'easeOutQuart',
-  onProgress: noop,
-  onComplete: noop,
+  onProgress: undefined,
+  onComplete: undefined,
   colors: {
     type: 'color',
     properties: colors
@@ -2779,29 +2813,11 @@ defaults.set('animation', {
     },
   }
 });
-function copyOptions(target, values) {
-  const oldOpts = target.options;
-  const newOpts = values.options;
-  if (!oldOpts || !newOpts) {
-    return;
-  }
-  if (oldOpts.$shared && !newOpts.$shared) {
-    target.options = Object.assign({}, oldOpts, newOpts, {$shared: false});
-  } else {
-    Object.assign(oldOpts, newOpts);
-  }
-  delete values.options;
-}
-function extensibleConfig(animations) {
-  const result = {};
-  Object.keys(animations).forEach(key => {
-    const value = animations[key];
-    if (!isObject(value)) {
-      result[key] = value;
-    }
-  });
-  return result;
-}
+defaults.describe('animation', {
+  _scriptable: (name) => name !== 'onProgress' && name !== 'onComplete' && name !== 'fn',
+  _indexable: false,
+  _fallback: 'animation',
+});
 class Animations {
   constructor(chart, animations) {
     this._chart = chart;
@@ -2813,18 +2829,18 @@ class Animations {
       return;
     }
     const animatedProps = this._properties;
-    const animDefaults = extensibleConfig(animations);
-    Object.keys(animations).forEach(key => {
+    Object.getOwnPropertyNames(animations).forEach(key => {
       const cfg = animations[key];
       if (!isObject(cfg)) {
         return;
       }
+      const resolved = {};
+      for (const option of animationOptions) {
+        resolved[option] = cfg[option];
+      }
       (cfg.properties || [key]).forEach((prop) => {
-        if (!animatedProps.has(prop)) {
-          animatedProps.set(prop, Object.assign({}, animDefaults, cfg));
-        } else if (prop === key) {
-          const {properties, ...inherited} = animatedProps.get(prop);
-          animatedProps.set(prop, Object.assign({}, inherited, cfg));
+        if (prop === key || !animatedProps.has(prop)) {
+          animatedProps.set(prop, resolved);
         }
       });
     });
@@ -2836,7 +2852,7 @@ class Animations {
       return [];
     }
     const animations = this._createAnimations(options, newOptions);
-    if (newOptions.$shared && !options.$shared) {
+    if (newOptions.$shared) {
       awaitAll(target.options.$animations, newOptions).then(() => {
         target.options = newOptions;
       }, () => {
@@ -2882,7 +2898,6 @@ class Animations {
   }
   update(target, values) {
     if (this._properties.size === 0) {
-      copyOptions(target, values);
       Object.assign(target, values);
       return;
     }
@@ -2913,7 +2928,7 @@ function resolveTargetOptions(target, newOptions) {
     target.options = newOptions;
     return;
   }
-  if (options.$shared && !newOptions.$shared) {
+  if (options.$shared) {
     target.options = options = Object.assign({}, options, {$shared: false, $animations: {}});
   }
   return options;
@@ -3070,8 +3085,6 @@ function clearStacks(meta, items) {
     delete parsed._stacks[meta.vScale.id][meta.index];
   });
 }
-const optionKeys = (optionNames) => isArray(optionNames) ? optionNames : Object.keys(optionNames);
-const optionKey = (key, active) => active ? 'hover' + _capitalize(key) : key;
 const isDirectUpdateMode = (mode) => mode === 'reset' || mode === 'none';
 const cloneIfNotShared = (cached, shared) => shared ? cached : Object.assign({}, cached);
 class DatasetController {
@@ -3079,11 +3092,10 @@ class DatasetController {
     this.chart = chart;
     this._ctx = chart.ctx;
     this.index = datasetIndex;
-    this._cachedAnimations = {};
     this._cachedDataOpts = {};
     this._cachedMeta = this.getMeta();
     this._type = this._cachedMeta.type;
-    this._config = undefined;
+    this.options = undefined;
     this._parsing = false;
     this._data = undefined;
     this._objectData = undefined;
@@ -3193,18 +3205,11 @@ class DatasetController {
   }
   configure() {
     const me = this;
-    me._config = merge(Object.create(null), [
-      defaults.controllers[me._type].datasets,
-      (me.chart.options.datasets || {})[me._type],
-      me.getDataset(),
-    ], {
-      merger(key, target, source) {
-        if (key !== 'data' && key.charAt(0) !== '_') {
-          _merger(key, target, source);
-        }
-      }
-    });
-    me._parsing = resolve([me._config.parsing, me.chart.options.parsing, true]);
+    const config = me.chart.config;
+    const scopeKeys = config.datasetScopeKeys(me._type);
+    const scopes = config.getOptionScopes(me.getDataset(), scopeKeys);
+    me.options = config.createResolver(scopes, me.getContext());
+    me._parsing = me.options.parsing;
   }
   parse(start, count) {
     const me = this;
@@ -3382,10 +3387,9 @@ class DatasetController {
     const me = this;
     const meta = me._cachedMeta;
     me.configure();
-    me._cachedAnimations = {};
     me._cachedDataOpts = {};
     me.update(mode || 'default');
-    meta._clip = toClip(valueOrDefault(me._config.clip, defaultClip(meta.xScale, meta.yScale, me.getMaxOverflow())));
+    meta._clip = toClip(valueOrDefault(me.options.clip, defaultClip(meta.xScale, meta.yScale, me.getMaxOverflow())));
   }
   update(mode) {}
   draw() {
@@ -3414,33 +3418,13 @@ class DatasetController {
       active[i].draw(ctx, area);
     }
   }
-  _addAutomaticHoverColors(index, options) {
-    const me = this;
-    const normalOptions = me.getStyle(index);
-    const missingColors = Object.keys(normalOptions).filter(key => key.indexOf('Color') !== -1 && !(key in options));
-    let i = missingColors.length - 1;
-    let color;
-    for (; i >= 0; i--) {
-      color = missingColors[i];
-      options[color] = getHoverColor(normalOptions[color]);
-    }
-  }
   getStyle(index, active) {
-    const me = this;
-    const meta = me._cachedMeta;
-    const dataset = meta.dataset;
-    if (!me._config) {
-      me.configure();
-    }
-    const options = dataset && index === undefined
-      ? me.resolveDatasetElementOptions(active)
-      : me.resolveDataElementOptions(index || 0, active && 'active');
-    if (active) {
-      me._addAutomaticHoverColors(index, options);
-    }
-    return options;
+    const mode = active ? 'active' : 'default';
+    return index === undefined && this._cachedMeta.dataset
+      ? this.resolveDatasetElementOptions(mode)
+      : this.resolveDataElementOptions(index || 0, mode);
   }
-  getContext(index, active) {
+  getContext(index, active, mode) {
     const me = this;
     const dataset = me.getDataset();
     let context;
@@ -3452,78 +3436,58 @@ class DatasetController {
       context = me.$context || (me.$context = createDatasetContext(me.chart.getContext(), me.index, dataset));
     }
     context.active = !!active;
+    context.mode = mode;
     return context;
   }
-  resolveDatasetElementOptions(active) {
-    return this._resolveOptions(this.datasetElementOptions, {
-      active,
-      type: this.datasetElementType.id
-    });
+  resolveDatasetElementOptions(mode) {
+    return this._resolveElementOptions(this.datasetElementType.id, mode);
   }
   resolveDataElementOptions(index, mode) {
-    mode = mode || 'default';
+    return this._resolveElementOptions(this.dataElementType.id, mode, index);
+  }
+  _resolveElementOptions(elementType, mode = 'default', index) {
     const me = this;
     const active = mode === 'active';
     const cache = me._cachedDataOpts;
-    const cached = cache[mode];
-    const sharing = me.enableOptionSharing;
+    const cacheKey = elementType + '-' + mode;
+    const cached = cache[cacheKey];
+    const sharing = me.enableOptionSharing && defined(index);
     if (cached) {
       return cloneIfNotShared(cached, sharing);
     }
-    const info = {cacheable: !active};
-    const values = me._resolveOptions(me.dataElementOptions, {
-      index,
-      active,
-      info,
-      type: me.dataElementType.id
-    });
-    if (info.cacheable) {
+    const config = me.chart.config;
+    const scopeKeys = config.datasetElementScopeKeys(me._type, elementType);
+    const prefixes = active ? [`${elementType}Hover`, 'hover', elementType, ''] : [elementType, ''];
+    const scopes = config.getOptionScopes(me.getDataset(), scopeKeys);
+    const names = Object.keys(defaults.elements[elementType]);
+    const context = () => me.getContext(index, active);
+    const values = config.resolveNamedOptions(scopes, names, context, prefixes);
+    if (values.$shared) {
       values.$shared = sharing;
-      cache[mode] = Object.freeze(Object.assign({}, values));
-    }
-    return values;
-  }
-  _resolveOptions(optionNames, args) {
-    const me = this;
-    const {index, active, type, info} = args;
-    const datasetOpts = me._config;
-    const options = me.chart.options.elements[type] || {};
-    const values = {};
-    const context = me.getContext(index, active);
-    const keys = optionKeys(optionNames);
-    for (let i = 0, ilen = keys.length; i < ilen; ++i) {
-      const key = keys[i];
-      const readKey = optionKey(key, active);
-      const value = resolve([
-        datasetOpts[optionNames[readKey]],
-        datasetOpts[readKey],
-        options[readKey]
-      ], context, index, info);
-      if (value !== undefined) {
-        values[key] = value;
-      }
+      cache[cacheKey] = Object.freeze(cloneIfNotShared(values, sharing));
     }
     return values;
   }
   _resolveAnimations(index, mode, active) {
     const me = this;
     const chart = me.chart;
-    const cached = me._cachedAnimations;
-    mode = mode || 'default';
-    if (cached[mode]) {
-      return cached[mode];
+    const cache = me._cachedDataOpts;
+    const cacheKey = 'animation-' + mode;
+    const cached = cache[cacheKey];
+    if (cached) {
+      return cached;
     }
-    const info = {cacheable: true};
-    const context = me.getContext(index, active);
-    const chartAnim = resolve([chart.options.animation], context, index, info);
-    const datasetAnim = resolve([me._config.animation], context, index, info);
-    let config = chartAnim && mergeIf({}, [datasetAnim, chartAnim]);
-    if (config[mode]) {
-      config = Object.assign({}, config, config[mode]);
+    let options;
+    if (chart.options.animation !== false) {
+      const config = me.chart.config;
+      const scopeKeys = config.datasetAnimationScopeKeys(me._type);
+      const scopes = config.getOptionScopes(me.getDataset().animation, scopeKeys);
+      const context = () => me.getContext(index, active, mode);
+      options = config.createResolver(scopes, context);
     }
-    const animations = new Animations(chart, config);
-    if (info.cacheable) {
-      cached[mode] = animations && Object.freeze(animations);
+    const animations = new Animations(chart, options && options[mode] || options);
+    if (options && options._cacheable) {
+      cache[cacheKey] = Object.freeze(animations);
     }
     return animations;
   }
@@ -3545,13 +3509,15 @@ class DatasetController {
   }
   updateSharedOptions(sharedOptions, mode, newOptions) {
     if (sharedOptions) {
-      this._resolveAnimations(undefined, mode).update({options: sharedOptions}, {options: newOptions});
+      this._resolveAnimations(undefined, mode).update(sharedOptions, newOptions);
     }
   }
   _setStyle(element, index, mode, active) {
     element.active = active;
     const options = this.getStyle(index, active);
-    this._resolveAnimations(index, mode, active).update(element, {options: this.getSharedOptions(options) || options});
+    this._resolveAnimations(index, mode, active).update(element, {
+      options: (!active && this.getSharedOptions(options)) || options
+    });
   }
   removeHoverStyle(element, datasetIndex, index) {
     this._setStyle(element, index, 'active', false);
@@ -3642,21 +3608,6 @@ class DatasetController {
 DatasetController.defaults = {};
 DatasetController.prototype.datasetElementType = null;
 DatasetController.prototype.dataElementType = null;
-DatasetController.prototype.datasetElementOptions = [
-  'backgroundColor',
-  'borderCapStyle',
-  'borderColor',
-  'borderDash',
-  'borderDashOffset',
-  'borderJoinStyle',
-  'borderWidth'
-];
-DatasetController.prototype.dataElementOptions = [
-  'backgroundColor',
-  'borderColor',
-  'borderWidth',
-  'pointStyle'
-];
 
 class Element {
   constructor() {
@@ -3754,9 +3705,13 @@ defaults.set('scale', {
     drawOnChartArea: true,
     drawTicks: true,
     tickLength: 10,
+    tickWidth: (_ctx, options) => options.lineWidth,
+    tickColor: (_ctx, options) => options.color,
     offsetGridLines: false,
     borderDash: [],
-    borderDashOffset: 0.0
+    borderDashOffset: 0.0,
+    borderColor: (_ctx, options) => options.color,
+    borderWidth: (_ctx, options) => options.lineWidth
   },
   scaleLabel: {
     display: false,
@@ -3787,6 +3742,11 @@ defaults.set('scale', {
 defaults.route('scale.ticks', 'color', '', 'color');
 defaults.route('scale.gridLines', 'color', '', 'borderColor');
 defaults.route('scale.scaleLabel', 'color', '', 'color');
+defaults.describe('scales', {
+  _fallback: 'scale',
+  _scriptable: (name) => !name.startsWith('before') && !name.startsWith('after') && name !== 'callback' && name !== 'parser',
+  _indexable: (name) => name !== 'borderDash' && name !== 'tickBorderDash',
+});
 function sample(arr, numItems) {
   const result = [];
   const increment = arr.length / numItems;
@@ -3983,7 +3943,7 @@ class Scale extends Element {
   init(options) {
     const me = this;
     me.options = options;
-    me.axis = me.isHorizontal() ? 'x' : 'y';
+    me.axis = options.axis;
     me._userMin = me.parse(options.min);
     me._userMax = me.parse(options.max);
     me._suggestedMin = me.parse(options.suggestedMin);
@@ -4498,8 +4458,8 @@ class Scale extends Element {
     const ticksLength = ticks.length + (offsetGridLines ? 1 : 0);
     const tl = getTickMarkLength(gridLines);
     const items = [];
-    let context = this.getContext(0);
-    const axisWidth = gridLines.drawBorder ? resolve([gridLines.borderWidth, gridLines.lineWidth, 0], context, 0) : 0;
+    const borderOpts = gridLines.setContext(me.getContext(0));
+    const axisWidth = borderOpts.drawBorder ? borderOpts.borderWidth : 0;
     const axisHalfWidth = axisWidth / 2;
     const alignBorderValue = function(pixel) {
       return _alignPixel(chart, pixel, axisWidth);
@@ -4556,15 +4516,15 @@ class Scale extends Element {
       x2 = chartArea.right;
     }
     for (i = 0; i < ticksLength; ++i) {
-      context = this.getContext(i);
-      const lineWidth = resolve([gridLines.lineWidth], context, i);
-      const lineColor = resolve([gridLines.color], context, i);
+      const optsAtIndex = gridLines.setContext(me.getContext(i));
+      const lineWidth = optsAtIndex.lineWidth;
+      const lineColor = optsAtIndex.color;
       const borderDash = gridLines.borderDash || [];
-      const borderDashOffset = resolve([gridLines.borderDashOffset], context, i);
-      const tickWidth = resolve([gridLines.tickWidth, lineWidth], context, i);
-      const tickColor = resolve([gridLines.tickColor, lineColor], context, i);
-      const tickBorderDash = gridLines.tickBorderDash || borderDash;
-      const tickBorderDashOffset = resolve([gridLines.tickBorderDashOffset, borderDashOffset], context, i);
+      const borderDashOffset = optsAtIndex.borderDashOffset;
+      const tickWidth = optsAtIndex.tickWidth;
+      const tickColor = optsAtIndex.tickColor;
+      const tickBorderDash = optsAtIndex.tickBorderDash || [];
+      const tickBorderDashOffset = optsAtIndex.tickBorderDashOffset;
       lineValue = getPixelForGridLine(me, i, offsetGridLines);
       if (lineValue === undefined) {
         continue;
@@ -4656,14 +4616,15 @@ class Scale extends Element {
     for (i = 0, ilen = ticks.length; i < ilen; ++i) {
       tick = ticks[i];
       label = tick.label;
+      const optsAtIndex = optionTicks.setContext(me.getContext(i));
       pixel = me.getPixelForTick(i) + optionTicks.labelOffset;
       font = me._resolveTickFontOptions(i);
       lineHeight = font.lineHeight;
       lineCount = isArray(label) ? label.length : 1;
       const halfCount = lineCount / 2;
-      const color = resolve([optionTicks.color], me.getContext(i), i);
-      const strokeColor = resolve([optionTicks.textStrokeColor], me.getContext(i), i);
-      const strokeWidth = resolve([optionTicks.textStrokeWidth], me.getContext(i), i);
+      const color = optsAtIndex.color;
+      const strokeColor = optsAtIndex.textStrokeColor;
+      const strokeWidth = optsAtIndex.textStrokeWidth;
       if (isHorizontal) {
         x = pixel;
         if (position === 'top') {
@@ -4784,8 +4745,8 @@ class Scale extends Element {
     const gridLines = me.options.gridLines;
     const ctx = me.ctx;
     const chart = me.chart;
-    let context = me.getContext(0);
-    const axisWidth = gridLines.drawBorder ? resolve([gridLines.borderWidth, gridLines.lineWidth, 0], context, 0) : 0;
+    const borderOpts = gridLines.setContext(me.getContext(0));
+    const axisWidth = gridLines.drawBorder ? borderOpts.borderWidth : 0;
     const items = me._gridLineItems || (me._gridLineItems = me._computeGridLineItems(chartArea));
     let i, ilen;
     if (gridLines.display) {
@@ -4823,22 +4784,21 @@ class Scale extends Element {
       }
     }
     if (axisWidth) {
-      const firstLineWidth = axisWidth;
-      context = me.getContext(me._ticksLength - 1);
-      const lastLineWidth = resolve([gridLines.lineWidth, 1], context, me._ticksLength - 1);
+      const edgeOpts = gridLines.setContext(me.getContext(me._ticksLength - 1));
+      const lastLineWidth = edgeOpts.lineWidth;
       const borderValue = me._borderValue;
       let x1, x2, y1, y2;
       if (me.isHorizontal()) {
-        x1 = _alignPixel(chart, me.left, firstLineWidth) - firstLineWidth / 2;
+        x1 = _alignPixel(chart, me.left, axisWidth) - axisWidth / 2;
         x2 = _alignPixel(chart, me.right, lastLineWidth) + lastLineWidth / 2;
         y1 = y2 = borderValue;
       } else {
-        y1 = _alignPixel(chart, me.top, firstLineWidth) - firstLineWidth / 2;
+        y1 = _alignPixel(chart, me.top, axisWidth) - axisWidth / 2;
         y2 = _alignPixel(chart, me.bottom, lastLineWidth) + lastLineWidth / 2;
         x1 = x2 = borderValue;
       }
       ctx.lineWidth = axisWidth;
-      ctx.strokeStyle = resolve([gridLines.borderColor, gridLines.color], context, 0);
+      ctx.strokeStyle = edgeOpts.borderColor;
       ctx.beginPath();
       ctx.moveTo(x1, y1);
       ctx.lineTo(x2, y2);
@@ -4877,7 +4837,7 @@ class Scale extends Element {
     if (!scaleLabel.display) {
       return;
     }
-    const scaleLabelFont = toFont(scaleLabel.font, me.chart.options.font);
+    const scaleLabelFont = toFont(scaleLabel.font);
     const scaleLabelPadding = toPadding(scaleLabel.padding);
     const halfLineHeight = scaleLabelFont.lineHeight / 2;
     const scaleLabelAlign = scaleLabel.align;
@@ -4981,11 +4941,8 @@ class Scale extends Element {
     return result;
   }
   _resolveTickFontOptions(index) {
-    const me = this;
-    const chart = me.chart;
-    const options = me.options.ticks;
-    const context = me.getContext(index);
-    return toFont(resolve([options.font], context), chart.options.font);
+    const opts = this.options.ticks.setContext(this.getContext(index));
+    return toFont(opts.font);
   }
 }
 Scale.prototype._draw = Scale.prototype.draw;
@@ -5044,6 +5001,9 @@ function registerDefaults(item, scope, parentScope) {
   defaults.set(scope, itemDefaults);
   if (item.defaultRoutes) {
     routeDefaults(scope, item.defaultRoutes);
+  }
+  if (item.descriptors) {
+    defaults.describe(scope, item.descriptors);
   }
 }
 function routeDefaults(scope, routes) {
@@ -5149,6 +5109,1227 @@ class Registry {
   }
 }
 var registry = new Registry();
+
+class PluginService {
+  constructor() {
+    this._init = [];
+  }
+  notify(chart, hook, args) {
+    const me = this;
+    if (hook === 'beforeInit') {
+      me._init = me._createDescriptors(chart, true);
+      me._notify(me._init, chart, 'install');
+    }
+    const descriptors = me._descriptors(chart);
+    const result = me._notify(descriptors, chart, hook, args);
+    if (hook === 'destroy') {
+      me._notify(descriptors, chart, 'stop');
+      me._notify(me._init, chart, 'uninstall');
+    }
+    return result;
+  }
+  _notify(descriptors, chart, hook, args) {
+    args = args || {};
+    for (const descriptor of descriptors) {
+      const plugin = descriptor.plugin;
+      const method = plugin[hook];
+      const params = [chart, args, descriptor.options];
+      if (callback(method, params, plugin) === false && args.cancelable) {
+        return false;
+      }
+    }
+    return true;
+  }
+  invalidate() {
+    if (!isNullOrUndef(this._cache)) {
+      this._oldCache = this._cache;
+      this._cache = undefined;
+    }
+  }
+  _descriptors(chart) {
+    if (this._cache) {
+      return this._cache;
+    }
+    const descriptors = this._cache = this._createDescriptors(chart);
+    this._notifyStateChanges(chart);
+    return descriptors;
+  }
+  _createDescriptors(chart, all) {
+    const config = chart && chart.config;
+    const options = valueOrDefault(config.options && config.options.plugins, {});
+    const plugins = allPlugins(config);
+    return options === false && !all ? [] : createDescriptors(chart, plugins, options, all);
+  }
+  _notifyStateChanges(chart) {
+    const previousDescriptors = this._oldCache || [];
+    const descriptors = this._cache;
+    const diff = (a, b) => a.filter(x => !b.some(y => x.plugin.id === y.plugin.id));
+    this._notify(diff(previousDescriptors, descriptors), chart, 'stop');
+    this._notify(diff(descriptors, previousDescriptors), chart, 'start');
+  }
+}
+function allPlugins(config) {
+  const plugins = [];
+  const keys = Object.keys(registry.plugins.items);
+  for (let i = 0; i < keys.length; i++) {
+    plugins.push(registry.getPlugin(keys[i]));
+  }
+  const local = config.plugins || [];
+  for (let i = 0; i < local.length; i++) {
+    const plugin = local[i];
+    if (plugins.indexOf(plugin) === -1) {
+      plugins.push(plugin);
+    }
+  }
+  return plugins;
+}
+function getOpts(options, all) {
+  if (!all && options === false) {
+    return null;
+  }
+  if (options === true) {
+    return {};
+  }
+  return options;
+}
+function createDescriptors(chart, plugins, options, all) {
+  const result = [];
+  const context = chart.getContext();
+  for (let i = 0; i < plugins.length; i++) {
+    const plugin = plugins[i];
+    const id = plugin.id;
+    const opts = getOpts(options[id], all);
+    if (opts === null) {
+      continue;
+    }
+    result.push({
+      plugin,
+      options: pluginOpts(chart.config, plugin, opts, context)
+    });
+  }
+  return result;
+}
+function pluginOpts(config, plugin, opts, context) {
+  const id = plugin.id;
+  const keys = [
+    `controllers.${config.type}.plugins.${id}`,
+    `plugins.${id}`,
+    ...plugin.additionalOptionScopes || []
+  ];
+  const scopes = config.getOptionScopes(opts || {}, keys);
+  return config.createResolver(scopes, context);
+}
+
+function _createResolver(scopes, prefixes = ['']) {
+  const cache = {
+    [Symbol.toStringTag]: 'Object',
+    _cacheable: true,
+    _scopes: scopes,
+    override: (scope) => _createResolver([scope].concat(scopes), prefixes),
+  };
+  return new Proxy(cache, {
+    get(target, prop) {
+      return _cached(target, prop,
+        () => _resolveWithPrefixes(prop, prefixes, scopes));
+    },
+    ownKeys(target) {
+      return getKeysFromAllScopes(target);
+    },
+    getOwnPropertyDescriptor(target, prop) {
+      return Reflect.getOwnPropertyDescriptor(target._scopes[0], prop);
+    },
+    set(target, prop, value) {
+      scopes[0][prop] = value;
+      return delete target[prop];
+    }
+  });
+}
+function _attachContext(proxy, context, subProxy) {
+  const cache = {
+    _cacheable: false,
+    _proxy: proxy,
+    _context: context,
+    _subProxy: subProxy,
+    _stack: new Set(),
+    _descriptors: _descriptors(proxy),
+    setContext: (ctx) => _attachContext(proxy, ctx, subProxy),
+    override: (scope) => _attachContext(proxy.override(scope), context, subProxy)
+  };
+  return new Proxy(cache, {
+    get(target, prop, receiver) {
+      return _cached(target, prop,
+        () => _resolveWithContext(target, prop, receiver));
+    },
+    ownKeys() {
+      return Reflect.ownKeys(proxy);
+    },
+    getOwnPropertyDescriptor(target, prop) {
+      return Reflect.getOwnPropertyDescriptor(proxy._scopes[0], prop);
+    },
+    set(target, prop, value) {
+      proxy[prop] = value;
+      return delete target[prop];
+    }
+  });
+}
+function _descriptors(proxy) {
+  const {_scriptable = true, _indexable = true} = proxy;
+  return {
+    isScriptable: isFunction(_scriptable) ? _scriptable : () => _scriptable,
+    isIndexable: isFunction(_indexable) ? _indexable : () => _indexable
+  };
+}
+const readKey = (prefix, name) => prefix ? prefix + _capitalize(name) : name;
+const needsSubResolver = (prop, value) => isObject(value);
+function _cached(target, prop, resolve) {
+  let value = target[prop];
+  if (defined(value)) {
+    return value;
+  }
+  value = resolve();
+  if (defined(value)) {
+    target[prop] = value;
+  }
+  return value;
+}
+function _resolveWithContext(target, prop, receiver) {
+  const {_proxy, _context, _subProxy, _descriptors: descriptors} = target;
+  let value = _proxy[prop];
+  if (isFunction(value) && descriptors.isScriptable(prop)) {
+    value = _resolveScriptable(prop, value, target, receiver);
+  }
+  if (isArray(value) && value.length) {
+    value = _resolveArray(prop, value, target, descriptors.isIndexable);
+  }
+  if (needsSubResolver(prop, value)) {
+    value = _attachContext(value, _context, _subProxy && _subProxy[prop]);
+  }
+  return value;
+}
+function _resolveScriptable(prop, value, target, receiver) {
+  const {_proxy, _context, _subProxy, _stack} = target;
+  if (_stack.has(prop)) {
+    throw new Error('Recursion detected: ' + [..._stack].join('->') + '->' + prop);
+  }
+  _stack.add(prop);
+  value = value(_context, _subProxy || receiver);
+  _stack.delete(prop);
+  if (isObject(value)) {
+    value = createSubResolver([value].concat(_proxy._scopes), prop, value);
+  }
+  return value;
+}
+function _resolveArray(prop, value, target, isIndexable) {
+  const {_proxy, _context, _subProxy} = target;
+  if (defined(_context.index) && isIndexable(prop)) {
+    value = value[_context.index % value.length];
+  } else if (isObject(value[0])) {
+    const arr = value;
+    const scopes = _proxy._scopes.filter(s => s !== arr);
+    value = [];
+    for (const item of arr) {
+      const resolver = createSubResolver([item].concat(scopes), prop, item);
+      value.push(_attachContext(resolver, _context, _subProxy && _subProxy[prop]));
+    }
+  }
+  return value;
+}
+function createSubResolver(parentScopes, prop, value) {
+  const set = new Set([value]);
+  const {keys, includeParents} = _resolveSubKeys(parentScopes, prop, value);
+  for (const key of keys) {
+    for (const item of parentScopes) {
+      const scope = resolveObjectKey(item, key);
+      if (scope) {
+        set.add(scope);
+      } else if (key !== prop && scope === false) {
+        return false;
+      }
+    }
+  }
+  if (includeParents) {
+    parentScopes.forEach(set.add, set);
+  }
+  return _createResolver([...set]);
+}
+function _resolveSubKeys(parentScopes, prop, value) {
+  const fallback = _resolve('_fallback', parentScopes.map(scope => scope[prop] || scope));
+  const keys = [prop];
+  if (defined(fallback)) {
+    const resolved = isFunction(fallback) ? fallback(prop, value) : fallback;
+    keys.push(...(isArray(resolved) ? resolved : [resolved]));
+  }
+  return {keys: keys.filter(v => v), includeParents: fallback !== prop};
+}
+function _resolveWithPrefixes(prop, prefixes, scopes) {
+  let value;
+  for (const prefix of prefixes) {
+    value = _resolve(readKey(prefix, prop), scopes);
+    if (defined(value)) {
+      return (needsSubResolver(prop, value))
+        ? createSubResolver(scopes, prop, value)
+        : value;
+    }
+  }
+}
+function _resolve(key, scopes) {
+  for (const scope of scopes) {
+    if (!scope) {
+      continue;
+    }
+    const value = scope[key];
+    if (defined(value)) {
+      return value;
+    }
+  }
+}
+function getKeysFromAllScopes(target) {
+  let keys = target._keys;
+  if (!keys) {
+    keys = target._keys = resolveKeysFromAllScopes(target._scopes);
+  }
+  return keys;
+}
+function resolveKeysFromAllScopes(scopes) {
+  const set = new Set();
+  for (const scope of scopes) {
+    for (const key of Object.keys(scope).filter(k => !k.startsWith('_'))) {
+      set.add(key);
+    }
+  }
+  return [...set];
+}
+
+function getIndexAxis(type, options) {
+  const typeDefaults = defaults.controllers[type] || {};
+  const datasetDefaults = typeDefaults.datasets || {};
+  const datasetOptions = options.datasets || {};
+  const typeOptions = datasetOptions[type] || {};
+  return typeOptions.indexAxis || options.indexAxis || datasetDefaults.indexAxis || 'x';
+}
+function getAxisFromDefaultScaleID(id, indexAxis) {
+  let axis = id;
+  if (id === '_index_') {
+    axis = indexAxis;
+  } else if (id === '_value_') {
+    axis = indexAxis === 'x' ? 'y' : 'x';
+  }
+  return axis;
+}
+function getDefaultScaleIDFromAxis(axis, indexAxis) {
+  return axis === indexAxis ? '_index_' : '_value_';
+}
+function axisFromPosition(position) {
+  if (position === 'top' || position === 'bottom') {
+    return 'x';
+  }
+  if (position === 'left' || position === 'right') {
+    return 'y';
+  }
+}
+function determineAxis(id, scaleOptions) {
+  if (id === 'x' || id === 'y' || id === 'r') {
+    return id;
+  }
+  return scaleOptions.axis || axisFromPosition(scaleOptions.position) || id.charAt(0).toLowerCase();
+}
+function mergeScaleConfig(config, options) {
+  const chartDefaults = defaults.controllers[config.type] || {scales: {}};
+  const configScales = options.scales || {};
+  const chartIndexAxis = getIndexAxis(config.type, options);
+  const firstIDs = Object.create(null);
+  const scales = Object.create(null);
+  Object.keys(configScales).forEach(id => {
+    const scaleConf = configScales[id];
+    const axis = determineAxis(id, scaleConf);
+    const defaultId = getDefaultScaleIDFromAxis(axis, chartIndexAxis);
+    const defaultScaleOptions = chartDefaults.scales || {};
+    firstIDs[axis] = firstIDs[axis] || id;
+    scales[id] = mergeIf(Object.create(null), [{axis}, scaleConf, defaultScaleOptions[axis], defaultScaleOptions[defaultId]]);
+  });
+  config.data.datasets.forEach(dataset => {
+    const type = dataset.type || config.type;
+    const indexAxis = dataset.indexAxis || getIndexAxis(type, options);
+    const datasetDefaults = defaults.controllers[type] || {};
+    const defaultScaleOptions = datasetDefaults.scales || {};
+    Object.keys(defaultScaleOptions).forEach(defaultID => {
+      const axis = getAxisFromDefaultScaleID(defaultID, indexAxis);
+      const id = dataset[axis + 'AxisID'] || firstIDs[axis] || axis;
+      scales[id] = scales[id] || Object.create(null);
+      mergeIf(scales[id], [{axis}, configScales[id], defaultScaleOptions[defaultID]]);
+    });
+  });
+  Object.keys(scales).forEach(key => {
+    const scale = scales[key];
+    mergeIf(scale, [defaults.scales[scale.type], defaults.scale]);
+  });
+  return scales;
+}
+function initOptions(config, options) {
+  options = options || {};
+  options.plugins = valueOrDefault(options.plugins, {});
+  options.scales = mergeScaleConfig(config, options);
+  return options;
+}
+function initConfig(config) {
+  config = config || {};
+  const data = config.data = config.data || {datasets: [], labels: []};
+  data.datasets = data.datasets || [];
+  data.labels = data.labels || [];
+  config.options = initOptions(config, config.options);
+  return config;
+}
+class Config {
+  constructor(config) {
+    this._config = initConfig(config);
+  }
+  get type() {
+    return this._config.type;
+  }
+  set type(type) {
+    this._config.type = type;
+  }
+  get data() {
+    return this._config.data;
+  }
+  set data(data) {
+    this._config.data = data;
+  }
+  get options() {
+    return this._config.options;
+  }
+  get plugins() {
+    return this._config.plugins;
+  }
+  update(options) {
+    const config = this._config;
+    config.options = initOptions(config, options);
+  }
+  datasetScopeKeys(datasetType) {
+    return [`datasets.${datasetType}`, `controllers.${datasetType}.datasets`, ''];
+  }
+  datasetAnimationScopeKeys(datasetType) {
+    return [`datasets.${datasetType}.animation`, `controllers.${datasetType}.datasets.animation`, 'animation'];
+  }
+  datasetElementScopeKeys(datasetType, elementType) {
+    return [
+      `datasets.${datasetType}`,
+      `controllers.${datasetType}.datasets`,
+      `controllers.${datasetType}.elements.${elementType}`,
+      `elements.${elementType}`,
+      ''
+    ];
+  }
+  getOptionScopes(mainScope = {}, scopeKeys) {
+    const options = this.options;
+    const scopes = new Set([mainScope]);
+    const addIfFound = (obj, key) => {
+      const opts = resolveObjectKey(obj, key);
+      if (opts !== undefined) {
+        scopes.add(opts);
+      }
+    };
+    scopeKeys.forEach(key => addIfFound(mainScope, key));
+    scopeKeys.forEach(key => addIfFound(options, key));
+    scopeKeys.forEach(key => addIfFound(defaults, key));
+    const descriptors = defaults.descriptors;
+    scopeKeys.forEach(key => addIfFound(descriptors, key));
+    return [...scopes];
+  }
+  chartOptionsScopes() {
+    return [
+      this.options,
+      defaults.controllers[this.type] || {},
+      {type: this.type},
+      defaults, defaults.descriptors
+    ];
+  }
+  resolveNamedOptions(scopes, names, context, prefixes = ['']) {
+    const result = {};
+    const resolver = _createResolver(scopes, prefixes);
+    let options;
+    if (needContext(resolver, names)) {
+      result.$shared = false;
+      context = isFunction(context) ? context() : context;
+      const subPrefixes = prefixes.filter(p => !p.toLowerCase().includes('hover'));
+      const subResolver = this.createResolver(scopes, context, subPrefixes);
+      options = _attachContext(resolver, context, subResolver);
+    } else {
+      result.$shared = true;
+      options = resolver;
+    }
+    for (const prop of names) {
+      result[prop] = options[prop];
+    }
+    return result;
+  }
+  createResolver(scopes, context, prefixes = ['']) {
+    const resolver = _createResolver(scopes, prefixes);
+    return context && needContext(resolver, Object.getOwnPropertyNames(resolver))
+      ? _attachContext(resolver, isFunction(context) ? context() : context)
+      : resolver;
+  }
+}
+function needContext(proxy, names) {
+  const {isScriptable, isIndexable} = _descriptors(proxy);
+  for (const prop of names) {
+    if ((isScriptable(prop) && isFunction(proxy[prop]))
+			|| (isIndexable(prop) && isArray(proxy[prop]))) {
+      return true;
+    }
+  }
+  return false;
+}
+
+var version = "3.0.0-beta.10";
+
+const KNOWN_POSITIONS = ['top', 'bottom', 'left', 'right', 'chartArea'];
+function positionIsHorizontal(position, axis) {
+  return position === 'top' || position === 'bottom' || (KNOWN_POSITIONS.indexOf(position) === -1 && axis === 'x');
+}
+function compare2Level(l1, l2) {
+  return function(a, b) {
+    return a[l1] === b[l1]
+      ? a[l2] - b[l2]
+      : a[l1] - b[l1];
+  };
+}
+function onAnimationsComplete(context) {
+  const chart = context.chart;
+  const animationOptions = chart.options.animation;
+  chart.notifyPlugins('afterRender');
+  callback(animationOptions && animationOptions.onComplete, [context], chart);
+}
+function onAnimationProgress(context) {
+  const chart = context.chart;
+  const animationOptions = chart.options.animation;
+  callback(animationOptions && animationOptions.onProgress, [context], chart);
+}
+function isDomSupported() {
+  return typeof window !== 'undefined' && typeof document !== 'undefined';
+}
+function getCanvas(item) {
+  if (isDomSupported() && typeof item === 'string') {
+    item = document.getElementById(item);
+  } else if (item && item.length) {
+    item = item[0];
+  }
+  if (item && item.canvas) {
+    item = item.canvas;
+  }
+  return item;
+}
+class Chart {
+  constructor(item, config) {
+    const me = this;
+    this.config = config = new Config(config);
+    const initialCanvas = getCanvas(item);
+    const existingChart = Chart.getChart(initialCanvas);
+    if (existingChart) {
+      throw new Error(
+        'Canvas is already in use. Chart with ID \'' + existingChart.id + '\'' +
+				' must be destroyed before the canvas can be reused.'
+      );
+    }
+    const options = config.createResolver(config.chartOptionsScopes(), me.getContext());
+    this.platform = me._initializePlatform(initialCanvas, config);
+    const context = me.platform.acquireContext(initialCanvas, options.aspectRatio);
+    const canvas = context && context.canvas;
+    const height = canvas && canvas.height;
+    const width = canvas && canvas.width;
+    this.id = uid();
+    this.ctx = context;
+    this.canvas = canvas;
+    this.width = width;
+    this.height = height;
+    this.aspectRatio = height ? width / height : null;
+    this._options = options;
+    this._layers = [];
+    this._metasets = [];
+    this.boxes = [];
+    this.currentDevicePixelRatio = undefined;
+    this.chartArea = undefined;
+    this._active = [];
+    this._lastEvent = undefined;
+    this._listeners = {};
+    this._sortedMetasets = [];
+    this.scales = {};
+    this.scale = undefined;
+    this._plugins = new PluginService();
+    this.$proxies = {};
+    this._hiddenIndices = {};
+    this.attached = false;
+    this._animationsDisabled = undefined;
+    this.$context = undefined;
+    Chart.instances[me.id] = me;
+    if (!context || !canvas) {
+      console.error("Failed to create chart: can't acquire context from the given item");
+      return;
+    }
+    animator.listen(me, 'complete', onAnimationsComplete);
+    animator.listen(me, 'progress', onAnimationProgress);
+    me._initialize();
+    if (me.attached) {
+      me.update();
+    }
+  }
+  get data() {
+    return this.config.data;
+  }
+  set data(data) {
+    this.config.data = data;
+  }
+  get options() {
+    return this._options;
+  }
+  set options(options) {
+    this.config.update(options);
+  }
+  _initialize() {
+    const me = this;
+    me.notifyPlugins('beforeInit');
+    if (me.options.responsive) {
+      me.resize();
+    } else {
+      retinaScale(me, me.options.devicePixelRatio);
+    }
+    me.bindEvents();
+    me.notifyPlugins('afterInit');
+    return me;
+  }
+  _initializePlatform(canvas, config) {
+    if (config.platform) {
+      return new config.platform();
+    } else if (!isDomSupported() || (typeof OffscreenCanvas !== 'undefined' && canvas instanceof OffscreenCanvas)) {
+      return new BasicPlatform();
+    }
+    return new DomPlatform();
+  }
+  clear() {
+    clearCanvas(this.canvas, this.ctx);
+    return this;
+  }
+  stop() {
+    animator.stop(this);
+    return this;
+  }
+  resize(width, height) {
+    if (!animator.running(this)) {
+      this._resize(width, height);
+    } else {
+      this._resizeBeforeDraw = {width, height};
+    }
+  }
+  _resize(width, height) {
+    const me = this;
+    const options = me.options;
+    const canvas = me.canvas;
+    const aspectRatio = options.maintainAspectRatio && me.aspectRatio;
+    const newSize = me.platform.getMaximumSize(canvas, width, height, aspectRatio);
+    const oldRatio = me.currentDevicePixelRatio;
+    const newRatio = options.devicePixelRatio || me.platform.getDevicePixelRatio();
+    if (me.width === newSize.width && me.height === newSize.height && oldRatio === newRatio) {
+      return;
+    }
+    canvas.width = me.width = newSize.width;
+    canvas.height = me.height = newSize.height;
+    if (canvas.style) {
+      canvas.style.width = newSize.width + 'px';
+      canvas.style.height = newSize.height + 'px';
+    }
+    retinaScale(me, newRatio);
+    me.notifyPlugins('resize', {size: newSize});
+    callback(options.onResize, [newSize], me);
+    if (me.attached) {
+      me.update('resize');
+    }
+  }
+  ensureScalesHaveIDs() {
+    const options = this.options;
+    const scalesOptions = options.scales || {};
+    each(scalesOptions, (axisOptions, axisID) => {
+      axisOptions.id = axisID;
+    });
+  }
+  buildOrUpdateScales() {
+    const me = this;
+    const options = me.options;
+    const scaleOpts = options.scales;
+    const scales = me.scales;
+    const updated = Object.keys(scales).reduce((obj, id) => {
+      obj[id] = false;
+      return obj;
+    }, {});
+    let items = [];
+    if (scaleOpts) {
+      items = items.concat(
+        Object.keys(scaleOpts).map((id) => {
+          const scaleOptions = scaleOpts[id];
+          const axis = determineAxis(id, scaleOptions);
+          const isRadial = axis === 'r';
+          const isHorizontal = axis === 'x';
+          return {
+            options: scaleOptions,
+            dposition: isRadial ? 'chartArea' : isHorizontal ? 'bottom' : 'left',
+            dtype: isRadial ? 'radialLinear' : isHorizontal ? 'category' : 'linear'
+          };
+        })
+      );
+    }
+    each(items, (item) => {
+      const scaleOptions = item.options;
+      const id = scaleOptions.id;
+      const axis = determineAxis(id, scaleOptions);
+      const scaleType = valueOrDefault(scaleOptions.type, item.dtype);
+      if (scaleOptions.position === undefined || positionIsHorizontal(scaleOptions.position, axis) !== positionIsHorizontal(item.dposition)) {
+        scaleOptions.position = item.dposition;
+      }
+      updated[id] = true;
+      let scale = null;
+      if (id in scales && scales[id].type === scaleType) {
+        scale = scales[id];
+      } else {
+        const scaleClass = registry.getScale(scaleType);
+        scale = new scaleClass({
+          id,
+          type: scaleType,
+          ctx: me.ctx,
+          chart: me
+        });
+        scales[scale.id] = scale;
+      }
+      scale.init(scaleOptions, options);
+    });
+    each(updated, (hasUpdated, id) => {
+      if (!hasUpdated) {
+        delete scales[id];
+      }
+    });
+    each(scales, (scale) => {
+      layouts.configure(me, scale, scale.options);
+      layouts.addBox(me, scale);
+    });
+  }
+  _updateMetasetIndex(meta, index) {
+    const metasets = this._metasets;
+    const oldIndex = meta.index;
+    if (oldIndex !== index) {
+      metasets[oldIndex] = metasets[index];
+      metasets[index] = meta;
+      meta.index = index;
+    }
+  }
+  _updateMetasets() {
+    const me = this;
+    const metasets = me._metasets;
+    const numData = me.data.datasets.length;
+    const numMeta = metasets.length;
+    if (numMeta > numData) {
+      for (let i = numData; i < numMeta; ++i) {
+        me._destroyDatasetMeta(i);
+      }
+      metasets.splice(numData, numMeta - numData);
+    }
+    me._sortedMetasets = metasets.slice(0).sort(compare2Level('order', 'index'));
+  }
+  _removeUnreferencedMetasets() {
+    const me = this;
+    const datasets = me.data.datasets;
+    me._metasets.forEach((meta, index) => {
+      if (datasets.filter(x => x === meta._dataset).length === 0) {
+        me._destroyDatasetMeta(index);
+      }
+    });
+  }
+  buildOrUpdateControllers() {
+    const me = this;
+    const newControllers = [];
+    const datasets = me.data.datasets;
+    let i, ilen;
+    me._removeUnreferencedMetasets();
+    for (i = 0, ilen = datasets.length; i < ilen; i++) {
+      const dataset = datasets[i];
+      let meta = me.getDatasetMeta(i);
+      const type = dataset.type || me.config.type;
+      if (meta.type && meta.type !== type) {
+        me._destroyDatasetMeta(i);
+        meta = me.getDatasetMeta(i);
+      }
+      meta.type = type;
+      meta.indexAxis = dataset.indexAxis || getIndexAxis(type, me.options);
+      meta.order = dataset.order || 0;
+      me._updateMetasetIndex(meta, i);
+      meta.label = '' + dataset.label;
+      meta.visible = me.isDatasetVisible(i);
+      if (meta.controller) {
+        meta.controller.updateIndex(i);
+        meta.controller.linkScales();
+      } else {
+        const controllerDefaults = defaults.controllers[type];
+        const ControllerClass = registry.getController(type);
+        Object.assign(ControllerClass.prototype, {
+          dataElementType: registry.getElement(controllerDefaults.dataElementType),
+          datasetElementType: controllerDefaults.datasetElementType && registry.getElement(controllerDefaults.datasetElementType)
+        });
+        meta.controller = new ControllerClass(me, i);
+        newControllers.push(meta.controller);
+      }
+    }
+    me._updateMetasets();
+    return newControllers;
+  }
+  _resetElements() {
+    const me = this;
+    each(me.data.datasets, (dataset, datasetIndex) => {
+      me.getDatasetMeta(datasetIndex).controller.reset();
+    }, me);
+  }
+  reset() {
+    this._resetElements();
+    this.notifyPlugins('reset');
+  }
+  update(mode) {
+    const me = this;
+    const config = me.config;
+    config.update(config.options);
+    me._options = config.createResolver(config.chartOptionsScopes(), me.getContext());
+    each(me.scales, (scale) => {
+      layouts.removeBox(me, scale);
+    });
+    const animsDisabled = me._animationsDisabled = !me.options.animation;
+    me.ensureScalesHaveIDs();
+    me.buildOrUpdateScales();
+    me._plugins.invalidate();
+    if (me.notifyPlugins('beforeUpdate', {mode, cancelable: true}) === false) {
+      return;
+    }
+    const newControllers = me.buildOrUpdateControllers();
+    me.notifyPlugins('beforeElementsUpdate');
+    for (let i = 0, ilen = me.data.datasets.length; i < ilen; i++) {
+      const {controller} = me.getDatasetMeta(i);
+      const reset = !animsDisabled && newControllers.indexOf(controller) === -1;
+      controller.buildOrUpdateElements(reset);
+    }
+    me._updateLayout();
+    if (!animsDisabled) {
+      each(newControllers, (controller) => {
+        controller.reset();
+      });
+    }
+    me._updateDatasets(mode);
+    me.notifyPlugins('afterUpdate', {mode});
+    me._layers.sort(compare2Level('z', '_idx'));
+    if (me._lastEvent) {
+      me._eventHandler(me._lastEvent, true);
+    }
+    me.render();
+  }
+  _updateLayout() {
+    const me = this;
+    if (me.notifyPlugins('beforeLayout', {cancelable: true}) === false) {
+      return;
+    }
+    layouts.update(me, me.width, me.height);
+    const area = me.chartArea;
+    const noArea = area.width <= 0 || area.height <= 0;
+    me._layers = [];
+    each(me.boxes, (box) => {
+      if (noArea && box.position === 'chartArea') {
+        return;
+      }
+      if (box.configure) {
+        box.configure();
+      }
+      me._layers.push(...box._layers());
+    }, me);
+    me._layers.forEach((item, index) => {
+      item._idx = index;
+    });
+    me.notifyPlugins('afterLayout');
+  }
+  _updateDatasets(mode) {
+    const me = this;
+    const isFunction = typeof mode === 'function';
+    if (me.notifyPlugins('beforeDatasetsUpdate', {mode, cancelable: true}) === false) {
+      return;
+    }
+    for (let i = 0, ilen = me.data.datasets.length; i < ilen; ++i) {
+      me._updateDataset(i, isFunction ? mode({datasetIndex: i}) : mode);
+    }
+    me.notifyPlugins('afterDatasetsUpdate', {mode});
+  }
+  _updateDataset(index, mode) {
+    const me = this;
+    const meta = me.getDatasetMeta(index);
+    const args = {meta, index, mode, cancelable: true};
+    if (me.notifyPlugins('beforeDatasetUpdate', args) === false) {
+      return;
+    }
+    meta.controller._update(mode);
+    args.cancelable = false;
+    me.notifyPlugins('afterDatasetUpdate', args);
+  }
+  render() {
+    const me = this;
+    if (me.notifyPlugins('beforeRender', {cancelable: true}) === false) {
+      return;
+    }
+    if (animator.has(me)) {
+      if (me.attached && !animator.running(me)) {
+        animator.start(me);
+      }
+    } else {
+      me.draw();
+      onAnimationsComplete({chart: me});
+    }
+  }
+  draw() {
+    const me = this;
+    let i;
+    if (me._resizeBeforeDraw) {
+      const {width, height} = me._resizeBeforeDraw;
+      me._resize(width, height);
+      me._resizeBeforeDraw = null;
+    }
+    me.clear();
+    if (me.width <= 0 || me.height <= 0) {
+      return;
+    }
+    if (me.notifyPlugins('beforeDraw', {cancelable: true}) === false) {
+      return;
+    }
+    const layers = me._layers;
+    for (i = 0; i < layers.length && layers[i].z <= 0; ++i) {
+      layers[i].draw(me.chartArea);
+    }
+    me._drawDatasets();
+    for (; i < layers.length; ++i) {
+      layers[i].draw(me.chartArea);
+    }
+    me.notifyPlugins('afterDraw');
+  }
+  _getSortedDatasetMetas(filterVisible) {
+    const me = this;
+    const metasets = me._sortedMetasets;
+    const result = [];
+    let i, ilen;
+    for (i = 0, ilen = metasets.length; i < ilen; ++i) {
+      const meta = metasets[i];
+      if (!filterVisible || meta.visible) {
+        result.push(meta);
+      }
+    }
+    return result;
+  }
+  getSortedVisibleDatasetMetas() {
+    return this._getSortedDatasetMetas(true);
+  }
+  _drawDatasets() {
+    const me = this;
+    if (me.notifyPlugins('beforeDatasetsDraw', {cancelable: true}) === false) {
+      return;
+    }
+    const metasets = me.getSortedVisibleDatasetMetas();
+    for (let i = metasets.length - 1; i >= 0; --i) {
+      me._drawDataset(metasets[i]);
+    }
+    me.notifyPlugins('afterDatasetsDraw');
+  }
+  _drawDataset(meta) {
+    const me = this;
+    const ctx = me.ctx;
+    const clip = meta._clip;
+    const area = me.chartArea;
+    const args = {
+      meta,
+      index: meta.index,
+      cancelable: true
+    };
+    if (me.notifyPlugins('beforeDatasetDraw', args) === false) {
+      return;
+    }
+    clipArea(ctx, {
+      left: clip.left === false ? 0 : area.left - clip.left,
+      right: clip.right === false ? me.width : area.right + clip.right,
+      top: clip.top === false ? 0 : area.top - clip.top,
+      bottom: clip.bottom === false ? me.height : area.bottom + clip.bottom
+    });
+    meta.controller.draw();
+    unclipArea(ctx);
+    args.cancelable = false;
+    me.notifyPlugins('afterDatasetDraw', args);
+  }
+  getElementsAtEventForMode(e, mode, options, useFinalPosition) {
+    const method = Interaction.modes[mode];
+    if (typeof method === 'function') {
+      return method(this, e, options, useFinalPosition);
+    }
+    return [];
+  }
+  getDatasetMeta(datasetIndex) {
+    const me = this;
+    const dataset = me.data.datasets[datasetIndex];
+    const metasets = me._metasets;
+    let meta = metasets.filter(x => x && x._dataset === dataset).pop();
+    if (!meta) {
+      meta = metasets[datasetIndex] = {
+        type: null,
+        data: [],
+        dataset: null,
+        controller: null,
+        hidden: null,
+        xAxisID: null,
+        yAxisID: null,
+        order: dataset && dataset.order || 0,
+        index: datasetIndex,
+        _dataset: dataset,
+        _parsed: [],
+        _sorted: false
+      };
+    }
+    return meta;
+  }
+  getContext() {
+    return this.$context || (this.$context = {chart: this, type: 'chart'});
+  }
+  getVisibleDatasetCount() {
+    return this.getSortedVisibleDatasetMetas().length;
+  }
+  isDatasetVisible(datasetIndex) {
+    const dataset = this.data.datasets[datasetIndex];
+    if (!dataset) {
+      return false;
+    }
+    const meta = this.getDatasetMeta(datasetIndex);
+    return typeof meta.hidden === 'boolean' ? !meta.hidden : !dataset.hidden;
+  }
+  setDatasetVisibility(datasetIndex, visible) {
+    const meta = this.getDatasetMeta(datasetIndex);
+    meta.hidden = !visible;
+  }
+  toggleDataVisibility(index) {
+    this._hiddenIndices[index] = !this._hiddenIndices[index];
+  }
+  getDataVisibility(index) {
+    return !this._hiddenIndices[index];
+  }
+  _updateDatasetVisibility(datasetIndex, visible) {
+    const me = this;
+    const mode = visible ? 'show' : 'hide';
+    const meta = me.getDatasetMeta(datasetIndex);
+    const anims = meta.controller._resolveAnimations(undefined, mode);
+    me.setDatasetVisibility(datasetIndex, visible);
+    anims.update(meta, {visible});
+    me.update((ctx) => ctx.datasetIndex === datasetIndex ? mode : undefined);
+  }
+  hide(datasetIndex) {
+    this._updateDatasetVisibility(datasetIndex, false);
+  }
+  show(datasetIndex) {
+    this._updateDatasetVisibility(datasetIndex, true);
+  }
+  _destroyDatasetMeta(datasetIndex) {
+    const me = this;
+    const meta = me._metasets && me._metasets[datasetIndex];
+    if (meta && meta.controller) {
+      meta.controller._destroy();
+      delete me._metasets[datasetIndex];
+    }
+  }
+  destroy() {
+    const me = this;
+    const {canvas, ctx} = me;
+    let i, ilen;
+    me.stop();
+    animator.remove(me);
+    for (i = 0, ilen = me.data.datasets.length; i < ilen; ++i) {
+      me._destroyDatasetMeta(i);
+    }
+    if (canvas) {
+      me.unbindEvents();
+      clearCanvas(canvas, ctx);
+      me.platform.releaseContext(ctx);
+      me.canvas = null;
+      me.ctx = null;
+    }
+    me.notifyPlugins('destroy');
+    delete Chart.instances[me.id];
+  }
+  toBase64Image(...args) {
+    return this.canvas.toDataURL(...args);
+  }
+  bindEvents() {
+    const me = this;
+    const listeners = me._listeners;
+    const platform = me.platform;
+    const _add = (type, listener) => {
+      platform.addEventListener(me, type, listener);
+      listeners[type] = listener;
+    };
+    const _remove = (type, listener) => {
+      if (listeners[type]) {
+        platform.removeEventListener(me, type, listener);
+        delete listeners[type];
+      }
+    };
+    let listener = function(e, x, y) {
+      e.offsetX = x;
+      e.offsetY = y;
+      me._eventHandler(e);
+    };
+    each(me.options.events, (type) => _add(type, listener));
+    if (me.options.responsive) {
+      listener = (width, height) => {
+        if (me.canvas) {
+          me.resize(width, height);
+        }
+      };
+      let detached;
+      const attached = () => {
+        _remove('attach', attached);
+        me.attached = true;
+        me.resize();
+        _add('resize', listener);
+        _add('detach', detached);
+      };
+      detached = () => {
+        me.attached = false;
+        _remove('resize', listener);
+        _add('attach', attached);
+      };
+      if (platform.isAttached(me.canvas)) {
+        attached();
+      } else {
+        detached();
+      }
+    } else {
+      me.attached = true;
+    }
+  }
+  unbindEvents() {
+    const me = this;
+    const listeners = me._listeners;
+    if (!listeners) {
+      return;
+    }
+    delete me._listeners;
+    each(listeners, (listener, type) => {
+      me.platform.removeEventListener(me, type, listener);
+    });
+  }
+  updateHoverStyle(items, mode, enabled) {
+    const prefix = enabled ? 'set' : 'remove';
+    let meta, item, i, ilen;
+    if (mode === 'dataset') {
+      meta = this.getDatasetMeta(items[0].datasetIndex);
+      meta.controller['_' + prefix + 'DatasetHoverStyle']();
+    }
+    for (i = 0, ilen = items.length; i < ilen; ++i) {
+      item = items[i];
+      const controller = item && this.getDatasetMeta(item.datasetIndex).controller;
+      if (controller) {
+        controller[prefix + 'HoverStyle'](item.element, item.datasetIndex, item.index);
+      }
+    }
+  }
+  getActiveElements() {
+    return this._active || [];
+  }
+  setActiveElements(activeElements) {
+    const me = this;
+    const lastActive = me._active || [];
+    const active = activeElements.map(({datasetIndex, index}) => {
+      const meta = me.getDatasetMeta(datasetIndex);
+      if (!meta) {
+        throw new Error('No dataset found at index ' + datasetIndex);
+      }
+      return {
+        datasetIndex,
+        element: meta.data[index],
+        index,
+      };
+    });
+    const changed = !_elementsEqual(active, lastActive);
+    if (changed) {
+      me._active = active;
+      me._updateHoverStyles(active, lastActive);
+    }
+  }
+  notifyPlugins(hook, args) {
+    return this._plugins.notify(this, hook, args);
+  }
+  _updateHoverStyles(active, lastActive, replay) {
+    const me = this;
+    const hoverOptions = me.options.hover;
+    const diff = (a, b) => a.filter(x => !b.some(y => x.datasetIndex === y.datasetIndex && x.index === y.index));
+    const deactivated = diff(lastActive, active);
+    const activated = replay ? active : diff(active, lastActive);
+    if (deactivated.length) {
+      me.updateHoverStyle(deactivated, hoverOptions.mode, false);
+    }
+    if (activated.length && hoverOptions.mode) {
+      me.updateHoverStyle(activated, hoverOptions.mode, true);
+    }
+  }
+  _eventHandler(e, replay) {
+    const me = this;
+    const args = {event: e, replay, cancelable: true};
+    if (me.notifyPlugins('beforeEvent', args) === false) {
+      return;
+    }
+    const changed = me._handleEvent(e, replay);
+    args.cancelable = false;
+    me.notifyPlugins('afterEvent', args);
+    if (changed || args.changed) {
+      me.render();
+    }
+    return me;
+  }
+  _handleEvent(e, replay) {
+    const me = this;
+    const lastActive = me._active || [];
+    const options = me.options;
+    const hoverOptions = options.hover;
+    const useFinalPosition = replay;
+    let active = [];
+    let changed = false;
+    if (e.type === 'mouseout') {
+      me._lastEvent = null;
+    } else {
+      active = me.getElementsAtEventForMode(e, hoverOptions.mode, hoverOptions, useFinalPosition);
+      me._lastEvent = e.type === 'click' ? me._lastEvent : e;
+    }
+    callback(options.onHover || hoverOptions.onHover, [e, active, me], me);
+    if (e.type === 'mouseup' || e.type === 'click' || e.type === 'contextmenu') {
+      if (_isPointInArea(e, me.chartArea)) {
+        callback(options.onClick, [e, active, me], me);
+      }
+    }
+    changed = !_elementsEqual(active, lastActive);
+    if (changed || replay) {
+      me._active = active;
+      me._updateHoverStyles(active, lastActive, replay);
+    }
+    return changed;
+  }
+}
+Chart.defaults = defaults;
+Chart.instances = {};
+Chart.registry = registry;
+Chart.version = version;
+Chart.getChart = (key) => {
+  const canvas = getCanvas(key);
+  return Object.values(Chart.instances).filter((c) => c.canvas === canvas).pop();
+};
+const invalidatePlugins = () => each(Chart.instances, (chart) => chart._plugins.invalidate());
+Chart.register = (...items) => {
+  registry.add(...items);
+  invalidatePlugins();
+};
+Chart.unregister = (...items) => {
+  registry.remove(...items);
+  invalidatePlugins();
+};
 
 const EPSILON = Number.EPSILON || 1e-14;
 function splineCurve(firstPoint, middlePoint, afterPoint, t) {
@@ -5557,7 +6738,7 @@ valueOrDefault: valueOrDefault,
 callback: callback,
 each: each,
 _elementsEqual: _elementsEqual,
-clone: clone,
+clone: clone$1,
 _merger: _merger,
 merge: merge,
 mergeIf: mergeIf,
@@ -5565,6 +6746,8 @@ _mergerIf: _mergerIf,
 _deprecated: _deprecated,
 resolveObjectKey: resolveObjectKey,
 _capitalize: _capitalize,
+defined: defined,
+isFunction: isFunction,
 toFontString: toFontString,
 _measureText: _measureText,
 _longestText: _longestText,
@@ -5584,6 +6767,9 @@ _filterBetween: _filterBetween,
 listenArrayEvents: listenArrayEvents,
 unlistenArrayEvents: unlistenArrayEvents,
 _arrayUnique: _arrayUnique,
+_createResolver: _createResolver,
+_attachContext: _attachContext,
+_descriptors: _descriptors,
 splineCurve: splineCurve,
 splineCurveMonotone: splineCurveMonotone,
 _updateBezierControlPoints: _updateBezierControlPoints,
@@ -5635,993 +6821,6 @@ _boundSegment: _boundSegment,
 _boundSegments: _boundSegments,
 _computeSegments: _computeSegments
 });
-
-class PluginService {
-  constructor() {
-    this._init = [];
-  }
-  notify(chart, hook, args) {
-    const me = this;
-    if (hook === 'beforeInit') {
-      me._init = me._createDescriptors(chart, true);
-      me._notify(me._init, chart, 'install');
-    }
-    const descriptors = me._descriptors(chart);
-    const result = me._notify(descriptors, chart, hook, args);
-    if (hook === 'destroy') {
-      me._notify(descriptors, chart, 'stop');
-      me._notify(me._init, chart, 'uninstall');
-    }
-    return result;
-  }
-  _notify(descriptors, chart, hook, args) {
-    args = args || {};
-    for (const descriptor of descriptors) {
-      const plugin = descriptor.plugin;
-      const method = plugin[hook];
-      const params = [chart, args, descriptor.options];
-      if (callback(method, params, plugin) === false && args.cancelable) {
-        return false;
-      }
-    }
-    return true;
-  }
-  invalidate() {
-    if (!isNullOrUndef(this._cache)) {
-      this._oldCache = this._cache;
-      this._cache = undefined;
-    }
-  }
-  _descriptors(chart) {
-    if (this._cache) {
-      return this._cache;
-    }
-    const descriptors = this._cache = this._createDescriptors(chart);
-    this._notifyStateChanges(chart);
-    return descriptors;
-  }
-  _createDescriptors(chart, all) {
-    const config = chart && chart.config;
-    const options = valueOrDefault(config.options && config.options.plugins, {});
-    const plugins = allPlugins(config);
-    return options === false && !all ? [] : createDescriptors(plugins, options, all);
-  }
-  _notifyStateChanges(chart) {
-    const previousDescriptors = this._oldCache || [];
-    const descriptors = this._cache;
-    const diff = (a, b) => a.filter(x => !b.some(y => x.plugin.id === y.plugin.id));
-    this._notify(diff(previousDescriptors, descriptors), chart, 'stop');
-    this._notify(diff(descriptors, previousDescriptors), chart, 'start');
-  }
-}
-function allPlugins(config) {
-  const plugins = [];
-  const keys = Object.keys(registry.plugins.items);
-  for (let i = 0; i < keys.length; i++) {
-    plugins.push(registry.getPlugin(keys[i]));
-  }
-  const local = config.plugins || [];
-  for (let i = 0; i < local.length; i++) {
-    const plugin = local[i];
-    if (plugins.indexOf(plugin) === -1) {
-      plugins.push(plugin);
-    }
-  }
-  return plugins;
-}
-function getOpts(options, all) {
-  if (!all && options === false) {
-    return null;
-  }
-  if (options === true) {
-    return {};
-  }
-  return options;
-}
-function createDescriptors(plugins, options, all) {
-  const result = [];
-  for (let i = 0; i < plugins.length; i++) {
-    const plugin = plugins[i];
-    const id = plugin.id;
-    const opts = getOpts(options[id], all);
-    if (opts === null) {
-      continue;
-    }
-    result.push({
-      plugin,
-      options: mergeIf({}, [opts, defaults.plugins[id]])
-    });
-  }
-  return result;
-}
-
-function getIndexAxis(type, options) {
-  const typeDefaults = defaults.controllers[type] || {};
-  const datasetDefaults = typeDefaults.datasets || {};
-  const datasetOptions = options.datasets || {};
-  const typeOptions = datasetOptions[type] || {};
-  return typeOptions.indexAxis || options.indexAxis || datasetDefaults.indexAxis || 'x';
-}
-function getAxisFromDefaultScaleID(id, indexAxis) {
-  let axis = id;
-  if (id === '_index_') {
-    axis = indexAxis;
-  } else if (id === '_value_') {
-    axis = indexAxis === 'x' ? 'y' : 'x';
-  }
-  return axis;
-}
-function getDefaultScaleIDFromAxis(axis, indexAxis) {
-  return axis === indexAxis ? '_index_' : '_value_';
-}
-function axisFromPosition(position) {
-  if (position === 'top' || position === 'bottom') {
-    return 'x';
-  }
-  if (position === 'left' || position === 'right') {
-    return 'y';
-  }
-}
-function determineAxis(id, scaleOptions) {
-  if (id === 'x' || id === 'y' || id === 'r') {
-    return id;
-  }
-  return scaleOptions.axis || axisFromPosition(scaleOptions.position) || id.charAt(0).toLowerCase();
-}
-function mergeScaleConfig(config, options) {
-  const chartDefaults = defaults.controllers[config.type] || {scales: {}};
-  const configScales = options.scales || {};
-  const chartIndexAxis = getIndexAxis(config.type, options);
-  const firstIDs = Object.create(null);
-  const scales = Object.create(null);
-  Object.keys(configScales).forEach(id => {
-    const scaleConf = configScales[id];
-    const axis = determineAxis(id, scaleConf);
-    const defaultId = getDefaultScaleIDFromAxis(axis, chartIndexAxis);
-    const defaultScaleOptions = chartDefaults.scales || {};
-    firstIDs[axis] = firstIDs[axis] || id;
-    scales[id] = mergeIf(Object.create(null), [{axis}, scaleConf, defaultScaleOptions[axis], defaultScaleOptions[defaultId]]);
-  });
-  config.data.datasets.forEach(dataset => {
-    const type = dataset.type || config.type;
-    const indexAxis = dataset.indexAxis || getIndexAxis(type, options);
-    const datasetDefaults = defaults.controllers[type] || {};
-    const defaultScaleOptions = datasetDefaults.scales || {};
-    Object.keys(defaultScaleOptions).forEach(defaultID => {
-      const axis = getAxisFromDefaultScaleID(defaultID, indexAxis);
-      const id = dataset[axis + 'AxisID'] || firstIDs[axis] || axis;
-      scales[id] = scales[id] || Object.create(null);
-      mergeIf(scales[id], [{axis}, configScales[id], defaultScaleOptions[defaultID]]);
-    });
-  });
-  Object.keys(scales).forEach(key => {
-    const scale = scales[key];
-    mergeIf(scale, [defaults.scales[scale.type], defaults.scale]);
-  });
-  return scales;
-}
-function mergeConfig(...args) {
-  return merge(Object.create(null), args, {
-    merger(key, target, source, options) {
-      if (key !== 'scales' && key !== 'scale' && key !== 'controllers') {
-        _merger(key, target, source, options);
-      }
-    }
-  });
-}
-function includePluginDefaults(options) {
-  options.plugins = options.plugins || {};
-  options.plugins.title = (options.plugins.title !== false) && merge(Object.create(null), [
-    defaults.plugins.title,
-    options.plugins.title
-  ]);
-  options.plugins.tooltip = (options.plugins.tooltip !== false) && merge(Object.create(null), [
-    defaults.interaction,
-    defaults.plugins.tooltip,
-    options.interaction,
-    options.plugins.tooltip
-  ]);
-}
-function includeDefaults(config, options) {
-  options = options || {};
-  const scaleConfig = mergeScaleConfig(config, options);
-  const hoverEanbled = options.interaction !== false && options.hover !== false;
-  options = mergeConfig(
-    defaults,
-    defaults.controllers[config.type],
-    options);
-  options.hover = hoverEanbled && merge(Object.create(null), [
-    defaults.interaction,
-    defaults.hover,
-    options.interaction,
-    options.hover
-  ]);
-  options.scales = scaleConfig;
-  if (options.plugins !== false) {
-    includePluginDefaults(options);
-  }
-  return options;
-}
-function initConfig(config) {
-  config = config || {};
-  const data = config.data = config.data || {datasets: [], labels: []};
-  data.datasets = data.datasets || [];
-  data.labels = data.labels || [];
-  config.options = includeDefaults(config, config.options);
-  return config;
-}
-class Config {
-  constructor(config) {
-    this._config = initConfig(config);
-  }
-  get type() {
-    return this._config.type;
-  }
-  set type(type) {
-    this._config.type = type;
-  }
-  get data() {
-    return this._config.data;
-  }
-  set data(data) {
-    this._config.data = data;
-  }
-  get options() {
-    return this._config.options;
-  }
-  get plugins() {
-    return this._config.plugins;
-  }
-  update(options) {
-    const config = this._config;
-    config.options = includeDefaults(config, options);
-  }
-}
-
-var version = "3.0.0-beta.10";
-
-const KNOWN_POSITIONS = ['top', 'bottom', 'left', 'right', 'chartArea'];
-function positionIsHorizontal(position, axis) {
-  return position === 'top' || position === 'bottom' || (KNOWN_POSITIONS.indexOf(position) === -1 && axis === 'x');
-}
-function compare2Level(l1, l2) {
-  return function(a, b) {
-    return a[l1] === b[l1]
-      ? a[l2] - b[l2]
-      : a[l1] - b[l1];
-  };
-}
-function onAnimationsComplete(context) {
-  const chart = context.chart;
-  const animationOptions = chart.options.animation;
-  chart.notifyPlugins('afterRender');
-  callback(animationOptions && animationOptions.onComplete, [context], chart);
-}
-function onAnimationProgress(context) {
-  const chart = context.chart;
-  const animationOptions = chart.options.animation;
-  callback(animationOptions && animationOptions.onProgress, [context], chart);
-}
-function isDomSupported() {
-  return typeof window !== 'undefined' && typeof document !== 'undefined';
-}
-function getCanvas(item) {
-  if (isDomSupported() && typeof item === 'string') {
-    item = document.getElementById(item);
-  } else if (item && item.length) {
-    item = item[0];
-  }
-  if (item && item.canvas) {
-    item = item.canvas;
-  }
-  return item;
-}
-class Chart {
-  constructor(item, config) {
-    const me = this;
-    this.config = config = new Config(config);
-    const initialCanvas = getCanvas(item);
-    const existingChart = Chart.getChart(initialCanvas);
-    if (existingChart) {
-      throw new Error(
-        'Canvas is already in use. Chart with ID \'' + existingChart.id + '\'' +
-				' must be destroyed before the canvas can be reused.'
-      );
-    }
-    this.platform = me._initializePlatform(initialCanvas, config);
-    const context = me.platform.acquireContext(initialCanvas, config);
-    const canvas = context && context.canvas;
-    const height = canvas && canvas.height;
-    const width = canvas && canvas.width;
-    this.id = uid();
-    this.ctx = context;
-    this.canvas = canvas;
-    this.width = width;
-    this.height = height;
-    this.aspectRatio = height ? width / height : null;
-    this.options = config.options;
-    this._layers = [];
-    this._metasets = [];
-    this.boxes = [];
-    this.currentDevicePixelRatio = undefined;
-    this.chartArea = undefined;
-    this._active = [];
-    this._lastEvent = undefined;
-    this._listeners = {};
-    this._sortedMetasets = [];
-    this.scales = {};
-    this.scale = undefined;
-    this._plugins = new PluginService();
-    this.$proxies = {};
-    this._hiddenIndices = {};
-    this.attached = false;
-    this._animationsDisabled = undefined;
-    this.$context = undefined;
-    Chart.instances[me.id] = me;
-    if (!context || !canvas) {
-      console.error("Failed to create chart: can't acquire context from the given item");
-      return;
-    }
-    animator.listen(me, 'complete', onAnimationsComplete);
-    animator.listen(me, 'progress', onAnimationProgress);
-    me._initialize();
-    if (me.attached) {
-      me.update();
-    }
-  }
-  get data() {
-    return this.config.data;
-  }
-  set data(data) {
-    this.config.data = data;
-  }
-  _initialize() {
-    const me = this;
-    me.notifyPlugins('beforeInit');
-    if (me.options.responsive) {
-      me.resize();
-    } else {
-      retinaScale(me, me.options.devicePixelRatio);
-    }
-    me.bindEvents();
-    me.notifyPlugins('afterInit');
-    return me;
-  }
-  _initializePlatform(canvas, config) {
-    if (config.platform) {
-      return new config.platform();
-    } else if (!isDomSupported() || (typeof OffscreenCanvas !== 'undefined' && canvas instanceof OffscreenCanvas)) {
-      return new BasicPlatform();
-    }
-    return new DomPlatform();
-  }
-  clear() {
-    clearCanvas(this.canvas, this.ctx);
-    return this;
-  }
-  stop() {
-    animator.stop(this);
-    return this;
-  }
-  resize(width, height) {
-    if (!animator.running(this)) {
-      this._resize(width, height);
-    } else {
-      this._resizeBeforeDraw = {width, height};
-    }
-  }
-  _resize(width, height) {
-    const me = this;
-    const options = me.options;
-    const canvas = me.canvas;
-    const aspectRatio = options.maintainAspectRatio && me.aspectRatio;
-    const newSize = me.platform.getMaximumSize(canvas, width, height, aspectRatio);
-    const oldRatio = me.currentDevicePixelRatio;
-    const newRatio = options.devicePixelRatio || me.platform.getDevicePixelRatio();
-    if (me.width === newSize.width && me.height === newSize.height && oldRatio === newRatio) {
-      return;
-    }
-    canvas.width = me.width = newSize.width;
-    canvas.height = me.height = newSize.height;
-    if (canvas.style) {
-      canvas.style.width = newSize.width + 'px';
-      canvas.style.height = newSize.height + 'px';
-    }
-    retinaScale(me, newRatio);
-    me.notifyPlugins('resize', {size: newSize});
-    callback(options.onResize, [newSize], me);
-    if (me.attached) {
-      me.update('resize');
-    }
-  }
-  ensureScalesHaveIDs() {
-    const options = this.options;
-    const scalesOptions = options.scales || {};
-    each(scalesOptions, (axisOptions, axisID) => {
-      axisOptions.id = axisID;
-    });
-  }
-  buildOrUpdateScales() {
-    const me = this;
-    const options = me.options;
-    const scaleOpts = options.scales;
-    const scales = me.scales;
-    const updated = Object.keys(scales).reduce((obj, id) => {
-      obj[id] = false;
-      return obj;
-    }, {});
-    let items = [];
-    if (scaleOpts) {
-      items = items.concat(
-        Object.keys(scaleOpts).map((id) => {
-          const scaleOptions = scaleOpts[id];
-          const axis = determineAxis(id, scaleOptions);
-          const isRadial = axis === 'r';
-          const isHorizontal = axis === 'x';
-          return {
-            options: scaleOptions,
-            dposition: isRadial ? 'chartArea' : isHorizontal ? 'bottom' : 'left',
-            dtype: isRadial ? 'radialLinear' : isHorizontal ? 'category' : 'linear'
-          };
-        })
-      );
-    }
-    each(items, (item) => {
-      const scaleOptions = item.options;
-      const id = scaleOptions.id;
-      const axis = determineAxis(id, scaleOptions);
-      const scaleType = valueOrDefault(scaleOptions.type, item.dtype);
-      if (scaleOptions.position === undefined || positionIsHorizontal(scaleOptions.position, axis) !== positionIsHorizontal(item.dposition)) {
-        scaleOptions.position = item.dposition;
-      }
-      updated[id] = true;
-      let scale = null;
-      if (id in scales && scales[id].type === scaleType) {
-        scale = scales[id];
-      } else {
-        const scaleClass = registry.getScale(scaleType);
-        scale = new scaleClass({
-          id,
-          type: scaleType,
-          ctx: me.ctx,
-          chart: me
-        });
-        scales[scale.id] = scale;
-      }
-      scale.init(scaleOptions, options);
-    });
-    each(updated, (hasUpdated, id) => {
-      if (!hasUpdated) {
-        delete scales[id];
-      }
-    });
-    each(scales, (scale) => {
-      layouts.configure(me, scale, scale.options);
-      layouts.addBox(me, scale);
-    });
-  }
-  _updateMetasetIndex(meta, index) {
-    const metasets = this._metasets;
-    const oldIndex = meta.index;
-    if (oldIndex !== index) {
-      metasets[oldIndex] = metasets[index];
-      metasets[index] = meta;
-      meta.index = index;
-    }
-  }
-  _updateMetasets() {
-    const me = this;
-    const metasets = me._metasets;
-    const numData = me.data.datasets.length;
-    const numMeta = metasets.length;
-    if (numMeta > numData) {
-      for (let i = numData; i < numMeta; ++i) {
-        me._destroyDatasetMeta(i);
-      }
-      metasets.splice(numData, numMeta - numData);
-    }
-    me._sortedMetasets = metasets.slice(0).sort(compare2Level('order', 'index'));
-  }
-  _removeUnreferencedMetasets() {
-    const me = this;
-    const datasets = me.data.datasets;
-    me._metasets.forEach((meta, index) => {
-      if (datasets.filter(x => x === meta._dataset).length === 0) {
-        me._destroyDatasetMeta(index);
-      }
-    });
-  }
-  buildOrUpdateControllers() {
-    const me = this;
-    const newControllers = [];
-    const datasets = me.data.datasets;
-    let i, ilen;
-    me._removeUnreferencedMetasets();
-    for (i = 0, ilen = datasets.length; i < ilen; i++) {
-      const dataset = datasets[i];
-      let meta = me.getDatasetMeta(i);
-      const type = dataset.type || me.config.type;
-      if (meta.type && meta.type !== type) {
-        me._destroyDatasetMeta(i);
-        meta = me.getDatasetMeta(i);
-      }
-      meta.type = type;
-      meta.indexAxis = dataset.indexAxis || getIndexAxis(type, me.options);
-      meta.order = dataset.order || 0;
-      me._updateMetasetIndex(meta, i);
-      meta.label = '' + dataset.label;
-      meta.visible = me.isDatasetVisible(i);
-      if (meta.controller) {
-        meta.controller.updateIndex(i);
-        meta.controller.linkScales();
-      } else {
-        const controllerDefaults = defaults.controllers[type];
-        const ControllerClass = registry.getController(type);
-        Object.assign(ControllerClass.prototype, {
-          dataElementType: registry.getElement(controllerDefaults.dataElementType),
-          datasetElementType: controllerDefaults.datasetElementType && registry.getElement(controllerDefaults.datasetElementType),
-          dataElementOptions: controllerDefaults.dataElementOptions,
-          datasetElementOptions: controllerDefaults.datasetElementOptions
-        });
-        meta.controller = new ControllerClass(me, i);
-        newControllers.push(meta.controller);
-      }
-    }
-    me._updateMetasets();
-    return newControllers;
-  }
-  _resetElements() {
-    const me = this;
-    each(me.data.datasets, (dataset, datasetIndex) => {
-      me.getDatasetMeta(datasetIndex).controller.reset();
-    }, me);
-  }
-  reset() {
-    this._resetElements();
-    this.notifyPlugins('reset');
-  }
-  update(mode) {
-    const me = this;
-    each(me.scales, (scale) => {
-      layouts.removeBox(me, scale);
-    });
-    me.config.update(me.options);
-    me.options = me.config.options;
-    const animsDisabled = me._animationsDisabled = !me.options.animation;
-    me.ensureScalesHaveIDs();
-    me.buildOrUpdateScales();
-    me._plugins.invalidate();
-    if (me.notifyPlugins('beforeUpdate', {mode, cancelable: true}) === false) {
-      return;
-    }
-    const newControllers = me.buildOrUpdateControllers();
-    me.notifyPlugins('beforeElementsUpdate');
-    for (let i = 0, ilen = me.data.datasets.length; i < ilen; i++) {
-      const {controller} = me.getDatasetMeta(i);
-      const reset = !animsDisabled && newControllers.indexOf(controller) === -1;
-      controller.buildOrUpdateElements(reset);
-    }
-    me._updateLayout();
-    if (!animsDisabled) {
-      each(newControllers, (controller) => {
-        controller.reset();
-      });
-    }
-    me._updateDatasets(mode);
-    me.notifyPlugins('afterUpdate', {mode});
-    me._layers.sort(compare2Level('z', '_idx'));
-    if (me._lastEvent) {
-      me._eventHandler(me._lastEvent, true);
-    }
-    me.render();
-  }
-  _updateLayout() {
-    const me = this;
-    if (me.notifyPlugins('beforeLayout', {cancelable: true}) === false) {
-      return;
-    }
-    layouts.update(me, me.width, me.height);
-    const area = me.chartArea;
-    const noArea = area.width <= 0 || area.height <= 0;
-    me._layers = [];
-    each(me.boxes, (box) => {
-      if (noArea && box.position === 'chartArea') {
-        return;
-      }
-      if (box.configure) {
-        box.configure();
-      }
-      me._layers.push(...box._layers());
-    }, me);
-    me._layers.forEach((item, index) => {
-      item._idx = index;
-    });
-    me.notifyPlugins('afterLayout');
-  }
-  _updateDatasets(mode) {
-    const me = this;
-    const isFunction = typeof mode === 'function';
-    if (me.notifyPlugins('beforeDatasetsUpdate', {mode, cancelable: true}) === false) {
-      return;
-    }
-    for (let i = 0, ilen = me.data.datasets.length; i < ilen; ++i) {
-      me._updateDataset(i, isFunction ? mode({datasetIndex: i}) : mode);
-    }
-    me.notifyPlugins('afterDatasetsUpdate', {mode});
-  }
-  _updateDataset(index, mode) {
-    const me = this;
-    const meta = me.getDatasetMeta(index);
-    const args = {meta, index, mode, cancelable: true};
-    if (me.notifyPlugins('beforeDatasetUpdate', args) === false) {
-      return;
-    }
-    meta.controller._update(mode);
-    args.cancelable = false;
-    me.notifyPlugins('afterDatasetUpdate', args);
-  }
-  render() {
-    const me = this;
-    if (me.notifyPlugins('beforeRender', {cancelable: true}) === false) {
-      return;
-    }
-    if (animator.has(me)) {
-      if (me.attached && !animator.running(me)) {
-        animator.start(me);
-      }
-    } else {
-      me.draw();
-      onAnimationsComplete({chart: me});
-    }
-  }
-  draw() {
-    const me = this;
-    let i;
-    if (me._resizeBeforeDraw) {
-      const {width, height} = me._resizeBeforeDraw;
-      me._resize(width, height);
-      me._resizeBeforeDraw = null;
-    }
-    me.clear();
-    if (me.width <= 0 || me.height <= 0) {
-      return;
-    }
-    if (me.notifyPlugins('beforeDraw', {cancelable: true}) === false) {
-      return;
-    }
-    const layers = me._layers;
-    for (i = 0; i < layers.length && layers[i].z <= 0; ++i) {
-      layers[i].draw(me.chartArea);
-    }
-    me._drawDatasets();
-    for (; i < layers.length; ++i) {
-      layers[i].draw(me.chartArea);
-    }
-    me.notifyPlugins('afterDraw');
-  }
-  _getSortedDatasetMetas(filterVisible) {
-    const me = this;
-    const metasets = me._sortedMetasets;
-    const result = [];
-    let i, ilen;
-    for (i = 0, ilen = metasets.length; i < ilen; ++i) {
-      const meta = metasets[i];
-      if (!filterVisible || meta.visible) {
-        result.push(meta);
-      }
-    }
-    return result;
-  }
-  getSortedVisibleDatasetMetas() {
-    return this._getSortedDatasetMetas(true);
-  }
-  _drawDatasets() {
-    const me = this;
-    if (me.notifyPlugins('beforeDatasetsDraw', {cancelable: true}) === false) {
-      return;
-    }
-    const metasets = me.getSortedVisibleDatasetMetas();
-    for (let i = metasets.length - 1; i >= 0; --i) {
-      me._drawDataset(metasets[i]);
-    }
-    me.notifyPlugins('afterDatasetsDraw');
-  }
-  _drawDataset(meta) {
-    const me = this;
-    const ctx = me.ctx;
-    const clip = meta._clip;
-    const area = me.chartArea;
-    const args = {
-      meta,
-      index: meta.index,
-      cancelable: true
-    };
-    if (me.notifyPlugins('beforeDatasetDraw', args) === false) {
-      return;
-    }
-    clipArea(ctx, {
-      left: clip.left === false ? 0 : area.left - clip.left,
-      right: clip.right === false ? me.width : area.right + clip.right,
-      top: clip.top === false ? 0 : area.top - clip.top,
-      bottom: clip.bottom === false ? me.height : area.bottom + clip.bottom
-    });
-    meta.controller.draw();
-    unclipArea(ctx);
-    args.cancelable = false;
-    me.notifyPlugins('afterDatasetDraw', args);
-  }
-  getElementsAtEventForMode(e, mode, options, useFinalPosition) {
-    const method = Interaction.modes[mode];
-    if (typeof method === 'function') {
-      return method(this, e, options, useFinalPosition);
-    }
-    return [];
-  }
-  getDatasetMeta(datasetIndex) {
-    const me = this;
-    const dataset = me.data.datasets[datasetIndex];
-    const metasets = me._metasets;
-    let meta = metasets.filter(x => x && x._dataset === dataset).pop();
-    if (!meta) {
-      meta = metasets[datasetIndex] = {
-        type: null,
-        data: [],
-        dataset: null,
-        controller: null,
-        hidden: null,
-        xAxisID: null,
-        yAxisID: null,
-        order: dataset && dataset.order || 0,
-        index: datasetIndex,
-        _dataset: dataset,
-        _parsed: [],
-        _sorted: false
-      };
-    }
-    return meta;
-  }
-  getContext() {
-    return this.$context || (this.$context = {chart: this, type: 'chart'});
-  }
-  getVisibleDatasetCount() {
-    return this.getSortedVisibleDatasetMetas().length;
-  }
-  isDatasetVisible(datasetIndex) {
-    const dataset = this.data.datasets[datasetIndex];
-    if (!dataset) {
-      return false;
-    }
-    const meta = this.getDatasetMeta(datasetIndex);
-    return typeof meta.hidden === 'boolean' ? !meta.hidden : !dataset.hidden;
-  }
-  setDatasetVisibility(datasetIndex, visible) {
-    const meta = this.getDatasetMeta(datasetIndex);
-    meta.hidden = !visible;
-  }
-  toggleDataVisibility(index) {
-    this._hiddenIndices[index] = !this._hiddenIndices[index];
-  }
-  getDataVisibility(index) {
-    return !this._hiddenIndices[index];
-  }
-  _updateDatasetVisibility(datasetIndex, visible) {
-    const me = this;
-    const mode = visible ? 'show' : 'hide';
-    const meta = me.getDatasetMeta(datasetIndex);
-    const anims = meta.controller._resolveAnimations(undefined, mode);
-    me.setDatasetVisibility(datasetIndex, visible);
-    anims.update(meta, {visible});
-    me.update((ctx) => ctx.datasetIndex === datasetIndex ? mode : undefined);
-  }
-  hide(datasetIndex) {
-    this._updateDatasetVisibility(datasetIndex, false);
-  }
-  show(datasetIndex) {
-    this._updateDatasetVisibility(datasetIndex, true);
-  }
-  _destroyDatasetMeta(datasetIndex) {
-    const me = this;
-    const meta = me._metasets && me._metasets[datasetIndex];
-    if (meta && meta.controller) {
-      meta.controller._destroy();
-      delete me._metasets[datasetIndex];
-    }
-  }
-  destroy() {
-    const me = this;
-    const {canvas, ctx} = me;
-    let i, ilen;
-    me.stop();
-    animator.remove(me);
-    for (i = 0, ilen = me.data.datasets.length; i < ilen; ++i) {
-      me._destroyDatasetMeta(i);
-    }
-    if (canvas) {
-      me.unbindEvents();
-      clearCanvas(canvas, ctx);
-      me.platform.releaseContext(ctx);
-      me.canvas = null;
-      me.ctx = null;
-    }
-    me.notifyPlugins('destroy');
-    delete Chart.instances[me.id];
-  }
-  toBase64Image(...args) {
-    return this.canvas.toDataURL(...args);
-  }
-  bindEvents() {
-    const me = this;
-    const listeners = me._listeners;
-    const platform = me.platform;
-    const _add = (type, listener) => {
-      platform.addEventListener(me, type, listener);
-      listeners[type] = listener;
-    };
-    const _remove = (type, listener) => {
-      if (listeners[type]) {
-        platform.removeEventListener(me, type, listener);
-        delete listeners[type];
-      }
-    };
-    let listener = function(e, x, y) {
-      e.offsetX = x;
-      e.offsetY = y;
-      me._eventHandler(e);
-    };
-    each(me.options.events, (type) => _add(type, listener));
-    if (me.options.responsive) {
-      listener = (width, height) => {
-        if (me.canvas) {
-          me.resize(width, height);
-        }
-      };
-      let detached;
-      const attached = () => {
-        _remove('attach', attached);
-        me.attached = true;
-        me.resize();
-        _add('resize', listener);
-        _add('detach', detached);
-      };
-      detached = () => {
-        me.attached = false;
-        _remove('resize', listener);
-        _add('attach', attached);
-      };
-      if (platform.isAttached(me.canvas)) {
-        attached();
-      } else {
-        detached();
-      }
-    } else {
-      me.attached = true;
-    }
-  }
-  unbindEvents() {
-    const me = this;
-    const listeners = me._listeners;
-    if (!listeners) {
-      return;
-    }
-    delete me._listeners;
-    each(listeners, (listener, type) => {
-      me.platform.removeEventListener(me, type, listener);
-    });
-  }
-  updateHoverStyle(items, mode, enabled) {
-    const prefix = enabled ? 'set' : 'remove';
-    let meta, item, i, ilen;
-    if (mode === 'dataset') {
-      meta = this.getDatasetMeta(items[0].datasetIndex);
-      meta.controller['_' + prefix + 'DatasetHoverStyle']();
-    }
-    for (i = 0, ilen = items.length; i < ilen; ++i) {
-      item = items[i];
-      const controller = item && this.getDatasetMeta(item.datasetIndex).controller;
-      if (controller) {
-        controller[prefix + 'HoverStyle'](item.element, item.datasetIndex, item.index);
-      }
-    }
-  }
-  getActiveElements() {
-    return this._active || [];
-  }
-  setActiveElements(activeElements) {
-    const me = this;
-    const lastActive = me._active || [];
-    const active = activeElements.map(({datasetIndex, index}) => {
-      const meta = me.getDatasetMeta(datasetIndex);
-      if (!meta) {
-        throw new Error('No dataset found at index ' + datasetIndex);
-      }
-      return {
-        datasetIndex,
-        element: meta.data[index],
-        index,
-      };
-    });
-    const changed = !_elementsEqual(active, lastActive);
-    if (changed) {
-      me._active = active;
-      me._updateHoverStyles(active, lastActive);
-    }
-  }
-  notifyPlugins(hook, args) {
-    return this._plugins.notify(this, hook, args);
-  }
-  _updateHoverStyles(active, lastActive, replay) {
-    const me = this;
-    const options = me.options || {};
-    const hoverOptions = options.hover;
-    const diff = (a, b) => a.filter(x => !b.some(y => x.datasetIndex === y.datasetIndex && x.index === y.index));
-    const deactivated = diff(lastActive, active);
-    const activated = replay ? active : diff(active, lastActive);
-    if (deactivated.length) {
-      me.updateHoverStyle(deactivated, hoverOptions.mode, false);
-    }
-    if (activated.length && hoverOptions.mode) {
-      me.updateHoverStyle(activated, hoverOptions.mode, true);
-    }
-  }
-  _eventHandler(e, replay) {
-    const me = this;
-    const args = {event: e, replay, cancelable: true};
-    if (me.notifyPlugins('beforeEvent', args) === false) {
-      return;
-    }
-    const changed = me._handleEvent(e, replay);
-    args.cancelable = false;
-    me.notifyPlugins('afterEvent', args);
-    if (changed || args.changed) {
-      me.render();
-    }
-    return me;
-  }
-  _handleEvent(e, replay) {
-    const me = this;
-    const lastActive = me._active || [];
-    const options = me.options;
-    const hoverOptions = options.hover;
-    const useFinalPosition = replay;
-    let active = [];
-    let changed = false;
-    if (e.type === 'mouseout') {
-      me._lastEvent = null;
-    } else {
-      active = me.getElementsAtEventForMode(e, hoverOptions.mode, hoverOptions, useFinalPosition);
-      me._lastEvent = e.type === 'click' ? me._lastEvent : e;
-    }
-    callback(options.onHover || hoverOptions.onHover, [e, active, me], me);
-    if (e.type === 'mouseup' || e.type === 'click' || e.type === 'contextmenu') {
-      if (_isPointInArea(e, me.chartArea)) {
-        callback(options.onClick, [e, active, me], me);
-      }
-    }
-    changed = !_elementsEqual(active, lastActive);
-    if (changed || replay) {
-      me._active = active;
-      me._updateHoverStyles(active, lastActive, replay);
-    }
-    return changed;
-  }
-}
-Chart.defaults = defaults;
-Chart.instances = {};
-Chart.registry = registry;
-Chart.version = version;
-Chart.getChart = (key) => {
-  const canvas = getCanvas(key);
-  return Object.values(Chart.instances).filter((c) => c.canvas === canvas).pop();
-};
-const invalidatePlugins = () => each(Chart.instances, (chart) => chart._plugins.invalidate());
-Chart.register = (...items) => {
-  registry.add(...items);
-  invalidatePlugins();
-};
-Chart.unregister = (...items) => {
-  registry.remove(...items);
-  invalidatePlugins();
-};
 
 function abstract() {
   throw new Error('This method is not implemented: either no adapter can be found or an incomplete integration was provided.');
@@ -6839,9 +7038,8 @@ class BarController extends DatasetController {
     const includeOptions = me.includeOptions(mode, sharedOptions);
     me.updateSharedOptions(sharedOptions, mode, firstOpts);
     for (let i = start; i < start + count; i++) {
-      const options = sharedOptions || me.resolveDataElementOptions(i, mode);
-      const vpixels = me._calculateBarValuePixels(i, options);
-      const ipixels = me._calculateBarIndexPixels(i, ruler, options);
+      const vpixels = me._calculateBarValuePixels(i);
+      const ipixels = me._calculateBarIndexPixels(i, ruler);
       const properties = {
         horizontal,
         base: reset ? base : vpixels.base,
@@ -6851,7 +7049,7 @@ class BarController extends DatasetController {
         width: horizontal ? undefined : ipixels.size
       };
       if (includeOptions) {
-        properties.options = options;
+        properties.options = sharedOptions || me.resolveDataElementOptions(i, mode);
       }
       me.updateElement(bars[i], i, properties, mode);
     }
@@ -6919,11 +7117,11 @@ class BarController extends DatasetController {
       scale: iScale
     };
   }
-  _calculateBarValuePixels(index, options) {
+  _calculateBarValuePixels(index) {
     const me = this;
     const meta = me._cachedMeta;
     const vScale = meta.vScale;
-    const {base: baseValue, minBarLength} = options;
+    const {base: baseValue, minBarLength} = me.options;
     const parsed = me.getParsed(index);
     const custom = parsed._custom;
     const floating = isFloatBar(custom);
@@ -6965,9 +7163,10 @@ class BarController extends DatasetController {
       center: head + size / 2
     };
   }
-  _calculateBarIndexPixels(index, ruler, options) {
+  _calculateBarIndexPixels(index, ruler) {
     const me = this;
-    const stackCount = me.chart.options.skipNull ? me._getStackCount(index) : ruler.stackCount;
+    const options = me.options;
+    const stackCount = options.skipNull ? me._getStackCount(index) : ruler.stackCount;
     const range = options.barThickness === 'flex'
       ? computeFlexCategoryTraits(index, ruler, options, stackCount)
       : computeFitCategoryTraits(index, ruler, options, stackCount);
@@ -7004,20 +7203,6 @@ BarController.id = 'bar';
 BarController.defaults = {
   datasetElementType: false,
   dataElementType: 'bar',
-  dataElementOptions: [
-    'backgroundColor',
-    'borderColor',
-    'borderSkipped',
-    'borderWidth',
-    'borderRadius',
-    'barPercentage',
-    'barThickness',
-    'base',
-    'categoryPercentage',
-    'maxBarThickness',
-    'minBarLength',
-    'pointStyle'
-  ],
   interaction: {
     mode: 'index'
   },
@@ -7123,22 +7308,16 @@ class BubbleController extends DatasetController {
     me.updateSharedOptions(sharedOptions, mode, firstOpts);
   }
   resolveDataElementOptions(index, mode) {
-    const me = this;
-    const chart = me.chart;
-    const parsed = me.getParsed(index);
+    const parsed = this.getParsed(index);
     let values = super.resolveDataElementOptions(index, mode);
-    const context = me.getContext(index, mode === 'active');
     if (values.$shared) {
       values = Object.assign({}, values, {$shared: false});
     }
+    const radius = values.radius;
     if (mode !== 'active') {
       values.radius = 0;
     }
-    values.radius += resolve([
-      parsed && parsed._custom,
-      me._config.radius,
-      chart.options.elements.point.radius
-    ], context, index);
+    values.radius += valueOrDefault(parsed && parsed._custom, radius);
     return values;
   }
 }
@@ -7146,15 +7325,6 @@ BubbleController.id = 'bubble';
 BubbleController.defaults = {
   datasetElementType: false,
   dataElementType: 'point',
-  dataElementOptions: [
-    'backgroundColor',
-    'borderColor',
-    'borderWidth',
-    'hitRadius',
-    'radius',
-    'pointStyle',
-    'rotation'
-  ],
   animation: {
     numbers: {
       properties: ['x', 'y', 'borderWidth', 'radius']
@@ -7235,10 +7405,10 @@ class DoughnutController extends DatasetController {
     return ringIndex;
   }
   _getRotation() {
-    return toRadians(valueOrDefault(this._config.rotation, this.chart.options.rotation) - 90);
+    return toRadians(this.options.rotation - 90);
   }
   _getCircumference() {
-    return toRadians(valueOrDefault(this._config.circumference, this.chart.options.circumference));
+    return toRadians(this.options.circumference);
   }
   _getRotationExtents() {
     let min = TAU;
@@ -7261,10 +7431,10 @@ class DoughnutController extends DatasetController {
   update(mode) {
     const me = this;
     const chart = me.chart;
-    const {chartArea, options} = chart;
+    const {chartArea} = chart;
     const meta = me._cachedMeta;
     const arcs = meta.data;
-    const cutout = options.cutoutPercentage / 100 || 0;
+    const cutout = me.options.cutoutPercentage / 100 || 0;
     const chartWeight = me._getRingWeight(me.index);
     const {circumference, rotation} = me._getRotationExtents();
     const {ratioX, ratioY, offsetX, offsetY} = getRatioAndOffset(rotation, circumference, cutout);
@@ -7283,7 +7453,7 @@ class DoughnutController extends DatasetController {
   }
   _circumference(i, reset) {
     const me = this;
-    const opts = me.chart.options;
+    const opts = me.options;
     const meta = me._cachedMeta;
     const circumference = me._getCircumference();
     return reset && opts.animation.animateRotate ? 0 : this.chart.getDataVisibility(i) ? me.calculateCircumference(meta._parsed[i] * circumference / TAU) : 0;
@@ -7416,13 +7586,6 @@ DoughnutController.id = 'doughnut';
 DoughnutController.defaults = {
   datasetElementType: false,
   dataElementType: 'arc',
-  dataElementOptions: [
-    'backgroundColor',
-    'borderColor',
-    'borderWidth',
-    'borderAlign',
-    'offset'
-  ],
   animation: {
     numbers: {
       type: 'number',
@@ -7432,9 +7595,12 @@ DoughnutController.defaults = {
     animateScale: false
   },
   aspectRatio: 1,
-  cutoutPercentage: 50,
-  rotation: 0,
-  circumference: 360,
+  datasets: {
+    cutoutPercentage: 50,
+    rotation: 0,
+    circumference: 360
+  },
+  indexAxis: 'r',
   plugins: {
     legend: {
       labels: {
@@ -7502,9 +7668,13 @@ class LineController extends DatasetController {
     }
     line.points = points;
     if (mode !== 'resize') {
+      const options = me.resolveDatasetElementOptions(mode);
+      if (!me.options.showLine) {
+        options.borderWidth = 0;
+      }
       me.updateElement(line, undefined, {
         animated: !animationsDisabled,
-        options: me.resolveDatasetElementOptions()
+        options
       }, mode);
     }
     me.updateElements(points, start, count, mode);
@@ -7516,7 +7686,7 @@ class LineController extends DatasetController {
     const firstOpts = me.resolveDataElementOptions(start, mode);
     const sharedOptions = me.getSharedOptions(firstOpts);
     const includeOptions = me.includeOptions(mode, sharedOptions);
-    const spanGaps = valueOrDefault(me._config.spanGaps, me.chart.options.spanGaps);
+    const spanGaps = me.options.spanGaps;
     const maxGapLength = isNumber(spanGaps) ? spanGaps : Number.POSITIVE_INFINITY;
     const directUpdate = me.chart._animationsDisabled || reset || mode === 'none';
     let prevParsed = start > 0 && me.getParsed(start - 1);
@@ -7538,21 +7708,6 @@ class LineController extends DatasetController {
     }
     me.updateSharedOptions(sharedOptions, mode, firstOpts);
   }
-  resolveDatasetElementOptions(active) {
-    const me = this;
-    const config = me._config;
-    const options = me.chart.options;
-    const lineOptions = options.elements.line;
-    const values = super.resolveDatasetElementOptions(active);
-    const showLine = valueOrDefault(config.showLine, options.showLine);
-    values.spanGaps = valueOrDefault(config.spanGaps, options.spanGaps);
-    values.tension = valueOrDefault(config.tension, lineOptions.tension);
-    values.stepped = resolve([config.stepped, lineOptions.stepped]);
-    if (!showLine) {
-      values.borderWidth = 0;
-    }
-    return values;
-  }
   getMaxOverflow() {
     const me = this;
     const meta = me._cachedMeta;
@@ -7573,35 +7728,11 @@ class LineController extends DatasetController {
 LineController.id = 'line';
 LineController.defaults = {
   datasetElementType: 'line',
-  datasetElementOptions: [
-    'backgroundColor',
-    'borderCapStyle',
-    'borderColor',
-    'borderDash',
-    'borderDashOffset',
-    'borderJoinStyle',
-    'borderWidth',
-    'capBezierPoints',
-    'cubicInterpolationMode',
-    'fill'
-  ],
   dataElementType: 'point',
-  dataElementOptions: {
-    backgroundColor: 'pointBackgroundColor',
-    borderColor: 'pointBorderColor',
-    borderWidth: 'pointBorderWidth',
-    hitRadius: 'pointHitRadius',
-    hoverHitRadius: 'pointHitRadius',
-    hoverBackgroundColor: 'pointHoverBackgroundColor',
-    hoverBorderColor: 'pointHoverBorderColor',
-    hoverBorderWidth: 'pointHoverBorderWidth',
-    hoverRadius: 'pointHoverRadius',
-    pointStyle: 'pointStyle',
-    radius: 'pointRadius',
-    rotation: 'pointRotation'
+  datasets: {
+    showLine: true,
+    spanGaps: false,
   },
-  showLine: true,
-  spanGaps: false,
   interaction: {
     mode: 'index'
   },
@@ -7699,23 +7830,22 @@ class PolarAreaController extends DatasetController {
     const datasetStartAngle = getStartAngleRadians(opts.startAngle);
     let angle = datasetStartAngle;
     let i;
-    me._cachedMeta.count = me.countVisibleElements();
+    const defaultAngle = 360 / me.countVisibleElements();
     for (i = 0; i < start; ++i) {
-      angle += me._computeAngle(i, mode);
+      angle += me._computeAngle(i, mode, defaultAngle);
     }
     for (i = start; i < start + count; i++) {
       const arc = arcs[i];
       let startAngle = angle;
-      let endAngle = angle + me._computeAngle(i, mode);
-      let outerRadius = this.chart.getDataVisibility(i) ? scale.getDistanceFromCenterForValue(dataset.data[i]) : 0;
+      let endAngle = angle + me._computeAngle(i, mode, defaultAngle);
+      let outerRadius = chart.getDataVisibility(i) ? scale.getDistanceFromCenterForValue(dataset.data[i]) : 0;
       angle = endAngle;
       if (reset) {
         if (animationOpts.animateScale) {
           outerRadius = 0;
         }
         if (animationOpts.animateRotate) {
-          startAngle = datasetStartAngle;
-          endAngle = datasetStartAngle;
+          startAngle = endAngle = datasetStartAngle;
         }
       }
       const properties = {
@@ -7741,31 +7871,15 @@ class PolarAreaController extends DatasetController {
     });
     return count;
   }
-  _computeAngle(index, mode) {
-    const me = this;
-    const meta = me._cachedMeta;
-    const count = meta.count;
-    const dataset = me.getDataset();
-    if (isNaN(dataset.data[index]) || !this.chart.getDataVisibility(index)) {
-      return 0;
-    }
-    const context = me.getContext(index, mode === 'active');
-    return toRadians(resolve([
-      me.chart.options.elements.arc.angle,
-      360 / count
-    ], context, index));
+  _computeAngle(index, mode, defaultAngle) {
+    return this.chart.getDataVisibility(index)
+      ? toRadians(this.resolveDataElementOptions(index, mode).angle || defaultAngle)
+      : 0;
   }
 }
 PolarAreaController.id = 'polarArea';
 PolarAreaController.defaults = {
   dataElementType: 'arc',
-  dataElementOptions: [
-    'backgroundColor',
-    'borderColor',
-    'borderWidth',
-    'borderAlign',
-    'offset'
-  ],
   animation: {
     numbers: {
       type: 'number',
@@ -7836,7 +7950,11 @@ class PieController extends DoughnutController {
 }
 PieController.id = 'pie';
 PieController.defaults = {
-  cutoutPercentage: 0
+  datasets: {
+    cutoutPercentage: 0,
+    rotation: 0,
+    circumference: 360
+  }
 };
 
 class RadarController extends DatasetController {
@@ -7857,10 +7975,14 @@ class RadarController extends DatasetController {
     const labels = meta.iScale.getLabels();
     line.points = points;
     if (mode !== 'resize') {
+      const options = me.resolveDatasetElementOptions(mode);
+      if (!me.options.showLine) {
+        options.borderWidth = 0;
+      }
       const properties = {
         _loop: true,
         _fullLoop: labels.length === points.length,
-        options: me.resolveDatasetElementOptions()
+        options
       };
       me.updateElement(line, undefined, properties, mode);
     }
@@ -7887,59 +8009,24 @@ class RadarController extends DatasetController {
       me.updateElement(point, i, properties, mode);
     }
   }
-  resolveDatasetElementOptions(active) {
-    const me = this;
-    const config = me._config;
-    const options = me.chart.options;
-    const values = super.resolveDatasetElementOptions(active);
-    const showLine = valueOrDefault(config.showLine, options.showLine);
-    values.spanGaps = valueOrDefault(config.spanGaps, options.spanGaps);
-    values.tension = valueOrDefault(config.tension, options.elements.line.tension);
-    if (!showLine) {
-      values.borderWidth = 0;
-    }
-    return values;
-  }
 }
 RadarController.id = 'radar';
 RadarController.defaults = {
   datasetElementType: 'line',
-  datasetElementOptions: [
-    'backgroundColor',
-    'borderColor',
-    'borderCapStyle',
-    'borderDash',
-    'borderDashOffset',
-    'borderJoinStyle',
-    'borderWidth',
-    'fill'
-  ],
   dataElementType: 'point',
-  dataElementOptions: {
-    backgroundColor: 'pointBackgroundColor',
-    borderColor: 'pointBorderColor',
-    borderWidth: 'pointBorderWidth',
-    hitRadius: 'pointHitRadius',
-    hoverBackgroundColor: 'pointHoverBackgroundColor',
-    hoverBorderColor: 'pointHoverBorderColor',
-    hoverBorderWidth: 'pointHoverBorderWidth',
-    hoverRadius: 'pointHoverRadius',
-    pointStyle: 'pointStyle',
-    radius: 'pointRadius',
-    rotation: 'pointRotation'
-  },
   aspectRatio: 1,
-  spanGaps: false,
-  scales: {
-    r: {
-      type: 'radialLinear',
+  datasets: {
+    showLine: true,
+  },
+  elements: {
+    line: {
+      fill: 'start'
     }
   },
   indexAxis: 'r',
-  elements: {
-    line: {
-      fill: 'start',
-      tension: 0
+  scales: {
+    r: {
+      type: 'radialLinear',
     }
   }
 };
@@ -8150,7 +8237,8 @@ ArcElement.defaults = {
   borderAlign: 'center',
   borderColor: '#fff',
   borderWidth: 2,
-  offset: 0
+  offset: 0,
+  angle: undefined
 };
 ArcElement.defaultRoutes = {
   backgroundColor: 'backgroundColor'
@@ -8396,12 +8484,19 @@ LineElement.defaults = {
   borderJoinStyle: 'miter',
   borderWidth: 3,
   capBezierPoints: true,
+  cubicInterpolationMode: 'default',
   fill: false,
-  tension: 0
+  spanGaps: false,
+  stepped: false,
+  tension: 0,
 };
 LineElement.defaultRoutes = {
   backgroundColor: 'backgroundColor',
   borderColor: 'borderColor'
+};
+LineElement.descriptors = {
+  _scriptable: true,
+  _indexable: (name) => name !== 'borderDash' && name !== 'fill',
 };
 
 class PointElement extends Element {
@@ -8462,7 +8557,8 @@ PointElement.defaults = {
   hoverBorderWidth: 1,
   hoverRadius: 4,
   pointStyle: 'circle',
-  radius: 3
+  radius: 3,
+  rotation: 0
 };
 PointElement.defaultRoutes = {
   backgroundColor: 'backgroundColor',
@@ -8649,7 +8745,8 @@ BarElement.id = 'bar';
 BarElement.defaults = {
   borderSkipped: 'start',
   borderWidth: 0,
-  borderRadius: 0
+  borderRadius: 0,
+  pointStyle: undefined
 };
 BarElement.defaultRoutes = {
   backgroundColor: 'backgroundColor',
@@ -9299,7 +9396,7 @@ class Legend extends Element {
       return;
     }
     const labelOpts = options.labels;
-    const labelFont = toFont(labelOpts.font, me.chart.options.font);
+    const labelFont = toFont(labelOpts.font);
     const fontSize = labelFont.size;
     const titleHeight = me._computeTitleHeight();
     const {boxWidth, itemHeight} = getBoxSize(labelOpts, fontSize);
@@ -9378,7 +9475,7 @@ class Legend extends Element {
     const {align, labels: labelOpts} = opts;
     const defaultColor = defaults.color;
     const rtlHelper = getRtlAdapter(opts.rtl, me.left, me.width);
-    const labelFont = toFont(labelOpts.font, me.chart.options.font);
+    const labelFont = toFont(labelOpts.font);
     const {color: fontColor, padding} = labelOpts;
     const fontSize = labelFont.size;
     let cursor;
@@ -9478,7 +9575,7 @@ class Legend extends Element {
     const me = this;
     const opts = me.options;
     const titleOpts = opts.title;
-    const titleFont = toFont(titleOpts.font, me.chart.options.font);
+    const titleFont = toFont(titleOpts.font);
     const titlePadding = toPadding(titleOpts.padding);
     if (!titleOpts.display) {
       return;
@@ -9509,7 +9606,7 @@ class Legend extends Element {
   }
   _computeTitleHeight() {
     const titleOpts = this.options.title;
-    const titleFont = toFont(titleOpts.font, this.chart.options.font);
+    const titleFont = toFont(titleOpts.font);
     const titlePadding = toPadding(titleOpts.padding);
     return titleOpts.display ? titleFont.lineHeight + titlePadding.height : 0;
   }
@@ -9637,7 +9734,14 @@ var plugin_legend = {
   defaultRoutes: {
     'labels.color': 'color',
     'title.color': 'color'
-  }
+  },
+  descriptors: {
+    _scriptable: (name) => !name.startsWith('on'),
+    labels: {
+      _scriptable: false,
+    }
+  },
+  additionalOptionScopes: ['']
 };
 
 class Title extends Element {
@@ -9670,7 +9774,7 @@ class Title extends Element {
     me.height = me.bottom = maxHeight;
     const lineCount = isArray(opts.text) ? opts.text.length : 1;
     me._padding = toPadding(opts.padding);
-    const textSize = lineCount * toFont(opts.font, me.chart.options.font).lineHeight + me._padding.height;
+    const textSize = lineCount * toFont(opts.font).lineHeight + me._padding.height;
     if (me.isHorizontal()) {
       me.height = textSize;
     } else {
@@ -9711,7 +9815,7 @@ class Title extends Element {
     if (!opts.display) {
       return;
     }
-    const fontOpts = toFont(opts.font, me.chart.options.font);
+    const fontOpts = toFont(opts.font);
     const lineHeight = fontOpts.lineHeight;
     const offset = lineHeight / 2 + me._padding.top;
     const {titleX, titleY, maxWidth, rotation} = me._drawArgs(offset);
@@ -9783,7 +9887,8 @@ var plugin_title = {
   },
   defaultRoutes: {
     color: 'color'
-  }
+  },
+  additionalOptionScopes: ['']
 };
 
 const positioners = {
@@ -10045,9 +10150,6 @@ class Tooltip extends Element {
     this.labelTextColors = undefined;
   }
   initialize(options) {
-    const defaultSize = options.bodyFont.size;
-    options.boxHeight = valueOrDefault(options.boxHeight, defaultSize);
-    options.boxWidth = valueOrDefault(options.boxWidth, defaultSize);
     this.options = options;
     this._cachedAnimations = undefined;
   }
@@ -10578,6 +10680,8 @@ var plugin_tooltip = {
     caretPadding: 2,
     caretSize: 5,
     cornerRadius: 6,
+    boxHeight: (ctx, opts) => opts.bodyFont.size,
+    boxWidth: (ctx, opts) => opts.bodyFont.size,
     multiKeyBackground: '#fff',
     displayColors: true,
     borderColor: 'rgba(0,0,0,0)',
@@ -10658,7 +10762,16 @@ var plugin_tooltip = {
     bodyFont: 'font',
     footerFont: 'font',
     titleFont: 'font'
-  }
+  },
+  descriptors: {
+    _scriptable: (name) => name !== 'filter' && name !== 'itemSort' && name !== 'custom',
+    _indexable: false,
+    callbacks: {
+      _scriptable: false,
+      _indexable: false,
+    }
+  },
+  additionalOptionScopes: ['interaction', '']
 };
 
 var plugins = /*#__PURE__*/Object.freeze({
@@ -11149,8 +11262,8 @@ function fitWithPointLabels(scale) {
   const valueCount = scale.chart.data.labels.length;
   for (i = 0; i < valueCount; i++) {
     pointPosition = scale.getPointPosition(i, scale.drawingArea + 5);
-    const context = scale.getContext(i);
-    const plFont = toFont(resolve([scale.options.pointLabels.font], context, i), scale.chart.options.font);
+    const opts = scale.options.pointLabels.setContext(scale.getContext(i));
+    const plFont = toFont(opts.font);
     scale.ctx.font = plFont.string;
     textSize = measureLabelSize(scale.ctx, plFont.lineHeight, scale.pointLabels[i]);
     scale._pointLabelSizes[i] = textSize;
@@ -11203,8 +11316,8 @@ function drawPointLabels(scale) {
   for (let i = scale.chart.data.labels.length - 1; i >= 0; i--) {
     const extra = (i === 0 ? tickBackdropHeight / 2 : 0);
     const pointLabelPosition = scale.getPointPosition(i, outerDistance + extra + 5);
-    const context = scale.getContext(i);
-    const plFont = toFont(resolve([pointLabelOpts.font], context, i), scale.chart.options.font);
+    const optsAtIndex = pointLabelOpts.setContext(scale.getContext(i));
+    const plFont = toFont(optsAtIndex.font);
     const angle = toDegrees(scale.getIndexAngle(i));
     adjustPointPositionForLabelHeight(angle, scale._pointLabelSizes[i], pointLabelPosition);
     renderText(
@@ -11214,20 +11327,19 @@ function drawPointLabels(scale) {
       pointLabelPosition.y + (plFont.lineHeight / 2),
       plFont,
       {
-        color: resolve([pointLabelOpts.color], context, i),
+        color: optsAtIndex.color,
         textAlign: getTextAlignForAngle(angle),
       }
     );
   }
   ctx.restore();
 }
-function drawRadiusLine(scale, gridLineOpts, radius, index) {
+function drawRadiusLine(scale, gridLineOpts, radius) {
   const ctx = scale.ctx;
   const circular = gridLineOpts.circular;
   const valueCount = scale.chart.data.labels.length;
-  const context = scale.getContext(index);
-  const lineColor = resolve([gridLineOpts.color], context, index - 1);
-  const lineWidth = resolve([gridLineOpts.lineWidth], context, index - 1);
+  const lineColor = gridLineOpts.color;
+  const lineWidth = gridLineOpts.lineWidth;
   let pointPosition;
   if ((!circular && !valueCount) || !lineColor || !lineWidth || radius < 0) {
     return;
@@ -11235,10 +11347,8 @@ function drawRadiusLine(scale, gridLineOpts, radius, index) {
   ctx.save();
   ctx.strokeStyle = lineColor;
   ctx.lineWidth = lineWidth;
-  if (ctx.setLineDash) {
-    ctx.setLineDash(resolve([gridLineOpts.borderDash, []], context));
-    ctx.lineDashOffset = resolve([gridLineOpts.borderDashOffset], context, index - 1);
-  }
+  ctx.setLineDash(gridLineOpts.borderDash);
+  ctx.lineDashOffset = gridLineOpts.borderDashOffset;
   ctx.beginPath();
   if (circular) {
     ctx.arc(scale.xCenter, scale.yCenter, radius, 0, TAU);
@@ -11264,10 +11374,6 @@ class RadialLinearScale extends LinearScaleBase {
     this.yCenter = undefined;
     this.drawingArea = undefined;
     this.pointLabels = [];
-  }
-  init(options) {
-    super.init(options);
-    this.axis = 'r';
   }
   setDimensions() {
     const me = this;
@@ -11384,25 +11490,24 @@ class RadialLinearScale extends LinearScaleBase {
       me.ticks.forEach((tick, index) => {
         if (index !== 0) {
           offset = me.getDistanceFromCenterForValue(me.ticks[index].value);
-          drawRadiusLine(me, gridLineOpts, offset, index);
+          const optsAtIndex = gridLineOpts.setContext(me.getContext(index - 1));
+          drawRadiusLine(me, optsAtIndex, offset);
         }
       });
     }
     if (angleLineOpts.display) {
       ctx.save();
       for (i = me.chart.data.labels.length - 1; i >= 0; i--) {
-        const context = me.getContext(i);
-        const lineWidth = resolve([angleLineOpts.lineWidth, gridLineOpts.lineWidth], context, i);
-        const color = resolve([angleLineOpts.color, gridLineOpts.color], context, i);
+        const optsAtIndex = angleLineOpts.setContext(me.getContext(i));
+        const lineWidth = optsAtIndex.lineWidth;
+        const color = optsAtIndex.color;
         if (!lineWidth || !color) {
           continue;
         }
         ctx.lineWidth = lineWidth;
         ctx.strokeStyle = color;
-        if (ctx.setLineDash) {
-          ctx.setLineDash(resolve([angleLineOpts.borderDash, gridLineOpts.borderDash, []], context));
-          ctx.lineDashOffset = resolve([angleLineOpts.borderDashOffset, gridLineOpts.borderDashOffset, 0.0], context, i);
-        }
+        ctx.setLineDash(optsAtIndex.borderDash);
+        ctx.lineDashOffset = optsAtIndex.borderDashOffset;
         offset = me.getDistanceFromCenterForValue(opts.ticks.reverse ? me.min : me.max);
         position = me.getPointPosition(i, offset);
         ctx.beginPath();
@@ -11432,22 +11537,21 @@ class RadialLinearScale extends LinearScaleBase {
       if (index === 0 && !opts.reverse) {
         return;
       }
-      const context = me.getContext(index);
-      const tickFont = me._resolveTickFontOptions(index);
+      const optsAtIndex = tickOpts.setContext(me.getContext(index));
+      const tickFont = toFont(optsAtIndex.font);
       offset = me.getDistanceFromCenterForValue(me.ticks[index].value);
-      const showLabelBackdrop = resolve([tickOpts.showLabelBackdrop], context, index);
-      if (showLabelBackdrop) {
+      if (optsAtIndex.showLabelBackdrop) {
         width = ctx.measureText(tick.label).width;
-        ctx.fillStyle = resolve([tickOpts.backdropColor], context, index);
+        ctx.fillStyle = optsAtIndex.backdropColor;
         ctx.fillRect(
-          -width / 2 - tickOpts.backdropPaddingX,
-          -offset - tickFont.size / 2 - tickOpts.backdropPaddingY,
-          width + tickOpts.backdropPaddingX * 2,
-          tickFont.size + tickOpts.backdropPaddingY * 2
+          -width / 2 - optsAtIndex.backdropPaddingX,
+          -offset - tickFont.size / 2 - optsAtIndex.backdropPaddingY,
+          width + optsAtIndex.backdropPaddingX * 2,
+          tickFont.size + optsAtIndex.backdropPaddingY * 2
         );
       }
       renderText(ctx, tick.label, 0, -offset, tickFont, {
-        color: tickOpts.color,
+        color: optsAtIndex.color,
       });
     });
     ctx.restore();
@@ -11489,6 +11593,11 @@ RadialLinearScale.defaultRoutes = {
   'angleLines.color': 'borderColor',
   'pointLabels.color': 'color',
   'ticks.color': 'color'
+};
+RadialLinearScale.descriptors = {
+  angleLines: {
+    _fallback: 'gridLines'
+  }
 };
 
 const MAX_INTEGER = Number.MAX_SAFE_INTEGER || 9007199254740991;
