@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>LinearScale | Chart.js - v3.0.0-beta.10</title>
+	<title>RadialLinearScale | Chart.js - v3.0.0-beta.10</title>
 	<meta name="description" content="Documentation for Chart.js - v3.0.0-beta.10">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -56,10 +56,10 @@
 					<a href="../modules/scales.html">scales</a>
 				</li>
 				<li>
-					<a href="scales.linearscale-1.html">LinearScale</a>
+					<a href="scales.radiallinearscale.html">RadialLinearScale</a>
 				</li>
 			</ul>
-			<h1>Class LinearScale</h1>
+			<h1>Class RadialLinearScale</h1>
 		</div>
 	</div>
 </header>
@@ -73,7 +73,7 @@
 						<span class="tsd-signature-type">LinearScaleBase</span>
 						<ul class="tsd-hierarchy">
 							<li>
-								<span class="target">LinearScale</span>
+								<span class="target">RadialLinearScale</span>
 							</li>
 						</ul>
 					</li>
@@ -86,125 +86,138 @@
 						<section class="tsd-index-section ">
 							<h3>Constructors</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-constructor tsd-parent-kind-class"><a href="scales.linearscale-1.html#constructor" class="tsd-kind-icon">constructor</a></li>
+								<li class="tsd-kind-constructor tsd-parent-kind-class"><a href="scales.radiallinearscale.html#constructor" class="tsd-kind-icon">constructor</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.linearscale-1.html#_animations" class="tsd-kind-icon">$animations</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.linearscale-1.html#_context" class="tsd-kind-icon">$context</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.linearscale-1.html#_bordervalue" class="tsd-kind-icon">_border<wbr>Value</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.linearscale-1.html#_cache" class="tsd-kind-icon">_cache</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.linearscale-1.html#_datalimitscached" class="tsd-kind-icon">_data<wbr>Limits<wbr>Cached</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.linearscale-1.html#_draw" class="tsd-kind-icon">_draw</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.linearscale-1.html#_endpixel" class="tsd-kind-icon">_end<wbr>Pixel</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.linearscale-1.html#_endvalue" class="tsd-kind-icon">_end<wbr>Value</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.linearscale-1.html#_gridlineitems" class="tsd-kind-icon">_grid<wbr>Line<wbr>Items</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.linearscale-1.html#_labelitems" class="tsd-kind-icon">_label<wbr>Items</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.linearscale-1.html#_labelsizes" class="tsd-kind-icon">_label<wbr>Sizes</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.linearscale-1.html#_length" class="tsd-kind-icon">_length</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.linearscale-1.html#_longesttextcache" class="tsd-kind-icon">_longest<wbr>Text<wbr>Cache</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.linearscale-1.html#_margins" class="tsd-kind-icon">_margins</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.linearscale-1.html#_reversepixels" class="tsd-kind-icon">_reverse<wbr>Pixels</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.linearscale-1.html#_startpixel" class="tsd-kind-icon">_start<wbr>Pixel</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.linearscale-1.html#_startvalue" class="tsd-kind-icon">_start<wbr>Value</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.linearscale-1.html#_suggestedmax" class="tsd-kind-icon">_suggested<wbr>Max</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.linearscale-1.html#_suggestedmin" class="tsd-kind-icon">_suggested<wbr>Min</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.linearscale-1.html#_tickslength" class="tsd-kind-icon">_ticks<wbr>Length</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.linearscale-1.html#_usermax" class="tsd-kind-icon">_user<wbr>Max</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.linearscale-1.html#_usermin" class="tsd-kind-icon">_user<wbr>Min</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.linearscale-1.html#_valuerange" class="tsd-kind-icon">_value<wbr>Range</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.linearscale-1.html#active" class="tsd-kind-icon">active</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.linearscale-1.html#axis" class="tsd-kind-icon">axis</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.linearscale-1.html#bottom-1" class="tsd-kind-icon">bottom</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.linearscale-1.html#chart" class="tsd-kind-icon">chart</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.linearscale-1.html#ctx" class="tsd-kind-icon">ctx</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.linearscale-1.html#defaultroutes" class="tsd-kind-icon">default<wbr>Routes</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.linearscale-1.html#defaults" class="tsd-kind-icon">defaults</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.linearscale-1.html#end" class="tsd-kind-icon">end</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.linearscale-1.html#height" class="tsd-kind-icon">height</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.linearscale-1.html#id" class="tsd-kind-icon">id</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.linearscale-1.html#id-1" class="tsd-kind-icon">id</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.linearscale-1.html#labelrotation" class="tsd-kind-icon">label<wbr>Rotation</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.linearscale-1.html#left-1" class="tsd-kind-icon">left</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.linearscale-1.html#max" class="tsd-kind-icon">max</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.linearscale-1.html#maxheight" class="tsd-kind-icon">max<wbr>Height</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.linearscale-1.html#maxwidth" class="tsd-kind-icon">max<wbr>Width</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.linearscale-1.html#min" class="tsd-kind-icon">min</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.linearscale-1.html#options" class="tsd-kind-icon">options</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.linearscale-1.html#paddingbottom" class="tsd-kind-icon">padding<wbr>Bottom</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.linearscale-1.html#paddingleft" class="tsd-kind-icon">padding<wbr>Left</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.linearscale-1.html#paddingright" class="tsd-kind-icon">padding<wbr>Right</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.linearscale-1.html#paddingtop" class="tsd-kind-icon">padding<wbr>Top</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.linearscale-1.html#right-1" class="tsd-kind-icon">right</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.linearscale-1.html#start" class="tsd-kind-icon">start</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.linearscale-1.html#ticks" class="tsd-kind-icon">ticks</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.linearscale-1.html#top-1" class="tsd-kind-icon">top</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.linearscale-1.html#type" class="tsd-kind-icon">type</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.linearscale-1.html#width" class="tsd-kind-icon">width</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.linearscale-1.html#x" class="tsd-kind-icon">x</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.linearscale-1.html#y" class="tsd-kind-icon">y</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.radiallinearscale.html#_animations" class="tsd-kind-icon">$animations</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.radiallinearscale.html#_context" class="tsd-kind-icon">$context</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.radiallinearscale.html#_bordervalue" class="tsd-kind-icon">_border<wbr>Value</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.radiallinearscale.html#_cache" class="tsd-kind-icon">_cache</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.radiallinearscale.html#_datalimitscached" class="tsd-kind-icon">_data<wbr>Limits<wbr>Cached</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.radiallinearscale.html#_draw" class="tsd-kind-icon">_draw</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.radiallinearscale.html#_endpixel" class="tsd-kind-icon">_end<wbr>Pixel</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.radiallinearscale.html#_endvalue" class="tsd-kind-icon">_end<wbr>Value</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.radiallinearscale.html#_gridlineitems" class="tsd-kind-icon">_grid<wbr>Line<wbr>Items</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.radiallinearscale.html#_labelitems" class="tsd-kind-icon">_label<wbr>Items</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.radiallinearscale.html#_labelsizes" class="tsd-kind-icon">_label<wbr>Sizes</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.radiallinearscale.html#_length" class="tsd-kind-icon">_length</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.radiallinearscale.html#_longesttextcache" class="tsd-kind-icon">_longest<wbr>Text<wbr>Cache</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.radiallinearscale.html#_margins" class="tsd-kind-icon">_margins</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.radiallinearscale.html#_reversepixels" class="tsd-kind-icon">_reverse<wbr>Pixels</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.radiallinearscale.html#_startpixel" class="tsd-kind-icon">_start<wbr>Pixel</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.radiallinearscale.html#_startvalue" class="tsd-kind-icon">_start<wbr>Value</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.radiallinearscale.html#_suggestedmax" class="tsd-kind-icon">_suggested<wbr>Max</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.radiallinearscale.html#_suggestedmin" class="tsd-kind-icon">_suggested<wbr>Min</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.radiallinearscale.html#_tickslength" class="tsd-kind-icon">_ticks<wbr>Length</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.radiallinearscale.html#_usermax" class="tsd-kind-icon">_user<wbr>Max</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.radiallinearscale.html#_usermin" class="tsd-kind-icon">_user<wbr>Min</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.radiallinearscale.html#_valuerange" class="tsd-kind-icon">_value<wbr>Range</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.radiallinearscale.html#active" class="tsd-kind-icon">active</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.radiallinearscale.html#axis" class="tsd-kind-icon">axis</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.radiallinearscale.html#bottom-1" class="tsd-kind-icon">bottom</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.radiallinearscale.html#chart" class="tsd-kind-icon">chart</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.radiallinearscale.html#ctx" class="tsd-kind-icon">ctx</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.radiallinearscale.html#drawingarea" class="tsd-kind-icon">drawing<wbr>Area</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.radiallinearscale.html#end" class="tsd-kind-icon">end</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.radiallinearscale.html#height" class="tsd-kind-icon">height</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.radiallinearscale.html#id" class="tsd-kind-icon">id</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.radiallinearscale.html#labelrotation" class="tsd-kind-icon">label<wbr>Rotation</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.radiallinearscale.html#left-1" class="tsd-kind-icon">left</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.radiallinearscale.html#max" class="tsd-kind-icon">max</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.radiallinearscale.html#maxheight" class="tsd-kind-icon">max<wbr>Height</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.radiallinearscale.html#maxwidth" class="tsd-kind-icon">max<wbr>Width</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.radiallinearscale.html#min" class="tsd-kind-icon">min</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.radiallinearscale.html#options" class="tsd-kind-icon">options</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.radiallinearscale.html#paddingbottom" class="tsd-kind-icon">padding<wbr>Bottom</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.radiallinearscale.html#paddingleft" class="tsd-kind-icon">padding<wbr>Left</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.radiallinearscale.html#paddingright" class="tsd-kind-icon">padding<wbr>Right</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.radiallinearscale.html#paddingtop" class="tsd-kind-icon">padding<wbr>Top</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.radiallinearscale.html#pointlabels" class="tsd-kind-icon">point<wbr>Labels</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.radiallinearscale.html#right-1" class="tsd-kind-icon">right</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.radiallinearscale.html#start" class="tsd-kind-icon">start</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.radiallinearscale.html#ticks" class="tsd-kind-icon">ticks</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.radiallinearscale.html#top-1" class="tsd-kind-icon">top</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.radiallinearscale.html#type" class="tsd-kind-icon">type</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.radiallinearscale.html#width" class="tsd-kind-icon">width</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.radiallinearscale.html#x" class="tsd-kind-icon">x</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.radiallinearscale.html#xcenter" class="tsd-kind-icon">x<wbr>Center</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.radiallinearscale.html#y" class="tsd-kind-icon">y</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.radiallinearscale.html#ycenter" class="tsd-kind-icon">y<wbr>Center</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><a href="scales.radiallinearscale.html#defaultroutes" class="tsd-kind-icon">default<wbr>Routes</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><a href="scales.radiallinearscale.html#defaults" class="tsd-kind-icon">defaults</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><a href="scales.radiallinearscale.html#descriptors" class="tsd-kind-icon">descriptors</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><a href="scales.radiallinearscale.html#id-1" class="tsd-kind-icon">id</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.linearscale-1.html#_callhooks" class="tsd-kind-icon">_call<wbr>Hooks</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.linearscale-1.html#_getxaxislabelalignment" class="tsd-kind-icon">_getXAxis<wbr>Label<wbr>Alignment</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.linearscale-1.html#_getyaxislabelalignment" class="tsd-kind-icon">_getYAxis<wbr>Label<wbr>Alignment</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a href="scales.linearscale-1.html#_resolvetickfontoptions" class="tsd-kind-icon">_resolve<wbr>Tick<wbr>Font<wbr>Options</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.linearscale-1.html#afterbuildticks" class="tsd-kind-icon">after<wbr>Build<wbr>Ticks</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.linearscale-1.html#aftercalculatelabelrotation" class="tsd-kind-icon">after<wbr>Calculate<wbr>Label<wbr>Rotation</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.linearscale-1.html#afterdatalimits" class="tsd-kind-icon">after<wbr>Data<wbr>Limits</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.linearscale-1.html#afterfit" class="tsd-kind-icon">after<wbr>Fit</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.linearscale-1.html#aftersetdimensions" class="tsd-kind-icon">after<wbr>Set<wbr>Dimensions</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.linearscale-1.html#afterticktolabelconversion" class="tsd-kind-icon">after<wbr>Tick<wbr>ToLabel<wbr>Conversion</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.linearscale-1.html#afterupdate" class="tsd-kind-icon">after<wbr>Update</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.linearscale-1.html#beforebuildticks" class="tsd-kind-icon">before<wbr>Build<wbr>Ticks</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.linearscale-1.html#beforecalculatelabelrotation" class="tsd-kind-icon">before<wbr>Calculate<wbr>Label<wbr>Rotation</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.linearscale-1.html#beforedatalimits" class="tsd-kind-icon">before<wbr>Data<wbr>Limits</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.linearscale-1.html#beforefit" class="tsd-kind-icon">before<wbr>Fit</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.linearscale-1.html#beforelayout" class="tsd-kind-icon">before<wbr>Layout</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.linearscale-1.html#beforesetdimensions" class="tsd-kind-icon">before<wbr>Set<wbr>Dimensions</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.linearscale-1.html#beforeticktolabelconversion" class="tsd-kind-icon">before<wbr>Tick<wbr>ToLabel<wbr>Conversion</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.linearscale-1.html#beforeupdate" class="tsd-kind-icon">before<wbr>Update</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.linearscale-1.html#buildticks" class="tsd-kind-icon">build<wbr>Ticks</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.linearscale-1.html#calculatelabelrotation" class="tsd-kind-icon">calculate<wbr>Label<wbr>Rotation</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a href="scales.linearscale-1.html#computeticklimit" class="tsd-kind-icon">compute<wbr>Tick<wbr>Limit</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a href="scales.linearscale-1.html#configure" class="tsd-kind-icon">configure</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.linearscale-1.html#determinedatalimits" class="tsd-kind-icon">determine<wbr>Data<wbr>Limits</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.linearscale-1.html#draw" class="tsd-kind-icon">draw</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a href="scales.linearscale-1.html#drawgrid" class="tsd-kind-icon">draw<wbr>Grid</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a href="scales.linearscale-1.html#drawlabels" class="tsd-kind-icon">draw<wbr>Labels</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a href="scales.linearscale-1.html#drawtitle" class="tsd-kind-icon">draw<wbr>Title</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.linearscale-1.html#fit" class="tsd-kind-icon">fit</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.linearscale-1.html#generateticklabels" class="tsd-kind-icon">generate<wbr>Tick<wbr>Labels</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.linearscale-1.html#getbasepixel" class="tsd-kind-icon">get<wbr>Base<wbr>Pixel</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.linearscale-1.html#getbasevalue" class="tsd-kind-icon">get<wbr>Base<wbr>Value</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a href="scales.linearscale-1.html#getcontext" class="tsd-kind-icon">get<wbr>Context</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.linearscale-1.html#getdecimalforpixel" class="tsd-kind-icon">get<wbr>Decimal<wbr>For<wbr>Pixel</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.linearscale-1.html#getlabelforvalue" class="tsd-kind-icon">get<wbr>Label<wbr>For<wbr>Value</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.linearscale-1.html#getlabels" class="tsd-kind-icon">get<wbr>Labels</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.linearscale-1.html#getmatchingvisiblemetas" class="tsd-kind-icon">get<wbr>Matching<wbr>Visible<wbr>Metas</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a href="scales.linearscale-1.html#getminmax" class="tsd-kind-icon">get<wbr>Min<wbr>Max</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.linearscale-1.html#getpixelfordecimal" class="tsd-kind-icon">get<wbr>Pixel<wbr>For<wbr>Decimal</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.linearscale-1.html#getpixelfortick" class="tsd-kind-icon">get<wbr>Pixel<wbr>For<wbr>Tick</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.linearscale-1.html#getpixelforvalue" class="tsd-kind-icon">get<wbr>Pixel<wbr>For<wbr>Value</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.linearscale-1.html#getprops" class="tsd-kind-icon">get<wbr>Props</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.linearscale-1.html#getticklimit" class="tsd-kind-icon">get<wbr>Tick<wbr>Limit</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.linearscale-1.html#getticks" class="tsd-kind-icon">get<wbr>Ticks</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a href="scales.linearscale-1.html#getuserbounds" class="tsd-kind-icon">get<wbr>User<wbr>Bounds</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.linearscale-1.html#getvalueforpixel" class="tsd-kind-icon">get<wbr>Value<wbr>For<wbr>Pixel</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.linearscale-1.html#handletickrangeoptions" class="tsd-kind-icon">handle<wbr>Tick<wbr>Range<wbr>Options</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.linearscale-1.html#hasvalue" class="tsd-kind-icon">has<wbr>Value</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.linearscale-1.html#init" class="tsd-kind-icon">init</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.linearscale-1.html#isfullsize" class="tsd-kind-icon">is<wbr>Full<wbr>Size</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.linearscale-1.html#ishorizontal" class="tsd-kind-icon">is<wbr>Horizontal</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.linearscale-1.html#parse" class="tsd-kind-icon">parse</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.linearscale-1.html#setdimensions" class="tsd-kind-icon">set<wbr>Dimensions</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.linearscale-1.html#tooltipposition" class="tsd-kind-icon">tooltip<wbr>Position</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.linearscale-1.html#update" class="tsd-kind-icon">update</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.radiallinearscale.html#_callhooks" class="tsd-kind-icon">_call<wbr>Hooks</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.radiallinearscale.html#_getxaxislabelalignment" class="tsd-kind-icon">_getXAxis<wbr>Label<wbr>Alignment</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.radiallinearscale.html#_getyaxislabelalignment" class="tsd-kind-icon">_getYAxis<wbr>Label<wbr>Alignment</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a href="scales.radiallinearscale.html#_resolvetickfontoptions" class="tsd-kind-icon">_resolve<wbr>Tick<wbr>Font<wbr>Options</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="scales.radiallinearscale.html#_setreductions" class="tsd-kind-icon">_set<wbr>Reductions</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.radiallinearscale.html#afterbuildticks" class="tsd-kind-icon">after<wbr>Build<wbr>Ticks</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.radiallinearscale.html#aftercalculatelabelrotation" class="tsd-kind-icon">after<wbr>Calculate<wbr>Label<wbr>Rotation</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.radiallinearscale.html#afterdatalimits" class="tsd-kind-icon">after<wbr>Data<wbr>Limits</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.radiallinearscale.html#afterfit" class="tsd-kind-icon">after<wbr>Fit</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.radiallinearscale.html#aftersetdimensions" class="tsd-kind-icon">after<wbr>Set<wbr>Dimensions</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.radiallinearscale.html#afterticktolabelconversion" class="tsd-kind-icon">after<wbr>Tick<wbr>ToLabel<wbr>Conversion</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.radiallinearscale.html#afterupdate" class="tsd-kind-icon">after<wbr>Update</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.radiallinearscale.html#beforebuildticks" class="tsd-kind-icon">before<wbr>Build<wbr>Ticks</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.radiallinearscale.html#beforecalculatelabelrotation" class="tsd-kind-icon">before<wbr>Calculate<wbr>Label<wbr>Rotation</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.radiallinearscale.html#beforedatalimits" class="tsd-kind-icon">before<wbr>Data<wbr>Limits</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.radiallinearscale.html#beforefit" class="tsd-kind-icon">before<wbr>Fit</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.radiallinearscale.html#beforelayout" class="tsd-kind-icon">before<wbr>Layout</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.radiallinearscale.html#beforesetdimensions" class="tsd-kind-icon">before<wbr>Set<wbr>Dimensions</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.radiallinearscale.html#beforeticktolabelconversion" class="tsd-kind-icon">before<wbr>Tick<wbr>ToLabel<wbr>Conversion</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.radiallinearscale.html#beforeupdate" class="tsd-kind-icon">before<wbr>Update</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.radiallinearscale.html#buildticks" class="tsd-kind-icon">build<wbr>Ticks</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.radiallinearscale.html#calculatelabelrotation" class="tsd-kind-icon">calculate<wbr>Label<wbr>Rotation</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a href="scales.radiallinearscale.html#computeticklimit" class="tsd-kind-icon">compute<wbr>Tick<wbr>Limit</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a href="scales.radiallinearscale.html#configure" class="tsd-kind-icon">configure</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.radiallinearscale.html#determinedatalimits" class="tsd-kind-icon">determine<wbr>Data<wbr>Limits</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.radiallinearscale.html#draw" class="tsd-kind-icon">draw</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a href="scales.radiallinearscale.html#drawgrid" class="tsd-kind-icon">draw<wbr>Grid</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a href="scales.radiallinearscale.html#drawlabels" class="tsd-kind-icon">draw<wbr>Labels</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a href="scales.radiallinearscale.html#drawtitle" class="tsd-kind-icon">draw<wbr>Title</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.radiallinearscale.html#fit" class="tsd-kind-icon">fit</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.radiallinearscale.html#generateticklabels" class="tsd-kind-icon">generate<wbr>Tick<wbr>Labels</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.radiallinearscale.html#getbasepixel" class="tsd-kind-icon">get<wbr>Base<wbr>Pixel</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.radiallinearscale.html#getbaseposition" class="tsd-kind-icon">get<wbr>Base<wbr>Position</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.radiallinearscale.html#getbasevalue" class="tsd-kind-icon">get<wbr>Base<wbr>Value</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a href="scales.radiallinearscale.html#getcontext" class="tsd-kind-icon">get<wbr>Context</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.radiallinearscale.html#getdecimalforpixel" class="tsd-kind-icon">get<wbr>Decimal<wbr>For<wbr>Pixel</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.radiallinearscale.html#getdistancefromcenterforvalue" class="tsd-kind-icon">get<wbr>Distance<wbr>From<wbr>Center<wbr>For<wbr>Value</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.radiallinearscale.html#getindexangle" class="tsd-kind-icon">get<wbr>Index<wbr>Angle</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.radiallinearscale.html#getlabelforvalue" class="tsd-kind-icon">get<wbr>Label<wbr>For<wbr>Value</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.radiallinearscale.html#getlabels" class="tsd-kind-icon">get<wbr>Labels</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.radiallinearscale.html#getmatchingvisiblemetas" class="tsd-kind-icon">get<wbr>Matching<wbr>Visible<wbr>Metas</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a href="scales.radiallinearscale.html#getminmax" class="tsd-kind-icon">get<wbr>Min<wbr>Max</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.radiallinearscale.html#getpixelfordecimal" class="tsd-kind-icon">get<wbr>Pixel<wbr>For<wbr>Decimal</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.radiallinearscale.html#getpixelfortick" class="tsd-kind-icon">get<wbr>Pixel<wbr>For<wbr>Tick</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.radiallinearscale.html#getpixelforvalue" class="tsd-kind-icon">get<wbr>Pixel<wbr>For<wbr>Value</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.radiallinearscale.html#getpointposition" class="tsd-kind-icon">get<wbr>Point<wbr>Position</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.radiallinearscale.html#getpointpositionforvalue" class="tsd-kind-icon">get<wbr>Point<wbr>Position<wbr>For<wbr>Value</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.radiallinearscale.html#getprops" class="tsd-kind-icon">get<wbr>Props</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.radiallinearscale.html#getticklimit" class="tsd-kind-icon">get<wbr>Tick<wbr>Limit</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.radiallinearscale.html#getticks" class="tsd-kind-icon">get<wbr>Ticks</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a href="scales.radiallinearscale.html#getuserbounds" class="tsd-kind-icon">get<wbr>User<wbr>Bounds</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.radiallinearscale.html#getvaluefordistancefromcenter" class="tsd-kind-icon">get<wbr>Value<wbr>For<wbr>Distance<wbr>From<wbr>Center</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.radiallinearscale.html#getvalueforpixel" class="tsd-kind-icon">get<wbr>Value<wbr>For<wbr>Pixel</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.radiallinearscale.html#handletickrangeoptions" class="tsd-kind-icon">handle<wbr>Tick<wbr>Range<wbr>Options</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.radiallinearscale.html#hasvalue" class="tsd-kind-icon">has<wbr>Value</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.radiallinearscale.html#init" class="tsd-kind-icon">init</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.radiallinearscale.html#isfullsize" class="tsd-kind-icon">is<wbr>Full<wbr>Size</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.radiallinearscale.html#ishorizontal" class="tsd-kind-icon">is<wbr>Horizontal</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.radiallinearscale.html#parse" class="tsd-kind-icon">parse</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.radiallinearscale.html#setcenterpoint" class="tsd-kind-icon">set<wbr>Center<wbr>Point</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.radiallinearscale.html#setdimensions" class="tsd-kind-icon">set<wbr>Dimensions</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.radiallinearscale.html#tooltipposition" class="tsd-kind-icon">tooltip<wbr>Position</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.radiallinearscale.html#update" class="tsd-kind-icon">update</a></li>
 							</ul>
 						</section>
 					</div>
@@ -216,13 +229,13 @@
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Linear<wbr>Scale<span class="tsd-signature-symbol">(</span>cfg<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="scales.linearscale-1.html" class="tsd-signature-type" data-tsd-kind="Class">LinearScale</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Radial<wbr>Linear<wbr>Scale<span class="tsd-signature-symbol">(</span>cfg<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="scales.radiallinearscale.html" class="tsd-signature-type" data-tsd-kind="Class">RadialLinearScale</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/scales/scale.linearbase.js#L100">scales/scale.linearbase.js:100</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/scales/scale.radialLinear.js#L229">scales/scale.radialLinear.js:229</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -231,7 +244,7 @@
 									<h5>cfg: <span class="tsd-signature-type">any</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="scales.linearscale-1.html" class="tsd-signature-type" data-tsd-kind="Class">LinearScale</a></h4>
+							<h4 class="tsd-returns-title">Returns <a href="scales.radiallinearscale.html" class="tsd-signature-type" data-tsd-kind="Class">RadialLinearScale</a></h4>
 						</li>
 					</ul>
 				</section>
@@ -483,16 +496,9 @@
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
-					<a name="defaultroutes" class="tsd-anchor"></a>
-					<h3>default<wbr>Routes</h3>
-					<div class="tsd-signature tsd-kind-icon">default<wbr>Routes<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
-					<aside class="tsd-sources">
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
-					<a name="defaults" class="tsd-anchor"></a>
-					<h3>defaults</h3>
-					<div class="tsd-signature tsd-kind-icon">defaults<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
+					<a name="drawingarea" class="tsd-anchor"></a>
+					<h3>drawing<wbr>Area</h3>
+					<div class="tsd-signature tsd-kind-icon">drawing<wbr>Area<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 					</aside>
 				</section>
@@ -512,13 +518,6 @@
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
 					<a name="id" class="tsd-anchor"></a>
-					<h3>id</h3>
-					<div class="tsd-signature tsd-kind-icon">id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
-					<aside class="tsd-sources">
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
-					<a name="id-1" class="tsd-anchor"></a>
 					<h3>id</h3>
 					<div class="tsd-signature tsd-kind-icon">id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
@@ -602,6 +601,13 @@
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="pointlabels" class="tsd-anchor"></a>
+					<h3>point<wbr>Labels</h3>
+					<div class="tsd-signature tsd-kind-icon">point<wbr>Labels<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></div>
+					<aside class="tsd-sources">
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
 					<a name="right-1" class="tsd-anchor"></a>
 					<h3>right</h3>
 					<div class="tsd-signature tsd-kind-icon">right<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
@@ -651,9 +657,78 @@
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="xcenter" class="tsd-anchor"></a>
+					<h3>x<wbr>Center</h3>
+					<div class="tsd-signature tsd-kind-icon">x<wbr>Center<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
 					<a name="y" class="tsd-anchor"></a>
 					<h3>y</h3>
 					<div class="tsd-signature tsd-kind-icon">y<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
+					<aside class="tsd-sources">
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="ycenter" class="tsd-anchor"></a>
+					<h3>y<wbr>Center</h3>
+					<div class="tsd-signature tsd-kind-icon">y<wbr>Center<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-static">
+					<a name="defaultroutes" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> default<wbr>Routes</h3>
+					<div class="tsd-signature tsd-kind-icon">default<wbr>Routes<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>angleLines.color<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>pointLabels.color<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>ticks.color<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter">
+								<h5>angle<wbr>Lines.color<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>point<wbr>Labels.color<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+							<li class="tsd-parameter">
+								<h5>ticks.color<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-static">
+					<a name="defaults" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> defaults</h3>
+					<div class="tsd-signature tsd-kind-icon">defaults<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
+					<aside class="tsd-sources">
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-static">
+					<a name="descriptors" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> descriptors</h3>
+					<div class="tsd-signature tsd-kind-icon">descriptors<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>angleLines<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>_fallback<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> }</span></div>
+					<aside class="tsd-sources">
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter">
+								<h5>angle<wbr>Lines<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>_fallback<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span></h5>
+								<ul class="tsd-parameters">
+									<li class="tsd-parameter">
+										<h5>_fallback<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-static">
+					<a name="id-1" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> id</h3>
+					<div class="tsd-signature tsd-kind-icon">id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 					</aside>
 				</section>
@@ -670,7 +745,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L658">core/core.scale.js:658</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L658">core/core.scale.js:658</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -693,7 +768,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L1445">core/core.scale.js:1445</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L1445">core/core.scale.js:1445</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
@@ -710,7 +785,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L1465">core/core.scale.js:1465</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L1465">core/core.scale.js:1465</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -741,7 +816,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L1790">core/core.scale.js:1790</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L1790">core/core.scale.js:1790</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -751,6 +826,40 @@
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
+					<a name="_setreductions" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _set<wbr>Reductions</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
+						<li class="tsd-signature tsd-kind-icon">_set<wbr>Reductions<span class="tsd-signature-symbol">(</span>largestPossibleRadius<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, furthestLimits<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, furthestAngles<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/scales/scale.radialLinear.js#L302">scales/scale.radialLinear.js:302</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Set radius reductions and determine new radius and center point</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>largestPossibleRadius: <span class="tsd-signature-type">any</span></h5>
+								</li>
+								<li>
+									<h5>furthestLimits: <span class="tsd-signature-type">any</span></h5>
+								</li>
+								<li>
+									<h5>furthestAngles: <span class="tsd-signature-type">any</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -764,7 +873,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L683">core/core.scale.js:683</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L683">core/core.scale.js:683</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -781,7 +890,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L751">core/core.scale.js:751</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L751">core/core.scale.js:751</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -798,7 +907,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L669">core/core.scale.js:669</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L669">core/core.scale.js:669</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -815,7 +924,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L894">core/core.scale.js:894</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L894">core/core.scale.js:894</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -832,7 +941,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L654">core/core.scale.js:654</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L654">core/core.scale.js:654</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -849,7 +958,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L703">core/core.scale.js:703</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L703">core/core.scale.js:703</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -866,7 +975,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L623">core/core.scale.js:623</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L623">core/core.scale.js:623</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -883,7 +992,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L674">core/core.scale.js:674</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L674">core/core.scale.js:674</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -900,7 +1009,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L709">core/core.scale.js:709</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L709">core/core.scale.js:709</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -917,7 +1026,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L665">core/core.scale.js:665</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L665">core/core.scale.js:665</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -934,7 +1043,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L757">core/core.scale.js:757</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L757">core/core.scale.js:757</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -951,7 +1060,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L503">core/core.scale.js:503</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L503">core/core.scale.js:503</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -968,7 +1077,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L629">core/core.scale.js:629</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L629">core/core.scale.js:629</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -985,7 +1094,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L687">core/core.scale.js:687</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L687">core/core.scale.js:687</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -1002,7 +1111,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L512">core/core.scale.js:512</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L512">core/core.scale.js:512</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -1019,7 +1128,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/scales/scale.linearbase.js#L186">scales/scale.linearbase.js:186</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/scales/scale.linearbase.js#L186">scales/scale.linearbase.js:186</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span></h4>
@@ -1036,7 +1145,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L712">core/core.scale.js:712</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L712">core/core.scale.js:712</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -1053,7 +1162,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/scales/scale.linear.js#L22">scales/scale.linear.js:22</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/scales/scale.radialLinear.js#L271">scales/scale.radialLinear.js:271</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1075,7 +1184,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/scales/scale.linearbase.js#L229">scales/scale.linearbase.js:229</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/scales/scale.linearbase.js#L229">scales/scale.linearbase.js:229</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -1092,7 +1201,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/scales/scale.linear.js#L7">scales/scale.linear.js:7</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/scales/scale.radialLinear.js#L256">scales/scale.radialLinear.js:256</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -1109,7 +1218,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L1718">core/core.scale.js:1718</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L1718">core/core.scale.js:1718</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1126,21 +1235,15 @@
 					<a name="drawgrid" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagProtected">Protected</span> draw<wbr>Grid</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-protected">
-						<li class="tsd-signature tsd-kind-icon">draw<wbr>Grid<span class="tsd-signature-symbol">(</span>chartArea<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">draw<wbr>Grid<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L1538">core/core.scale.js:1538</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/scales/scale.radialLinear.js#L386">scales/scale.radialLinear.js:386</a></li>
 								</ul>
 							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>chartArea: <span class="tsd-signature-type">any</span></h5>
-								</li>
-							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
 						</li>
 					</ul>
@@ -1149,21 +1252,15 @@
 					<a name="drawlabels" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagProtected">Protected</span> draw<wbr>Labels</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-protected">
-						<li class="tsd-signature tsd-kind-icon">draw<wbr>Labels<span class="tsd-signature-symbol">(</span>chartArea<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">draw<wbr>Labels<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L1616">core/core.scale.js:1616</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/scales/scale.radialLinear.js#L441">scales/scale.radialLinear.js:441</a></li>
 								</ul>
 							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>chartArea: <span class="tsd-signature-type">any</span></h5>
-								</li>
-							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
 						</li>
 					</ul>
@@ -1172,21 +1269,15 @@
 					<a name="drawtitle" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagProtected">Protected</span> draw<wbr>Title</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-protected">
-						<li class="tsd-signature tsd-kind-icon">draw<wbr>Title<span class="tsd-signature-symbol">(</span>chartArea<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">draw<wbr>Title<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L1650">core/core.scale.js:1650</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/scales/scale.radialLinear.js#L492">scales/scale.radialLinear.js:492</a></li>
 								</ul>
 							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>chartArea: <span class="tsd-signature-type">any</span></h5>
-								</li>
-							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
 						</li>
 					</ul>
@@ -1201,7 +1292,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L760">core/core.scale.js:760</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/scales/scale.radialLinear.js#L287">scales/scale.radialLinear.js:287</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -1212,26 +1303,19 @@
 					<a name="generateticklabels" class="tsd-anchor"></a>
 					<h3>generate<wbr>Tick<wbr>Labels</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">generate<wbr>Tick<wbr>Labels<span class="tsd-signature-symbol">(</span>ticks<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Tick</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">generate<wbr>Tick<wbr>Labels<span class="tsd-signature-symbol">(</span>ticks<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L694">core/core.scale.js:694</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/scales/scale.radialLinear.js#L275">scales/scale.radialLinear.js:275</a></li>
 								</ul>
 							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Convert ticks to label strings</p>
-								</div>
-							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>ticks: <span class="tsd-signature-type">Tick</span><span class="tsd-signature-symbol">[]</span></h5>
-									<div class="tsd-comment tsd-typography">
-									</div>
+									<h5>ticks: <span class="tsd-signature-type">any</span></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -1248,7 +1332,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L1086">core/core.scale.js:1086</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L1086">core/core.scale.js:1086</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1262,6 +1346,40 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="getbaseposition" class="tsd-anchor"></a>
+					<h3>get<wbr>Base<wbr>Position</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Base<wbr>Position<span class="tsd-signature-symbol">(</span>index<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>angle<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>x<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>y<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/scales/scale.radialLinear.js#L379">scales/scale.radialLinear.js:379</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>index: <span class="tsd-signature-type">any</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{ </span>angle<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>x<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>y<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span></h4>
+							<ul class="tsd-parameters">
+								<li class="tsd-parameter">
+									<h5>angle<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+								</li>
+								<li class="tsd-parameter">
+									<h5>x<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+								</li>
+								<li class="tsd-parameter">
+									<h5>y<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+								</li>
+							</ul>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="getbasevalue" class="tsd-anchor"></a>
 					<h3>get<wbr>Base<wbr>Value</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1271,7 +1389,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L1093">core/core.scale.js:1093</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L1093">core/core.scale.js:1093</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
@@ -1288,7 +1406,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L1104">core/core.scale.js:1104</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L1104">core/core.scale.js:1104</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1311,13 +1429,59 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L1076">core/core.scale.js:1076</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L1076">core/core.scale.js:1076</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>pixel: <span class="tsd-signature-type">number</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="getdistancefromcenterforvalue" class="tsd-anchor"></a>
+					<h3>get<wbr>Distance<wbr>From<wbr>Center<wbr>For<wbr>Value</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Distance<wbr>From<wbr>Center<wbr>For<wbr>Value<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/scales/scale.radialLinear.js#L340">scales/scale.radialLinear.js:340</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>value: <span class="tsd-signature-type">any</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="getindexangle" class="tsd-anchor"></a>
+					<h3>get<wbr>Index<wbr>Angle</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Index<wbr>Angle<span class="tsd-signature-symbol">(</span>index<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/scales/scale.radialLinear.js#L331">scales/scale.radialLinear.js:331</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>index: <span class="tsd-signature-type">any</span></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
@@ -1334,7 +1498,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/scales/scale.linearbase.js#L247">scales/scale.linearbase.js:247</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/scales/scale.linearbase.js#L247">scales/scale.linearbase.js:247</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1357,7 +1521,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L497">core/core.scale.js:497</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L497">core/core.scale.js:497</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h4>
@@ -1374,7 +1538,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L1769">core/core.scale.js:1769</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L1769">core/core.scale.js:1769</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1402,7 +1566,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L443">core/core.scale.js:443</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L443">core/core.scale.js:443</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1440,7 +1604,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L1062">core/core.scale.js:1062</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L1062">core/core.scale.js:1062</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1469,7 +1633,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L1048">core/core.scale.js:1048</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L1048">core/core.scale.js:1048</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1492,22 +1656,105 @@
 					<a name="getpixelforvalue" class="tsd-anchor"></a>
 					<h3>get<wbr>Pixel<wbr>For<wbr>Value</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>Pixel<wbr>For<wbr>Value<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Pixel<wbr>For<wbr>Value<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, index<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/scales/scale.linear.js#L33">scales/scale.linear.js:33</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L1030">core/core.scale.js:1030</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns the location of the given data point. Value can either be an index or a numerical value
+									The coordinate (0, 0) is at the upper-left corner of the canvas</p>
+								</div>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>value: <span class="tsd-signature-type">any</span></h5>
 								</li>
+								<li>
+									<h5>index: <span class="tsd-signature-type">number</span></h5>
+								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="getpointposition" class="tsd-anchor"></a>
+					<h3>get<wbr>Point<wbr>Position</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Point<wbr>Position<span class="tsd-signature-symbol">(</span>index<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, distanceFromCenter<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>angle<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>x<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>y<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/scales/scale.radialLinear.js#L365">scales/scale.radialLinear.js:365</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>index: <span class="tsd-signature-type">any</span></h5>
+								</li>
+								<li>
+									<h5>distanceFromCenter: <span class="tsd-signature-type">any</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{ </span>angle<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>x<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>y<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span></h4>
+							<ul class="tsd-parameters">
+								<li class="tsd-parameter">
+									<h5>angle<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+								</li>
+								<li class="tsd-parameter">
+									<h5>x<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+								</li>
+								<li class="tsd-parameter">
+									<h5>y<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+								</li>
+							</ul>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="getpointpositionforvalue" class="tsd-anchor"></a>
+					<h3>get<wbr>Point<wbr>Position<wbr>For<wbr>Value</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Point<wbr>Position<wbr>For<wbr>Value<span class="tsd-signature-symbol">(</span>index<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>angle<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>x<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>y<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/scales/scale.radialLinear.js#L375">scales/scale.radialLinear.js:375</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>index: <span class="tsd-signature-type">any</span></h5>
+								</li>
+								<li>
+									<h5>value: <span class="tsd-signature-type">any</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{ </span>angle<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>x<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>y<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span></h4>
+							<ul class="tsd-parameters">
+								<li class="tsd-parameter">
+									<h5>angle<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+								</li>
+								<li class="tsd-parameter">
+									<h5>x<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+								</li>
+								<li class="tsd-parameter">
+									<h5>y<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+								</li>
+							</ul>
 						</li>
 					</ul>
 				</section>
@@ -1521,7 +1768,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.element.js#L31">core/core.element.js:31</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.element.js#L31">core/core.element.js:31</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1555,7 +1802,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/scales/scale.linearbase.js#L158">scales/scale.linearbase.js:158</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/scales/scale.linearbase.js#L158">scales/scale.linearbase.js:158</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
@@ -1572,7 +1819,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L490">core/core.scale.js:490</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L490">core/core.scale.js:490</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1599,7 +1846,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L423">core/core.scale.js:423</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L423">core/core.scale.js:423</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1628,25 +1875,54 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="getvalueforpixel" class="tsd-anchor"></a>
-					<h3>get<wbr>Value<wbr>For<wbr>Pixel</h3>
+					<a name="getvaluefordistancefromcenter" class="tsd-anchor"></a>
+					<h3>get<wbr>Value<wbr>For<wbr>Distance<wbr>From<wbr>Center</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>Value<wbr>For<wbr>Pixel<span class="tsd-signature-symbol">(</span>pixel<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Value<wbr>For<wbr>Distance<wbr>From<wbr>Center<span class="tsd-signature-symbol">(</span>distance<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/scales/scale.linear.js#L37">scales/scale.linear.js:37</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/scales/scale.radialLinear.js#L355">scales/scale.radialLinear.js:355</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>pixel: <span class="tsd-signature-type">any</span></h5>
+									<h5>distance: <span class="tsd-signature-type">any</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="getvalueforpixel" class="tsd-anchor"></a>
+					<h3>get<wbr>Value<wbr>For<wbr>Pixel</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Value<wbr>For<wbr>Pixel<span class="tsd-signature-symbol">(</span>pixel<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L1040">core/core.scale.js:1040</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Used to get the data value from a given pixel. This is the inverse of getPixelForValue
+									The coordinate (0, 0) is at the upper-left corner of the canvas</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>pixel: <span class="tsd-signature-type">number</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -1660,7 +1936,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/scales/scale.linearbase.js#L127">scales/scale.linearbase.js:127</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/scales/scale.linearbase.js#L127">scales/scale.linearbase.js:127</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -1677,7 +1953,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.element.js#L21">core/core.element.js:21</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.element.js#L21">core/core.element.js:21</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
@@ -1694,7 +1970,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L395">core/core.scale.js:395</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L395">core/core.scale.js:395</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1724,7 +2000,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L909">core/core.scale.js:909</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L909">core/core.scale.js:909</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
@@ -1741,7 +2017,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L902">core/core.scale.js:902</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L902">core/core.scale.js:902</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
@@ -1758,7 +2034,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/scales/scale.linearbase.js#L116">scales/scale.linearbase.js:116</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/scales/scale.linearbase.js#L116">scales/scale.linearbase.js:116</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1775,6 +2051,38 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="setcenterpoint" class="tsd-anchor"></a>
+					<h3>set<wbr>Center<wbr>Point</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">set<wbr>Center<wbr>Point<span class="tsd-signature-symbol">(</span>leftMovement<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, rightMovement<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, topMovement<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, bottomMovement<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/scales/scale.radialLinear.js#L320">scales/scale.radialLinear.js:320</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>leftMovement: <span class="tsd-signature-type">any</span></h5>
+								</li>
+								<li>
+									<h5>rightMovement: <span class="tsd-signature-type">any</span></h5>
+								</li>
+								<li>
+									<h5>topMovement: <span class="tsd-signature-type">any</span></h5>
+								</li>
+								<li>
+									<h5>bottomMovement: <span class="tsd-signature-type">any</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="setdimensions" class="tsd-anchor"></a>
 					<h3>set<wbr>Dimensions</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1784,7 +2092,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L632">core/core.scale.js:632</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/scales/scale.radialLinear.js#L244">scales/scale.radialLinear.js:244</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -1801,7 +2109,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.element.js#L16">core/core.element.js:16</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.element.js#L16">core/core.element.js:16</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1832,7 +2140,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L524">core/core.scale.js:524</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L524">core/core.scale.js:524</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1902,355 +2210,394 @@
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
 					<li class=" tsd-kind-class tsd-parent-kind-namespace">
-						<a href="scales.categoryscale-1.html" class="tsd-kind-icon">Category<wbr>Scale</a>
+						<a href="scales.categoryscale.html" class="tsd-kind-icon">Category<wbr>Scale</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-namespace">
+						<a href="scales.linearscale.html" class="tsd-kind-icon">Linear<wbr>Scale</a>
+					</li>
+					<li class=" tsd-kind-class tsd-parent-kind-namespace">
+						<a href="scales.logarithmicscale.html" class="tsd-kind-icon">Logarithmic<wbr>Scale</a>
 					</li>
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-class tsd-parent-kind-namespace">
-						<a href="scales.linearscale-1.html" class="tsd-kind-icon">Linear<wbr>Scale</a>
+						<a href="scales.radiallinearscale.html" class="tsd-kind-icon">Radial<wbr>Linear<wbr>Scale</a>
 						<ul>
 							<li class=" tsd-kind-constructor tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#constructor" class="tsd-kind-icon">constructor</a>
+								<a href="scales.radiallinearscale.html#constructor" class="tsd-kind-icon">constructor</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#_animations" class="tsd-kind-icon">$animations</a>
+								<a href="scales.radiallinearscale.html#_animations" class="tsd-kind-icon">$animations</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#_context" class="tsd-kind-icon">$context</a>
+								<a href="scales.radiallinearscale.html#_context" class="tsd-kind-icon">$context</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#_bordervalue" class="tsd-kind-icon">_border<wbr>Value</a>
+								<a href="scales.radiallinearscale.html#_bordervalue" class="tsd-kind-icon">_border<wbr>Value</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#_cache" class="tsd-kind-icon">_cache</a>
+								<a href="scales.radiallinearscale.html#_cache" class="tsd-kind-icon">_cache</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#_datalimitscached" class="tsd-kind-icon">_data<wbr>Limits<wbr>Cached</a>
+								<a href="scales.radiallinearscale.html#_datalimitscached" class="tsd-kind-icon">_data<wbr>Limits<wbr>Cached</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#_draw" class="tsd-kind-icon">_draw</a>
+								<a href="scales.radiallinearscale.html#_draw" class="tsd-kind-icon">_draw</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#_endpixel" class="tsd-kind-icon">_end<wbr>Pixel</a>
+								<a href="scales.radiallinearscale.html#_endpixel" class="tsd-kind-icon">_end<wbr>Pixel</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#_endvalue" class="tsd-kind-icon">_end<wbr>Value</a>
+								<a href="scales.radiallinearscale.html#_endvalue" class="tsd-kind-icon">_end<wbr>Value</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#_gridlineitems" class="tsd-kind-icon">_grid<wbr>Line<wbr>Items</a>
+								<a href="scales.radiallinearscale.html#_gridlineitems" class="tsd-kind-icon">_grid<wbr>Line<wbr>Items</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#_labelitems" class="tsd-kind-icon">_label<wbr>Items</a>
+								<a href="scales.radiallinearscale.html#_labelitems" class="tsd-kind-icon">_label<wbr>Items</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#_labelsizes" class="tsd-kind-icon">_label<wbr>Sizes</a>
+								<a href="scales.radiallinearscale.html#_labelsizes" class="tsd-kind-icon">_label<wbr>Sizes</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#_length" class="tsd-kind-icon">_length</a>
+								<a href="scales.radiallinearscale.html#_length" class="tsd-kind-icon">_length</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#_longesttextcache" class="tsd-kind-icon">_longest<wbr>Text<wbr>Cache</a>
+								<a href="scales.radiallinearscale.html#_longesttextcache" class="tsd-kind-icon">_longest<wbr>Text<wbr>Cache</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#_margins" class="tsd-kind-icon">_margins</a>
+								<a href="scales.radiallinearscale.html#_margins" class="tsd-kind-icon">_margins</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#_reversepixels" class="tsd-kind-icon">_reverse<wbr>Pixels</a>
+								<a href="scales.radiallinearscale.html#_reversepixels" class="tsd-kind-icon">_reverse<wbr>Pixels</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#_startpixel" class="tsd-kind-icon">_start<wbr>Pixel</a>
+								<a href="scales.radiallinearscale.html#_startpixel" class="tsd-kind-icon">_start<wbr>Pixel</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#_startvalue" class="tsd-kind-icon">_start<wbr>Value</a>
+								<a href="scales.radiallinearscale.html#_startvalue" class="tsd-kind-icon">_start<wbr>Value</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#_suggestedmax" class="tsd-kind-icon">_suggested<wbr>Max</a>
+								<a href="scales.radiallinearscale.html#_suggestedmax" class="tsd-kind-icon">_suggested<wbr>Max</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#_suggestedmin" class="tsd-kind-icon">_suggested<wbr>Min</a>
+								<a href="scales.radiallinearscale.html#_suggestedmin" class="tsd-kind-icon">_suggested<wbr>Min</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#_tickslength" class="tsd-kind-icon">_ticks<wbr>Length</a>
+								<a href="scales.radiallinearscale.html#_tickslength" class="tsd-kind-icon">_ticks<wbr>Length</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#_usermax" class="tsd-kind-icon">_user<wbr>Max</a>
+								<a href="scales.radiallinearscale.html#_usermax" class="tsd-kind-icon">_user<wbr>Max</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#_usermin" class="tsd-kind-icon">_user<wbr>Min</a>
+								<a href="scales.radiallinearscale.html#_usermin" class="tsd-kind-icon">_user<wbr>Min</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#_valuerange" class="tsd-kind-icon">_value<wbr>Range</a>
+								<a href="scales.radiallinearscale.html#_valuerange" class="tsd-kind-icon">_value<wbr>Range</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#active" class="tsd-kind-icon">active</a>
+								<a href="scales.radiallinearscale.html#active" class="tsd-kind-icon">active</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#axis" class="tsd-kind-icon">axis</a>
+								<a href="scales.radiallinearscale.html#axis" class="tsd-kind-icon">axis</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#bottom-1" class="tsd-kind-icon">bottom</a>
+								<a href="scales.radiallinearscale.html#bottom-1" class="tsd-kind-icon">bottom</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#chart" class="tsd-kind-icon">chart</a>
+								<a href="scales.radiallinearscale.html#chart" class="tsd-kind-icon">chart</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#ctx" class="tsd-kind-icon">ctx</a>
+								<a href="scales.radiallinearscale.html#ctx" class="tsd-kind-icon">ctx</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#defaultroutes" class="tsd-kind-icon">default<wbr>Routes</a>
+								<a href="scales.radiallinearscale.html#drawingarea" class="tsd-kind-icon">drawing<wbr>Area</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#defaults" class="tsd-kind-icon">defaults</a>
+								<a href="scales.radiallinearscale.html#end" class="tsd-kind-icon">end</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#end" class="tsd-kind-icon">end</a>
+								<a href="scales.radiallinearscale.html#height" class="tsd-kind-icon">height</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#height" class="tsd-kind-icon">height</a>
+								<a href="scales.radiallinearscale.html#id" class="tsd-kind-icon">id</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#id" class="tsd-kind-icon">id</a>
+								<a href="scales.radiallinearscale.html#labelrotation" class="tsd-kind-icon">label<wbr>Rotation</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#id-1" class="tsd-kind-icon">id</a>
+								<a href="scales.radiallinearscale.html#left-1" class="tsd-kind-icon">left</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#labelrotation" class="tsd-kind-icon">label<wbr>Rotation</a>
+								<a href="scales.radiallinearscale.html#max" class="tsd-kind-icon">max</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#left-1" class="tsd-kind-icon">left</a>
+								<a href="scales.radiallinearscale.html#maxheight" class="tsd-kind-icon">max<wbr>Height</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#max" class="tsd-kind-icon">max</a>
+								<a href="scales.radiallinearscale.html#maxwidth" class="tsd-kind-icon">max<wbr>Width</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#maxheight" class="tsd-kind-icon">max<wbr>Height</a>
+								<a href="scales.radiallinearscale.html#min" class="tsd-kind-icon">min</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#maxwidth" class="tsd-kind-icon">max<wbr>Width</a>
+								<a href="scales.radiallinearscale.html#options" class="tsd-kind-icon">options</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#min" class="tsd-kind-icon">min</a>
+								<a href="scales.radiallinearscale.html#paddingbottom" class="tsd-kind-icon">padding<wbr>Bottom</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#options" class="tsd-kind-icon">options</a>
+								<a href="scales.radiallinearscale.html#paddingleft" class="tsd-kind-icon">padding<wbr>Left</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#paddingbottom" class="tsd-kind-icon">padding<wbr>Bottom</a>
+								<a href="scales.radiallinearscale.html#paddingright" class="tsd-kind-icon">padding<wbr>Right</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#paddingleft" class="tsd-kind-icon">padding<wbr>Left</a>
+								<a href="scales.radiallinearscale.html#paddingtop" class="tsd-kind-icon">padding<wbr>Top</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#paddingright" class="tsd-kind-icon">padding<wbr>Right</a>
+								<a href="scales.radiallinearscale.html#pointlabels" class="tsd-kind-icon">point<wbr>Labels</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#paddingtop" class="tsd-kind-icon">padding<wbr>Top</a>
+								<a href="scales.radiallinearscale.html#right-1" class="tsd-kind-icon">right</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#right-1" class="tsd-kind-icon">right</a>
+								<a href="scales.radiallinearscale.html#start" class="tsd-kind-icon">start</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#start" class="tsd-kind-icon">start</a>
+								<a href="scales.radiallinearscale.html#ticks" class="tsd-kind-icon">ticks</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#ticks" class="tsd-kind-icon">ticks</a>
+								<a href="scales.radiallinearscale.html#top-1" class="tsd-kind-icon">top</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#top-1" class="tsd-kind-icon">top</a>
+								<a href="scales.radiallinearscale.html#type" class="tsd-kind-icon">type</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#type" class="tsd-kind-icon">type</a>
+								<a href="scales.radiallinearscale.html#width" class="tsd-kind-icon">width</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#width" class="tsd-kind-icon">width</a>
+								<a href="scales.radiallinearscale.html#x" class="tsd-kind-icon">x</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#x" class="tsd-kind-icon">x</a>
+								<a href="scales.radiallinearscale.html#xcenter" class="tsd-kind-icon">x<wbr>Center</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#y" class="tsd-kind-icon">y</a>
+								<a href="scales.radiallinearscale.html#y" class="tsd-kind-icon">y</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="scales.radiallinearscale.html#ycenter" class="tsd-kind-icon">y<wbr>Center</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-static">
+								<a href="scales.radiallinearscale.html#defaultroutes" class="tsd-kind-icon">default<wbr>Routes</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-static">
+								<a href="scales.radiallinearscale.html#defaults" class="tsd-kind-icon">defaults</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-static">
+								<a href="scales.radiallinearscale.html#descriptors" class="tsd-kind-icon">descriptors</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-static">
+								<a href="scales.radiallinearscale.html#id-1" class="tsd-kind-icon">id</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#_callhooks" class="tsd-kind-icon">_call<wbr>Hooks</a>
+								<a href="scales.radiallinearscale.html#_callhooks" class="tsd-kind-icon">_call<wbr>Hooks</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#_getxaxislabelalignment" class="tsd-kind-icon">_getXAxis<wbr>Label<wbr>Alignment</a>
+								<a href="scales.radiallinearscale.html#_getxaxislabelalignment" class="tsd-kind-icon">_getXAxis<wbr>Label<wbr>Alignment</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#_getyaxislabelalignment" class="tsd-kind-icon">_getYAxis<wbr>Label<wbr>Alignment</a>
+								<a href="scales.radiallinearscale.html#_getyaxislabelalignment" class="tsd-kind-icon">_getYAxis<wbr>Label<wbr>Alignment</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-protected">
-								<a href="scales.linearscale-1.html#_resolvetickfontoptions" class="tsd-kind-icon">_resolve<wbr>Tick<wbr>Font<wbr>Options</a>
+								<a href="scales.radiallinearscale.html#_resolvetickfontoptions" class="tsd-kind-icon">_resolve<wbr>Tick<wbr>Font<wbr>Options</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
+								<a href="scales.radiallinearscale.html#_setreductions" class="tsd-kind-icon">_set<wbr>Reductions</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#afterbuildticks" class="tsd-kind-icon">after<wbr>Build<wbr>Ticks</a>
+								<a href="scales.radiallinearscale.html#afterbuildticks" class="tsd-kind-icon">after<wbr>Build<wbr>Ticks</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#aftercalculatelabelrotation" class="tsd-kind-icon">after<wbr>Calculate<wbr>Label<wbr>Rotation</a>
+								<a href="scales.radiallinearscale.html#aftercalculatelabelrotation" class="tsd-kind-icon">after<wbr>Calculate<wbr>Label<wbr>Rotation</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#afterdatalimits" class="tsd-kind-icon">after<wbr>Data<wbr>Limits</a>
+								<a href="scales.radiallinearscale.html#afterdatalimits" class="tsd-kind-icon">after<wbr>Data<wbr>Limits</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#afterfit" class="tsd-kind-icon">after<wbr>Fit</a>
+								<a href="scales.radiallinearscale.html#afterfit" class="tsd-kind-icon">after<wbr>Fit</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#aftersetdimensions" class="tsd-kind-icon">after<wbr>Set<wbr>Dimensions</a>
+								<a href="scales.radiallinearscale.html#aftersetdimensions" class="tsd-kind-icon">after<wbr>Set<wbr>Dimensions</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#afterticktolabelconversion" class="tsd-kind-icon">after<wbr>Tick<wbr>ToLabel<wbr>Conversion</a>
+								<a href="scales.radiallinearscale.html#afterticktolabelconversion" class="tsd-kind-icon">after<wbr>Tick<wbr>ToLabel<wbr>Conversion</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#afterupdate" class="tsd-kind-icon">after<wbr>Update</a>
+								<a href="scales.radiallinearscale.html#afterupdate" class="tsd-kind-icon">after<wbr>Update</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#beforebuildticks" class="tsd-kind-icon">before<wbr>Build<wbr>Ticks</a>
+								<a href="scales.radiallinearscale.html#beforebuildticks" class="tsd-kind-icon">before<wbr>Build<wbr>Ticks</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#beforecalculatelabelrotation" class="tsd-kind-icon">before<wbr>Calculate<wbr>Label<wbr>Rotation</a>
+								<a href="scales.radiallinearscale.html#beforecalculatelabelrotation" class="tsd-kind-icon">before<wbr>Calculate<wbr>Label<wbr>Rotation</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#beforedatalimits" class="tsd-kind-icon">before<wbr>Data<wbr>Limits</a>
+								<a href="scales.radiallinearscale.html#beforedatalimits" class="tsd-kind-icon">before<wbr>Data<wbr>Limits</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#beforefit" class="tsd-kind-icon">before<wbr>Fit</a>
+								<a href="scales.radiallinearscale.html#beforefit" class="tsd-kind-icon">before<wbr>Fit</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#beforelayout" class="tsd-kind-icon">before<wbr>Layout</a>
+								<a href="scales.radiallinearscale.html#beforelayout" class="tsd-kind-icon">before<wbr>Layout</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#beforesetdimensions" class="tsd-kind-icon">before<wbr>Set<wbr>Dimensions</a>
+								<a href="scales.radiallinearscale.html#beforesetdimensions" class="tsd-kind-icon">before<wbr>Set<wbr>Dimensions</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#beforeticktolabelconversion" class="tsd-kind-icon">before<wbr>Tick<wbr>ToLabel<wbr>Conversion</a>
+								<a href="scales.radiallinearscale.html#beforeticktolabelconversion" class="tsd-kind-icon">before<wbr>Tick<wbr>ToLabel<wbr>Conversion</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#beforeupdate" class="tsd-kind-icon">before<wbr>Update</a>
+								<a href="scales.radiallinearscale.html#beforeupdate" class="tsd-kind-icon">before<wbr>Update</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#buildticks" class="tsd-kind-icon">build<wbr>Ticks</a>
+								<a href="scales.radiallinearscale.html#buildticks" class="tsd-kind-icon">build<wbr>Ticks</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#calculatelabelrotation" class="tsd-kind-icon">calculate<wbr>Label<wbr>Rotation</a>
+								<a href="scales.radiallinearscale.html#calculatelabelrotation" class="tsd-kind-icon">calculate<wbr>Label<wbr>Rotation</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-protected">
-								<a href="scales.linearscale-1.html#computeticklimit" class="tsd-kind-icon">compute<wbr>Tick<wbr>Limit</a>
+								<a href="scales.radiallinearscale.html#computeticklimit" class="tsd-kind-icon">compute<wbr>Tick<wbr>Limit</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-protected">
-								<a href="scales.linearscale-1.html#configure" class="tsd-kind-icon">configure</a>
+								<a href="scales.radiallinearscale.html#configure" class="tsd-kind-icon">configure</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#determinedatalimits" class="tsd-kind-icon">determine<wbr>Data<wbr>Limits</a>
+								<a href="scales.radiallinearscale.html#determinedatalimits" class="tsd-kind-icon">determine<wbr>Data<wbr>Limits</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#draw" class="tsd-kind-icon">draw</a>
+								<a href="scales.radiallinearscale.html#draw" class="tsd-kind-icon">draw</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-protected">
-								<a href="scales.linearscale-1.html#drawgrid" class="tsd-kind-icon">draw<wbr>Grid</a>
+								<a href="scales.radiallinearscale.html#drawgrid" class="tsd-kind-icon">draw<wbr>Grid</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-protected">
-								<a href="scales.linearscale-1.html#drawlabels" class="tsd-kind-icon">draw<wbr>Labels</a>
+								<a href="scales.radiallinearscale.html#drawlabels" class="tsd-kind-icon">draw<wbr>Labels</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-protected">
-								<a href="scales.linearscale-1.html#drawtitle" class="tsd-kind-icon">draw<wbr>Title</a>
+								<a href="scales.radiallinearscale.html#drawtitle" class="tsd-kind-icon">draw<wbr>Title</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#fit" class="tsd-kind-icon">fit</a>
+								<a href="scales.radiallinearscale.html#fit" class="tsd-kind-icon">fit</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#generateticklabels" class="tsd-kind-icon">generate<wbr>Tick<wbr>Labels</a>
+								<a href="scales.radiallinearscale.html#generateticklabels" class="tsd-kind-icon">generate<wbr>Tick<wbr>Labels</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#getbasepixel" class="tsd-kind-icon">get<wbr>Base<wbr>Pixel</a>
+								<a href="scales.radiallinearscale.html#getbasepixel" class="tsd-kind-icon">get<wbr>Base<wbr>Pixel</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#getbasevalue" class="tsd-kind-icon">get<wbr>Base<wbr>Value</a>
+								<a href="scales.radiallinearscale.html#getbaseposition" class="tsd-kind-icon">get<wbr>Base<wbr>Position</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="scales.radiallinearscale.html#getbasevalue" class="tsd-kind-icon">get<wbr>Base<wbr>Value</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-protected">
-								<a href="scales.linearscale-1.html#getcontext" class="tsd-kind-icon">get<wbr>Context</a>
+								<a href="scales.radiallinearscale.html#getcontext" class="tsd-kind-icon">get<wbr>Context</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#getdecimalforpixel" class="tsd-kind-icon">get<wbr>Decimal<wbr>For<wbr>Pixel</a>
+								<a href="scales.radiallinearscale.html#getdecimalforpixel" class="tsd-kind-icon">get<wbr>Decimal<wbr>For<wbr>Pixel</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#getlabelforvalue" class="tsd-kind-icon">get<wbr>Label<wbr>For<wbr>Value</a>
+								<a href="scales.radiallinearscale.html#getdistancefromcenterforvalue" class="tsd-kind-icon">get<wbr>Distance<wbr>From<wbr>Center<wbr>For<wbr>Value</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#getlabels" class="tsd-kind-icon">get<wbr>Labels</a>
+								<a href="scales.radiallinearscale.html#getindexangle" class="tsd-kind-icon">get<wbr>Index<wbr>Angle</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#getmatchingvisiblemetas" class="tsd-kind-icon">get<wbr>Matching<wbr>Visible<wbr>Metas</a>
+								<a href="scales.radiallinearscale.html#getlabelforvalue" class="tsd-kind-icon">get<wbr>Label<wbr>For<wbr>Value</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="scales.radiallinearscale.html#getlabels" class="tsd-kind-icon">get<wbr>Labels</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="scales.radiallinearscale.html#getmatchingvisiblemetas" class="tsd-kind-icon">get<wbr>Matching<wbr>Visible<wbr>Metas</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-protected">
-								<a href="scales.linearscale-1.html#getminmax" class="tsd-kind-icon">get<wbr>Min<wbr>Max</a>
+								<a href="scales.radiallinearscale.html#getminmax" class="tsd-kind-icon">get<wbr>Min<wbr>Max</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#getpixelfordecimal" class="tsd-kind-icon">get<wbr>Pixel<wbr>For<wbr>Decimal</a>
+								<a href="scales.radiallinearscale.html#getpixelfordecimal" class="tsd-kind-icon">get<wbr>Pixel<wbr>For<wbr>Decimal</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#getpixelfortick" class="tsd-kind-icon">get<wbr>Pixel<wbr>For<wbr>Tick</a>
+								<a href="scales.radiallinearscale.html#getpixelfortick" class="tsd-kind-icon">get<wbr>Pixel<wbr>For<wbr>Tick</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#getpixelforvalue" class="tsd-kind-icon">get<wbr>Pixel<wbr>For<wbr>Value</a>
+								<a href="scales.radiallinearscale.html#getpixelforvalue" class="tsd-kind-icon">get<wbr>Pixel<wbr>For<wbr>Value</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#getprops" class="tsd-kind-icon">get<wbr>Props</a>
+								<a href="scales.radiallinearscale.html#getpointposition" class="tsd-kind-icon">get<wbr>Point<wbr>Position</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#getticklimit" class="tsd-kind-icon">get<wbr>Tick<wbr>Limit</a>
+								<a href="scales.radiallinearscale.html#getpointpositionforvalue" class="tsd-kind-icon">get<wbr>Point<wbr>Position<wbr>For<wbr>Value</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#getticks" class="tsd-kind-icon">get<wbr>Ticks</a>
+								<a href="scales.radiallinearscale.html#getprops" class="tsd-kind-icon">get<wbr>Props</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="scales.radiallinearscale.html#getticklimit" class="tsd-kind-icon">get<wbr>Tick<wbr>Limit</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="scales.radiallinearscale.html#getticks" class="tsd-kind-icon">get<wbr>Ticks</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-protected">
-								<a href="scales.linearscale-1.html#getuserbounds" class="tsd-kind-icon">get<wbr>User<wbr>Bounds</a>
+								<a href="scales.radiallinearscale.html#getuserbounds" class="tsd-kind-icon">get<wbr>User<wbr>Bounds</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#getvalueforpixel" class="tsd-kind-icon">get<wbr>Value<wbr>For<wbr>Pixel</a>
+								<a href="scales.radiallinearscale.html#getvaluefordistancefromcenter" class="tsd-kind-icon">get<wbr>Value<wbr>For<wbr>Distance<wbr>From<wbr>Center</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#handletickrangeoptions" class="tsd-kind-icon">handle<wbr>Tick<wbr>Range<wbr>Options</a>
+								<a href="scales.radiallinearscale.html#getvalueforpixel" class="tsd-kind-icon">get<wbr>Value<wbr>For<wbr>Pixel</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#hasvalue" class="tsd-kind-icon">has<wbr>Value</a>
+								<a href="scales.radiallinearscale.html#handletickrangeoptions" class="tsd-kind-icon">handle<wbr>Tick<wbr>Range<wbr>Options</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#init" class="tsd-kind-icon">init</a>
+								<a href="scales.radiallinearscale.html#hasvalue" class="tsd-kind-icon">has<wbr>Value</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#isfullsize" class="tsd-kind-icon">is<wbr>Full<wbr>Size</a>
+								<a href="scales.radiallinearscale.html#init" class="tsd-kind-icon">init</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#ishorizontal" class="tsd-kind-icon">is<wbr>Horizontal</a>
+								<a href="scales.radiallinearscale.html#isfullsize" class="tsd-kind-icon">is<wbr>Full<wbr>Size</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#parse" class="tsd-kind-icon">parse</a>
+								<a href="scales.radiallinearscale.html#ishorizontal" class="tsd-kind-icon">is<wbr>Horizontal</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#setdimensions" class="tsd-kind-icon">set<wbr>Dimensions</a>
+								<a href="scales.radiallinearscale.html#parse" class="tsd-kind-icon">parse</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#tooltipposition" class="tsd-kind-icon">tooltip<wbr>Position</a>
+								<a href="scales.radiallinearscale.html#setcenterpoint" class="tsd-kind-icon">set<wbr>Center<wbr>Point</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="scales.linearscale-1.html#update" class="tsd-kind-icon">update</a>
+								<a href="scales.radiallinearscale.html#setdimensions" class="tsd-kind-icon">set<wbr>Dimensions</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="scales.radiallinearscale.html#tooltipposition" class="tsd-kind-icon">tooltip<wbr>Position</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="scales.radiallinearscale.html#update" class="tsd-kind-icon">update</a>
 							</li>
 						</ul>
 					</li>
 				</ul>
 				<ul class="after-current">
 					<li class=" tsd-kind-class tsd-parent-kind-namespace">
-						<a href="scales.logarithmicscale-1.html" class="tsd-kind-icon">Logarithmic<wbr>Scale</a>
+						<a href="scales.timescale.html" class="tsd-kind-icon">Time<wbr>Scale</a>
 					</li>
 					<li class=" tsd-kind-class tsd-parent-kind-namespace">
-						<a href="scales.radiallinearscale-1.html" class="tsd-kind-icon">Radial<wbr>Linear<wbr>Scale</a>
-					</li>
-					<li class=" tsd-kind-class tsd-parent-kind-namespace">
-						<a href="scales.timescale-1.html" class="tsd-kind-icon">Time<wbr>Scale</a>
-					</li>
-					<li class=" tsd-kind-class tsd-parent-kind-namespace">
-						<a href="scales.timeseriesscale-1.html" class="tsd-kind-icon">Time<wbr>Series<wbr>Scale</a>
+						<a href="scales.timeseriesscale.html" class="tsd-kind-icon">Time<wbr>Series<wbr>Scale</a>
 					</li>
 				</ul>
 			</nav>
@@ -2277,6 +2624,9 @@
 			</ul>
 			<ul class="tsd-legend">
 				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static property</span></li>
 			</ul>
 		</div>
 	</div>

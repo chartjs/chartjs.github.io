@@ -4888,12 +4888,17 @@ function getCanvas(item) {
   }
   return item;
 }
+const instances = {};
+const getChart = (key) => {
+  const canvas = getCanvas(key);
+  return Object.values(instances).filter((c) => c.canvas === canvas).pop();
+};
 class Chart {
   constructor(item, config) {
     const me = this;
     this.config = config = new Config(config);
     const initialCanvas = getCanvas(item);
-    const existingChart = Chart.getChart(initialCanvas);
+    const existingChart = getChart(initialCanvas);
     if (existingChart) {
       throw new Error(
         'Canvas is already in use. Chart with ID \'' + existingChart.id + '\'' +
@@ -4930,7 +4935,7 @@ class Chart {
     this.attached = false;
     this._animationsDisabled = undefined;
     this.$context = undefined;
-    Chart.instances[me.id] = me;
+    instances[me.id] = me;
     if (!context || !canvas) {
       console.error("Failed to create chart: can't acquire context from the given item");
       return;
@@ -5422,7 +5427,7 @@ class Chart {
       me.ctx = null;
     }
     me.notifyPlugins('destroy');
-    delete Chart.instances[me.id];
+    delete instances[me.id];
   }
   toBase64Image(...args) {
     return this.canvas.toDataURL(...args);
@@ -5582,23 +5587,44 @@ class Chart {
     return changed;
   }
 }
-Chart.defaults = defaults;
-Chart.instances = {};
-Chart.registry = registry;
-Chart.version = version;
-Chart.getChart = (key) => {
-  const canvas = getCanvas(key);
-  return Object.values(Chart.instances).filter((c) => c.canvas === canvas).pop();
-};
 const invalidatePlugins = () => each(Chart.instances, (chart) => chart._plugins.invalidate());
-Chart.register = (...items) => {
-  registry.add(...items);
-  invalidatePlugins();
-};
-Chart.unregister = (...items) => {
-  registry.remove(...items);
-  invalidatePlugins();
-};
+const enumerable = true;
+Object.defineProperties(Chart, {
+  defaults: {
+    enumerable,
+    value: defaults
+  },
+  instances: {
+    enumerable,
+    value: instances
+  },
+  registry: {
+    enumerable,
+    value: registry
+  },
+  version: {
+    enumerable,
+    value: version
+  },
+  getChart: {
+    enumerable,
+    value: getChart
+  },
+  register: {
+    enumerable,
+    value: (...items) => {
+      registry.add(...items);
+      invalidatePlugins();
+    }
+  },
+  unregister: {
+    enumerable,
+    value: (...items) => {
+      registry.remove(...items);
+      invalidatePlugins();
+    }
+  }
+});
 
 function clipArc(ctx, element) {
   const {startAngle, endAngle, pixelMargin, x, y, outerRadius, innerRadius} = element;

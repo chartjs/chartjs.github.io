@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>TimeSeriesScale | Chart.js - v3.0.0-beta.10</title>
+	<title>TimeScale | Chart.js - v3.0.0-beta.10</title>
 	<meta name="description" content="Documentation for Chart.js - v3.0.0-beta.10">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -56,10 +56,10 @@
 					<a href="../modules/scales.html">scales</a>
 				</li>
 				<li>
-					<a href="scales.timeseriesscale-1.html">TimeSeriesScale</a>
+					<a href="scales.timescale.html">TimeScale</a>
 				</li>
 			</ul>
-			<h1>Class TimeSeriesScale</h1>
+			<h1>Class TimeScale</h1>
 		</div>
 	</div>
 </header>
@@ -70,10 +70,15 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<a href="scales.timescale-1.html" class="tsd-signature-type" data-tsd-kind="Class">TimeScale</a>
+						<a href="scale.html" class="tsd-signature-type" data-tsd-kind="Class">Scale</a>
 						<ul class="tsd-hierarchy">
 							<li>
-								<span class="target">TimeSeriesScale</span>
+								<span class="target">TimeScale</span>
+								<ul class="tsd-hierarchy">
+									<li>
+										<a href="scales.timeseriesscale.html" class="tsd-signature-type" data-tsd-kind="Class">TimeSeriesScale</a>
+									</li>
+								</ul>
 							</li>
 						</ul>
 					</li>
@@ -86,131 +91,132 @@
 						<section class="tsd-index-section ">
 							<h3>Constructors</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#constructor" class="tsd-kind-icon">constructor</a></li>
+								<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#constructor" class="tsd-kind-icon">constructor</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#_animations" class="tsd-kind-icon">$animations</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#_context" class="tsd-kind-icon">$context</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#_adapter" class="tsd-kind-icon">_adapter</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#_bordervalue" class="tsd-kind-icon">_border<wbr>Value</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#_cache" class="tsd-kind-icon">_cache</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#_datalimitscached" class="tsd-kind-icon">_data<wbr>Limits<wbr>Cached</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#_draw" class="tsd-kind-icon">_draw</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#_endpixel" class="tsd-kind-icon">_end<wbr>Pixel</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#_gridlineitems" class="tsd-kind-icon">_grid<wbr>Line<wbr>Items</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#_labelitems" class="tsd-kind-icon">_label<wbr>Items</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#_labelsizes" class="tsd-kind-icon">_label<wbr>Sizes</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#_length" class="tsd-kind-icon">_length</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#_longesttextcache" class="tsd-kind-icon">_longest<wbr>Text<wbr>Cache</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#_majorunit" class="tsd-kind-icon">_major<wbr>Unit</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#_margins" class="tsd-kind-icon">_margins</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.timeseriesscale-1.html#_maxindex" class="tsd-kind-icon">_max<wbr>Index</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#_normalized" class="tsd-kind-icon">_normalized</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#_offsets" class="tsd-kind-icon">_offsets</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#_reversepixels" class="tsd-kind-icon">_reverse<wbr>Pixels</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#_startpixel" class="tsd-kind-icon">_start<wbr>Pixel</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#_suggestedmax" class="tsd-kind-icon">_suggested<wbr>Max</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#_suggestedmin" class="tsd-kind-icon">_suggested<wbr>Min</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.timeseriesscale-1.html#_table" class="tsd-kind-icon">_table</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#_tickslength" class="tsd-kind-icon">_ticks<wbr>Length</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#_unit" class="tsd-kind-icon">_unit</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#_usermax" class="tsd-kind-icon">_user<wbr>Max</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#_usermin" class="tsd-kind-icon">_user<wbr>Min</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#active" class="tsd-kind-icon">active</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#axis" class="tsd-kind-icon">axis</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#bottom-1" class="tsd-kind-icon">bottom</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#chart" class="tsd-kind-icon">chart</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#ctx" class="tsd-kind-icon">ctx</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#defaultroutes" class="tsd-kind-icon">default<wbr>Routes</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#defaults" class="tsd-kind-icon">defaults</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#height" class="tsd-kind-icon">height</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#id" class="tsd-kind-icon">id</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.timeseriesscale-1.html#id-1" class="tsd-kind-icon">id</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#labelrotation" class="tsd-kind-icon">label<wbr>Rotation</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#left-1" class="tsd-kind-icon">left</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#max" class="tsd-kind-icon">max</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#maxheight" class="tsd-kind-icon">max<wbr>Height</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#maxwidth" class="tsd-kind-icon">max<wbr>Width</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#min" class="tsd-kind-icon">min</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#options" class="tsd-kind-icon">options</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#paddingbottom" class="tsd-kind-icon">padding<wbr>Bottom</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#paddingleft" class="tsd-kind-icon">padding<wbr>Left</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#paddingright" class="tsd-kind-icon">padding<wbr>Right</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#paddingtop" class="tsd-kind-icon">padding<wbr>Top</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#right-1" class="tsd-kind-icon">right</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#ticks" class="tsd-kind-icon">ticks</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#top-1" class="tsd-kind-icon">top</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#type" class="tsd-kind-icon">type</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#width" class="tsd-kind-icon">width</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#x" class="tsd-kind-icon">x</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#y" class="tsd-kind-icon">y</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#_animations" class="tsd-kind-icon">$animations</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#_context" class="tsd-kind-icon">$context</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.timescale.html#_adapter" class="tsd-kind-icon">_adapter</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#_bordervalue" class="tsd-kind-icon">_border<wbr>Value</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#_cache" class="tsd-kind-icon">_cache</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#_datalimitscached" class="tsd-kind-icon">_data<wbr>Limits<wbr>Cached</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#_draw" class="tsd-kind-icon">_draw</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#_endpixel" class="tsd-kind-icon">_end<wbr>Pixel</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#_gridlineitems" class="tsd-kind-icon">_grid<wbr>Line<wbr>Items</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#_labelitems" class="tsd-kind-icon">_label<wbr>Items</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#_labelsizes" class="tsd-kind-icon">_label<wbr>Sizes</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#_length" class="tsd-kind-icon">_length</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#_longesttextcache" class="tsd-kind-icon">_longest<wbr>Text<wbr>Cache</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.timescale.html#_majorunit" class="tsd-kind-icon">_major<wbr>Unit</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#_margins" class="tsd-kind-icon">_margins</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.timescale.html#_normalized" class="tsd-kind-icon">_normalized</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.timescale.html#_offsets" class="tsd-kind-icon">_offsets</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#_reversepixels" class="tsd-kind-icon">_reverse<wbr>Pixels</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#_startpixel" class="tsd-kind-icon">_start<wbr>Pixel</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#_suggestedmax" class="tsd-kind-icon">_suggested<wbr>Max</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#_suggestedmin" class="tsd-kind-icon">_suggested<wbr>Min</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#_tickslength" class="tsd-kind-icon">_ticks<wbr>Length</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scales.timescale.html#_unit" class="tsd-kind-icon">_unit</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#_usermax" class="tsd-kind-icon">_user<wbr>Max</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#_usermin" class="tsd-kind-icon">_user<wbr>Min</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#active" class="tsd-kind-icon">active</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#axis" class="tsd-kind-icon">axis</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#bottom-1" class="tsd-kind-icon">bottom</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#chart" class="tsd-kind-icon">chart</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#ctx" class="tsd-kind-icon">ctx</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#defaultroutes" class="tsd-kind-icon">default<wbr>Routes</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#height" class="tsd-kind-icon">height</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#id" class="tsd-kind-icon">id</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#labelrotation" class="tsd-kind-icon">label<wbr>Rotation</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#left-1" class="tsd-kind-icon">left</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#max" class="tsd-kind-icon">max</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#maxheight" class="tsd-kind-icon">max<wbr>Height</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#maxwidth" class="tsd-kind-icon">max<wbr>Width</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#min" class="tsd-kind-icon">min</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#options" class="tsd-kind-icon">options</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#paddingbottom" class="tsd-kind-icon">padding<wbr>Bottom</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#paddingleft" class="tsd-kind-icon">padding<wbr>Left</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#paddingright" class="tsd-kind-icon">padding<wbr>Right</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#paddingtop" class="tsd-kind-icon">padding<wbr>Top</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#right-1" class="tsd-kind-icon">right</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#ticks" class="tsd-kind-icon">ticks</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#top-1" class="tsd-kind-icon">top</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#type" class="tsd-kind-icon">type</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#width" class="tsd-kind-icon">width</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#x" class="tsd-kind-icon">x</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#y" class="tsd-kind-icon">y</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><a href="scales.timescale.html#defaults" class="tsd-kind-icon">defaults</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><a href="scales.timescale.html#id-1" class="tsd-kind-icon">id</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#_callhooks" class="tsd-kind-icon">_call<wbr>Hooks</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="scales.timeseriesscale-1.html#_gettimestampsfortable" class="tsd-kind-icon">_get<wbr>Timestamps<wbr>For<wbr>Table</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#_getxaxislabelalignment" class="tsd-kind-icon">_getXAxis<wbr>Label<wbr>Alignment</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#_getyaxislabelalignment" class="tsd-kind-icon">_getYAxis<wbr>Label<wbr>Alignment</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="scales.timeseriesscale-1.html#_resolvetickfontoptions" class="tsd-kind-icon">_resolve<wbr>Tick<wbr>Font<wbr>Options</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#afterbuildticks" class="tsd-kind-icon">after<wbr>Build<wbr>Ticks</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#aftercalculatelabelrotation" class="tsd-kind-icon">after<wbr>Calculate<wbr>Label<wbr>Rotation</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#afterdatalimits" class="tsd-kind-icon">after<wbr>Data<wbr>Limits</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#afterfit" class="tsd-kind-icon">after<wbr>Fit</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#aftersetdimensions" class="tsd-kind-icon">after<wbr>Set<wbr>Dimensions</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#afterticktolabelconversion" class="tsd-kind-icon">after<wbr>Tick<wbr>ToLabel<wbr>Conversion</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#afterupdate" class="tsd-kind-icon">after<wbr>Update</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#beforebuildticks" class="tsd-kind-icon">before<wbr>Build<wbr>Ticks</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#beforecalculatelabelrotation" class="tsd-kind-icon">before<wbr>Calculate<wbr>Label<wbr>Rotation</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#beforedatalimits" class="tsd-kind-icon">before<wbr>Data<wbr>Limits</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#beforefit" class="tsd-kind-icon">before<wbr>Fit</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#beforelayout" class="tsd-kind-icon">before<wbr>Layout</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#beforesetdimensions" class="tsd-kind-icon">before<wbr>Set<wbr>Dimensions</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#beforeticktolabelconversion" class="tsd-kind-icon">before<wbr>Tick<wbr>ToLabel<wbr>Conversion</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#beforeupdate" class="tsd-kind-icon">before<wbr>Update</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a href="scales.timeseriesscale-1.html#buildlookuptable" class="tsd-kind-icon">build<wbr>Lookup<wbr>Table</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#buildticks" class="tsd-kind-icon">build<wbr>Ticks</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#calculatelabelrotation" class="tsd-kind-icon">calculate<wbr>Label<wbr>Rotation</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="scales.timeseriesscale-1.html#configure" class="tsd-kind-icon">configure</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#determinedatalimits" class="tsd-kind-icon">determine<wbr>Data<wbr>Limits</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#draw" class="tsd-kind-icon">draw</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="scales.timeseriesscale-1.html#drawgrid" class="tsd-kind-icon">draw<wbr>Grid</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="scales.timeseriesscale-1.html#drawlabels" class="tsd-kind-icon">draw<wbr>Labels</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="scales.timeseriesscale-1.html#drawtitle" class="tsd-kind-icon">draw<wbr>Title</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#fit" class="tsd-kind-icon">fit</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#generateticklabels" class="tsd-kind-icon">generate<wbr>Tick<wbr>Labels</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#getbasepixel" class="tsd-kind-icon">get<wbr>Base<wbr>Pixel</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#getbasevalue" class="tsd-kind-icon">get<wbr>Base<wbr>Value</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="scales.timeseriesscale-1.html#getcontext" class="tsd-kind-icon">get<wbr>Context</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="scales.timeseriesscale-1.html#getdatatimestamps" class="tsd-kind-icon">get<wbr>Data<wbr>Timestamps</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#getdecimalforpixel" class="tsd-kind-icon">get<wbr>Decimal<wbr>For<wbr>Pixel</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="scales.timeseriesscale-1.html#getdecimalforvalue" class="tsd-kind-icon">get<wbr>Decimal<wbr>For<wbr>Value</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#getlabelforvalue" class="tsd-kind-icon">get<wbr>Label<wbr>For<wbr>Value</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="scales.timeseriesscale-1.html#getlabeltimestamps" class="tsd-kind-icon">get<wbr>Label<wbr>Timestamps</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#getlabels" class="tsd-kind-icon">get<wbr>Labels</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#getmatchingvisiblemetas" class="tsd-kind-icon">get<wbr>Matching<wbr>Visible<wbr>Metas</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="scales.timeseriesscale-1.html#getminmax" class="tsd-kind-icon">get<wbr>Min<wbr>Max</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#getpixelfordecimal" class="tsd-kind-icon">get<wbr>Pixel<wbr>For<wbr>Decimal</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#getpixelfortick" class="tsd-kind-icon">get<wbr>Pixel<wbr>For<wbr>Tick</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="scales.timeseriesscale-1.html#getpixelforvalue" class="tsd-kind-icon">get<wbr>Pixel<wbr>For<wbr>Value</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#getprops" class="tsd-kind-icon">get<wbr>Props</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#getticks" class="tsd-kind-icon">get<wbr>Ticks</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="scales.timeseriesscale-1.html#getuserbounds" class="tsd-kind-icon">get<wbr>User<wbr>Bounds</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="scales.timeseriesscale-1.html#getvalueforpixel" class="tsd-kind-icon">get<wbr>Value<wbr>For<wbr>Pixel</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#hasvalue" class="tsd-kind-icon">has<wbr>Value</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#init" class="tsd-kind-icon">init</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected"><a href="scales.timeseriesscale-1.html#initoffsets" class="tsd-kind-icon">init<wbr>Offsets</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#isfullsize" class="tsd-kind-icon">is<wbr>Full<wbr>Size</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#ishorizontal" class="tsd-kind-icon">is<wbr>Horizontal</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="scales.timeseriesscale-1.html#normalize" class="tsd-kind-icon">normalize</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#parse" class="tsd-kind-icon">parse</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#setdimensions" class="tsd-kind-icon">set<wbr>Dimensions</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#tooltipposition" class="tsd-kind-icon">tooltip<wbr>Position</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timeseriesscale-1.html#update" class="tsd-kind-icon">update</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#_callhooks" class="tsd-kind-icon">_call<wbr>Hooks</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="scales.timescale.html#_generate" class="tsd-kind-icon">_generate</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="scales.timescale.html#_getlabelbounds" class="tsd-kind-icon">_get<wbr>Label<wbr>Bounds</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="scales.timescale.html#_getlabelcapacity" class="tsd-kind-icon">_get<wbr>Label<wbr>Capacity</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="scales.timescale.html#_getlabelsize" class="tsd-kind-icon">_get<wbr>Label<wbr>Size</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#_getxaxislabelalignment" class="tsd-kind-icon">_getXAxis<wbr>Label<wbr>Alignment</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#_getyaxislabelalignment" class="tsd-kind-icon">_getYAxis<wbr>Label<wbr>Alignment</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="scales.timescale.html#_resolvetickfontoptions" class="tsd-kind-icon">_resolve<wbr>Tick<wbr>Font<wbr>Options</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="scales.timescale.html#_tickformatfunction" class="tsd-kind-icon">_tick<wbr>Format<wbr>Function</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#afterbuildticks" class="tsd-kind-icon">after<wbr>Build<wbr>Ticks</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#aftercalculatelabelrotation" class="tsd-kind-icon">after<wbr>Calculate<wbr>Label<wbr>Rotation</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#afterdatalimits" class="tsd-kind-icon">after<wbr>Data<wbr>Limits</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#afterfit" class="tsd-kind-icon">after<wbr>Fit</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#aftersetdimensions" class="tsd-kind-icon">after<wbr>Set<wbr>Dimensions</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#afterticktolabelconversion" class="tsd-kind-icon">after<wbr>Tick<wbr>ToLabel<wbr>Conversion</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#afterupdate" class="tsd-kind-icon">after<wbr>Update</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#beforebuildticks" class="tsd-kind-icon">before<wbr>Build<wbr>Ticks</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#beforecalculatelabelrotation" class="tsd-kind-icon">before<wbr>Calculate<wbr>Label<wbr>Rotation</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#beforedatalimits" class="tsd-kind-icon">before<wbr>Data<wbr>Limits</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#beforefit" class="tsd-kind-icon">before<wbr>Fit</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="scales.timescale.html#beforelayout" class="tsd-kind-icon">before<wbr>Layout</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#beforesetdimensions" class="tsd-kind-icon">before<wbr>Set<wbr>Dimensions</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#beforeticktolabelconversion" class="tsd-kind-icon">before<wbr>Tick<wbr>ToLabel<wbr>Conversion</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#beforeupdate" class="tsd-kind-icon">before<wbr>Update</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="scales.timescale.html#buildticks" class="tsd-kind-icon">build<wbr>Ticks</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#calculatelabelrotation" class="tsd-kind-icon">calculate<wbr>Label<wbr>Rotation</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="scales.timescale.html#configure" class="tsd-kind-icon">configure</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="scales.timescale.html#determinedatalimits" class="tsd-kind-icon">determine<wbr>Data<wbr>Limits</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#draw" class="tsd-kind-icon">draw</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="scales.timescale.html#drawgrid" class="tsd-kind-icon">draw<wbr>Grid</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="scales.timescale.html#drawlabels" class="tsd-kind-icon">draw<wbr>Labels</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="scales.timescale.html#drawtitle" class="tsd-kind-icon">draw<wbr>Title</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#fit" class="tsd-kind-icon">fit</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="scales.timescale.html#generateticklabels" class="tsd-kind-icon">generate<wbr>Tick<wbr>Labels</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#getbasepixel" class="tsd-kind-icon">get<wbr>Base<wbr>Pixel</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#getbasevalue" class="tsd-kind-icon">get<wbr>Base<wbr>Value</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="scales.timescale.html#getcontext" class="tsd-kind-icon">get<wbr>Context</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a href="scales.timescale.html#getdatatimestamps" class="tsd-kind-icon">get<wbr>Data<wbr>Timestamps</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#getdecimalforpixel" class="tsd-kind-icon">get<wbr>Decimal<wbr>For<wbr>Pixel</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="scales.timescale.html#getdecimalforvalue" class="tsd-kind-icon">get<wbr>Decimal<wbr>For<wbr>Value</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="scales.timescale.html#getlabelforvalue" class="tsd-kind-icon">get<wbr>Label<wbr>For<wbr>Value</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a href="scales.timescale.html#getlabeltimestamps" class="tsd-kind-icon">get<wbr>Label<wbr>Timestamps</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#getlabels" class="tsd-kind-icon">get<wbr>Labels</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#getmatchingvisiblemetas" class="tsd-kind-icon">get<wbr>Matching<wbr>Visible<wbr>Metas</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="scales.timescale.html#getminmax" class="tsd-kind-icon">get<wbr>Min<wbr>Max</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#getpixelfordecimal" class="tsd-kind-icon">get<wbr>Pixel<wbr>For<wbr>Decimal</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#getpixelfortick" class="tsd-kind-icon">get<wbr>Pixel<wbr>For<wbr>Tick</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="scales.timescale.html#getpixelforvalue" class="tsd-kind-icon">get<wbr>Pixel<wbr>For<wbr>Value</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#getprops" class="tsd-kind-icon">get<wbr>Props</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#getticks" class="tsd-kind-icon">get<wbr>Ticks</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected"><a href="scales.timescale.html#getuserbounds" class="tsd-kind-icon">get<wbr>User<wbr>Bounds</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="scales.timescale.html#getvalueforpixel" class="tsd-kind-icon">get<wbr>Value<wbr>For<wbr>Pixel</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#hasvalue" class="tsd-kind-icon">has<wbr>Value</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="scales.timescale.html#init" class="tsd-kind-icon">init</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a href="scales.timescale.html#initoffsets" class="tsd-kind-icon">init<wbr>Offsets</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#isfullsize" class="tsd-kind-icon">is<wbr>Full<wbr>Size</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#ishorizontal" class="tsd-kind-icon">is<wbr>Horizontal</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><a href="scales.timescale.html#normalize" class="tsd-kind-icon">normalize</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-overwrite"><a href="scales.timescale.html#parse" class="tsd-kind-icon">parse</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#setdimensions" class="tsd-kind-icon">set<wbr>Dimensions</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#tooltipposition" class="tsd-kind-icon">tooltip<wbr>Position</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><a href="scales.timescale.html#update" class="tsd-kind-icon">update</a></li>
 							</ul>
 						</section>
 					</div>
@@ -222,14 +228,14 @@
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Time<wbr>Series<wbr>Scale<span class="tsd-signature-symbol">(</span>props<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="scales.timeseriesscale-1.html" class="tsd-signature-type" data-tsd-kind="Class">TimeSeriesScale</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Time<wbr>Scale<span class="tsd-signature-symbol">(</span>props<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="scales.timescale.html" class="tsd-signature-type" data-tsd-kind="Class">TimeScale</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#constructor">constructor</a></p>
+								<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#constructor">constructor</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/scales/scale.timeseries.js#L34">scales/scale.timeseries.js:34</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/scales/scale.time.js#L202">scales/scale.time.js:202</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -240,7 +246,7 @@
 									</div>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="scales.timeseriesscale-1.html" class="tsd-signature-type" data-tsd-kind="Class">TimeSeriesScale</a></h4>
+							<h4 class="tsd-returns-title">Returns <a href="scales.timescale.html" class="tsd-signature-type" data-tsd-kind="Class">TimeScale</a></h4>
 						</li>
 					</ul>
 				</section>
@@ -252,7 +258,7 @@
 					<h3>$animations</h3>
 					<div class="tsd-signature tsd-kind-icon">$animations<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#_animations">$animations</a></p>
+						<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#_animations">$animations</a></p>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
@@ -260,15 +266,14 @@
 					<h3>$context</h3>
 					<div class="tsd-signature tsd-kind-icon">$context<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#_context">$context</a></p>
+						<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#_context">$context</a></p>
 					</aside>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
 					<a name="_adapter" class="tsd-anchor"></a>
 					<h3>_adapter</h3>
 					<div class="tsd-signature tsd-kind-icon">_adapter<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">DateAdapter</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#_adapter">_adapter</a></p>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
@@ -276,7 +281,7 @@
 					<h3>_border<wbr>Value</h3>
 					<div class="tsd-signature tsd-kind-icon">_border<wbr>Value<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#_bordervalue">_borderValue</a></p>
+						<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#_bordervalue">_borderValue</a></p>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
@@ -284,7 +289,7 @@
 					<h3>_cache</h3>
 					<div class="tsd-signature tsd-kind-icon">_cache<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>all<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">; </span>data<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">; </span>labels<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> }</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#_cache">_cache</a></p>
+						<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#_cache">_cache</a></p>
 					</aside>
 					<div class="tsd-type-declaration">
 						<h4>Type declaration</h4>
@@ -306,7 +311,7 @@
 					<h3>_data<wbr>Limits<wbr>Cached</h3>
 					<div class="tsd-signature tsd-kind-icon">_data<wbr>Limits<wbr>Cached<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#_datalimitscached">_dataLimitsCached</a></p>
+						<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#_datalimitscached">_dataLimitsCached</a></p>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
@@ -314,7 +319,7 @@
 					<h3>_draw</h3>
 					<div class="tsd-signature tsd-kind-icon">_draw<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span>chartArea<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#_draw">_draw</a></p>
+						<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#_draw">_draw</a></p>
 					</aside>
 					<div class="tsd-type-declaration">
 						<h4>Type declaration</h4>
@@ -343,7 +348,7 @@
 					<h3>_end<wbr>Pixel</h3>
 					<div class="tsd-signature tsd-kind-icon">_end<wbr>Pixel<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#_endpixel">_endPixel</a></p>
+						<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#_endpixel">_endPixel</a></p>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
@@ -351,7 +356,7 @@
 					<h3>_grid<wbr>Line<wbr>Items</h3>
 					<div class="tsd-signature tsd-kind-icon">_grid<wbr>Line<wbr>Items<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#_gridlineitems">_gridLineItems</a></p>
+						<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#_gridlineitems">_gridLineItems</a></p>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
@@ -359,7 +364,7 @@
 					<h3>_label<wbr>Items</h3>
 					<div class="tsd-signature tsd-kind-icon">_label<wbr>Items<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#_labelitems">_labelItems</a></p>
+						<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#_labelitems">_labelItems</a></p>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
@@ -367,7 +372,7 @@
 					<h3>_label<wbr>Sizes</h3>
 					<div class="tsd-signature tsd-kind-icon">_label<wbr>Sizes<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#_labelsizes">_labelSizes</a></p>
+						<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#_labelsizes">_labelSizes</a></p>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
@@ -375,7 +380,7 @@
 					<h3>_length</h3>
 					<div class="tsd-signature tsd-kind-icon">_length<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#_length">_length</a></p>
+						<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#_length">_length</a></p>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
@@ -383,7 +388,7 @@
 					<h3>_longest<wbr>Text<wbr>Cache</h3>
 					<div class="tsd-signature tsd-kind-icon">_longest<wbr>Text<wbr>Cache<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{}</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#_longesttextcache">_longestTextCache</a></p>
+						<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#_longesttextcache">_longestTextCache</a></p>
 					</aside>
 					<div class="tsd-type-declaration">
 						<h4>Type declaration</h4>
@@ -391,12 +396,11 @@
 						</ul>
 					</div>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
 					<a name="_majorunit" class="tsd-anchor"></a>
 					<h3>_major<wbr>Unit</h3>
 					<div class="tsd-signature tsd-kind-icon">_major<wbr>Unit<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Unit</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#_majorunit">_majorUnit</a></p>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
@@ -404,7 +408,7 @@
 					<h3>_margins</h3>
 					<div class="tsd-signature tsd-kind-icon">_margins<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>bottom<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>left<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>right<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>top<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#_margins">_margins</a></p>
+						<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#_margins">_margins</a></p>
 					</aside>
 					<div class="tsd-type-declaration">
 						<h4>Type declaration</h4>
@@ -425,26 +429,17 @@
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
-					<a name="_maxindex" class="tsd-anchor"></a>
-					<h3>_max<wbr>Index</h3>
-					<div class="tsd-signature tsd-kind-icon">_max<wbr>Index<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
-					<aside class="tsd-sources">
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
 					<a name="_normalized" class="tsd-anchor"></a>
 					<h3>_normalized</h3>
 					<div class="tsd-signature tsd-kind-icon">_normalized<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#_normalized">_normalized</a></p>
 					</aside>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
 					<a name="_offsets" class="tsd-anchor"></a>
 					<h3>_offsets</h3>
 					<div class="tsd-signature tsd-kind-icon">_offsets<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{}</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#_offsets">_offsets</a></p>
 					</aside>
 					<div class="tsd-type-declaration">
 						<h4>Type declaration</h4>
@@ -457,7 +452,7 @@
 					<h3>_reverse<wbr>Pixels</h3>
 					<div class="tsd-signature tsd-kind-icon">_reverse<wbr>Pixels<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#_reversepixels">_reversePixels</a></p>
+						<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#_reversepixels">_reversePixels</a></p>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
@@ -465,7 +460,7 @@
 					<h3>_start<wbr>Pixel</h3>
 					<div class="tsd-signature tsd-kind-icon">_start<wbr>Pixel<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#_startpixel">_startPixel</a></p>
+						<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#_startpixel">_startPixel</a></p>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
@@ -473,7 +468,7 @@
 					<h3>_suggested<wbr>Max</h3>
 					<div class="tsd-signature tsd-kind-icon">_suggested<wbr>Max<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#_suggestedmax">_suggestedMax</a></p>
+						<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#_suggestedmax">_suggestedMax</a></p>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
@@ -481,14 +476,7 @@
 					<h3>_suggested<wbr>Min</h3>
 					<div class="tsd-signature tsd-kind-icon">_suggested<wbr>Min<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#_suggestedmin">_suggestedMin</a></p>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
-					<a name="_table" class="tsd-anchor"></a>
-					<h3>_table</h3>
-					<div class="tsd-signature tsd-kind-icon">_table<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span></div>
-					<aside class="tsd-sources">
+						<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#_suggestedmin">_suggestedMin</a></p>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
@@ -496,15 +484,14 @@
 					<h3>_ticks<wbr>Length</h3>
 					<div class="tsd-signature tsd-kind-icon">_ticks<wbr>Length<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#_tickslength">_ticksLength</a></p>
+						<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#_tickslength">_ticksLength</a></p>
 					</aside>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
 					<a name="_unit" class="tsd-anchor"></a>
 					<h3>_unit</h3>
 					<div class="tsd-signature tsd-kind-icon">_unit<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Unit</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#_unit">_unit</a></p>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
@@ -512,7 +499,7 @@
 					<h3>_user<wbr>Max</h3>
 					<div class="tsd-signature tsd-kind-icon">_user<wbr>Max<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#_usermax">_userMax</a></p>
+						<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#_usermax">_userMax</a></p>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
@@ -520,7 +507,7 @@
 					<h3>_user<wbr>Min</h3>
 					<div class="tsd-signature tsd-kind-icon">_user<wbr>Min<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#_usermin">_userMin</a></p>
+						<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#_usermin">_userMin</a></p>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
@@ -528,7 +515,7 @@
 					<h3>active</h3>
 					<div class="tsd-signature tsd-kind-icon">active<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#active">active</a></p>
+						<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#active">active</a></p>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
@@ -536,7 +523,7 @@
 					<h3>axis</h3>
 					<div class="tsd-signature tsd-kind-icon">axis<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#axis">axis</a></p>
+						<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#axis">axis</a></p>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
@@ -544,7 +531,7 @@
 					<h3>bottom</h3>
 					<div class="tsd-signature tsd-kind-icon">bottom<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#bottom-1">bottom</a></p>
+						<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#bottom-1">bottom</a></p>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
@@ -552,7 +539,7 @@
 					<h3>chart</h3>
 					<div class="tsd-signature tsd-kind-icon">chart<span class="tsd-signature-symbol">:</span> <a href="chart.html" class="tsd-signature-type" data-tsd-kind="Class">Chart</a></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#chart">chart</a></p>
+						<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#chart">chart</a></p>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
@@ -560,7 +547,7 @@
 					<h3>ctx</h3>
 					<div class="tsd-signature tsd-kind-icon">ctx<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">CanvasRenderingContext2D</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#ctx">ctx</a></p>
+						<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#ctx">ctx</a></p>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
@@ -568,15 +555,7 @@
 					<h3>default<wbr>Routes</h3>
 					<div class="tsd-signature tsd-kind-icon">default<wbr>Routes<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#defaultroutes">defaultRoutes</a></p>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-					<a name="defaults" class="tsd-anchor"></a>
-					<h3>defaults</h3>
-					<div class="tsd-signature tsd-kind-icon">defaults<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
-					<aside class="tsd-sources">
-						<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#defaults">defaults</a></p>
+						<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#defaultroutes">defaultRoutes</a></p>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
@@ -584,7 +563,7 @@
 					<h3>height</h3>
 					<div class="tsd-signature tsd-kind-icon">height<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#height">height</a></p>
+						<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#height">height</a></p>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
@@ -592,14 +571,7 @@
 					<h3>id</h3>
 					<div class="tsd-signature tsd-kind-icon">id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#id-1">id</a></p>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
-					<a name="id-1" class="tsd-anchor"></a>
-					<h3>id</h3>
-					<div class="tsd-signature tsd-kind-icon">id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
-					<aside class="tsd-sources">
+						<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#id">id</a></p>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
@@ -607,7 +579,7 @@
 					<h3>label<wbr>Rotation</h3>
 					<div class="tsd-signature tsd-kind-icon">label<wbr>Rotation<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#labelrotation">labelRotation</a></p>
+						<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#labelrotation">labelRotation</a></p>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
@@ -615,7 +587,7 @@
 					<h3>left</h3>
 					<div class="tsd-signature tsd-kind-icon">left<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#left-1">left</a></p>
+						<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#left-1">left</a></p>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
@@ -623,7 +595,7 @@
 					<h3>max</h3>
 					<div class="tsd-signature tsd-kind-icon">max<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#max">max</a></p>
+						<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#max">max</a></p>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
@@ -631,7 +603,7 @@
 					<h3>max<wbr>Height</h3>
 					<div class="tsd-signature tsd-kind-icon">max<wbr>Height<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#maxheight">maxHeight</a></p>
+						<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#maxheight">maxHeight</a></p>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
@@ -639,7 +611,7 @@
 					<h3>max<wbr>Width</h3>
 					<div class="tsd-signature tsd-kind-icon">max<wbr>Width<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#maxwidth">maxWidth</a></p>
+						<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#maxwidth">maxWidth</a></p>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
@@ -647,7 +619,7 @@
 					<h3>min</h3>
 					<div class="tsd-signature tsd-kind-icon">min<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#min">min</a></p>
+						<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#min">min</a></p>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
@@ -655,7 +627,7 @@
 					<h3>options</h3>
 					<div class="tsd-signature tsd-kind-icon">options<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#options">options</a></p>
+						<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#options">options</a></p>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
@@ -663,7 +635,7 @@
 					<h3>padding<wbr>Bottom</h3>
 					<div class="tsd-signature tsd-kind-icon">padding<wbr>Bottom<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#paddingbottom">paddingBottom</a></p>
+						<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#paddingbottom">paddingBottom</a></p>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
@@ -671,7 +643,7 @@
 					<h3>padding<wbr>Left</h3>
 					<div class="tsd-signature tsd-kind-icon">padding<wbr>Left<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#paddingleft">paddingLeft</a></p>
+						<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#paddingleft">paddingLeft</a></p>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
@@ -679,7 +651,7 @@
 					<h3>padding<wbr>Right</h3>
 					<div class="tsd-signature tsd-kind-icon">padding<wbr>Right<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#paddingright">paddingRight</a></p>
+						<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#paddingright">paddingRight</a></p>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
@@ -687,7 +659,7 @@
 					<h3>padding<wbr>Top</h3>
 					<div class="tsd-signature tsd-kind-icon">padding<wbr>Top<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#paddingtop">paddingTop</a></p>
+						<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#paddingtop">paddingTop</a></p>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
@@ -695,7 +667,7 @@
 					<h3>right</h3>
 					<div class="tsd-signature tsd-kind-icon">right<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#right-1">right</a></p>
+						<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#right-1">right</a></p>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
@@ -703,7 +675,7 @@
 					<h3>ticks</h3>
 					<div class="tsd-signature tsd-kind-icon">ticks<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Tick</span><span class="tsd-signature-symbol">[]</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#ticks">ticks</a></p>
+						<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#ticks">ticks</a></p>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
@@ -711,7 +683,7 @@
 					<h3>top</h3>
 					<div class="tsd-signature tsd-kind-icon">top<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#top-1">top</a></p>
+						<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#top-1">top</a></p>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
@@ -719,7 +691,7 @@
 					<h3>type</h3>
 					<div class="tsd-signature tsd-kind-icon">type<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#type">type</a></p>
+						<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#type">type</a></p>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
@@ -727,7 +699,7 @@
 					<h3>width</h3>
 					<div class="tsd-signature tsd-kind-icon">width<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#width">width</a></p>
+						<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#width">width</a></p>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
@@ -735,7 +707,7 @@
 					<h3>x</h3>
 					<div class="tsd-signature tsd-kind-icon">x<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#x">x</a></p>
+						<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#x">x</a></p>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
@@ -743,7 +715,21 @@
 					<h3>y</h3>
 					<div class="tsd-signature tsd-kind-icon">y<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
 					<aside class="tsd-sources">
-						<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#y">y</a></p>
+						<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#y">y</a></p>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-static">
+					<a name="defaults" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> defaults</h3>
+					<div class="tsd-signature tsd-kind-icon">defaults<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
+					<aside class="tsd-sources">
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-static">
+					<a name="id-1" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> id</h3>
+					<div class="tsd-signature tsd-kind-icon">id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
 					</aside>
 				</section>
 			</section>
@@ -758,9 +744,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#_callhooks">_callHooks</a></p>
+								<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#_callhooks">_callHooks</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L658">core/core.scale.js:658</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L658">core/core.scale.js:658</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -774,24 +760,106 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
-					<a name="_gettimestampsfortable" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _get<wbr>Timestamps<wbr>For<wbr>Table</h3>
+					<a name="_generate" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _generate</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
-						<li class="tsd-signature tsd-kind-icon">_get<wbr>Timestamps<wbr>For<wbr>Table<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></li>
+						<li class="tsd-signature tsd-kind-icon">_generate<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/scales/scale.timeseries.js#L100">scales/scale.timeseries.js:100</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/scales/scale.time.js#L393">scales/scale.time.js:393</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>Returns all timestamps</p>
+									<p>Generates a maximum of <code>capacity</code> timestamps between min and max, rounded to the
+										<code>minor</code> unit using the given scale time <code>options</code>.
+										Important: this method can return ticks outside the min and max range, it&#39;s the
+									responsibility of the calling code to clamp values if needed.</p>
 								</div>
 							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
+					<a name="_getlabelbounds" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _get<wbr>Label<wbr>Bounds</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
+						<li class="tsd-signature tsd-kind-icon">_get<wbr>Label<wbr>Bounds<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>max<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>min<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/scales/scale.time.js#L304">scales/scale.time.js:304</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{ </span>max<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>min<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span></h4>
+							<ul class="tsd-parameters">
+								<li class="tsd-parameter">
+									<h5>max<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+								</li>
+								<li class="tsd-parameter">
+									<h5>min<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+								</li>
+							</ul>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
+					<a name="_getlabelcapacity" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _get<wbr>Label<wbr>Capacity</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
+						<li class="tsd-signature tsd-kind-icon">_get<wbr>Label<wbr>Capacity<span class="tsd-signature-symbol">(</span>exampleTime<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/scales/scale.time.js#L542">scales/scale.time.js:542</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>exampleTime: <span class="tsd-signature-type">number</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
+					<a name="_getlabelsize" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _get<wbr>Label<wbr>Size</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
+						<li class="tsd-signature tsd-kind-icon">_get<wbr>Label<wbr>Size<span class="tsd-signature-symbol">(</span>label<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>h<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>w<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/scales/scale.time.js#L522">scales/scale.time.js:522</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>label: <span class="tsd-signature-type">string</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{ </span>h<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>w<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span></h4>
+							<ul class="tsd-parameters">
+								<li class="tsd-parameter">
+									<h5>h<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+								</li>
+								<li class="tsd-parameter">
+									<h5>w<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
+								</li>
+							</ul>
 						</li>
 					</ul>
 				</section>
@@ -804,9 +872,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#_getxaxislabelalignment">_getXAxisLabelAlignment</a></p>
+								<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#_getxaxislabelalignment">_getXAxisLabelAlignment</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L1445">core/core.scale.js:1445</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L1445">core/core.scale.js:1445</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
@@ -822,9 +890,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#_getyaxislabelalignment">_getYAxisLabelAlignment</a></p>
+								<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#_getyaxislabelalignment">_getYAxisLabelAlignment</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L1465">core/core.scale.js:1465</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L1465">core/core.scale.js:1465</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -854,9 +922,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#_resolvetickfontoptions">_resolveTickFontOptions</a></p>
+								<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#_resolvetickfontoptions">_resolveTickFontOptions</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L1790">core/core.scale.js:1790</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L1790">core/core.scale.js:1790</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -869,6 +937,43 @@
 						</li>
 					</ul>
 				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
+					<a name="_tickformatfunction" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _tick<wbr>Format<wbr>Function</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
+						<li class="tsd-signature tsd-kind-icon">_tick<wbr>Format<wbr>Function<span class="tsd-signature-symbol">(</span>time<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, index<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, ticks<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span>, format<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/scales/scale.time.js#L459">scales/scale.time.js:459</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Function to format an individual tick mark</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>time: <span class="tsd-signature-type">number</span></h5>
+								</li>
+								<li>
+									<h5>index: <span class="tsd-signature-type">number</span></h5>
+								</li>
+								<li>
+									<h5>ticks: <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span></h5>
+								</li>
+								<li>
+									<h5>format: <span class="tsd-signature-type">string</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
+						</li>
+					</ul>
+				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
 					<a name="afterbuildticks" class="tsd-anchor"></a>
 					<h3>after<wbr>Build<wbr>Ticks</h3>
@@ -878,9 +983,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#afterbuildticks">afterBuildTicks</a></p>
+								<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#afterbuildticks">afterBuildTicks</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L683">core/core.scale.js:683</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L683">core/core.scale.js:683</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -896,9 +1001,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#aftercalculatelabelrotation">afterCalculateLabelRotation</a></p>
+								<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#aftercalculatelabelrotation">afterCalculateLabelRotation</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L751">core/core.scale.js:751</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L751">core/core.scale.js:751</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -914,9 +1019,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#afterdatalimits">afterDataLimits</a></p>
+								<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#afterdatalimits">afterDataLimits</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L669">core/core.scale.js:669</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L669">core/core.scale.js:669</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -932,9 +1037,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#afterfit">afterFit</a></p>
+								<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#afterfit">afterFit</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L894">core/core.scale.js:894</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L894">core/core.scale.js:894</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -950,9 +1055,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#aftersetdimensions">afterSetDimensions</a></p>
+								<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#aftersetdimensions">afterSetDimensions</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L654">core/core.scale.js:654</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L654">core/core.scale.js:654</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -968,9 +1073,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#afterticktolabelconversion">afterTickToLabelConversion</a></p>
+								<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#afterticktolabelconversion">afterTickToLabelConversion</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L703">core/core.scale.js:703</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L703">core/core.scale.js:703</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -986,9 +1091,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#afterupdate">afterUpdate</a></p>
+								<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#afterupdate">afterUpdate</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L623">core/core.scale.js:623</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L623">core/core.scale.js:623</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -1004,9 +1109,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#beforebuildticks">beforeBuildTicks</a></p>
+								<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#beforebuildticks">beforeBuildTicks</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L674">core/core.scale.js:674</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L674">core/core.scale.js:674</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -1022,9 +1127,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#beforecalculatelabelrotation">beforeCalculateLabelRotation</a></p>
+								<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#beforecalculatelabelrotation">beforeCalculateLabelRotation</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L709">core/core.scale.js:709</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L709">core/core.scale.js:709</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -1040,9 +1145,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#beforedatalimits">beforeDataLimits</a></p>
+								<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#beforedatalimits">beforeDataLimits</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L665">core/core.scale.js:665</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L665">core/core.scale.js:665</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -1058,27 +1163,27 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#beforefit">beforeFit</a></p>
+								<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#beforefit">beforeFit</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L757">core/core.scale.js:757</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L757">core/core.scale.js:757</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
 					<a name="beforelayout" class="tsd-anchor"></a>
 					<h3>before<wbr>Layout</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
 						<li class="tsd-signature tsd-kind-icon">before<wbr>Layout<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#beforelayout">beforeLayout</a></p>
+								<p>Overrides <a href="scale.html">Scale</a>.<a href="scale.html#beforelayout">beforeLayout</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/scales/scale.time.js#L252">scales/scale.time.js:252</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/scales/scale.time.js#L252">scales/scale.time.js:252</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -1094,9 +1199,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#beforesetdimensions">beforeSetDimensions</a></p>
+								<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#beforesetdimensions">beforeSetDimensions</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L629">core/core.scale.js:629</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L629">core/core.scale.js:629</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -1112,9 +1217,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#beforeticktolabelconversion">beforeTickToLabelConversion</a></p>
+								<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#beforeticktolabelconversion">beforeTickToLabelConversion</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L687">core/core.scale.js:687</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L687">core/core.scale.js:687</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -1130,60 +1235,27 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#beforeupdate">beforeUpdate</a></p>
+								<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#beforeupdate">beforeUpdate</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L512">core/core.scale.js:512</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L512">core/core.scale.js:512</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-protected">
-					<a name="buildlookuptable" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagProtected">Protected</span> build<wbr>Lookup<wbr>Table</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-protected">
-						<li class="tsd-signature tsd-kind-icon">build<wbr>Lookup<wbr>Table<span class="tsd-signature-symbol">(</span>timestamps<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/scales/scale.timeseries.js#L70">scales/scale.timeseries.js:70</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Returns an array of {time, pos} objects used to interpolate a specific <code>time</code> or position
-										(<code>pos</code>) on the scale, by searching entries before and after the requested value. <code>pos</code> is
-										a decimal between 0 and 1: 0 being the start of the scale (left or top) and 1 the other
-										extremity (left + width or top + height). Note that it would be more optimized to directly
-										store pre-computed pixels, but the scale dimensions are not guaranteed at the time we need
-									to create the lookup table. The table ALWAYS contains at least two items: min and max.</p>
-								</div>
-							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>timestamps: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
 					<a name="buildticks" class="tsd-anchor"></a>
 					<h3>build<wbr>Ticks</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
 						<li class="tsd-signature tsd-kind-icon">build<wbr>Ticks<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#buildticks">buildTicks</a></p>
+								<p>Overrides <a href="scale.html">Scale</a>.<a href="scale.html#buildticks">buildTicks</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/scales/scale.time.js#L319">scales/scale.time.js:319</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/scales/scale.time.js#L319">scales/scale.time.js:319</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span></h4>
@@ -1199,9 +1271,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#calculatelabelrotation">calculateLabelRotation</a></p>
+								<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#calculatelabelrotation">calculateLabelRotation</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L712">core/core.scale.js:712</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L712">core/core.scale.js:712</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -1217,27 +1289,27 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#configure">configure</a></p>
+								<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#configure">configure</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L603">core/core.scale.js:603</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L603">core/core.scale.js:603</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
 					<a name="determinedatalimits" class="tsd-anchor"></a>
 					<h3>determine<wbr>Data<wbr>Limits</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
 						<li class="tsd-signature tsd-kind-icon">determine<wbr>Data<wbr>Limits<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#determinedatalimits">determineDataLimits</a></p>
+								<p>Overrides <a href="scale.html">Scale</a>.<a href="scale.html#determinedatalimits">determineDataLimits</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/scales/scale.time.js#L261">scales/scale.time.js:261</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/scales/scale.time.js#L261">scales/scale.time.js:261</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -1253,9 +1325,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#draw">draw</a></p>
+								<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#draw">draw</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L1718">core/core.scale.js:1718</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L1718">core/core.scale.js:1718</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1277,9 +1349,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#drawgrid">drawGrid</a></p>
+								<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#drawgrid">drawGrid</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L1538">core/core.scale.js:1538</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L1538">core/core.scale.js:1538</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1301,9 +1373,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#drawlabels">drawLabels</a></p>
+								<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#drawlabels">drawLabels</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L1616">core/core.scale.js:1616</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L1616">core/core.scale.js:1616</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1325,9 +1397,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#drawtitle">drawTitle</a></p>
+								<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#drawtitle">drawTitle</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L1650">core/core.scale.js:1650</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L1650">core/core.scale.js:1650</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1349,27 +1421,27 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#fit">fit</a></p>
+								<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#fit">fit</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L760">core/core.scale.js:760</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L760">core/core.scale.js:760</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
 					<a name="generateticklabels" class="tsd-anchor"></a>
 					<h3>generate<wbr>Tick<wbr>Labels</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
 						<li class="tsd-signature tsd-kind-icon">generate<wbr>Tick<wbr>Labels<span class="tsd-signature-symbol">(</span>ticks<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#generateticklabels">generateTickLabels</a></p>
+								<p>Overrides <a href="scale.html">Scale</a>.<a href="scale.html#generateticklabels">generateTickLabels</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/scales/scale.time.js#L477">scales/scale.time.js:477</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/scales/scale.time.js#L477">scales/scale.time.js:477</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1393,9 +1465,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#getbasepixel">getBasePixel</a></p>
+								<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#getbasepixel">getBasePixel</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L1086">core/core.scale.js:1086</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L1086">core/core.scale.js:1086</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1417,9 +1489,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#getbasevalue">getBaseValue</a></p>
+								<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#getbasevalue">getBaseValue</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L1093">core/core.scale.js:1093</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L1093">core/core.scale.js:1093</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
@@ -1435,9 +1507,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#getcontext">getContext</a></p>
+								<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#getcontext">getContext</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L1104">core/core.scale.js:1104</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L1104">core/core.scale.js:1104</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1450,18 +1522,17 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-protected">
 					<a name="getdatatimestamps" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagProtected">Protected</span> get<wbr>Data<wbr>Timestamps</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-protected">
 						<li class="tsd-signature tsd-kind-icon">get<wbr>Data<wbr>Timestamps<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#getdatatimestamps">getDataTimestamps</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/scales/scale.time.js#L560">scales/scale.time.js:560</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/scales/scale.time.js#L560">scales/scale.time.js:560</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
@@ -1477,9 +1548,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#getdecimalforpixel">getDecimalForPixel</a></p>
+								<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#getdecimalforpixel">getDecimalForPixel</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L1076">core/core.scale.js:1076</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L1076">core/core.scale.js:1076</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1492,18 +1563,17 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="getdecimalforvalue" class="tsd-anchor"></a>
 					<h3>get<wbr>Decimal<wbr>For<wbr>Value</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
 						<li class="tsd-signature tsd-kind-icon">get<wbr>Decimal<wbr>For<wbr>Value<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Overrides <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#getdecimalforvalue">getDecimalForValue</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/scales/scale.timeseries.js#L139">scales/scale.timeseries.js:139</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/scales/scale.time.js#L490">scales/scale.time.js:490</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1519,18 +1589,18 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
 					<a name="getlabelforvalue" class="tsd-anchor"></a>
 					<h3>get<wbr>Label<wbr>For<wbr>Value</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
 						<li class="tsd-signature tsd-kind-icon">get<wbr>Label<wbr>For<wbr>Value<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#getlabelforvalue">getLabelForValue</a></p>
+								<p>Overrides <a href="scale.html">Scale</a>.<a href="scale.html#getlabelforvalue">getLabelForValue</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/scales/scale.time.js#L439">scales/scale.time.js:439</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/scales/scale.time.js#L439">scales/scale.time.js:439</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1543,18 +1613,17 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-protected">
 					<a name="getlabeltimestamps" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagProtected">Protected</span> get<wbr>Label<wbr>Timestamps</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-protected">
 						<li class="tsd-signature tsd-kind-icon">get<wbr>Label<wbr>Timestamps<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#getlabeltimestamps">getLabelTimestamps</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/scales/scale.time.js#L585">scales/scale.time.js:585</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/scales/scale.time.js#L585">scales/scale.time.js:585</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span></h4>
@@ -1570,9 +1639,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#getlabels">getLabels</a></p>
+								<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#getlabels">getLabels</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L497">core/core.scale.js:497</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L497">core/core.scale.js:497</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h4>
@@ -1588,9 +1657,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#getmatchingvisiblemetas">getMatchingVisibleMetas</a></p>
+								<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#getmatchingvisiblemetas">getMatchingVisibleMetas</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L1769">core/core.scale.js:1769</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L1769">core/core.scale.js:1769</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1617,9 +1686,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#getminmax">getMinMax</a></p>
+								<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#getminmax">getMinMax</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L443">core/core.scale.js:443</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L443">core/core.scale.js:443</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1656,9 +1725,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#getpixelfordecimal">getPixelForDecimal</a></p>
+								<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#getpixelfordecimal">getPixelForDecimal</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L1062">core/core.scale.js:1062</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L1062">core/core.scale.js:1062</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1686,9 +1755,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#getpixelfortick">getPixelForTick</a></p>
+								<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#getpixelfortick">getPixelForTick</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L1048">core/core.scale.js:1048</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L1048">core/core.scale.js:1048</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1711,14 +1780,14 @@
 					<a name="getpixelforvalue" class="tsd-anchor"></a>
 					<h3>get<wbr>Pixel<wbr>For<wbr>Value</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>Pixel<wbr>For<wbr>Value<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, index<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Pixel<wbr>For<wbr>Value<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Overrides <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#getpixelforvalue">getPixelForValue</a></p>
+								<p>Overrides <a href="scale.html">Scale</a>.<a href="scale.html#getpixelforvalue">getPixelForValue</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/scales/scale.timeseries.js#L127">scales/scale.timeseries.js:127</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/scales/scale.time.js#L499">scales/scale.time.js:499</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1728,9 +1797,6 @@
 									<div class="tsd-comment tsd-typography">
 										<p>Milliseconds since epoch (1 January 1970 00:00:00 UTC)</p>
 									</div>
-								</li>
-								<li>
-									<h5>index: <span class="tsd-signature-type">number</span></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
@@ -1746,9 +1812,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#getprops">getProps</a></p>
+								<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#getprops">getProps</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.element.js#L31">core/core.element.js:31</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.element.js#L31">core/core.element.js:31</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1781,9 +1847,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#getticks">getTicks</a></p>
+								<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#getticks">getTicks</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L490">core/core.scale.js:490</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L490">core/core.scale.js:490</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1809,9 +1875,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#getuserbounds">getUserBounds</a></p>
+								<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#getuserbounds">getUserBounds</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L423">core/core.scale.js:423</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L423">core/core.scale.js:423</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1848,9 +1914,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Overrides <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#getvalueforpixel">getValueForPixel</a></p>
+								<p>Overrides <a href="scale.html">Scale</a>.<a href="scale.html#getvalueforpixel">getValueForPixel</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/scales/scale.timeseries.js#L147">scales/scale.timeseries.js:147</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/scales/scale.time.js#L510">scales/scale.time.js:510</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1872,27 +1938,27 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#hasvalue">hasValue</a></p>
+								<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#hasvalue">hasValue</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.element.js#L21">core/core.element.js:21</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.element.js#L21">core/core.element.js:21</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
 					<a name="init" class="tsd-anchor"></a>
 					<h3>init</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
 						<li class="tsd-signature tsd-kind-icon">init<span class="tsd-signature-symbol">(</span>scaleOpts<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, opts<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#init">init</a></p>
+								<p>Overrides <a href="scale.html">Scale</a>.<a href="scale.html#init">init</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/scales/scale.time.js#L225">scales/scale.time.js:225</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/scales/scale.time.js#L225">scales/scale.time.js:225</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1908,21 +1974,34 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-protected">
 					<a name="initoffsets" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagProtected">Protected</span> init<wbr>Offsets</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected">
-						<li class="tsd-signature tsd-kind-icon">init<wbr>Offsets<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-protected">
+						<li class="tsd-signature tsd-kind-icon">init<wbr>Offsets<span class="tsd-signature-symbol">(</span>timestamps<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Overrides <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#initoffsets">initOffsets</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/scales/scale.timeseries.js#L51">scales/scale.timeseries.js:51</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/scales/scale.time.js#L362">scales/scale.time.js:362</a></li>
 								</ul>
 							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns the start and end offsets from edges in the form of {start, end}
+										where each value is a relative width to the scale and ranges between 0 and 1.
+										They add extra margins on the both sides by scaling down the original scale.
+									Offsets are added when the <code>offset</code> option is true.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>timestamps: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -1935,9 +2014,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#isfullsize">isFullSize</a></p>
+								<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#isfullsize">isFullSize</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L909">core/core.scale.js:909</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L909">core/core.scale.js:909</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
@@ -1953,27 +2032,26 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#ishorizontal">isHorizontal</a></p>
+								<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#ishorizontal">isHorizontal</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L902">core/core.scale.js:902</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L902">core/core.scale.js:902</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-protected">
 					<a name="normalize" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagProtected">Protected</span> normalize</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-protected">
 						<li class="tsd-signature tsd-kind-icon">normalize<span class="tsd-signature-symbol">(</span>values<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#normalize">normalize</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/scales/scale.time.js#L606">scales/scale.time.js:606</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/scales/scale.time.js#L606">scales/scale.time.js:606</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1986,18 +2064,18 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
 					<a name="parse" class="tsd-anchor"></a>
 					<h3>parse</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
 						<li class="tsd-signature tsd-kind-icon">parse<span class="tsd-signature-symbol">(</span>raw<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, index<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#parse">parse</a></p>
+								<p>Overrides <a href="scale.html">Scale</a>.<a href="scale.html#parse">parse</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/scales/scale.time.js#L245">scales/scale.time.js:245</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/scales/scale.time.js#L245">scales/scale.time.js:245</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -2022,9 +2100,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#setdimensions">setDimensions</a></p>
+								<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#setdimensions">setDimensions</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L632">core/core.scale.js:632</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L632">core/core.scale.js:632</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -2040,9 +2118,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#tooltipposition">tooltipPosition</a></p>
+								<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#tooltipposition">tooltipPosition</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.element.js#L16">core/core.element.js:16</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.element.js#L16">core/core.element.js:16</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -2072,9 +2150,9 @@
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="scales.timescale-1.html">TimeScale</a>.<a href="scales.timescale-1.html#update">update</a></p>
+								<p>Inherited from <a href="scale.html">Scale</a>.<a href="scale.html#update">update</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/cfd9c98/src/core/core.scale.js#L524">core/core.scale.js:524</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/19a91be/src/core/core.scale.js#L524">core/core.scale.js:524</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -2144,374 +2222,377 @@
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
 					<li class=" tsd-kind-class tsd-parent-kind-namespace">
-						<a href="scales.categoryscale-1.html" class="tsd-kind-icon">Category<wbr>Scale</a>
+						<a href="scales.categoryscale.html" class="tsd-kind-icon">Category<wbr>Scale</a>
 					</li>
 					<li class=" tsd-kind-class tsd-parent-kind-namespace">
-						<a href="scales.linearscale-1.html" class="tsd-kind-icon">Linear<wbr>Scale</a>
+						<a href="scales.linearscale.html" class="tsd-kind-icon">Linear<wbr>Scale</a>
 					</li>
 					<li class=" tsd-kind-class tsd-parent-kind-namespace">
-						<a href="scales.logarithmicscale-1.html" class="tsd-kind-icon">Logarithmic<wbr>Scale</a>
+						<a href="scales.logarithmicscale.html" class="tsd-kind-icon">Logarithmic<wbr>Scale</a>
 					</li>
 					<li class=" tsd-kind-class tsd-parent-kind-namespace">
-						<a href="scales.radiallinearscale-1.html" class="tsd-kind-icon">Radial<wbr>Linear<wbr>Scale</a>
-					</li>
-					<li class=" tsd-kind-class tsd-parent-kind-namespace">
-						<a href="scales.timescale-1.html" class="tsd-kind-icon">Time<wbr>Scale</a>
+						<a href="scales.radiallinearscale.html" class="tsd-kind-icon">Radial<wbr>Linear<wbr>Scale</a>
 					</li>
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-class tsd-parent-kind-namespace">
-						<a href="scales.timeseriesscale-1.html" class="tsd-kind-icon">Time<wbr>Series<wbr>Scale</a>
+						<a href="scales.timescale.html" class="tsd-kind-icon">Time<wbr>Scale</a>
 						<ul>
 							<li class=" tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#constructor" class="tsd-kind-icon">constructor</a>
+								<a href="scales.timescale.html#constructor" class="tsd-kind-icon">constructor</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#_animations" class="tsd-kind-icon">$animations</a>
+								<a href="scales.timescale.html#_animations" class="tsd-kind-icon">$animations</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#_context" class="tsd-kind-icon">$context</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#_adapter" class="tsd-kind-icon">_adapter</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#_bordervalue" class="tsd-kind-icon">_border<wbr>Value</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#_cache" class="tsd-kind-icon">_cache</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#_datalimitscached" class="tsd-kind-icon">_data<wbr>Limits<wbr>Cached</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#_draw" class="tsd-kind-icon">_draw</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#_endpixel" class="tsd-kind-icon">_end<wbr>Pixel</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#_gridlineitems" class="tsd-kind-icon">_grid<wbr>Line<wbr>Items</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#_labelitems" class="tsd-kind-icon">_label<wbr>Items</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#_labelsizes" class="tsd-kind-icon">_label<wbr>Sizes</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#_length" class="tsd-kind-icon">_length</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#_longesttextcache" class="tsd-kind-icon">_longest<wbr>Text<wbr>Cache</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#_majorunit" class="tsd-kind-icon">_major<wbr>Unit</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#_margins" class="tsd-kind-icon">_margins</a>
+								<a href="scales.timescale.html#_context" class="tsd-kind-icon">$context</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.timeseriesscale-1.html#_maxindex" class="tsd-kind-icon">_max<wbr>Index</a>
+								<a href="scales.timescale.html#_adapter" class="tsd-kind-icon">_adapter</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#_normalized" class="tsd-kind-icon">_normalized</a>
+								<a href="scales.timescale.html#_bordervalue" class="tsd-kind-icon">_border<wbr>Value</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#_offsets" class="tsd-kind-icon">_offsets</a>
+								<a href="scales.timescale.html#_cache" class="tsd-kind-icon">_cache</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#_reversepixels" class="tsd-kind-icon">_reverse<wbr>Pixels</a>
+								<a href="scales.timescale.html#_datalimitscached" class="tsd-kind-icon">_data<wbr>Limits<wbr>Cached</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#_startpixel" class="tsd-kind-icon">_start<wbr>Pixel</a>
+								<a href="scales.timescale.html#_draw" class="tsd-kind-icon">_draw</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#_suggestedmax" class="tsd-kind-icon">_suggested<wbr>Max</a>
+								<a href="scales.timescale.html#_endpixel" class="tsd-kind-icon">_end<wbr>Pixel</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#_suggestedmin" class="tsd-kind-icon">_suggested<wbr>Min</a>
+								<a href="scales.timescale.html#_gridlineitems" class="tsd-kind-icon">_grid<wbr>Line<wbr>Items</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+								<a href="scales.timescale.html#_labelitems" class="tsd-kind-icon">_label<wbr>Items</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+								<a href="scales.timescale.html#_labelsizes" class="tsd-kind-icon">_label<wbr>Sizes</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+								<a href="scales.timescale.html#_length" class="tsd-kind-icon">_length</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+								<a href="scales.timescale.html#_longesttextcache" class="tsd-kind-icon">_longest<wbr>Text<wbr>Cache</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.timeseriesscale-1.html#_table" class="tsd-kind-icon">_table</a>
+								<a href="scales.timescale.html#_majorunit" class="tsd-kind-icon">_major<wbr>Unit</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#_tickslength" class="tsd-kind-icon">_ticks<wbr>Length</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#_unit" class="tsd-kind-icon">_unit</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#_usermax" class="tsd-kind-icon">_user<wbr>Max</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#_usermin" class="tsd-kind-icon">_user<wbr>Min</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#active" class="tsd-kind-icon">active</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#axis" class="tsd-kind-icon">axis</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#bottom-1" class="tsd-kind-icon">bottom</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#chart" class="tsd-kind-icon">chart</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#ctx" class="tsd-kind-icon">ctx</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#defaultroutes" class="tsd-kind-icon">default<wbr>Routes</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#defaults" class="tsd-kind-icon">defaults</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#height" class="tsd-kind-icon">height</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#id" class="tsd-kind-icon">id</a>
+								<a href="scales.timescale.html#_margins" class="tsd-kind-icon">_margins</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scales.timeseriesscale-1.html#id-1" class="tsd-kind-icon">id</a>
+								<a href="scales.timescale.html#_normalized" class="tsd-kind-icon">_normalized</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="scales.timescale.html#_offsets" class="tsd-kind-icon">_offsets</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#labelrotation" class="tsd-kind-icon">label<wbr>Rotation</a>
+								<a href="scales.timescale.html#_reversepixels" class="tsd-kind-icon">_reverse<wbr>Pixels</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#left-1" class="tsd-kind-icon">left</a>
+								<a href="scales.timescale.html#_startpixel" class="tsd-kind-icon">_start<wbr>Pixel</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#max" class="tsd-kind-icon">max</a>
+								<a href="scales.timescale.html#_suggestedmax" class="tsd-kind-icon">_suggested<wbr>Max</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#maxheight" class="tsd-kind-icon">max<wbr>Height</a>
+								<a href="scales.timescale.html#_suggestedmin" class="tsd-kind-icon">_suggested<wbr>Min</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#maxwidth" class="tsd-kind-icon">max<wbr>Width</a>
+								<a href="scales.timescale.html#_tickslength" class="tsd-kind-icon">_ticks<wbr>Length</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="scales.timescale.html#_unit" class="tsd-kind-icon">_unit</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#min" class="tsd-kind-icon">min</a>
+								<a href="scales.timescale.html#_usermax" class="tsd-kind-icon">_user<wbr>Max</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#options" class="tsd-kind-icon">options</a>
+								<a href="scales.timescale.html#_usermin" class="tsd-kind-icon">_user<wbr>Min</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#paddingbottom" class="tsd-kind-icon">padding<wbr>Bottom</a>
+								<a href="scales.timescale.html#active" class="tsd-kind-icon">active</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#paddingleft" class="tsd-kind-icon">padding<wbr>Left</a>
+								<a href="scales.timescale.html#axis" class="tsd-kind-icon">axis</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#paddingright" class="tsd-kind-icon">padding<wbr>Right</a>
+								<a href="scales.timescale.html#bottom-1" class="tsd-kind-icon">bottom</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#paddingtop" class="tsd-kind-icon">padding<wbr>Top</a>
+								<a href="scales.timescale.html#chart" class="tsd-kind-icon">chart</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#right-1" class="tsd-kind-icon">right</a>
+								<a href="scales.timescale.html#ctx" class="tsd-kind-icon">ctx</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#ticks" class="tsd-kind-icon">ticks</a>
+								<a href="scales.timescale.html#defaultroutes" class="tsd-kind-icon">default<wbr>Routes</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#top-1" class="tsd-kind-icon">top</a>
+								<a href="scales.timescale.html#height" class="tsd-kind-icon">height</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#type" class="tsd-kind-icon">type</a>
+								<a href="scales.timescale.html#id" class="tsd-kind-icon">id</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#width" class="tsd-kind-icon">width</a>
+								<a href="scales.timescale.html#labelrotation" class="tsd-kind-icon">label<wbr>Rotation</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#x" class="tsd-kind-icon">x</a>
+								<a href="scales.timescale.html#left-1" class="tsd-kind-icon">left</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#y" class="tsd-kind-icon">y</a>
+								<a href="scales.timescale.html#max" class="tsd-kind-icon">max</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+								<a href="scales.timescale.html#maxheight" class="tsd-kind-icon">max<wbr>Height</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+								<a href="scales.timescale.html#maxwidth" class="tsd-kind-icon">max<wbr>Width</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+								<a href="scales.timescale.html#min" class="tsd-kind-icon">min</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+								<a href="scales.timescale.html#options" class="tsd-kind-icon">options</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+								<a href="scales.timescale.html#paddingbottom" class="tsd-kind-icon">padding<wbr>Bottom</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+								<a href="scales.timescale.html#paddingleft" class="tsd-kind-icon">padding<wbr>Left</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+								<a href="scales.timescale.html#paddingright" class="tsd-kind-icon">padding<wbr>Right</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+								<a href="scales.timescale.html#paddingtop" class="tsd-kind-icon">padding<wbr>Top</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+								<a href="scales.timescale.html#right-1" class="tsd-kind-icon">right</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+								<a href="scales.timescale.html#ticks" class="tsd-kind-icon">ticks</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+								<a href="scales.timescale.html#top-1" class="tsd-kind-icon">top</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+								<a href="scales.timescale.html#type" class="tsd-kind-icon">type</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+								<a href="scales.timescale.html#width" class="tsd-kind-icon">width</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+								<a href="scales.timescale.html#x" class="tsd-kind-icon">x</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
+								<a href="scales.timescale.html#y" class="tsd-kind-icon">y</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-static">
+								<a href="scales.timescale.html#defaults" class="tsd-kind-icon">defaults</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-static">
+								<a href="scales.timescale.html#id-1" class="tsd-kind-icon">id</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#_callhooks" class="tsd-kind-icon">_call<wbr>Hooks</a>
+								<a href="scales.timescale.html#_callhooks" class="tsd-kind-icon">_call<wbr>Hooks</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
-								<a href="scales.timeseriesscale-1.html#_gettimestampsfortable" class="tsd-kind-icon">_get<wbr>Timestamps<wbr>For<wbr>Table</a>
+								<a href="scales.timescale.html#_generate" class="tsd-kind-icon">_generate</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
+								<a href="scales.timescale.html#_getlabelbounds" class="tsd-kind-icon">_get<wbr>Label<wbr>Bounds</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
+								<a href="scales.timescale.html#_getlabelcapacity" class="tsd-kind-icon">_get<wbr>Label<wbr>Capacity</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
+								<a href="scales.timescale.html#_getlabelsize" class="tsd-kind-icon">_get<wbr>Label<wbr>Size</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#_getxaxislabelalignment" class="tsd-kind-icon">_getXAxis<wbr>Label<wbr>Alignment</a>
+								<a href="scales.timescale.html#_getxaxislabelalignment" class="tsd-kind-icon">_getXAxis<wbr>Label<wbr>Alignment</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#_getyaxislabelalignment" class="tsd-kind-icon">_getYAxis<wbr>Label<wbr>Alignment</a>
+								<a href="scales.timescale.html#_getyaxislabelalignment" class="tsd-kind-icon">_getYAxis<wbr>Label<wbr>Alignment</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
-								<a href="scales.timeseriesscale-1.html#_resolvetickfontoptions" class="tsd-kind-icon">_resolve<wbr>Tick<wbr>Font<wbr>Options</a>
+								<a href="scales.timescale.html#_resolvetickfontoptions" class="tsd-kind-icon">_resolve<wbr>Tick<wbr>Font<wbr>Options</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
+								<a href="scales.timescale.html#_tickformatfunction" class="tsd-kind-icon">_tick<wbr>Format<wbr>Function</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#afterbuildticks" class="tsd-kind-icon">after<wbr>Build<wbr>Ticks</a>
+								<a href="scales.timescale.html#afterbuildticks" class="tsd-kind-icon">after<wbr>Build<wbr>Ticks</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#aftercalculatelabelrotation" class="tsd-kind-icon">after<wbr>Calculate<wbr>Label<wbr>Rotation</a>
+								<a href="scales.timescale.html#aftercalculatelabelrotation" class="tsd-kind-icon">after<wbr>Calculate<wbr>Label<wbr>Rotation</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#afterdatalimits" class="tsd-kind-icon">after<wbr>Data<wbr>Limits</a>
+								<a href="scales.timescale.html#afterdatalimits" class="tsd-kind-icon">after<wbr>Data<wbr>Limits</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#afterfit" class="tsd-kind-icon">after<wbr>Fit</a>
+								<a href="scales.timescale.html#afterfit" class="tsd-kind-icon">after<wbr>Fit</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#aftersetdimensions" class="tsd-kind-icon">after<wbr>Set<wbr>Dimensions</a>
+								<a href="scales.timescale.html#aftersetdimensions" class="tsd-kind-icon">after<wbr>Set<wbr>Dimensions</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#afterticktolabelconversion" class="tsd-kind-icon">after<wbr>Tick<wbr>ToLabel<wbr>Conversion</a>
+								<a href="scales.timescale.html#afterticktolabelconversion" class="tsd-kind-icon">after<wbr>Tick<wbr>ToLabel<wbr>Conversion</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#afterupdate" class="tsd-kind-icon">after<wbr>Update</a>
+								<a href="scales.timescale.html#afterupdate" class="tsd-kind-icon">after<wbr>Update</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#beforebuildticks" class="tsd-kind-icon">before<wbr>Build<wbr>Ticks</a>
+								<a href="scales.timescale.html#beforebuildticks" class="tsd-kind-icon">before<wbr>Build<wbr>Ticks</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#beforecalculatelabelrotation" class="tsd-kind-icon">before<wbr>Calculate<wbr>Label<wbr>Rotation</a>
+								<a href="scales.timescale.html#beforecalculatelabelrotation" class="tsd-kind-icon">before<wbr>Calculate<wbr>Label<wbr>Rotation</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#beforedatalimits" class="tsd-kind-icon">before<wbr>Data<wbr>Limits</a>
+								<a href="scales.timescale.html#beforedatalimits" class="tsd-kind-icon">before<wbr>Data<wbr>Limits</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#beforefit" class="tsd-kind-icon">before<wbr>Fit</a>
+								<a href="scales.timescale.html#beforefit" class="tsd-kind-icon">before<wbr>Fit</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
+								<a href="scales.timescale.html#beforelayout" class="tsd-kind-icon">before<wbr>Layout</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#beforelayout" class="tsd-kind-icon">before<wbr>Layout</a>
+								<a href="scales.timescale.html#beforesetdimensions" class="tsd-kind-icon">before<wbr>Set<wbr>Dimensions</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#beforesetdimensions" class="tsd-kind-icon">before<wbr>Set<wbr>Dimensions</a>
+								<a href="scales.timescale.html#beforeticktolabelconversion" class="tsd-kind-icon">before<wbr>Tick<wbr>ToLabel<wbr>Conversion</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#beforeticktolabelconversion" class="tsd-kind-icon">before<wbr>Tick<wbr>ToLabel<wbr>Conversion</a>
+								<a href="scales.timescale.html#beforeupdate" class="tsd-kind-icon">before<wbr>Update</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
+								<a href="scales.timescale.html#buildticks" class="tsd-kind-icon">build<wbr>Ticks</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#beforeupdate" class="tsd-kind-icon">before<wbr>Update</a>
+								<a href="scales.timescale.html#calculatelabelrotation" class="tsd-kind-icon">calculate<wbr>Label<wbr>Rotation</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+								<a href="scales.timescale.html#configure" class="tsd-kind-icon">configure</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
+								<a href="scales.timescale.html#determinedatalimits" class="tsd-kind-icon">determine<wbr>Data<wbr>Limits</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+								<a href="scales.timescale.html#draw" class="tsd-kind-icon">draw</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+								<a href="scales.timescale.html#drawgrid" class="tsd-kind-icon">draw<wbr>Grid</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+								<a href="scales.timescale.html#drawlabels" class="tsd-kind-icon">draw<wbr>Labels</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+								<a href="scales.timescale.html#drawtitle" class="tsd-kind-icon">draw<wbr>Title</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+								<a href="scales.timescale.html#fit" class="tsd-kind-icon">fit</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
+								<a href="scales.timescale.html#generateticklabels" class="tsd-kind-icon">generate<wbr>Tick<wbr>Labels</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+								<a href="scales.timescale.html#getbasepixel" class="tsd-kind-icon">get<wbr>Base<wbr>Pixel</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+								<a href="scales.timescale.html#getbasevalue" class="tsd-kind-icon">get<wbr>Base<wbr>Value</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
+								<a href="scales.timescale.html#getcontext" class="tsd-kind-icon">get<wbr>Context</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-protected">
-								<a href="scales.timeseriesscale-1.html#buildlookuptable" class="tsd-kind-icon">build<wbr>Lookup<wbr>Table</a>
+								<a href="scales.timescale.html#getdatatimestamps" class="tsd-kind-icon">get<wbr>Data<wbr>Timestamps</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#buildticks" class="tsd-kind-icon">build<wbr>Ticks</a>
+								<a href="scales.timescale.html#getdecimalforpixel" class="tsd-kind-icon">get<wbr>Decimal<wbr>For<wbr>Pixel</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#calculatelabelrotation" class="tsd-kind-icon">calculate<wbr>Label<wbr>Rotation</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
-								<a href="scales.timeseriesscale-1.html#configure" class="tsd-kind-icon">configure</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#determinedatalimits" class="tsd-kind-icon">determine<wbr>Data<wbr>Limits</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#draw" class="tsd-kind-icon">draw</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
-								<a href="scales.timeseriesscale-1.html#drawgrid" class="tsd-kind-icon">draw<wbr>Grid</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
-								<a href="scales.timeseriesscale-1.html#drawlabels" class="tsd-kind-icon">draw<wbr>Labels</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
-								<a href="scales.timeseriesscale-1.html#drawtitle" class="tsd-kind-icon">draw<wbr>Title</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#fit" class="tsd-kind-icon">fit</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#generateticklabels" class="tsd-kind-icon">generate<wbr>Tick<wbr>Labels</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#getbasepixel" class="tsd-kind-icon">get<wbr>Base<wbr>Pixel</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#getbasevalue" class="tsd-kind-icon">get<wbr>Base<wbr>Value</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
-								<a href="scales.timeseriesscale-1.html#getcontext" class="tsd-kind-icon">get<wbr>Context</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
-								<a href="scales.timeseriesscale-1.html#getdatatimestamps" class="tsd-kind-icon">get<wbr>Data<wbr>Timestamps</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#getdecimalforpixel" class="tsd-kind-icon">get<wbr>Decimal<wbr>For<wbr>Pixel</a>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="scales.timescale.html#getdecimalforvalue" class="tsd-kind-icon">get<wbr>Decimal<wbr>For<wbr>Value</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
-								<a href="scales.timeseriesscale-1.html#getdecimalforvalue" class="tsd-kind-icon">get<wbr>Decimal<wbr>For<wbr>Value</a>
+								<a href="scales.timescale.html#getlabelforvalue" class="tsd-kind-icon">get<wbr>Label<wbr>For<wbr>Value</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-protected">
+								<a href="scales.timescale.html#getlabeltimestamps" class="tsd-kind-icon">get<wbr>Label<wbr>Timestamps</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#getlabelforvalue" class="tsd-kind-icon">get<wbr>Label<wbr>For<wbr>Value</a>
+								<a href="scales.timescale.html#getlabels" class="tsd-kind-icon">get<wbr>Labels</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
+								<a href="scales.timescale.html#getmatchingvisiblemetas" class="tsd-kind-icon">get<wbr>Matching<wbr>Visible<wbr>Metas</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
-								<a href="scales.timeseriesscale-1.html#getlabeltimestamps" class="tsd-kind-icon">get<wbr>Label<wbr>Timestamps</a>
+								<a href="scales.timescale.html#getminmax" class="tsd-kind-icon">get<wbr>Min<wbr>Max</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#getlabels" class="tsd-kind-icon">get<wbr>Labels</a>
+								<a href="scales.timescale.html#getpixelfordecimal" class="tsd-kind-icon">get<wbr>Pixel<wbr>For<wbr>Decimal</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#getmatchingvisiblemetas" class="tsd-kind-icon">get<wbr>Matching<wbr>Visible<wbr>Metas</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
-								<a href="scales.timeseriesscale-1.html#getminmax" class="tsd-kind-icon">get<wbr>Min<wbr>Max</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#getpixelfordecimal" class="tsd-kind-icon">get<wbr>Pixel<wbr>For<wbr>Decimal</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#getpixelfortick" class="tsd-kind-icon">get<wbr>Pixel<wbr>For<wbr>Tick</a>
+								<a href="scales.timescale.html#getpixelfortick" class="tsd-kind-icon">get<wbr>Pixel<wbr>For<wbr>Tick</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
-								<a href="scales.timeseriesscale-1.html#getpixelforvalue" class="tsd-kind-icon">get<wbr>Pixel<wbr>For<wbr>Value</a>
+								<a href="scales.timescale.html#getpixelforvalue" class="tsd-kind-icon">get<wbr>Pixel<wbr>For<wbr>Value</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#getprops" class="tsd-kind-icon">get<wbr>Props</a>
+								<a href="scales.timescale.html#getprops" class="tsd-kind-icon">get<wbr>Props</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#getticks" class="tsd-kind-icon">get<wbr>Ticks</a>
+								<a href="scales.timescale.html#getticks" class="tsd-kind-icon">get<wbr>Ticks</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
-								<a href="scales.timeseriesscale-1.html#getuserbounds" class="tsd-kind-icon">get<wbr>User<wbr>Bounds</a>
+								<a href="scales.timescale.html#getuserbounds" class="tsd-kind-icon">get<wbr>User<wbr>Bounds</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
-								<a href="scales.timeseriesscale-1.html#getvalueforpixel" class="tsd-kind-icon">get<wbr>Value<wbr>For<wbr>Pixel</a>
+								<a href="scales.timescale.html#getvalueforpixel" class="tsd-kind-icon">get<wbr>Value<wbr>For<wbr>Pixel</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#hasvalue" class="tsd-kind-icon">has<wbr>Value</a>
+								<a href="scales.timescale.html#hasvalue" class="tsd-kind-icon">has<wbr>Value</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
+								<a href="scales.timescale.html#init" class="tsd-kind-icon">init</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-protected">
+								<a href="scales.timescale.html#initoffsets" class="tsd-kind-icon">init<wbr>Offsets</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#init" class="tsd-kind-icon">init</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite tsd-is-protected">
-								<a href="scales.timeseriesscale-1.html#initoffsets" class="tsd-kind-icon">init<wbr>Offsets</a>
+								<a href="scales.timescale.html#isfullsize" class="tsd-kind-icon">is<wbr>Full<wbr>Size</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#isfullsize" class="tsd-kind-icon">is<wbr>Full<wbr>Size</a>
+								<a href="scales.timescale.html#ishorizontal" class="tsd-kind-icon">is<wbr>Horizontal</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-protected">
+								<a href="scales.timescale.html#normalize" class="tsd-kind-icon">normalize</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-overwrite">
+								<a href="scales.timescale.html#parse" class="tsd-kind-icon">parse</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#ishorizontal" class="tsd-kind-icon">is<wbr>Horizontal</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-protected">
-								<a href="scales.timeseriesscale-1.html#normalize" class="tsd-kind-icon">normalize</a>
+								<a href="scales.timescale.html#setdimensions" class="tsd-kind-icon">set<wbr>Dimensions</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#parse" class="tsd-kind-icon">parse</a>
+								<a href="scales.timescale.html#tooltipposition" class="tsd-kind-icon">tooltip<wbr>Position</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#setdimensions" class="tsd-kind-icon">set<wbr>Dimensions</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#tooltipposition" class="tsd-kind-icon">tooltip<wbr>Position</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-inherited">
-								<a href="scales.timeseriesscale-1.html#update" class="tsd-kind-icon">update</a>
+								<a href="scales.timescale.html#update" class="tsd-kind-icon">update</a>
 							</li>
 						</ul>
 					</li>
 				</ul>
 				<ul class="after-current">
+					<li class=" tsd-kind-class tsd-parent-kind-namespace">
+						<a href="scales.timeseriesscale.html" class="tsd-kind-icon">Time<wbr>Series<wbr>Scale</a>
+					</li>
 				</ul>
 			</nav>
 		</div>
@@ -2537,6 +2618,9 @@
 			</ul>
 			<ul class="tsd-legend">
 				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static property</span></li>
 			</ul>
 		</div>
 	</div>
