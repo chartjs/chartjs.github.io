@@ -2510,6 +2510,18 @@ ScatterController.defaults = {
   }
 };
 
+var controllers = /*#__PURE__*/Object.freeze({
+__proto__: null,
+BarController: BarController,
+BubbleController: BubbleController,
+DoughnutController: DoughnutController,
+LineController: LineController,
+PolarAreaController: PolarAreaController,
+PieController: PieController,
+RadarController: RadarController,
+ScatterController: ScatterController
+});
+
 function abstract() {
   throw new Error('This method is not implemented: either no adapter can be found or an incomplete integration was provided.');
 }
@@ -6388,6 +6400,14 @@ BarElement.defaultRoutes = {
   borderColor: 'borderColor'
 };
 
+var elements = /*#__PURE__*/Object.freeze({
+__proto__: null,
+ArcElement: ArcElement,
+LineElement: LineElement,
+PointElement: PointElement,
+BarElement: BarElement
+});
+
 function minMaxDecimation(data, availableWidth) {
   let i, point, x, y, prevX, minIndex, maxIndex, minY, maxY;
   const decimated = [];
@@ -8385,6 +8405,15 @@ var plugin_tooltip = {
   }
 };
 
+var plugins = /*#__PURE__*/Object.freeze({
+__proto__: null,
+Decimation: plugin_decimation,
+Filler: plugin_filler,
+Legend: plugin_legend,
+Title: plugin_title,
+Tooltip: plugin_tooltip
+});
+
 function findOrAddLabel(labels, raw, index) {
   const first = labels.indexOf(raw);
   if (first === -1) {
@@ -9664,4 +9693,21 @@ class TimeSeriesScale extends TimeScale {
 TimeSeriesScale.id = 'timeseries';
 TimeSeriesScale.defaults = TimeScale.defaults;
 
-export { Animation, Animations, ArcElement, BarController, BarElement, BasePlatform, BasicPlatform, BubbleController, CategoryScale, Chart, DatasetController, plugin_decimation as Decimation, DomPlatform, DoughnutController, Element, plugin_filler as Filler, Interaction, plugin_legend as Legend, LineController, LineElement, LinearScale, LogarithmicScale, PieController, PointElement, PolarAreaController, RadarController, RadialLinearScale, Scale, ScatterController, Ticks, TimeScale, TimeSeriesScale, plugin_title as Title, plugin_tooltip as Tooltip, adapters as _adapters, animator, layouts, PluginService as plugins, registry };
+var scales = /*#__PURE__*/Object.freeze({
+__proto__: null,
+CategoryScale: CategoryScale,
+LinearScale: LinearScale,
+LogarithmicScale: LogarithmicScale,
+RadialLinearScale: RadialLinearScale,
+TimeScale: TimeScale,
+TimeSeriesScale: TimeSeriesScale
+});
+
+const registerables = [
+  controllers,
+  elements,
+  plugins,
+  scales,
+];
+
+export { Animation, Animations, ArcElement, BarController, BarElement, BasePlatform, BasicPlatform, BubbleController, CategoryScale, Chart, DatasetController, plugin_decimation as Decimation, DomPlatform, DoughnutController, Element, plugin_filler as Filler, Interaction, plugin_legend as Legend, LineController, LineElement, LinearScale, LogarithmicScale, PieController, PointElement, PolarAreaController, RadarController, RadialLinearScale, Scale, ScatterController, Ticks, TimeScale, TimeSeriesScale, plugin_title as Title, plugin_tooltip as Tooltip, adapters as _adapters, animator, controllers, elements, layouts, plugins, registerables, registry, scales };
