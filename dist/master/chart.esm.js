@@ -4786,9 +4786,12 @@ class Config {
   }
   update(options) {
     const config = this._config;
+    this.clearCache();
+    config.options = initOptions(config, options);
+  }
+  clearCache() {
     this._scopeCache.clear();
     this._resolverCache.clear();
-    config.options = initOptions(config, options);
   }
   datasetScopeKeys(datasetType) {
     return cachedKeys(datasetType,
@@ -5472,6 +5475,7 @@ class Chart {
     for (i = 0, ilen = me.data.datasets.length; i < ilen; ++i) {
       me._destroyDatasetMeta(i);
     }
+    me.config.clearCache();
     if (canvas) {
       me.unbindEvents();
       clearCanvas(canvas, ctx);
