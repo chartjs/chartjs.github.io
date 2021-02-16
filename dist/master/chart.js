@@ -1619,6 +1619,7 @@ function getContainerSize(canvas, width, height) {
     maxHeight: maxHeight || INFINITY
   };
 }
+const round1 = v => Math.round(v * 10) / 10;
 function getMaximumSize(canvas, bbWidth, bbHeight, aspectRatio) {
   const style = getComputedStyle(canvas);
   const margins = getPositionedStyle(style, 'margin');
@@ -1635,17 +1636,17 @@ function getMaximumSize(canvas, bbWidth, bbHeight, aspectRatio) {
   width = Math.max(0, width - margins.width);
   height = Math.max(0, aspectRatio ? Math.floor(width / aspectRatio) : height - margins.height);
   return {
-    width: Math.min(width, maxWidth, containerSize.maxWidth),
-    height: Math.min(height, maxHeight, containerSize.maxHeight)
+    width: round1(Math.min(width, maxWidth, containerSize.maxWidth)),
+    height: round1(Math.min(height, maxHeight, containerSize.maxHeight))
   };
 }
-function retinaScale(chart, forceRatio) {
-  const pixelRatio = chart.currentDevicePixelRatio = forceRatio || (typeof window !== 'undefined' && window.devicePixelRatio) || 1;
+function retinaScale(chart, forceRatio, forceStyle) {
+  const pixelRatio = chart.currentDevicePixelRatio = forceRatio || 1;
   const {canvas, width, height} = chart;
   canvas.height = height * pixelRatio;
   canvas.width = width * pixelRatio;
   chart.ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
-  if (canvas.style && !canvas.style.height && !canvas.style.width) {
+  if (canvas.style && (forceStyle || (!canvas.style.height && !canvas.style.width))) {
     canvas.style.height = height + 'px';
     canvas.style.width = width + 'px';
   }
@@ -5741,13 +5742,9 @@ class Chart {
     if (me.width === newSize.width && me.height === newSize.height && oldRatio === newRatio) {
       return;
     }
-    canvas.width = me.width = newSize.width;
-    canvas.height = me.height = newSize.height;
-    if (canvas.style) {
-      canvas.style.width = newSize.width + 'px';
-      canvas.style.height = newSize.height + 'px';
-    }
-    retinaScale(me, newRatio);
+    me.width = newSize.width;
+    me.height = newSize.height;
+    retinaScale(me, newRatio, true);
     me.notifyPlugins('resize', {size: newSize});
     callback(options.onResize, [newSize], me);
     if (me.attached) {
