@@ -256,7 +256,7 @@ class Animation {
 
 const numbers = ['x', 'y', 'borderWidth', 'radius', 'tension'];
 const colors = ['borderColor', 'backgroundColor'];
-const animationOptions = ['duration', 'easing', 'from', 'to', 'type', 'easing', 'loop', 'fn'];
+const animationOptions = ['delay', 'duration', 'easing', 'fn', 'from', 'loop', 'to', 'type'];
 defaults.set('animation', {
   duration: 1000,
   easing: 'easeOutQuart',
@@ -968,8 +968,7 @@ class DatasetController {
       const config = me.chart.config;
       const scopeKeys = config.datasetAnimationScopeKeys(me._type);
       const scopes = config.getOptionScopes(me.getDataset().animation, scopeKeys);
-      const context = () => me.getContext(index, active, mode);
-      options = config.createResolver(scopes, context);
+      options = config.createResolver(scopes, me.getContext(index, active, mode));
     }
     const animations = new Animations(chart, options && options[mode] || options);
     if (options && options._cacheable) {
@@ -4874,10 +4873,10 @@ class Config {
     return result;
   }
   createResolver(scopes, context, prefixes = ['']) {
-    const cached = getResolver(this._resolverCache, scopes, prefixes);
-    return context && cached.needContext
-      ? _attachContext(cached.resolver, isFunction(context) ? context() : context)
-      : cached.resolver;
+    const {resolver} = getResolver(this._resolverCache, scopes, prefixes);
+    return isObject(context)
+      ? _attachContext(resolver, isFunction(context) ? context() : context)
+      : resolver;
   }
 }
 function getResolver(resolverCache, scopes, prefixes) {
@@ -4892,8 +4891,7 @@ function getResolver(resolverCache, scopes, prefixes) {
     const resolver = _createResolver(scopes, prefixes);
     cached = {
       resolver,
-      subPrefixes: prefixes.filter(p => !p.toLowerCase().includes('hover')),
-      needContext: needContext(resolver, Object.getOwnPropertyNames(resolver))
+      subPrefixes: prefixes.filter(p => !p.toLowerCase().includes('hover'))
     };
     cache.set(cacheKey, cached);
   }
