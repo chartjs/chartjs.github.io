@@ -3213,7 +3213,7 @@ class DatasetController {
     const me = this;
     const config = me.chart.config;
     const scopeKeys = config.datasetScopeKeys(me._type);
-    const scopes = config.getOptionScopes(me.getDataset(), scopeKeys);
+    const scopes = config.getOptionScopes(me.getDataset(), scopeKeys, true);
     me.options = config.createResolver(scopes, me.getContext());
     me._parsing = me.options.parsing;
   }
@@ -5216,13 +5216,8 @@ function createDescriptors(chart, plugins, options, all) {
   return result;
 }
 function pluginOpts(config, plugin, opts, context) {
-  const id = plugin.id;
-  const keys = [
-    `controllers.${config.type}.plugins.${id}`,
-    `plugins.${id}`,
-    ...plugin.additionalOptionScopes || []
-  ];
-  const scopes = config.getOptionScopes(opts || {}, keys);
+  const keys = config.pluginScopeKeys(plugin);
+  const scopes = config.getOptionScopes(opts, keys);
   return config.createResolver(scopes, context);
 }
 
@@ -5485,9 +5480,28 @@ function initConfig(config) {
   config.options = initOptions(config, config.options);
   return config;
 }
+const keyCache = new Map();
+const keysCached = new Set();
+function cachedKeys(cacheKey, generate) {
+  let keys = keyCache.get(cacheKey);
+  if (!keys) {
+    keys = generate();
+    keyCache.set(cacheKey, keys);
+    keysCached.add(keys);
+  }
+  return keys;
+}
+const addIfFound = (set, obj, key) => {
+  const opts = resolveObjectKey(obj, key);
+  if (opts !== undefined) {
+    set.add(opts);
+  }
+};
 class Config {
   constructor(config) {
     this._config = initConfig(config);
+    this._scopeCache = new Map();
+    this._resolverCache = new Map();
   }
   get type() {
     return this._config.type;
@@ -5509,60 +5523,84 @@ class Config {
   }
   update(options) {
     const config = this._config;
+    this._scopeCache.clear();
+    this._resolverCache.clear();
     config.options = initOptions(config, options);
   }
   datasetScopeKeys(datasetType) {
-    return [`datasets.${datasetType}`, `controllers.${datasetType}.datasets`, ''];
+    return cachedKeys(datasetType,
+      () => [`datasets.${datasetType}`, `controllers.${datasetType}.datasets`, '']);
   }
   datasetAnimationScopeKeys(datasetType) {
-    return [`datasets.${datasetType}.animation`, `controllers.${datasetType}.datasets.animation`, 'animation'];
+    return cachedKeys(`${datasetType}.animation`,
+      () => [
+        `datasets.${datasetType}.animation`,
+        `controllers.${datasetType}.datasets.animation`,
+        'animation'
+      ]);
   }
   datasetElementScopeKeys(datasetType, elementType) {
-    return [
-      `datasets.${datasetType}`,
-      `controllers.${datasetType}.datasets`,
-      `controllers.${datasetType}.elements.${elementType}`,
-      `elements.${elementType}`,
-      ''
-    ];
+    return cachedKeys(`${datasetType}-${elementType}`,
+      () => [
+        `datasets.${datasetType}`,
+        `controllers.${datasetType}.datasets`,
+        `controllers.${datasetType}.elements.${elementType}`,
+        `elements.${elementType}`,
+        ''
+      ]);
   }
-  getOptionScopes(mainScope = {}, scopeKeys) {
-    const options = this.options;
-    const scopes = new Set([mainScope]);
-    const addIfFound = (obj, key) => {
-      const opts = resolveObjectKey(obj, key);
-      if (opts !== undefined) {
-        scopes.add(opts);
-      }
-    };
-    scopeKeys.forEach(key => addIfFound(mainScope, key));
-    scopeKeys.forEach(key => addIfFound(options, key));
-    scopeKeys.forEach(key => addIfFound(defaults, key));
-    const descriptors = defaults.descriptors;
-    scopeKeys.forEach(key => addIfFound(descriptors, key));
-    return [...scopes];
+  pluginScopeKeys(plugin) {
+    const id = plugin.id;
+    const type = this.type;
+    return cachedKeys(`${type}-plugin-${id}`,
+      () => [
+        `controllers.${type}.plugins.${id}`,
+        `plugins.${id}`,
+        ...plugin.additionalOptionScopes || [],
+      ]);
   }
-  chartOptionsScopes() {
+  getOptionScopes(mainScope, scopeKeys, resetCache) {
+    let cache = this._scopeCache.get(mainScope);
+    if (!cache || resetCache) {
+      cache = new Map();
+      this._scopeCache.set(mainScope, cache);
+    }
+    const cached = cache.get(scopeKeys);
+    if (cached) {
+      return cached;
+    }
+    const scopes = new Set();
+    if (mainScope) {
+      scopes.add(mainScope);
+      scopeKeys.forEach(key => addIfFound(scopes, mainScope, key));
+    }
+    scopeKeys.forEach(key => addIfFound(scopes, this.options, key));
+    scopeKeys.forEach(key => addIfFound(scopes, defaults, key));
+    scopeKeys.forEach(key => addIfFound(scopes, defaults.descriptors, key));
+    const array = [...scopes];
+    if (keysCached.has(scopeKeys)) {
+      cache.set(scopeKeys, array);
+    }
+    return array;
+  }
+  chartOptionScopes() {
     return [
       this.options,
       defaults.controllers[this.type] || {},
       {type: this.type},
-      defaults, defaults.descriptors
+      defaults,
+      defaults.descriptors
     ];
   }
   resolveNamedOptions(scopes, names, context, prefixes = ['']) {
-    const result = {};
-    const resolver = _createResolver(scopes, prefixes);
-    let options;
+    const result = {$shared: true};
+    const {resolver, subPrefixes} = getResolver(this._resolverCache, scopes, prefixes);
+    let options = resolver;
     if (needContext(resolver, names)) {
       result.$shared = false;
       context = isFunction(context) ? context() : context;
-      const subPrefixes = prefixes.filter(p => !p.toLowerCase().includes('hover'));
       const subResolver = this.createResolver(scopes, context, subPrefixes);
       options = _attachContext(resolver, context, subResolver);
-    } else {
-      result.$shared = true;
-      options = resolver;
     }
     for (const prop of names) {
       result[prop] = options[prop];
@@ -5570,11 +5608,30 @@ class Config {
     return result;
   }
   createResolver(scopes, context, prefixes = ['']) {
-    const resolver = _createResolver(scopes, prefixes);
-    return context && needContext(resolver, Object.getOwnPropertyNames(resolver))
-      ? _attachContext(resolver, isFunction(context) ? context() : context)
-      : resolver;
+    const cached = getResolver(this._resolverCache, scopes, prefixes);
+    return context && cached.needContext
+      ? _attachContext(cached.resolver, isFunction(context) ? context() : context)
+      : cached.resolver;
   }
+}
+function getResolver(resolverCache, scopes, prefixes) {
+  let cache = resolverCache.get(scopes);
+  if (!cache) {
+    cache = new Map();
+    resolverCache.set(scopes, cache);
+  }
+  const cacheKey = prefixes.join();
+  let cached = cache.get(cacheKey);
+  if (!cached) {
+    const resolver = _createResolver(scopes, prefixes);
+    cached = {
+      resolver,
+      subPrefixes: prefixes.filter(p => !p.toLowerCase().includes('hover')),
+      needContext: needContext(resolver, Object.getOwnPropertyNames(resolver))
+    };
+    cache.set(cacheKey, cached);
+  }
+  return cached;
 }
 function needContext(proxy, names) {
   const {isScriptable, isIndexable} = _descriptors(proxy);
@@ -5642,7 +5699,7 @@ class Chart {
 				' must be destroyed before the canvas can be reused.'
       );
     }
-    const options = config.createResolver(config.chartOptionsScopes(), me.getContext());
+    const options = config.createResolver(config.chartOptionScopes(), me.getContext());
     this.platform = me._initializePlatform(initialCanvas, config);
     const context = me.platform.acquireContext(initialCanvas, options.aspectRatio);
     const canvas = context && context.canvas;
@@ -5899,7 +5956,7 @@ class Chart {
     const me = this;
     const config = me.config;
     config.update(config.options);
-    me._options = config.createResolver(config.chartOptionsScopes(), me.getContext());
+    me._options = config.createResolver(config.chartOptionScopes(), me.getContext());
     each(me.scales, (scale) => {
       layouts.removeBox(me, scale);
     });
