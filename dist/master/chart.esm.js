@@ -4794,12 +4794,18 @@ class Config {
   }
   datasetScopeKeys(datasetType) {
     return cachedKeys(datasetType,
-      () => [`datasets.${datasetType}`, `controllers.${datasetType}.datasets`, '']);
+      () => [
+        `datasets.${datasetType}`,
+        `controllers.${datasetType}`,
+        `controllers.${datasetType}.datasets`,
+        ''
+      ]);
   }
   datasetAnimationScopeKeys(datasetType) {
     return cachedKeys(`${datasetType}.animation`,
       () => [
         `datasets.${datasetType}.animation`,
+        `controllers.${datasetType}.animation`,
         `controllers.${datasetType}.datasets.animation`,
         'animation'
       ]);
