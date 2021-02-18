@@ -294,7 +294,7 @@ defaults.set('animation', {
     },
     visible: {
       type: 'boolean',
-      easing: 'easeInExpo'
+      fn: v => v < 1 ? 0 : 1
     },
   }
 });
