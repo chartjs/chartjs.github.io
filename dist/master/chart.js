@@ -5231,11 +5231,17 @@ function _createResolver(scopes, prefixes = ['']) {
       return _cached(target, prop,
         () => _resolveWithPrefixes(prop, prefixes, scopes));
     },
-    ownKeys(target) {
-      return getKeysFromAllScopes(target);
-    },
     getOwnPropertyDescriptor(target, prop) {
       return Reflect.getOwnPropertyDescriptor(target._scopes[0], prop);
+    },
+    getPrototypeOf() {
+      return Reflect.getPrototypeOf(scopes[0]);
+    },
+    has(target, prop) {
+      return getKeysFromAllScopes(target).includes(prop);
+    },
+    ownKeys(target) {
+      return getKeysFromAllScopes(target);
     },
     set(target, prop, value) {
       scopes[0][prop] = value;
@@ -5259,11 +5265,17 @@ function _attachContext(proxy, context, subProxy) {
       return _cached(target, prop,
         () => _resolveWithContext(target, prop, receiver));
     },
+    getOwnPropertyDescriptor(target, prop) {
+      return Reflect.getOwnPropertyDescriptor(proxy, prop);
+    },
+    getPrototypeOf() {
+      return Reflect.getPrototypeOf(proxy);
+    },
+    has(target, prop) {
+      return Reflect.has(proxy, prop);
+    },
     ownKeys() {
       return Reflect.ownKeys(proxy);
-    },
-    getOwnPropertyDescriptor(target, prop) {
-      return Reflect.getOwnPropertyDescriptor(proxy._scopes[0], prop);
     },
     set(target, prop, value) {
       proxy[prop] = value;
