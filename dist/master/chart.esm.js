@@ -7308,6 +7308,7 @@ var plugin_legend = {
     onHover: null,
     onLeave: null,
     labels: {
+      color: (ctx) => ctx.chart.options.color,
       boxWidth: 40,
       padding: 10,
       generateLabels(chart) {
@@ -7336,22 +7337,18 @@ var plugin_legend = {
       }
     },
     title: {
+      color: (ctx) => ctx.chart.options.color,
       display: false,
       position: 'center',
       text: '',
     }
   },
-  defaultRoutes: {
-    'labels.color': 'color',
-    'title.color': 'color'
-  },
   descriptors: {
     _scriptable: (name) => !name.startsWith('on'),
     labels: {
-      _scriptable: false,
+      _scriptable: (name) => !['generateLabels', 'filter', 'sort'].includes(name),
     }
   },
-  additionalOptionScopes: ['']
 };
 
 class Title extends Element {
@@ -7498,7 +7495,6 @@ var plugin_title = {
   defaultRoutes: {
     color: 'color'
   },
-  additionalOptionScopes: ['']
 };
 
 const positioners = {
@@ -8381,7 +8377,7 @@ var plugin_tooltip = {
       _indexable: false,
     }
   },
-  additionalOptionScopes: ['interaction', '']
+  additionalOptionScopes: ['interaction']
 };
 
 var plugins = /*#__PURE__*/Object.freeze({
