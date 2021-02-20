@@ -8667,7 +8667,7 @@ class LinearScaleBase extends Scale {
       min: opts.min,
       max: opts.max,
       precision: tickOpts.precision,
-      stepSize: valueOrDefault(tickOpts.fixedStepSize, tickOpts.stepSize)
+      stepSize: tickOpts.stepSize
     };
     const ticks = generateTicks(numericGeneratorOptions, me);
     if (opts.bounds === 'ticks') {
