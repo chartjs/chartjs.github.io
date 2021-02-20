@@ -1925,7 +1925,7 @@ class LineController extends DatasetController {
   update(mode) {
     const me = this;
     const meta = me._cachedMeta;
-    const {dataset: line, data: points = []} = meta;
+    const {dataset: line, data: points = [], _dataset} = meta;
     const animationsDisabled = me.chart._animationsDisabled;
     let {start, count} = getStartAndCountOfVisiblePoints(meta, points, animationsDisabled);
     me._drawStart = start;
@@ -1934,6 +1934,7 @@ class LineController extends DatasetController {
       start = 0;
       count = points.length;
     }
+    line._decimated = !!_dataset._decimated;
     line.points = points;
     if (mode !== 'resize') {
       const options = me.resolveDatasetElementOptions(mode);
@@ -5985,7 +5986,7 @@ function fastPathSegment(ctx, line, segment, params) {
 function _getSegmentMethod(line) {
   const opts = line.options;
   const borderDash = opts.borderDash && opts.borderDash.length;
-  const useFastPath = !line._loop && !opts.tension && !opts.stepped && !borderDash;
+  const useFastPath = !line._decimated && !line._loop && !opts.tension && !opts.stepped && !borderDash;
   return useFastPath ? fastPathSegment : pathSegment;
 }
 function _getInterpolationMethod(options) {
@@ -6026,6 +6027,7 @@ class LineElement extends Element {
     this._path = undefined;
     this._points = undefined;
     this._segments = undefined;
+    this._decimated = false;
     this._pointsUpdated = false;
     if (cfg) {
       Object.assign(this, cfg);
