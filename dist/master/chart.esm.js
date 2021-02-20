@@ -4,7 +4,7 @@
  * (c) 2021 Chart.js Contributors
  * Released under the MIT License
  */
-import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, d as defaults, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, b as isArray, f as resolveObjectKey, g as defined, s as sign, h as isNullOrUndef, j as clipArea, k as unclipArea, _ as _arrayUnique, t as toRadians, T as TAU, H as HALF_PI, P as PI, m as isNumber, n as _limitValue, o as _lookupByKey, p as getRelativePosition$1, q as _isPointInArea, w as _rlookupByKey, x as toPadding, y as each, z as getMaximumSize, A as _getParentNode, B as readUsedSize, C as throttled, D as supportsEventListenerOptions, E as log10, F as finiteOrDefault, G as isNumberFinite, I as callback, J as toDegrees, K as _measureText, L as _int16Range, M as _alignPixel, N as renderText, O as toFont, Q as _factorize, R as _capitalize, S as isFunction, U as _attachContext, V as _createResolver, W as mergeIf, X as _descriptors, Y as uid, Z as retinaScale, $ as clearCanvas, a0 as _elementsEqual, a1 as getAngleFromPoint, a2 as _angleBetween, a3 as _updateBezierControlPoints, a4 as _computeSegments, a5 as _boundSegments, a6 as _steppedInterpolation, a7 as _bezierInterpolation, a8 as _pointInLine, a9 as _steppedLineTo, aa as _bezierCurveTo, ab as drawPoint, ac as toTRBL, ad as toTRBLCorners, ae as _normalizeAngle, af as _boundSegment, ag as getRtlAdapter, ah as _alignStartEnd, ai as overrideTextDirection, aj as restoreTextDirection, ak as _toLeftRightCenter, al as noop, am as distanceBetweenPoints, an as toFontString, ao as _setMinAndMaxByKey, ap as _decimalPlaces, aq as almostEquals, ar as almostWhole, as as _longestText, at as _filterBetween, au as _lookup } from './chunks/helpers.segment.js';
+import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, b as isArray, d as defaults, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as defined, s as sign, h as isNullOrUndef, j as clipArea, k as unclipArea, _ as _arrayUnique, t as toRadians, T as TAU, H as HALF_PI, P as PI, m as isNumber, n as _limitValue, o as _lookupByKey, p as getRelativePosition$1, q as _isPointInArea, w as _rlookupByKey, x as toPadding, y as each, z as getMaximumSize, A as _getParentNode, B as readUsedSize, C as throttled, D as supportsEventListenerOptions, E as log10, F as finiteOrDefault, G as isNumberFinite, I as callback, J as toDegrees, K as _measureText, L as _int16Range, M as _alignPixel, N as renderText, O as toFont, Q as _factorize, R as _capitalize, S as isFunction, U as _attachContext, V as _createResolver, W as mergeIf, X as _descriptors, Y as uid, Z as retinaScale, $ as clearCanvas, a0 as _elementsEqual, a1 as getAngleFromPoint, a2 as _angleBetween, a3 as _updateBezierControlPoints, a4 as _computeSegments, a5 as _boundSegments, a6 as _steppedInterpolation, a7 as _bezierInterpolation, a8 as _pointInLine, a9 as _steppedLineTo, aa as _bezierCurveTo, ab as drawPoint, ac as toTRBL, ad as toTRBLCorners, ae as _normalizeAngle, af as _boundSegment, ag as getRtlAdapter, ah as _alignStartEnd, ai as overrideTextDirection, aj as restoreTextDirection, ak as _toLeftRightCenter, al as noop, am as distanceBetweenPoints, an as toFontString, ao as _setMinAndMaxByKey, ap as _decimalPlaces, aq as almostEquals, ar as almostWhole, as as _longestText, at as _filterBetween, au as _lookup } from './chunks/helpers.segment.js';
 export { d as defaults } from './chunks/helpers.segment.js';
 
 function drawFPS(chart, count, date, lastDate) {
@@ -179,7 +179,7 @@ class Animation {
     const from = resolve([cfg.from, currentValue, to]);
     this._active = true;
     this._fn = cfg.fn || interpolators[cfg.type || typeof from];
-    this._easing = effects[cfg.easing || 'linear'];
+    this._easing = effects[cfg.easing] || effects.linear;
     this._start = Math.floor(Date.now() + (cfg.delay || 0));
     this._duration = Math.floor(cfg.duration);
     this._loop = !!cfg.loop;
@@ -254,13 +254,24 @@ class Animation {
 }
 
 const numbers = ['x', 'y', 'borderWidth', 'radius', 'tension'];
-const colors = ['borderColor', 'backgroundColor'];
-const animationOptions = ['delay', 'duration', 'easing', 'fn', 'from', 'loop', 'to', 'type'];
+const colors = ['color', 'borderColor', 'backgroundColor'];
 defaults.set('animation', {
+  delay: undefined,
   duration: 1000,
   easing: 'easeOutQuart',
-  onProgress: undefined,
-  onComplete: undefined,
+  fn: undefined,
+  from: undefined,
+  loop: undefined,
+  to: undefined,
+  type: undefined,
+});
+const animationOptions = Object.keys(defaults.animation);
+defaults.describe('animation', {
+  _fallback: false,
+  _indexable: false,
+  _scriptable: (name) => name !== 'onProgress' && name !== 'onComplete' && name !== 'fn',
+});
+defaults.set('animations', {
   colors: {
     type: 'color',
     properties: colors
@@ -269,53 +280,57 @@ defaults.set('animation', {
     type: 'number',
     properties: numbers
   },
-  active: {
-    duration: 400
-  },
-  resize: {
-    duration: 0
-  },
-  show: {
-    colors: {
-      type: 'color',
-      properties: colors,
-      from: 'transparent'
-    },
-    visible: {
-      type: 'boolean',
-      duration: 0
-    },
-  },
-  hide: {
-    colors: {
-      type: 'color',
-      properties: colors,
-      to: 'transparent'
-    },
-    visible: {
-      type: 'boolean',
-      fn: v => v < 1 ? 0 : 1
-    },
-  }
 });
-defaults.describe('animation', {
-  _scriptable: (name) => name !== 'onProgress' && name !== 'onComplete' && name !== 'fn',
-  _indexable: false,
+defaults.describe('animations', {
   _fallback: 'animation',
 });
+defaults.set('transitions', {
+  active: {
+    animation: {
+      duration: 400
+    }
+  },
+  resize: {
+    animation: {
+      duration: 0
+    }
+  },
+  show: {
+    animations: {
+      colors: {
+        from: 'transparent'
+      },
+      visible: {
+        type: 'boolean',
+        duration: 0
+      },
+    }
+  },
+  hide: {
+    animations: {
+      colors: {
+        to: 'transparent'
+      },
+      visible: {
+        type: 'boolean',
+        fn: v => v < 1 ? 0 : 1
+      },
+    }
+  }
+});
 class Animations {
-  constructor(chart, animations) {
+  constructor(chart, config) {
     this._chart = chart;
     this._properties = new Map();
-    this.configure(animations);
+    this.configure(config);
   }
-  configure(animations) {
-    if (!isObject(animations)) {
+  configure(config) {
+    if (!isObject(config)) {
       return;
     }
     const animatedProps = this._properties;
-    Object.getOwnPropertyNames(animations).forEach(key => {
-      const cfg = animations[key];
+    Object.getOwnPropertyNames(config).forEach(key => {
+      const cfg = config[key];
       if (!isObject(cfg)) {
         return;
       }
@@ -323,7 +338,7 @@ class Animations {
       for (const option of animationOptions) {
         resolved[option] = cfg[option];
       }
-      (cfg.properties || [key]).forEach((prop) => {
+      (isArray(cfg.properties) && cfg.properties || [key]).forEach((prop) => {
         if (prop === key || !animatedProps.has(prop)) {
           animatedProps.set(prop, resolved);
         }
@@ -953,11 +968,11 @@ class DatasetController {
     }
     return values;
   }
-  _resolveAnimations(index, mode, active) {
+  _resolveAnimations(index, transition, active) {
     const me = this;
     const chart = me.chart;
     const cache = me._cachedDataOpts;
-    const cacheKey = 'animation-' + mode;
+    const cacheKey = `animation-${transition}`;
     const cached = cache[cacheKey];
     if (cached) {
       return cached;
@@ -965,11 +980,11 @@ class DatasetController {
     let options;
     if (chart.options.animation !== false) {
       const config = me.chart.config;
-      const scopeKeys = config.datasetAnimationScopeKeys(me._type);
-      const scopes = config.getOptionScopes(me.getDataset().animation, scopeKeys);
-      options = config.createResolver(scopes, me.getContext(index, active, mode));
+      const scopeKeys = config.datasetAnimationScopeKeys(me._type, transition);
+      const scopes = config.getOptionScopes(me.getDataset(), scopeKeys);
+      options = config.createResolver(scopes, me.getContext(index, active, transition));
     }
-    const animations = new Animations(chart, options && options[mode] || options);
+    const animations = new Animations(chart, options && options.animations);
     if (options && options._cacheable) {
       cache[cacheKey] = Object.freeze(animations);
     }
@@ -1445,7 +1460,7 @@ BarController.defaults = {
   datasets: {
     categoryPercentage: 0.8,
     barPercentage: 0.9,
-    animation: {
+    animations: {
       numbers: {
         type: 'number',
         properties: ['x', 'y', 'base', 'width', 'height']
@@ -1560,8 +1575,9 @@ BubbleController.id = 'bubble';
 BubbleController.defaults = {
   datasetElementType: false,
   dataElementType: 'point',
-  animation: {
+  animations: {
     numbers: {
+      type: 'number',
       properties: ['x', 'y', 'borderWidth', 'radius']
     }
   },
@@ -1837,12 +1853,14 @@ DoughnutController.defaults = {
   datasetElementType: false,
   dataElementType: 'arc',
   animation: {
+    animateRotate: true,
+    animateScale: false
+  },
+  animations: {
     numbers: {
       type: 'number',
       properties: ['circumference', 'endAngle', 'innerRadius', 'outerRadius', 'startAngle', 'x', 'y', 'offset', 'borderWidth']
     },
-    animateRotate: true,
-    animateScale: false
   },
   aspectRatio: 1,
   datasets: {
@@ -2131,12 +2149,14 @@ PolarAreaController.id = 'polarArea';
 PolarAreaController.defaults = {
   dataElementType: 'arc',
   animation: {
+    animateRotate: true,
+    animateScale: true
+  },
+  animations: {
     numbers: {
       type: 'number',
       properties: ['x', 'y', 'startAngle', 'endAngle', 'innerRadius', 'outerRadius']
     },
-    animateRotate: true,
-    animateScale: true
   },
   aspectRatio: 1,
   indexAxis: 'r',
@@ -3189,10 +3209,13 @@ defaults.set('scale', {
 defaults.route('scale.ticks', 'color', '', 'color');
 defaults.route('scale.gridLines', 'color', '', 'borderColor');
 defaults.route('scale.scaleLabel', 'color', '', 'color');
-defaults.describe('scales', {
-  _fallback: 'scale',
+defaults.describe('scale', {
+  _fallback: false,
   _scriptable: (name) => !name.startsWith('before') && !name.startsWith('after') && name !== 'callback' && name !== 'parser',
   _indexable: (name) => name !== 'borderDash' && name !== 'tickBorderDash',
+});
+defaults.describe('scales', {
+  _fallback: 'scale',
 });
 function sample(arr, numItems) {
   const result = [];
@@ -4800,13 +4823,17 @@ class Config {
         ''
       ]);
   }
-  datasetAnimationScopeKeys(datasetType) {
-    return cachedKeys(`${datasetType}.animation`,
+  datasetAnimationScopeKeys(datasetType, transition) {
+    return cachedKeys(`${datasetType}.transition.${transition}`,
       () => [
-        `datasets.${datasetType}.animation`,
-        `controllers.${datasetType}.animation`,
-        `controllers.${datasetType}.datasets.animation`,
-        'animation'
+        `datasets.${datasetType}.transitions.${transition}`,
+        `controllers.${datasetType}.transitions.${transition}`,
+        `controllers.${datasetType}.datasets.transitions.${transition}`,
+        `transitions.${transition}`,
+        `datasets.${datasetType}`,
+        `controllers.${datasetType}`,
+        `controllers.${datasetType}.datasets`,
+        ''
       ]);
   }
   datasetElementScopeKeys(datasetType, elementType) {
@@ -4906,7 +4933,7 @@ function needContext(proxy, names) {
   const {isScriptable, isIndexable} = _descriptors(proxy);
   for (const prop of names) {
     if ((isScriptable(prop) && isFunction(proxy[prop]))
-			|| (isIndexable(prop) && isArray(proxy[prop]))) {
+      || (isIndexable(prop) && isArray(proxy[prop]))) {
       return true;
     }
   }
@@ -7767,9 +7794,11 @@ class Tooltip extends Element {
     }
     const chart = me._chart;
     const options = me.options;
-    const opts = options.enabled && chart.options.animation && options.animation;
+    const opts = options.enabled && chart.options.animation && options.animations;
     const animations = new Animations(me._chart, opts);
-    me._cachedAnimations = Object.freeze(animations);
+    if (opts._cacheable) {
+      me._cachedAnimations = Object.freeze(animations);
+    }
     return animations;
   }
   getTitle(context) {
@@ -8295,6 +8324,8 @@ var plugin_tooltip = {
     animation: {
       duration: 400,
       easing: 'easeOutQuart',
+    },
+    animations: {
       numbers: {
         type: 'number',
         properties: ['x', 'y', 'width', 'height', 'caretX', 'caretY'],
@@ -8375,6 +8406,12 @@ var plugin_tooltip = {
     callbacks: {
       _scriptable: false,
       _indexable: false,
+    },
+    animation: {
+      _fallback: false
+    },
+    animations: {
+      _fallback: 'animation'
     }
   },
   additionalOptionScopes: ['interaction']
