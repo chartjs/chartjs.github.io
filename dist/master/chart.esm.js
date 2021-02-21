@@ -6412,6 +6412,48 @@ PointElement: PointElement,
 BarElement: BarElement
 });
 
+function lttbDecimation(data, availableWidth, options) {
+  const samples = options.samples || availableWidth;
+  const decimated = [];
+  const bucketWidth = (data.length - 2) / (samples - 2);
+  let sampledIndex = 0;
+  let a = 0;
+  let i, maxAreaPoint, maxArea, area, nextA;
+  decimated[sampledIndex++] = data[a];
+  for (i = 0; i < samples - 2; i++) {
+    let avgX = 0;
+    let avgY = 0;
+    let j;
+    const avgRangeStart = Math.floor((i + 1) * bucketWidth) + 1;
+    const avgRangeEnd = Math.min(Math.floor((i + 2) * bucketWidth) + 1, data.length);
+    const avgRangeLength = avgRangeEnd - avgRangeStart;
+    for (j = avgRangeStart; j < avgRangeEnd; j++) {
+      avgX = data[j].x;
+      avgY = data[j].y;
+    }
+    avgX /= avgRangeLength;
+    avgY /= avgRangeLength;
+    const rangeOffs = Math.floor(i * bucketWidth) + 1;
+    const rangeTo = Math.floor((i + 1) * bucketWidth) + 1;
+    const {x: pointAx, y: pointAy} = data[a];
+    maxArea = area = -1;
+    for (j = rangeOffs; j < rangeTo; j++) {
+      area = 0.5 * Math.abs(
+        (pointAx - avgX) * (data[j].y - pointAy) -
+        (pointAx - data[j].x) * (avgY - pointAy)
+      );
+      if (area > maxArea) {
+        maxArea = area;
+        maxAreaPoint = data[j];
+        nextA = j;
+      }
+    }
+    decimated[sampledIndex++] = maxAreaPoint;
+    a = nextA;
+  }
+  decimated[sampledIndex++] = data[data.length - 1];
+  return decimated;
+}
 function minMaxDecimation(data, availableWidth) {
   let avgX = 0;
   let countX = 0;
@@ -6511,6 +6553,9 @@ var plugin_decimation = {
       }
       let decimated;
       switch (options.algorithm) {
+      case 'lttb':
+        decimated = lttbDecimation(data, availableWidth, options);
+        break;
       case 'min-max':
         decimated = minMaxDecimation(data, availableWidth);
         break;
