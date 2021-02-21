@@ -783,6 +783,10 @@ function finiteOrDefault(value, defaultValue) {
 function valueOrDefault(value, defaultValue) {
   return typeof value === 'undefined' ? defaultValue : value;
 }
+const numberOrPercentageOf = (value, dimension) =>
+  typeof value === 'string' && value.endsWith('%') ?
+    parseFloat(value) / 100 * dimension
+    : +value;
 function callback(fn, args, thisArg) {
   if (fn && typeof fn.call === 'function') {
     return fn.apply(thisArg, args);
@@ -6883,6 +6887,7 @@ isObject: isObject,
 isFinite: isNumberFinite,
 finiteOrDefault: finiteOrDefault,
 valueOrDefault: valueOrDefault,
+numberOrPercentageOf: numberOrPercentageOf,
 callback: callback,
 each: each,
 _elementsEqual: _elementsEqual,
@@ -7590,7 +7595,8 @@ class DoughnutController extends DatasetController {
     const spacing = me.getMaxBorderWidth() + me.getMaxOffset(arcs);
     const maxWidth = (chartArea.right - chartArea.left - spacing) / ratioX;
     const maxHeight = (chartArea.bottom - chartArea.top - spacing) / ratioY;
-    const outerRadius = Math.max(Math.min(maxWidth, maxHeight) / 2, 0);
+    const maxRadius = Math.max(Math.min(maxWidth, maxHeight) / 2, 0);
+    const outerRadius = numberOrPercentageOf(me.options.outerRadius, maxRadius);
     const innerRadius = Math.max(outerRadius * cutout, 0);
     const radiusLength = (outerRadius - innerRadius) / me._getVisibleDatasetWeightTotal();
     me.offsetX = offsetX * outerRadius;
@@ -7749,7 +7755,8 @@ DoughnutController.defaults = {
   datasets: {
     cutoutPercentage: 50,
     rotation: 0,
-    circumference: 360
+    circumference: 360,
+    outerRadius: '100%'
   },
   indexAxis: 'r',
   plugins: {
@@ -8105,9 +8112,10 @@ class PieController extends DoughnutController {
 PieController.id = 'pie';
 PieController.defaults = {
   datasets: {
-    cutoutPercentage: 0,
+    cutout: 0,
     rotation: 0,
-    circumference: 360
+    circumference: 360,
+    outerRadius: '100%'
   }
 };
 

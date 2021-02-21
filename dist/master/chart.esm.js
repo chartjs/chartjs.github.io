@@ -4,7 +4,7 @@
  * (c) 2021 Chart.js Contributors
  * Released under the MIT License
  */
-import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, b as isArray, d as defaults, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as defined, s as sign, h as isNullOrUndef, j as clipArea, k as unclipArea, _ as _arrayUnique, t as toRadians, T as TAU, H as HALF_PI, P as PI, m as isNumber, n as _limitValue, o as _lookupByKey, p as getRelativePosition$1, q as _isPointInArea, w as _rlookupByKey, x as toPadding, y as each, z as getMaximumSize, A as _getParentNode, B as readUsedSize, C as throttled, D as supportsEventListenerOptions, E as log10, F as finiteOrDefault, G as isNumberFinite, I as callback, J as toDegrees, K as _measureText, L as _int16Range, M as _alignPixel, N as renderText, O as toFont, Q as _factorize, R as _capitalize, S as isFunction, U as _attachContext, V as _createResolver, W as mergeIf, X as _descriptors, Y as uid, Z as retinaScale, $ as clearCanvas, a0 as _elementsEqual, a1 as getAngleFromPoint, a2 as _angleBetween, a3 as _updateBezierControlPoints, a4 as _computeSegments, a5 as _boundSegments, a6 as _steppedInterpolation, a7 as _bezierInterpolation, a8 as _pointInLine, a9 as _steppedLineTo, aa as _bezierCurveTo, ab as drawPoint, ac as toTRBL, ad as toTRBLCorners, ae as _boundSegment, af as _normalizeAngle, ag as getRtlAdapter, ah as _alignStartEnd, ai as overrideTextDirection, aj as restoreTextDirection, ak as _toLeftRightCenter, al as noop, am as distanceBetweenPoints, an as toFontString, ao as _setMinAndMaxByKey, ap as _decimalPlaces, aq as almostEquals, ar as almostWhole, as as _longestText, at as _filterBetween, au as _lookup } from './chunks/helpers.segment.js';
+import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, b as isArray, d as defaults, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as defined, s as sign, h as isNullOrUndef, j as clipArea, k as unclipArea, _ as _arrayUnique, t as toRadians, n as numberOrPercentageOf, T as TAU, H as HALF_PI, P as PI, m as isNumber, o as _limitValue, p as _lookupByKey, q as getRelativePosition$1, w as _isPointInArea, x as _rlookupByKey, y as toPadding, z as each, A as getMaximumSize, B as _getParentNode, C as readUsedSize, D as throttled, E as supportsEventListenerOptions, F as log10, G as finiteOrDefault, I as isNumberFinite, J as callback, K as toDegrees, L as _measureText, M as _int16Range, N as _alignPixel, O as renderText, Q as toFont, R as _factorize, S as _capitalize, U as isFunction, V as _attachContext, W as _createResolver, X as mergeIf, Y as _descriptors, Z as uid, $ as retinaScale, a0 as clearCanvas, a1 as _elementsEqual, a2 as getAngleFromPoint, a3 as _angleBetween, a4 as _updateBezierControlPoints, a5 as _computeSegments, a6 as _boundSegments, a7 as _steppedInterpolation, a8 as _bezierInterpolation, a9 as _pointInLine, aa as _steppedLineTo, ab as _bezierCurveTo, ac as drawPoint, ad as toTRBL, ae as toTRBLCorners, af as _boundSegment, ag as _normalizeAngle, ah as getRtlAdapter, ai as _alignStartEnd, aj as overrideTextDirection, ak as restoreTextDirection, al as _toLeftRightCenter, am as noop, an as distanceBetweenPoints, ao as toFontString, ap as _setMinAndMaxByKey, aq as _decimalPlaces, ar as almostEquals, as as almostWhole, at as _longestText, au as _filterBetween, av as _lookup } from './chunks/helpers.segment.js';
 export { d as defaults } from './chunks/helpers.segment.js';
 
 function drawFPS(chart, count, date, lastDate) {
@@ -1707,7 +1707,8 @@ class DoughnutController extends DatasetController {
     const spacing = me.getMaxBorderWidth() + me.getMaxOffset(arcs);
     const maxWidth = (chartArea.right - chartArea.left - spacing) / ratioX;
     const maxHeight = (chartArea.bottom - chartArea.top - spacing) / ratioY;
-    const outerRadius = Math.max(Math.min(maxWidth, maxHeight) / 2, 0);
+    const maxRadius = Math.max(Math.min(maxWidth, maxHeight) / 2, 0);
+    const outerRadius = numberOrPercentageOf(me.options.outerRadius, maxRadius);
     const innerRadius = Math.max(outerRadius * cutout, 0);
     const radiusLength = (outerRadius - innerRadius) / me._getVisibleDatasetWeightTotal();
     me.offsetX = offsetX * outerRadius;
@@ -1866,7 +1867,8 @@ DoughnutController.defaults = {
   datasets: {
     cutoutPercentage: 50,
     rotation: 0,
-    circumference: 360
+    circumference: 360,
+    outerRadius: '100%'
   },
   indexAxis: 'r',
   plugins: {
@@ -2222,9 +2224,10 @@ class PieController extends DoughnutController {
 PieController.id = 'pie';
 PieController.defaults = {
   datasets: {
-    cutoutPercentage: 0,
+    cutout: 0,
     rotation: 0,
-    circumference: 360
+    circumference: 360,
+    outerRadius: '100%'
   }
 };
 
