@@ -10214,7 +10214,8 @@ function getTooltipSize(tooltip) {
   const titleLineCount = title.length;
   const footerLineCount = footer.length;
   const bodyLineItemCount = body.length;
-  let height = options.yPadding * 2;
+  const padding = toPadding(options.padding);
+  let height = padding.height;
   let width = 0;
   let combinedBodyLength = body.reduce((count, bodyItem) => count + bodyItem.before.length + bodyItem.lines.length + bodyItem.after.length, 0);
   combinedBodyLength += tooltip.beforeBody.length + tooltip.afterBody.length;
@@ -10253,7 +10254,7 @@ function getTooltipSize(tooltip) {
   ctx.font = toFontString(footerFont);
   each(tooltip.footer, maxLineWidth);
   ctx.restore();
-  width += 2 * options.xPadding;
+  width += 2 * padding.width;
   return {width, height};
 }
 function determineAlignment(chart, options, size) {
@@ -10345,11 +10346,12 @@ function getBackgroundPoint(options, size, alignment, chart) {
 }
 function getAlignedX(tooltip, align) {
   const options = tooltip.options;
+  const padding = toPadding(options.padding);
   return align === 'center'
     ? tooltip.x + tooltip.width / 2
     : align === 'right'
-      ? tooltip.x + tooltip.width - options.xPadding
-      : tooltip.x + options.xPadding;
+      ? tooltip.x + tooltip.width - padding.right
+      : tooltip.x + padding.left;
 }
 function getBeforeAfterBodyLines(callback) {
   return pushOrConcat([], splitNewlines(callback));
@@ -10775,13 +10777,14 @@ class Tooltip extends Element {
       y: me.y
     };
     opacity = Math.abs(opacity) < 1e-3 ? 0 : opacity;
+    const padding = toPadding(options.padding);
     const hasTooltipContent = me.title.length || me.beforeBody.length || me.body.length || me.afterBody.length || me.footer.length;
     if (options.enabled && hasTooltipContent) {
       ctx.save();
       ctx.globalAlpha = opacity;
       me.drawBackground(pt, ctx, tooltipSize);
       overrideTextDirection(ctx, options.textDirection);
-      pt.y += options.yPadding;
+      pt.y += padding.top;
       me.drawTitle(pt, ctx);
       me.drawBody(pt, ctx);
       me.drawFooter(pt, ctx);
@@ -10911,8 +10914,7 @@ var plugin_tooltip = {
       style: 'bold',
     },
     footerAlign: 'left',
-    yPadding: 6,
-    xPadding: 6,
+    padding: 6,
     caretPadding: 2,
     caretSize: 5,
     cornerRadius: 6,
