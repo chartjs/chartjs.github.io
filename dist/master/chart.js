@@ -5242,7 +5242,7 @@ function createDescriptors(chart, plugins, options, all) {
 function pluginOpts(config, plugin, opts, context) {
   const keys = config.pluginScopeKeys(plugin);
   const scopes = config.getOptionScopes(opts, keys);
-  return config.createResolver(scopes, context);
+  return config.createResolver(scopes, context, [''], {scriptable: false, indexable: false});
 }
 
 function _createResolver(scopes, prefixes = [''], rootScopes = scopes, fallback) {
@@ -5280,16 +5280,16 @@ function _createResolver(scopes, prefixes = [''], rootScopes = scopes, fallback)
     }
   });
 }
-function _attachContext(proxy, context, subProxy) {
+function _attachContext(proxy, context, subProxy, descriptorDefaults) {
   const cache = {
     _cacheable: false,
     _proxy: proxy,
     _context: context,
     _subProxy: subProxy,
     _stack: new Set(),
-    _descriptors: _descriptors(proxy),
-    setContext: (ctx) => _attachContext(proxy, ctx, subProxy),
-    override: (scope) => _attachContext(proxy.override(scope), context, subProxy)
+    _descriptors: _descriptors(proxy, descriptorDefaults),
+    setContext: (ctx) => _attachContext(proxy, ctx, subProxy, descriptorDefaults),
+    override: (scope) => _attachContext(proxy.override(scope), context, subProxy, descriptorDefaults)
   };
   return new Proxy(cache, {
     get(target, prop, receiver) {
@@ -5314,9 +5314,11 @@ function _attachContext(proxy, context, subProxy) {
     }
   });
 }
-function _descriptors(proxy) {
-  const {_scriptable = true, _indexable = true} = proxy;
+function _descriptors(proxy, defaults = {scriptable: true, indexable: true}) {
+  const {_scriptable = defaults.scriptable, _indexable = defaults.indexable} = proxy;
   return {
+    scriptable: _scriptable,
+    indexable: _indexable,
     isScriptable: isFunction(_scriptable) ? _scriptable : () => _scriptable,
     isIndexable: isFunction(_indexable) ? _indexable : () => _indexable
   };
@@ -5344,7 +5346,7 @@ function _resolveWithContext(target, prop, receiver) {
     value = _resolveArray(prop, value, target, descriptors.isIndexable);
   }
   if (needsSubResolver(prop, value)) {
-    value = _attachContext(value, _context, _subProxy && _subProxy[prop]);
+    value = _attachContext(value, _context, _subProxy && _subProxy[prop], descriptors);
   }
   return value;
 }
@@ -5362,7 +5364,7 @@ function _resolveScriptable(prop, value, target, receiver) {
   return value;
 }
 function _resolveArray(prop, value, target, isIndexable) {
-  const {_proxy, _context, _subProxy} = target;
+  const {_proxy, _context, _subProxy, _descriptors: descriptors} = target;
   if (defined(_context.index) && isIndexable(prop)) {
     value = value[_context.index % value.length];
   } else if (isObject(value[0])) {
@@ -5371,7 +5373,7 @@ function _resolveArray(prop, value, target, isIndexable) {
     value = [];
     for (const item of arr) {
       const resolver = createSubResolver(scopes, _proxy, prop, item);
-      value.push(_attachContext(resolver, _context, _subProxy && _subProxy[prop]));
+      value.push(_attachContext(resolver, _context, _subProxy && _subProxy[prop], descriptors));
     }
   }
   return value;
@@ -5674,10 +5676,10 @@ class Config {
     }
     return result;
   }
-  createResolver(scopes, context, prefixes = ['']) {
+  createResolver(scopes, context, prefixes = [''], descriptorDefaults) {
     const {resolver} = getResolver(this._resolverCache, scopes, prefixes);
     return isObject(context)
-      ? _attachContext(resolver, isFunction(context) ? context() : context)
+      ? _attachContext(resolver, context, undefined, descriptorDefaults)
       : resolver;
   }
 }
