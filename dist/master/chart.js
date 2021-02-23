@@ -5258,6 +5258,12 @@ function _createResolver(scopes, prefixes = [''], rootScopes = scopes, fallback)
     override: (scope) => _createResolver([scope, ...scopes], prefixes, rootScopes, fallback),
   };
   return new Proxy(cache, {
+    deleteProperty(target, prop) {
+      delete target[prop];
+      delete target._keys;
+      delete scopes[0][prop];
+      return true;
+    },
     get(target, prop) {
       return _cached(target, prop,
         () => _resolveWithPrefixes(prop, prefixes, scopes, target));
@@ -5276,7 +5282,9 @@ function _createResolver(scopes, prefixes = [''], rootScopes = scopes, fallback)
     },
     set(target, prop, value) {
       scopes[0][prop] = value;
-      return delete target[prop];
+      delete target[prop];
+      delete target._keys;
+      return true;
     }
   });
 }
@@ -5292,6 +5300,11 @@ function _attachContext(proxy, context, subProxy, descriptorDefaults) {
     override: (scope) => _attachContext(proxy.override(scope), context, subProxy, descriptorDefaults)
   };
   return new Proxy(cache, {
+    deleteProperty(target, prop) {
+      delete target[prop];
+      delete proxy[prop];
+      return true;
+    },
     get(target, prop, receiver) {
       return _cached(target, prop,
         () => _resolveWithContext(target, prop, receiver));
@@ -5310,7 +5323,8 @@ function _attachContext(proxy, context, subProxy, descriptorDefaults) {
     },
     set(target, prop, value) {
       proxy[prop] = value;
-      return delete target[prop];
+      delete target[prop];
+      return true;
     }
   });
 }
