@@ -9347,7 +9347,7 @@ function sorter(a, b) {
 }
 function parse(scale, input) {
   if (isNullOrUndef(input)) {
-    return null;
+    return NaN;
   }
   const adapter = scale._adapter;
   const options = scale.options.time;
@@ -9362,7 +9362,7 @@ function parse(scale, input) {
       : adapter.parse(value);
   }
   if (value === null) {
-    return value;
+    return NaN;
   }
   if (round) {
     value = round === 'week' && (isNumber(isoWeekday) || isoWeekday === true)
