@@ -4,7 +4,7 @@
  * (c) 2021 Chart.js Contributors
  * Released under the MIT License
  */
-import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, b as isArray, d as defaults, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as defined, s as sign, h as isNullOrUndef, j as clipArea, k as unclipArea, _ as _arrayUnique, t as toRadians, n as numberOrPercentageOf, T as TAU, H as HALF_PI, P as PI, m as isNumber, o as _limitValue, p as _lookupByKey, q as getRelativePosition$1, w as _isPointInArea, x as _rlookupByKey, y as toPadding, z as each, A as getMaximumSize, B as _getParentNode, C as readUsedSize, D as throttled, E as supportsEventListenerOptions, F as log10, G as finiteOrDefault, I as isNumberFinite, J as callback, K as toDegrees, L as _measureText, M as _int16Range, N as _alignPixel, O as renderText, Q as toFont, R as _factorize, S as _capitalize, U as isFunction, V as _attachContext, W as _createResolver, X as _descriptors, Y as mergeIf, Z as uid, $ as retinaScale, a0 as clearCanvas, a1 as _elementsEqual, a2 as getAngleFromPoint, a3 as _angleBetween, a4 as _updateBezierControlPoints, a5 as _computeSegments, a6 as _boundSegments, a7 as _steppedInterpolation, a8 as _bezierInterpolation, a9 as _pointInLine, aa as _steppedLineTo, ab as _bezierCurveTo, ac as drawPoint, ad as toTRBL, ae as toTRBLCorners, af as _boundSegment, ag as _normalizeAngle, ah as getRtlAdapter, ai as _alignStartEnd, aj as overrideTextDirection, ak as restoreTextDirection, al as _toLeftRightCenter, am as noop, an as distanceBetweenPoints, ao as toFontString, ap as _setMinAndMaxByKey, aq as _decimalPlaces, ar as almostEquals, as as almostWhole, at as _longestText, au as _filterBetween, av as _lookup } from './chunks/helpers.segment.js';
+import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, b as isArray, d as defaults, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as defined, s as sign, h as isNullOrUndef, j as clipArea, k as unclipArea, _ as _arrayUnique, t as toRadians, n as numberOrPercentageOf, T as TAU, H as HALF_PI, P as PI, m as isNumber, o as _limitValue, p as _lookupByKey, q as getRelativePosition$1, w as _isPointInArea, x as _rlookupByKey, y as toPadding, z as each, A as getMaximumSize, B as _getParentNode, C as readUsedSize, D as throttled, E as supportsEventListenerOptions, F as log10, G as finiteOrDefault, I as isNumberFinite, J as callback, K as toDegrees, L as _measureText, M as _int16Range, N as _alignPixel, O as renderText, Q as toFont, R as _factorize, S as _capitalize, U as isFunction, V as _attachContext, W as _createResolver, X as _descriptors, Y as mergeIf, Z as uid, $ as debounce, a0 as retinaScale, a1 as clearCanvas, a2 as _elementsEqual, a3 as getAngleFromPoint, a4 as _angleBetween, a5 as _updateBezierControlPoints, a6 as _computeSegments, a7 as _boundSegments, a8 as _steppedInterpolation, a9 as _bezierInterpolation, aa as _pointInLine, ab as _steppedLineTo, ac as _bezierCurveTo, ad as drawPoint, ae as toTRBL, af as toTRBLCorners, ag as _boundSegment, ah as _normalizeAngle, ai as getRtlAdapter, aj as _alignStartEnd, ak as overrideTextDirection, al as restoreTextDirection, am as _toLeftRightCenter, an as noop, ao as distanceBetweenPoints, ap as toFontString, aq as _setMinAndMaxByKey, ar as _decimalPlaces, as as almostEquals, at as almostWhole, au as _longestText, av as _filterBetween, aw as _lookup } from './chunks/helpers.segment.js';
 export { d as defaults } from './chunks/helpers.segment.js';
 
 function drawFPS(chart, count, date, lastDate) {
@@ -5033,6 +5033,7 @@ class Chart {
     this.attached = false;
     this._animationsDisabled = undefined;
     this.$context = undefined;
+    this._doResize = debounce(() => this.update('resize'), options.resizeDelay || 0);
     instances[me.id] = me;
     if (!context || !canvas) {
       console.error("Failed to create chart: can't acquire context from the given item");
@@ -5109,7 +5110,9 @@ class Chart {
     me.notifyPlugins('resize', {size: newSize});
     callback(options.onResize, [newSize], me);
     if (me.attached) {
-      me.update('resize');
+      if (me._doResize()) {
+        me.render();
+      }
     }
   }
   ensureScalesHaveIDs() {

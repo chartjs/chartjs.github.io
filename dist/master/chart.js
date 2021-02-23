@@ -36,6 +36,18 @@ function throttled(fn, thisArg, updateFn) {
     }
   };
 }
+function debounce(fn, delay) {
+  let timeout;
+  return function() {
+    if (delay) {
+      clearTimeout(timeout);
+      timeout = setTimeout(fn, delay);
+    } else {
+      fn();
+    }
+    return delay;
+  };
+}
 const _toLeftRightCenter = (align) => align === 'start' ? 'left' : align === 'end' ? 'right' : 'center';
 const _alignStartEnd = (align, start, end) => align === 'start' ? start : align === 'end' ? end : (start + end) / 2;
 
@@ -5811,6 +5823,7 @@ class Chart {
     this.attached = false;
     this._animationsDisabled = undefined;
     this.$context = undefined;
+    this._doResize = debounce(() => this.update('resize'), options.resizeDelay || 0);
     instances[me.id] = me;
     if (!context || !canvas) {
       console.error("Failed to create chart: can't acquire context from the given item");
@@ -5887,7 +5900,9 @@ class Chart {
     me.notifyPlugins('resize', {size: newSize});
     callback(options.onResize, [newSize], me);
     if (me.attached) {
-      me.update('resize');
+      if (me._doResize()) {
+        me.render();
+      }
     }
   }
   ensureScalesHaveIDs() {
