@@ -4742,18 +4742,17 @@ function mergeScaleConfig(config, options) {
   });
   return scales;
 }
-function initOptions(config, options) {
-  options = options || {};
+function initOptions(config) {
+  const options = config.options || (config.options = {});
   options.plugins = valueOrDefault(options.plugins, {});
   options.scales = mergeScaleConfig(config, options);
-  return options;
 }
 function initConfig(config) {
   config = config || {};
   const data = config.data = config.data || {datasets: [], labels: []};
   data.datasets = data.datasets || [];
   data.labels = data.labels || [];
-  config.options = initOptions(config, config.options);
+  initOptions(config);
   return config;
 }
 const keyCache = new Map();
@@ -4794,13 +4793,16 @@ class Config {
   get options() {
     return this._config.options;
   }
+  set options(options) {
+    this._config.options = options;
+  }
   get plugins() {
     return this._config.plugins;
   }
-  update(options) {
+  update() {
     const config = this._config;
     this.clearCache();
-    config.options = initOptions(config, options);
+    initOptions(config);
   }
   clearCache() {
     this._scopeCache.clear();
@@ -5040,7 +5042,7 @@ class Chart {
     return this._options;
   }
   set options(options) {
-    this.config.update(options);
+    this.config.options = options;
   }
   _initialize() {
     const me = this;
@@ -5246,7 +5248,7 @@ class Chart {
   update(mode) {
     const me = this;
     const config = me.config;
-    config.update(config.options);
+    config.update();
     me._options = config.createResolver(config.chartOptionScopes(), me.getContext());
     each(me.scales, (scale) => {
       layouts.removeBox(me, scale);
