@@ -2165,7 +2165,7 @@ var layouts = {
       }
     });
     const visibleVerticalBoxCount = verticalBoxes.reduce((total, wrap) =>
-      wrap.box.options && wrap.box.options.display === false ? total : total + 1, 0);
+      wrap.box.options && wrap.box.options.display === false ? total : total + 1, 0) || 1;
     const params = Object.freeze({
       outerWidth: width,
       outerHeight: height,
