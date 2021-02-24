@@ -51,19 +51,6 @@ function debounce(fn, delay) {
 const _toLeftRightCenter = (align) => align === 'start' ? 'left' : align === 'end' ? 'right' : 'center';
 const _alignStartEnd = (align, start, end) => align === 'start' ? start : align === 'end' ? end : (start + end) / 2;
 
-function drawFPS(chart, count, date, lastDate) {
-  const fps = (1000 / (date - lastDate)) | 0;
-  const ctx = chart.ctx;
-  ctx.save();
-  ctx.clearRect(0, 0, 50, 24);
-  ctx.fillStyle = 'black';
-  ctx.textAlign = 'right';
-  if (count) {
-    ctx.fillText(count, 50, 8);
-    ctx.fillText(fps + ' fps', 50, 18);
-  }
-  ctx.restore();
-}
 class Animator {
   constructor() {
     this._request = null;
@@ -72,7 +59,7 @@ class Animator {
     this._lastDate = undefined;
   }
   _notify(chart, anims, date, type) {
-    const callbacks = anims.listeners[type] || [];
+    const callbacks = anims.listeners[type];
     const numSteps = anims.duration;
     callbacks.forEach(fn => fn({
       chart,
@@ -118,9 +105,6 @@ class Animator {
       if (draw) {
         chart.draw();
         me._notify(chart, anims, date, 'progress');
-      }
-      if (chart.options.animation.debug) {
-        drawFPS(chart, items.length, date, me._lastDate);
       }
       if (!items.length) {
         anims.running = false;
@@ -2851,7 +2835,7 @@ defaults.set('transitions', {
       },
       visible: {
         type: 'boolean',
-        fn: v => v < 1 ? 0 : 1
+        fn: v => v | 0
       },
     }
   }

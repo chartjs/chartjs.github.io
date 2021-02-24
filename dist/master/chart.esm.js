@@ -7,19 +7,6 @@
 import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, b as isArray, d as defaults, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as defined, s as sign, h as isNullOrUndef, j as clipArea, k as unclipArea, _ as _arrayUnique, t as toRadians, n as numberOrPercentageOf, T as TAU, H as HALF_PI, P as PI, m as isNumber, o as _limitValue, p as _lookupByKey, q as getRelativePosition$1, w as _isPointInArea, x as _rlookupByKey, y as toPadding, z as each, A as getMaximumSize, B as _getParentNode, C as readUsedSize, D as throttled, E as supportsEventListenerOptions, F as log10, G as finiteOrDefault, I as isNumberFinite, J as callback, K as toDegrees, L as _measureText, M as _int16Range, N as _alignPixel, O as renderText, Q as toFont, R as _factorize, S as _capitalize, U as isFunction, V as _attachContext, W as _createResolver, X as _descriptors, Y as mergeIf, Z as uid, $ as debounce, a0 as retinaScale, a1 as clearCanvas, a2 as _elementsEqual, a3 as getAngleFromPoint, a4 as _angleBetween, a5 as _updateBezierControlPoints, a6 as _computeSegments, a7 as _boundSegments, a8 as _steppedInterpolation, a9 as _bezierInterpolation, aa as _pointInLine, ab as _steppedLineTo, ac as _bezierCurveTo, ad as drawPoint, ae as toTRBL, af as toTRBLCorners, ag as _boundSegment, ah as _normalizeAngle, ai as getRtlAdapter, aj as _alignStartEnd, ak as overrideTextDirection, al as restoreTextDirection, am as _toLeftRightCenter, an as noop, ao as distanceBetweenPoints, ap as toFontString, aq as _setMinAndMaxByKey, ar as _decimalPlaces, as as almostEquals, at as almostWhole, au as _longestText, av as _filterBetween, aw as _lookup } from './chunks/helpers.segment.js';
 export { d as defaults } from './chunks/helpers.segment.js';
 
-function drawFPS(chart, count, date, lastDate) {
-  const fps = (1000 / (date - lastDate)) | 0;
-  const ctx = chart.ctx;
-  ctx.save();
-  ctx.clearRect(0, 0, 50, 24);
-  ctx.fillStyle = 'black';
-  ctx.textAlign = 'right';
-  if (count) {
-    ctx.fillText(count, 50, 8);
-    ctx.fillText(fps + ' fps', 50, 18);
-  }
-  ctx.restore();
-}
 class Animator {
   constructor() {
     this._request = null;
@@ -28,7 +15,7 @@ class Animator {
     this._lastDate = undefined;
   }
   _notify(chart, anims, date, type) {
-    const callbacks = anims.listeners[type] || [];
+    const callbacks = anims.listeners[type];
     const numSteps = anims.duration;
     callbacks.forEach(fn => fn({
       chart,
@@ -74,9 +61,6 @@ class Animator {
       if (draw) {
         chart.draw();
         me._notify(chart, anims, date, 'progress');
-      }
-      if (chart.options.animation.debug) {
-        drawFPS(chart, items.length, date, me._lastDate);
       }
       if (!items.length) {
         anims.running = false;
@@ -313,7 +297,7 @@ defaults.set('transitions', {
       },
       visible: {
         type: 'boolean',
-        fn: v => v < 1 ? 0 : 1
+        fn: v => v | 0
       },
     }
   }
