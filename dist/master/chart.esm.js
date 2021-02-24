@@ -6144,6 +6144,11 @@ LineElement.descriptors = {
   _indexable: (name) => name !== 'borderDash' && name !== 'fill',
 };
 
+function inRange(el, pos, axis, useFinalPosition) {
+  const options = el.options;
+  const {[axis]: value} = el.getProps([axis], useFinalPosition);
+  return (Math.abs(pos - value) < options.radius + options.hitRadius);
+}
 class PointElement extends Element {
   constructor(cfg) {
     super();
@@ -6160,14 +6165,10 @@ class PointElement extends Element {
     return ((Math.pow(mouseX - x, 2) + Math.pow(mouseY - y, 2)) < Math.pow(options.hitRadius + options.radius, 2));
   }
   inXRange(mouseX, useFinalPosition) {
-    const options = this.options;
-    const {x} = this.getProps(['x'], useFinalPosition);
-    return (Math.abs(mouseX - x) < options.radius + options.hitRadius);
+    return inRange(this, mouseX, 'x', useFinalPosition);
   }
   inYRange(mouseY, useFinalPosition) {
-    const options = this.options;
-    const {y} = this.getProps(['x'], useFinalPosition);
-    return (Math.abs(mouseY - y) < options.radius + options.hitRadius);
+    return inRange(this, mouseY, 'y', useFinalPosition);
   }
   getCenterPoint(useFinalPosition) {
     const {x, y} = this.getProps(['x', 'y'], useFinalPosition);
@@ -6309,7 +6310,7 @@ function boundingRects(bar) {
     }
   };
 }
-function inRange(bar, x, y, useFinalPosition) {
+function inRange$1(bar, x, y, useFinalPosition) {
   const skipX = x === null;
   const skipY = y === null;
   const skipBoth = skipX && skipY;
@@ -6367,13 +6368,13 @@ class BarElement extends Element {
     ctx.restore();
   }
   inRange(mouseX, mouseY, useFinalPosition) {
-    return inRange(this, mouseX, mouseY, useFinalPosition);
+    return inRange$1(this, mouseX, mouseY, useFinalPosition);
   }
   inXRange(mouseX, useFinalPosition) {
-    return inRange(this, mouseX, null, useFinalPosition);
+    return inRange$1(this, mouseX, null, useFinalPosition);
   }
   inYRange(mouseY, useFinalPosition) {
-    return inRange(this, null, mouseY, useFinalPosition);
+    return inRange$1(this, null, mouseY, useFinalPosition);
   }
   getCenterPoint(useFinalPosition) {
     const {x, y, base, horizontal} = this.getProps(['x', 'y', 'base', 'horizontal'], useFinalPosition);
