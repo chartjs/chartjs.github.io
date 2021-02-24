@@ -6639,23 +6639,17 @@ class simpleArc {
   pathSegment(ctx, bounds, opts) {
     const {x, y, radius} = this;
     bounds = bounds || {start: 0, end: TAU};
-    if (opts.reverse) {
-      ctx.arc(x, y, radius, bounds.end, bounds.start, true);
-    } else {
-      ctx.arc(x, y, radius, bounds.start, bounds.end);
-    }
+    ctx.arc(x, y, radius, bounds.end, bounds.start, true);
     return !opts.bounds;
   }
-  interpolate(point, property) {
+  interpolate(point) {
     const {x, y, radius} = this;
     const angle = point.angle;
-    if (property === 'angle') {
-      return {
-        x: x + Math.cos(angle) * radius,
-        y: y + Math.sin(angle) * radius,
-        angle
-      };
-    }
+    return {
+      x: x + Math.cos(angle) * radius,
+      y: y + Math.sin(angle) * radius,
+      angle
+    };
   }
 }
 function computeCircularBoundary(source) {
@@ -7544,22 +7538,6 @@ function createTitle(chart, titleOpts) {
   layouts.addBox(chart, title);
   chart.titleBlock = title;
 }
-function removeTitle(chart) {
-  const title = chart.titleBlock;
-  if (title) {
-    layouts.removeBox(chart, title);
-    delete chart.titleBlock;
-  }
-}
-function createOrUpdateTitle(chart, options) {
-  const title = chart.titleBlock;
-  if (title) {
-    layouts.configure(chart, title, options);
-    title.options = options;
-  } else {
-    createTitle(chart, options);
-  }
-}
 var plugin_title = {
   id: 'title',
   _element: Title,
@@ -7572,11 +7550,9 @@ var plugin_title = {
     delete chart.titleBlock;
   },
   beforeUpdate(chart, _args, options) {
-    if (options === false) {
-      removeTitle(chart);
-    } else {
-      createOrUpdateTitle(chart, options);
-    }
+    const title = chart.titleBlock;
+    layouts.configure(chart, title, options);
+    title.options = options;
   },
   defaults: {
     align: 'center',
