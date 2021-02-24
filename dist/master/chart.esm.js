@@ -4,7 +4,7 @@
  * (c) 2021 Chart.js Contributors
  * Released under the MIT License
  */
-import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, b as isArray, d as defaults, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as defined, s as sign, h as isNullOrUndef, j as clipArea, k as unclipArea, _ as _arrayUnique, t as toRadians, m as toPercentage, n as toPixels, T as TAU, o as _angleBetween, H as HALF_PI, P as PI, p as isNumber, q as _limitValue, w as _lookupByKey, x as getRelativePosition$1, y as _isPointInArea, z as _rlookupByKey, A as toPadding, B as each, C as getMaximumSize, D as _getParentNode, E as readUsedSize, F as throttled, G as supportsEventListenerOptions, I as log10, J as finiteOrDefault, K as isNumberFinite, L as callback, M as toDegrees, N as _measureText, O as _int16Range, Q as _alignPixel, R as renderText, S as toFont, U as _factorize, V as _capitalize, W as isFunction, X as _attachContext, Y as _createResolver, Z as _descriptors, $ as mergeIf, a0 as uid, a1 as debounce, a2 as retinaScale, a3 as clearCanvas, a4 as _elementsEqual, a5 as getAngleFromPoint, a6 as _updateBezierControlPoints, a7 as _computeSegments, a8 as _boundSegments, a9 as _steppedInterpolation, aa as _bezierInterpolation, ab as _pointInLine, ac as _steppedLineTo, ad as _bezierCurveTo, ae as drawPoint, af as toTRBL, ag as toTRBLCorners, ah as _boundSegment, ai as _normalizeAngle, aj as getRtlAdapter, ak as _alignStartEnd, al as overrideTextDirection, am as restoreTextDirection, an as _toLeftRightCenter, ao as noop, ap as distanceBetweenPoints, aq as toFontString, ar as _setMinAndMaxByKey, as as _decimalPlaces, at as almostEquals, au as almostWhole, av as _longestText, aw as _filterBetween, ax as _lookup } from './chunks/helpers.segment.js';
+import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, b as isArray, d as defaults, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as isNumberFinite, h as defined, s as sign, j as isNullOrUndef, k as clipArea, m as unclipArea, _ as _arrayUnique, t as toRadians, n as toPercentage, o as toPixels, T as TAU, p as _angleBetween, H as HALF_PI, P as PI, q as isNumber, w as _limitValue, x as _lookupByKey, y as getRelativePosition$1, z as _isPointInArea, A as _rlookupByKey, B as toPadding, C as each, D as getMaximumSize, E as _getParentNode, F as readUsedSize, G as throttled, I as supportsEventListenerOptions, J as log10, K as finiteOrDefault, L as callback, M as toDegrees, N as _measureText, O as _int16Range, Q as _alignPixel, R as renderText, S as toFont, U as _factorize, V as _capitalize, W as isFunction, X as _attachContext, Y as _createResolver, Z as _descriptors, $ as mergeIf, a0 as uid, a1 as debounce, a2 as retinaScale, a3 as clearCanvas, a4 as _elementsEqual, a5 as getAngleFromPoint, a6 as _updateBezierControlPoints, a7 as _computeSegments, a8 as _boundSegments, a9 as _steppedInterpolation, aa as _bezierInterpolation, ab as _pointInLine, ac as _steppedLineTo, ad as _bezierCurveTo, ae as drawPoint, af as toTRBL, ag as toTRBLCorners, ah as _boundSegment, ai as _normalizeAngle, aj as getRtlAdapter, ak as _alignStartEnd, al as overrideTextDirection, am as restoreTextDirection, an as _toLeftRightCenter, ao as noop, ap as distanceBetweenPoints, aq as toFontString, ar as _setMinAndMaxByKey, as as _decimalPlaces, at as almostEquals, au as almostWhole, av as _longestText, aw as _filterBetween, ax as _lookup } from './chunks/helpers.segment.js';
 export { d as defaults } from './chunks/helpers.segment.js';
 
 class Animator {
@@ -470,6 +470,9 @@ function getSortedDatasetIndices(chart, filterVisible) {
 function applyStack(stack, value, dsIndex, allOther) {
   const keys = stack.keys;
   let i, ilen, datasetIndex, otherValue;
+  if (value === null) {
+    return;
+  }
   for (i = 0, ilen = keys.length; i < ilen; ++i) {
     datasetIndex = +keys[i];
     if (datasetIndex === dsIndex) {
@@ -479,7 +482,7 @@ function applyStack(stack, value, dsIndex, allOther) {
       break;
     }
     otherValue = stack.values[datasetIndex];
-    if (!isNaN(otherValue) && (value === 0 || sign(value) === sign(otherValue))) {
+    if (isNumberFinite(otherValue) && (value === 0 || sign(value) === sign(otherValue))) {
       value += otherValue;
     }
   }
@@ -714,7 +717,7 @@ class DatasetController {
       } else {
         parsed = me.parsePrimitiveData(meta, data, start, count);
       }
-      const isNotInOrderComparedToPrev = () => isNaN(cur[iAxis]) || (prev && cur[iAxis] < prev[iAxis]);
+      const isNotInOrderComparedToPrev = () => cur[iAxis] === null || (prev && cur[iAxis] < prev[iAxis]);
       for (i = 0; i < count; ++i) {
         meta._parsed[i + start] = cur = parsed[i];
         if (sorted) {
@@ -793,13 +796,14 @@ class DatasetController {
     return applyStack(stack, value, meta.index);
   }
   updateRangeFromParsed(range, scale, parsed, stack) {
-    let value = parsed[scale.axis];
+    const parsedValue = parsed[scale.axis];
+    let value = parsedValue === null ? NaN : parsedValue;
     const values = stack && parsed._stacks[scale.axis];
     if (stack && values) {
       stack.values = values;
       range.min = Math.min(range.min, value);
       range.max = Math.max(range.max, value);
-      value = applyStack(stack, value, this._cachedMeta.index, true);
+      value = applyStack(stack, parsedValue, this._cachedMeta.index, true);
     }
     range.min = Math.min(range.min, value);
     range.max = Math.max(range.max, value);
@@ -819,7 +823,7 @@ class DatasetController {
       parsed = _parsed[i];
       value = parsed[scale.axis];
       otherValue = parsed[otherScale.axis];
-      return (isNaN(value) || isNaN(otherValue) || otherMin > otherValue || otherMax < otherValue);
+      return (!isNumberFinite(value) || !isNumberFinite(otherValue) || otherMin > otherValue || otherMax < otherValue);
     }
     for (i = 0; i < ilen; ++i) {
       if (_skip()) {
@@ -847,7 +851,7 @@ class DatasetController {
     let i, ilen, value;
     for (i = 0, ilen = parsed.length; i < ilen; ++i) {
       value = parsed[i][scale.axis];
-      if (!isNaN(value)) {
+      if (isNumberFinite(value)) {
         values.push(value);
       }
     }
@@ -1426,7 +1430,7 @@ class BarController extends DatasetController {
     let i = 0;
     clipArea(chart.ctx, chart.chartArea);
     for (; i < ilen; ++i) {
-      if (!isNaN(me.getParsed(i)[vScale.axis])) {
+      if (me.getParsed(i)[vScale.axis] !== null) {
         rects[i].draw(me._ctx);
       }
     }
@@ -1696,7 +1700,10 @@ class DoughnutController extends DatasetController {
     const opts = me.options;
     const meta = me._cachedMeta;
     const circumference = me._getCircumference();
-    return reset && opts.animation.animateRotate ? 0 : this.chart.getDataVisibility(i) ? me.calculateCircumference(meta._parsed[i] * circumference / TAU) : 0;
+    if ((reset && opts.animation.animateRotate) || !this.chart.getDataVisibility(i) || meta._parsed[i] === null) {
+      return 0;
+    }
+    return me.calculateCircumference(meta._parsed[i] * circumference / TAU);
   }
   updateElements(arcs, start, count, mode) {
     const me = this;
@@ -1745,7 +1752,7 @@ class DoughnutController extends DatasetController {
     let i;
     for (i = 0; i < metaData.length; i++) {
       const value = meta._parsed[i];
-      if (!isNaN(value) && this.chart.getDataVisibility(i)) {
+      if (value !== null && this.chart.getDataVisibility(i)) {
         total += Math.abs(value);
       }
     }
@@ -8636,10 +8643,10 @@ class LinearScaleBase extends Scale {
   }
   parse(raw, index) {
     if (isNullOrUndef(raw)) {
-      return NaN;
+      return null;
     }
     if ((typeof raw === 'number' || raw instanceof Number) && !isFinite(+raw)) {
-      return NaN;
+      return null;
     }
     return +raw;
   }
@@ -8751,7 +8758,7 @@ class LinearScale extends LinearScaleBase {
     return Math.ceil(me.height / tickFont.lineHeight);
   }
   getPixelForValue(value) {
-    return this.getPixelForDecimal((value - this._startValue) / this._valueRange);
+    return value === null ? NaN : this.getPixelForDecimal((value - this._startValue) / this._valueRange);
   }
   getValueForPixel(pixel) {
     return this._startValue + this.getDecimalForPixel(pixel) * this._valueRange;
@@ -8804,7 +8811,7 @@ class LogarithmicScale extends Scale {
       this._zero = true;
       return undefined;
     }
-    return isNumberFinite(value) && value > 0 ? value : NaN;
+    return isNumberFinite(value) && value > 0 ? value : null;
   }
   determineDataLimits() {
     const me = this;
@@ -9306,7 +9313,7 @@ function sorter(a, b) {
 }
 function parse(scale, input) {
   if (isNullOrUndef(input)) {
-    return NaN;
+    return null;
   }
   const adapter = scale._adapter;
   const options = scale.options.time;
@@ -9321,7 +9328,7 @@ function parse(scale, input) {
       : adapter.parse(value);
   }
   if (value === null) {
-    return NaN;
+    return null;
   }
   if (round) {
     value = round === 'week' && (isNumber(isoWeekday) || isoWeekday === true)
@@ -9416,7 +9423,7 @@ class TimeScale extends Scale {
   }
   parse(raw, index) {
     if (raw === undefined) {
-      return NaN;
+      return null;
     }
     return parse(this, raw);
   }
@@ -9570,7 +9577,7 @@ class TimeScale extends Scale {
   }
   getDecimalForValue(value) {
     const me = this;
-    return (value - me.min) / (me.max - me.min);
+    return value === null ? NaN : (value - me.min) / (me.max - me.min);
   }
   getPixelForValue(value) {
     const me = this;
