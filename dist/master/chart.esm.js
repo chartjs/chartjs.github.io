@@ -1642,15 +1642,6 @@ class DoughnutController extends DatasetController {
       meta._parsed[i] = +data[i];
     }
   }
-  getRingIndex(datasetIndex) {
-    let ringIndex = 0;
-    for (let j = 0; j < datasetIndex; ++j) {
-      if (this.chart.isDatasetVisible(j)) {
-        ++ringIndex;
-      }
-    }
-    return ringIndex;
-  }
   _getRotation() {
     return toRadians(this.options.rotation - 90);
   }
