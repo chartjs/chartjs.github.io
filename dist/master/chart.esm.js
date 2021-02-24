@@ -4,7 +4,7 @@
  * (c) 2021 Chart.js Contributors
  * Released under the MIT License
  */
-import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, b as isArray, d as defaults, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as defined, s as sign, h as isNullOrUndef, j as clipArea, k as unclipArea, _ as _arrayUnique, t as toRadians, n as numberOrPercentageOf, T as TAU, H as HALF_PI, P as PI, m as isNumber, o as _limitValue, p as _lookupByKey, q as getRelativePosition$1, w as _isPointInArea, x as _rlookupByKey, y as toPadding, z as each, A as getMaximumSize, B as _getParentNode, C as readUsedSize, D as throttled, E as supportsEventListenerOptions, F as log10, G as finiteOrDefault, I as isNumberFinite, J as callback, K as toDegrees, L as _measureText, M as _int16Range, N as _alignPixel, O as renderText, Q as toFont, R as _factorize, S as _capitalize, U as isFunction, V as _attachContext, W as _createResolver, X as _descriptors, Y as mergeIf, Z as uid, $ as debounce, a0 as retinaScale, a1 as clearCanvas, a2 as _elementsEqual, a3 as getAngleFromPoint, a4 as _angleBetween, a5 as _updateBezierControlPoints, a6 as _computeSegments, a7 as _boundSegments, a8 as _steppedInterpolation, a9 as _bezierInterpolation, aa as _pointInLine, ab as _steppedLineTo, ac as _bezierCurveTo, ad as drawPoint, ae as toTRBL, af as toTRBLCorners, ag as _boundSegment, ah as _normalizeAngle, ai as getRtlAdapter, aj as _alignStartEnd, ak as overrideTextDirection, al as restoreTextDirection, am as _toLeftRightCenter, an as noop, ao as distanceBetweenPoints, ap as toFontString, aq as _setMinAndMaxByKey, ar as _decimalPlaces, as as almostEquals, at as almostWhole, au as _longestText, av as _filterBetween, aw as _lookup } from './chunks/helpers.segment.js';
+import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, b as isArray, d as defaults, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as defined, s as sign, h as isNullOrUndef, j as clipArea, k as unclipArea, _ as _arrayUnique, t as toRadians, m as toPercentage, n as toPixels, T as TAU, o as _angleBetween, H as HALF_PI, P as PI, p as isNumber, q as _limitValue, w as _lookupByKey, x as getRelativePosition$1, y as _isPointInArea, z as _rlookupByKey, A as toPadding, B as each, C as getMaximumSize, D as _getParentNode, E as readUsedSize, F as throttled, G as supportsEventListenerOptions, I as log10, J as finiteOrDefault, K as isNumberFinite, L as callback, M as toDegrees, N as _measureText, O as _int16Range, Q as _alignPixel, R as renderText, S as toFont, U as _factorize, V as _capitalize, W as isFunction, X as _attachContext, Y as _createResolver, Z as _descriptors, $ as mergeIf, a0 as uid, a1 as debounce, a2 as retinaScale, a3 as clearCanvas, a4 as _elementsEqual, a5 as getAngleFromPoint, a6 as _updateBezierControlPoints, a7 as _computeSegments, a8 as _boundSegments, a9 as _steppedInterpolation, aa as _bezierInterpolation, ab as _pointInLine, ac as _steppedLineTo, ad as _bezierCurveTo, ae as drawPoint, af as toTRBL, ag as toTRBLCorners, ah as _boundSegment, ai as _normalizeAngle, aj as getRtlAdapter, ak as _alignStartEnd, al as overrideTextDirection, am as restoreTextDirection, an as _toLeftRightCenter, ao as noop, ap as distanceBetweenPoints, aq as toFontString, ar as _setMinAndMaxByKey, as as _decimalPlaces, at as almostEquals, au as almostWhole, av as _longestText, aw as _filterBetween, ax as _lookup } from './chunks/helpers.segment.js';
 export { d as defaults } from './chunks/helpers.segment.js';
 
 class Animator {
@@ -1605,21 +1605,18 @@ function getRatioAndOffset(rotation, circumference, cutout) {
   let offsetX = 0;
   let offsetY = 0;
   if (circumference < TAU) {
-    let startAngle = rotation % TAU;
-    startAngle += startAngle >= PI ? -TAU : startAngle < -PI ? TAU : 0;
+    const startAngle = rotation;
     const endAngle = startAngle + circumference;
     const startX = Math.cos(startAngle);
     const startY = Math.sin(startAngle);
     const endX = Math.cos(endAngle);
     const endY = Math.sin(endAngle);
-    const contains0 = (startAngle <= 0 && endAngle >= 0) || endAngle >= TAU;
-    const contains90 = (startAngle <= HALF_PI && endAngle >= HALF_PI) || endAngle >= TAU + HALF_PI;
-    const contains180 = startAngle === -PI || endAngle >= PI;
-    const contains270 = (startAngle <= -HALF_PI && endAngle >= -HALF_PI) || endAngle >= PI + HALF_PI;
-    const minX = contains180 ? -1 : Math.min(startX, startX * cutout, endX, endX * cutout);
-    const minY = contains270 ? -1 : Math.min(startY, startY * cutout, endY, endY * cutout);
-    const maxX = contains0 ? 1 : Math.max(startX, startX * cutout, endX, endX * cutout);
-    const maxY = contains90 ? 1 : Math.max(startY, startY * cutout, endY, endY * cutout);
+    const calcMax = (angle, a, b) => _angleBetween(angle, startAngle, endAngle) ? 1 : Math.max(a, a * cutout, b, b * cutout);
+    const calcMin = (angle, a, b) => _angleBetween(angle, startAngle, endAngle) ? -1 : Math.min(a, a * cutout, b, b * cutout);
+    const maxX = calcMax(0, startX, endX);
+    const maxY = calcMax(HALF_PI, startY, endY);
+    const minX = calcMin(PI, startX, endX);
+    const minY = calcMin(PI + HALF_PI, startY, endY);
     ratioX = (maxX - minX) / 2;
     ratioY = (maxY - minY) / 2;
     offsetX = -(maxX + minX) / 2;
@@ -1684,15 +1681,16 @@ class DoughnutController extends DatasetController {
     const {chartArea} = chart;
     const meta = me._cachedMeta;
     const arcs = meta.data;
-    const cutout = me.options.cutoutPercentage / 100 || 0;
+    const spacing = me.getMaxBorderWidth() + me.getMaxOffset(arcs);
+    const maxSize = Math.max((Math.min(chartArea.width, chartArea.height) - spacing) / 2, 0);
+    const cutout = Math.min(toPercentage(me.options.cutout, maxSize), 1);
     const chartWeight = me._getRingWeight(me.index);
     const {circumference, rotation} = me._getRotationExtents();
     const {ratioX, ratioY, offsetX, offsetY} = getRatioAndOffset(rotation, circumference, cutout);
-    const spacing = me.getMaxBorderWidth() + me.getMaxOffset(arcs);
-    const maxWidth = (chartArea.right - chartArea.left - spacing) / ratioX;
-    const maxHeight = (chartArea.bottom - chartArea.top - spacing) / ratioY;
+    const maxWidth = (chartArea.width - spacing) / ratioX;
+    const maxHeight = (chartArea.height - spacing) / ratioY;
     const maxRadius = Math.max(Math.min(maxWidth, maxHeight) / 2, 0);
-    const outerRadius = numberOrPercentageOf(me.options.outerRadius, maxRadius);
+    const outerRadius = toPixels(me.options.radius, maxRadius);
     const innerRadius = Math.max(outerRadius * cutout, 0);
     const radiusLength = (outerRadius - innerRadius) / me._getVisibleDatasetWeightTotal();
     me.offsetX = offsetX * outerRadius;
@@ -1849,10 +1847,10 @@ DoughnutController.defaults = {
   },
   aspectRatio: 1,
   datasets: {
-    cutoutPercentage: 50,
+    cutout: '50%',
     rotation: 0,
     circumference: 360,
-    outerRadius: '100%'
+    radius: '100%'
   },
   indexAxis: 'r',
   plugins: {
@@ -2211,7 +2209,7 @@ PieController.defaults = {
     cutout: 0,
     rotation: 0,
     circumference: 360,
-    outerRadius: '100%'
+    radius: '100%'
   }
 };
 

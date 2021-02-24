@@ -779,7 +779,11 @@ function finiteOrDefault(value, defaultValue) {
 function valueOrDefault(value, defaultValue) {
   return typeof value === 'undefined' ? defaultValue : value;
 }
-const numberOrPercentageOf = (value, dimension) =>
+const toPercentage = (value, dimension) =>
+  typeof value === 'string' && value.endsWith('%') ?
+    parseFloat(value) / 100
+    : value / dimension;
+const toPixels = (value, dimension) =>
   typeof value === 'string' && value.endsWith('%') ?
     parseFloat(value) / 100 * dimension
     : +value;
@@ -6904,7 +6908,8 @@ isObject: isObject,
 isFinite: isNumberFinite,
 finiteOrDefault: finiteOrDefault,
 valueOrDefault: valueOrDefault,
-numberOrPercentageOf: numberOrPercentageOf,
+toPercentage: toPercentage,
+toPixels: toPixels,
 callback: callback,
 each: each,
 _elementsEqual: _elementsEqual,
@@ -7526,21 +7531,18 @@ function getRatioAndOffset(rotation, circumference, cutout) {
   let offsetX = 0;
   let offsetY = 0;
   if (circumference < TAU) {
-    let startAngle = rotation % TAU;
-    startAngle += startAngle >= PI ? -TAU : startAngle < -PI ? TAU : 0;
+    const startAngle = rotation;
     const endAngle = startAngle + circumference;
     const startX = Math.cos(startAngle);
     const startY = Math.sin(startAngle);
     const endX = Math.cos(endAngle);
     const endY = Math.sin(endAngle);
-    const contains0 = (startAngle <= 0 && endAngle >= 0) || endAngle >= TAU;
-    const contains90 = (startAngle <= HALF_PI && endAngle >= HALF_PI) || endAngle >= TAU + HALF_PI;
-    const contains180 = startAngle === -PI || endAngle >= PI;
-    const contains270 = (startAngle <= -HALF_PI && endAngle >= -HALF_PI) || endAngle >= PI + HALF_PI;
-    const minX = contains180 ? -1 : Math.min(startX, startX * cutout, endX, endX * cutout);
-    const minY = contains270 ? -1 : Math.min(startY, startY * cutout, endY, endY * cutout);
-    const maxX = contains0 ? 1 : Math.max(startX, startX * cutout, endX, endX * cutout);
-    const maxY = contains90 ? 1 : Math.max(startY, startY * cutout, endY, endY * cutout);
+    const calcMax = (angle, a, b) => _angleBetween(angle, startAngle, endAngle) ? 1 : Math.max(a, a * cutout, b, b * cutout);
+    const calcMin = (angle, a, b) => _angleBetween(angle, startAngle, endAngle) ? -1 : Math.min(a, a * cutout, b, b * cutout);
+    const maxX = calcMax(0, startX, endX);
+    const maxY = calcMax(HALF_PI, startY, endY);
+    const minX = calcMin(PI, startX, endX);
+    const minY = calcMin(PI + HALF_PI, startY, endY);
     ratioX = (maxX - minX) / 2;
     ratioY = (maxY - minY) / 2;
     offsetX = -(maxX + minX) / 2;
@@ -7605,15 +7607,16 @@ class DoughnutController extends DatasetController {
     const {chartArea} = chart;
     const meta = me._cachedMeta;
     const arcs = meta.data;
-    const cutout = me.options.cutoutPercentage / 100 || 0;
+    const spacing = me.getMaxBorderWidth() + me.getMaxOffset(arcs);
+    const maxSize = Math.max((Math.min(chartArea.width, chartArea.height) - spacing) / 2, 0);
+    const cutout = Math.min(toPercentage(me.options.cutout, maxSize), 1);
     const chartWeight = me._getRingWeight(me.index);
     const {circumference, rotation} = me._getRotationExtents();
     const {ratioX, ratioY, offsetX, offsetY} = getRatioAndOffset(rotation, circumference, cutout);
-    const spacing = me.getMaxBorderWidth() + me.getMaxOffset(arcs);
-    const maxWidth = (chartArea.right - chartArea.left - spacing) / ratioX;
-    const maxHeight = (chartArea.bottom - chartArea.top - spacing) / ratioY;
+    const maxWidth = (chartArea.width - spacing) / ratioX;
+    const maxHeight = (chartArea.height - spacing) / ratioY;
     const maxRadius = Math.max(Math.min(maxWidth, maxHeight) / 2, 0);
-    const outerRadius = numberOrPercentageOf(me.options.outerRadius, maxRadius);
+    const outerRadius = toPixels(me.options.radius, maxRadius);
     const innerRadius = Math.max(outerRadius * cutout, 0);
     const radiusLength = (outerRadius - innerRadius) / me._getVisibleDatasetWeightTotal();
     me.offsetX = offsetX * outerRadius;
@@ -7770,10 +7773,10 @@ DoughnutController.defaults = {
   },
   aspectRatio: 1,
   datasets: {
-    cutoutPercentage: 50,
+    cutout: '50%',
     rotation: 0,
     circumference: 360,
-    outerRadius: '100%'
+    radius: '100%'
   },
   indexAxis: 'r',
   plugins: {
@@ -8132,7 +8135,7 @@ PieController.defaults = {
     cutout: 0,
     rotation: 0,
     circumference: 360,
-    outerRadius: '100%'
+    radius: '100%'
   }
 };
 
