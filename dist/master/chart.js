@@ -1034,7 +1034,7 @@ class Defaults {
   }
 }
 var defaults = new Defaults({
-  _scriptable: (name) => name !== 'onClick' && name !== 'onHover',
+  _scriptable: (name) => !name.startsWith('on'),
   _indexable: (name) => name !== 'events',
   hover: {
     _fallback: 'interaction'
@@ -2733,6 +2733,7 @@ defaults.set('transitions', {
       },
       visible: {
         type: 'boolean',
+        easing: 'linear',
         fn: v => v | 0
       },
     }
@@ -5787,7 +5788,7 @@ class Chart {
     me.height = newSize.height;
     retinaScale(me, newRatio, true);
     me.notifyPlugins('resize', {size: newSize});
-    callback(options.onResize, [newSize], me);
+    callback(options.onResize, [me, newSize], me);
     if (me.attached) {
       if (me._doResize()) {
         me.render();
