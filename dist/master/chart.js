@@ -10414,8 +10414,8 @@ class Tooltip extends Element {
     if (properties) {
       me._resolveAnimations().update(me, properties);
     }
-    if (changed && options.custom) {
-      options.custom.call(me, {chart: me._chart, tooltip: me});
+    if (changed && options.external) {
+      options.external.call(me, {chart: me._chart, tooltip: me});
     }
   }
   drawCaret(tooltipPoint, ctx, size) {
@@ -10727,7 +10727,7 @@ class Tooltip extends Element {
     changed = replay || !_elementsEqual(active, lastActive) || positionChanged;
     if (changed) {
       me._active = active;
-      if (options.enabled || options.custom) {
+      if (options.enabled || options.external) {
         me._eventPosition = {
           x: e.x,
           y: e.y
@@ -10786,7 +10786,7 @@ var plugin_tooltip = {
   },
   defaults: {
     enabled: true,
-    custom: null,
+    external: null,
     position: 'average',
     backgroundColor: 'rgba(0,0,0,0.8)',
     titleColor: '#fff',
@@ -10898,7 +10898,7 @@ var plugin_tooltip = {
     titleFont: 'font'
   },
   descriptors: {
-    _scriptable: (name) => name !== 'filter' && name !== 'itemSort' && name !== 'custom',
+    _scriptable: (name) => name !== 'filter' && name !== 'itemSort' && name !== 'external',
     _indexable: false,
     callbacks: {
       _scriptable: false,
