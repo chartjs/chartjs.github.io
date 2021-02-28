@@ -4872,9 +4872,11 @@ class Config {
     return array;
   }
   chartOptionScopes() {
+    const controllerDefaults = defaults.controllers[this.type] || {};
     return [
       this.options,
-      defaults.controllers[this.type] || {},
+      controllerDefaults,
+      controllerDefaults.datasets || {},
       {type: this.type},
       defaults,
       defaults.descriptors
