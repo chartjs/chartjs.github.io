@@ -5237,7 +5237,7 @@ function _descriptors(proxy, defaults = {scriptable: true, indexable: true}) {
   };
 }
 const readKey = (prefix, name) => prefix ? prefix + _capitalize(name) : name;
-const needsSubResolver = (prop, value) => isObject(value);
+const needsSubResolver = (prop, value) => isObject(value) && prop !== 'adapters';
 function _cached(target, prop, resolve) {
   let value = target[prop];
   if (defined(value)) {
@@ -5304,7 +5304,7 @@ function addScopes(set, parentScopes, key, parentFallback) {
       if (defined(fallback) && fallback !== key && fallback !== parentFallback) {
         return fallback;
       }
-    } else if (scope === false && key !== 'fill') {
+    } else if (scope === false && defined(parentFallback) && key !== parentFallback) {
       return null;
     }
   }
@@ -5315,21 +5315,23 @@ function createSubResolver(parentScopes, resolver, prop, value) {
   const fallback = resolveFallback(resolver._fallback, prop, value);
   const allScopes = [...parentScopes, ...rootScopes];
   const set = new Set([value]);
-  let key = prop;
-  while (key !== false) {
-    key = addScopes(set, allScopes, key, fallback);
+  let key = addScopesFromKey(set, allScopes, prop, fallback || prop);
+  if (key === null) {
+    return false;
+  }
+  if (defined(fallback) && fallback !== prop) {
+    key = addScopesFromKey(set, allScopes, fallback, key);
     if (key === null) {
       return false;
     }
   }
-  if (defined(fallback) && fallback !== prop) {
-    const fallbackScopes = allScopes;
-    key = fallback;
-    while (key !== false) {
-      key = addScopes(set, fallbackScopes, key, fallback);
-    }
-  }
   return _createResolver([...set], [''], rootScopes, fallback);
+}
+function addScopesFromKey(set, allScopes, key, fallback) {
+  while (key) {
+    key = addScopes(set, allScopes, key, fallback);
+  }
+  return key;
 }
 function _resolveWithPrefixes(prop, prefixes, scopes, proxy) {
   let value;
