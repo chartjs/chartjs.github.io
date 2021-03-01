@@ -5141,7 +5141,7 @@ function createDescriptors(chart, plugins, options, all) {
 function pluginOpts(config, plugin, opts, context) {
   const keys = config.pluginScopeKeys(plugin);
   const scopes = config.getOptionScopes(opts, keys);
-  return config.createResolver(scopes, context, [''], {scriptable: false, indexable: false});
+  return config.createResolver(scopes, context, [''], {scriptable: false, indexable: false, allKeys: true});
 }
 
 function _createResolver(scopes, prefixes = [''], rootScopes = scopes, fallback) {
@@ -5209,7 +5209,9 @@ function _attachContext(proxy, context, subProxy, descriptorDefaults) {
         () => _resolveWithContext(target, prop, receiver));
     },
     getOwnPropertyDescriptor(target, prop) {
-      return Reflect.getOwnPropertyDescriptor(proxy, prop);
+      return target._descriptors.allKeys
+        ? Reflect.has(proxy, prop) ? {enumerable: true, configurable: true} : undefined
+        : Reflect.getOwnPropertyDescriptor(proxy, prop);
     },
     getPrototypeOf() {
       return Reflect.getPrototypeOf(proxy);
@@ -5228,8 +5230,9 @@ function _attachContext(proxy, context, subProxy, descriptorDefaults) {
   });
 }
 function _descriptors(proxy, defaults = {scriptable: true, indexable: true}) {
-  const {_scriptable = defaults.scriptable, _indexable = defaults.indexable} = proxy;
+  const {_scriptable = defaults.scriptable, _indexable = defaults.indexable, _allKeys = defaults.allKeys} = proxy;
   return {
+    allKeys: _allKeys,
     scriptable: _scriptable,
     indexable: _indexable,
     isScriptable: isFunction(_scriptable) ? _scriptable : () => _scriptable,
