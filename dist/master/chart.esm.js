@@ -824,7 +824,7 @@ class DatasetController {
       parsed = _parsed[i];
       value = parsed[scale.axis];
       otherValue = parsed[otherScale.axis];
-      return (!isNumberFinite(value) || !isNumberFinite(otherValue) || otherMin > otherValue || otherMax < otherValue);
+      return !isNumberFinite(value) || otherMin > otherValue || otherMax < otherValue;
     }
     for (i = 0; i < ilen; ++i) {
       if (_skip()) {
