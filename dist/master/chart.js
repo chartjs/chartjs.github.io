@@ -5294,13 +5294,14 @@ function _resolveArray(prop, value, target, isIndexable) {
 function resolveFallback(fallback, prop, value) {
   return isFunction(fallback) ? fallback(prop, value) : fallback;
 }
-const getScope$1 = (key, parent) => key === true ? parent : resolveObjectKey(parent, key);
+const getScope$1 = (key, parent) => key === true ? parent
+  : typeof key === 'string' ? resolveObjectKey(parent, key) : undefined;
 function addScopes(set, parentScopes, key, parentFallback) {
   for (const parent of parentScopes) {
     const scope = getScope$1(key, parent);
     if (scope) {
       set.add(scope);
-      const fallback = scope._fallback;
+      const fallback = resolveFallback(scope._fallback, key, scope);
       if (defined(fallback) && fallback !== key && fallback !== parentFallback) {
         return fallback;
       }
