@@ -9516,6 +9516,8 @@ class TimeScale extends Scale {
         end = (last - me.getDecimalForValue(timestamps[timestamps.length - 2])) / 2;
       }
     }
+    start = _limitValue(start, 0, 0.25);
+    end = _limitValue(end, 0, 0.25);
     me._offsets = {start, end, factor: 1 / (start + 1 + end)};
   }
   _generate() {
@@ -9531,7 +9533,7 @@ class TimeScale extends Scale {
     const hasWeekday = isNumber(weekday) || weekday === true;
     const ticks = {};
     let first = min;
-    let time;
+    let time, count;
     if (hasWeekday) {
       first = +adapter.startOf(first, 'isoWeek', weekday);
     }
@@ -9540,10 +9542,10 @@ class TimeScale extends Scale {
       throw new Error(min + ' and ' + max + ' are too far apart with stepSize of ' + stepSize + ' ' + minor);
     }
     const timestamps = options.ticks.source === 'data' && me.getDataTimestamps();
-    for (time = first; time < max; time = +adapter.add(time, stepSize, minor)) {
+    for (time = first, count = 0; time < max; time = +adapter.add(time, stepSize, minor), count++) {
       addTick(ticks, time, timestamps);
     }
-    if (time === max || options.bounds === 'ticks') {
+    if (time === max || options.bounds === 'ticks' || count === 1) {
       addTick(ticks, time, timestamps);
     }
     return Object.keys(ticks).sort((a, b) => a - b).map(x => +x);
