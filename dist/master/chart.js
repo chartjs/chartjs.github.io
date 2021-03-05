@@ -10109,9 +10109,9 @@ function createTooltipItem(chart, item) {
     element
   };
 }
-function getTooltipSize(tooltip) {
+function getTooltipSize(tooltip, options) {
   const ctx = tooltip._chart.ctx;
-  const {body, footer, options, title} = tooltip;
+  const {body, footer, title} = tooltip;
   const {bodyFont, footerFont, titleFont, boxWidth, boxHeight} = options;
   const titleLineCount = title.length;
   const footerLineCount = footer.length;
@@ -10246,8 +10246,7 @@ function getBackgroundPoint(options, size, alignment, chart) {
   }
   return {x, y};
 }
-function getAlignedX(tooltip, align) {
-  const options = tooltip.options;
+function getAlignedX(tooltip, align, options) {
   const padding = toPadding(options.padding);
   return align === 'center'
     ? tooltip.x + tooltip.width / 2
@@ -10258,6 +10257,13 @@ function getAlignedX(tooltip, align) {
 function getBeforeAfterBodyLines(callback) {
   return pushOrConcat([], splitNewlines(callback));
 }
+function createTooltipContext(parent, tooltip, tooltipItems) {
+  return Object.assign(Object.create(parent), {
+    tooltip,
+    tooltipItems,
+    type: 'tooltip'
+  });
+}
 class Tooltip extends Element {
   constructor(config) {
     super();
@@ -10267,7 +10273,9 @@ class Tooltip extends Element {
     this._eventPosition = undefined;
     this._size = undefined;
     this._cachedAnimations = undefined;
+    this._tooltipItems = [];
     this.$animations = undefined;
+    this.$context = undefined;
     this.options = config.options;
     this.dataPoints = undefined;
     this.title = undefined;
@@ -10290,6 +10298,7 @@ class Tooltip extends Element {
   initialize(options) {
     this.options = options;
     this._cachedAnimations = undefined;
+    this.$context = undefined;
   }
   _resolveAnimations() {
     const me = this;
@@ -10298,7 +10307,7 @@ class Tooltip extends Element {
       return cached;
     }
     const chart = me._chart;
-    const options = me.options;
+    const options = me.options.setContext(me.getContext());
     const opts = options.enabled && chart.options.animation && options.animations;
     const animations = new Animations(me._chart, opts);
     if (opts._cacheable) {
@@ -10306,10 +10315,14 @@ class Tooltip extends Element {
     }
     return animations;
   }
-  getTitle(context) {
+  getContext() {
     const me = this;
-    const opts = me.options;
-    const callbacks = opts.callbacks;
+    return me.$context ||
+			(me.$context = createTooltipContext(me._chart.getContext(), me, me._tooltipItems));
+  }
+  getTitle(context, options) {
+    const me = this;
+    const {callbacks} = options;
     const beforeTitle = callbacks.beforeTitle.apply(me, [context]);
     const title = callbacks.title.apply(me, [context]);
     const afterTitle = callbacks.afterTitle.apply(me, [context]);
@@ -10319,12 +10332,12 @@ class Tooltip extends Element {
     lines = pushOrConcat(lines, splitNewlines(afterTitle));
     return lines;
   }
-  getBeforeBody(tooltipItems) {
-    return getBeforeAfterBodyLines(this.options.callbacks.beforeBody.apply(this, [tooltipItems]));
+  getBeforeBody(tooltipItems, options) {
+    return getBeforeAfterBodyLines(options.callbacks.beforeBody.apply(this, [tooltipItems]));
   }
-  getBody(tooltipItems) {
+  getBody(tooltipItems, options) {
     const me = this;
-    const callbacks = me.options.callbacks;
+    const {callbacks} = options;
     const bodyItems = [];
     each(tooltipItems, (context) => {
       const bodyItem = {
@@ -10339,12 +10352,12 @@ class Tooltip extends Element {
     });
     return bodyItems;
   }
-  getAfterBody(tooltipItems) {
-    return getBeforeAfterBodyLines(this.options.callbacks.afterBody.apply(this, [tooltipItems]));
+  getAfterBody(tooltipItems, options) {
+    return getBeforeAfterBodyLines(options.callbacks.afterBody.apply(this, [tooltipItems]));
   }
-  getFooter(tooltipItems) {
+  getFooter(tooltipItems, options) {
     const me = this;
-    const callbacks = me.options.callbacks;
+    const {callbacks} = options;
     const beforeFooter = callbacks.beforeFooter.apply(me, [tooltipItems]);
     const footer = callbacks.footer.apply(me, [tooltipItems]);
     const afterFooter = callbacks.afterFooter.apply(me, [tooltipItems]);
@@ -10354,10 +10367,9 @@ class Tooltip extends Element {
     lines = pushOrConcat(lines, splitNewlines(afterFooter));
     return lines;
   }
-  _createItems() {
+  _createItems(options) {
     const me = this;
     const active = me._active;
-    const options = me.options;
     const data = me._chart.data;
     const labelColors = [];
     const labelPointStyles = [];
@@ -10386,9 +10398,10 @@ class Tooltip extends Element {
   }
   update(changed) {
     const me = this;
-    const options = me.options;
+    const options = me.options.setContext(me.getContext());
     const active = me._active;
     let properties;
+    let tooltipItems = [];
     if (!active.length) {
       if (me.opacity !== 0) {
         properties = {
@@ -10397,13 +10410,13 @@ class Tooltip extends Element {
       }
     } else {
       const position = positioners[options.position].call(me, active, me._eventPosition);
-      const tooltipItems = me._createItems();
-      me.title = me.getTitle(tooltipItems);
-      me.beforeBody = me.getBeforeBody(tooltipItems);
-      me.body = me.getBody(tooltipItems);
-      me.afterBody = me.getAfterBody(tooltipItems);
-      me.footer = me.getFooter(tooltipItems);
-      const size = me._size = getTooltipSize(me);
+      tooltipItems = me._createItems(options);
+      me.title = me.getTitle(tooltipItems, options);
+      me.beforeBody = me.getBeforeBody(tooltipItems, options);
+      me.body = me.getBody(tooltipItems, options);
+      me.afterBody = me.getAfterBody(tooltipItems, options);
+      me.footer = me.getFooter(tooltipItems, options);
+      const size = me._size = getTooltipSize(me, options);
       const positionAndSize = Object.assign({}, position, size);
       const alignment = determineAlignment(me._chart, options, positionAndSize);
       const backgroundPoint = getBackgroundPoint(options, positionAndSize, alignment, me._chart);
@@ -10419,6 +10432,8 @@ class Tooltip extends Element {
         caretY: position.y
       };
     }
+    me._tooltipItems = tooltipItems;
+    me.$context = undefined;
     if (properties) {
       me._resolveAnimations().update(me, properties);
     }
@@ -10426,14 +10441,14 @@ class Tooltip extends Element {
       options.external.call(me, {chart: me._chart, tooltip: me});
     }
   }
-  drawCaret(tooltipPoint, ctx, size) {
-    const caretPosition = this.getCaretPosition(tooltipPoint, size);
+  drawCaret(tooltipPoint, ctx, size, options) {
+    const caretPosition = this.getCaretPosition(tooltipPoint, size, options);
     ctx.lineTo(caretPosition.x1, caretPosition.y1);
     ctx.lineTo(caretPosition.x2, caretPosition.y2);
     ctx.lineTo(caretPosition.x3, caretPosition.y3);
   }
-  getCaretPosition(tooltipPoint, size) {
-    const {xAlign, yAlign, options} = this;
+  getCaretPosition(tooltipPoint, size, options) {
+    const {xAlign, yAlign} = this;
     const {cornerRadius, caretSize} = options;
     const {x: ptX, y: ptY} = tooltipPoint;
     const {width, height} = size;
@@ -10475,15 +10490,14 @@ class Tooltip extends Element {
     }
     return {x1, x2, x3, y1, y2, y3};
   }
-  drawTitle(pt, ctx) {
+  drawTitle(pt, ctx, options) {
     const me = this;
-    const options = me.options;
     const title = me.title;
     const length = title.length;
     let titleFont, titleSpacing, i;
     if (length) {
       const rtlHelper = getRtlAdapter(options.rtl, me.x, me.width);
-      pt.x = getAlignedX(me, options.titleAlign);
+      pt.x = getAlignedX(me, options.titleAlign, options);
       ctx.textAlign = rtlHelper.textAlign(options.titleAlign);
       ctx.textBaseline = 'middle';
       titleFont = options.titleFont;
@@ -10499,13 +10513,12 @@ class Tooltip extends Element {
       }
     }
   }
-  _drawColorBox(ctx, pt, i, rtlHelper) {
+  _drawColorBox(ctx, pt, i, rtlHelper, options) {
     const me = this;
-    const options = me.options;
     const labelColors = me.labelColors[i];
     const labelPointStyle = me.labelPointStyles[i];
     const {boxHeight, boxWidth, bodyFont} = options;
-    const colorX = getAlignedX(me, 'left');
+    const colorX = getAlignedX(me, 'left', options);
     const rtlColorX = rtlHelper.x(colorX);
     const yOffSet = boxHeight < bodyFont.size ? (bodyFont.size - boxHeight) / 2 : 0;
     const colorY = pt.y + yOffSet;
@@ -10535,9 +10548,9 @@ class Tooltip extends Element {
     }
     ctx.fillStyle = me.labelTextColors[i];
   }
-  drawBody(pt, ctx) {
+  drawBody(pt, ctx, options) {
     const me = this;
-    const {body, options} = me;
+    const {body} = me;
     const {bodyFont, bodySpacing, bodyAlign, displayColors, boxHeight, boxWidth} = options;
     let bodyLineHeight = bodyFont.size;
     let xLinePadding = 0;
@@ -10551,7 +10564,7 @@ class Tooltip extends Element {
     ctx.textAlign = bodyAlign;
     ctx.textBaseline = 'middle';
     ctx.font = toFontString(bodyFont);
-    pt.x = getAlignedX(me, bodyAlignForCalculation);
+    pt.x = getAlignedX(me, bodyAlignForCalculation, options);
     ctx.fillStyle = options.bodyColor;
     each(me.beforeBody, fillLineOfText);
     xLinePadding = displayColors && bodyAlignForCalculation !== 'right'
@@ -10564,7 +10577,7 @@ class Tooltip extends Element {
       each(bodyItem.before, fillLineOfText);
       lines = bodyItem.lines;
       if (displayColors && lines.length) {
-        me._drawColorBox(ctx, pt, i, rtlHelper);
+        me._drawColorBox(ctx, pt, i, rtlHelper, options);
         bodyLineHeight = Math.max(bodyFont.size, boxHeight);
       }
       for (j = 0, jlen = lines.length; j < jlen; ++j) {
@@ -10578,15 +10591,14 @@ class Tooltip extends Element {
     each(me.afterBody, fillLineOfText);
     pt.y -= bodySpacing;
   }
-  drawFooter(pt, ctx) {
+  drawFooter(pt, ctx, options) {
     const me = this;
-    const options = me.options;
     const footer = me.footer;
     const length = footer.length;
     let footerFont, i;
     if (length) {
       const rtlHelper = getRtlAdapter(options.rtl, me.x, me.width);
-      pt.x = getAlignedX(me, options.footerAlign);
+      pt.x = getAlignedX(me, options.footerAlign, options);
       pt.y += options.footerMarginTop;
       ctx.textAlign = rtlHelper.textAlign(options.footerAlign);
       ctx.textBaseline = 'middle';
@@ -10599,8 +10611,8 @@ class Tooltip extends Element {
       }
     }
   }
-  drawBackground(pt, ctx, tooltipSize) {
-    const {xAlign, yAlign, options} = this;
+  drawBackground(pt, ctx, tooltipSize, options) {
+    const {xAlign, yAlign} = this;
     const {x, y} = pt;
     const {width, height} = tooltipSize;
     const radius = options.cornerRadius;
@@ -10610,22 +10622,22 @@ class Tooltip extends Element {
     ctx.beginPath();
     ctx.moveTo(x + radius, y);
     if (yAlign === 'top') {
-      this.drawCaret(pt, ctx, tooltipSize);
+      this.drawCaret(pt, ctx, tooltipSize, options);
     }
     ctx.lineTo(x + width - radius, y);
     ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
     if (yAlign === 'center' && xAlign === 'right') {
-      this.drawCaret(pt, ctx, tooltipSize);
+      this.drawCaret(pt, ctx, tooltipSize, options);
     }
     ctx.lineTo(x + width, y + height - radius);
     ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
     if (yAlign === 'bottom') {
-      this.drawCaret(pt, ctx, tooltipSize);
+      this.drawCaret(pt, ctx, tooltipSize, options);
     }
     ctx.lineTo(x + radius, y + height);
     ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
     if (yAlign === 'center' && xAlign === 'left') {
-      this.drawCaret(pt, ctx, tooltipSize);
+      this.drawCaret(pt, ctx, tooltipSize, options);
     }
     ctx.lineTo(x, y + radius);
     ctx.quadraticCurveTo(x, y, x + radius, y);
@@ -10635,10 +10647,9 @@ class Tooltip extends Element {
       ctx.stroke();
     }
   }
-  _updateAnimationTarget() {
+  _updateAnimationTarget(options) {
     const me = this;
     const chart = me._chart;
-    const options = me.options;
     const anims = me.$animations;
     const animX = anims && anims.x;
     const animY = anims && anims.y;
@@ -10647,7 +10658,7 @@ class Tooltip extends Element {
       if (!position) {
         return;
       }
-      const size = me._size = getTooltipSize(me);
+      const size = me._size = getTooltipSize(me, options);
       const positionAndSize = Object.assign({}, position, me._size);
       const alignment = determineAlignment(chart, options, positionAndSize);
       const point = getBackgroundPoint(options, positionAndSize, alignment, chart);
@@ -10664,12 +10675,12 @@ class Tooltip extends Element {
   }
   draw(ctx) {
     const me = this;
-    const options = me.options;
+    const options = me.options.setContext(me.getContext());
     let opacity = me.opacity;
     if (!opacity) {
       return;
     }
-    me._updateAnimationTarget();
+    me._updateAnimationTarget(options);
     const tooltipSize = {
       width: me.width,
       height: me.height
@@ -10684,12 +10695,12 @@ class Tooltip extends Element {
     if (options.enabled && hasTooltipContent) {
       ctx.save();
       ctx.globalAlpha = opacity;
-      me.drawBackground(pt, ctx, tooltipSize);
+      me.drawBackground(pt, ctx, tooltipSize, options);
       overrideTextDirection(ctx, options.textDirection);
       pt.y += padding.top;
-      me.drawTitle(pt, ctx);
-      me.drawBody(pt, ctx);
-      me.drawFooter(pt, ctx);
+      me.drawTitle(pt, ctx, options);
+      me.drawBody(pt, ctx, options);
+      me.drawFooter(pt, ctx, options);
       restoreTextDirection(ctx, options.textDirection);
       ctx.restore();
     }
@@ -11047,9 +11058,11 @@ function generateTicks(generationOptions, dataRange) {
   const unit = stepSize || 1;
   const maxNumSpaces = generationOptions.maxTicks - 1;
   const {min: rmin, max: rmax} = dataRange;
+  const minDefined = !isNullOrUndef(min);
+  const maxDefined = !isNullOrUndef(max);
   let spacing = niceNum((rmax - rmin) / maxNumSpaces / unit) * unit;
   let factor, niceMin, niceMax, numSpaces;
-  if (spacing < MIN_SPACING && isNullOrUndef(min) && isNullOrUndef(max)) {
+  if (spacing < MIN_SPACING && !minDefined && !maxDefined) {
     return [{value: rmin}, {value: rmax}];
   }
   numSpaces = Math.ceil(rmax / spacing) - Math.floor(rmin / spacing);
@@ -11064,7 +11077,7 @@ function generateTicks(generationOptions, dataRange) {
   }
   niceMin = Math.floor(rmin / spacing) * spacing;
   niceMax = Math.ceil(rmax / spacing) * spacing;
-  if (stepSize && !isNullOrUndef(min) && !isNullOrUndef(max)) {
+  if (stepSize && minDefined && maxDefined) {
     if (almostWhole((max - min) / stepSize, spacing / 1000)) {
       niceMin = min;
       niceMax = max;
@@ -11078,11 +11091,28 @@ function generateTicks(generationOptions, dataRange) {
   }
   niceMin = Math.round(niceMin * factor) / factor;
   niceMax = Math.round(niceMax * factor) / factor;
-  ticks.push({value: isNullOrUndef(min) ? niceMin : min});
-  for (let j = 1; j < numSpaces; ++j) {
+  let j = 0;
+  if (minDefined) {
+    ticks.push({value: min});
+    if (niceMin < min) {
+      j++;
+    }
+    if (almostWhole(Math.round((niceMin + j * spacing) * factor) / factor / min, spacing / 1000)) {
+      j++;
+    }
+  }
+  for (; j < numSpaces; ++j) {
     ticks.push({value: Math.round((niceMin + j * spacing) * factor) / factor});
   }
-  ticks.push({value: isNullOrUndef(max) ? niceMax : max});
+  if (maxDefined) {
+    if (almostWhole(ticks[ticks.length - 1].value / max, spacing / 1000)) {
+      ticks[ticks.length - 1].value = max;
+    } else {
+      ticks.push({value: max});
+    }
+  } else {
+    ticks.push({value: niceMax});
+  }
   return ticks;
 }
 class LinearScaleBase extends Scale {
