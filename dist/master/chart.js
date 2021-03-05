@@ -1053,6 +1053,14 @@ const RAD_PER_DEG = PI / 180;
 const HALF_PI = PI / 2;
 const QUARTER_PI = PI / 4;
 const TWO_THIRDS_PI = PI * 2 / 3;
+const log10 = Math.log10;
+const sign = Math.sign;
+function niceNum(range) {
+  const niceRange = Math.pow(10, Math.floor(log10(range)));
+  const fraction = range / niceRange;
+  const niceFraction = fraction <= 1 ? 1 : fraction <= 2 ? 2 : fraction <= 5 ? 5 : 10;
+  return niceFraction * niceRange;
+}
 function _factorize(value) {
   const result = [];
   const sqrt = Math.sqrt(value);
@@ -1069,12 +1077,6 @@ function _factorize(value) {
   result.sort((a, b) => a - b).pop();
   return result;
 }
-const log10 = Math.log10 || function(x) {
-  const exponent = Math.log(x) * Math.LOG10E;
-  const powerOf10 = Math.round(exponent);
-  const isPowerOf10 = x === Math.pow(10, powerOf10);
-  return isPowerOf10 ? powerOf10 : exponent;
-};
 function isNumber(n) {
   return !isNaN(parseFloat(n)) && isFinite(n);
 }
@@ -1095,17 +1097,6 @@ function _setMinAndMaxByKey(array, target, property) {
     }
   }
 }
-const sign = Math.sign ?
-  function(x) {
-    return Math.sign(x);
-  } :
-  function(x) {
-    x = +x;
-    if (x === 0 || isNaN(x)) {
-      return x;
-    }
-    return x > 0 ? 1 : -1;
-  };
 function toRadians(degrees) {
   return degrees * (PI / 180);
 }
@@ -6893,13 +6884,14 @@ RAD_PER_DEG: RAD_PER_DEG,
 HALF_PI: HALF_PI,
 QUARTER_PI: QUARTER_PI,
 TWO_THIRDS_PI: TWO_THIRDS_PI,
-_factorize: _factorize,
 log10: log10,
+sign: sign,
+niceNum: niceNum,
+_factorize: _factorize,
 isNumber: isNumber,
 almostEquals: almostEquals,
 almostWhole: almostWhole,
 _setMinAndMaxByKey: _setMinAndMaxByKey,
-sign: sign,
 toRadians: toRadians,
 toDegrees: toDegrees,
 _decimalPlaces: _decimalPlaces,
@@ -11046,21 +11038,6 @@ CategoryScale.defaults = {
   }
 };
 
-function niceNum(range) {
-  const exponent = Math.floor(log10(range));
-  const fraction = range / Math.pow(10, exponent);
-  let niceFraction;
-  if (fraction <= 1.0) {
-    niceFraction = 1;
-  } else if (fraction <= 2) {
-    niceFraction = 2;
-  } else if (fraction <= 5) {
-    niceFraction = 5;
-  } else {
-    niceFraction = 10;
-  }
-  return niceFraction * Math.pow(10, exponent);
-}
 function generateTicks(generationOptions, dataRange) {
   const ticks = [];
   const MIN_SPACING = 1e-14;

@@ -4,7 +4,7 @@
  * (c) 2021 Chart.js Contributors
  * Released under the MIT License
  */
-import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, b as isArray, d as defaults, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as isNumberFinite, h as defined, s as sign, j as isNullOrUndef, k as clipArea, m as unclipArea, _ as _arrayUnique, t as toRadians, n as toPercentage, o as toPixels, T as TAU, p as _angleBetween, H as HALF_PI, P as PI, q as isNumber, w as _limitValue, x as _lookupByKey, y as getRelativePosition$1, z as _isPointInArea, A as _rlookupByKey, B as toPadding, C as each, D as getMaximumSize, E as _getParentNode, F as readUsedSize, G as throttled, I as supportsEventListenerOptions, J as log10, K as finiteOrDefault, L as callback, M as toDegrees, N as _measureText, O as _int16Range, Q as _alignPixel, R as renderText, S as toFont, U as _factorize, V as _capitalize, W as isFunction, X as _attachContext, Y as _createResolver, Z as _descriptors, $ as mergeIf, a0 as uid, a1 as debounce, a2 as retinaScale, a3 as clearCanvas, a4 as _elementsEqual, a5 as getAngleFromPoint, a6 as _updateBezierControlPoints, a7 as _computeSegments, a8 as _boundSegments, a9 as _steppedInterpolation, aa as _bezierInterpolation, ab as _pointInLine, ac as _steppedLineTo, ad as _bezierCurveTo, ae as drawPoint, af as toTRBL, ag as toTRBLCorners, ah as _boundSegment, ai as _normalizeAngle, aj as getRtlAdapter, ak as _alignStartEnd, al as overrideTextDirection, am as restoreTextDirection, an as _toLeftRightCenter, ao as noop, ap as distanceBetweenPoints, aq as toFontString, ar as _setMinAndMaxByKey, as as _decimalPlaces, at as almostEquals, au as almostWhole, av as _longestText, aw as _filterBetween, ax as _lookup } from './chunks/helpers.segment.js';
+import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, b as isArray, d as defaults, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as isNumberFinite, h as defined, s as sign, j as isNullOrUndef, k as clipArea, m as unclipArea, _ as _arrayUnique, t as toRadians, n as toPercentage, o as toPixels, T as TAU, p as _angleBetween, H as HALF_PI, P as PI, q as isNumber, w as _limitValue, x as _lookupByKey, y as getRelativePosition$1, z as _isPointInArea, A as _rlookupByKey, B as toPadding, C as each, D as getMaximumSize, E as _getParentNode, F as readUsedSize, G as throttled, I as supportsEventListenerOptions, J as log10, K as finiteOrDefault, L as callback, M as toDegrees, N as _measureText, O as _int16Range, Q as _alignPixel, R as renderText, S as toFont, U as _factorize, V as _capitalize, W as isFunction, X as _attachContext, Y as _createResolver, Z as _descriptors, $ as mergeIf, a0 as uid, a1 as debounce, a2 as retinaScale, a3 as clearCanvas, a4 as _elementsEqual, a5 as getAngleFromPoint, a6 as _updateBezierControlPoints, a7 as _computeSegments, a8 as _boundSegments, a9 as _steppedInterpolation, aa as _bezierInterpolation, ab as _pointInLine, ac as _steppedLineTo, ad as _bezierCurveTo, ae as drawPoint, af as toTRBL, ag as toTRBLCorners, ah as _boundSegment, ai as _normalizeAngle, aj as getRtlAdapter, ak as _alignStartEnd, al as overrideTextDirection, am as restoreTextDirection, an as _toLeftRightCenter, ao as noop, ap as distanceBetweenPoints, aq as toFontString, ar as _setMinAndMaxByKey, as as niceNum, at as _decimalPlaces, au as almostEquals, av as almostWhole, aw as _longestText, ax as _filterBetween, ay as _lookup } from './chunks/helpers.segment.js';
 export { d as defaults } from './chunks/helpers.segment.js';
 
 class Animator {
@@ -8596,21 +8596,6 @@ CategoryScale.defaults = {
   }
 };
 
-function niceNum(range) {
-  const exponent = Math.floor(log10(range));
-  const fraction = range / Math.pow(10, exponent);
-  let niceFraction;
-  if (fraction <= 1.0) {
-    niceFraction = 1;
-  } else if (fraction <= 2) {
-    niceFraction = 2;
-  } else if (fraction <= 5) {
-    niceFraction = 5;
-  } else {
-    niceFraction = 10;
-  }
-  return niceFraction * Math.pow(10, exponent);
-}
 function generateTicks(generationOptions, dataRange) {
   const ticks = [];
   const MIN_SPACING = 1e-14;
