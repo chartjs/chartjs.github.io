@@ -2590,6 +2590,7 @@ function setLayoutDims(layouts, params) {
 }
 function buildLayoutBoxes(boxes) {
   const layoutBoxes = wrapBoxes(boxes);
+  const fullSize = sortByWeight(layoutBoxes.filter(wrap => wrap.box.fullSize), true);
   const left = sortByWeight(filterByPosition(layoutBoxes, 'left'), true);
   const right = sortByWeight(filterByPosition(layoutBoxes, 'right'));
   const top = sortByWeight(filterByPosition(layoutBoxes, 'top'), true);
@@ -2597,6 +2598,7 @@ function buildLayoutBoxes(boxes) {
   const centerHorizontal = filterDynamicPositionByAxis(layoutBoxes, 'x');
   const centerVertical = filterDynamicPositionByAxis(layoutBoxes, 'y');
   return {
+    fullSize,
     leftAndTop: left.concat(top),
     rightAndBottom: right.concat(centerVertical).concat(bottom).concat(centerHorizontal),
     chartArea: filterByPosition(layoutBoxes, 'chartArea'),
@@ -2607,11 +2609,17 @@ function buildLayoutBoxes(boxes) {
 function getCombinedMax(maxPadding, chartArea, a, b) {
   return Math.max(maxPadding[a], chartArea[a]) + Math.max(maxPadding[b], chartArea[b]);
 }
+function updateMaxPadding(maxPadding, boxPadding) {
+  maxPadding.top = Math.max(maxPadding.top, boxPadding.top);
+  maxPadding.left = Math.max(maxPadding.left, boxPadding.left);
+  maxPadding.bottom = Math.max(maxPadding.bottom, boxPadding.bottom);
+  maxPadding.right = Math.max(maxPadding.right, boxPadding.right);
+}
 function updateDims(chartArea, params, layout) {
   const box = layout.box;
   const maxPadding = chartArea.maxPadding;
   if (isObject(layout.pos)) {
-    return;
+    return {same: false, other: false};
   }
   if (layout.size) {
     chartArea[layout.pos] -= layout.size;
@@ -2619,19 +2627,19 @@ function updateDims(chartArea, params, layout) {
   layout.size = layout.horizontal ? Math.min(layout.height, box.height) : Math.min(layout.width, box.width);
   chartArea[layout.pos] += layout.size;
   if (box.getPadding) {
-    const boxPadding = box.getPadding();
-    maxPadding.top = Math.max(maxPadding.top, boxPadding.top);
-    maxPadding.left = Math.max(maxPadding.left, boxPadding.left);
-    maxPadding.bottom = Math.max(maxPadding.bottom, boxPadding.bottom);
-    maxPadding.right = Math.max(maxPadding.right, boxPadding.right);
+    updateMaxPadding(maxPadding, box.getPadding());
   }
   const newWidth = Math.max(0, params.outerWidth - getCombinedMax(maxPadding, chartArea, 'left', 'right'));
   const newHeight = Math.max(0, params.outerHeight - getCombinedMax(maxPadding, chartArea, 'top', 'bottom'));
-  if (newWidth !== chartArea.w || newHeight !== chartArea.h) {
+  const widthChanged = newWidth !== chartArea.w;
+  const heightChanged = newHeight !== chartArea.h;
+  if (widthChanged || heightChanged) {
     chartArea.w = newWidth;
     chartArea.h = newHeight;
-    return layout.horizontal ? newWidth !== chartArea.w : newHeight !== chartArea.h;
   }
+  return layout.horizontal
+    ? {same: widthChanged, other: heightChanged}
+    : {same: heightChanged, other: widthChanged};
 }
 function handleMaxPadding(chartArea) {
   const maxPadding = chartArea.maxPadding;
@@ -2669,11 +2677,12 @@ function fitBoxes(boxes, chartArea, params) {
       layout.height || chartArea.h,
       getMargins(layout.horizontal, chartArea)
     );
-    if (updateDims(chartArea, params, layout)) {
+    const {same, other} = updateDims(chartArea, params, layout);
+    if (same && refitBoxes.length) {
+      refit = true;
+    }
+    if (other) {
       changed = true;
-      if (refitBoxes.length) {
-        refit = true;
-      }
     }
     if (!box.fullSize) {
       refitBoxes.push(layout);
@@ -2779,6 +2788,7 @@ var layouts = {
       y: padding.top
     }, padding);
     setLayoutDims(verticalBoxes.concat(horizontalBoxes), params);
+    fitBoxes(boxes.fullSize, chartArea, params);
     fitBoxes(verticalBoxes, chartArea, params);
     if (fitBoxes(horizontalBoxes, chartArea, params)) {
       fitBoxes(verticalBoxes, chartArea, params);
@@ -3608,7 +3618,7 @@ class Scale extends Element {
     const labelSizes = me._getLabelSizes();
     const maxLabelWidth = labelSizes.widest.width;
     const maxLabelHeight = labelSizes.highest.height - labelSizes.highest.offset;
-    const maxWidth = Math.min(me.maxWidth, me.chart.width - maxLabelWidth);
+    const maxWidth = _limitValue(me.chart.width - maxLabelWidth, 0, me.maxWidth);
     tickWidth = options.offset ? me.maxWidth / numTicks : maxWidth / (numTicks - 1);
     if (maxLabelWidth + 6 > tickWidth) {
       tickWidth = maxWidth / (numTicks - (options.offset ? 0.5 : 1));
