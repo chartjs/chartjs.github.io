@@ -4,7 +4,7 @@
  * (c) 2021 Chart.js Contributors
  * Released under the MIT License
  */
-import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, b as isArray, d as defaults, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as isNumberFinite, h as defined, s as sign, j as isNullOrUndef, k as clipArea, m as unclipArea, _ as _arrayUnique, t as toRadians, n as toPercentage, o as toPixels, T as TAU, p as _angleBetween, H as HALF_PI, P as PI, q as isNumber, w as _limitValue, x as _lookupByKey, y as getRelativePosition$1, z as _isPointInArea, A as _rlookupByKey, B as toPadding, C as each, D as getMaximumSize, E as _getParentNode, F as readUsedSize, G as throttled, I as supportsEventListenerOptions, J as log10, K as finiteOrDefault, L as callback, M as toDegrees, N as _measureText, O as _int16Range, Q as _alignPixel, R as renderText, S as toFont, U as _factorize, V as _capitalize, W as isFunction, X as _attachContext, Y as _createResolver, Z as _descriptors, $ as mergeIf, a0 as uid, a1 as debounce, a2 as retinaScale, a3 as clearCanvas, a4 as _elementsEqual, a5 as getAngleFromPoint, a6 as _updateBezierControlPoints, a7 as _computeSegments, a8 as _boundSegments, a9 as _steppedInterpolation, aa as _bezierInterpolation, ab as _pointInLine, ac as _steppedLineTo, ad as _bezierCurveTo, ae as drawPoint, af as toTRBL, ag as toTRBLCorners, ah as _boundSegment, ai as _normalizeAngle, aj as getRtlAdapter, ak as _alignStartEnd, al as overrideTextDirection, am as restoreTextDirection, an as _toLeftRightCenter, ao as noop, ap as distanceBetweenPoints, aq as toFontString, ar as _setMinAndMaxByKey, as as niceNum, at as _decimalPlaces, au as almostEquals, av as almostWhole, aw as _longestText, ax as _filterBetween, ay as _lookup } from './chunks/helpers.segment.js';
+import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, b as isArray, d as defaults, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as isNumberFinite, h as defined, s as sign, j as isNullOrUndef, k as clipArea, m as unclipArea, _ as _arrayUnique, t as toRadians, n as toPercentage, o as toPixels, T as TAU, p as _angleBetween, H as HALF_PI, P as PI, q as isNumber, w as _limitValue, x as _lookupByKey, y as getRelativePosition$1, z as _isPointInArea, A as _rlookupByKey, B as toPadding, C as each, D as getMaximumSize, E as _getParentNode, F as readUsedSize, G as throttled, I as supportsEventListenerOptions, J as log10, K as finiteOrDefault, L as callback, M as toDegrees, N as _measureText, O as _int16Range, Q as _alignPixel, R as renderText, S as toFont, U as _factorize, V as overrides, W as merge, X as _capitalize, Y as descriptors, Z as isFunction, $ as _attachContext, a0 as _createResolver, a1 as _descriptors, a2 as mergeIf, a3 as uid, a4 as debounce, a5 as retinaScale, a6 as clearCanvas, a7 as _elementsEqual, a8 as getAngleFromPoint, a9 as _updateBezierControlPoints, aa as _computeSegments, ab as _boundSegments, ac as _steppedInterpolation, ad as _bezierInterpolation, ae as _pointInLine, af as _steppedLineTo, ag as _bezierCurveTo, ah as drawPoint, ai as toTRBL, aj as toTRBLCorners, ak as _boundSegment, al as _normalizeAngle, am as getRtlAdapter, an as _alignStartEnd, ao as overrideTextDirection, ap as restoreTextDirection, aq as _toLeftRightCenter, ar as noop, as as distanceBetweenPoints, at as toFontString, au as _setMinAndMaxByKey, av as niceNum, aw as _decimalPlaces, ax as almostEquals, ay as almostWhole, az as _longestText, aA as _filterBetween, aB as _lookup } from './chunks/helpers.segment.js';
 export { d as defaults } from './chunks/helpers.segment.js';
 
 class Animator {
@@ -1442,20 +1442,20 @@ BarController.id = 'bar';
 BarController.defaults = {
   datasetElementType: false,
   dataElementType: 'bar',
+  categoryPercentage: 0.8,
+  barPercentage: 0.9,
+  animations: {
+    numbers: {
+      type: 'number',
+      properties: ['x', 'y', 'base', 'width', 'height']
+    }
+  }
+};
+BarController.overrides = {
   interaction: {
     mode: 'index'
   },
   hover: {},
-  datasets: {
-    categoryPercentage: 0.8,
-    barPercentage: 0.9,
-    animations: {
-      numbers: {
-        type: 'number',
-        properties: ['x', 'y', 'base', 'width', 'height']
-      }
-    }
-  },
   scales: {
     _index_: {
       type: 'category',
@@ -1569,7 +1569,9 @@ BubbleController.defaults = {
       type: 'number',
       properties: ['x', 'y', 'borderWidth', 'radius']
     }
-  },
+  }
+};
+BubbleController.overrides = {
   scales: {
     x: {
       type: 'linear'
@@ -1844,14 +1846,14 @@ DoughnutController.defaults = {
       properties: ['circumference', 'endAngle', 'innerRadius', 'outerRadius', 'startAngle', 'x', 'y', 'offset', 'borderWidth']
     },
   },
-  aspectRatio: 1,
-  datasets: {
-    cutout: '50%',
-    rotation: 0,
-    circumference: 360,
-    radius: '100%'
-  },
+  cutout: '50%',
+  rotation: 0,
+  circumference: 360,
+  radius: '100%',
   indexAxis: 'r',
+};
+DoughnutController.overrides = {
+  aspectRatio: 1,
   plugins: {
     legend: {
       labels: {
@@ -1981,10 +1983,10 @@ LineController.id = 'line';
 LineController.defaults = {
   datasetElementType: 'line',
   dataElementType: 'point',
-  datasets: {
-    showLine: true,
-    spanGaps: false,
-  },
+  showLine: true,
+  spanGaps: false,
+};
+LineController.overrides = {
   interaction: {
     mode: 'index'
   },
@@ -2142,24 +2144,11 @@ PolarAreaController.defaults = {
       properties: ['x', 'y', 'startAngle', 'endAngle', 'innerRadius', 'outerRadius']
     },
   },
-  aspectRatio: 1,
   indexAxis: 'r',
-  scales: {
-    r: {
-      type: 'radialLinear',
-      angleLines: {
-        display: false
-      },
-      beginAtZero: true,
-      gridLines: {
-        circular: true
-      },
-      pointLabels: {
-        display: false
-      }
-    }
-  },
   startAngle: 0,
+};
+PolarAreaController.overrides = {
+  aspectRatio: 1,
   plugins: {
     legend: {
       labels: {
@@ -2197,6 +2186,21 @@ PolarAreaController.defaults = {
         }
       }
     }
+  },
+  scales: {
+    r: {
+      type: 'radialLinear',
+      angleLines: {
+        display: false
+      },
+      beginAtZero: true,
+      gridLines: {
+        circular: true
+      },
+      pointLabels: {
+        display: false
+      }
+    }
   }
 };
 
@@ -2204,12 +2208,10 @@ class PieController extends DoughnutController {
 }
 PieController.id = 'pie';
 PieController.defaults = {
-  datasets: {
-    cutout: 0,
-    rotation: 0,
-    circumference: 360,
-    radius: '100%'
-  }
+  cutout: 0,
+  rotation: 0,
+  circumference: 360,
+  radius: '100%'
 };
 
 class RadarController extends DatasetController {
@@ -2269,16 +2271,16 @@ RadarController.id = 'radar';
 RadarController.defaults = {
   datasetElementType: 'line',
   dataElementType: 'point',
-  aspectRatio: 1,
-  datasets: {
-    showLine: true,
-  },
+  indexAxis: 'r',
+  showLine: true,
   elements: {
     line: {
       fill: 'start'
     }
   },
-  indexAxis: 'r',
+};
+RadarController.overrides = {
+  aspectRatio: 1,
   scales: {
     r: {
       type: 'radialLinear',
@@ -2290,18 +2292,10 @@ class ScatterController extends LineController {
 }
 ScatterController.id = 'scatter';
 ScatterController.defaults = {
-  scales: {
-    x: {
-      type: 'linear'
-    },
-    y: {
-      type: 'linear'
-    }
-  },
-  datasets: {
-    showLine: false,
-    fill: false
-  },
+  showLine: false,
+  fill: false
+};
+ScatterController.overrides = {
   interaction: {
     mode: 'point'
   },
@@ -2315,6 +2309,14 @@ ScatterController.defaults = {
           return '(' + item.label + ', ' + item.formattedValue + ')';
         }
       }
+    }
+  },
+  scales: {
+    x: {
+      type: 'linear'
+    },
+    y: {
+      type: 'linear'
     }
   }
 };
@@ -4418,24 +4420,25 @@ class Scale extends Element {
 Scale.prototype._draw = Scale.prototype.draw;
 
 class TypedRegistry {
-  constructor(type, scope) {
+  constructor(type, scope, override) {
     this.type = type;
     this.scope = scope;
+    this.override = override;
     this.items = Object.create(null);
   }
   isForType(type) {
     return Object.prototype.isPrototypeOf.call(this.type.prototype, type.prototype);
   }
   register(item) {
+    const me = this;
     const proto = Object.getPrototypeOf(item);
     let parentScope;
     if (isIChartComponent(proto)) {
-      parentScope = this.register(proto);
+      parentScope = me.register(proto);
     }
-    const items = this.items;
+    const items = me.items;
     const id = item.id;
-    const baseScope = this.scope;
-    const scope = baseScope ? baseScope + '.' + id : id;
+    const scope = me.scope + '.' + id;
     if (!id) {
       throw new Error('class does not have id: ' + item);
     }
@@ -4444,6 +4447,9 @@ class TypedRegistry {
     }
     items[id] = item;
     registerDefaults(item, scope, parentScope);
+    if (me.override) {
+      defaults.override(item.id, item.overrides);
+    }
     return scope;
   }
   get(id) {
@@ -4458,16 +4464,18 @@ class TypedRegistry {
     }
     if (scope && id in defaults[scope]) {
       delete defaults[scope][id];
+      if (this.override) {
+        delete overrides[id];
+      }
     }
   }
 }
 function registerDefaults(item, scope, parentScope) {
-  const itemDefaults = Object.assign(
-    Object.create(null),
-    parentScope && defaults.get(parentScope),
-    item.defaults,
-    defaults.get(scope)
-  );
+  const itemDefaults = merge(Object.create(null), [
+    parentScope ? defaults.get(parentScope) : {},
+    defaults.get(scope),
+    item.defaults
+  ]);
   defaults.set(scope, itemDefaults);
   if (item.defaultRoutes) {
     routeDefaults(scope, item.defaultRoutes);
@@ -4493,7 +4501,7 @@ function isIChartComponent(proto) {
 
 class Registry {
   constructor() {
-    this.controllers = new TypedRegistry(DatasetController, 'controllers');
+    this.controllers = new TypedRegistry(DatasetController, 'datasets', true);
     this.elements = new TypedRegistry(Element, 'elements');
     this.plugins = new TypedRegistry(Object, 'plugins');
     this.scales = new TypedRegistry(Scale, 'scales');
@@ -4686,11 +4694,9 @@ function pluginOpts(config, plugin, opts, context) {
 }
 
 function getIndexAxis(type, options) {
-  const typeDefaults = defaults.controllers[type] || {};
-  const datasetDefaults = typeDefaults.datasets || {};
-  const datasetOptions = options.datasets || {};
-  const typeOptions = datasetOptions[type] || {};
-  return typeOptions.indexAxis || options.indexAxis || datasetDefaults.indexAxis || 'x';
+  const datasetDefaults = defaults.datasets[type] || {};
+  const datasetOptions = (options.datasets || {})[type] || {};
+  return datasetOptions.indexAxis || options.indexAxis || datasetDefaults.indexAxis || 'x';
 }
 function getAxisFromDefaultScaleID(id, indexAxis) {
   let axis = id;
@@ -4719,7 +4725,7 @@ function determineAxis(id, scaleOptions) {
   return scaleOptions.axis || axisFromPosition(scaleOptions.position) || id.charAt(0).toLowerCase();
 }
 function mergeScaleConfig(config, options) {
-  const chartDefaults = defaults.controllers[config.type] || {scales: {}};
+  const chartDefaults = overrides[config.type] || {scales: {}};
   const configScales = options.scales || {};
   const chartIndexAxis = getIndexAxis(config.type, options);
   const firstIDs = Object.create(null);
@@ -4735,7 +4741,7 @@ function mergeScaleConfig(config, options) {
   config.data.datasets.forEach(dataset => {
     const type = dataset.type || config.type;
     const indexAxis = dataset.indexAxis || getIndexAxis(type, options);
-    const datasetDefaults = defaults.controllers[type] || {};
+    const datasetDefaults = overrides[type] || {};
     const defaultScaleOptions = datasetDefaults.scales || {};
     Object.keys(defaultScaleOptions).forEach(defaultID => {
       const axis = getAxisFromDefaultScaleID(defaultID, indexAxis);
@@ -4820,8 +4826,6 @@ class Config {
     return cachedKeys(datasetType,
       () => [
         `datasets.${datasetType}`,
-        `controllers.${datasetType}`,
-        `controllers.${datasetType}.datasets`,
         ''
       ]);
   }
@@ -4829,21 +4833,16 @@ class Config {
     return cachedKeys(`${datasetType}.transition.${transition}`,
       () => [
         `datasets.${datasetType}.transitions.${transition}`,
-        `controllers.${datasetType}.transitions.${transition}`,
-        `controllers.${datasetType}.datasets.transitions.${transition}`,
         `transitions.${transition}`,
         `datasets.${datasetType}`,
-        `controllers.${datasetType}`,
-        `controllers.${datasetType}.datasets`,
         ''
       ]);
   }
   datasetElementScopeKeys(datasetType, elementType) {
     return cachedKeys(`${datasetType}-${elementType}`,
       () => [
+        `datasets.${datasetType}.elements.${elementType}`,
         `datasets.${datasetType}`,
-        `controllers.${datasetType}.datasets`,
-        `controllers.${datasetType}.elements.${elementType}`,
         `elements.${elementType}`,
         ''
       ]);
@@ -4853,16 +4852,16 @@ class Config {
     const type = this.type;
     return cachedKeys(`${type}-plugin-${id}`,
       () => [
-        `controllers.${type}.plugins.${id}`,
         `plugins.${id}`,
         ...plugin.additionalOptionScopes || [],
       ]);
   }
   getOptionScopes(mainScope, scopeKeys, resetCache) {
-    let cache = this._scopeCache.get(mainScope);
+    const {_scopeCache, options, type} = this;
+    let cache = _scopeCache.get(mainScope);
     if (!cache || resetCache) {
       cache = new Map();
-      this._scopeCache.set(mainScope, cache);
+      _scopeCache.set(mainScope, cache);
     }
     const cached = cache.get(scopeKeys);
     if (cached) {
@@ -4873,9 +4872,10 @@ class Config {
       scopes.add(mainScope);
       scopeKeys.forEach(key => addIfFound(scopes, mainScope, key));
     }
-    scopeKeys.forEach(key => addIfFound(scopes, this.options, key));
+    scopeKeys.forEach(key => addIfFound(scopes, options, key));
+    scopeKeys.forEach(key => addIfFound(scopes, overrides[type] || {}, key));
     scopeKeys.forEach(key => addIfFound(scopes, defaults, key));
-    scopeKeys.forEach(key => addIfFound(scopes, defaults.descriptors, key));
+    scopeKeys.forEach(key => addIfFound(scopes, descriptors, key));
     const array = [...scopes];
     if (keysCached.has(scopeKeys)) {
       cache.set(scopeKeys, array);
@@ -4883,14 +4883,14 @@ class Config {
     return array;
   }
   chartOptionScopes() {
-    const controllerDefaults = defaults.controllers[this.type] || {};
+    const {options, type} = this;
     return [
-      this.options,
-      controllerDefaults,
-      controllerDefaults.datasets || {},
-      {type: this.type},
+      options,
+      overrides[type] || {},
+      defaults.datasets[type] || {},
+      {type},
       defaults,
-      defaults.descriptors
+      descriptors
     ];
   }
   resolveNamedOptions(scopes, names, context, prefixes = ['']) {
@@ -5236,11 +5236,11 @@ class Chart {
         meta.controller.updateIndex(i);
         meta.controller.linkScales();
       } else {
-        const controllerDefaults = defaults.controllers[type];
         const ControllerClass = registry.getController(type);
+        const {datasetElementType, dataElementType} = defaults.datasets[type];
         Object.assign(ControllerClass.prototype, {
-          dataElementType: registry.getElement(controllerDefaults.dataElementType),
-          datasetElementType: controllerDefaults.datasetElementType && registry.getElement(controllerDefaults.datasetElementType)
+          dataElementType: registry.getElement(dataElementType),
+          datasetElementType: datasetElementType && registry.getElement(datasetElementType)
         });
         meta.controller = new ControllerClass(me, i);
         newControllers.push(meta.controller);
@@ -5695,6 +5695,10 @@ Object.defineProperties(Chart, {
   instances: {
     enumerable,
     value: instances
+  },
+  overrides: {
+    enumerable,
+    value: overrides
   },
   registry: {
     enumerable,
