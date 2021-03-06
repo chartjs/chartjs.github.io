@@ -3269,7 +3269,8 @@ function getTitleHeight(options, fallback) {
   }
   const font = toFont(options.font, fallback);
   const padding = toPadding(options.padding);
-  return font.lineHeight + padding.height;
+  const lines = isArray(options.text) ? options.text.length : 1;
+  return (lines * font.lineHeight) + padding.height;
 }
 function getEvenSpacing(arr) {
   const len = arr.length;
