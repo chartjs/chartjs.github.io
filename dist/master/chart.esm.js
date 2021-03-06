@@ -4,7 +4,7 @@
  * (c) 2021 Chart.js Contributors
  * Released under the MIT License
  */
-import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, b as isArray, d as defaults, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as isNumberFinite, h as defined, s as sign, j as isNullOrUndef, k as clipArea, m as unclipArea, _ as _arrayUnique, t as toRadians, n as toPercentage, o as toPixels, T as TAU, p as _angleBetween, H as HALF_PI, P as PI, q as isNumber, w as _limitValue, x as _lookupByKey, y as getRelativePosition$1, z as _isPointInArea, A as _rlookupByKey, B as toPadding, C as each, D as getMaximumSize, E as _getParentNode, F as readUsedSize, G as throttled, I as supportsEventListenerOptions, J as log10, K as finiteOrDefault, L as callback, M as toDegrees, N as _measureText, O as _int16Range, Q as _alignPixel, R as renderText, S as toFont, U as _factorize, V as overrides, W as merge, X as _capitalize, Y as descriptors, Z as isFunction, $ as _attachContext, a0 as _createResolver, a1 as _descriptors, a2 as mergeIf, a3 as uid, a4 as debounce, a5 as retinaScale, a6 as clearCanvas, a7 as _elementsEqual, a8 as getAngleFromPoint, a9 as _updateBezierControlPoints, aa as _computeSegments, ab as _boundSegments, ac as _steppedInterpolation, ad as _bezierInterpolation, ae as _pointInLine, af as _steppedLineTo, ag as _bezierCurveTo, ah as drawPoint, ai as toTRBL, aj as toTRBLCorners, ak as _boundSegment, al as _normalizeAngle, am as getRtlAdapter, an as _alignStartEnd, ao as overrideTextDirection, ap as restoreTextDirection, aq as _toLeftRightCenter, ar as noop, as as distanceBetweenPoints, at as toFontString, au as _setMinAndMaxByKey, av as niceNum, aw as _decimalPlaces, ax as almostEquals, ay as almostWhole, az as _longestText, aA as _filterBetween, aB as _lookup } from './chunks/helpers.segment.js';
+import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, b as isArray, d as defaults, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as isNumberFinite, h as defined, s as sign, j as isNullOrUndef, k as clipArea, m as unclipArea, _ as _arrayUnique, t as toRadians, n as toPercentage, o as toDimension, T as TAU, p as _angleBetween, H as HALF_PI, P as PI, q as isNumber, w as _limitValue, x as _lookupByKey, y as getRelativePosition$1, z as _isPointInArea, A as _rlookupByKey, B as toPadding, C as each, D as getMaximumSize, E as _getParentNode, F as readUsedSize, G as throttled, I as supportsEventListenerOptions, J as log10, K as finiteOrDefault, L as callback, M as toDegrees, N as _measureText, O as _int16Range, Q as _alignPixel, R as renderText, S as toFont, U as _factorize, V as overrides, W as merge, X as _capitalize, Y as descriptors, Z as isFunction, $ as _attachContext, a0 as _createResolver, a1 as _descriptors, a2 as mergeIf, a3 as uid, a4 as debounce, a5 as retinaScale, a6 as clearCanvas, a7 as _elementsEqual, a8 as getAngleFromPoint, a9 as _updateBezierControlPoints, aa as _computeSegments, ab as _boundSegments, ac as _steppedInterpolation, ad as _bezierInterpolation, ae as _pointInLine, af as _steppedLineTo, ag as _bezierCurveTo, ah as drawPoint, ai as toTRBL, aj as toTRBLCorners, ak as _boundSegment, al as _normalizeAngle, am as getRtlAdapter, an as _alignStartEnd, ao as overrideTextDirection, ap as restoreTextDirection, aq as _toLeftRightCenter, ar as noop, as as distanceBetweenPoints, at as toFontString, au as _addGrace, av as _setMinAndMaxByKey, aw as niceNum, ax as _decimalPlaces, ay as almostEquals, az as almostWhole, aA as _longestText, aB as _filterBetween, aC as _lookup } from './chunks/helpers.segment.js';
 export { d as defaults } from './chunks/helpers.segment.js';
 
 class Animator {
@@ -1688,7 +1688,7 @@ class DoughnutController extends DatasetController {
     const maxWidth = (chartArea.width - spacing) / ratioX;
     const maxHeight = (chartArea.height - spacing) / ratioY;
     const maxRadius = Math.max(Math.min(maxWidth, maxHeight) / 2, 0);
-    const outerRadius = toPixels(me.options.radius, maxRadius);
+    const outerRadius = toDimension(me.options.radius, maxRadius);
     const innerRadius = Math.max(outerRadius * cutout, 0);
     const radiusLength = (outerRadius - innerRadius) / me._getVisibleDatasetWeightTotal();
     me.offsetX = offsetX * outerRadius;
@@ -3164,6 +3164,7 @@ defaults.set('scale', {
   reverse: false,
   beginAtZero: false,
   bounds: 'ticks',
+  grace: 0,
   gridLines: {
     display: true,
     lineWidth: 1,
@@ -8740,7 +8741,7 @@ class LinearScaleBase extends Scale {
       precision: tickOpts.precision,
       stepSize: tickOpts.stepSize
     };
-    const ticks = generateTicks(numericGeneratorOptions, me);
+    const ticks = generateTicks(numericGeneratorOptions, _addGrace(me, opts.grace));
     if (opts.bounds === 'ticks') {
       _setMinAndMaxByKey(ticks, me, 'value');
     }

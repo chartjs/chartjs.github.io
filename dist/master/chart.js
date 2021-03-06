@@ -783,7 +783,7 @@ const toPercentage = (value, dimension) =>
   typeof value === 'string' && value.endsWith('%') ?
     parseFloat(value) / 100
     : value / dimension;
-const toPixels = (value, dimension) =>
+const toDimension = (value, dimension) =>
   typeof value === 'string' && value.endsWith('%') ?
     parseFloat(value) / 100 * dimension
     : +value;
@@ -1937,6 +1937,13 @@ function resolve(inputs, context, index, info) {
       return value;
     }
   }
+}
+function _addGrace(minmax, grace) {
+  const {min, max} = minmax;
+  return {
+    min: min - Math.abs(toDimension(grace, min)),
+    max: max + toDimension(grace, max)
+  };
 }
 
 const STATIC_POSITIONS = ['left', 'top', 'right', 'bottom'];
@@ -3619,6 +3626,7 @@ defaults.set('scale', {
   reverse: false,
   beginAtZero: false,
   bounds: 'ticks',
+  grace: 0,
   gridLines: {
     display: true,
     lineWidth: 1,
@@ -5511,7 +5519,7 @@ isFinite: isNumberFinite,
 finiteOrDefault: finiteOrDefault,
 valueOrDefault: valueOrDefault,
 toPercentage: toPercentage,
-toPixels: toPixels,
+toDimension: toDimension,
 callback: callback,
 each: each,
 _elementsEqual: _elementsEqual,
@@ -5566,6 +5574,7 @@ toTRBLCorners: toTRBLCorners,
 toPadding: toPadding,
 toFont: toFont,
 resolve: resolve,
+_addGrace: _addGrace,
 PI: PI,
 TAU: TAU,
 PITAU: PITAU,
@@ -7521,7 +7530,7 @@ class DoughnutController extends DatasetController {
     const maxWidth = (chartArea.width - spacing) / ratioX;
     const maxHeight = (chartArea.height - spacing) / ratioY;
     const maxRadius = Math.max(Math.min(maxWidth, maxHeight) / 2, 0);
-    const outerRadius = toPixels(me.options.radius, maxRadius);
+    const outerRadius = toDimension(me.options.radius, maxRadius);
     const innerRadius = Math.max(outerRadius * cutout, 0);
     const radiusLength = (outerRadius - innerRadius) / me._getVisibleDatasetWeightTotal();
     me.offsetX = offsetX * outerRadius;
@@ -11178,7 +11187,7 @@ class LinearScaleBase extends Scale {
       precision: tickOpts.precision,
       stepSize: tickOpts.stepSize
     };
-    const ticks = generateTicks(numericGeneratorOptions, me);
+    const ticks = generateTicks(numericGeneratorOptions, _addGrace(me, opts.grace));
     if (opts.bounds === 'ticks') {
       _setMinAndMaxByKey(ticks, me, 'value');
     }
