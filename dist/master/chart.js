@@ -2908,8 +2908,9 @@ function getSortedDatasetIndices(chart, filterVisible) {
   }
   return keys;
 }
-function applyStack(stack, value, dsIndex, allOther) {
+function applyStack(stack, value, dsIndex, options) {
   const keys = stack.keys;
+  const singleMode = options.mode === 'single';
   let i, ilen, datasetIndex, otherValue;
   if (value === null) {
     return;
@@ -2917,13 +2918,13 @@ function applyStack(stack, value, dsIndex, allOther) {
   for (i = 0, ilen = keys.length; i < ilen; ++i) {
     datasetIndex = +keys[i];
     if (datasetIndex === dsIndex) {
-      if (allOther) {
+      if (options.all) {
         continue;
       }
       break;
     }
     otherValue = stack.values[datasetIndex];
-    if (isNumberFinite(otherValue) && (value === 0 || sign(value) === sign(otherValue))) {
+    if (isNumberFinite(otherValue) && (singleMode || (value === 0 || sign(value) === sign(otherValue)))) {
       value += otherValue;
     }
   }
@@ -3226,7 +3227,7 @@ class DatasetController {
   getDataElement(index) {
     return this._cachedMeta.data[index];
   }
-  applyStack(scale, parsed) {
+  applyStack(scale, parsed, mode) {
     const chart = this.chart;
     const meta = this._cachedMeta;
     const value = parsed[scale.axis];
@@ -3234,7 +3235,7 @@ class DatasetController {
       keys: getSortedDatasetIndices(chart, true),
       values: parsed._stacks[scale.axis]
     };
-    return applyStack(stack, value, meta.index);
+    return applyStack(stack, value, meta.index, {mode});
   }
   updateRangeFromParsed(range, scale, parsed, stack) {
     const parsedValue = parsed[scale.axis];
@@ -3244,7 +3245,7 @@ class DatasetController {
       stack.values = values;
       range.min = Math.min(range.min, value);
       range.max = Math.max(range.max, value);
-      value = applyStack(stack, parsedValue, this._cachedMeta.index, true);
+      value = applyStack(stack, parsedValue, this._cachedMeta.index, {all: true});
     }
     range.min = Math.min(range.min, value);
     range.max = Math.max(range.max, value);
@@ -7215,15 +7216,14 @@ class BarController extends DatasetController {
   }
   _calculateBarValuePixels(index) {
     const me = this;
-    const meta = me._cachedMeta;
-    const vScale = meta.vScale;
+    const {vScale, _stacked} = me._cachedMeta;
     const {base: baseValue, minBarLength} = me.options;
     const parsed = me.getParsed(index);
     const custom = parsed._custom;
     const floating = isFloatBar(custom);
     let value = parsed[vScale.axis];
     let start = 0;
-    let length = meta._stacked ? me.applyStack(vScale, parsed) : value;
+    let length = _stacked ? me.applyStack(vScale, parsed, _stacked) : value;
     let head, size;
     if (length !== value) {
       start = length - value;
@@ -7791,7 +7791,7 @@ class LineController extends DatasetController {
       const parsed = me.getParsed(i);
       const properties = directUpdate ? point : {};
       const x = properties.x = xScale.getPixelForValue(parsed.x, i);
-      const y = properties.y = reset ? yScale.getBasePixel() : yScale.getPixelForValue(_stacked ? me.applyStack(yScale, parsed) : parsed.y, i);
+      const y = properties.y = reset ? yScale.getBasePixel() : yScale.getPixelForValue(_stacked ? me.applyStack(yScale, parsed, _stacked) : parsed.y, i);
       properties.skip = isNaN(x) || isNaN(y);
       properties.stop = i > 0 && (parsed.x - prevParsed.x) > maxGapLength;
       if (includeOptions) {
