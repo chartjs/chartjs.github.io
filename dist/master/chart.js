@@ -11433,15 +11433,15 @@ function fitWithPointLabels(scale) {
   };
   const furthestAngles = {};
   let i, textSize, pointPosition;
-  scale._pointLabelSizes = [];
+  const labelSizes = [];
   const valueCount = scale.chart.data.labels.length;
   for (i = 0; i < valueCount; i++) {
     pointPosition = scale.getPointPosition(i, scale.drawingArea + 5);
     const opts = scale.options.pointLabels.setContext(scale.getContext(i));
     const plFont = toFont(opts.font);
     scale.ctx.font = plFont.string;
-    textSize = measureLabelSize(scale.ctx, plFont.lineHeight, scale.pointLabels[i]);
-    scale._pointLabelSizes[i] = textSize;
+    textSize = measureLabelSize(scale.ctx, plFont.lineHeight, scale._pointLabels[i]);
+    labelSizes[i] = textSize;
     const angleRadians = scale.getIndexAngle(i);
     const angle = toDegrees(angleRadians);
     const hLimits = determineLimits(angle, pointPosition.x, textSize.w, 0, 180);
@@ -11464,6 +11464,36 @@ function fitWithPointLabels(scale) {
     }
   }
   scale._setReductions(scale.drawingArea, furthestLimits, furthestAngles);
+  scale._pointLabelItems = [];
+  const opts = scale.options;
+  const tickBackdropHeight = getTickBackdropHeight(opts);
+  const outerDistance = scale.getDistanceFromCenterForValue(opts.ticks.reverse ? scale.min : scale.max);
+  for (i = 0; i < valueCount; i++) {
+    const extra = (i === 0 ? tickBackdropHeight / 2 : 0);
+    const pointLabelPosition = scale.getPointPosition(i, outerDistance + extra + 5);
+    const angle = toDegrees(scale.getIndexAngle(i));
+    const size = labelSizes[i];
+    adjustPointPositionForLabelHeight(angle, size, pointLabelPosition);
+    const textAlign = getTextAlignForAngle(angle);
+    let left;
+    if (textAlign === 'left') {
+      left = pointLabelPosition.x;
+    } else if (textAlign === 'center') {
+      left = pointLabelPosition.x - (size.w / 2);
+    } else {
+      left = pointLabelPosition.x - size.w;
+    }
+    const right = left + size.w;
+    scale._pointLabelItems[i] = {
+      x: pointLabelPosition.x,
+      y: pointLabelPosition.y,
+      textAlign,
+      left,
+      top: pointLabelPosition.y,
+      right,
+      bottom: pointLabelPosition.y + size.h,
+    };
+  }
 }
 function getTextAlignForAngle(angle) {
   if (angle === 0 || angle === 180) {
@@ -11484,26 +11514,21 @@ function drawPointLabels(scale) {
   const ctx = scale.ctx;
   const opts = scale.options;
   const pointLabelOpts = opts.pointLabels;
-  const tickBackdropHeight = getTickBackdropHeight(opts);
-  const outerDistance = scale.getDistanceFromCenterForValue(opts.ticks.reverse ? scale.min : scale.max);
   ctx.save();
   ctx.textBaseline = 'middle';
   for (let i = scale.chart.data.labels.length - 1; i >= 0; i--) {
-    const extra = (i === 0 ? tickBackdropHeight / 2 : 0);
-    const pointLabelPosition = scale.getPointPosition(i, outerDistance + extra + 5);
     const optsAtIndex = pointLabelOpts.setContext(scale.getContext(i));
     const plFont = toFont(optsAtIndex.font);
-    const angle = toDegrees(scale.getIndexAngle(i));
-    adjustPointPositionForLabelHeight(angle, scale._pointLabelSizes[i], pointLabelPosition);
+    const {x, y, textAlign} = scale._pointLabelItems[i];
     renderText(
       ctx,
-      scale.pointLabels[i],
-      pointLabelPosition.x,
-      pointLabelPosition.y + (plFont.lineHeight / 2),
+      scale._pointLabels[i],
+      x,
+      y + (plFont.lineHeight / 2),
       plFont,
       {
         color: optsAtIndex.color,
-        textAlign: getTextAlignForAngle(angle),
+        textAlign: textAlign,
       }
     );
   }
@@ -11548,7 +11573,8 @@ class RadialLinearScale extends LinearScaleBase {
     this.xCenter = undefined;
     this.yCenter = undefined;
     this.drawingArea = undefined;
-    this.pointLabels = [];
+    this._pointLabels = [];
+    this._pointLabelItems = [];
   }
   setDimensions() {
     const me = this;
@@ -11572,7 +11598,7 @@ class RadialLinearScale extends LinearScaleBase {
   generateTickLabels(ticks) {
     const me = this;
     LinearScaleBase.prototype.generateTickLabels.call(me, ticks);
-    me.pointLabels = me.chart.data.labels.map((value, index) => {
+    me._pointLabels = me.chart.data.labels.map((value, index) => {
       const label = callback(me.options.pointLabels.callback, [value, index], me);
       return label || label === 0 ? label : '';
     });
@@ -11650,6 +11676,15 @@ class RadialLinearScale extends LinearScaleBase {
   }
   getBasePosition(index) {
     return this.getPointPositionForValue(index || 0, this.getBaseValue());
+  }
+  getPointLabelPosition(index) {
+    const {left, top, right, bottom} = this._pointLabelItems[index];
+    return {
+      left,
+      top,
+      right,
+      bottom,
+    };
   }
   drawGrid() {
     const me = this;
