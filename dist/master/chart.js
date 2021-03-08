@@ -7887,9 +7887,6 @@ function scaleRangesChanged(meta) {
   return changed;
 }
 
-function getStartAngleRadians(deg) {
-  return toRadians(deg) - 0.5 * PI;
-}
 class PolarAreaController extends DatasetController {
   constructor(chart, datasetIndex) {
     super(chart, datasetIndex);
@@ -7923,7 +7920,7 @@ class PolarAreaController extends DatasetController {
     const scale = me._cachedMeta.rScale;
     const centerX = scale.xCenter;
     const centerY = scale.yCenter;
-    const datasetStartAngle = getStartAngleRadians(opts.startAngle);
+    const datasetStartAngle = scale.getIndexAngle(0) - 0.5 * PI;
     let angle = datasetStartAngle;
     let i;
     const defaultAngle = 360 / me.countVisibleElements();
@@ -8041,7 +8038,8 @@ PolarAreaController.overrides = {
       },
       pointLabels: {
         display: false
-      }
+      },
+      startAngle: 0
     }
   }
 };
@@ -11637,10 +11635,8 @@ class RadialLinearScale extends LinearScaleBase {
     me.yCenter = Math.floor(((maxTop + maxBottom) / 2) + me.top + me.paddingTop);
   }
   getIndexAngle(index) {
-    const chart = this.chart;
-    const angleMultiplier = TAU / chart.data.labels.length;
-    const options = chart.options || {};
-    const startAngle = options.startAngle || 0;
+    const angleMultiplier = TAU / this.getLabels().length;
+    const startAngle = this.options.startAngle || 0;
     return _normalizeAngle(index * angleMultiplier + toRadians(startAngle));
   }
   getDistanceFromCenterForValue(value) {
@@ -11782,6 +11778,7 @@ RadialLinearScale.defaults = {
   gridLines: {
     circular: false
   },
+  startAngle: 0,
   ticks: {
     showLabelBackdrop: true,
     backdropColor: 'rgba(255,255,255,0.75)',
