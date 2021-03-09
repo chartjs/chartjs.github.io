@@ -4,7 +4,7 @@
  * (c) 2021 Chart.js Contributors
  * Released under the MIT License
  */
-import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, b as isArray, d as defaults, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as isNumberFinite, h as defined, s as sign, j as isNullOrUndef, k as clipArea, m as unclipArea, _ as _arrayUnique, t as toRadians, n as toPercentage, o as toDimension, T as TAU, p as _angleBetween, H as HALF_PI, P as PI, q as isNumber, w as _limitValue, x as _lookupByKey, y as getRelativePosition$1, z as _isPointInArea, A as _rlookupByKey, B as toPadding, C as each, D as getMaximumSize, E as _getParentNode, F as readUsedSize, G as throttled, I as supportsEventListenerOptions, J as log10, K as finiteOrDefault, L as callback, M as toDegrees, N as _measureText, O as _int16Range, Q as _alignPixel, R as renderText, S as toFont, U as _factorize, V as overrides, W as merge, X as _capitalize, Y as descriptors, Z as isFunction, $ as _attachContext, a0 as _createResolver, a1 as _descriptors, a2 as mergeIf, a3 as uid, a4 as debounce, a5 as retinaScale, a6 as clearCanvas, a7 as _elementsEqual, a8 as getAngleFromPoint, a9 as _updateBezierControlPoints, aa as _computeSegments, ab as _boundSegments, ac as _steppedInterpolation, ad as _bezierInterpolation, ae as _pointInLine, af as _steppedLineTo, ag as _bezierCurveTo, ah as drawPoint, ai as toTRBL, aj as toTRBLCorners, ak as _boundSegment, al as _normalizeAngle, am as getRtlAdapter, an as _alignStartEnd, ao as overrideTextDirection, ap as restoreTextDirection, aq as _toLeftRightCenter, ar as noop, as as distanceBetweenPoints, at as toFontString, au as _addGrace, av as _setMinAndMaxByKey, aw as niceNum, ax as _decimalPlaces, ay as almostEquals, az as almostWhole, aA as _longestText, aB as _filterBetween, aC as _lookup } from './chunks/helpers.segment.js';
+import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, b as isArray, d as defaults, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as isNumberFinite, h as defined, s as sign, j as isNullOrUndef, k as clipArea, m as unclipArea, _ as _arrayUnique, t as toRadians, n as toPercentage, o as toDimension, T as TAU, p as _angleBetween, H as HALF_PI, P as PI, q as isNumber, w as _limitValue, x as _lookupByKey, y as getRelativePosition$1, z as _isPointInArea, A as _rlookupByKey, B as toPadding, C as each, D as getMaximumSize, E as _getParentNode, F as readUsedSize, G as throttled, I as supportsEventListenerOptions, J as log10, K as finiteOrDefault, L as callback, M as toDegrees, N as _measureText, O as _int16Range, Q as _alignPixel, R as renderText, S as toFont, U as _toLeftRightCenter, V as _alignStartEnd, W as _factorize, X as overrides, Y as merge, Z as _capitalize, $ as descriptors, a0 as isFunction, a1 as _attachContext, a2 as _createResolver, a3 as _descriptors, a4 as mergeIf, a5 as uid, a6 as debounce, a7 as retinaScale, a8 as clearCanvas, a9 as _elementsEqual, aa as getAngleFromPoint, ab as _updateBezierControlPoints, ac as _computeSegments, ad as _boundSegments, ae as _steppedInterpolation, af as _bezierInterpolation, ag as _pointInLine, ah as _steppedLineTo, ai as _bezierCurveTo, aj as drawPoint, ak as toTRBL, al as toTRBLCorners, am as _boundSegment, an as _normalizeAngle, ao as getRtlAdapter, ap as overrideTextDirection, aq as restoreTextDirection, ar as noop, as as distanceBetweenPoints, at as toFontString, au as _addGrace, av as _setMinAndMaxByKey, aw as niceNum, ax as _decimalPlaces, ay as almostEquals, az as almostWhole, aA as _longestText, aB as _filterBetween, aC as _lookup } from './chunks/helpers.segment.js';
 export { d as defaults } from './chunks/helpers.segment.js';
 
 class Animator {
@@ -3156,6 +3156,8 @@ formatters.logarithmic = function(tickValue, index, ticks) {
 };
 var Ticks = {formatters};
 
+const reverseAlign = (align) => align === 'left' ? 'right' : align === 'right' ? 'left' : align;
+const offsetFromEdge = (scale, edge, offset) => edge === 'top' || edge === 'left' ? scale[edge] + offset : scale[edge] - offset;
 defaults.set('scale', {
   display: true,
   offset: false,
@@ -3359,6 +3361,28 @@ function createTickContext(parent, index, tick) {
     index,
     type: 'tick'
   });
+}
+function titleAlign(align, position, reverse) {
+  let ret = _toLeftRightCenter(align);
+  if ((reverse && position !== 'right') || (!reverse && position === 'right')) {
+    ret = reverseAlign(ret);
+  }
+  return ret;
+}
+function titleArgs(scale, offset, position, align) {
+  const {top, left, bottom, right} = scale;
+  let rotation = 0;
+  let maxWidth, titleX, titleY;
+  if (scale.isHorizontal()) {
+    titleX = _alignStartEnd(align, left, right);
+    titleY = offsetFromEdge(scale, position, offset);
+    maxWidth = right - left;
+  } else {
+    titleX = offsetFromEdge(scale, position, offset);
+    titleY = _alignStartEnd(align, bottom, top);
+    rotation = position === 'left' ? -HALF_PI : HALF_PI;
+  }
+  return {titleX, titleY, maxWidth, rotation};
 }
 class Scale extends Element {
   constructor(cfg) {
@@ -4300,64 +4324,29 @@ class Scale extends Element {
       unclipArea(ctx);
     }
   }
-  drawTitle(chartArea) {
-    const me = this;
-    const ctx = me.ctx;
-    const options = me.options;
-    const title = options.title;
+  drawTitle() {
+    const {ctx, options: {position, title, reverse}} = this;
     if (!title.display) {
       return;
     }
-    const titleFont = toFont(title.font);
-    const titlePadding = toPadding(title.padding);
-    const halfLineHeight = titleFont.lineHeight / 2;
-    const titleAlign = title.align;
-    const position = options.position;
-    const isReverse = me.options.reverse;
-    let rotation = 0;
-    let textAlign;
-    let titleX, titleY;
-    if (me.isHorizontal()) {
-      switch (titleAlign) {
-      case 'start':
-        titleX = me.left + (isReverse ? me.width : 0);
-        textAlign = isReverse ? 'right' : 'left';
-        break;
-      case 'end':
-        titleX = me.left + (isReverse ? 0 : me.width);
-        textAlign = isReverse ? 'left' : 'right';
-        break;
-      default:
-        titleX = me.left + me.width / 2;
-        textAlign = 'center';
+    const font = toFont(title.font);
+    const padding = toPadding(title.padding);
+    const align = title.align;
+    let offset = font.lineHeight / 2;
+    if (position === 'bottom') {
+      offset += padding.bottom;
+      if (isArray(title.text)) {
+        offset += font.lineHeight * (title.text.length - 1);
       }
-      titleY = position === 'top'
-        ? me.top + halfLineHeight + titlePadding.top
-        : me.bottom - halfLineHeight - titlePadding.bottom;
     } else {
-      const isLeft = position === 'left';
-      titleX = isLeft
-        ? me.left + halfLineHeight + titlePadding.top
-        : me.right - halfLineHeight - titlePadding.top;
-      switch (titleAlign) {
-      case 'start':
-        titleY = me.top + (isReverse ? 0 : me.height);
-        textAlign = isReverse === isLeft ? 'right' : 'left';
-        break;
-      case 'end':
-        titleY = me.top + (isReverse ? me.height : 0);
-        textAlign = isReverse === isLeft ? 'left' : 'right';
-        break;
-      default:
-        titleY = me.top + me.height / 2;
-        textAlign = 'center';
-      }
-      rotation = isLeft ? -HALF_PI : HALF_PI;
+      offset += padding.top;
     }
-    renderText(ctx, title.text, 0, 0, titleFont, {
+    const {titleX, titleY, maxWidth, rotation} = titleArgs(this, offset, position, align);
+    renderText(ctx, title.text, 0, 0, font, {
       color: title.color,
+      maxWidth,
       rotation,
-      textAlign,
+      textAlign: titleAlign(align, position, reverse),
       textBaseline: 'middle',
       translation: [titleX, titleY],
     });
