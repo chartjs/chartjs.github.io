@@ -10969,7 +10969,7 @@ class CategoryScale extends Scale {
   parse(raw, index) {
     const labels = this.getLabels();
     return isFinite(index) && labels[index] === raw
-      ? index : findOrAddLabel(labels, raw, index);
+      ? index : findOrAddLabel(labels, raw, valueOrDefault(index, raw));
   }
   determineDataLimits() {
     const me = this;
