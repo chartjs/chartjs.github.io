@@ -8975,10 +8975,12 @@ function fitWithPointLabels(scale) {
   const furthestAngles = {};
   let i, textSize, pointPosition;
   const labelSizes = [];
+  const padding = [];
   const valueCount = scale.chart.data.labels.length;
   for (i = 0; i < valueCount; i++) {
-    pointPosition = scale.getPointPosition(i, scale.drawingArea + 5);
     const opts = scale.options.pointLabels.setContext(scale.getContext(i));
+    padding[i] = opts.padding;
+    pointPosition = scale.getPointPosition(i, scale.drawingArea + padding[i]);
     const plFont = toFont(opts.font);
     scale.ctx.font = plFont.string;
     textSize = measureLabelSize(scale.ctx, plFont.lineHeight, scale._pointLabels[i]);
@@ -9011,7 +9013,7 @@ function fitWithPointLabels(scale) {
   const outerDistance = scale.getDistanceFromCenterForValue(opts.ticks.reverse ? scale.min : scale.max);
   for (i = 0; i < valueCount; i++) {
     const extra = (i === 0 ? tickBackdropHeight / 2 : 0);
-    const pointLabelPosition = scale.getPointPosition(i, outerDistance + extra + 5);
+    const pointLabelPosition = scale.getPointPosition(i, outerDistance + extra + padding[i]);
     const angle = toDegrees(scale.getIndexAngle(i));
     const size = labelSizes[i];
     adjustPointPositionForLabelHeight(angle, size, pointLabelPosition);
@@ -9336,7 +9338,8 @@ RadialLinearScale.defaults = {
     },
     callback(label) {
       return label;
-    }
+    },
+    padding: 5
   }
 };
 RadialLinearScale.defaultRoutes = {
