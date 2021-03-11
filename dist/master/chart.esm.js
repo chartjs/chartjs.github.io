@@ -51,6 +51,9 @@ class Animator {
       for (; i >= 0; --i) {
         item = items[i];
         if (item._active) {
+          if (item._total > anims.duration) {
+            anims.duration = item._total;
+          }
           item.tick(date);
           draw = true;
         } else {
@@ -165,7 +168,7 @@ class Animation {
     this._fn = cfg.fn || interpolators[cfg.type || typeof from];
     this._easing = effects[cfg.easing] || effects.linear;
     this._start = Math.floor(Date.now() + (cfg.delay || 0));
-    this._duration = Math.floor(cfg.duration);
+    this._duration = this._total = Math.floor(cfg.duration);
     this._loop = !!cfg.loop;
     this._target = target;
     this._prop = prop;
@@ -185,6 +188,7 @@ class Animation {
       const remain = me._duration - elapsed;
       me._start = date;
       me._duration = Math.floor(Math.max(remain, cfg.duration));
+      me._total += elapsed;
       me._loop = !!cfg.loop;
       me._to = resolve([cfg.to, to, currentValue, cfg.from]);
       me._from = resolve([cfg.from, currentValue, to]);
@@ -999,7 +1003,7 @@ class DatasetController {
     }
   }
   updateSharedOptions(sharedOptions, mode, newOptions) {
-    if (sharedOptions) {
+    if (sharedOptions && !isDirectUpdateMode(mode)) {
       this._resolveAnimations(undefined, mode).update(sharedOptions, newOptions);
     }
   }
@@ -4824,61 +4828,72 @@ class Config {
   }
   datasetScopeKeys(datasetType) {
     return cachedKeys(datasetType,
-      () => [
+      () => [[
         `datasets.${datasetType}`,
         ''
-      ]);
+      ]]);
   }
   datasetAnimationScopeKeys(datasetType, transition) {
     return cachedKeys(`${datasetType}.transition.${transition}`,
       () => [
-        `datasets.${datasetType}.transitions.${transition}`,
-        `transitions.${transition}`,
-        `datasets.${datasetType}`,
-        ''
+        [
+          `datasets.${datasetType}.transitions.${transition}`,
+          `transitions.${transition}`,
+        ],
+        [
+          `datasets.${datasetType}`,
+          ''
+        ]
       ]);
   }
   datasetElementScopeKeys(datasetType, elementType) {
     return cachedKeys(`${datasetType}-${elementType}`,
-      () => [
+      () => [[
         `datasets.${datasetType}.elements.${elementType}`,
         `datasets.${datasetType}`,
         `elements.${elementType}`,
         ''
-      ]);
+      ]]);
   }
   pluginScopeKeys(plugin) {
     const id = plugin.id;
     const type = this.type;
     return cachedKeys(`${type}-plugin-${id}`,
-      () => [
+      () => [[
         `plugins.${id}`,
         ...plugin.additionalOptionScopes || [],
-      ]);
+      ]]);
   }
-  getOptionScopes(mainScope, scopeKeys, resetCache) {
-    const {_scopeCache, options, type} = this;
+  _cachedScopes(mainScope, resetCache) {
+    const _scopeCache = this._scopeCache;
     let cache = _scopeCache.get(mainScope);
     if (!cache || resetCache) {
       cache = new Map();
       _scopeCache.set(mainScope, cache);
     }
-    const cached = cache.get(scopeKeys);
+    return cache;
+  }
+  getOptionScopes(mainScope, keyLists, resetCache) {
+    const {options, type} = this;
+    const cache = this._cachedScopes(mainScope, resetCache);
+    const cached = cache.get(keyLists);
     if (cached) {
       return cached;
     }
     const scopes = new Set();
-    if (mainScope) {
-      scopes.add(mainScope);
-      scopeKeys.forEach(key => addIfFound(scopes, mainScope, key));
-    }
-    scopeKeys.forEach(key => addIfFound(scopes, options, key));
-    scopeKeys.forEach(key => addIfFound(scopes, overrides[type] || {}, key));
-    scopeKeys.forEach(key => addIfFound(scopes, defaults, key));
-    scopeKeys.forEach(key => addIfFound(scopes, descriptors, key));
+    keyLists.forEach(keys => {
+      if (mainScope) {
+        scopes.add(mainScope);
+        keys.forEach(key => addIfFound(scopes, mainScope, key));
+      }
+      keys.forEach(key => addIfFound(scopes, options, key));
+      keys.forEach(key => addIfFound(scopes, overrides[type] || {}, key));
+      keys.forEach(key => addIfFound(scopes, defaults, key));
+      keys.forEach(key => addIfFound(scopes, descriptors, key));
+    });
     const array = [...scopes];
-    if (keysCached.has(scopeKeys)) {
-      cache.set(scopeKeys, array);
+    if (keysCached.has(keyLists)) {
+      cache.set(keyLists, array);
     }
     return array;
   }
