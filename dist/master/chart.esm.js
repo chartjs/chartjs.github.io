@@ -4377,7 +4377,7 @@ class Scale extends Element {
     const opts = me.options;
     const tz = opts.ticks && opts.ticks.z || 0;
     const gz = opts.gridLines && opts.gridLines.z || 0;
-    if (!me._isVisible() || tz === gz || me.draw !== Scale.prototype.draw) {
+    if (!me._isVisible() || tz === gz || me.draw !== me._draw) {
       return [{
         z: tz,
         draw(chartArea) {
@@ -4418,6 +4418,7 @@ class Scale extends Element {
     return toFont(opts.font);
   }
 }
+Scale.prototype._draw = Scale.prototype.draw;
 
 class TypedRegistry {
   constructor(type, scope, override) {
@@ -9376,6 +9377,7 @@ RadialLinearScale.descriptors = {
   }
 };
 
+const MAX_INTEGER = Number.MAX_SAFE_INTEGER || 9007199254740991;
 const INTERVALS = {
   millisecond: {common: true, size: 1, steps: 1000},
   second: {common: true, size: 1000, steps: 60},
@@ -9412,8 +9414,8 @@ function parse(scale, input) {
   }
   if (round) {
     value = round === 'week' && (isNumber(isoWeekday) || isoWeekday === true)
-      ? adapter.startOf(value, 'isoWeek', isoWeekday)
-      : adapter.startOf(value, round);
+      ? scale._adapter.startOf(value, 'isoWeek', isoWeekday)
+      : scale._adapter.startOf(value, round);
   }
   return +value;
 }
@@ -9421,7 +9423,7 @@ function determineUnitForAutoTicks(minUnit, min, max, capacity) {
   const ilen = UNITS.length;
   for (let i = UNITS.indexOf(minUnit); i < ilen - 1; ++i) {
     const interval = INTERVALS[UNITS[i]];
-    const factor = interval.steps ? interval.steps : Number.MAX_SAFE_INTEGER;
+    const factor = interval.steps ? interval.steps : MAX_INTEGER;
     if (interval.common && Math.ceil((max - min) / (factor * interval.size)) <= capacity) {
       return UNITS[i];
     }
