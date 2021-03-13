@@ -11656,9 +11656,9 @@ class RadialLinearScale extends LinearScaleBase {
     radiusReductionRight = numberOrZero$1(radiusReductionRight);
     radiusReductionTop = numberOrZero$1(radiusReductionTop);
     radiusReductionBottom = numberOrZero$1(radiusReductionBottom);
-    me.drawingArea = Math.min(
+    me.drawingArea = Math.max(largestPossibleRadius / 2, Math.min(
       Math.floor(largestPossibleRadius - (radiusReductionLeft + radiusReductionRight) / 2),
-      Math.floor(largestPossibleRadius - (radiusReductionTop + radiusReductionBottom) / 2));
+      Math.floor(largestPossibleRadius - (radiusReductionTop + radiusReductionBottom) / 2)));
     me.setCenterPoint(radiusReductionLeft, radiusReductionRight, radiusReductionTop, radiusReductionBottom);
   }
   setCenterPoint(leftMovement, rightMovement, topMovement, bottomMovement) {
