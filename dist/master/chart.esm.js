@@ -1467,8 +1467,8 @@ BarController.overrides = {
     _index_: {
       type: 'category',
       offset: true,
-      gridLines: {
-        offsetGridLines: true
+      grid: {
+        offset: true
       }
     },
     _value_: {
@@ -2198,7 +2198,7 @@ PolarAreaController.overrides = {
         display: false
       },
       beginAtZero: true,
-      gridLines: {
+      grid: {
         circular: true
       },
       pointLabels: {
@@ -3172,7 +3172,7 @@ defaults.set('scale', {
   beginAtZero: false,
   bounds: 'ticks',
   grace: 0,
-  gridLines: {
+  grid: {
     display: true,
     lineWidth: 1,
     drawBorder: true,
@@ -3181,7 +3181,7 @@ defaults.set('scale', {
     tickLength: 10,
     tickWidth: (_ctx, options) => options.lineWidth,
     tickColor: (_ctx, options) => options.color,
-    offsetGridLines: false,
+    offset: false,
     borderDash: [],
     borderDashOffset: 0.0,
     borderColor: (_ctx, options) => options.color,
@@ -3214,7 +3214,7 @@ defaults.set('scale', {
   }
 });
 defaults.route('scale.ticks', 'color', '', 'color');
-defaults.route('scale.gridLines', 'color', '', 'borderColor');
+defaults.route('scale.grid', 'color', '', 'borderColor');
 defaults.route('scale.title', 'color', '', 'color');
 defaults.describe('scale', {
   _fallback: false,
@@ -3669,7 +3669,7 @@ class Scale extends Element {
     tickWidth = options.offset ? me.maxWidth / numTicks : maxWidth / (numTicks - 1);
     if (maxLabelWidth + 6 > tickWidth) {
       tickWidth = maxWidth / (numTicks - (options.offset ? 0.5 : 1));
-      maxHeight = me.maxHeight - getTickMarkLength(options.gridLines)
+      maxHeight = me.maxHeight - getTickMarkLength(options.grid)
 				- tickOpts.padding - getTitleHeight(options.title, me.chart.options.font);
       maxLabelDiagonal = Math.sqrt(maxLabelWidth * maxLabelWidth + maxLabelHeight * maxLabelHeight);
       labelRotation = toDegrees(Math.min(
@@ -3696,7 +3696,7 @@ class Scale extends Element {
     const opts = me.options;
     const tickOpts = opts.ticks;
     const titleOpts = opts.title;
-    const gridLineOpts = opts.gridLines;
+    const gridLineOpts = opts.grid;
     const display = me._isVisible();
     const labelsBelowTicks = opts.position !== 'top' && me.axis === 'x';
     const isHorizontal = me.isHorizontal();
@@ -3965,14 +3965,14 @@ class Scale extends Element {
     const axis = me.axis;
     const chart = me.chart;
     const options = me.options;
-    const {gridLines, position} = options;
-    const offsetGridLines = gridLines.offsetGridLines;
+    const {grid, position} = options;
+    const offset = grid.offset;
     const isHorizontal = me.isHorizontal();
     const ticks = me.ticks;
-    const ticksLength = ticks.length + (offsetGridLines ? 1 : 0);
-    const tl = getTickMarkLength(gridLines);
+    const ticksLength = ticks.length + (offset ? 1 : 0);
+    const tl = getTickMarkLength(grid);
     const items = [];
-    const borderOpts = gridLines.setContext(me.getContext(0));
+    const borderOpts = grid.setContext(me.getContext(0));
     const axisWidth = borderOpts.drawBorder ? borderOpts.borderWidth : 0;
     const axisHalfWidth = axisWidth / 2;
     const alignBorderValue = function(pixel) {
@@ -4030,16 +4030,16 @@ class Scale extends Element {
       x2 = chartArea.right;
     }
     for (i = 0; i < ticksLength; ++i) {
-      const optsAtIndex = gridLines.setContext(me.getContext(i));
+      const optsAtIndex = grid.setContext(me.getContext(i));
       const lineWidth = optsAtIndex.lineWidth;
       const lineColor = optsAtIndex.color;
-      const borderDash = gridLines.borderDash || [];
+      const borderDash = grid.borderDash || [];
       const borderDashOffset = optsAtIndex.borderDashOffset;
       const tickWidth = optsAtIndex.tickWidth;
       const tickColor = optsAtIndex.tickColor;
       const tickBorderDash = optsAtIndex.tickBorderDash || [];
       const tickBorderDashOffset = optsAtIndex.tickBorderDashOffset;
-      lineValue = getPixelForGridLine(me, i, offsetGridLines);
+      lineValue = getPixelForGridLine(me, i, offset);
       if (lineValue === undefined) {
         continue;
       }
@@ -4080,7 +4080,7 @@ class Scale extends Element {
     const isHorizontal = me.isHorizontal();
     const ticks = me.ticks;
     const {align, crossAlign, padding} = optionTicks;
-    const tl = getTickMarkLength(options.gridLines);
+    const tl = getTickMarkLength(options.grid);
     const tickAndPadding = tl + padding;
     const rotation = -toRadians(me.labelRotation);
     const items = [];
@@ -4267,18 +4267,18 @@ class Scale extends Element {
   }
   drawGrid(chartArea) {
     const me = this;
-    const gridLines = me.options.gridLines;
+    const grid = me.options.grid;
     const ctx = me.ctx;
     const chart = me.chart;
-    const borderOpts = gridLines.setContext(me.getContext(0));
-    const axisWidth = gridLines.drawBorder ? borderOpts.borderWidth : 0;
+    const borderOpts = grid.setContext(me.getContext(0));
+    const axisWidth = grid.drawBorder ? borderOpts.borderWidth : 0;
     const items = me._gridLineItems || (me._gridLineItems = me._computeGridLineItems(chartArea));
     let i, ilen;
-    if (gridLines.display) {
+    if (grid.display) {
       for (i = 0, ilen = items.length; i < ilen; ++i) {
         const item = items[i];
         const {color, tickColor, tickWidth, width} = item;
-        if (width && color && gridLines.drawOnChartArea) {
+        if (width && color && grid.drawOnChartArea) {
           ctx.save();
           ctx.lineWidth = width;
           ctx.strokeStyle = color;
@@ -4292,7 +4292,7 @@ class Scale extends Element {
           ctx.stroke();
           ctx.restore();
         }
-        if (tickWidth && tickColor && gridLines.drawTicks) {
+        if (tickWidth && tickColor && grid.drawTicks) {
           ctx.save();
           ctx.lineWidth = tickWidth;
           ctx.strokeStyle = tickColor;
@@ -4309,7 +4309,7 @@ class Scale extends Element {
       }
     }
     if (axisWidth) {
-      const edgeOpts = gridLines.setContext(me.getContext(me._ticksLength - 1));
+      const edgeOpts = grid.setContext(me.getContext(me._ticksLength - 1));
       const lastLineWidth = edgeOpts.lineWidth;
       const borderValue = me._borderValue;
       let x1, x2, y1, y2;
@@ -4395,7 +4395,7 @@ class Scale extends Element {
     const me = this;
     const opts = me.options;
     const tz = opts.ticks && opts.ticks.z || 0;
-    const gz = opts.gridLines && opts.gridLines.z || 0;
+    const gz = opts.grid && opts.grid.z || 0;
     if (!me._isVisible() || tz === gz || me.draw !== Scale.prototype.draw) {
       return [{
         z: tz,
@@ -6720,7 +6720,7 @@ function computeCircularBoundary(source) {
   } else {
     value = scale.getBaseValue();
   }
-  if (options.gridLines.circular) {
+  if (options.grid.circular) {
     center = scale.getPointPositionForValue(0, start);
     return new simpleArc({
       x: center.x,
@@ -9268,7 +9268,7 @@ class RadialLinearScale extends LinearScaleBase {
   }
   drawBackground() {
     const me = this;
-    const {backgroundColor, gridLines: {circular}} = me.options;
+    const {backgroundColor, grid: {circular}} = me.options;
     if (backgroundColor) {
       const ctx = me.ctx;
       ctx.save();
@@ -9284,17 +9284,17 @@ class RadialLinearScale extends LinearScaleBase {
     const me = this;
     const ctx = me.ctx;
     const opts = me.options;
-    const {angleLines, gridLines} = opts;
+    const {angleLines, grid} = opts;
     const labelCount = me.getLabels().length;
     let i, offset, position;
     if (opts.pointLabels.display) {
       drawPointLabels(me, labelCount);
     }
-    if (gridLines.display) {
+    if (grid.display) {
       me.ticks.forEach((tick, index) => {
         if (index !== 0) {
           offset = me.getDistanceFromCenterForValue(tick.value);
-          const optsAtIndex = gridLines.setContext(me.getContext(index - 1));
+          const optsAtIndex = grid.setContext(me.getContext(index - 1));
           drawRadiusLine(me, optsAtIndex, offset, labelCount);
         }
       });
@@ -9373,7 +9373,7 @@ RadialLinearScale.defaults = {
     borderDash: [],
     borderDashOffset: 0.0
   },
-  gridLines: {
+  grid: {
     circular: false
   },
   startAngle: 0,
@@ -9402,7 +9402,7 @@ RadialLinearScale.defaultRoutes = {
 };
 RadialLinearScale.descriptors = {
   angleLines: {
-    _fallback: 'gridLines'
+    _fallback: 'grid'
   }
 };
 
