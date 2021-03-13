@@ -2990,6 +2990,7 @@ function createDatasetContext(parent, index, dataset) {
       dataset,
       datasetIndex: index,
       index,
+      mode: 'default',
       type: 'dataset'
     }
   );
