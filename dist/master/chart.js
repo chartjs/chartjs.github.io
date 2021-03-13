@@ -10164,7 +10164,10 @@ function createTooltipItem(chart, item) {
 function getTooltipSize(tooltip, options) {
   const ctx = tooltip._chart.ctx;
   const {body, footer, title} = tooltip;
-  const {bodyFont, footerFont, titleFont, boxWidth, boxHeight} = options;
+  const {boxWidth, boxHeight} = options;
+  const bodyFont = toFont(options.bodyFont);
+  const titleFont = toFont(options.titleFont);
+  const footerFont = toFont(options.footerFont);
   const titleLineCount = title.length;
   const footerLineCount = footer.length;
   const bodyLineItemCount = body.length;
@@ -10174,19 +10177,19 @@ function getTooltipSize(tooltip, options) {
   let combinedBodyLength = body.reduce((count, bodyItem) => count + bodyItem.before.length + bodyItem.lines.length + bodyItem.after.length, 0);
   combinedBodyLength += tooltip.beforeBody.length + tooltip.afterBody.length;
   if (titleLineCount) {
-    height += titleLineCount * titleFont.size
+    height += titleLineCount * titleFont.lineHeight
 			+ (titleLineCount - 1) * options.titleSpacing
 			+ options.titleMarginBottom;
   }
   if (combinedBodyLength) {
-    const bodyLineHeight = options.displayColors ? Math.max(boxHeight, bodyFont.size) : bodyFont.size;
+    const bodyLineHeight = options.displayColors ? Math.max(boxHeight, bodyFont.lineHeight) : bodyFont.lineHeight;
     height += bodyLineItemCount * bodyLineHeight
-			+ (combinedBodyLength - bodyLineItemCount) * bodyFont.size
+			+ (combinedBodyLength - bodyLineItemCount) * bodyFont.lineHeight
 			+ (combinedBodyLength - 1) * options.bodySpacing;
   }
   if (footerLineCount) {
     height += options.footerMarginTop
-			+ footerLineCount * footerFont.size
+			+ footerLineCount * footerFont.lineHeight
 			+ (footerLineCount - 1) * options.footerSpacing;
   }
   let widthPadding = 0;
@@ -10194,9 +10197,9 @@ function getTooltipSize(tooltip, options) {
     width = Math.max(width, ctx.measureText(line).width + widthPadding);
   };
   ctx.save();
-  ctx.font = toFontString(titleFont);
+  ctx.font = titleFont.string;
   each(tooltip.title, maxLineWidth);
-  ctx.font = toFontString(bodyFont);
+  ctx.font = bodyFont.string;
   each(tooltip.beforeBody.concat(tooltip.afterBody), maxLineWidth);
   widthPadding = options.displayColors ? (boxWidth + 2) : 0;
   each(body, (bodyItem) => {
@@ -10205,7 +10208,7 @@ function getTooltipSize(tooltip, options) {
     each(bodyItem.after, maxLineWidth);
   });
   widthPadding = 0;
-  ctx.font = toFontString(footerFont);
+  ctx.font = footerFont.string;
   each(tooltip.footer, maxLineWidth);
   ctx.restore();
   width += 2 * padding.width;
@@ -10552,13 +10555,13 @@ class Tooltip extends Element {
       pt.x = getAlignedX(me, options.titleAlign, options);
       ctx.textAlign = rtlHelper.textAlign(options.titleAlign);
       ctx.textBaseline = 'middle';
-      titleFont = options.titleFont;
+      titleFont = toFont(options.titleFont);
       titleSpacing = options.titleSpacing;
       ctx.fillStyle = options.titleColor;
-      ctx.font = toFontString(titleFont);
+      ctx.font = titleFont.string;
       for (i = 0; i < length; ++i) {
-        ctx.fillText(title[i], rtlHelper.x(pt.x), pt.y + titleFont.size / 2);
-        pt.y += titleFont.size + titleSpacing;
+        ctx.fillText(title[i], rtlHelper.x(pt.x), pt.y + titleFont.lineHeight / 2);
+        pt.y += titleFont.lineHeight + titleSpacing;
         if (i + 1 === length) {
           pt.y += options.titleMarginBottom - titleSpacing;
         }
@@ -10569,10 +10572,11 @@ class Tooltip extends Element {
     const me = this;
     const labelColors = me.labelColors[i];
     const labelPointStyle = me.labelPointStyles[i];
-    const {boxHeight, boxWidth, bodyFont} = options;
+    const {boxHeight, boxWidth} = options;
+    const bodyFont = toFont(options.bodyFont);
     const colorX = getAlignedX(me, 'left', options);
     const rtlColorX = rtlHelper.x(colorX);
-    const yOffSet = boxHeight < bodyFont.size ? (bodyFont.size - boxHeight) / 2 : 0;
+    const yOffSet = boxHeight < bodyFont.lineHeight ? (bodyFont.lineHeight - boxHeight) / 2 : 0;
     const colorY = pt.y + yOffSet;
     if (options.usePointStyle) {
       const drawOptions = {
@@ -10603,8 +10607,9 @@ class Tooltip extends Element {
   drawBody(pt, ctx, options) {
     const me = this;
     const {body} = me;
-    const {bodyFont, bodySpacing, bodyAlign, displayColors, boxHeight, boxWidth} = options;
-    let bodyLineHeight = bodyFont.size;
+    const {bodySpacing, bodyAlign, displayColors, boxHeight, boxWidth} = options;
+    const bodyFont = toFont(options.bodyFont);
+    let bodyLineHeight = bodyFont.lineHeight;
     let xLinePadding = 0;
     const rtlHelper = getRtlAdapter(options.rtl, me.x, me.width);
     const fillLineOfText = function(line) {
@@ -10615,7 +10620,7 @@ class Tooltip extends Element {
     let bodyItem, textColor, lines, i, j, ilen, jlen;
     ctx.textAlign = bodyAlign;
     ctx.textBaseline = 'middle';
-    ctx.font = toFontString(bodyFont);
+    ctx.font = bodyFont.string;
     pt.x = getAlignedX(me, bodyAlignForCalculation, options);
     ctx.fillStyle = options.bodyColor;
     each(me.beforeBody, fillLineOfText);
@@ -10630,16 +10635,16 @@ class Tooltip extends Element {
       lines = bodyItem.lines;
       if (displayColors && lines.length) {
         me._drawColorBox(ctx, pt, i, rtlHelper, options);
-        bodyLineHeight = Math.max(bodyFont.size, boxHeight);
+        bodyLineHeight = Math.max(bodyFont.lineHeight, boxHeight);
       }
       for (j = 0, jlen = lines.length; j < jlen; ++j) {
         fillLineOfText(lines[j]);
-        bodyLineHeight = bodyFont.size;
+        bodyLineHeight = bodyFont.lineHeight;
       }
       each(bodyItem.after, fillLineOfText);
     }
     xLinePadding = 0;
-    bodyLineHeight = bodyFont.size;
+    bodyLineHeight = bodyFont.lineHeight;
     each(me.afterBody, fillLineOfText);
     pt.y -= bodySpacing;
   }
@@ -10654,12 +10659,12 @@ class Tooltip extends Element {
       pt.y += options.footerMarginTop;
       ctx.textAlign = rtlHelper.textAlign(options.footerAlign);
       ctx.textBaseline = 'middle';
-      footerFont = options.footerFont;
+      footerFont = toFont(options.footerFont);
       ctx.fillStyle = options.footerColor;
-      ctx.font = toFontString(footerFont);
+      ctx.font = footerFont.string;
       for (i = 0; i < length; ++i) {
-        ctx.fillText(footer[i], rtlHelper.x(pt.x), pt.y + footerFont.size / 2);
-        pt.y += footerFont.size + options.footerSpacing;
+        ctx.fillText(footer[i], rtlHelper.x(pt.x), pt.y + footerFont.lineHeight / 2);
+        pt.y += footerFont.lineHeight + options.footerSpacing;
       }
     }
   }
