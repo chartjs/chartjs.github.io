@@ -1625,9 +1625,14 @@ function getMaximumSize(canvas, bbWidth, bbHeight, aspectRatio) {
   }
   width = Math.max(0, width - margins.width);
   height = Math.max(0, aspectRatio ? Math.floor(width / aspectRatio) : height - margins.height);
+  width = round1(Math.min(width, maxWidth, containerSize.maxWidth));
+  height = round1(Math.min(height, maxHeight, containerSize.maxHeight));
+  if (width && !height) {
+    height = round1(width / 2);
+  }
   return {
-    width: round1(Math.min(width, maxWidth, containerSize.maxWidth)),
-    height: round1(Math.min(height, maxHeight, containerSize.maxHeight))
+    width,
+    height
   };
 }
 function retinaScale(chart, forceRatio, forceStyle) {
