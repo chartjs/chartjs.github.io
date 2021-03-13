@@ -8979,7 +8979,8 @@ LogarithmicScale.defaults = {
 function getTickBackdropHeight(opts) {
   const tickOpts = opts.ticks;
   if (tickOpts.display && opts.display) {
-    return valueOrDefault(tickOpts.font && tickOpts.font.size, defaults.font.size) + tickOpts.backdropPaddingY * 2;
+    const padding = toPadding(tickOpts.backdropPadding);
+    return valueOrDefault(tickOpts.font && tickOpts.font.size, defaults.font.size) + padding.height;
   }
   return 0;
 }
@@ -9105,7 +9106,13 @@ function drawPointLabels(scale, labelCount) {
   for (let i = labelCount - 1; i >= 0; i--) {
     const optsAtIndex = pointLabels.setContext(scale.getContext(i));
     const plFont = toFont(optsAtIndex.font);
-    const {x, y, textAlign} = scale._pointLabelItems[i];
+    const {x, y, textAlign, left, top, right, bottom} = scale._pointLabelItems[i];
+    const {backdropColor} = optsAtIndex;
+    if (!isNullOrUndef(backdropColor)) {
+      const padding = toPadding(optsAtIndex.backdropPadding);
+      ctx.fillStyle = backdropColor;
+      ctx.fillRect(left - padding.left, top - padding.top, right - left + padding.width, bottom - top + padding.height);
+    }
     renderText(
       ctx,
       scale._pointLabels[i],
@@ -9351,12 +9358,12 @@ class RadialLinearScale extends LinearScaleBase {
       if (optsAtIndex.showLabelBackdrop) {
         width = ctx.measureText(tick.label).width;
         ctx.fillStyle = optsAtIndex.backdropColor;
-        const {backdropPaddingX, backdropPaddingY} = optsAtIndex;
+        const padding = toPadding(optsAtIndex.backdropPadding);
         ctx.fillRect(
-          -width / 2 - backdropPaddingX,
-          -offset - tickFont.size / 2 - backdropPaddingY,
-          width + backdropPaddingX * 2,
-          tickFont.size + backdropPaddingY * 2
+          -width / 2 - padding.left,
+          -offset - tickFont.size / 2 - padding.top,
+          width + padding.width,
+          tickFont.size + padding.height
         );
       }
       renderText(ctx, tick.label, 0, -offset, tickFont, {
@@ -9385,11 +9392,12 @@ RadialLinearScale.defaults = {
   ticks: {
     showLabelBackdrop: true,
     backdropColor: 'rgba(255,255,255,0.75)',
-    backdropPaddingY: 2,
-    backdropPaddingX: 2,
+    backdropPadding: 2,
     callback: Ticks.formatters.numeric
   },
   pointLabels: {
+    backdropColor: undefined,
+    backdropPadding: 2,
     display: true,
     font: {
       size: 10
