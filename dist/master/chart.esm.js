@@ -7873,6 +7873,10 @@ function createTooltipContext(parent, tooltip, tooltipItems) {
     type: 'tooltip'
   });
 }
+function overrideCallbacks(callbacks, context) {
+  const override = context && context.dataset && context.dataset.tooltip && context.dataset.tooltip.callbacks;
+  return override ? callbacks.override(override) : callbacks;
+}
 class Tooltip extends Element {
   constructor(config) {
     super();
@@ -7954,9 +7958,10 @@ class Tooltip extends Element {
         lines: [],
         after: []
       };
-      pushOrConcat(bodyItem.before, splitNewlines(callbacks.beforeLabel.call(me, context)));
-      pushOrConcat(bodyItem.lines, callbacks.label.call(me, context));
-      pushOrConcat(bodyItem.after, splitNewlines(callbacks.afterLabel.call(me, context)));
+      const scoped = overrideCallbacks(callbacks, context);
+      pushOrConcat(bodyItem.before, splitNewlines(scoped.beforeLabel.call(me, context)));
+      pushOrConcat(bodyItem.lines, scoped.label.call(me, context));
+      pushOrConcat(bodyItem.after, splitNewlines(scoped.afterLabel.call(me, context)));
       bodyItems.push(bodyItem);
     });
     return bodyItems;
@@ -7995,9 +8000,10 @@ class Tooltip extends Element {
       tooltipItems = tooltipItems.sort((a, b) => options.itemSort(a, b, data));
     }
     each(tooltipItems, (context) => {
-      labelColors.push(options.callbacks.labelColor.call(me, context));
-      labelPointStyles.push(options.callbacks.labelPointStyle.call(me, context));
-      labelTextColors.push(options.callbacks.labelTextColor.call(me, context));
+      const scoped = overrideCallbacks(options.callbacks, context);
+      labelColors.push(scoped.labelColor.call(me, context));
+      labelPointStyles.push(scoped.labelPointStyle.call(me, context));
+      labelTextColors.push(scoped.labelTextColor.call(me, context));
     });
     me.labelColors = labelColors;
     me.labelPointStyles = labelPointStyles;
