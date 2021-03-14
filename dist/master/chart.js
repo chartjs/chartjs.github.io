@@ -1861,13 +1861,15 @@ function toLineHeight(value, size) {
   return size * value;
 }
 const numberOrZero = v => +v || 0;
+const numberOrZero2 = (v1, v2) => numberOrZero(valueOrDefault(v1, v2));
 function toTRBL(value) {
   let t, r, b, l;
   if (isObject(value)) {
-    t = numberOrZero(value.top);
-    r = numberOrZero(value.right);
-    b = numberOrZero(value.bottom);
-    l = numberOrZero(value.left);
+    const {x, y} = value;
+    t = numberOrZero2(value.top, y);
+    r = numberOrZero2(value.right, x);
+    b = numberOrZero2(value.bottom, y);
+    l = numberOrZero2(value.left, x);
   } else {
     t = r = b = l = numberOrZero(value);
   }
