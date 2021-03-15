@@ -4,7 +4,7 @@
  * (c) 2021 Chart.js Contributors
  * Released under the MIT License
  */
-import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, b as isArray, d as defaults, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as isNumberFinite, h as defined, s as sign, j as isNullOrUndef, k as clipArea, m as unclipArea, _ as _arrayUnique, t as toRadians, n as toPercentage, o as toDimension, T as TAU, p as _angleBetween, H as HALF_PI, P as PI, q as isNumber, w as _limitValue, x as _lookupByKey, y as getRelativePosition$1, z as _isPointInArea, A as _rlookupByKey, B as toPadding, C as each, D as getMaximumSize, E as _getParentNode, F as readUsedSize, G as throttled, I as supportsEventListenerOptions, J as log10, K as finiteOrDefault, L as callback, M as toDegrees, N as _measureText, O as _int16Range, Q as _alignPixel, R as renderText, S as toFont, U as _toLeftRightCenter, V as _alignStartEnd, W as _factorize, X as overrides, Y as merge, Z as _capitalize, $ as descriptors, a0 as isFunction, a1 as _attachContext, a2 as _createResolver, a3 as _descriptors, a4 as mergeIf, a5 as uid, a6 as debounce, a7 as retinaScale, a8 as clearCanvas, a9 as _elementsEqual, aa as getAngleFromPoint, ab as _updateBezierControlPoints, ac as _computeSegments, ad as _boundSegments, ae as _steppedInterpolation, af as _bezierInterpolation, ag as _pointInLine, ah as _steppedLineTo, ai as _bezierCurveTo, aj as drawPoint, ak as toTRBL, al as toTRBLCorners, am as _boundSegment, an as _normalizeAngle, ao as getRtlAdapter, ap as overrideTextDirection, aq as restoreTextDirection, ar as noop, as as distanceBetweenPoints, at as _addGrace, au as _setMinAndMaxByKey, av as niceNum, aw as _decimalPlaces, ax as almostEquals, ay as almostWhole, az as _longestText, aA as _filterBetween, aB as _lookup } from './chunks/helpers.segment.js';
+import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, b as isArray, d as defaults, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as isNumberFinite, h as defined, s as sign, j as isNullOrUndef, k as clipArea, m as unclipArea, _ as _arrayUnique, t as toRadians, n as toPercentage, o as toDimension, T as TAU, p as _angleBetween, H as HALF_PI, P as PI, q as isNumber, w as _limitValue, x as _lookupByKey, y as getRelativePosition$1, z as _isPointInArea, A as _rlookupByKey, B as toPadding, C as each, D as getMaximumSize, E as _getParentNode, F as readUsedSize, G as throttled, I as supportsEventListenerOptions, J as log10, K as finiteOrDefault, L as callback, M as toDegrees, N as _measureText, O as _int16Range, Q as _alignPixel, R as renderText, S as toFont, U as _toLeftRightCenter, V as _alignStartEnd, W as _factorize, X as overrides, Y as merge, Z as _capitalize, $ as descriptors, a0 as isFunction, a1 as _attachContext, a2 as _createResolver, a3 as _descriptors, a4 as mergeIf, a5 as uid, a6 as debounce, a7 as retinaScale, a8 as clearCanvas, a9 as _elementsEqual, aa as getAngleFromPoint, ab as _updateBezierControlPoints, ac as _computeSegments, ad as _boundSegments, ae as _steppedInterpolation, af as _bezierInterpolation, ag as _pointInLine, ah as _steppedLineTo, ai as _bezierCurveTo, aj as drawPoint, ak as toTRBL, al as toTRBLCorners, am as _boundSegment, an as _normalizeAngle, ao as getRtlAdapter, ap as overrideTextDirection, aq as restoreTextDirection, ar as noop, as as distanceBetweenPoints, at as _addGrace, au as _setMinAndMaxByKey, av as niceNum, aw as almostWhole, ax as almostEquals, ay as _decimalPlaces, az as _longestText, aA as _filterBetween, aB as _lookup } from './chunks/helpers.segment.js';
 export { d as defaults } from './chunks/helpers.segment.js';
 
 class Animator {
@@ -8656,41 +8656,47 @@ CategoryScale.defaults = {
 function generateTicks(generationOptions, dataRange) {
   const ticks = [];
   const MIN_SPACING = 1e-14;
-  const {stepSize, min, max, precision} = generationOptions;
-  const unit = stepSize || 1;
-  const maxNumSpaces = generationOptions.maxTicks - 1;
+  const {step, min, max, precision, count, maxTicks} = generationOptions;
+  const unit = step || 1;
+  const maxSpaces = maxTicks - 1;
   const {min: rmin, max: rmax} = dataRange;
   const minDefined = !isNullOrUndef(min);
   const maxDefined = !isNullOrUndef(max);
-  let spacing = niceNum((rmax - rmin) / maxNumSpaces / unit) * unit;
+  const countDefined = !isNullOrUndef(count);
+  let spacing = niceNum((rmax - rmin) / maxSpaces / unit) * unit;
   let factor, niceMin, niceMax, numSpaces;
   if (spacing < MIN_SPACING && !minDefined && !maxDefined) {
     return [{value: rmin}, {value: rmax}];
   }
   numSpaces = Math.ceil(rmax / spacing) - Math.floor(rmin / spacing);
-  if (numSpaces > maxNumSpaces) {
-    spacing = niceNum(numSpaces * spacing / maxNumSpaces / unit) * unit;
+  if (numSpaces > maxSpaces) {
+    spacing = niceNum(numSpaces * spacing / maxSpaces / unit) * unit;
   }
-  if (stepSize || isNullOrUndef(precision)) {
-    factor = Math.pow(10, _decimalPlaces(spacing));
-  } else {
+  if (!isNullOrUndef(precision)) {
     factor = Math.pow(10, precision);
     spacing = Math.ceil(spacing * factor) / factor;
   }
   niceMin = Math.floor(rmin / spacing) * spacing;
   niceMax = Math.ceil(rmax / spacing) * spacing;
-  if (stepSize && minDefined && maxDefined) {
-    if (almostWhole((max - min) / stepSize, spacing / 1000)) {
-      niceMin = min;
-      niceMax = max;
+  if (minDefined && maxDefined && step && almostWhole((max - min) / step, spacing / 1000)) {
+    numSpaces = Math.min((max - min) / spacing, maxTicks);
+    spacing = (max - min) / numSpaces;
+    niceMin = min;
+    niceMax = max;
+  } else if (countDefined) {
+    niceMin = minDefined ? min : niceMin;
+    niceMax = maxDefined ? max : niceMax;
+    numSpaces = count - 1;
+    spacing = (niceMax - niceMin) / numSpaces;
+  } else {
+    numSpaces = (niceMax - niceMin) / spacing;
+    if (almostEquals(numSpaces, Math.round(numSpaces), spacing / 1000)) {
+      numSpaces = Math.round(numSpaces);
+    } else {
+      numSpaces = Math.ceil(numSpaces);
     }
   }
-  numSpaces = (niceMax - niceMin) / spacing;
-  if (almostEquals(numSpaces, Math.round(numSpaces), spacing / 1000)) {
-    numSpaces = Math.round(numSpaces);
-  } else {
-    numSpaces = Math.ceil(numSpaces);
-  }
+  factor = Math.pow(10, isNullOrUndef(precision) ? _decimalPlaces(spacing) : precision);
   niceMin = Math.round(niceMin * factor) / factor;
   niceMax = Math.round(niceMax * factor) / factor;
   let j = 0;
@@ -8790,7 +8796,8 @@ class LinearScaleBase extends Scale {
       min: opts.min,
       max: opts.max,
       precision: tickOpts.precision,
-      stepSize: tickOpts.stepSize
+      step: tickOpts.stepSize,
+      count: tickOpts.count,
     };
     const ticks = generateTicks(numericGeneratorOptions, _addGrace(me, opts.grace));
     if (opts.bounds === 'ticks') {

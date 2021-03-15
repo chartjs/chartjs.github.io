@@ -11115,41 +11115,47 @@ CategoryScale.defaults = {
 function generateTicks(generationOptions, dataRange) {
   const ticks = [];
   const MIN_SPACING = 1e-14;
-  const {stepSize, min, max, precision} = generationOptions;
-  const unit = stepSize || 1;
-  const maxNumSpaces = generationOptions.maxTicks - 1;
+  const {step, min, max, precision, count, maxTicks} = generationOptions;
+  const unit = step || 1;
+  const maxSpaces = maxTicks - 1;
   const {min: rmin, max: rmax} = dataRange;
   const minDefined = !isNullOrUndef(min);
   const maxDefined = !isNullOrUndef(max);
-  let spacing = niceNum((rmax - rmin) / maxNumSpaces / unit) * unit;
+  const countDefined = !isNullOrUndef(count);
+  let spacing = niceNum((rmax - rmin) / maxSpaces / unit) * unit;
   let factor, niceMin, niceMax, numSpaces;
   if (spacing < MIN_SPACING && !minDefined && !maxDefined) {
     return [{value: rmin}, {value: rmax}];
   }
   numSpaces = Math.ceil(rmax / spacing) - Math.floor(rmin / spacing);
-  if (numSpaces > maxNumSpaces) {
-    spacing = niceNum(numSpaces * spacing / maxNumSpaces / unit) * unit;
+  if (numSpaces > maxSpaces) {
+    spacing = niceNum(numSpaces * spacing / maxSpaces / unit) * unit;
   }
-  if (stepSize || isNullOrUndef(precision)) {
-    factor = Math.pow(10, _decimalPlaces(spacing));
-  } else {
+  if (!isNullOrUndef(precision)) {
     factor = Math.pow(10, precision);
     spacing = Math.ceil(spacing * factor) / factor;
   }
   niceMin = Math.floor(rmin / spacing) * spacing;
   niceMax = Math.ceil(rmax / spacing) * spacing;
-  if (stepSize && minDefined && maxDefined) {
-    if (almostWhole((max - min) / stepSize, spacing / 1000)) {
-      niceMin = min;
-      niceMax = max;
+  if (minDefined && maxDefined && step && almostWhole((max - min) / step, spacing / 1000)) {
+    numSpaces = Math.min((max - min) / spacing, maxTicks);
+    spacing = (max - min) / numSpaces;
+    niceMin = min;
+    niceMax = max;
+  } else if (countDefined) {
+    niceMin = minDefined ? min : niceMin;
+    niceMax = maxDefined ? max : niceMax;
+    numSpaces = count - 1;
+    spacing = (niceMax - niceMin) / numSpaces;
+  } else {
+    numSpaces = (niceMax - niceMin) / spacing;
+    if (almostEquals(numSpaces, Math.round(numSpaces), spacing / 1000)) {
+      numSpaces = Math.round(numSpaces);
+    } else {
+      numSpaces = Math.ceil(numSpaces);
     }
   }
-  numSpaces = (niceMax - niceMin) / spacing;
-  if (almostEquals(numSpaces, Math.round(numSpaces), spacing / 1000)) {
-    numSpaces = Math.round(numSpaces);
-  } else {
-    numSpaces = Math.ceil(numSpaces);
-  }
+  factor = Math.pow(10, isNullOrUndef(precision) ? _decimalPlaces(spacing) : precision);
   niceMin = Math.round(niceMin * factor) / factor;
   niceMax = Math.round(niceMax * factor) / factor;
   let j = 0;
@@ -11249,7 +11255,8 @@ class LinearScaleBase extends Scale {
       min: opts.min,
       max: opts.max,
       precision: tickOpts.precision,
-      stepSize: tickOpts.stepSize
+      step: tickOpts.stepSize,
+      count: tickOpts.count,
     };
     const ticks = generateTicks(numericGeneratorOptions, _addGrace(me, opts.grace));
     if (opts.bounds === 'ticks') {
