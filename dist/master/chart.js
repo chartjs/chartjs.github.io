@@ -4053,6 +4053,7 @@ class Scale extends Element {
     me._endPixel = endPixel;
     me._reversePixels = reversePixels;
     me._length = endPixel - startPixel;
+    me._alignToPixels = me.options.alignToPixels;
   }
   afterUpdate() {
     callback(this.options.afterUpdate, [this]);
@@ -4355,7 +4356,8 @@ class Scale extends Element {
     if (me._reversePixels) {
       decimal = 1 - decimal;
     }
-    return _int16Range(me._startPixel + decimal * me._length);
+    const pixel = me._startPixel + decimal * me._length;
+    return _int16Range(me._alignToPixels ? _alignPixel(me.chart, pixel, 0) : pixel);
   }
   getDecimalForPixel(pixel) {
     const decimal = (pixel - this._startPixel) / this._length;
