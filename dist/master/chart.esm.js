@@ -1406,6 +1406,17 @@ class BarController extends DatasetController {
       }
       head = base + size;
     }
+    const actualBase = baseValue || 0;
+    if (base === vScale.getPixelForValue(actualBase)) {
+      const halfGrid = vScale.getLineWidthForValue(actualBase) / 2;
+      if (size > 0) {
+        base += halfGrid;
+        size -= halfGrid;
+      } else if (size < 0) {
+        base -= halfGrid;
+        size += halfGrid;
+      }
+    }
     return {
       size,
       base,
@@ -4277,6 +4288,20 @@ class Scale extends Element {
       ctx.fillRect(left, top, width, height);
       ctx.restore();
     }
+  }
+  getLineWidthForValue(value) {
+    const me = this;
+    const grid = me.options.grid;
+    if (!me._isVisible() || !grid.display) {
+      return 0;
+    }
+    const ticks = me.ticks;
+    const index = ticks.findIndex(t => t.value === value);
+    if (index >= 0) {
+      const opts = grid.setContext(me.getContext(index));
+      return opts.lineWidth;
+    }
+    return 0;
   }
   drawGrid(chartArea) {
     const me = this;
