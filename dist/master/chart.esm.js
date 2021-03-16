@@ -1994,13 +1994,14 @@ class LineController extends DatasetController {
   getMaxOverflow() {
     const me = this;
     const meta = me._cachedMeta;
-    const border = meta.dataset.options.borderWidth || 0;
+    const dataset = meta.dataset;
+    const border = dataset.options && dataset.options.borderWidth || 0;
     const data = meta.data || [];
     if (!data.length) {
       return border;
     }
-    const firstPoint = data[0].size();
-    const lastPoint = data[data.length - 1].size();
+    const firstPoint = data[0].size(me.resolveDataElementOptions(0));
+    const lastPoint = data[data.length - 1].size(me.resolveDataElementOptions(data.length - 1));
     return Math.max(border, firstPoint, lastPoint) / 2;
   }
   draw() {
@@ -2462,7 +2463,7 @@ function getDistanceMetricForAxis(axis) {
 }
 function getIntersectItems(chart, position, axis, useFinalPosition) {
   const items = [];
-  if (!_isPointInArea(position, chart.chartArea)) {
+  if (!_isPointInArea(position, chart.chartArea, chart._minPadding)) {
     return items;
   }
   const evaluationFunc = function(element, datasetIndex, index) {
@@ -2477,7 +2478,7 @@ function getNearestItems(chart, position, axis, intersect, useFinalPosition) {
   const distanceMetric = getDistanceMetricForAxis(axis);
   let minDistance = Number.POSITIVE_INFINITY;
   let items = [];
-  if (!_isPointInArea(position, chart.chartArea)) {
+  if (!_isPointInArea(position, chart.chartArea, chart._minPadding)) {
     return items;
   }
   const evaluationFunc = function(element, datasetIndex, index) {
@@ -2783,7 +2784,7 @@ var layouts = {
     item.position = options.position;
     item.weight = options.weight;
   },
-  update(chart, width, height) {
+  update(chart, width, height, minPadding) {
     if (!chart) {
       return;
     }
@@ -2809,8 +2810,10 @@ var layouts = {
       vBoxMaxWidth: availableWidth / 2 / visibleVerticalBoxCount,
       hBoxMaxHeight: availableHeight / 2
     });
+    const maxPadding = Object.assign({}, padding);
+    updateMaxPadding(maxPadding, toPadding(minPadding));
     const chartArea = Object.assign({
-      maxPadding: Object.assign({}, padding),
+      maxPadding,
       w: availableWidth,
       h: availableHeight,
       x: padding.left,
@@ -5347,12 +5350,15 @@ class Chart {
     }
     const newControllers = me.buildOrUpdateControllers();
     me.notifyPlugins('beforeElementsUpdate');
+    let minPadding = 0;
     for (let i = 0, ilen = me.data.datasets.length; i < ilen; i++) {
       const {controller} = me.getDatasetMeta(i);
       const reset = !animsDisabled && newControllers.indexOf(controller) === -1;
       controller.buildOrUpdateElements(reset);
+      minPadding = Math.max(+controller.getMaxOverflow(), minPadding);
     }
-    me._updateLayout();
+    me._minPadding = minPadding;
+    me._updateLayout(minPadding);
     if (!animsDisabled) {
       each(newControllers, (controller) => {
         controller.reset();
@@ -5366,12 +5372,12 @@ class Chart {
     }
     me.render();
   }
-  _updateLayout() {
+  _updateLayout(minPadding) {
     const me = this;
     if (me.notifyPlugins('beforeLayout', {cancelable: true}) === false) {
       return;
     }
-    layouts.update(me, me.width, me.height);
+    layouts.update(me, me.width, me.height, minPadding);
     const area = me.chartArea;
     const noArea = area.width <= 0 || area.height <= 0;
     me._layers = [];
@@ -5744,7 +5750,7 @@ class Chart {
     }
     callback(options.onHover || hoverOptions.onHover, [e, active, me], me);
     if (e.type === 'mouseup' || e.type === 'click' || e.type === 'contextmenu') {
-      if (_isPointInArea(e, me.chartArea)) {
+      if (_isPointInArea(e, me.chartArea, me._minPadding)) {
         callback(options.onClick, [e, active, me], me);
       }
     }
@@ -6265,9 +6271,10 @@ class PointElement extends Element {
     const {x, y} = this.getProps(['x', 'y'], useFinalPosition);
     return {x, y};
   }
-  size() {
-    const options = this.options || {};
-    const radius = Math.max(options.radius, options.hoverRadius) || 0;
+  size(options) {
+    options = options || this.options || {};
+    let radius = options.radius || 0;
+    radius = Math.max(radius, radius && options.hoverRadius || 0);
     const borderWidth = radius && options.borderWidth || 0;
     return (radius + borderWidth) * 2;
   }
