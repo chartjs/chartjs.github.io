@@ -7768,59 +7768,54 @@ function getTooltipSize(tooltip, options) {
   width += 2 * padding.width;
   return {width, height};
 }
-function determineAlignment(chart, options, size) {
-  const {x, y, width, height} = size;
-  const chartArea = chart.chartArea;
-  let xAlign = 'center';
-  let yAlign = 'center';
+function determineYAlign(chart, size) {
+  const {y, height} = size;
   if (y < height / 2) {
-    yAlign = 'top';
+    return 'top';
   } else if (y > (chart.height - height / 2)) {
-    yAlign = 'bottom';
+    return 'bottom';
   }
-  let lf, rf;
-  const midX = (chartArea.left + chartArea.right) / 2;
-  const midY = (chartArea.top + chartArea.bottom) / 2;
+  return 'center';
+}
+function doesNotFitWithAlign(xAlign, chart, options, size) {
+  const {x, width} = size;
+  const caret = options.caretSize + options.caretPadding;
+  if (xAlign === 'left' && x + width + caret > chart.width) {
+    return true;
+  }
+  if (xAlign === 'right' && x - width - caret < 0) {
+    return true;
+  }
+}
+function determineXAlign(chart, options, size, yAlign) {
+  const {x, width} = size;
+  const {width: chartWidth, chartArea: {left, right}} = chart;
+  let xAlign = 'center';
   if (yAlign === 'center') {
-    lf = (value) => value <= midX;
-    rf = (value) => value > midX;
-  } else {
-    lf = (value) => value <= (width / 2);
-    rf = (value) => value >= (chart.width - (width / 2));
-  }
-  const olf = (value) => value + width + options.caretSize + options.caretPadding > chart.width;
-  const orf = (value) => value - width - options.caretSize - options.caretPadding < 0;
-  const yf = (value) => value <= midY ? 'top' : 'bottom';
-  if (lf(x)) {
+    xAlign = x <= (left + right) / 2 ? 'left' : 'right';
+  } else if (x <= width / 2) {
     xAlign = 'left';
-    if (olf(x)) {
-      xAlign = 'center';
-      yAlign = yf(y);
-    }
-  } else if (rf(x)) {
+  } else if (x >= chartWidth - width / 2) {
     xAlign = 'right';
-    if (orf(x)) {
-      xAlign = 'center';
-      yAlign = yf(y);
-    }
   }
+  if (doesNotFitWithAlign(xAlign, chart, options, size)) {
+    xAlign = 'center';
+  }
+  return xAlign;
+}
+function determineAlignment(chart, options, size) {
+  const yAlign = options.yAlign || determineYAlign(chart, size);
   return {
-    xAlign: options.xAlign ? options.xAlign : xAlign,
-    yAlign: options.yAlign ? options.yAlign : yAlign
+    xAlign: options.xAlign || determineXAlign(chart, options, size, yAlign),
+    yAlign
   };
 }
-function alignX(size, xAlign, chartWidth) {
+function alignX(size, xAlign) {
   let {x, width} = size;
   if (xAlign === 'right') {
     x -= width;
   } else if (xAlign === 'center') {
     x -= (width / 2);
-    if (x + width > chartWidth) {
-      x = chartWidth - width;
-    }
-    if (x < 0) {
-      x = 0;
-    }
   }
   return x;
 }
@@ -7840,7 +7835,7 @@ function getBackgroundPoint(options, size, alignment, chart) {
   const {xAlign, yAlign} = alignment;
   const paddingAndSize = caretSize + caretPadding;
   const radiusAndPadding = cornerRadius + caretPadding;
-  let x = alignX(size, xAlign, chart.width);
+  let x = alignX(size, xAlign);
   const y = alignY(size, yAlign, paddingAndSize);
   if (yAlign === 'center') {
     if (xAlign === 'left') {
@@ -7853,7 +7848,10 @@ function getBackgroundPoint(options, size, alignment, chart) {
   } else if (xAlign === 'right') {
     x += radiusAndPadding;
   }
-  return {x, y};
+  return {
+    x: _limitValue(x, 0, chart.width - size.width),
+    y: _limitValue(y, 0, chart.height - size.height)
+  };
 }
 function getAlignedX(tooltip, align, options) {
   const padding = toPadding(options.padding);
