@@ -6241,7 +6241,7 @@ LineElement.descriptors = {
   _indexable: (name) => name !== 'borderDash' && name !== 'fill',
 };
 
-function inRange(el, pos, axis, useFinalPosition) {
+function inRange$1(el, pos, axis, useFinalPosition) {
   const options = el.options;
   const {[axis]: value} = el.getProps([axis], useFinalPosition);
   return (Math.abs(pos - value) < options.radius + options.hitRadius);
@@ -6262,10 +6262,10 @@ class PointElement extends Element {
     return ((Math.pow(mouseX - x, 2) + Math.pow(mouseY - y, 2)) < Math.pow(options.hitRadius + options.radius, 2));
   }
   inXRange(mouseX, useFinalPosition) {
-    return inRange(this, mouseX, 'x', useFinalPosition);
+    return inRange$1(this, mouseX, 'x', useFinalPosition);
   }
   inYRange(mouseY, useFinalPosition) {
-    return inRange(this, mouseY, 'y', useFinalPosition);
+    return inRange$1(this, mouseY, 'y', useFinalPosition);
   }
   getCenterPoint(useFinalPosition) {
     const {x, y} = this.getProps(['x', 'y'], useFinalPosition);
@@ -6408,7 +6408,7 @@ function boundingRects(bar) {
     }
   };
 }
-function inRange$1(bar, x, y, useFinalPosition) {
+function inRange(bar, x, y, useFinalPosition) {
   const skipX = x === null;
   const skipY = y === null;
   const skipBoth = skipX && skipY;
@@ -6466,13 +6466,13 @@ class BarElement extends Element {
     ctx.restore();
   }
   inRange(mouseX, mouseY, useFinalPosition) {
-    return inRange$1(this, mouseX, mouseY, useFinalPosition);
+    return inRange(this, mouseX, mouseY, useFinalPosition);
   }
   inXRange(mouseX, useFinalPosition) {
-    return inRange$1(this, mouseX, null, useFinalPosition);
+    return inRange(this, mouseX, null, useFinalPosition);
   }
   inYRange(mouseY, useFinalPosition) {
-    return inRange$1(this, null, mouseY, useFinalPosition);
+    return inRange(this, null, mouseY, useFinalPosition);
   }
   getCenterPoint(useFinalPosition) {
     const {x, y, base, horizontal} = this.getProps(['x', 'y', 'base', 'horizontal'], useFinalPosition);
@@ -8688,7 +8688,7 @@ CategoryScale.defaults = {
   }
 };
 
-function generateTicks(generationOptions, dataRange) {
+function generateTicks$1(generationOptions, dataRange) {
   const ticks = [];
   const MIN_SPACING = 1e-14;
   const {step, min, max, precision, count, maxTicks} = generationOptions;
@@ -8834,7 +8834,7 @@ class LinearScaleBase extends Scale {
       step: tickOpts.stepSize,
       count: tickOpts.count,
     };
-    const ticks = generateTicks(numericGeneratorOptions, _addGrace(me, opts.grace));
+    const ticks = generateTicks$1(numericGeneratorOptions, _addGrace(me, opts.grace));
     if (opts.bounds === 'ticks') {
       _setMinAndMaxByKey(ticks, me, 'value');
     }
@@ -8902,7 +8902,7 @@ function isMajor(tickVal) {
   const remain = tickVal / (Math.pow(10, Math.floor(log10(tickVal))));
   return remain === 1;
 }
-function generateTicks$1(generationOptions, dataRange) {
+function generateTicks(generationOptions, dataRange) {
   const endExp = Math.floor(log10(dataRange.max));
   const endSignificand = Math.ceil(dataRange.max / Math.pow(10, endExp));
   const ticks = [];
@@ -8986,7 +8986,7 @@ class LogarithmicScale extends Scale {
       min: me._userMin,
       max: me._userMax
     };
-    const ticks = generateTicks$1(generationOptions, me);
+    const ticks = generateTicks(generationOptions, me);
     if (opts.bounds === 'ticks') {
       _setMinAndMaxByKey(ticks, me, 'value');
     }

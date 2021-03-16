@@ -94,7 +94,7 @@
 						<section class="tsd-index-section ">
 							<h3>Constructors</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited"><a href="scale.html#constructor" class="tsd-kind-icon">constructor</a></li>
+								<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite"><a href="scale.html#constructor" class="tsd-kind-icon">constructor</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
@@ -126,8 +126,6 @@
 								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scale.html#bottom-1" class="tsd-kind-icon">bottom</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scale.html#chart" class="tsd-kind-icon">chart</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scale.html#ctx" class="tsd-kind-icon">ctx</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scale.html#defaultroutes" class="tsd-kind-icon">default<wbr>Routes</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scale.html#defaults" class="tsd-kind-icon">defaults</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scale.html#height" class="tsd-kind-icon">height</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scale.html#id" class="tsd-kind-icon">id</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scale.html#labelrotation" class="tsd-kind-icon">label<wbr>Rotation</a></li>
@@ -148,6 +146,8 @@
 								<li class="tsd-kind-property tsd-parent-kind-class"><a href="scale.html#width" class="tsd-kind-icon">width</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scale.html#x" class="tsd-kind-icon">x</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><a href="scale.html#y" class="tsd-kind-icon">y</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static"><a href="scale.html#defaultroutes" class="tsd-kind-icon">default<wbr>Routes</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static"><a href="scale.html#defaults" class="tsd-kind-icon">defaults</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
@@ -226,18 +226,18 @@
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Constructors</h2>
-				<section class="tsd-panel tsd-member tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited">
+				<section class="tsd-panel tsd-member tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
-					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited">
+					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
 						<li class="tsd-signature tsd-kind-icon">new <wbr>Scale<span class="tsd-signature-symbol">(</span>cfg<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="scale.html" class="tsd-signature-type" data-tsd-kind="Class">Scale</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
-								<p>Inherited from <a href="element.html">Element</a>.<a href="element.html#constructor">constructor</a></p>
+								<p>Overrides <a href="element.html">Element</a>.<a href="element.html#constructor">constructor</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L357">core/core.scale.js:357</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L357">core/core.scale.js:357</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -464,21 +464,6 @@
 					<aside class="tsd-sources">
 					</aside>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-					<a name="defaultroutes" class="tsd-anchor"></a>
-					<h3>default<wbr>Routes</h3>
-					<div class="tsd-signature tsd-kind-icon">default<wbr>Routes<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
-					<aside class="tsd-sources">
-						<p>Inherited from <a href="element.html">Element</a>.<a href="element.html#defaultroutes">defaultRoutes</a></p>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
-					<a name="defaults" class="tsd-anchor"></a>
-					<h3>defaults</h3>
-					<div class="tsd-signature tsd-kind-icon">defaults<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
-					<aside class="tsd-sources">
-					</aside>
-				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
 					<a name="height" class="tsd-anchor"></a>
 					<h3>height</h3>
@@ -622,6 +607,22 @@
 						<p>Inherited from <a href="element.html">Element</a>.<a href="element.html#y">y</a></p>
 					</aside>
 				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static">
+					<a name="defaultroutes" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> default<wbr>Routes</h3>
+					<div class="tsd-signature tsd-kind-icon">default<wbr>Routes<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
+					<aside class="tsd-sources">
+						<p>Inherited from <a href="element.html">Element</a>.<a href="element.html#defaultroutes">defaultRoutes</a></p>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static">
+					<a name="defaults" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> defaults</h3>
+					<div class="tsd-signature tsd-kind-icon">defaults<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
+					<aside class="tsd-sources">
+						<p>Inherited from <a href="element.html">Element</a>.<a href="element.html#defaults">defaults</a></p>
+					</aside>
+				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Methods</h2>
@@ -635,7 +636,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L1181">core/core.scale.js:1181</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L1181">core/core.scale.js:1181</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -663,7 +664,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L715">core/core.scale.js:715</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L715">core/core.scale.js:715</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -686,7 +687,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L1254">core/core.scale.js:1254</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L1254">core/core.scale.js:1254</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -709,7 +710,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L1579">core/core.scale.js:1579</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L1579">core/core.scale.js:1579</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{ </span>bottom<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>left<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>right<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>top<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{ </span>bottom<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>left<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>right<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>top<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span></h4>
@@ -726,7 +727,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L1385">core/core.scale.js:1385</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L1385">core/core.scale.js:1385</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -749,7 +750,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L1005">core/core.scale.js:1005</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L1005">core/core.scale.js:1005</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -786,7 +787,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L974">core/core.scale.js:974</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L974">core/core.scale.js:974</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -809,7 +810,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L988">core/core.scale.js:988</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L988">core/core.scale.js:988</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{ </span>first<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>highest<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>last<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>widest<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> }</span></h4>
@@ -840,7 +841,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L1503">core/core.scale.js:1503</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L1503">core/core.scale.js:1503</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
@@ -857,7 +858,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L1523">core/core.scale.js:1523</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L1523">core/core.scale.js:1523</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -888,7 +889,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L941">core/core.scale.js:941</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L941">core/core.scale.js:941</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -910,7 +911,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L1241">core/core.scale.js:1241</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L1241">core/core.scale.js:1241</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
@@ -927,7 +928,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L1791">core/core.scale.js:1791</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L1791">core/core.scale.js:1791</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span></h4>
@@ -944,7 +945,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L1848">core/core.scale.js:1848</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L1848">core/core.scale.js:1848</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -967,7 +968,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L1217">core/core.scale.js:1217</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L1217">core/core.scale.js:1217</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
@@ -984,7 +985,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L740">core/core.scale.js:740</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L740">core/core.scale.js:740</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -1001,7 +1002,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L808">core/core.scale.js:808</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L808">core/core.scale.js:808</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -1018,7 +1019,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L726">core/core.scale.js:726</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L726">core/core.scale.js:726</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -1035,7 +1036,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L951">core/core.scale.js:951</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L951">core/core.scale.js:951</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -1052,7 +1053,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L711">core/core.scale.js:711</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L711">core/core.scale.js:711</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -1069,7 +1070,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L760">core/core.scale.js:760</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L760">core/core.scale.js:760</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -1086,7 +1087,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L680">core/core.scale.js:680</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L680">core/core.scale.js:680</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -1103,7 +1104,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L731">core/core.scale.js:731</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L731">core/core.scale.js:731</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -1120,7 +1121,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L766">core/core.scale.js:766</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L766">core/core.scale.js:766</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -1137,7 +1138,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L722">core/core.scale.js:722</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L722">core/core.scale.js:722</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -1154,7 +1155,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L814">core/core.scale.js:814</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L814">core/core.scale.js:814</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -1171,7 +1172,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L552">core/core.scale.js:552</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L552">core/core.scale.js:552</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -1188,7 +1189,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L686">core/core.scale.js:686</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L686">core/core.scale.js:686</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -1205,7 +1206,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L744">core/core.scale.js:744</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L744">core/core.scale.js:744</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -1222,7 +1223,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L561">core/core.scale.js:561</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L561">core/core.scale.js:561</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -1239,7 +1240,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L737">core/core.scale.js:737</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L737">core/core.scale.js:737</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span></h4>
@@ -1257,7 +1258,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L769">core/core.scale.js:769</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L769">core/core.scale.js:769</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -1274,7 +1275,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L659">core/core.scale.js:659</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L659">core/core.scale.js:659</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -1291,7 +1292,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L725">core/core.scale.js:725</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L725">core/core.scale.js:725</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -1308,7 +1309,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L1774">core/core.scale.js:1774</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L1774">core/core.scale.js:1774</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1331,7 +1332,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L1599">core/core.scale.js:1599</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L1599">core/core.scale.js:1599</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -1348,7 +1349,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L1627">core/core.scale.js:1627</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L1627">core/core.scale.js:1627</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1371,7 +1372,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L1707">core/core.scale.js:1707</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L1707">core/core.scale.js:1707</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1394,7 +1395,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L1741">core/core.scale.js:1741</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L1741">core/core.scale.js:1741</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -1411,7 +1412,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L817">core/core.scale.js:817</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L817">core/core.scale.js:817</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -1428,7 +1429,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L751">core/core.scale.js:751</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L751">core/core.scale.js:751</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1458,7 +1459,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L1144">core/core.scale.js:1144</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L1144">core/core.scale.js:1144</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1481,7 +1482,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L1151">core/core.scale.js:1151</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L1151">core/core.scale.js:1151</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
@@ -1498,7 +1499,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L1162">core/core.scale.js:1162</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L1162">core/core.scale.js:1162</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1521,7 +1522,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L1134">core/core.scale.js:1134</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L1134">core/core.scale.js:1134</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1544,7 +1545,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L1076">core/core.scale.js:1076</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L1076">core/core.scale.js:1076</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1572,7 +1573,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L546">core/core.scale.js:546</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L546">core/core.scale.js:546</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h4>
@@ -1589,7 +1590,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L1609">core/core.scale.js:1609</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L1609">core/core.scale.js:1609</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1612,7 +1613,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L1827">core/core.scale.js:1827</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L1827">core/core.scale.js:1827</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1640,7 +1641,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L492">core/core.scale.js:492</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L492">core/core.scale.js:492</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1678,7 +1679,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L524">core/core.scale.js:524</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L524">core/core.scale.js:524</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1715,7 +1716,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L1119">core/core.scale.js:1119</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L1119">core/core.scale.js:1119</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1744,7 +1745,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L1105">core/core.scale.js:1105</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L1105">core/core.scale.js:1105</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1773,7 +1774,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L1087">core/core.scale.js:1087</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L1087">core/core.scale.js:1087</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1806,7 +1807,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="element.html">Element</a>.<a href="element.html#getprops">getProps</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.element.js#L31">core/core.element.js:31</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.element.js#L31">core/core.element.js:31</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1840,7 +1841,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L539">core/core.scale.js:539</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L539">core/core.scale.js:539</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1867,7 +1868,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L472">core/core.scale.js:472</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L472">core/core.scale.js:472</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1905,7 +1906,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L1097">core/core.scale.js:1097</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L1097">core/core.scale.js:1097</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1935,7 +1936,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="element.html">Element</a>.<a href="element.html#hasvalue">hasValue</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.element.js#L21">core/core.element.js:21</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.element.js#L21">core/core.element.js:21</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
@@ -1952,7 +1953,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L444">core/core.scale.js:444</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L444">core/core.scale.js:444</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1982,7 +1983,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L966">core/core.scale.js:966</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L966">core/core.scale.js:966</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
@@ -1999,7 +2000,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L959">core/core.scale.js:959</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L959">core/core.scale.js:959</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
@@ -2016,7 +2017,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L463">core/core.scale.js:463</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L463">core/core.scale.js:463</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -2052,7 +2053,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L689">core/core.scale.js:689</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L689">core/core.scale.js:689</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -2070,7 +2071,7 @@
 							<aside class="tsd-sources">
 								<p>Inherited from <a href="element.html">Element</a>.<a href="element.html#tooltipposition">tooltipPosition</a></p>
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.element.js#L16">core/core.element.js:16</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.element.js#L16">core/core.element.js:16</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -2101,7 +2102,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/79cc6d3/src/core/core.scale.js#L573">core/core.scale.js:573</a></li>
+									<li>Defined in <a href="https://github.com/chartjs/Chart.js/blob/34a9991/src/core/core.scale.js#L573">core/core.scale.js:573</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -2163,7 +2164,7 @@
 					<li class="current tsd-kind-class">
 						<a href="scale.html" class="tsd-kind-icon">Scale</a>
 						<ul>
-							<li class=" tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited">
+							<li class=" tsd-kind-constructor tsd-parent-kind-class tsd-is-overwrite">
 								<a href="scale.html#constructor" class="tsd-kind-icon">constructor</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
@@ -2244,12 +2245,6 @@
 							<li class=" tsd-kind-property tsd-parent-kind-class">
 								<a href="scale.html#ctx" class="tsd-kind-icon">ctx</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
-								<a href="scale.html#defaultroutes" class="tsd-kind-icon">default<wbr>Routes</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="scale.html#defaults" class="tsd-kind-icon">defaults</a>
-							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
 								<a href="scale.html#height" class="tsd-kind-icon">height</a>
 							</li>
@@ -2309,6 +2304,12 @@
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited">
 								<a href="scale.html#y" class="tsd-kind-icon">y</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static">
+								<a href="scale.html#defaultroutes" class="tsd-kind-icon">default<wbr>Routes</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-static">
+								<a href="scale.html#defaults" class="tsd-kind-icon">defaults</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
 								<a href="scale.html#_autoskip" class="tsd-kind-icon">_auto<wbr>Skip</a>

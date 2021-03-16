@@ -607,7 +607,7 @@ function modHSL(v, i, ratio) {
 		v.b = tmp[2];
 	}
 }
-function clone(v, proto) {
+function clone$1(v, proto) {
 	return v ? Object.assign(proto || {}, v) : v;
 }
 function fromObject(input) {
@@ -620,7 +620,7 @@ function fromObject(input) {
 			}
 		}
 	} else {
-		v = clone(input, {r: 0, g: 0, b: 0, a: 1});
+		v = clone$1(input, {r: 0, g: 0, b: 0, a: 1});
 		v.a = n2b(v.a);
 	}
 	return v;
@@ -650,7 +650,7 @@ class Color {
 		return this._valid;
 	}
 	get rgb() {
-		var v = clone(this._rgb);
+		var v = clone$1(this._rgb);
 		if (v) {
 			v.a = b2n(v.a);
 		}
@@ -830,9 +830,9 @@ function _elementsEqual(a0, a1) {
   }
   return true;
 }
-function clone$1(source) {
+function clone(source) {
   if (isArray(source)) {
-    return source.map(clone$1);
+    return source.map(clone);
   }
   if (isObject(source)) {
     const target = Object.create(null);
@@ -840,7 +840,7 @@ function clone$1(source) {
     const klen = keys.length;
     let k = 0;
     for (; k < klen; ++k) {
-      target[keys[k]] = clone$1(source[keys[k]]);
+      target[keys[k]] = clone(source[keys[k]]);
     }
     return target;
   }
@@ -858,7 +858,7 @@ function _merger(key, target, source, options) {
   if (isObject(tval) && isObject(sval)) {
     merge(tval, sval, options);
   } else {
-    target[key] = clone$1(sval);
+    target[key] = clone(sval);
   }
 }
 function merge(target, source, options) {
@@ -893,7 +893,7 @@ function _mergerIf(key, target, source) {
   if (isObject(tval) && isObject(sval)) {
     mergeIf(tval, sval);
   } else if (!Object.prototype.hasOwnProperty.call(target, key)) {
-    target[key] = clone$1(sval);
+    target[key] = clone(sval);
   }
 }
 function _deprecated(scope, value, previous, current) {
@@ -929,7 +929,7 @@ const isFunction = (value) => typeof value === 'function';
 
 const overrides = Object.create(null);
 const descriptors = Object.create(null);
-function getScope(node, key) {
+function getScope$1(node, key) {
   if (!key) {
     return node;
   }
@@ -942,9 +942,9 @@ function getScope(node, key) {
 }
 function set(root, scope, values) {
   if (typeof scope === 'string') {
-    return merge(getScope(root, scope), values);
+    return merge(getScope$1(root, scope), values);
   }
-  return merge(getScope(root, ''), scope);
+  return merge(getScope$1(root, ''), scope);
 }
 class Defaults {
   constructor(_descriptors) {
@@ -995,7 +995,7 @@ class Defaults {
     return set(this, scope, values);
   }
   get(scope) {
-    return getScope(this, scope);
+    return getScope$1(this, scope);
   }
   describe(scope, values) {
     return set(descriptors, scope, values);
@@ -1004,8 +1004,8 @@ class Defaults {
     return set(overrides, scope, values);
   }
   route(scope, name, targetScope, targetName) {
-    const scopeObject = getScope(this, scope);
-    const targetScopeObject = getScope(this, targetScope);
+    const scopeObject = getScope$1(this, scope);
+    const targetScopeObject = getScope$1(this, targetScope);
     const privateName = '_' + name;
     Object.defineProperties(scopeObject, {
       [privateName]: {
@@ -1565,7 +1565,7 @@ function getCanvasPosition(evt, canvas) {
   }
   return {x, y, box};
 }
-function getRelativePosition(evt, chart) {
+function getRelativePosition$1(evt, chart) {
   const {canvas, currentDevicePixelRatio} = chart;
   const style = getComputedStyle(canvas);
   const borderBox = style.boxSizing === 'border-box';
@@ -1667,14 +1667,14 @@ function readUsedSize(element, property) {
   return matches ? +matches[1] : undefined;
 }
 
-function getRelativePosition$1(e, chart) {
+function getRelativePosition(e, chart) {
   if ('native' in e) {
     return {
       x: e.x,
       y: e.y
     };
   }
-  return getRelativePosition(e, chart);
+  return getRelativePosition$1(e, chart);
 }
 function evaluateAllVisibleItems(chart, handler) {
   const metasets = chart.getSortedVisibleDatasetMetas();
@@ -1768,7 +1768,7 @@ function getNearestItems(chart, position, axis, intersect, useFinalPosition) {
   return items;
 }
 function getAxisItems(chart, e, options, useFinalPosition) {
-  const position = getRelativePosition$1(e, chart);
+  const position = getRelativePosition(e, chart);
   const items = [];
   const axis = options.axis;
   const rangeMethod = axis === 'x' ? 'inXRange' : 'inYRange';
@@ -1789,7 +1789,7 @@ function getAxisItems(chart, e, options, useFinalPosition) {
 var Interaction = {
   modes: {
     index(chart, e, options, useFinalPosition) {
-      const position = getRelativePosition$1(e, chart);
+      const position = getRelativePosition(e, chart);
       const axis = options.axis || 'x';
       const items = options.intersect
         ? getIntersectItems(chart, position, axis, useFinalPosition)
@@ -1808,7 +1808,7 @@ var Interaction = {
       return elements;
     },
     dataset(chart, e, options, useFinalPosition) {
-      const position = getRelativePosition$1(e, chart);
+      const position = getRelativePosition(e, chart);
       const axis = options.axis || 'xy';
       let items = options.intersect
         ? getIntersectItems(chart, position, axis, useFinalPosition) :
@@ -1824,12 +1824,12 @@ var Interaction = {
       return items;
     },
     point(chart, e, options, useFinalPosition) {
-      const position = getRelativePosition$1(e, chart);
+      const position = getRelativePosition(e, chart);
       const axis = options.axis || 'xy';
       return getIntersectItems(chart, position, axis, useFinalPosition);
     },
     nearest(chart, e, options, useFinalPosition) {
-      const position = getRelativePosition$1(e, chart);
+      const position = getRelativePosition(e, chart);
       const axis = options.axis || 'xy';
       return getNearestItems(chart, position, axis, options.intersect, useFinalPosition);
     },
@@ -1860,8 +1860,8 @@ function toLineHeight(value, size) {
   }
   return size * value;
 }
-const numberOrZero = v => +v || 0;
-const numberOrZero2 = (v1, v2) => numberOrZero(valueOrDefault(v1, v2));
+const numberOrZero$1 = v => +v || 0;
+const numberOrZero2 = (v1, v2) => numberOrZero$1(valueOrDefault(v1, v2));
 function toTRBL(value) {
   let t, r, b, l;
   if (isObject(value)) {
@@ -1871,7 +1871,7 @@ function toTRBL(value) {
     b = numberOrZero2(value.bottom, y);
     l = numberOrZero2(value.left, x);
   } else {
-    t = r = b = l = numberOrZero(value);
+    t = r = b = l = numberOrZero$1(value);
   }
   return {
     top: t,
@@ -1883,12 +1883,12 @@ function toTRBL(value) {
 function toTRBLCorners(value) {
   let tl, tr, bl, br;
   if (isObject(value)) {
-    tl = numberOrZero(value.topLeft);
-    tr = numberOrZero(value.topRight);
-    bl = numberOrZero(value.bottomLeft);
-    br = numberOrZero(value.bottomRight);
+    tl = numberOrZero$1(value.topLeft);
+    tr = numberOrZero$1(value.topRight);
+    bl = numberOrZero$1(value.bottomLeft);
+    br = numberOrZero$1(value.bottomRight);
   } else {
-    tl = tr = bl = br = numberOrZero(value);
+    tl = tr = bl = br = numberOrZero$1(value);
   }
   return {
     topLeft: tl,
@@ -2311,7 +2311,7 @@ function removeListener(chart, type, listener) {
 }
 function fromNativeEvent(event, chart) {
   const type = EVENT_TYPES[event.type] || event.type;
-  const {x, y} = getRelativePosition(event, chart);
+  const {x, y} = getRelativePosition$1(event, chart);
   return {
     type,
     chart,
@@ -5081,11 +5081,11 @@ function _resolveArray(prop, value, target, isIndexable) {
 function resolveFallback(fallback, prop, value) {
   return isFunction(fallback) ? fallback(prop, value) : fallback;
 }
-const getScope$1 = (key, parent) => key === true ? parent
+const getScope = (key, parent) => key === true ? parent
   : typeof key === 'string' ? resolveObjectKey(parent, key) : undefined;
 function addScopes(set, parentScopes, key, parentFallback) {
   for (const parent of parentScopes) {
-    const scope = getScope$1(key, parent);
+    const scope = getScope(key, parent);
     if (scope) {
       set.add(scope);
       const fallback = resolveFallback(scope._fallback, key, scope);
@@ -5578,7 +5578,7 @@ toDimension: toDimension,
 callback: callback,
 each: each,
 _elementsEqual: _elementsEqual,
-clone: clone$1,
+clone: clone,
 _merger: _merger,
 merge: merge,
 mergeIf: mergeIf,
@@ -5615,7 +5615,7 @@ splineCurveMonotone: splineCurveMonotone,
 _updateBezierControlPoints: _updateBezierControlPoints,
 _getParentNode: _getParentNode,
 getStyle: getStyle,
-getRelativePosition: getRelativePosition,
+getRelativePosition: getRelativePosition$1,
 getMaximumSize: getMaximumSize,
 retinaScale: retinaScale,
 supportsEventListenerOptions: supportsEventListenerOptions,
@@ -8700,7 +8700,7 @@ LineElement.descriptors = {
   _indexable: (name) => name !== 'borderDash' && name !== 'fill',
 };
 
-function inRange(el, pos, axis, useFinalPosition) {
+function inRange$1(el, pos, axis, useFinalPosition) {
   const options = el.options;
   const {[axis]: value} = el.getProps([axis], useFinalPosition);
   return (Math.abs(pos - value) < options.radius + options.hitRadius);
@@ -8721,10 +8721,10 @@ class PointElement extends Element {
     return ((Math.pow(mouseX - x, 2) + Math.pow(mouseY - y, 2)) < Math.pow(options.hitRadius + options.radius, 2));
   }
   inXRange(mouseX, useFinalPosition) {
-    return inRange(this, mouseX, 'x', useFinalPosition);
+    return inRange$1(this, mouseX, 'x', useFinalPosition);
   }
   inYRange(mouseY, useFinalPosition) {
-    return inRange(this, mouseY, 'y', useFinalPosition);
+    return inRange$1(this, mouseY, 'y', useFinalPosition);
   }
   getCenterPoint(useFinalPosition) {
     const {x, y} = this.getProps(['x', 'y'], useFinalPosition);
@@ -8867,7 +8867,7 @@ function boundingRects(bar) {
     }
   };
 }
-function inRange$1(bar, x, y, useFinalPosition) {
+function inRange(bar, x, y, useFinalPosition) {
   const skipX = x === null;
   const skipY = y === null;
   const skipBoth = skipX && skipY;
@@ -8925,13 +8925,13 @@ class BarElement extends Element {
     ctx.restore();
   }
   inRange(mouseX, mouseY, useFinalPosition) {
-    return inRange$1(this, mouseX, mouseY, useFinalPosition);
+    return inRange(this, mouseX, mouseY, useFinalPosition);
   }
   inXRange(mouseX, useFinalPosition) {
-    return inRange$1(this, mouseX, null, useFinalPosition);
+    return inRange(this, mouseX, null, useFinalPosition);
   }
   inYRange(mouseY, useFinalPosition) {
-    return inRange$1(this, null, mouseY, useFinalPosition);
+    return inRange(this, null, mouseY, useFinalPosition);
   }
   getCenterPoint(useFinalPosition) {
     const {x, y, base, horizontal} = this.getProps(['x', 'y', 'base', 'horizontal'], useFinalPosition);
@@ -11147,7 +11147,7 @@ CategoryScale.defaults = {
   }
 };
 
-function generateTicks(generationOptions, dataRange) {
+function generateTicks$1(generationOptions, dataRange) {
   const ticks = [];
   const MIN_SPACING = 1e-14;
   const {step, min, max, precision, count, maxTicks} = generationOptions;
@@ -11293,7 +11293,7 @@ class LinearScaleBase extends Scale {
       step: tickOpts.stepSize,
       count: tickOpts.count,
     };
-    const ticks = generateTicks(numericGeneratorOptions, _addGrace(me, opts.grace));
+    const ticks = generateTicks$1(numericGeneratorOptions, _addGrace(me, opts.grace));
     if (opts.bounds === 'ticks') {
       _setMinAndMaxByKey(ticks, me, 'value');
     }
@@ -11361,7 +11361,7 @@ function isMajor(tickVal) {
   const remain = tickVal / (Math.pow(10, Math.floor(log10(tickVal))));
   return remain === 1;
 }
-function generateTicks$1(generationOptions, dataRange) {
+function generateTicks(generationOptions, dataRange) {
   const endExp = Math.floor(log10(dataRange.max));
   const endSignificand = Math.ceil(dataRange.max / Math.pow(10, endExp));
   const ticks = [];
@@ -11445,7 +11445,7 @@ class LogarithmicScale extends Scale {
       min: me._userMin,
       max: me._userMax
     };
-    const ticks = generateTicks$1(generationOptions, me);
+    const ticks = generateTicks(generationOptions, me);
     if (opts.bounds === 'ticks') {
       _setMinAndMaxByKey(ticks, me, 'value');
     }
@@ -11676,7 +11676,7 @@ function drawRadiusLine(scale, gridLineOpts, radius, labelCount) {
   ctx.stroke();
   ctx.restore();
 }
-function numberOrZero$1(param) {
+function numberOrZero(param) {
   return isNumber(param) ? param : 0;
 }
 class RadialLinearScale extends LinearScaleBase {
@@ -11730,10 +11730,10 @@ class RadialLinearScale extends LinearScaleBase {
     let radiusReductionRight = Math.max(furthestLimits.r - me.width, 0) / Math.sin(furthestAngles.r);
     let radiusReductionTop = -furthestLimits.t / Math.cos(furthestAngles.t);
     let radiusReductionBottom = -Math.max(furthestLimits.b - (me.height - me.paddingTop), 0) / Math.cos(furthestAngles.b);
-    radiusReductionLeft = numberOrZero$1(radiusReductionLeft);
-    radiusReductionRight = numberOrZero$1(radiusReductionRight);
-    radiusReductionTop = numberOrZero$1(radiusReductionTop);
-    radiusReductionBottom = numberOrZero$1(radiusReductionBottom);
+    radiusReductionLeft = numberOrZero(radiusReductionLeft);
+    radiusReductionRight = numberOrZero(radiusReductionRight);
+    radiusReductionTop = numberOrZero(radiusReductionTop);
+    radiusReductionBottom = numberOrZero(radiusReductionBottom);
     me.drawingArea = Math.max(largestPossibleRadius / 2, Math.min(
       Math.floor(largestPossibleRadius - (radiusReductionLeft + radiusReductionRight) / 2),
       Math.floor(largestPossibleRadius - (radiusReductionTop + radiusReductionBottom) / 2)));
