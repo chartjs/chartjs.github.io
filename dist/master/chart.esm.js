@@ -3203,7 +3203,7 @@ defaults.set('scale', {
     drawBorder: true,
     drawOnChartArea: true,
     drawTicks: true,
-    tickLength: 10,
+    tickLength: 8,
     tickWidth: (_ctx, options) => options.lineWidth,
     tickColor: (_ctx, options) => options.color,
     offset: false,
@@ -3226,7 +3226,7 @@ defaults.set('scale', {
     mirror: false,
     textStrokeWidth: 0,
     textStrokeColor: '',
-    padding: 0,
+    padding: 3,
     display: true,
     autoSkip: true,
     autoSkipPadding: 3,
@@ -3690,7 +3690,7 @@ class Scale extends Element {
     }
     const labelSizes = me._getLabelSizes();
     const maxLabelWidth = labelSizes.widest.width;
-    const maxLabelHeight = labelSizes.highest.height - labelSizes.highest.offset;
+    const maxLabelHeight = labelSizes.highest.height;
     const maxWidth = _limitValue(me.chart.width - maxLabelWidth, 0, me.maxWidth);
     tickWidth = options.offset ? me.maxWidth / numTicks : maxWidth / (numTicks - 1);
     if (maxLabelWidth + 6 > tickWidth) {
@@ -3718,79 +3718,32 @@ class Scale extends Element {
       width: 0,
       height: 0
     };
-    const chart = me.chart;
-    const opts = me.options;
-    const tickOpts = opts.ticks;
-    const titleOpts = opts.title;
-    const gridLineOpts = opts.grid;
+    const {chart, options: {ticks: tickOpts, title: titleOpts, grid: gridOpts}} = me;
     const display = me._isVisible();
-    const labelsBelowTicks = opts.position !== 'top' && me.axis === 'x';
     const isHorizontal = me.isHorizontal();
-    const titleHeight = display && getTitleHeight(titleOpts, chart.options.font);
-    if (isHorizontal) {
-      minSize.width = me.maxWidth;
-    } else if (display) {
-      minSize.width = getTickMarkLength(gridLineOpts) + titleHeight;
-    }
-    if (!isHorizontal) {
-      minSize.height = me.maxHeight;
-    } else if (display) {
-      minSize.height = getTickMarkLength(gridLineOpts) + titleHeight;
-    }
-    if (tickOpts.display && display && me.ticks.length) {
-      const labelSizes = me._getLabelSizes();
-      const firstLabelSize = labelSizes.first;
-      const lastLabelSize = labelSizes.last;
-      const widestLabelSize = labelSizes.widest;
-      const highestLabelSize = labelSizes.highest;
-      const lineSpace = highestLabelSize.offset * 0.8;
-      const tickPadding = tickOpts.padding;
+    if (display) {
+      const titleHeight = getTitleHeight(titleOpts, chart.options.font);
       if (isHorizontal) {
-        const isRotated = me.labelRotation !== 0;
-        const angleRadians = toRadians(me.labelRotation);
-        const cosRotation = Math.cos(angleRadians);
-        const sinRotation = Math.sin(angleRadians);
-        const labelHeight = sinRotation * widestLabelSize.width
-					+ cosRotation * (highestLabelSize.height - (isRotated ? highestLabelSize.offset : 0))
-					+ (isRotated ? 0 : lineSpace);
-        minSize.height = Math.min(me.maxHeight, minSize.height + labelHeight + tickPadding);
-        const offsetLeft = me.getPixelForTick(0) - me.left;
-        const offsetRight = me.right - me.getPixelForTick(me.ticks.length - 1);
-        let paddingLeft, paddingRight;
-        if (isRotated) {
-          paddingLeft = labelsBelowTicks ?
-            cosRotation * firstLabelSize.width + sinRotation * firstLabelSize.offset :
-            sinRotation * (firstLabelSize.height - firstLabelSize.offset);
-          paddingRight = labelsBelowTicks ?
-            sinRotation * (lastLabelSize.height - lastLabelSize.offset) :
-            cosRotation * lastLabelSize.width + sinRotation * lastLabelSize.offset;
-        } else if (tickOpts.align === 'start') {
-          paddingLeft = 0;
-          paddingRight = lastLabelSize.width;
-        } else if (tickOpts.align === 'end') {
-          paddingLeft = firstLabelSize.width;
-          paddingRight = 0;
-        } else {
-          paddingLeft = firstLabelSize.width / 2;
-          paddingRight = lastLabelSize.width / 2;
-        }
-        me.paddingLeft = Math.max((paddingLeft - offsetLeft) * me.width / (me.width - offsetLeft), 0) + 3;
-        me.paddingRight = Math.max((paddingRight - offsetRight) * me.width / (me.width - offsetRight), 0) + 3;
+        minSize.width = me.maxWidth;
+        minSize.height = getTickMarkLength(gridOpts) + titleHeight;
       } else {
-        const labelWidth = tickOpts.mirror ? 0 :
-          widestLabelSize.width + tickPadding + lineSpace;
-        minSize.width = Math.min(me.maxWidth, minSize.width + labelWidth);
-        let paddingTop = lastLabelSize.height / 2;
-        let paddingBottom = firstLabelSize.height / 2;
-        if (tickOpts.align === 'start') {
-          paddingTop = 0;
-          paddingBottom = firstLabelSize.height;
-        } else if (tickOpts.align === 'end') {
-          paddingTop = lastLabelSize.height;
-          paddingBottom = 0;
+        minSize.height = me.maxHeight;
+        minSize.width = getTickMarkLength(gridOpts) + titleHeight;
+      }
+      if (tickOpts.display && me.ticks.length) {
+        const {first, last, widest, highest} = me._getLabelSizes();
+        const tickPadding = tickOpts.padding * 2;
+        const angleRadians = toRadians(me.labelRotation);
+        const cos = Math.cos(angleRadians);
+        const sin = Math.sin(angleRadians);
+        if (isHorizontal) {
+          const labelHeight = sin * widest.width + cos * highest.height;
+          minSize.height = Math.min(me.maxHeight, minSize.height + labelHeight + tickPadding);
+        } else {
+          const labelWidth = tickOpts.mirror ? 0 : cos * widest.width + sin * highest.height;
+          minSize.width = Math.min(me.maxWidth, minSize.width + labelWidth + tickPadding);
         }
-        me.paddingTop = paddingTop;
-        me.paddingBottom = paddingBottom;
+        me._calculatePadding(first, last, sin, cos);
       }
     }
     me._handleMargins();
@@ -3800,6 +3753,48 @@ class Scale extends Element {
     } else {
       me.width = minSize.width;
       me.height = me._length = chart.height - me._margins.top - me._margins.bottom;
+    }
+  }
+  _calculatePadding(first, last, sin, cos) {
+    const me = this;
+    const {ticks: {align, padding}, position} = me.options;
+    const isRotated = me.labelRotation !== 0;
+    const labelsBelowTicks = position !== 'top' && me.axis === 'x';
+    if (me.isHorizontal()) {
+      const offsetLeft = me.getPixelForTick(0) - me.left;
+      const offsetRight = me.right - me.getPixelForTick(me.ticks.length - 1);
+      let paddingLeft = 0;
+      let paddingRight = 0;
+      if (isRotated) {
+        if (labelsBelowTicks) {
+          paddingLeft = cos * first.width;
+          paddingRight = sin * last.height;
+        } else {
+          paddingLeft = sin * first.height;
+          paddingRight = cos * last.width;
+        }
+      } else if (align === 'start') {
+        paddingRight = last.width;
+      } else if (align === 'end') {
+        paddingLeft = first.width;
+      } else {
+        paddingLeft = first.width / 2;
+        paddingRight = last.width / 2;
+      }
+      me.paddingLeft = Math.max((paddingLeft - offsetLeft + padding) * me.width / (me.width - offsetLeft), 0);
+      me.paddingRight = Math.max((paddingRight - offsetRight + padding) * me.width / (me.width - offsetRight), 0);
+    } else {
+      let paddingTop = last.height / 2;
+      let paddingBottom = first.height / 2;
+      if (align === 'start') {
+        paddingTop = 0;
+        paddingBottom = first.height;
+      } else if (align === 'end') {
+        paddingTop = last.height;
+        paddingBottom = 0;
+      }
+      me.paddingTop = paddingTop + padding;
+      me.paddingBottom = paddingBottom + padding;
     }
   }
   _handleMargins() {
@@ -3831,29 +3826,25 @@ class Scale extends Element {
     const me = this;
     let labelSizes = me._labelSizes;
     if (!labelSizes) {
-      me._labelSizes = labelSizes = me._computeLabelSizes();
+      const sampleSize = me.options.ticks.sampleSize;
+      let ticks = me.ticks;
+      if (sampleSize < ticks.length) {
+        ticks = sample(ticks, sampleSize);
+      }
+      me._labelSizes = labelSizes = me._computeLabelSizes(ticks, ticks.length);
     }
     return labelSizes;
   }
-  _computeLabelSizes() {
-    const me = this;
-    const ctx = me.ctx;
-    const caches = me._longestTextCache;
-    const sampleSize = me.options.ticks.sampleSize;
+  _computeLabelSizes(ticks, length) {
+    const {ctx, _longestTextCache: caches} = this;
     const widths = [];
     const heights = [];
-    const offsets = [];
     let widestLabelSize = 0;
     let highestLabelSize = 0;
-    let ticks = me.ticks;
-    if (sampleSize < ticks.length) {
-      ticks = sample(ticks, sampleSize);
-    }
-    const length = ticks.length;
     let i, j, jlen, label, tickFont, fontString, cache, lineHeight, width, height, nestedLabel;
     for (i = 0; i < length; ++i) {
       label = ticks[i].label;
-      tickFont = me._resolveTickFontOptions(i);
+      tickFont = this._resolveTickFontOptions(i);
       ctx.font = fontString = tickFont.string;
       cache = caches[fontString] = caches[fontString] || {data: {}, gc: []};
       lineHeight = tickFont.lineHeight;
@@ -3872,20 +3863,13 @@ class Scale extends Element {
       }
       widths.push(width);
       heights.push(height);
-      offsets.push(lineHeight / 2);
       widestLabelSize = Math.max(width, widestLabelSize);
       highestLabelSize = Math.max(height, highestLabelSize);
     }
     garbageCollect(caches, length);
     const widest = widths.indexOf(widestLabelSize);
     const highest = heights.indexOf(highestLabelSize);
-    function valueAt(idx) {
-      return {
-        width: widths[idx] || 0,
-        height: heights[idx] || 0,
-        offset: offsets[idx] || 0
-      };
-    }
+    const valueAt = (idx) => ({width: widths[idx] || 0, height: heights[idx] || 0});
     return {
       first: valueAt(0),
       last: valueAt(length - 1),
@@ -4033,7 +4017,7 @@ class Scale extends Element {
       tx2 = me.left + tl;
     } else if (axis === 'x') {
       if (position === 'center') {
-        borderValue = alignBorderValue((chartArea.top + chartArea.bottom) / 2);
+        borderValue = alignBorderValue((chartArea.top + chartArea.bottom) / 2 + 0.5);
       } else if (isObject(position)) {
         const positionAxisID = Object.keys(position)[0];
         const value = position[positionAxisID];
@@ -4170,23 +4154,19 @@ class Scale extends Element {
         x = pixel;
         if (position === 'top') {
           if (crossAlign === 'near' || rotation !== 0) {
-            textOffset = (Math.sin(rotation) * halfCount + 0.5) * lineHeight;
-            textOffset -= (rotation === 0 ? (lineCount - 0.5) : Math.cos(rotation) * halfCount) * lineHeight;
+            textOffset = -lineCount * lineHeight + lineHeight / 2;
           } else if (crossAlign === 'center') {
-            textOffset = -1 * (labelSizes.highest.height / 2);
-            textOffset -= halfCount * lineHeight;
+            textOffset = -labelSizes.highest.height / 2 - halfCount * lineHeight + lineHeight;
           } else {
-            textOffset = (-1 * labelSizes.highest.height) + (0.5 * lineHeight);
+            textOffset = -labelSizes.highest.height + lineHeight / 2;
           }
         } else {
           if (crossAlign === 'near' || rotation !== 0) {
-            textOffset = Math.sin(rotation) * halfCount * lineHeight;
-            textOffset += (rotation === 0 ? 0.5 : Math.cos(rotation) * halfCount) * lineHeight;
+            textOffset = lineHeight / 2;
           } else if (crossAlign === 'center') {
-            textOffset = labelSizes.highest.height / 2;
-            textOffset -= halfCount * lineHeight;
+            textOffset = labelSizes.highest.height / 2 - halfCount * lineHeight;
           } else {
-            textOffset = labelSizes.highest.height - ((lineCount - 0.5) * lineHeight);
+            textOffset = labelSizes.highest.height - lineCount * lineHeight;
           }
         }
       } else {
@@ -4225,12 +4205,10 @@ class Scale extends Element {
   }
   _getYAxisLabelAlignment(tl) {
     const me = this;
-    const {position, ticks} = me.options;
-    const {crossAlign, mirror, padding} = ticks;
+    const {position, ticks: {crossAlign, mirror, padding}} = me.options;
     const labelSizes = me._getLabelSizes();
     const tickAndPadding = tl + padding;
     const widest = labelSizes.widest.width;
-    const lineSpace = labelSizes.highest.offset * 0.8;
     let textAlign;
     let x;
     if (position === 'left') {
@@ -4246,7 +4224,7 @@ class Scale extends Element {
           x -= (widest / 2);
         } else {
           textAlign = 'left';
-          x = me.left + lineSpace;
+          x = me.left;
         }
       }
     } else if (position === 'right') {
@@ -4262,7 +4240,7 @@ class Scale extends Element {
           x += widest / 2;
         } else {
           textAlign = 'right';
-          x = me.right - lineSpace;
+          x = me.right;
         }
       }
     } else {
