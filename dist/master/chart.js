@@ -50,6 +50,7 @@ function debounce(fn, delay) {
 }
 const _toLeftRightCenter = (align) => align === 'start' ? 'left' : align === 'end' ? 'right' : 'center';
 const _alignStartEnd = (align, start, end) => align === 'start' ? start : align === 'end' ? end : (start + end) / 2;
+const _textX = (align, left, right) => align === 'right' ? right : align === 'center' ? (left + right) / 2 : left;
 
 class Animator {
   constructor() {
@@ -9710,6 +9711,7 @@ class Legend extends Element {
     const labelFont = toFont(labelOpts.font);
     const {color: fontColor, padding} = labelOpts;
     const fontSize = labelFont.size;
+    const halfFontSize = fontSize / 2;
     let cursor;
     me.drawTitle();
     ctx.textAlign = rtlHelper.textAlign('left');
@@ -9740,7 +9742,7 @@ class Legend extends Element {
           borderWidth: lineWidth
         };
         const centerX = rtlHelper.xPlus(x, boxWidth / 2);
-        const centerY = y + fontSize / 2;
+        const centerY = y + halfFontSize;
         drawPoint(ctx, drawOptions, centerX, centerY);
       } else {
         const yBoxTop = y + Math.max((fontSize - boxHeight) / 2, 0);
@@ -9752,9 +9754,10 @@ class Legend extends Element {
       ctx.restore();
     };
     const fillText = function(x, y, legendItem) {
-      const halfFontSize = fontSize / 2;
-      const xLeft = rtlHelper.xPlus(x, boxWidth + halfFontSize);
-      renderText(ctx, legendItem.text, xLeft, y + (itemHeight / 2), labelFont, {strikethrough: legendItem.hidden});
+      renderText(ctx, legendItem.text, x, y + (itemHeight / 2), labelFont, {
+        strikethrough: legendItem.hidden,
+        textAlign: legendItem.textAlign
+      });
     };
     const isHorizontal = me.isHorizontal();
     const titleHeight = this._computeTitleHeight();
@@ -9775,6 +9778,7 @@ class Legend extends Element {
     const lineHeight = itemHeight + padding;
     me.legendItems.forEach((legendItem, i) => {
       const textWidth = ctx.measureText(legendItem.text).width;
+      const textAlign = rtlHelper.textAlign(legendItem.textAlign || (legendItem.textAlign = labelOpts.textAlign));
       const width = boxWidth + (fontSize / 2) + textWidth;
       let x = cursor.x;
       let y = cursor.y;
@@ -9794,7 +9798,8 @@ class Legend extends Element {
       drawLegendBox(realX, y, legendItem);
       legendHitBoxes[i].left = rtlHelper.leftForLtr(realX, legendHitBoxes[i].width);
       legendHitBoxes[i].top = y;
-      fillText(realX, y, legendItem);
+      x = _textX(textAlign, x + boxWidth + halfFontSize, me.right);
+      fillText(rtlHelper.x(x), y, legendItem);
       if (isHorizontal) {
         cursor.x += width + padding;
       } else {
@@ -9935,12 +9940,10 @@ var plugin_legend = {
       padding: 10,
       generateLabels(chart) {
         const datasets = chart.data.datasets;
-        const {labels} = chart.legend.options;
-        const usePointStyle = labels.usePointStyle;
-        const overrideStyle = labels.pointStyle;
+        const {labels: {usePointStyle, pointStyle, textAlign}} = chart.legend.options;
         return chart._getSortedDatasetMetas().map((meta) => {
           const style = meta.controller.getStyle(usePointStyle ? 0 : undefined);
-          const borderWidth = isObject(style.borderWidth) ? (valueOrDefault(style.borderWidth.top, 0) + valueOrDefault(style.borderWidth.left, 0) + valueOrDefault(style.borderWidth.bottom, 0) + valueOrDefault(style.borderWidth.right, 0)) / 4 : style.borderWidth;
+          const borderWidth = toPadding(style.borderWidth);
           return {
             text: datasets[meta.index].label,
             fillStyle: style.backgroundColor,
@@ -9949,10 +9952,11 @@ var plugin_legend = {
             lineDash: style.borderDash,
             lineDashOffset: style.borderDashOffset,
             lineJoin: style.borderJoinStyle,
-            lineWidth: borderWidth,
+            lineWidth: (borderWidth.width + borderWidth.height) / 4,
             strokeStyle: style.borderColor,
-            pointStyle: overrideStyle || style.pointStyle,
+            pointStyle: pointStyle || style.pointStyle,
             rotation: style.rotation,
+            textAlign: textAlign || style.textAlign,
             datasetIndex: meta.index
           };
         }, this);

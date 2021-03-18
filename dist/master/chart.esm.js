@@ -4,7 +4,7 @@
  * (c) 2021 Chart.js Contributors
  * Released under the MIT License
  */
-import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, b as isArray, d as defaults, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as isNumberFinite, h as defined, s as sign, j as isNullOrUndef, k as clipArea, m as unclipArea, _ as _arrayUnique, t as toRadians, n as toPercentage, o as toDimension, T as TAU, p as _angleBetween, H as HALF_PI, P as PI, q as isNumber, w as _limitValue, x as _lookupByKey, y as getRelativePosition$1, z as _isPointInArea, A as _rlookupByKey, B as toPadding, C as each, D as getMaximumSize, E as _getParentNode, F as readUsedSize, G as throttled, I as supportsEventListenerOptions, J as log10, K as finiteOrDefault, L as callback, M as toDegrees, N as _measureText, O as _int16Range, Q as _alignPixel, R as renderText, S as toFont, U as _toLeftRightCenter, V as _alignStartEnd, W as _factorize, X as overrides, Y as merge, Z as _capitalize, $ as descriptors, a0 as isFunction, a1 as _attachContext, a2 as _createResolver, a3 as _descriptors, a4 as mergeIf, a5 as uid, a6 as debounce, a7 as retinaScale, a8 as clearCanvas, a9 as _elementsEqual, aa as getAngleFromPoint, ab as _updateBezierControlPoints, ac as _computeSegments, ad as _boundSegments, ae as _steppedInterpolation, af as _bezierInterpolation, ag as _pointInLine, ah as _steppedLineTo, ai as _bezierCurveTo, aj as drawPoint, ak as toTRBL, al as toTRBLCorners, am as _boundSegment, an as _normalizeAngle, ao as getRtlAdapter, ap as overrideTextDirection, aq as restoreTextDirection, ar as noop, as as distanceBetweenPoints, at as _addGrace, au as _setMinAndMaxByKey, av as niceNum, aw as almostWhole, ax as almostEquals, ay as _decimalPlaces, az as _longestText, aA as _filterBetween, aB as _lookup } from './chunks/helpers.segment.js';
+import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, b as isArray, d as defaults, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as isNumberFinite, h as defined, s as sign, j as isNullOrUndef, k as clipArea, m as unclipArea, _ as _arrayUnique, t as toRadians, n as toPercentage, o as toDimension, T as TAU, p as _angleBetween, H as HALF_PI, P as PI, q as isNumber, w as _limitValue, x as _lookupByKey, y as getRelativePosition$1, z as _isPointInArea, A as _rlookupByKey, B as toPadding, C as each, D as getMaximumSize, E as _getParentNode, F as readUsedSize, G as throttled, I as supportsEventListenerOptions, J as log10, K as finiteOrDefault, L as callback, M as toDegrees, N as _measureText, O as _int16Range, Q as _alignPixel, R as renderText, S as toFont, U as _toLeftRightCenter, V as _alignStartEnd, W as _factorize, X as overrides, Y as merge, Z as _capitalize, $ as descriptors, a0 as isFunction, a1 as _attachContext, a2 as _createResolver, a3 as _descriptors, a4 as mergeIf, a5 as uid, a6 as debounce, a7 as retinaScale, a8 as clearCanvas, a9 as _elementsEqual, aa as getAngleFromPoint, ab as _updateBezierControlPoints, ac as _computeSegments, ad as _boundSegments, ae as _steppedInterpolation, af as _bezierInterpolation, ag as _pointInLine, ah as _steppedLineTo, ai as _bezierCurveTo, aj as drawPoint, ak as toTRBL, al as toTRBLCorners, am as _boundSegment, an as _normalizeAngle, ao as getRtlAdapter, ap as overrideTextDirection, aq as _textX, ar as restoreTextDirection, as as noop, at as distanceBetweenPoints, au as _addGrace, av as _setMinAndMaxByKey, aw as niceNum, ax as almostWhole, ay as almostEquals, az as _decimalPlaces, aA as _longestText, aB as _filterBetween, aC as _lookup } from './chunks/helpers.segment.js';
 export { d as defaults } from './chunks/helpers.segment.js';
 
 class Animator {
@@ -7251,6 +7251,7 @@ class Legend extends Element {
     const labelFont = toFont(labelOpts.font);
     const {color: fontColor, padding} = labelOpts;
     const fontSize = labelFont.size;
+    const halfFontSize = fontSize / 2;
     let cursor;
     me.drawTitle();
     ctx.textAlign = rtlHelper.textAlign('left');
@@ -7281,7 +7282,7 @@ class Legend extends Element {
           borderWidth: lineWidth
         };
         const centerX = rtlHelper.xPlus(x, boxWidth / 2);
-        const centerY = y + fontSize / 2;
+        const centerY = y + halfFontSize;
         drawPoint(ctx, drawOptions, centerX, centerY);
       } else {
         const yBoxTop = y + Math.max((fontSize - boxHeight) / 2, 0);
@@ -7293,9 +7294,10 @@ class Legend extends Element {
       ctx.restore();
     };
     const fillText = function(x, y, legendItem) {
-      const halfFontSize = fontSize / 2;
-      const xLeft = rtlHelper.xPlus(x, boxWidth + halfFontSize);
-      renderText(ctx, legendItem.text, xLeft, y + (itemHeight / 2), labelFont, {strikethrough: legendItem.hidden});
+      renderText(ctx, legendItem.text, x, y + (itemHeight / 2), labelFont, {
+        strikethrough: legendItem.hidden,
+        textAlign: legendItem.textAlign
+      });
     };
     const isHorizontal = me.isHorizontal();
     const titleHeight = this._computeTitleHeight();
@@ -7316,6 +7318,7 @@ class Legend extends Element {
     const lineHeight = itemHeight + padding;
     me.legendItems.forEach((legendItem, i) => {
       const textWidth = ctx.measureText(legendItem.text).width;
+      const textAlign = rtlHelper.textAlign(legendItem.textAlign || (legendItem.textAlign = labelOpts.textAlign));
       const width = boxWidth + (fontSize / 2) + textWidth;
       let x = cursor.x;
       let y = cursor.y;
@@ -7335,7 +7338,8 @@ class Legend extends Element {
       drawLegendBox(realX, y, legendItem);
       legendHitBoxes[i].left = rtlHelper.leftForLtr(realX, legendHitBoxes[i].width);
       legendHitBoxes[i].top = y;
-      fillText(realX, y, legendItem);
+      x = _textX(textAlign, x + boxWidth + halfFontSize, me.right);
+      fillText(rtlHelper.x(x), y, legendItem);
       if (isHorizontal) {
         cursor.x += width + padding;
       } else {
@@ -7476,12 +7480,10 @@ var plugin_legend = {
       padding: 10,
       generateLabels(chart) {
         const datasets = chart.data.datasets;
-        const {labels} = chart.legend.options;
-        const usePointStyle = labels.usePointStyle;
-        const overrideStyle = labels.pointStyle;
+        const {labels: {usePointStyle, pointStyle, textAlign}} = chart.legend.options;
         return chart._getSortedDatasetMetas().map((meta) => {
           const style = meta.controller.getStyle(usePointStyle ? 0 : undefined);
-          const borderWidth = isObject(style.borderWidth) ? (valueOrDefault(style.borderWidth.top, 0) + valueOrDefault(style.borderWidth.left, 0) + valueOrDefault(style.borderWidth.bottom, 0) + valueOrDefault(style.borderWidth.right, 0)) / 4 : style.borderWidth;
+          const borderWidth = toPadding(style.borderWidth);
           return {
             text: datasets[meta.index].label,
             fillStyle: style.backgroundColor,
@@ -7490,10 +7492,11 @@ var plugin_legend = {
             lineDash: style.borderDash,
             lineDashOffset: style.borderDashOffset,
             lineJoin: style.borderJoinStyle,
-            lineWidth: borderWidth,
+            lineWidth: (borderWidth.width + borderWidth.height) / 4,
             strokeStyle: style.borderColor,
-            pointStyle: overrideStyle || style.pointStyle,
+            pointStyle: pointStyle || style.pointStyle,
             rotation: style.rotation,
+            textAlign: textAlign || style.textAlign,
             datasetIndex: meta.index
           };
         }, this);
