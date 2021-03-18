@@ -6239,8 +6239,8 @@ class Chart {
     this.canvas = canvas;
     this.width = width;
     this.height = height;
-    this.aspectRatio = height ? width / height : null;
     this._options = options;
+    this._aspectRatio = this.aspectRatio;
     this._layers = [];
     this._metasets = [];
     this._stacks = undefined;
@@ -6271,6 +6271,16 @@ class Chart {
     if (me.attached) {
       me.update();
     }
+  }
+  get aspectRatio() {
+    const {options: {aspectRatio, maintainAspectRatio}, width, height, _aspectRatio} = this;
+    if (!isNullOrUndef(aspectRatio)) {
+      return aspectRatio;
+    }
+    if (maintainAspectRatio && _aspectRatio) {
+      return _aspectRatio;
+    }
+    return height ? width / height : null;
   }
   get data() {
     return this.config.data;
@@ -6332,6 +6342,7 @@ class Chart {
     }
     me.width = newSize.width;
     me.height = newSize.height;
+    me._aspectRatio = me.aspectRatio;
     retinaScale(me, newRatio, true);
     me.notifyPlugins('resize', {size: newSize});
     callback(options.onResize, [me, newSize], me);
