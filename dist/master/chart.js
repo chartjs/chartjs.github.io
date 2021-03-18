@@ -10233,7 +10233,7 @@ function getTooltipSize(tooltip, options) {
   ctx.font = footerFont.string;
   each(tooltip.footer, maxLineWidth);
   ctx.restore();
-  width += 2 * padding.width;
+  width += padding.width;
   return {width, height};
 }
 function determineYAlign(chart, size) {
