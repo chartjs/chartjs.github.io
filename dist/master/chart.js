@@ -2033,7 +2033,7 @@ function updateDims(chartArea, params, layout) {
   if (layout.size) {
     chartArea[layout.pos] -= layout.size;
   }
-  layout.size = layout.horizontal ? Math.min(layout.height, box.height) : Math.min(layout.width, box.width);
+  layout.size = layout.horizontal ? box.height : box.width;
   chartArea[layout.pos] += layout.size;
   if (box.getPadding) {
     updateMaxPadding(maxPadding, box.getPadding());
@@ -2042,10 +2042,8 @@ function updateDims(chartArea, params, layout) {
   const newHeight = Math.max(0, params.outerHeight - getCombinedMax(maxPadding, chartArea, 'top', 'bottom'));
   const widthChanged = newWidth !== chartArea.w;
   const heightChanged = newHeight !== chartArea.h;
-  if (widthChanged || heightChanged) {
-    chartArea.w = newWidth;
-    chartArea.h = newHeight;
-  }
+  chartArea.w = newWidth;
+  chartArea.h = newHeight;
   return layout.horizontal
     ? {same: widthChanged, other: heightChanged}
     : {same: heightChanged, other: widthChanged};
@@ -2078,7 +2076,7 @@ function getMargins(horizontal, chartArea) {
 function fitBoxes(boxes, chartArea, params) {
   const refitBoxes = [];
   let i, ilen, layout, box, refit, changed;
-  for (i = 0, ilen = boxes.length; i < ilen; ++i) {
+  for (i = 0, ilen = boxes.length, refit = 0; i < ilen; ++i) {
     layout = boxes[i];
     box = layout.box;
     box.update(
@@ -2087,17 +2085,13 @@ function fitBoxes(boxes, chartArea, params) {
       getMargins(layout.horizontal, chartArea)
     );
     const {same, other} = updateDims(chartArea, params, layout);
-    if (same && refitBoxes.length) {
-      refit = true;
-    }
-    if (other) {
-      changed = true;
-    }
+    refit |= same && refitBoxes.length;
+    changed = changed || other;
     if (!box.fullSize) {
       refitBoxes.push(layout);
     }
   }
-  return refit ? fitBoxes(refitBoxes, chartArea, params) || changed : changed;
+  return refit && fitBoxes(refitBoxes, chartArea, params) || changed;
 }
 function placeBoxes(boxes, chartArea, params) {
   const userPadding = params.padding;
