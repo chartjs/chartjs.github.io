@@ -1324,7 +1324,7 @@ function drawPoint(ctx, options, x, y) {
 }
 function _isPointInArea(point, area, margin) {
   margin = margin || 0.5;
-  return point.x > area.left - margin && point.x < area.right + margin &&
+  return point && point.x > area.left - margin && point.x < area.right + margin &&
 		point.y > area.top - margin && point.y < area.bottom + margin;
 }
 function clipArea(ctx, area) {
