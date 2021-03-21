@@ -3613,6 +3613,66 @@ formatters.logarithmic = function(tickValue, index, ticks) {
 };
 var Ticks = {formatters};
 
+defaults.set('scale', {
+  display: true,
+  offset: false,
+  reverse: false,
+  beginAtZero: false,
+  bounds: 'ticks',
+  grace: 0,
+  grid: {
+    display: true,
+    lineWidth: 1,
+    drawBorder: true,
+    drawOnChartArea: true,
+    drawTicks: true,
+    tickLength: 8,
+    tickWidth: (_ctx, options) => options.lineWidth,
+    tickColor: (_ctx, options) => options.color,
+    offset: false,
+    borderDash: [],
+    borderDashOffset: 0.0,
+    borderColor: (_ctx, options) => options.color,
+    borderWidth: (_ctx, options) => options.lineWidth
+  },
+  title: {
+    display: false,
+    text: '',
+    padding: {
+      top: 4,
+      bottom: 4
+    }
+  },
+  ticks: {
+    minRotation: 0,
+    maxRotation: 50,
+    mirror: false,
+    textStrokeWidth: 0,
+    textStrokeColor: '',
+    padding: 3,
+    display: true,
+    autoSkip: true,
+    autoSkipPadding: 3,
+    labelOffset: 0,
+    callback: Ticks.formatters.values,
+    minor: {},
+    major: {},
+    align: 'center',
+    crossAlign: 'near',
+  }
+});
+defaults.route('scale.ticks', 'color', '', 'color');
+defaults.route('scale.grid', 'color', '', 'borderColor');
+defaults.route('scale.title', 'color', '', 'color');
+defaults.describe('scale', {
+  _fallback: false,
+  _scriptable: (name) => !name.startsWith('before') && !name.startsWith('after') && name !== 'callback' && name !== 'parser',
+  _indexable: (name) => name !== 'borderDash' && name !== 'tickBorderDash',
+});
+defaults.describe('scales', {
+  _fallback: 'scale',
+});
+
 function autoSkip(scale, ticks) {
   const tickOpts = scale.options.ticks;
   const ticksLimit = tickOpts.maxTicksLimit || determineMaxTicks(scale);
@@ -3723,65 +3783,6 @@ function getEvenSpacing(arr) {
 
 const reverseAlign = (align) => align === 'left' ? 'right' : align === 'right' ? 'left' : align;
 const offsetFromEdge = (scale, edge, offset) => edge === 'top' || edge === 'left' ? scale[edge] + offset : scale[edge] - offset;
-defaults.set('scale', {
-  display: true,
-  offset: false,
-  reverse: false,
-  beginAtZero: false,
-  bounds: 'ticks',
-  grace: 0,
-  grid: {
-    display: true,
-    lineWidth: 1,
-    drawBorder: true,
-    drawOnChartArea: true,
-    drawTicks: true,
-    tickLength: 8,
-    tickWidth: (_ctx, options) => options.lineWidth,
-    tickColor: (_ctx, options) => options.color,
-    offset: false,
-    borderDash: [],
-    borderDashOffset: 0.0,
-    borderColor: (_ctx, options) => options.color,
-    borderWidth: (_ctx, options) => options.lineWidth
-  },
-  title: {
-    display: false,
-    text: '',
-    padding: {
-      top: 4,
-      bottom: 4
-    }
-  },
-  ticks: {
-    minRotation: 0,
-    maxRotation: 50,
-    mirror: false,
-    textStrokeWidth: 0,
-    textStrokeColor: '',
-    padding: 3,
-    display: true,
-    autoSkip: true,
-    autoSkipPadding: 3,
-    labelOffset: 0,
-    callback: Ticks.formatters.values,
-    minor: {},
-    major: {},
-    align: 'center',
-    crossAlign: 'near',
-  }
-});
-defaults.route('scale.ticks', 'color', '', 'color');
-defaults.route('scale.grid', 'color', '', 'borderColor');
-defaults.route('scale.title', 'color', '', 'color');
-defaults.describe('scale', {
-  _fallback: false,
-  _scriptable: (name) => !name.startsWith('before') && !name.startsWith('after') && name !== 'callback' && name !== 'parser',
-  _indexable: (name) => name !== 'borderDash' && name !== 'tickBorderDash',
-});
-defaults.describe('scales', {
-  _fallback: 'scale',
-});
 function sample(arr, numItems) {
   const result = [];
   const increment = arr.length / numItems;
