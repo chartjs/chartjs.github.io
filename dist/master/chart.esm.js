@@ -4,7 +4,7 @@
  * (c) 2021 Chart.js Contributors
  * Released under the MIT License
  */
-import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, b as isArray, d as defaults, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as isNumberFinite, h as defined, s as sign, j as isNullOrUndef, k as clipArea, m as unclipArea, _ as _arrayUnique, t as toRadians, n as toPercentage, o as toDimension, T as TAU, p as formatNumber, q as _angleBetween, H as HALF_PI, P as PI, w as isNumber, x as _limitValue, y as _lookupByKey, z as getRelativePosition$1, A as _isPointInArea, B as _rlookupByKey, C as toPadding, D as each, E as getMaximumSize, F as _getParentNode, G as readUsedSize, I as throttled, J as supportsEventListenerOptions, K as log10, L as finiteOrDefault, M as callback, N as toDegrees, O as _measureText, Q as _int16Range, R as _alignPixel, S as renderText, U as toFont, V as _toLeftRightCenter, W as _alignStartEnd, X as _factorize, Y as overrides, Z as merge, $ as _capitalize, a0 as descriptors, a1 as isFunction, a2 as _attachContext, a3 as _createResolver, a4 as _descriptors, a5 as mergeIf, a6 as uid, a7 as debounce, a8 as retinaScale, a9 as clearCanvas, aa as _elementsEqual, ab as getAngleFromPoint, ac as _updateBezierControlPoints, ad as _computeSegments, ae as _boundSegments, af as _steppedInterpolation, ag as _bezierInterpolation, ah as _pointInLine, ai as _steppedLineTo, aj as _bezierCurveTo, ak as drawPoint, al as toTRBL, am as toTRBLCorners, an as _boundSegment, ao as _normalizeAngle, ap as getRtlAdapter, aq as overrideTextDirection, ar as _textX, as as restoreTextDirection, at as noop, au as distanceBetweenPoints, av as _addGrace, aw as _setMinAndMaxByKey, ax as niceNum, ay as almostWhole, az as almostEquals, aA as _decimalPlaces, aB as _longestText, aC as _filterBetween, aD as _lookup } from './chunks/helpers.segment.js';
+import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, b as isArray, d as defaults, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as isNumberFinite, h as defined, s as sign, j as isNullOrUndef, k as clipArea, m as unclipArea, _ as _arrayUnique, t as toRadians, n as toPercentage, o as toDimension, T as TAU, p as formatNumber, q as _angleBetween, H as HALF_PI, P as PI, w as isNumber, x as _limitValue, y as _lookupByKey, z as getRelativePosition$1, A as _isPointInArea, B as _rlookupByKey, C as toPadding, D as each, E as getMaximumSize, F as _getParentNode, G as readUsedSize, I as throttled, J as supportsEventListenerOptions, K as log10, L as _factorize, M as finiteOrDefault, N as callback, O as toDegrees, Q as _measureText, R as _int16Range, S as _alignPixel, U as renderText, V as toFont, W as _toLeftRightCenter, X as _alignStartEnd, Y as overrides, Z as merge, $ as _capitalize, a0 as descriptors, a1 as isFunction, a2 as _attachContext, a3 as _createResolver, a4 as _descriptors, a5 as mergeIf, a6 as uid, a7 as debounce, a8 as retinaScale, a9 as clearCanvas, aa as _elementsEqual, ab as getAngleFromPoint, ac as _updateBezierControlPoints, ad as _computeSegments, ae as _boundSegments, af as _steppedInterpolation, ag as _bezierInterpolation, ah as _pointInLine, ai as _steppedLineTo, aj as _bezierCurveTo, ak as drawPoint, al as toTRBL, am as toTRBLCorners, an as _boundSegment, ao as _normalizeAngle, ap as getRtlAdapter, aq as overrideTextDirection, ar as _textX, as as restoreTextDirection, at as noop, au as distanceBetweenPoints, av as _addGrace, aw as _setMinAndMaxByKey, ax as niceNum, ay as almostWhole, az as almostEquals, aA as _decimalPlaces, aB as _longestText, aC as _filterBetween, aD as _lookup } from './chunks/helpers.segment.js';
 export { d as defaults } from './chunks/helpers.segment.js';
 
 class Animator {
@@ -3167,6 +3167,114 @@ formatters.logarithmic = function(tickValue, index, ticks) {
 };
 var Ticks = {formatters};
 
+function autoSkip(scale, ticks) {
+  const tickOpts = scale.options.ticks;
+  const ticksLimit = tickOpts.maxTicksLimit || determineMaxTicks(scale);
+  const majorIndices = tickOpts.major.enabled ? getMajorIndices(ticks) : [];
+  const numMajorIndices = majorIndices.length;
+  const first = majorIndices[0];
+  const last = majorIndices[numMajorIndices - 1];
+  const newTicks = [];
+  if (numMajorIndices > ticksLimit) {
+    skipMajors(ticks, newTicks, majorIndices, numMajorIndices / ticksLimit);
+    return newTicks;
+  }
+  const spacing = calculateSpacing(majorIndices, ticks, ticksLimit);
+  if (numMajorIndices > 0) {
+    let i, ilen;
+    const avgMajorSpacing = numMajorIndices > 1 ? Math.round((last - first) / (numMajorIndices - 1)) : null;
+    skip(ticks, newTicks, spacing, isNullOrUndef(avgMajorSpacing) ? 0 : first - avgMajorSpacing, first);
+    for (i = 0, ilen = numMajorIndices - 1; i < ilen; i++) {
+      skip(ticks, newTicks, spacing, majorIndices[i], majorIndices[i + 1]);
+    }
+    skip(ticks, newTicks, spacing, last, isNullOrUndef(avgMajorSpacing) ? ticks.length : last + avgMajorSpacing);
+    return newTicks;
+  }
+  skip(ticks, newTicks, spacing);
+  return newTicks;
+}
+function determineMaxTicks(scale) {
+  const offset = scale.options.offset;
+  const tickLength = scale._tickSize();
+  const maxScale = scale._length / tickLength + (offset ? 0 : 1);
+  const maxChart = scale._maxLength / tickLength;
+  return Math.floor(Math.min(maxScale, maxChart));
+}
+function calculateSpacing(majorIndices, ticks, ticksLimit) {
+  const evenMajorSpacing = getEvenSpacing(majorIndices);
+  const spacing = ticks.length / ticksLimit;
+  if (!evenMajorSpacing) {
+    return Math.max(spacing, 1);
+  }
+  const factors = _factorize(evenMajorSpacing);
+  for (let i = 0, ilen = factors.length - 1; i < ilen; i++) {
+    const factor = factors[i];
+    if (factor > spacing) {
+      return factor;
+    }
+  }
+  return Math.max(spacing, 1);
+}
+function getMajorIndices(ticks) {
+  const result = [];
+  let i, ilen;
+  for (i = 0, ilen = ticks.length; i < ilen; i++) {
+    if (ticks[i].major) {
+      result.push(i);
+    }
+  }
+  return result;
+}
+function skipMajors(ticks, newTicks, majorIndices, spacing) {
+  let count = 0;
+  let next = majorIndices[0];
+  let i;
+  spacing = Math.ceil(spacing);
+  for (i = 0; i < ticks.length; i++) {
+    if (i === next) {
+      newTicks.push(ticks[i]);
+      count++;
+      next = majorIndices[count * spacing];
+    }
+  }
+}
+function skip(ticks, newTicks, spacing, majorStart, majorEnd) {
+  const start = valueOrDefault(majorStart, 0);
+  const end = Math.min(valueOrDefault(majorEnd, ticks.length), ticks.length);
+  let count = 0;
+  let length, i, next;
+  spacing = Math.ceil(spacing);
+  if (majorEnd) {
+    length = majorEnd - majorStart;
+    spacing = length / Math.floor(length / spacing);
+  }
+  next = start;
+  while (next < 0) {
+    count++;
+    next = Math.round(start + count * spacing);
+  }
+  for (i = Math.max(start, 0); i < end; i++) {
+    if (i === next) {
+      newTicks.push(ticks[i]);
+      count++;
+      next = Math.round(start + count * spacing);
+    }
+  }
+}
+function getEvenSpacing(arr) {
+  const len = arr.length;
+  let i, diff;
+  if (len < 2) {
+    return false;
+  }
+  for (diff = arr[0], i = 1; i < len; ++i) {
+    if (arr[i] - arr[i - 1] !== diff) {
+      return false;
+    }
+  }
+  return diff;
+}
+
 const reverseAlign = (align) => align === 'left' ? 'right' : align === 'right' ? 'left' : align;
 const offsetFromEdge = (scale, edge, offset) => edge === 'top' || edge === 'left' ? scale[edge] + offset : scale[edge] - offset;
 defaults.set('scale', {
@@ -3285,87 +3393,6 @@ function getTitleHeight(options, fallback) {
   const padding = toPadding(options.padding);
   const lines = isArray(options.text) ? options.text.length : 1;
   return (lines * font.lineHeight) + padding.height;
-}
-function determineMaxTicks(scale) {
-  const offset = scale.options.offset;
-  const tickLength = scale._tickSize();
-  const maxScale = scale._length / tickLength + (offset ? 0 : 1);
-  const maxChart = scale._maxLength / tickLength;
-  return Math.floor(Math.min(maxScale, maxChart));
-}
-function getEvenSpacing(arr) {
-  const len = arr.length;
-  let i, diff;
-  if (len < 2) {
-    return false;
-  }
-  for (diff = arr[0], i = 1; i < len; ++i) {
-    if (arr[i] - arr[i - 1] !== diff) {
-      return false;
-    }
-  }
-  return diff;
-}
-function calculateSpacing(majorIndices, ticks, ticksLimit) {
-  const evenMajorSpacing = getEvenSpacing(majorIndices);
-  const spacing = ticks.length / ticksLimit;
-  if (!evenMajorSpacing) {
-    return Math.max(spacing, 1);
-  }
-  const factors = _factorize(evenMajorSpacing);
-  for (let i = 0, ilen = factors.length - 1; i < ilen; i++) {
-    const factor = factors[i];
-    if (factor > spacing) {
-      return factor;
-    }
-  }
-  return Math.max(spacing, 1);
-}
-function getMajorIndices(ticks) {
-  const result = [];
-  let i, ilen;
-  for (i = 0, ilen = ticks.length; i < ilen; i++) {
-    if (ticks[i].major) {
-      result.push(i);
-    }
-  }
-  return result;
-}
-function skipMajors(ticks, newTicks, majorIndices, spacing) {
-  let count = 0;
-  let next = majorIndices[0];
-  let i;
-  spacing = Math.ceil(spacing);
-  for (i = 0; i < ticks.length; i++) {
-    if (i === next) {
-      newTicks.push(ticks[i]);
-      count++;
-      next = majorIndices[count * spacing];
-    }
-  }
-}
-function skip(ticks, newTicks, spacing, majorStart, majorEnd) {
-  const start = valueOrDefault(majorStart, 0);
-  const end = Math.min(valueOrDefault(majorEnd, ticks.length), ticks.length);
-  let count = 0;
-  let length, i, next;
-  spacing = Math.ceil(spacing);
-  if (majorEnd) {
-    length = majorEnd - majorStart;
-    spacing = length / Math.floor(length / spacing);
-  }
-  next = start;
-  while (next < 0) {
-    count++;
-    next = Math.round(start + count * spacing);
-  }
-  for (i = Math.max(start, 0); i < end; i++) {
-    if (i === next) {
-      newTicks.push(ticks[i]);
-      count++;
-      next = Math.round(start + count * spacing);
-    }
-  }
 }
 function createScaleContext(parent, scale) {
   return Object.assign(Object.create(parent), {
@@ -3561,7 +3588,7 @@ class Scale extends Element {
     me.calculateLabelRotation();
     me.afterCalculateLabelRotation();
     if (tickOpts.display && (tickOpts.autoSkip || tickOpts.source === 'auto')) {
-      me.ticks = me._autoSkip(me.ticks);
+      me.ticks = autoSkip(me, me.ticks);
       me._labelSizes = null;
     }
     if (samplingEnabled) {
@@ -3901,33 +3928,6 @@ class Scale extends Element {
     }
     return me.$context ||
 			(me.$context = createScaleContext(me.chart.getContext(), me));
-  }
-  _autoSkip(ticks) {
-    const me = this;
-    const tickOpts = me.options.ticks;
-    const ticksLimit = tickOpts.maxTicksLimit || determineMaxTicks(me);
-    const majorIndices = tickOpts.major.enabled ? getMajorIndices(ticks) : [];
-    const numMajorIndices = majorIndices.length;
-    const first = majorIndices[0];
-    const last = majorIndices[numMajorIndices - 1];
-    const newTicks = [];
-    if (numMajorIndices > ticksLimit) {
-      skipMajors(ticks, newTicks, majorIndices, numMajorIndices / ticksLimit);
-      return newTicks;
-    }
-    const spacing = calculateSpacing(majorIndices, ticks, ticksLimit);
-    if (numMajorIndices > 0) {
-      let i, ilen;
-      const avgMajorSpacing = numMajorIndices > 1 ? Math.round((last - first) / (numMajorIndices - 1)) : null;
-      skip(ticks, newTicks, spacing, isNullOrUndef(avgMajorSpacing) ? 0 : first - avgMajorSpacing, first);
-      for (i = 0, ilen = numMajorIndices - 1; i < ilen; i++) {
-        skip(ticks, newTicks, spacing, majorIndices[i], majorIndices[i + 1]);
-      }
-      skip(ticks, newTicks, spacing, last, isNullOrUndef(avgMajorSpacing) ? ticks.length : last + avgMajorSpacing);
-      return newTicks;
-    }
-    skip(ticks, newTicks, spacing);
-    return newTicks;
   }
   _tickSize() {
     const me = this;
