@@ -1862,41 +1862,25 @@ function toLineHeight(value, size) {
   return size * value;
 }
 const numberOrZero$1 = v => +v || 0;
-const numberOrZero2 = (v1, v2) => numberOrZero$1(valueOrDefault(v1, v2));
-function toTRBL(value) {
-  let t, r, b, l;
-  if (isObject(value)) {
-    const {x, y} = value;
-    t = numberOrZero2(value.top, y);
-    r = numberOrZero2(value.right, x);
-    b = numberOrZero2(value.bottom, y);
-    l = numberOrZero2(value.left, x);
-  } else {
-    t = r = b = l = numberOrZero$1(value);
+function readValueToProps(value, props) {
+  const ret = {};
+  const objProps = isObject(props);
+  const keys = objProps ? Object.keys(props) : props;
+  const read = isObject(value)
+    ? objProps
+      ? prop => valueOrDefault(value[prop], value[props[prop]])
+      : prop => value[prop]
+    : () => value;
+  for (const prop of keys) {
+    ret[prop] = numberOrZero$1(read(prop));
   }
-  return {
-    top: t,
-    right: r,
-    bottom: b,
-    left: l
-  };
+  return ret;
+}
+function toTRBL(value) {
+  return readValueToProps(value, {top: 'y', right: 'x', bottom: 'y', left: 'x'});
 }
 function toTRBLCorners(value) {
-  let tl, tr, bl, br;
-  if (isObject(value)) {
-    tl = numberOrZero$1(value.topLeft);
-    tr = numberOrZero$1(value.topRight);
-    bl = numberOrZero$1(value.bottomLeft);
-    br = numberOrZero$1(value.bottomRight);
-  } else {
-    tl = tr = bl = br = numberOrZero$1(value);
-  }
-  return {
-    topLeft: tl,
-    topRight: tr,
-    bottomLeft: bl,
-    bottomRight: br
-  };
+  return readValueToProps(value, ['topLeft', 'topRight', 'bottomLeft', 'bottomRight']);
 }
 function toPadding(value) {
   const obj = toTRBL(value);
