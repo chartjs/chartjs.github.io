@@ -4,7 +4,7 @@
  * (c) 2021 Chart.js Contributors
  * Released under the MIT License
  */
-import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, b as isArray, d as defaults, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as isNumberFinite, h as defined, s as sign, j as isNullOrUndef, k as clipArea, m as unclipArea, _ as _arrayUnique, t as toRadians, n as toPercentage, o as toDimension, T as TAU, p as _angleBetween, H as HALF_PI, P as PI, q as isNumber, w as _limitValue, x as _lookupByKey, y as getRelativePosition$1, z as _isPointInArea, A as _rlookupByKey, B as toPadding, C as each, D as getMaximumSize, E as _getParentNode, F as readUsedSize, G as throttled, I as supportsEventListenerOptions, J as log10, K as finiteOrDefault, L as callback, M as toDegrees, N as _measureText, O as _int16Range, Q as _alignPixel, R as renderText, S as toFont, U as _toLeftRightCenter, V as _alignStartEnd, W as _factorize, X as overrides, Y as merge, Z as _capitalize, $ as descriptors, a0 as isFunction, a1 as _attachContext, a2 as _createResolver, a3 as _descriptors, a4 as mergeIf, a5 as uid, a6 as debounce, a7 as retinaScale, a8 as clearCanvas, a9 as _elementsEqual, aa as getAngleFromPoint, ab as _updateBezierControlPoints, ac as _computeSegments, ad as _boundSegments, ae as _steppedInterpolation, af as _bezierInterpolation, ag as _pointInLine, ah as _steppedLineTo, ai as _bezierCurveTo, aj as drawPoint, ak as toTRBL, al as toTRBLCorners, am as _boundSegment, an as _normalizeAngle, ao as getRtlAdapter, ap as overrideTextDirection, aq as _textX, ar as restoreTextDirection, as as noop, at as distanceBetweenPoints, au as _addGrace, av as _setMinAndMaxByKey, aw as niceNum, ax as almostWhole, ay as almostEquals, az as _decimalPlaces, aA as _longestText, aB as _filterBetween, aC as _lookup } from './chunks/helpers.segment.js';
+import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, b as isArray, d as defaults, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as isNumberFinite, h as defined, s as sign, j as isNullOrUndef, k as clipArea, m as unclipArea, _ as _arrayUnique, t as toRadians, n as toPercentage, o as toDimension, T as TAU, p as formatNumber, q as _angleBetween, H as HALF_PI, P as PI, w as isNumber, x as _limitValue, y as _lookupByKey, z as getRelativePosition$1, A as _isPointInArea, B as _rlookupByKey, C as toPadding, D as each, E as getMaximumSize, F as _getParentNode, G as readUsedSize, I as throttled, J as supportsEventListenerOptions, K as log10, L as finiteOrDefault, M as callback, N as toDegrees, O as _measureText, Q as _int16Range, R as _alignPixel, S as renderText, U as toFont, V as _toLeftRightCenter, W as _alignStartEnd, X as _factorize, Y as overrides, Z as merge, $ as _capitalize, a0 as descriptors, a1 as isFunction, a2 as _attachContext, a3 as _createResolver, a4 as _descriptors, a5 as mergeIf, a6 as uid, a7 as debounce, a8 as retinaScale, a9 as clearCanvas, aa as _elementsEqual, ab as getAngleFromPoint, ac as _updateBezierControlPoints, ad as _computeSegments, ae as _boundSegments, af as _steppedInterpolation, ag as _bezierInterpolation, ah as _pointInLine, ai as _steppedLineTo, aj as _bezierCurveTo, ak as drawPoint, al as toTRBL, am as toTRBLCorners, an as _boundSegment, ao as _normalizeAngle, ap as getRtlAdapter, aq as overrideTextDirection, ar as _textX, as as restoreTextDirection, at as noop, au as distanceBetweenPoints, av as _addGrace, aw as _setMinAndMaxByKey, ax as niceNum, ay as almostWhole, az as almostEquals, aA as _decimalPlaces, aB as _longestText, aC as _filterBetween, aD as _lookup } from './chunks/helpers.segment.js';
 export { d as defaults } from './chunks/helpers.segment.js';
 
 class Animator {
@@ -1619,21 +1619,6 @@ BubbleController.overrides = {
     }
   }
 };
-
-const intlCache = new Map();
-function getNumberFormat(locale, options) {
-  options = options || {};
-  const cacheKey = locale + JSON.stringify(options);
-  let formatter = intlCache.get(cacheKey);
-  if (!formatter) {
-    formatter = new Intl.NumberFormat(locale, options);
-    intlCache.set(cacheKey, formatter);
-  }
-  return formatter;
-}
-function formatNumber(num, locale, options) {
-  return getNumberFormat(locale, options).format(num);
-}
 
 function getRatioAndOffset(rotation, circumference, cutout) {
   let ratioX = 1;
