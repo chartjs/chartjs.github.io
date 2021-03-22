@@ -11042,6 +11042,7 @@ function findOrAddLabel(labels, raw, index) {
   const last = labels.lastIndexOf(raw);
   return first !== last ? index : first;
 }
+const validIndex = (index, max) => index === null ? null : _limitValue(Math.round(index), 0, max);
 class CategoryScale extends Scale {
   constructor(cfg) {
     super(cfg);
@@ -11053,8 +11054,9 @@ class CategoryScale extends Scale {
       return null;
     }
     const labels = this.getLabels();
-    return isFinite(index) && labels[index] === raw
-      ? index : findOrAddLabel(labels, raw, valueOrDefault(index, raw));
+    index = isFinite(index) && labels[index] === raw ? index
+      : findOrAddLabel(labels, raw, valueOrDefault(index, raw));
+    return validIndex(index, labels.length - 1);
   }
   determineDataLimits() {
     const me = this;
