@@ -3139,32 +3139,39 @@ const formatters = {
       return '0';
     }
     const locale = this.chart.options.locale;
-    const maxTick = Math.max(Math.abs(ticks[0].value), Math.abs(ticks[ticks.length - 1].value));
     let notation;
-    if (maxTick < 1e-4 || maxTick > 1e+15) {
-      notation = 'scientific';
-    }
-    let delta = ticks.length > 3 ? ticks[2].value - ticks[1].value : ticks[1].value - ticks[0].value;
-    if (Math.abs(delta) > 1 && tickValue !== Math.floor(tickValue)) {
-      delta = tickValue - Math.floor(tickValue);
+    let delta = tickValue;
+    if (ticks.length > 1) {
+      const maxTick = Math.max(Math.abs(ticks[0].value), Math.abs(ticks[ticks.length - 1].value));
+      if (maxTick < 1e-4 || maxTick > 1e+15) {
+        notation = 'scientific';
+      }
+      delta = calculateDelta(tickValue, ticks);
     }
     const logDelta = log10(Math.abs(delta));
     const numDecimal = Math.max(Math.min(-1 * Math.floor(logDelta), 20), 0);
     const options = {notation, minimumFractionDigits: numDecimal, maximumFractionDigits: numDecimal};
     Object.assign(options, this.options.ticks.format);
     return formatNumber(tickValue, locale, options);
+  },
+  logarithmic(tickValue, index, ticks) {
+    if (tickValue === 0) {
+      return '0';
+    }
+    const remain = tickValue / (Math.pow(10, Math.floor(log10(tickValue))));
+    if (remain === 1 || remain === 2 || remain === 5) {
+      return formatters.numeric.call(this, tickValue, index, ticks);
+    }
+    return '';
   }
 };
-formatters.logarithmic = function(tickValue, index, ticks) {
-  if (tickValue === 0) {
-    return '0';
+function calculateDelta(tickValue, ticks) {
+  let delta = ticks.length > 3 ? ticks[2].value - ticks[1].value : ticks[1].value - ticks[0].value;
+  if (Math.abs(delta) > 1 && tickValue !== Math.floor(tickValue)) {
+    delta = tickValue - Math.floor(tickValue);
   }
-  const remain = tickValue / (Math.pow(10, Math.floor(log10(tickValue))));
-  if (remain === 1 || remain === 2 || remain === 5) {
-    return formatters.numeric.call(this, tickValue, index, ticks);
-  }
-  return '';
-};
+  return delta;
+}
 var Ticks = {formatters};
 
 defaults.set('scale', {
