@@ -1210,7 +1210,7 @@ function _longestText(ctx, font, arrayOfThings, cache) {
 }
 function _alignPixel(chart, pixel, width) {
   const devicePixelRatio = chart.currentDevicePixelRatio;
-  const halfWidth = width / 2;
+  const halfWidth = width !== 0 ? Math.max(width / 2, 0.5) : 0;
   return Math.round((pixel - halfWidth) * devicePixelRatio) / devicePixelRatio + halfWidth;
 }
 function clearCanvas(canvas, ctx) {
