@@ -12089,7 +12089,7 @@ class TimeScale extends Scale {
     }
     min = isNumberFinite(min) && !isNaN(min) ? min : +adapter.startOf(Date.now(), unit);
     max = isNumberFinite(max) && !isNaN(max) ? max : +adapter.endOf(Date.now(), unit) + 1;
-    me.min = Math.min(min, max);
+    me.min = Math.min(min, max - 1);
     me.max = Math.max(min + 1, max);
   }
   _getLabelBounds() {
@@ -12145,8 +12145,9 @@ class TimeScale extends Scale {
         end = (last - me.getDecimalForValue(timestamps[timestamps.length - 2])) / 2;
       }
     }
-    start = _limitValue(start, 0, 0.25);
-    end = _limitValue(end, 0, 0.25);
+    const limit = timestamps.length < 3 ? 0.5 : 0.25;
+    start = _limitValue(start, 0, limit);
+    end = _limitValue(end, 0, limit);
     me._offsets = {start, end, factor: 1 / (start + 1 + end)};
   }
   _generate() {
