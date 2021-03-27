@@ -6900,18 +6900,17 @@ class Chart {
   }
   _handleEvent(e, replay) {
     const me = this;
-    const lastActive = me._active || [];
-    const options = me.options;
+    const {_active: lastActive = [], options} = me;
     const hoverOptions = options.hover;
     const useFinalPosition = replay;
     let active = [];
     let changed = false;
-    if (e.type === 'mouseout') {
-      me._lastEvent = null;
-    } else {
+    let lastEvent = null;
+    if (e.type !== 'mouseout') {
       active = me.getElementsAtEventForMode(e, hoverOptions.mode, hoverOptions, useFinalPosition);
-      me._lastEvent = e.type === 'click' ? me._lastEvent : e;
+      lastEvent = e.type === 'click' ? me._lastEvent : e;
     }
+    me._lastEvent = null;
     callback(options.onHover || hoverOptions.onHover, [e, active, me], me);
     if (e.type === 'mouseup' || e.type === 'click' || e.type === 'contextmenu') {
       if (_isPointInArea(e, me.chartArea, me._minPadding)) {
@@ -6923,6 +6922,7 @@ class Chart {
       me._active = active;
       me._updateHoverStyles(active, lastActive, replay);
     }
+    me._lastEvent = lastEvent;
     return changed;
   }
 }
@@ -10488,7 +10488,7 @@ class Tooltip extends Element {
     me.dataPoints = tooltipItems;
     return tooltipItems;
   }
-  update(changed) {
+  update(changed, replay) {
     const me = this;
     const options = me.options.setContext(me.getContext());
     const active = me._active;
@@ -10530,7 +10530,7 @@ class Tooltip extends Element {
       me._resolveAnimations().update(me, properties);
     }
     if (changed && options.external) {
-      options.external.call(me, {chart: me._chart, tooltip: me});
+      options.external.call(me, {chart: me._chart, tooltip: me, replay});
     }
   }
   drawCaret(tooltipPoint, ctx, size, options) {
@@ -10845,7 +10845,7 @@ class Tooltip extends Element {
           x: e.x,
           y: e.y
         };
-        me.update(true);
+        me.update(true, replay);
       }
     }
     return changed;
