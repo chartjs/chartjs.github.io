@@ -9919,7 +9919,9 @@ var plugin_legend = {
     chart.legend.buildLabels();
   },
   afterEvent(chart, args) {
-    chart.legend.handleEvent(args.event);
+    if (!args.replay) {
+      chart.legend.handleEvent(args.event);
+    }
   },
   defaults: {
     display: true,
