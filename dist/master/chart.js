@@ -3801,20 +3801,20 @@ function sample(arr, numItems) {
   return result;
 }
 function getPixelForGridLine(scale, index, offsetGridLines) {
-  const length = scale.ticks.length;
+  const length = offsetGridLines ? scale._allTicks.length : scale.ticks.length;
   const validIndex = Math.min(index, length - 1);
   const start = scale._startPixel;
   const end = scale._endPixel;
   const epsilon = 1e-6;
-  let lineValue = scale.getPixelForTick(validIndex);
+  let lineValue = scale.getPixelForTick(validIndex, offsetGridLines);
   let offset;
   if (offsetGridLines) {
     if (length === 1) {
       offset = Math.max(lineValue - start, end - lineValue);
     } else if (index === 0) {
-      offset = (scale.getPixelForTick(1) - lineValue) / 2;
+      offset = (scale.getPixelForTick(1, offsetGridLines) - lineValue) / 2;
     } else {
-      offset = (lineValue - scale.getPixelForTick(validIndex - 1)) / 2;
+      offset = (lineValue - scale.getPixelForTick(validIndex - 1, offsetGridLines)) / 2;
     }
     lineValue += validIndex < index ? offset : -offset;
     if (lineValue < start - epsilon || lineValue > end + epsilon) {
@@ -3913,7 +3913,7 @@ class Scale extends Element {
     this.labelRotation = undefined;
     this.min = undefined;
     this.max = undefined;
-    this.ticks = [];
+    this.ticks = this._allTicks = [];
     this._gridLineItems = null;
     this._labelItems = null;
     this._labelSizes = null;
@@ -4041,6 +4041,7 @@ class Scale extends Element {
     me.beforeCalculateLabelRotation();
     me.calculateLabelRotation();
     me.afterCalculateLabelRotation();
+    me._allTicks = me.ticks;
     if (tickOpts.display && (tickOpts.autoSkip || tickOpts.source === 'auto')) {
       me.ticks = autoSkip(me, me.ticks);
       me._labelSizes = null;
@@ -4217,7 +4218,7 @@ class Scale extends Element {
   }
   _calculatePadding(first, last, sin, cos) {
     const me = this;
-    const {ticks: {align, padding}, position} = me.options;
+    const {position, ticks: {align, padding}} = me.options;
     const isRotated = me.labelRotation !== 0;
     const labelsBelowTicks = position !== 'top' && me.axis === 'x';
     if (me.isHorizontal()) {
@@ -4241,8 +4242,8 @@ class Scale extends Element {
         paddingLeft = first.width / 2;
         paddingRight = last.width / 2;
       }
-      me.paddingLeft = Math.max((paddingLeft - offsetLeft + padding) * me.width / (me.width - offsetLeft), 0);
-      me.paddingRight = Math.max((paddingRight - offsetRight + padding) * me.width / (me.width - offsetRight), 0);
+      me.paddingLeft = Math.max((paddingLeft - offsetLeft + padding) * me.width / (me.width - offsetLeft), padding);
+      me.paddingRight = Math.max((paddingRight - offsetRight + padding) * me.width / (me.width - offsetRight), padding);
     } else {
       let paddingTop = last.height / 2;
       let paddingBottom = first.height / 2;
@@ -4344,8 +4345,8 @@ class Scale extends Element {
     return NaN;
   }
   getValueForPixel(pixel) {}
-  getPixelForTick(index) {
-    const ticks = this.ticks;
+  getPixelForTick(index, all = false) {
+    const ticks = all ? this._allTicks : this.ticks;
     if (index < 0 || index > ticks.length - 1) {
       return null;
     }
@@ -4412,7 +4413,7 @@ class Scale extends Element {
     const {grid, position} = options;
     const offset = grid.offset;
     const isHorizontal = me.isHorizontal();
-    const ticks = me.ticks;
+    const ticks = offset ? me._allTicks : me.ticks;
     const ticksLength = ticks.length + (offset ? 1 : 0);
     const tl = getTickMarkLength(grid);
     const items = [];
@@ -11116,14 +11117,6 @@ class CategoryScale extends Scale {
       value = me.parse(value);
     }
     return value === null ? NaN : me.getPixelForDecimal((value - me._startValue) / me._valueRange);
-  }
-  getPixelForTick(index) {
-    const me = this;
-    const ticks = me.ticks;
-    if (index < 0 || index > ticks.length - 1) {
-      return null;
-    }
-    return me.getPixelForValue(ticks[index].value);
   }
   getValueForPixel(pixel) {
     const me = this;
