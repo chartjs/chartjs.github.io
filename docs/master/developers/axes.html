@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>New Axes | Chart.js</title>
+    <meta name="generator" content="VuePress 1.8.2">
+    <link rel="icon" href="/docs/master/favicon.ico">
+    <meta name="description" content="Open source HTML5 Charts for your website">
+    
+    <link rel="preload" href="/docs/master/assets/css/0.styles.fc8ef512.css" as="style"><link rel="preload" href="/docs/master/assets/js/app.a0956d02.js" as="script"><link rel="preload" href="/docs/master/assets/js/5.bb931a47.js" as="script"><link rel="preload" href="/docs/master/assets/js/44.ff199fb4.js" as="script"><link rel="prefetch" href="/docs/master/assets/js/10.f3478361.js"><link rel="prefetch" href="/docs/master/assets/js/11.3ec44532.js"><link rel="prefetch" href="/docs/master/assets/js/12.0ee46b43.js"><link rel="prefetch" href="/docs/master/assets/js/13.2938ccb3.js"><link rel="prefetch" href="/docs/master/assets/js/14.24079abb.js"><link rel="prefetch" href="/docs/master/assets/js/15.a7b17092.js"><link rel="prefetch" href="/docs/master/assets/js/16.2b04d749.js"><link rel="prefetch" href="/docs/master/assets/js/17.eb0ee8f0.js"><link rel="prefetch" href="/docs/master/assets/js/18.bb448e32.js"><link rel="prefetch" href="/docs/master/assets/js/19.2e28e1ea.js"><link rel="prefetch" href="/docs/master/assets/js/2.776b7b55.js"><link rel="prefetch" href="/docs/master/assets/js/20.c13093f9.js"><link rel="prefetch" href="/docs/master/assets/js/21.8a727fa9.js"><link rel="prefetch" href="/docs/master/assets/js/22.67c95c9e.js"><link rel="prefetch" href="/docs/master/assets/js/23.b1d122d9.js"><link rel="prefetch" href="/docs/master/assets/js/24.3f2cc54b.js"><link rel="prefetch" href="/docs/master/assets/js/25.e448de64.js"><link rel="prefetch" href="/docs/master/assets/js/26.227b01f4.js"><link rel="prefetch" href="/docs/master/assets/js/27.969ed138.js"><link rel="prefetch" href="/docs/master/assets/js/28.e5c84b22.js"><link rel="prefetch" href="/docs/master/assets/js/29.01fbfabf.js"><link rel="prefetch" href="/docs/master/assets/js/3.5103b62f.js"><link rel="prefetch" href="/docs/master/assets/js/30.ae04d43e.js"><link rel="prefetch" href="/docs/master/assets/js/31.bc82ea1c.js"><link rel="prefetch" href="/docs/master/assets/js/32.7cf0965f.js"><link rel="prefetch" href="/docs/master/assets/js/33.b3129e01.js"><link rel="prefetch" href="/docs/master/assets/js/34.25e20c2e.js"><link rel="prefetch" href="/docs/master/assets/js/35.d2c5f701.js"><link rel="prefetch" href="/docs/master/assets/js/36.6f06a6fc.js"><link rel="prefetch" href="/docs/master/assets/js/37.6c717219.js"><link rel="prefetch" href="/docs/master/assets/js/38.66a20ef7.js"><link rel="prefetch" href="/docs/master/assets/js/39.3a496f99.js"><link rel="prefetch" href="/docs/master/assets/js/4.dba9c214.js"><link rel="prefetch" href="/docs/master/assets/js/40.c7a2e80f.js"><link rel="prefetch" href="/docs/master/assets/js/41.a28313a3.js"><link rel="prefetch" href="/docs/master/assets/js/42.17aafa9c.js"><link rel="prefetch" href="/docs/master/assets/js/43.296a4f80.js"><link rel="prefetch" href="/docs/master/assets/js/45.13854f70.js"><link rel="prefetch" href="/docs/master/assets/js/46.24010964.js"><link rel="prefetch" href="/docs/master/assets/js/47.2ff70487.js"><link rel="prefetch" href="/docs/master/assets/js/48.8d006f10.js"><link rel="prefetch" href="/docs/master/assets/js/49.7ef76dd0.js"><link rel="prefetch" href="/docs/master/assets/js/50.df06974f.js"><link rel="prefetch" href="/docs/master/assets/js/51.30820ab1.js"><link rel="prefetch" href="/docs/master/assets/js/52.96df1b56.js"><link rel="prefetch" href="/docs/master/assets/js/53.35ecb49a.js"><link rel="prefetch" href="/docs/master/assets/js/54.5e16d3e5.js"><link rel="prefetch" href="/docs/master/assets/js/55.627729b1.js"><link rel="prefetch" href="/docs/master/assets/js/56.9f485df1.js"><link rel="prefetch" href="/docs/master/assets/js/57.f8413842.js"><link rel="prefetch" href="/docs/master/assets/js/58.c1f9fa9a.js"><link rel="prefetch" href="/docs/master/assets/js/59.bd3e43a9.js"><link rel="prefetch" href="/docs/master/assets/js/6.54aaa1dc.js"><link rel="prefetch" href="/docs/master/assets/js/60.8a5cf87d.js"><link rel="prefetch" href="/docs/master/assets/js/61.e791c8cd.js"><link rel="prefetch" href="/docs/master/assets/js/62.18d49ea5.js"><link rel="prefetch" href="/docs/master/assets/js/63.29eb98e1.js"><link rel="prefetch" href="/docs/master/assets/js/7.76a6c3c6.js"><link rel="prefetch" href="/docs/master/assets/js/8.4a1989cf.js"><link rel="prefetch" href="/docs/master/assets/js/9.fdffddab.js">
+    <link rel="stylesheet" href="/docs/master/assets/css/0.styles.fc8ef512.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="content__default"><h1 id="new-axes"><a href="#new-axes" class="header-anchor">#</a> New Axes</h1> <p>Axes in Chart.js can be individually extended. Axes should always derive from <code>Chart.Scale</code> but this is not a mandatory requirement.</p> <div class="language-javascript extra-class"><pre class="language-javascript"><code><span class="token keyword">class</span> <span class="token class-name">MyScale</span> <span class="token keyword">extends</span> <span class="token class-name">Chart<span class="token punctuation">.</span>Scale</span> <span class="token punctuation">{</span>
+    <span class="token comment">/* extensions ... */</span>
+<span class="token punctuation">}</span>
+MyScale<span class="token punctuation">.</span>id <span class="token operator">=</span> <span class="token string">'myScale'</span><span class="token punctuation">;</span>
+MyScale<span class="token punctuation">.</span>defaults <span class="token operator">=</span> defaultConfigObject<span class="token punctuation">;</span>
+
+<span class="token comment">// MyScale is now derived from Chart.Scale</span>
+</code></pre></div><p>Once you have created your scale class, you need to register it with the global chart object so that it can be used.</p> <div class="language-javascript extra-class"><pre class="language-javascript"><code>Chart<span class="token punctuation">.</span><span class="token function">register</span><span class="token punctuation">(</span>MyScale<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">// If the new scale is not extending Chart.Scale, the prototype can not be used to detect what</span>
+<span class="token comment">// you are trying to register - so you need to be explicit:</span>
+
+<span class="token comment">// Chart.registry.addScales(MyScale);</span>
+</code></pre></div><p>To use the new scale, simply pass in the string key to the config when creating a chart.</p> <div class="language-javascript extra-class"><pre class="language-javascript"><code><span class="token keyword">var</span> lineChart <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Chart</span><span class="token punctuation">(</span>ctx<span class="token punctuation">,</span> <span class="token punctuation">{</span>
+    data<span class="token operator">:</span> data<span class="token punctuation">,</span>
+    type<span class="token operator">:</span> <span class="token string">'line'</span><span class="token punctuation">,</span>
+    options<span class="token operator">:</span> <span class="token punctuation">{</span>
+        scales<span class="token operator">:</span> <span class="token punctuation">{</span>
+            y<span class="token operator">:</span> <span class="token punctuation">{</span>
+                type<span class="token operator">:</span> <span class="token string">'myScale'</span> <span class="token comment">// this is the same id that was set on the scale</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div><h2 id="scale-properties"><a href="#scale-properties" class="header-anchor">#</a> Scale Properties</h2> <p>Scale instances are given the following properties during the fitting process.</p> <div class="language-javascript extra-class"><pre class="language-javascript"><code><span class="token punctuation">{</span>
+    left<span class="token operator">:</span> number<span class="token punctuation">,</span> <span class="token comment">// left edge of the scale bounding box</span>
+    right<span class="token operator">:</span> number<span class="token punctuation">,</span> <span class="token comment">// right edge of the bounding box</span>
+    top<span class="token operator">:</span> number<span class="token punctuation">,</span>
+    bottom<span class="token operator">:</span> number<span class="token punctuation">,</span>
+    width<span class="token operator">:</span> number<span class="token punctuation">,</span> <span class="token comment">// the same as right - left</span>
+    height<span class="token operator">:</span> number<span class="token punctuation">,</span> <span class="token comment">// the same as bottom - top</span>
+
+    <span class="token comment">// Margin on each side. Like css, this is outside the bounding box.</span>
+    margins<span class="token operator">:</span> <span class="token punctuation">{</span>
+        left<span class="token operator">:</span> number<span class="token punctuation">,</span>
+        right<span class="token operator">:</span> number<span class="token punctuation">,</span>
+        top<span class="token operator">:</span> number<span class="token punctuation">,</span>
+        bottom<span class="token operator">:</span> number
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+    <span class="token comment">// Amount of padding on the inside of the bounding box (like CSS)</span>
+    paddingLeft<span class="token operator">:</span> number<span class="token punctuation">,</span>
+    paddingRight<span class="token operator">:</span> number<span class="token punctuation">,</span>
+    paddingTop<span class="token operator">:</span> number<span class="token punctuation">,</span>
+    paddingBottom<span class="token operator">:</span> number
+<span class="token punctuation">}</span>
+</code></pre></div><h2 id="scale-interface"><a href="#scale-interface" class="header-anchor">#</a> Scale Interface</h2> <p>To work with Chart.js, custom scale types must implement the following interface.</p> <div class="language-javascript extra-class"><pre class="language-javascript"><code><span class="token punctuation">{</span>
+    <span class="token comment">// Determines the data limits. Should set this.min and this.max to be the data max/min</span>
+    <span class="token function-variable function">determineDataLimits</span><span class="token operator">:</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+    <span class="token comment">// Generate tick marks. this.chart is the chart instance. The data object can be accessed as this.chart.data</span>
+    <span class="token comment">// buildTicks() should create a ticks array on the axis instance, if you intend to use any of the implementations from the base class</span>
+    <span class="token function-variable function">buildTicks</span><span class="token operator">:</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+    <span class="token comment">// Get the label to show for the given value</span>
+    <span class="token function-variable function">getLabelForValue</span><span class="token operator">:</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token parameter">value</span><span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+    <span class="token comment">// Get the pixel (x coordinate for horizontal axis, y coordinate for vertical axis) for a given value</span>
+    <span class="token comment">// @param index: index into the ticks array</span>
+    <span class="token function-variable function">getPixelForTick</span><span class="token operator">:</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token parameter">index</span><span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+    <span class="token comment">// Get the pixel (x coordinate for horizontal axis, y coordinate for vertical axis) for a given value</span>
+    <span class="token comment">// @param value : the value to get the pixel for</span>
+    <span class="token comment">// @param index : index into the data array of the value</span>
+    <span class="token comment">// @param datasetIndex : index of the dataset the value comes from</span>
+    <span class="token function-variable function">getPixelForValue</span><span class="token operator">:</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token parameter">value<span class="token punctuation">,</span> index<span class="token punctuation">,</span> datasetIndex</span><span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+    <span class="token comment">// Get the value for a given pixel (x coordinate for horizontal axis, y coordinate for vertical axis)</span>
+    <span class="token comment">// @param pixel : pixel value</span>
+    <span class="token function-variable function">getValueForPixel</span><span class="token operator">:</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token parameter">pixel</span><span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>Optionally, the following methods may also be overwritten, but an implementation is already provided by the <code>Chart.Scale</code> base class.</p> <div class="language-javascript extra-class"><pre class="language-javascript"><code><span class="token punctuation">{</span>
+    <span class="token comment">// Adds labels to objects in the ticks array. The default implementation simply calls this.options.ticks.callback(numericalTick, index, ticks);</span>
+    <span class="token function-variable function">generateTickLabels</span><span class="token operator">:</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+    <span class="token comment">// Determine how much the labels will rotate by. The default implementation will only rotate labels if the scale is horizontal.</span>
+    <span class="token function-variable function">calculateLabelRotation</span><span class="token operator">:</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+    <span class="token comment">// Fits the scale into the canvas.</span>
+    <span class="token comment">// this.maxWidth and this.maxHeight will tell you the maximum dimensions the scale instance can be. Scales should endeavour to be as efficient as possible with canvas space.</span>
+    <span class="token comment">// this.margins is the amount of space you have on either side of your scale that you may expand in to. This is used already for calculating the best label rotation</span>
+    <span class="token comment">// You must set this.minSize to be the size of your scale. It must be an object containing 2 properties: width and height.</span>
+    <span class="token comment">// You must set this.width to be the width and this.height to be the height of the scale</span>
+    <span class="token function-variable function">fit</span><span class="token operator">:</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+    <span class="token comment">// Draws the scale onto the canvas. this.(left|right|top|bottom) will have been populated to tell you the area on the canvas to draw in</span>
+    <span class="token comment">// @param chartArea : an object containing four properties: left, right, top, bottom. This is the rectangle that lines, bars, etc will be drawn in. It may be used, for example, to draw grid lines.</span>
+    <span class="token function-variable function">draw</span><span class="token operator">:</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token parameter">chartArea</span><span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>The Core.Scale base class also has some utility functions that you may find useful.</p> <div class="language-javascript extra-class"><pre class="language-javascript"><code><span class="token punctuation">{</span>
+    <span class="token comment">// Returns true if the scale instance is horizontal</span>
+    <span class="token function-variable function">isHorizontal</span><span class="token operator">:</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+    <span class="token comment">// Returns the scale tick objects ({label, major})</span>
+    <span class="token function-variable function">getTicks</span><span class="token operator">:</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div></div><div class="global-ui"></div></div>
+    <script src="/docs/master/assets/js/app.a0956d02.js" defer></script><script src="/docs/master/assets/js/5.bb931a47.js" defer></script><script src="/docs/master/assets/js/44.ff199fb4.js" defer></script>
+  </body>
+</html>
