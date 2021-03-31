@@ -7667,7 +7667,7 @@ class DoughnutController extends DatasetController {
     let i;
     for (i = 0; i < metaData.length; i++) {
       const value = meta._parsed[i];
-      if (value !== null && this.chart.getDataVisibility(i)) {
+      if (value !== null && !isNaN(value) && this.chart.getDataVisibility(i)) {
         total += Math.abs(value);
       }
     }
@@ -8274,6 +8274,8 @@ function drawArc(ctx, element) {
     for (let i = 0; i < element.fullCircles; ++i) {
       ctx.fill();
     }
+  }
+  if (!isNaN(element.curcumference)) {
     element.endAngle = element.startAngle + element.circumference % TAU;
   }
   pathArc(ctx, element);
