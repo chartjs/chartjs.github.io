@@ -10159,6 +10159,10 @@ var plugin_title = {
   defaultRoutes: {
     color: 'color'
   },
+  descriptors: {
+    _scriptable: true,
+    _indexable: false,
+  },
 };
 
 const positioners = {
