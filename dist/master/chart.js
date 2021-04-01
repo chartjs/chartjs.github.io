@@ -8279,7 +8279,7 @@ function drawArc(ctx, element) {
       ctx.fill();
     }
   }
-  if (!isNaN(element.curcumference)) {
+  if (!isNaN(element.circumference)) {
     element.endAngle = element.startAngle + element.circumference % TAU;
   }
   pathArc(ctx, element);
