@@ -970,9 +970,7 @@ class Defaults {
       lineHeight: 1.2,
       weight: null
     };
-    this.hover = {
-      onHover: null
-    };
+    this.hover = {};
     this.hoverBackgroundColor = (ctx, options) => getHoverColor(options.backgroundColor);
     this.hoverBorderColor = (ctx, options) => getHoverColor(options.borderColor);
     this.hoverColor = (ctx, options) => getHoverColor(options.color);
@@ -6915,7 +6913,7 @@ class Chart {
       lastEvent = e.type === 'click' ? me._lastEvent : e;
     }
     me._lastEvent = null;
-    callback(options.onHover || hoverOptions.onHover, [e, active, me], me);
+    callback(options.onHover, [e, active, me], me);
     if (e.type === 'mouseup' || e.type === 'click' || e.type === 'contextmenu') {
       if (_isPointInArea(e, me.chartArea, me._minPadding)) {
         callback(options.onClick, [e, active, me], me);
@@ -7388,7 +7386,6 @@ BarController.overrides = {
   interaction: {
     mode: 'index'
   },
-  hover: {},
   scales: {
     _index_: {
       type: 'category',
@@ -7904,10 +7901,6 @@ LineController.defaults = {
   spanGaps: false,
 };
 LineController.overrides = {
-  interaction: {
-    mode: 'index'
-  },
-  hover: {},
   scales: {
     _index_: {
       type: 'category',
