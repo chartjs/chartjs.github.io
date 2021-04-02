@@ -1,5 +1,5 @@
 /*!
- * Chart.js v3.0.0
+ * Chart.js v3.0.1
  * https://www.chartjs.org
  * (c) 2021 Chart.js Contributors
  * Released under the MIT License
@@ -5070,8 +5070,9 @@ function createSubResolver(parentScopes, resolver, prop, value) {
   const fallback = resolveFallback(resolver._fallback, prop, value);
   const allScopes = [...parentScopes, ...rootScopes];
   const set = new Set();
-  if (!(prop in parentScopes[0])) {
-    set.add(parentScopes[0][prop] = {});
+  const firstParent = parentScopes[0];
+  if (isObject(firstParent) && !(prop in firstParent)) {
+    set.add(firstParent[prop] = {});
   }
   set.add(value);
   let key = addScopesFromKey(set, allScopes, prop, fallback || prop);
@@ -6177,7 +6178,7 @@ function needContext(proxy, names) {
   return false;
 }
 
-var version = "3.0.0";
+var version = "3.0.1";
 
 const KNOWN_POSITIONS = ['top', 'bottom', 'left', 'right', 'chartArea'];
 function positionIsHorizontal(position, axis) {
