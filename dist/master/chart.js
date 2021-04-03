@@ -1860,7 +1860,7 @@ function toLineHeight(value, size) {
   return size * value;
 }
 const numberOrZero$1 = v => +v || 0;
-function readValueToProps(value, props) {
+function _readValueToProps(value, props) {
   const ret = {};
   const objProps = isObject(props);
   const keys = objProps ? Object.keys(props) : props;
@@ -1875,10 +1875,10 @@ function readValueToProps(value, props) {
   return ret;
 }
 function toTRBL(value) {
-  return readValueToProps(value, {top: 'y', right: 'x', bottom: 'y', left: 'x'});
+  return _readValueToProps(value, {top: 'y', right: 'x', bottom: 'y', left: 'x'});
 }
 function toTRBLCorners(value) {
-  return readValueToProps(value, ['topLeft', 'topRight', 'bottomLeft', 'bottomRight']);
+  return _readValueToProps(value, ['topLeft', 'topRight', 'bottomLeft', 'bottomRight']);
 }
 function toPadding(value) {
   const obj = toTRBL(value);
@@ -5602,6 +5602,7 @@ _steppedInterpolation: _steppedInterpolation,
 _bezierInterpolation: _bezierInterpolation,
 formatNumber: formatNumber,
 toLineHeight: toLineHeight,
+_readValueToProps: _readValueToProps,
 toTRBL: toTRBL,
 toTRBLCorners: toTRBLCorners,
 toPadding: toPadding,
@@ -8260,13 +8261,66 @@ function clipArc(ctx, element) {
   ctx.closePath();
   ctx.clip();
 }
+function toRadiusCorners(value) {
+  return _readValueToProps(value, ['outerStart', 'outerEnd', 'innerStart', 'innerEnd']);
+}
+function parseBorderRadius$1(arc, innerRadius, outerRadius, angleDelta) {
+  const o = toRadiusCorners(arc.options.borderRadius);
+  const halfThickness = (outerRadius - innerRadius) / 2;
+  const innerLimit = Math.min(halfThickness, angleDelta * innerRadius / 2);
+  const computeOuterLimit = (val) => {
+    const outerArcLimit = (outerRadius - Math.min(halfThickness, val)) * angleDelta / 2;
+    return _limitValue(val, 0, Math.min(halfThickness, outerArcLimit));
+  };
+  return {
+    outerStart: computeOuterLimit(o.outerStart),
+    outerEnd: computeOuterLimit(o.outerEnd),
+    innerStart: _limitValue(o.innerStart, 0, innerLimit),
+    innerEnd: _limitValue(o.innerEnd, 0, innerLimit),
+  };
+}
+function rThetaToXY(r, theta, x, y) {
+  return {
+    x: x + r * Math.cos(theta),
+    y: y + r * Math.sin(theta),
+  };
+}
 function pathArc(ctx, element) {
   const {x, y, startAngle, endAngle, pixelMargin} = element;
   const outerRadius = Math.max(element.outerRadius - pixelMargin, 0);
   const innerRadius = element.innerRadius + pixelMargin;
+  const {outerStart, outerEnd, innerStart, innerEnd} = parseBorderRadius$1(element, innerRadius, outerRadius, endAngle - startAngle);
+  const outerStartAdjustedRadius = outerRadius - outerStart;
+  const outerEndAdjustedRadius = outerRadius - outerEnd;
+  const outerStartAdjustedAngle = startAngle + outerStart / outerStartAdjustedRadius;
+  const outerEndAdjustedAngle = endAngle - outerEnd / outerEndAdjustedRadius;
+  const innerStartAdjustedRadius = innerRadius + innerStart;
+  const innerEndAdjustedRadius = innerRadius + innerEnd;
+  const innerStartAdjustedAngle = startAngle + innerStart / innerStartAdjustedRadius;
+  const innerEndAdjustedAngle = endAngle - innerEnd / innerEndAdjustedRadius;
   ctx.beginPath();
-  ctx.arc(x, y, outerRadius, startAngle, endAngle);
-  ctx.arc(x, y, innerRadius, endAngle, startAngle, true);
+  ctx.arc(x, y, outerRadius, outerStartAdjustedAngle, outerEndAdjustedAngle);
+  if (outerEnd > 0) {
+    const pCenter = rThetaToXY(outerEndAdjustedRadius, outerEndAdjustedAngle, x, y);
+    ctx.arc(pCenter.x, pCenter.y, outerEnd, outerEndAdjustedAngle, endAngle + HALF_PI);
+  }
+  const p4 = rThetaToXY(innerEndAdjustedRadius, endAngle, x, y);
+  ctx.lineTo(p4.x, p4.y);
+  if (innerEnd > 0) {
+    const pCenter = rThetaToXY(innerEndAdjustedRadius, innerEndAdjustedAngle, x, y);
+    ctx.arc(pCenter.x, pCenter.y, innerEnd, endAngle + HALF_PI, innerEndAdjustedAngle + Math.PI);
+  }
+  ctx.arc(x, y, innerRadius, endAngle - (innerEnd / innerRadius), startAngle + (innerStart / innerRadius), true);
+  if (innerStart > 0) {
+    const pCenter = rThetaToXY(innerStartAdjustedRadius, innerStartAdjustedAngle, x, y);
+    ctx.arc(pCenter.x, pCenter.y, innerStart, innerStartAdjustedAngle + Math.PI, startAngle - HALF_PI);
+  }
+  const p8 = rThetaToXY(outerStartAdjustedRadius, startAngle, x, y);
+  ctx.lineTo(p8.x, p8.y);
+  if (outerStart > 0) {
+    const pCenter = rThetaToXY(outerStartAdjustedRadius, outerStartAdjustedAngle, x, y);
+    ctx.arc(pCenter.x, pCenter.y, outerStart, startAngle - HALF_PI, outerStartAdjustedAngle);
+  }
   ctx.closePath();
 }
 function drawArc(ctx, element) {
@@ -8309,9 +8363,7 @@ function drawFullCircleBorders(ctx, element, inner) {
   }
 }
 function drawBorder(ctx, element) {
-  const {x, y, startAngle, endAngle, pixelMargin, options} = element;
-  const outerRadius = element.outerRadius;
-  const innerRadius = element.innerRadius + pixelMargin;
+  const {options} = element;
   const inner = options.borderAlign === 'inner';
   if (!options.borderWidth) {
     return;
@@ -8329,10 +8381,7 @@ function drawBorder(ctx, element) {
   if (inner) {
     clipArc(ctx, element);
   }
-  ctx.beginPath();
-  ctx.arc(x, y, outerRadius, startAngle, endAngle);
-  ctx.arc(x, y, innerRadius, endAngle, startAngle, true);
-  ctx.closePath();
+  pathArc(ctx, element);
   ctx.stroke();
 }
 class ArcElement extends Element {
@@ -8408,9 +8457,10 @@ ArcElement.id = 'arc';
 ArcElement.defaults = {
   borderAlign: 'center',
   borderColor: '#fff',
+  borderRadius: 0,
   borderWidth: 2,
   offset: 0,
-  angle: undefined
+  angle: undefined,
 };
 ArcElement.defaultRoutes = {
   backgroundColor: 'backgroundColor'

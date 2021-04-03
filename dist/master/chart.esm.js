@@ -4,7 +4,7 @@
  * (c) 2021 Chart.js Contributors
  * Released under the MIT License
  */
-import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, b as isArray, d as defaults, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as isNumberFinite, h as defined, s as sign, j as isNullOrUndef, k as clipArea, m as unclipArea, _ as _arrayUnique, t as toRadians, n as toPercentage, o as toDimension, T as TAU, p as formatNumber, q as _angleBetween, H as HALF_PI, P as PI, w as isNumber, x as _limitValue, y as _lookupByKey, z as getRelativePosition$1, A as _isPointInArea, B as _rlookupByKey, C as toPadding, D as each, E as getMaximumSize, F as _getParentNode, G as readUsedSize, I as throttled, J as supportsEventListenerOptions, K as log10, L as _factorize, M as finiteOrDefault, N as callback, O as toDegrees, Q as _measureText, R as _int16Range, S as _alignPixel, U as renderText, V as toFont, W as _toLeftRightCenter, X as _alignStartEnd, Y as overrides, Z as merge, $ as _capitalize, a0 as descriptors, a1 as isFunction, a2 as _attachContext, a3 as _createResolver, a4 as _descriptors, a5 as mergeIf, a6 as uid, a7 as debounce, a8 as retinaScale, a9 as clearCanvas, aa as _elementsEqual, ab as getAngleFromPoint, ac as _updateBezierControlPoints, ad as _computeSegments, ae as _boundSegments, af as _steppedInterpolation, ag as _bezierInterpolation, ah as _pointInLine, ai as _steppedLineTo, aj as _bezierCurveTo, ak as drawPoint, al as toTRBL, am as toTRBLCorners, an as _boundSegment, ao as _normalizeAngle, ap as getRtlAdapter, aq as overrideTextDirection, ar as _textX, as as restoreTextDirection, at as noop, au as distanceBetweenPoints, av as _addGrace, aw as _setMinAndMaxByKey, ax as niceNum, ay as almostWhole, az as almostEquals, aA as _decimalPlaces, aB as _longestText, aC as _filterBetween, aD as _lookup } from './chunks/helpers.segment.js';
+import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, b as isArray, d as defaults, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as isNumberFinite, h as defined, s as sign, j as isNullOrUndef, k as clipArea, m as unclipArea, _ as _arrayUnique, t as toRadians, n as toPercentage, o as toDimension, T as TAU, p as formatNumber, q as _angleBetween, H as HALF_PI, P as PI, w as isNumber, x as _limitValue, y as _lookupByKey, z as getRelativePosition$1, A as _isPointInArea, B as _rlookupByKey, C as toPadding, D as each, E as getMaximumSize, F as _getParentNode, G as readUsedSize, I as throttled, J as supportsEventListenerOptions, K as log10, L as _factorize, M as finiteOrDefault, N as callback, O as toDegrees, Q as _measureText, R as _int16Range, S as _alignPixel, U as renderText, V as toFont, W as _toLeftRightCenter, X as _alignStartEnd, Y as overrides, Z as merge, $ as _capitalize, a0 as descriptors, a1 as isFunction, a2 as _attachContext, a3 as _createResolver, a4 as _descriptors, a5 as mergeIf, a6 as uid, a7 as debounce, a8 as retinaScale, a9 as clearCanvas, aa as _elementsEqual, ab as getAngleFromPoint, ac as _readValueToProps, ad as _updateBezierControlPoints, ae as _computeSegments, af as _boundSegments, ag as _steppedInterpolation, ah as _bezierInterpolation, ai as _pointInLine, aj as _steppedLineTo, ak as _bezierCurveTo, al as drawPoint, am as toTRBL, an as toTRBLCorners, ao as _boundSegment, ap as _normalizeAngle, aq as getRtlAdapter, ar as overrideTextDirection, as as _textX, at as restoreTextDirection, au as noop, av as distanceBetweenPoints, aw as _addGrace, ax as _setMinAndMaxByKey, ay as niceNum, az as almostWhole, aA as almostEquals, aB as _decimalPlaces, aC as _longestText, aD as _filterBetween, aE as _lookup } from './chunks/helpers.segment.js';
 export { d as defaults } from './chunks/helpers.segment.js';
 
 class Animator {
@@ -5792,13 +5792,66 @@ function clipArc(ctx, element) {
   ctx.closePath();
   ctx.clip();
 }
+function toRadiusCorners(value) {
+  return _readValueToProps(value, ['outerStart', 'outerEnd', 'innerStart', 'innerEnd']);
+}
+function parseBorderRadius$1(arc, innerRadius, outerRadius, angleDelta) {
+  const o = toRadiusCorners(arc.options.borderRadius);
+  const halfThickness = (outerRadius - innerRadius) / 2;
+  const innerLimit = Math.min(halfThickness, angleDelta * innerRadius / 2);
+  const computeOuterLimit = (val) => {
+    const outerArcLimit = (outerRadius - Math.min(halfThickness, val)) * angleDelta / 2;
+    return _limitValue(val, 0, Math.min(halfThickness, outerArcLimit));
+  };
+  return {
+    outerStart: computeOuterLimit(o.outerStart),
+    outerEnd: computeOuterLimit(o.outerEnd),
+    innerStart: _limitValue(o.innerStart, 0, innerLimit),
+    innerEnd: _limitValue(o.innerEnd, 0, innerLimit),
+  };
+}
+function rThetaToXY(r, theta, x, y) {
+  return {
+    x: x + r * Math.cos(theta),
+    y: y + r * Math.sin(theta),
+  };
+}
 function pathArc(ctx, element) {
   const {x, y, startAngle, endAngle, pixelMargin} = element;
   const outerRadius = Math.max(element.outerRadius - pixelMargin, 0);
   const innerRadius = element.innerRadius + pixelMargin;
+  const {outerStart, outerEnd, innerStart, innerEnd} = parseBorderRadius$1(element, innerRadius, outerRadius, endAngle - startAngle);
+  const outerStartAdjustedRadius = outerRadius - outerStart;
+  const outerEndAdjustedRadius = outerRadius - outerEnd;
+  const outerStartAdjustedAngle = startAngle + outerStart / outerStartAdjustedRadius;
+  const outerEndAdjustedAngle = endAngle - outerEnd / outerEndAdjustedRadius;
+  const innerStartAdjustedRadius = innerRadius + innerStart;
+  const innerEndAdjustedRadius = innerRadius + innerEnd;
+  const innerStartAdjustedAngle = startAngle + innerStart / innerStartAdjustedRadius;
+  const innerEndAdjustedAngle = endAngle - innerEnd / innerEndAdjustedRadius;
   ctx.beginPath();
-  ctx.arc(x, y, outerRadius, startAngle, endAngle);
-  ctx.arc(x, y, innerRadius, endAngle, startAngle, true);
+  ctx.arc(x, y, outerRadius, outerStartAdjustedAngle, outerEndAdjustedAngle);
+  if (outerEnd > 0) {
+    const pCenter = rThetaToXY(outerEndAdjustedRadius, outerEndAdjustedAngle, x, y);
+    ctx.arc(pCenter.x, pCenter.y, outerEnd, outerEndAdjustedAngle, endAngle + HALF_PI);
+  }
+  const p4 = rThetaToXY(innerEndAdjustedRadius, endAngle, x, y);
+  ctx.lineTo(p4.x, p4.y);
+  if (innerEnd > 0) {
+    const pCenter = rThetaToXY(innerEndAdjustedRadius, innerEndAdjustedAngle, x, y);
+    ctx.arc(pCenter.x, pCenter.y, innerEnd, endAngle + HALF_PI, innerEndAdjustedAngle + Math.PI);
+  }
+  ctx.arc(x, y, innerRadius, endAngle - (innerEnd / innerRadius), startAngle + (innerStart / innerRadius), true);
+  if (innerStart > 0) {
+    const pCenter = rThetaToXY(innerStartAdjustedRadius, innerStartAdjustedAngle, x, y);
+    ctx.arc(pCenter.x, pCenter.y, innerStart, innerStartAdjustedAngle + Math.PI, startAngle - HALF_PI);
+  }
+  const p8 = rThetaToXY(outerStartAdjustedRadius, startAngle, x, y);
+  ctx.lineTo(p8.x, p8.y);
+  if (outerStart > 0) {
+    const pCenter = rThetaToXY(outerStartAdjustedRadius, outerStartAdjustedAngle, x, y);
+    ctx.arc(pCenter.x, pCenter.y, outerStart, startAngle - HALF_PI, outerStartAdjustedAngle);
+  }
   ctx.closePath();
 }
 function drawArc(ctx, element) {
@@ -5841,9 +5894,7 @@ function drawFullCircleBorders(ctx, element, inner) {
   }
 }
 function drawBorder(ctx, element) {
-  const {x, y, startAngle, endAngle, pixelMargin, options} = element;
-  const outerRadius = element.outerRadius;
-  const innerRadius = element.innerRadius + pixelMargin;
+  const {options} = element;
   const inner = options.borderAlign === 'inner';
   if (!options.borderWidth) {
     return;
@@ -5861,10 +5912,7 @@ function drawBorder(ctx, element) {
   if (inner) {
     clipArc(ctx, element);
   }
-  ctx.beginPath();
-  ctx.arc(x, y, outerRadius, startAngle, endAngle);
-  ctx.arc(x, y, innerRadius, endAngle, startAngle, true);
-  ctx.closePath();
+  pathArc(ctx, element);
   ctx.stroke();
 }
 class ArcElement extends Element {
@@ -5940,9 +5988,10 @@ ArcElement.id = 'arc';
 ArcElement.defaults = {
   borderAlign: 'center',
   borderColor: '#fff',
+  borderRadius: 0,
   borderWidth: 2,
   offset: 0,
-  angle: undefined
+  angle: undefined,
 };
 ArcElement.defaultRoutes = {
   backgroundColor: 'backgroundColor'
