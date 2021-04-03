@@ -7356,8 +7356,6 @@ class Legend extends Element {
     ctx.textAlign = rtlHelper.textAlign('left');
     ctx.textBaseline = 'middle';
     ctx.lineWidth = 0.5;
-    ctx.strokeStyle = fontColor;
-    ctx.fillStyle = fontColor;
     ctx.font = labelFont.string;
     const {boxWidth, boxHeight, itemHeight} = getBoxSize(labelOpts, fontSize);
     const drawLegendBox = function(x, y, legendItem) {
@@ -7416,6 +7414,8 @@ class Legend extends Element {
     overrideTextDirection(me.ctx, opts.textDirection);
     const lineHeight = itemHeight + padding;
     me.legendItems.forEach((legendItem, i) => {
+      ctx.strokeStyle = legendItem.fontColor || fontColor;
+      ctx.fillStyle = legendItem.fontColor || fontColor;
       const textWidth = ctx.measureText(legendItem.text).width;
       const textAlign = rtlHelper.textAlign(legendItem.textAlign || (legendItem.textAlign = labelOpts.textAlign));
       const width = boxWidth + (fontSize / 2) + textWidth;
@@ -7582,13 +7582,14 @@ var plugin_legend = {
       padding: 10,
       generateLabels(chart) {
         const datasets = chart.data.datasets;
-        const {labels: {usePointStyle, pointStyle, textAlign}} = chart.legend.options;
+        const {labels: {usePointStyle, pointStyle, textAlign, color}} = chart.legend.options;
         return chart._getSortedDatasetMetas().map((meta) => {
           const style = meta.controller.getStyle(usePointStyle ? 0 : undefined);
           const borderWidth = toPadding(style.borderWidth);
           return {
             text: datasets[meta.index].label,
             fillStyle: style.backgroundColor,
+            fontColor: color,
             hidden: !meta.visible,
             lineCap: style.borderCapStyle,
             lineDash: style.borderDash,
