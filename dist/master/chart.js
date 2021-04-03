@@ -4895,7 +4895,7 @@ class Scale extends Element {
   }
 }
 
-function _createResolver(scopes, prefixes = [''], rootScopes = scopes, fallback) {
+function _createResolver(scopes, prefixes = [''], rootScopes = scopes, fallback, getTarget = () => scopes[0]) {
   if (!defined(fallback)) {
     fallback = _resolve('_fallback', scopes);
   }
@@ -4905,6 +4905,7 @@ function _createResolver(scopes, prefixes = [''], rootScopes = scopes, fallback)
     _scopes: scopes,
     _rootScopes: rootScopes,
     _fallback: fallback,
+    _getTarget: getTarget,
     override: (scope) => _createResolver([scope, ...scopes], prefixes, rootScopes, fallback),
   };
   return new Proxy(cache, {
@@ -4931,7 +4932,8 @@ function _createResolver(scopes, prefixes = [''], rootScopes = scopes, fallback)
       return getKeysFromAllScopes(target);
     },
     set(target, prop, value) {
-      scopes[0][prop] = value;
+      const storage = target._storage || (target._storage = getTarget());
+      storage[prop] = value;
       delete target[prop];
       delete target._keys;
       return true;
@@ -5070,10 +5072,6 @@ function createSubResolver(parentScopes, resolver, prop, value) {
   const fallback = resolveFallback(resolver._fallback, prop, value);
   const allScopes = [...parentScopes, ...rootScopes];
   const set = new Set();
-  const firstParent = parentScopes[0];
-  if (isObject(firstParent) && !(prop in firstParent)) {
-    set.add(firstParent[prop] = {});
-  }
   set.add(value);
   let key = addScopesFromKey(set, allScopes, prop, fallback || prop);
   if (key === null) {
@@ -5085,7 +5083,13 @@ function createSubResolver(parentScopes, resolver, prop, value) {
       return false;
     }
   }
-  return _createResolver([...set], [''], rootScopes, fallback);
+  return _createResolver([...set], [''], rootScopes, fallback, () => {
+    const parent = resolver._getTarget();
+    if (!(prop in parent)) {
+      parent[prop] = {};
+    }
+    return parent[prop];
+  });
 }
 function addScopesFromKey(set, allScopes, key, fallback) {
   while (key) {
