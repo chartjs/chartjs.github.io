@@ -9101,6 +9101,9 @@ class LogarithmicScale extends Scale {
     if (value === undefined || value === 0) {
       value = me.min;
     }
+    if (value === null || isNaN(value)) {
+      return NaN;
+    }
     return me.getPixelForDecimal(value === me.min
       ? 0
       : (log10(value) - me._startValue) / me._valueRange);
