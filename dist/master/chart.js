@@ -9096,6 +9096,16 @@ function minMaxDecimation(data, availableWidth) {
   }
   return decimated;
 }
+function cleanDecimatedData(chart) {
+  chart.data.datasets.forEach((dataset) => {
+    if (dataset._decimated) {
+      const data = dataset._data;
+      delete dataset._decimated;
+      delete dataset._data;
+      Object.defineProperty(dataset, 'data', {value: data});
+    }
+  });
+}
 var plugin_decimation = {
   id: 'decimation',
   defaults: {
@@ -9104,6 +9114,7 @@ var plugin_decimation = {
   },
   beforeElementsUpdate: (chart, args, options) => {
     if (!options.enabled) {
+      cleanDecimatedData(chart);
       return;
     }
     const availableWidth = chart.width;
@@ -9156,14 +9167,7 @@ var plugin_decimation = {
     });
   },
   destroy(chart) {
-    chart.data.datasets.forEach((dataset) => {
-      if (dataset._decimated) {
-        const data = dataset._data;
-        delete dataset._decimated;
-        delete dataset._data;
-        Object.defineProperty(dataset, 'data', {value: data});
-      }
-    });
+    cleanDecimatedData(chart);
   }
 };
 
