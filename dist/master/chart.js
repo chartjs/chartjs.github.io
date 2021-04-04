@@ -12321,7 +12321,7 @@ class TimeScale extends Scale {
     const major = majorUnit && majorFormat && tick && tick.major;
     const label = me._adapter.format(time, format || (major ? majorFormat : minorFormat));
     const formatter = options.ticks.callback;
-    return formatter ? formatter(label, index, ticks) : label;
+    return formatter ? callback(formatter, [label, index, ticks], me) : label;
   }
   generateTickLabels(ticks) {
     let i, ilen, tick;
