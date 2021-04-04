@@ -11304,10 +11304,10 @@ function generateTicks$1(generationOptions, dataRange) {
   let j = 0;
   if (minDefined) {
     ticks.push({value: min});
-    if (niceMin < min) {
+    if (niceMin <= min) {
       j++;
     }
-    if (almostWhole(Math.round((niceMin + j * spacing) * factor) / factor / min, spacing / 1000)) {
+    if (almostEquals(Math.round((niceMin + j * spacing) * factor) / factor, min, spacing / 10)) {
       j++;
     }
   }
@@ -11315,7 +11315,7 @@ function generateTicks$1(generationOptions, dataRange) {
     ticks.push({value: Math.round((niceMin + j * spacing) * factor) / factor});
   }
   if (maxDefined) {
-    if (almostWhole(ticks[ticks.length - 1].value / max, spacing / 1000)) {
+    if (almostEquals(ticks[ticks.length - 1].value, max, spacing / 10)) {
       ticks[ticks.length - 1].value = max;
     } else {
       ticks.push({value: max});
