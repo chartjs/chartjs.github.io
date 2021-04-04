@@ -1,5 +1,5 @@
 /*!
- * Chart.js v3.0.1
+ * Chart.js v3.0.2
  * https://www.chartjs.org
  * (c) 2021 Chart.js Contributors
  * Released under the MIT License
@@ -6178,7 +6178,7 @@ function needContext(proxy, names) {
   return false;
 }
 
-var version = "3.0.1";
+var version = "3.0.2";
 
 const KNOWN_POSITIONS = ['top', 'bottom', 'left', 'right', 'chartArea'];
 function positionIsHorizontal(position, axis) {
@@ -9042,6 +9042,16 @@ function minMaxDecimation(data, availableWidth) {
   }
   return decimated;
 }
+function cleanDecimatedData(chart) {
+  chart.data.datasets.forEach((dataset) => {
+    if (dataset._decimated) {
+      const data = dataset._data;
+      delete dataset._decimated;
+      delete dataset._data;
+      Object.defineProperty(dataset, 'data', {value: data});
+    }
+  });
+}
 var plugin_decimation = {
   id: 'decimation',
   defaults: {
@@ -9050,6 +9060,7 @@ var plugin_decimation = {
   },
   beforeElementsUpdate: (chart, args, options) => {
     if (!options.enabled) {
+      cleanDecimatedData(chart);
       return;
     }
     const availableWidth = chart.width;
@@ -9102,14 +9113,7 @@ var plugin_decimation = {
     });
   },
   destroy(chart) {
-    chart.data.datasets.forEach((dataset) => {
-      if (dataset._decimated) {
-        const data = dataset._data;
-        delete dataset._decimated;
-        delete dataset._data;
-        Object.defineProperty(dataset, 'data', {value: data});
-      }
-    });
+    cleanDecimatedData(chart);
   }
 };
 
@@ -11242,10 +11246,10 @@ function generateTicks$1(generationOptions, dataRange) {
   let j = 0;
   if (minDefined) {
     ticks.push({value: min});
-    if (niceMin < min) {
+    if (niceMin <= min) {
       j++;
     }
-    if (almostWhole(Math.round((niceMin + j * spacing) * factor) / factor / min, spacing / 1000)) {
+    if (almostEquals(Math.round((niceMin + j * spacing) * factor) / factor, min, spacing / 10)) {
       j++;
     }
   }
@@ -11253,7 +11257,7 @@ function generateTicks$1(generationOptions, dataRange) {
     ticks.push({value: Math.round((niceMin + j * spacing) * factor) / factor});
   }
   if (maxDefined) {
-    if (almostWhole(ticks[ticks.length - 1].value / max, spacing / 1000)) {
+    if (almostEquals(ticks[ticks.length - 1].value, max, spacing / 10)) {
       ticks[ticks.length - 1].value = max;
     } else {
       ticks.push({value: max});
@@ -11519,6 +11523,9 @@ class LogarithmicScale extends Scale {
     const me = this;
     if (value === undefined || value === 0) {
       value = me.min;
+    }
+    if (value === null || isNaN(value)) {
+      return NaN;
     }
     return me.getPixelForDecimal(value === me.min
       ? 0
