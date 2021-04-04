@@ -3641,8 +3641,7 @@ defaults.set('scale', {
     offset: false,
     borderDash: [],
     borderDashOffset: 0.0,
-    borderColor: (_ctx, options) => options.color,
-    borderWidth: (_ctx, options) => options.lineWidth
+    borderWidth: 1
   },
   title: {
     display: false,
@@ -3672,6 +3671,7 @@ defaults.set('scale', {
 });
 defaults.route('scale.ticks', 'color', '', 'color');
 defaults.route('scale.grid', 'color', '', 'borderColor');
+defaults.route('scale.grid', 'borderColor', '', 'borderColor');
 defaults.route('scale.title', 'color', '', 'color');
 defaults.describe('scale', {
   _fallback: false,
@@ -4724,7 +4724,7 @@ class Scale extends Element {
     const grid = me.options.grid;
     const ctx = me.ctx;
     const chart = me.chart;
-    const borderOpts = grid.setContext(me.getContext(0));
+    const borderOpts = grid.setContext(me.getContext());
     const axisWidth = grid.drawBorder ? borderOpts.borderWidth : 0;
     const items = me._gridLineItems || (me._gridLineItems = me._computeGridLineItems(chartArea));
     let i, ilen;
@@ -4768,8 +4768,7 @@ class Scale extends Element {
       }
     }
     if (axisWidth) {
-      const edgeOpts = grid.setContext(me.getContext(me._ticksLength - 1));
-      const lastLineWidth = edgeOpts.lineWidth;
+      const lastLineWidth = borderOpts.lineWidth;
       const borderValue = me._borderValue;
       let x1, x2, y1, y2;
       if (me.isHorizontal()) {
@@ -4784,7 +4783,7 @@ class Scale extends Element {
       drawLine(
         {x: x1, y: y1},
         {x: x2, y: y2},
-        {width: axisWidth, color: edgeOpts.borderColor});
+        {width: axisWidth, color: borderOpts.borderColor});
     }
   }
   drawLabels(chartArea) {
