@@ -3937,7 +3937,7 @@ class Scale extends Element {
   }
   init(options) {
     const me = this;
-    me.options = options;
+    me.options = options.setContext(me.getContext());
     me.axis = options.axis;
     me._userMin = me.parse(options.min);
     me._userMax = me.parse(options.max);
