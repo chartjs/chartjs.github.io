@@ -6526,29 +6526,33 @@ PointElement: PointElement,
 BarElement: BarElement
 });
 
-function lttbDecimation(data, availableWidth, options) {
+function lttbDecimation(data, start, count, availableWidth, options) {
   const samples = options.samples || availableWidth;
+  if (samples >= count) {
+    return data.slice(start, start + count);
+  }
   const decimated = [];
-  const bucketWidth = (data.length - 2) / (samples - 2);
+  const bucketWidth = (count - 2) / (samples - 2);
   let sampledIndex = 0;
-  let a = 0;
+  const endIndex = start + count - 1;
+  let a = start;
   let i, maxAreaPoint, maxArea, area, nextA;
   decimated[sampledIndex++] = data[a];
   for (i = 0; i < samples - 2; i++) {
     let avgX = 0;
     let avgY = 0;
     let j;
-    const avgRangeStart = Math.floor((i + 1) * bucketWidth) + 1;
-    const avgRangeEnd = Math.min(Math.floor((i + 2) * bucketWidth) + 1, data.length);
+    const avgRangeStart = Math.floor((i + 1) * bucketWidth) + 1 + start;
+    const avgRangeEnd = Math.min(Math.floor((i + 2) * bucketWidth) + 1, count) + start;
     const avgRangeLength = avgRangeEnd - avgRangeStart;
     for (j = avgRangeStart; j < avgRangeEnd; j++) {
-      avgX = data[j].x;
-      avgY = data[j].y;
+      avgX += data[j].x;
+      avgY += data[j].y;
     }
     avgX /= avgRangeLength;
     avgY /= avgRangeLength;
-    const rangeOffs = Math.floor(i * bucketWidth) + 1;
-    const rangeTo = Math.floor((i + 1) * bucketWidth) + 1;
+    const rangeOffs = Math.floor(i * bucketWidth) + 1 + start;
+    const rangeTo = Math.floor((i + 1) * bucketWidth) + 1 + start;
     const {x: pointAx, y: pointAy} = data[a];
     maxArea = area = -1;
     for (j = rangeOffs; j < rangeTo; j++) {
@@ -6565,18 +6569,19 @@ function lttbDecimation(data, availableWidth, options) {
     decimated[sampledIndex++] = maxAreaPoint;
     a = nextA;
   }
-  decimated[sampledIndex++] = data[data.length - 1];
+  decimated[sampledIndex++] = data[endIndex];
   return decimated;
 }
-function minMaxDecimation(data, availableWidth) {
+function minMaxDecimation(data, start, count, availableWidth) {
   let avgX = 0;
   let countX = 0;
   let i, point, x, y, prevX, minIndex, maxIndex, startIndex, minY, maxY;
   const decimated = [];
-  const xMin = data[0].x;
-  const xMax = data[data.length - 1].x;
+  const endIndex = start + count - 1;
+  const xMin = data[start].x;
+  const xMax = data[endIndex].x;
   const dx = xMax - xMin;
-  for (i = 0; i < data.length; ++i) {
+  for (i = start; i < start + count; ++i) {
     point = data[i];
     x = (point.x - xMin) / dx * availableWidth;
     y = point.y;
@@ -6630,6 +6635,22 @@ function cleanDecimatedData(chart) {
     }
   });
 }
+function getStartAndCountOfVisiblePointsSimplified(meta, points) {
+  const pointCount = points.length;
+  let start = 0;
+  let count;
+  const {iScale} = meta;
+  const {min, max, minDefined, maxDefined} = iScale.getUserBounds();
+  if (minDefined) {
+    start = _limitValue(_lookupByKey(points, iScale.axis, min).lo, 0, pointCount - 1);
+  }
+  if (maxDefined) {
+    count = _limitValue(_lookupByKey(points, iScale.axis, max).hi + 1, start, pointCount) - start;
+  } else {
+    count = pointCount - start;
+  }
+  return {start, count};
+}
 var plugin_decimation = {
   id: 'decimation',
   defaults: {
@@ -6659,7 +6680,8 @@ var plugin_decimation = {
       if (chart.options.parsing) {
         return;
       }
-      if (data.length <= 4 * availableWidth) {
+      let {start, count} = getStartAndCountOfVisiblePointsSimplified(meta, data);
+      if (count <= 4 * availableWidth) {
         return;
       }
       if (isNullOrUndef(_data)) {
@@ -6679,10 +6701,10 @@ var plugin_decimation = {
       let decimated;
       switch (options.algorithm) {
       case 'lttb':
-        decimated = lttbDecimation(data, availableWidth, options);
+        decimated = lttbDecimation(data, start, count, availableWidth, options);
         break;
       case 'min-max':
-        decimated = minMaxDecimation(data, availableWidth);
+        decimated = minMaxDecimation(data, start, count, availableWidth);
         break;
       default:
         throw new Error(`Unsupported decimation algorithm '${options.algorithm}'`);
