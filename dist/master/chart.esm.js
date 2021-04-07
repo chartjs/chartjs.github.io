@@ -1936,16 +1936,14 @@ class LineController extends DatasetController {
     }
     line._decimated = !!_dataset._decimated;
     line.points = points;
-    if (mode !== 'resize') {
-      const options = me.resolveDatasetElementOptions(mode);
-      if (!me.options.showLine) {
-        options.borderWidth = 0;
-      }
-      me.updateElement(line, undefined, {
-        animated: !animationsDisabled,
-        options
-      }, mode);
+    const options = me.resolveDatasetElementOptions(mode);
+    if (!me.options.showLine) {
+      options.borderWidth = 0;
     }
+    me.updateElement(line, undefined, {
+      animated: !animationsDisabled,
+      options
+    }, mode);
     me.updateElements(points, start, count, mode);
   }
   updateElements(points, start, count, mode) {
