@@ -5516,7 +5516,7 @@ function solidSegments(points, start, max, loop) {
   }
   return result;
 }
-function _computeSegments(line) {
+function _computeSegments(line, segmentOptions) {
   const points = line.points;
   const spanGaps = line.options.spanGaps;
   const count = points.length;
@@ -5526,11 +5526,56 @@ function _computeSegments(line) {
   const loop = !!line._loop;
   const {start, end} = findStartAndEnd(points, count, loop, spanGaps);
   if (spanGaps === true) {
-    return [{start, end, loop}];
+    return splitByStyles([{start, end, loop}], points, segmentOptions);
   }
   const max = end < start ? end + count : end;
   const completeLoop = !!line._fullLoop && start === 0 && end === count - 1;
-  return solidSegments(points, start, max, completeLoop);
+  return splitByStyles(solidSegments(points, start, max, completeLoop), points, segmentOptions);
+}
+function splitByStyles(segments, points, segmentOptions) {
+  if (!segmentOptions || !segmentOptions.setContext || !points) {
+    return segments;
+  }
+  return doSplitByStyles(segments, points, segmentOptions);
+}
+function doSplitByStyles(segments, points, segmentOptions) {
+  const count = points.length;
+  const result = [];
+  let start = segments[0].start;
+  let i = start;
+  for (const segment of segments) {
+    let prevStyle, style;
+    let prev = points[start % count];
+    for (i = start + 1; i <= segment.end; i++) {
+      const pt = points[i % count];
+      style = readStyle(segmentOptions.setContext({type: 'segment', p0: prev, p1: pt}));
+      if (styleChanged(style, prevStyle)) {
+        result.push({start: start, end: i - 1, loop: segment.loop, style: prevStyle});
+        prevStyle = style;
+        start = i - 1;
+      }
+      prev = pt;
+      prevStyle = style;
+    }
+    if (start < i - 1) {
+      result.push({start, end: i - 1, loop: segment.loop, style});
+      start = i - 1;
+    }
+  }
+  return result;
+}
+function readStyle(options) {
+  return {
+    borderCapStyle: options.borderCapStyle,
+    borderDash: options.borderDash,
+    borderDashOffset: options.borderDashOffset,
+    borderJoinStyle: options.borderJoinStyle,
+    borderWidth: options.borderWidth,
+    borderColor: options.borderColor,
+  };
+}
+function styleChanged(style, prevStyle) {
+  return prevStyle && JSON.stringify(style) !== JSON.stringify(prevStyle);
 }
 
 var helpers = /*#__PURE__*/Object.freeze({
@@ -7847,6 +7892,7 @@ class LineController extends DatasetController {
     if (!me.options.showLine) {
       options.borderWidth = 0;
     }
+    options.segment = me.options.segment;
     me.updateElement(line, undefined, {
       animated: !animationsDisabled,
       options
@@ -7872,6 +7918,7 @@ class LineController extends DatasetController {
       const y = properties.y = reset ? yScale.getBasePixel() : yScale.getPixelForValue(_stacked ? me.applyStack(yScale, parsed, _stacked) : parsed.y, i);
       properties.skip = isNaN(x) || isNaN(y);
       properties.stop = i > 0 && (parsed.x - prevParsed.x) > maxGapLength;
+      properties.parsed = parsed;
       if (includeOptions) {
         properties.options = sharedOptions || me.resolveDataElementOptions(i, mode);
       }
@@ -8467,13 +8514,13 @@ ArcElement.defaultRoutes = {
   backgroundColor: 'backgroundColor'
 };
 
-function setStyle(ctx, vm) {
-  ctx.lineCap = vm.borderCapStyle;
-  ctx.setLineDash(vm.borderDash);
-  ctx.lineDashOffset = vm.borderDashOffset;
-  ctx.lineJoin = vm.borderJoinStyle;
-  ctx.lineWidth = vm.borderWidth;
-  ctx.strokeStyle = vm.borderColor;
+function setStyle(ctx, options, style = options) {
+  ctx.lineCap = valueOrDefault(style.borderCapStyle, options.borderCapStyle);
+  ctx.setLineDash(valueOrDefault(style.borderDash, options.borderDash));
+  ctx.lineDashOffset = valueOrDefault(style.borderDashOffset, options.borderDashOffset);
+  ctx.lineJoin = valueOrDefault(style.borderJoinStyle, options.borderJoinStyle);
+  ctx.lineWidth = valueOrDefault(style.borderWidth, options.borderWidth);
+  ctx.strokeStyle = valueOrDefault(style.borderColor, options.borderColor);
 }
 function lineTo(ctx, previous, target) {
   ctx.lineTo(target.x, target.y);
@@ -8591,17 +8638,29 @@ function strokePathWithCache(ctx, line, start, count) {
       path.closePath();
     }
   }
+  setStyle(ctx, line.options);
   ctx.stroke(path);
 }
 function strokePathDirect(ctx, line, start, count) {
-  ctx.beginPath();
-  if (line.path(ctx, start, count)) {
-    ctx.closePath();
+  const {segments, options} = line;
+  const segmentMethod = _getSegmentMethod(line);
+  for (const segment of segments) {
+    setStyle(ctx, options, segment.style);
+    ctx.beginPath();
+    if (segmentMethod(ctx, line, segment, {start, end: start + count - 1})) {
+      ctx.closePath();
+    }
+    ctx.stroke();
   }
-  ctx.stroke();
 }
 const usePath2D = typeof Path2D === 'function';
-const strokePath = usePath2D ? strokePathWithCache : strokePathDirect;
+function draw(ctx, line, start, count) {
+  if (usePath2D && line.segments.length === 1) {
+    strokePathWithCache(ctx, line, start, count);
+  } else {
+    strokePathDirect(ctx, line, start, count);
+  }
+}
 class LineElement extends Element {
   constructor(cfg) {
     super();
@@ -8638,7 +8697,7 @@ class LineElement extends Element {
     return this._points;
   }
   get segments() {
-    return this._segments || (this._segments = _computeSegments(this));
+    return this._segments || (this._segments = _computeSegments(this, this.options.segment));
   }
   first() {
     const segments = this.segments;
@@ -8685,13 +8744,12 @@ class LineElement extends Element {
   path(ctx, start, count) {
     const me = this;
     const segments = me.segments;
-    const ilen = segments.length;
     const segmentMethod = _getSegmentMethod(me);
     let loop = me._loop;
     start = start || 0;
     count = count || (me.points.length - start);
-    for (let i = 0; i < ilen; ++i) {
-      loop &= segmentMethod(ctx, me, segments[i], {start, end: start + count - 1});
+    for (const segment of segments) {
+      loop &= segmentMethod(ctx, me, segment, {start, end: start + count - 1});
     }
     return !!loop;
   }
@@ -8703,8 +8761,7 @@ class LineElement extends Element {
       return;
     }
     ctx.save();
-    setStyle(ctx, options);
-    strokePath(ctx, me, start, count);
+    draw(ctx, me, start, count);
     ctx.restore();
     if (me.animated) {
       me._pointsUpdated = false;
@@ -8744,6 +8801,7 @@ class PointElement extends Element {
   constructor(cfg) {
     super();
     this.options = undefined;
+    this.parsed = undefined;
     this.skip = undefined;
     this.stop = undefined;
     if (cfg) {
