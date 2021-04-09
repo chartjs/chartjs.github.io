@@ -5388,11 +5388,12 @@ function propertyFn(property) {
     normalize: x => x
   };
 }
-function makeSubSegment(start, end, loop, count) {
+function normalizeSegment({start, end, count, loop, style}) {
   return {
     start: start % count,
     end: end % count,
-    loop: loop && (end - start + 1) % count === 0
+    loop: loop && (end - start + 1) % count === 0,
+    style
   };
 }
 function getSegment(segment, points, bounds) {
@@ -5417,7 +5418,7 @@ function getSegment(segment, points, bounds) {
   if (end < start) {
     end += count;
   }
-  return {start, end, loop};
+  return {start, end, loop, style: segment.style};
 }
 function _boundSegment(segment, points, bounds) {
   if (!bounds) {
@@ -5426,7 +5427,7 @@ function _boundSegment(segment, points, bounds) {
   const {property, start: startBound, end: endBound} = bounds;
   const count = points.length;
   const {compare, between, normalize} = propertyFn(property);
-  const {start, end, loop} = getSegment(segment, points, bounds);
+  const {start, end, loop, style} = getSegment(segment, points, bounds);
   const result = [];
   let inside = false;
   let subStart = null;
@@ -5446,14 +5447,14 @@ function _boundSegment(segment, points, bounds) {
       subStart = compare(value, startBound) === 0 ? i : prev;
     }
     if (subStart !== null && shouldStop()) {
-      result.push(makeSubSegment(subStart, i, loop, count));
+      result.push(normalizeSegment({start: subStart, end: i, loop, count, style}));
       subStart = null;
     }
     prev = i;
     prevValue = value;
   }
   if (subStart !== null) {
-    result.push(makeSubSegment(subStart, end, loop, count));
+    result.push(normalizeSegment({start: subStart, end, loop, count, style}));
   }
   return result;
 }
@@ -5566,12 +5567,13 @@ function doSplitByStyles(segments, points, segmentOptions) {
 }
 function readStyle(options) {
   return {
+    backgroundColor: options.backgroundColor,
     borderCapStyle: options.borderCapStyle,
     borderDash: options.borderDash,
     borderDashOffset: options.borderDashOffset,
     borderJoinStyle: options.borderJoinStyle,
     borderWidth: options.borderWidth,
-    borderColor: options.borderColor,
+    borderColor: options.borderColor
   };
 }
 function styleChanged(style, prevStyle) {
@@ -9539,8 +9541,7 @@ function _segments(line, target, property) {
   const points = line.points;
   const tpoints = target.points;
   const parts = [];
-  for (let i = 0; i < segments.length; i++) {
-    const segment = segments[i];
+  for (const segment of segments) {
     const bounds = getBounds(property, points[segment.start], points[segment.end], segment.loop);
     if (!target.segments) {
       parts.push({
@@ -9551,15 +9552,14 @@ function _segments(line, target, property) {
       });
       continue;
     }
-    const subs = _boundSegments(target, bounds);
-    for (let j = 0; j < subs.length; ++j) {
-      const sub = subs[j];
-      const subBounds = getBounds(property, tpoints[sub.start], tpoints[sub.end], sub.loop);
+    const targetSegments = _boundSegments(target, bounds);
+    for (const tgt of targetSegments) {
+      const subBounds = getBounds(property, tpoints[tgt.start], tpoints[tgt.end], tgt.loop);
       const fillSources = _boundSegment(segment, points, subBounds);
-      for (let k = 0; k < fillSources.length; k++) {
+      for (const fillSource of fillSources) {
         parts.push({
-          source: fillSources[k],
-          target: sub,
+          source: fillSource,
+          target: tgt,
           start: {
             [property]: _getEdge(bounds, subBounds, 'start', Math.max)
           },
@@ -9590,10 +9590,10 @@ function interpolatedLineTo(ctx, target, point, property) {
 function _fill(ctx, cfg) {
   const {line, target, property, color, scale} = cfg;
   const segments = _segments(line, target, property);
-  ctx.fillStyle = color;
-  for (let i = 0, ilen = segments.length; i < ilen; ++i) {
-    const {source: src, target: tgt, start, end} = segments[i];
+  for (const {source: src, target: tgt, start, end} of segments) {
+    const {style: {backgroundColor = color} = {}} = src;
     ctx.save();
+    ctx.fillStyle = backgroundColor;
     clipBounds(ctx, scale, getBounds(property, start, end));
     ctx.beginPath();
     const lineLoop = !!line.pathSegment(ctx, src);
