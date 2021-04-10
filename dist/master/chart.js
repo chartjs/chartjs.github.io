@@ -1855,6 +1855,7 @@ var Interaction = {
 };
 
 const LINE_HEIGHT = new RegExp(/^(normal|(\d+(?:\.\d+)?)(px|em|%)?)$/);
+const FONT_STYLE = new RegExp(/^(normal|italic|initial|inherit|unset|(oblique( -?[0-9]?[0-9]deg)?))$/);
 function toLineHeight(value, size) {
   const matches = ('' + value).match(LINE_HEIGHT);
   if (!matches || matches[1] === 'normal') {
@@ -1904,11 +1905,16 @@ function toFont(options, fallback) {
   if (typeof size === 'string') {
     size = parseInt(size, 10);
   }
+  let style = valueOrDefault(options.style, fallback.style);
+  if (style && !('' + style).match(FONT_STYLE)) {
+    console.warn('Invalid font style specified: "' + style + '"');
+    style = '';
+  }
   const font = {
     family: valueOrDefault(options.family, fallback.family),
     lineHeight: toLineHeight(valueOrDefault(options.lineHeight, fallback.lineHeight), size),
     size,
-    style: valueOrDefault(options.style, fallback.style),
+    style,
     weight: valueOrDefault(options.weight, fallback.weight),
     string: ''
   };
@@ -10311,7 +10317,7 @@ var plugin_title = {
     align: 'center',
     display: false,
     font: {
-      style: 'bold',
+      weight: 'bold',
     },
     fullSize: true,
     padding: 10,
@@ -11149,7 +11155,7 @@ var plugin_tooltip = {
     backgroundColor: 'rgba(0,0,0,0.8)',
     titleColor: '#fff',
     titleFont: {
-      style: 'bold',
+      weight: 'bold',
     },
     titleSpacing: 2,
     titleMarginBottom: 6,
@@ -11163,7 +11169,7 @@ var plugin_tooltip = {
     footerSpacing: 2,
     footerMarginTop: 6,
     footerFont: {
-      style: 'bold',
+      weight: 'bold',
     },
     footerAlign: 'left',
     padding: 6,

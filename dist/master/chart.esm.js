@@ -7779,7 +7779,7 @@ var plugin_title = {
     align: 'center',
     display: false,
     font: {
-      style: 'bold',
+      weight: 'bold',
     },
     fullSize: true,
     padding: 10,
@@ -8617,7 +8617,7 @@ var plugin_tooltip = {
     backgroundColor: 'rgba(0,0,0,0.8)',
     titleColor: '#fff',
     titleFont: {
-      style: 'bold',
+      weight: 'bold',
     },
     titleSpacing: 2,
     titleMarginBottom: 6,
@@ -8631,7 +8631,7 @@ var plugin_tooltip = {
     footerSpacing: 2,
     footerMarginTop: 6,
     footerFont: {
-      style: 'bold',
+      weight: 'bold',
     },
     footerAlign: 'left',
     padding: 6,
