@@ -4621,13 +4621,13 @@ class PluginService {
   constructor() {
     this._init = [];
   }
-  notify(chart, hook, args) {
+  notify(chart, hook, args, filter) {
     const me = this;
     if (hook === 'beforeInit') {
       me._init = me._createDescriptors(chart, true);
       me._notify(me._init, chart, 'install');
     }
-    const descriptors = me._descriptors(chart);
+    const descriptors = filter ? me._descriptors(chart).filter(filter) : me._descriptors(chart);
     const result = me._notify(descriptors, chart, hook, args);
     if (hook === 'destroy') {
       me._notify(descriptors, chart, 'stop');
@@ -5681,8 +5681,8 @@ class Chart {
       me._updateHoverStyles(active, lastActive);
     }
   }
-  notifyPlugins(hook, args) {
-    return this._plugins.notify(this, hook, args);
+  notifyPlugins(hook, args, filter) {
+    return this._plugins.notify(this, hook, args, filter);
   }
   _updateHoverStyles(active, lastActive, replay) {
     const me = this;
@@ -5700,12 +5700,13 @@ class Chart {
   _eventHandler(e, replay) {
     const me = this;
     const args = {event: e, replay, cancelable: true};
-    if (me.notifyPlugins('beforeEvent', args) === false) {
+    const eventFilter = (plugin) => (plugin.options.events || this.options.events).includes(e.type);
+    if (me.notifyPlugins('beforeEvent', args, eventFilter) === false) {
       return;
     }
     const changed = me._handleEvent(e, replay);
     args.cancelable = false;
-    me.notifyPlugins('afterEvent', args);
+    me.notifyPlugins('afterEvent', args, eventFilter);
     if (changed || args.changed) {
       me.render();
     }
