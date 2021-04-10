@@ -1,5 +1,5 @@
 /*!
- * Chart.js v3.0.1
+ * Chart.js v3.1.0
  * https://www.chartjs.org
  * (c) 2021 Chart.js Contributors
  * Released under the MIT License
@@ -4984,7 +4984,7 @@ function needContext(proxy, names) {
   return false;
 }
 
-var version = "3.0.1";
+var version = "3.1.0";
 
 const KNOWN_POSITIONS = ['top', 'bottom', 'left', 'right', 'chartArea'];
 function positionIsHorizontal(position, axis) {
@@ -5725,9 +5725,9 @@ class Chart {
       lastEvent = e.type === 'click' ? me._lastEvent : e;
     }
     me._lastEvent = null;
-    callback(options.onHover, [e, active, me], me);
-    if (e.type === 'mouseup' || e.type === 'click' || e.type === 'contextmenu') {
-      if (_isPointInArea(e, me.chartArea, me._minPadding)) {
+    if (_isPointInArea(e, me.chartArea, me._minPadding)) {
+      callback(options.onHover, [e, active, me], me);
+      if (e.type === 'mouseup' || e.type === 'click' || e.type === 'contextmenu') {
         callback(options.onClick, [e, active, me], me);
       }
     }
