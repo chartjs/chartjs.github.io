@@ -2010,14 +2010,13 @@ function updateMaxPadding(maxPadding, boxPadding) {
 function updateDims(chartArea, params, layout) {
   const box = layout.box;
   const maxPadding = chartArea.maxPadding;
-  if (isObject(layout.pos)) {
-    return {same: false, other: false};
+  if (!isObject(layout.pos)) {
+    if (layout.size) {
+      chartArea[layout.pos] -= layout.size;
+    }
+    layout.size = layout.horizontal ? box.height : box.width;
+    chartArea[layout.pos] += layout.size;
   }
-  if (layout.size) {
-    chartArea[layout.pos] -= layout.size;
-  }
-  layout.size = layout.horizontal ? box.height : box.width;
-  chartArea[layout.pos] += layout.size;
   if (box.getPadding) {
     updateMaxPadding(maxPadding, box.getPadding());
   }
