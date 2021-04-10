@@ -4,7 +4,7 @@
  * (c) 2021 Chart.js Contributors
  * Released under the MIT License
  */
-import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, b as isArray, d as defaults, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as isNumberFinite, h as defined, s as sign, j as isNullOrUndef, k as clipArea, m as unclipArea, _ as _arrayUnique, t as toRadians, n as toPercentage, o as toDimension, T as TAU, p as formatNumber, q as _angleBetween, H as HALF_PI, P as PI, w as isNumber, x as _limitValue, y as _lookupByKey, z as getRelativePosition$1, A as _isPointInArea, B as _rlookupByKey, C as toPadding, D as each, E as getMaximumSize, F as _getParentNode, G as readUsedSize, I as throttled, J as supportsEventListenerOptions, K as log10, L as _factorize, M as finiteOrDefault, N as callback, O as toDegrees, Q as _measureText, R as _int16Range, S as _alignPixel, U as renderText, V as toFont, W as _toLeftRightCenter, X as _alignStartEnd, Y as overrides, Z as merge, $ as _capitalize, a0 as descriptors, a1 as isFunction, a2 as _attachContext, a3 as _createResolver, a4 as _descriptors, a5 as mergeIf, a6 as uid, a7 as debounce, a8 as retinaScale, a9 as clearCanvas, aa as _elementsEqual, ab as getAngleFromPoint, ac as _readValueToProps, ad as _updateBezierControlPoints, ae as _computeSegments, af as _boundSegments, ag as _steppedInterpolation, ah as _bezierInterpolation, ai as _pointInLine, aj as _steppedLineTo, ak as _bezierCurveTo, al as drawPoint, am as toTRBL, an as toTRBLCorners, ao as _boundSegment, ap as _normalizeAngle, aq as getRtlAdapter, ar as overrideTextDirection, as as _textX, at as restoreTextDirection, au as noop, av as distanceBetweenPoints, aw as _addGrace, ax as _setMinAndMaxByKey, ay as niceNum, az as almostWhole, aA as almostEquals, aB as _decimalPlaces, aC as _longestText, aD as _filterBetween, aE as _lookup } from './chunks/helpers.segment.js';
+import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, b as isArray, d as defaults, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as isNumberFinite, h as defined, s as sign, j as isNullOrUndef, k as clipArea, m as unclipArea, _ as _arrayUnique, t as toRadians, n as toPercentage, o as toDimension, T as TAU, p as formatNumber, q as _angleBetween, H as HALF_PI, P as PI, w as isNumber, x as _limitValue, y as _lookupByKey, z as getRelativePosition$1, A as _isPointInArea, B as _rlookupByKey, C as toPadding, D as each, E as getMaximumSize, F as _getParentNode, G as readUsedSize, I as throttled, J as supportsEventListenerOptions, K as log10, L as _factorize, M as finiteOrDefault, N as callback, O as toDegrees, Q as _measureText, R as _int16Range, S as _alignPixel, U as renderText, V as toFont, W as _toLeftRightCenter, X as _alignStartEnd, Y as overrides, Z as merge, $ as _capitalize, a0 as descriptors, a1 as isFunction, a2 as _attachContext, a3 as _createResolver, a4 as _descriptors, a5 as mergeIf, a6 as uid, a7 as debounce, a8 as retinaScale, a9 as clearCanvas, aa as _elementsEqual, ab as getAngleFromPoint, ac as _readValueToProps, ad as _updateBezierControlPoints, ae as _computeSegments, af as _boundSegments, ag as _steppedInterpolation, ah as _bezierInterpolation, ai as _pointInLine, aj as _steppedLineTo, ak as _bezierCurveTo, al as drawPoint, am as addRoundedRectPath, an as toTRBL, ao as toTRBLCorners, ap as _boundSegment, aq as _normalizeAngle, ar as getRtlAdapter, as as overrideTextDirection, at as _textX, au as restoreTextDirection, av as noop, aw as distanceBetweenPoints, ax as _addGrace, ay as _setMinAndMaxByKey, az as niceNum, aA as almostWhole, aB as almostEquals, aC as _decimalPlaces, aD as _longestText, aE as _filterBetween, aF as _lookup } from './chunks/helpers.segment.js';
 export { d as defaults } from './chunks/helpers.segment.js';
 
 class Animator {
@@ -6459,17 +6459,6 @@ function inRange(bar, x, y, useFinalPosition) {
 function hasRadius(radius) {
   return radius.topLeft || radius.topRight || radius.bottomLeft || radius.bottomRight;
 }
-function addRoundedRectPath(ctx, rect) {
-  const {x, y, w, h, radius} = rect;
-  ctx.arc(x + radius.topLeft, y + radius.topLeft, radius.topLeft, -HALF_PI, PI, true);
-  ctx.lineTo(x, y + h - radius.bottomLeft);
-  ctx.arc(x + radius.bottomLeft, y + h - radius.bottomLeft, radius.bottomLeft, PI, HALF_PI, true);
-  ctx.lineTo(x + w - radius.bottomRight, y + h);
-  ctx.arc(x + w - radius.bottomRight, y + h - radius.bottomRight, radius.bottomRight, HALF_PI, 0, true);
-  ctx.lineTo(x + w, y + radius.topRight);
-  ctx.arc(x + w - radius.topRight, y + radius.topRight, radius.topRight, 0, -HALF_PI, true);
-  ctx.lineTo(x + radius.topLeft, y);
-}
 function addNormalRectPath(ctx, rect) {
   ctx.rect(rect.x, rect.y, rect.w, rect.h);
 }
@@ -8310,13 +8299,42 @@ class Tooltip extends Element {
       ctx.fillStyle = labelColors.backgroundColor;
       drawPoint(ctx, drawOptions, centerX, centerY);
     } else {
-      ctx.fillStyle = options.multiKeyBackground;
-      ctx.fillRect(rtlHelper.leftForLtr(rtlColorX, boxWidth), colorY, boxWidth, boxHeight);
-      ctx.lineWidth = 1;
+      ctx.lineWidth = labelColors.borderWidth || 1;
       ctx.strokeStyle = labelColors.borderColor;
-      ctx.strokeRect(rtlHelper.leftForLtr(rtlColorX, boxWidth), colorY, boxWidth, boxHeight);
-      ctx.fillStyle = labelColors.backgroundColor;
-      ctx.fillRect(rtlHelper.leftForLtr(rtlHelper.xPlus(rtlColorX, 1), boxWidth - 2), colorY + 1, boxWidth - 2, boxHeight - 2);
+      ctx.setLineDash(labelColors.borderDash || []);
+      ctx.lineDashOffset = labelColors.borderDashOffset || 0;
+      const outerX = rtlHelper.leftForLtr(rtlColorX, boxWidth);
+      const innerX = rtlHelper.leftForLtr(rtlHelper.xPlus(rtlColorX, 1), boxWidth - 2);
+      const borderRadius = toTRBLCorners(labelColors.borderRadius);
+      if (Object.values(borderRadius).some(v => v !== 0)) {
+        ctx.beginPath();
+        ctx.fillStyle = options.multiKeyBackground;
+        addRoundedRectPath(ctx, {
+          x: outerX,
+          y: colorY,
+          w: boxWidth,
+          h: boxHeight,
+          radius: borderRadius,
+        });
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = labelColors.backgroundColor;
+        ctx.beginPath();
+        addRoundedRectPath(ctx, {
+          x: innerX,
+          y: colorY + 1,
+          w: boxWidth - 2,
+          h: boxHeight - 2,
+          radius: borderRadius,
+        });
+        ctx.fill();
+      } else {
+        ctx.fillStyle = options.multiKeyBackground;
+        ctx.fillRect(outerX, colorY, boxWidth, boxHeight);
+        ctx.strokeRect(outerX, colorY, boxWidth, boxHeight);
+        ctx.fillStyle = labelColors.backgroundColor;
+        ctx.fillRect(innerX, colorY + 1, boxWidth - 2, boxHeight - 2);
+      }
     }
     ctx.fillStyle = me.labelTextColors[i];
   }
@@ -8663,7 +8681,11 @@ var plugin_tooltip = {
         const options = meta.controller.getStyle(tooltipItem.dataIndex);
         return {
           borderColor: options.borderColor,
-          backgroundColor: options.backgroundColor
+          backgroundColor: options.backgroundColor,
+          borderWidth: options.borderWidth,
+          borderDash: options.borderDash,
+          borderDashOffset: options.borderDashOffset,
+          borderRadius: 0,
         };
       },
       labelTextColor() {
