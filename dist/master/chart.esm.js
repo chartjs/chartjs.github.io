@@ -6633,14 +6633,17 @@ function minMaxDecimation(data, start, count, availableWidth) {
   }
   return decimated;
 }
+function cleanDecimatedDataset(dataset) {
+  if (dataset._decimated) {
+    const data = dataset._data;
+    delete dataset._decimated;
+    delete dataset._data;
+    Object.defineProperty(dataset, 'data', {value: data});
+  }
+}
 function cleanDecimatedData(chart) {
   chart.data.datasets.forEach((dataset) => {
-    if (dataset._decimated) {
-      const data = dataset._data;
-      delete dataset._decimated;
-      delete dataset._data;
-      Object.defineProperty(dataset, 'data', {value: data});
-    }
+    cleanDecimatedDataset(dataset);
   });
 }
 function getStartAndCountOfVisiblePointsSimplified(meta, points) {
@@ -6690,6 +6693,7 @@ var plugin_decimation = {
       }
       let {start, count} = getStartAndCountOfVisiblePointsSimplified(meta, data);
       if (count <= 4 * availableWidth) {
+        cleanDecimatedDataset(dataset);
         return;
       }
       if (isNullOrUndef(_data)) {
