@@ -10362,6 +10362,9 @@ const positioners = {
     };
   },
   nearest(items, eventPosition) {
+    if (!items.length) {
+      return false;
+    }
     let x = eventPosition.x;
     let y = eventPosition.y;
     let minDistance = Number.POSITIVE_INFINITY;
@@ -11106,9 +11109,9 @@ class Tooltip extends Element {
     return changed;
   }
   _positionChanged(active, e) {
-    const me = this;
-    const position = positioners[me.options.position].call(me, active, e);
-    return me.caretX !== position.x || me.caretY !== position.y;
+    const {caretX, caretY, options} = this;
+    const position = positioners[options.position].call(this, active, e);
+    return position !== false && (caretX !== position.x || caretY !== position.y);
   }
 }
 Tooltip.positioners = positioners;
