@@ -9646,7 +9646,7 @@ function _fill(ctx, cfg) {
 }
 function doFill(ctx, cfg) {
   const {line, target, above, below, area, scale} = cfg;
-  const property = line._loop ? 'angle' : 'x';
+  const property = line._loop ? 'angle' : cfg.axis;
   ctx.save();
   if (property === 'x' && below !== above) {
     _clip(ctx, target, area.top);
@@ -9660,14 +9660,14 @@ function doFill(ctx, cfg) {
 }
 function drawfill(ctx, source, area) {
   const target = getTarget(source);
-  const {line, scale} = source;
+  const {line, scale, axis} = source;
   const lineOpts = line.options;
   const fillOption = lineOpts.fill;
   const color = lineOpts.backgroundColor;
   const {above = color, below = color} = fillOption || {};
   if (target && line.points.length) {
     clipArea(ctx, area);
-    doFill(ctx, {line, target, above, below, area, scale});
+    doFill(ctx, {line, target, above, below, area, scale, axis});
     unclipArea(ctx);
   }
 }
@@ -9687,6 +9687,7 @@ var plugin_filler = {
           index: i,
           fill: decodeFill(line, i, count),
           chart,
+          axis: meta.controller.options.indexAxis,
           scale: meta.vScale,
           line,
         };
