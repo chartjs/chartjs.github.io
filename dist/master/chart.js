@@ -930,6 +930,17 @@ function _capitalize(str) {
 }
 const defined = (value) => typeof value !== 'undefined';
 const isFunction = (value) => typeof value === 'function';
+const setsEqual = (a, b) => {
+  if (a.size !== b.size) {
+    return false;
+  }
+  for (const item of a) {
+    if (!b.has(item)) {
+      return false;
+    }
+  }
+  return true;
+};
 
 const overrides = Object.create(null);
 const descriptors = Object.create(null);
@@ -5640,6 +5651,7 @@ resolveObjectKey: resolveObjectKey,
 _capitalize: _capitalize,
 defined: defined,
 isFunction: isFunction,
+setsEqual: setsEqual,
 toFontString: toFontString,
 _measureText: _measureText,
 _longestText: _longestText,
@@ -6603,6 +6615,12 @@ class Chart {
     const animsDisabled = me._animationsDisabled = !me.options.animation;
     me.ensureScalesHaveIDs();
     me.buildOrUpdateScales();
+    const existingEvents = new Set(Object.keys(me._listeners));
+    const newEvents = new Set(me.options.events);
+    if (!setsEqual(existingEvents, newEvents)) {
+      me.unbindEvents();
+      me.bindEvents();
+    }
     me._plugins.invalidate();
     if (me.notifyPlugins('beforeUpdate', {mode, cancelable: true}) === false) {
       return;
@@ -6920,7 +6938,7 @@ class Chart {
     if (!listeners) {
       return;
     }
-    delete me._listeners;
+    me._listeners = {};
     each(listeners, (listener, type) => {
       me.platform.removeEventListener(me, type, listener);
     });

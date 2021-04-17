@@ -4,7 +4,7 @@
  * (c) 2021 Chart.js Contributors
  * Released under the MIT License
  */
-import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, b as isArray, d as defaults, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as isNumberFinite, h as defined, s as sign, j as isNullOrUndef, k as clipArea, m as unclipArea, _ as _arrayUnique, t as toRadians, n as toPercentage, o as toDimension, T as TAU, p as formatNumber, q as _angleBetween, H as HALF_PI, P as PI, w as isNumber, x as _limitValue, y as _lookupByKey, z as getRelativePosition$1, A as _isPointInArea, B as _rlookupByKey, C as toPadding, D as each, E as getMaximumSize, F as _getParentNode, G as readUsedSize, I as throttled, J as supportsEventListenerOptions, K as log10, L as _factorize, M as finiteOrDefault, N as callback, O as _addGrace, Q as toDegrees, R as _measureText, S as _int16Range, U as _alignPixel, V as renderText, W as toFont, X as _toLeftRightCenter, Y as _alignStartEnd, Z as overrides, $ as merge, a0 as _capitalize, a1 as descriptors, a2 as isFunction, a3 as _attachContext, a4 as _createResolver, a5 as _descriptors, a6 as mergeIf, a7 as uid, a8 as debounce, a9 as retinaScale, aa as clearCanvas, ab as _elementsEqual, ac as getAngleFromPoint, ad as _readValueToProps, ae as _updateBezierControlPoints, af as _computeSegments, ag as _boundSegments, ah as _steppedInterpolation, ai as _bezierInterpolation, aj as _pointInLine, ak as _steppedLineTo, al as _bezierCurveTo, am as drawPoint, an as addRoundedRectPath, ao as toTRBL, ap as toTRBLCorners, aq as _boundSegment, ar as _normalizeAngle, as as getRtlAdapter, at as overrideTextDirection, au as _textX, av as restoreTextDirection, aw as noop, ax as distanceBetweenPoints, ay as _setMinAndMaxByKey, az as niceNum, aA as almostWhole, aB as almostEquals, aC as _decimalPlaces, aD as _longestText, aE as _filterBetween, aF as _lookup } from './chunks/helpers.segment.js';
+import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, b as isArray, d as defaults, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as isNumberFinite, h as defined, s as sign, j as isNullOrUndef, k as clipArea, m as unclipArea, _ as _arrayUnique, t as toRadians, n as toPercentage, o as toDimension, T as TAU, p as formatNumber, q as _angleBetween, H as HALF_PI, P as PI, w as isNumber, x as _limitValue, y as _lookupByKey, z as getRelativePosition$1, A as _isPointInArea, B as _rlookupByKey, C as toPadding, D as each, E as getMaximumSize, F as _getParentNode, G as readUsedSize, I as throttled, J as supportsEventListenerOptions, K as log10, L as _factorize, M as finiteOrDefault, N as callback, O as _addGrace, Q as toDegrees, R as _measureText, S as _int16Range, U as _alignPixel, V as renderText, W as toFont, X as _toLeftRightCenter, Y as _alignStartEnd, Z as overrides, $ as merge, a0 as _capitalize, a1 as descriptors, a2 as isFunction, a3 as _attachContext, a4 as _createResolver, a5 as _descriptors, a6 as mergeIf, a7 as uid, a8 as debounce, a9 as retinaScale, aa as clearCanvas, ab as setsEqual, ac as _elementsEqual, ad as getAngleFromPoint, ae as _readValueToProps, af as _updateBezierControlPoints, ag as _computeSegments, ah as _boundSegments, ai as _steppedInterpolation, aj as _bezierInterpolation, ak as _pointInLine, al as _steppedLineTo, am as _bezierCurveTo, an as drawPoint, ao as addRoundedRectPath, ap as toTRBL, aq as toTRBLCorners, ar as _boundSegment, as as _normalizeAngle, at as getRtlAdapter, au as overrideTextDirection, av as _textX, aw as restoreTextDirection, ax as noop, ay as distanceBetweenPoints, az as _setMinAndMaxByKey, aA as niceNum, aB as almostWhole, aC as almostEquals, aD as _decimalPlaces, aE as _longestText, aF as _filterBetween, aG as _lookup } from './chunks/helpers.segment.js';
 export { d as defaults } from './chunks/helpers.segment.js';
 
 class Animator {
@@ -5337,6 +5337,12 @@ class Chart {
     const animsDisabled = me._animationsDisabled = !me.options.animation;
     me.ensureScalesHaveIDs();
     me.buildOrUpdateScales();
+    const existingEvents = new Set(Object.keys(me._listeners));
+    const newEvents = new Set(me.options.events);
+    if (!setsEqual(existingEvents, newEvents)) {
+      me.unbindEvents();
+      me.bindEvents();
+    }
     me._plugins.invalidate();
     if (me.notifyPlugins('beforeUpdate', {mode, cancelable: true}) === false) {
       return;
@@ -5654,7 +5660,7 @@ class Chart {
     if (!listeners) {
       return;
     }
-    delete me._listeners;
+    me._listeners = {};
     each(listeners, (listener, type) => {
       me.platform.removeEventListener(me, type, listener);
     });
