@@ -6063,11 +6063,15 @@ function initOptions(config) {
   options.plugins = valueOrDefault(options.plugins, {});
   options.scales = mergeScaleConfig(config, options);
 }
-function initConfig(config) {
-  config = config || {};
-  const data = config.data = config.data || {datasets: [], labels: []};
+function initData(data) {
+  data = data || {};
   data.datasets = data.datasets || [];
   data.labels = data.labels || [];
+  return data;
+}
+function initConfig(config) {
+  config = config || {};
+  config.data = initData(config.data);
   initOptions(config);
   return config;
 }
@@ -6104,7 +6108,7 @@ class Config {
     return this._config.data;
   }
   set data(data) {
-    this._config.data = data;
+    this._config.data = initData(data);
   }
   get options() {
     return this._config.options;
