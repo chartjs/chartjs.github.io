@@ -4146,6 +4146,13 @@ class Scale extends Element {
       tick = ticks[i];
       tick.label = callback(tickOpts.callback, [tick.value, i, ticks], me);
     }
+    for (i = 0; i < ilen; i++) {
+      if (isNullOrUndef(ticks[i].label)) {
+        ticks.splice(i, 1);
+        ilen--;
+        i--;
+      }
+    }
   }
   afterTickToLabelConversion() {
     callback(this.options.afterTickToLabelConversion, [this]);
