@@ -4,7 +4,7 @@
  * (c) 2021 Chart.js Contributors
  * Released under the MIT License
  */
-import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, b as isArray, d as defaults, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as isNumberFinite, h as defined, s as sign, j as isNullOrUndef, k as clipArea, m as unclipArea, _ as _arrayUnique, t as toRadians, n as toPercentage, o as toDimension, T as TAU, p as formatNumber, q as _angleBetween, H as HALF_PI, P as PI, w as isNumber, x as _limitValue, y as _lookupByKey, z as getRelativePosition$1, A as _isPointInArea, B as _rlookupByKey, C as toPadding, D as each, E as getMaximumSize, F as _getParentNode, G as readUsedSize, I as throttled, J as supportsEventListenerOptions, K as log10, L as _factorize, M as finiteOrDefault, N as callback, O as toDegrees, Q as _measureText, R as _int16Range, S as _alignPixel, U as renderText, V as toFont, W as _toLeftRightCenter, X as _alignStartEnd, Y as overrides, Z as merge, $ as _capitalize, a0 as descriptors, a1 as isFunction, a2 as _attachContext, a3 as _createResolver, a4 as _descriptors, a5 as mergeIf, a6 as uid, a7 as debounce, a8 as retinaScale, a9 as clearCanvas, aa as _elementsEqual, ab as getAngleFromPoint, ac as _readValueToProps, ad as _updateBezierControlPoints, ae as _computeSegments, af as _boundSegments, ag as _steppedInterpolation, ah as _bezierInterpolation, ai as _pointInLine, aj as _steppedLineTo, ak as _bezierCurveTo, al as drawPoint, am as addRoundedRectPath, an as toTRBL, ao as toTRBLCorners, ap as _boundSegment, aq as _normalizeAngle, ar as getRtlAdapter, as as overrideTextDirection, at as _textX, au as restoreTextDirection, av as noop, aw as distanceBetweenPoints, ax as _addGrace, ay as _setMinAndMaxByKey, az as niceNum, aA as almostWhole, aB as almostEquals, aC as _decimalPlaces, aD as _longestText, aE as _filterBetween, aF as _lookup } from './chunks/helpers.segment.js';
+import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, b as isArray, d as defaults, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as isNumberFinite, h as defined, s as sign, j as isNullOrUndef, k as clipArea, m as unclipArea, _ as _arrayUnique, t as toRadians, n as toPercentage, o as toDimension, T as TAU, p as formatNumber, q as _angleBetween, H as HALF_PI, P as PI, w as isNumber, x as _limitValue, y as _lookupByKey, z as getRelativePosition$1, A as _isPointInArea, B as _rlookupByKey, C as toPadding, D as each, E as getMaximumSize, F as _getParentNode, G as readUsedSize, I as throttled, J as supportsEventListenerOptions, K as log10, L as _factorize, M as finiteOrDefault, N as callback, O as _addGrace, Q as toDegrees, R as _measureText, S as _int16Range, U as _alignPixel, V as renderText, W as toFont, X as _toLeftRightCenter, Y as _alignStartEnd, Z as overrides, $ as merge, a0 as _capitalize, a1 as descriptors, a2 as isFunction, a3 as _attachContext, a4 as _createResolver, a5 as _descriptors, a6 as mergeIf, a7 as uid, a8 as debounce, a9 as retinaScale, aa as clearCanvas, ab as _elementsEqual, ac as getAngleFromPoint, ad as _readValueToProps, ae as _updateBezierControlPoints, af as _computeSegments, ag as _boundSegments, ah as _steppedInterpolation, ai as _bezierInterpolation, aj as _pointInLine, ak as _steppedLineTo, al as _bezierCurveTo, am as drawPoint, an as addRoundedRectPath, ao as toTRBL, ap as toTRBLCorners, aq as _boundSegment, ar as _normalizeAngle, as as getRtlAdapter, at as overrideTextDirection, au as _textX, av as restoreTextDirection, aw as noop, ax as distanceBetweenPoints, ay as _setMinAndMaxByKey, az as niceNum, aA as almostWhole, aB as almostEquals, aC as _decimalPlaces, aD as _longestText, aE as _filterBetween, aF as _lookup } from './chunks/helpers.segment.js';
 export { d as defaults } from './chunks/helpers.segment.js';
 
 class Animator {
@@ -3465,6 +3465,7 @@ class Scale extends Element {
     this.labelRotation = undefined;
     this.min = undefined;
     this.max = undefined;
+    this._range = undefined;
     this.ticks = [];
     this._gridLineItems = null;
     this._labelItems = null;
@@ -3582,6 +3583,7 @@ class Scale extends Element {
       me.beforeDataLimits();
       me.determineDataLimits();
       me.afterDataLimits();
+      me._range = _addGrace(me, me.options.grace);
       me._dataLimitsCached = true;
     }
     me.beforeBuildTicks();
@@ -9021,7 +9023,8 @@ class LinearScaleBase extends Scale {
       step: tickOpts.stepSize,
       count: tickOpts.count,
     };
-    const ticks = generateTicks$1(numericGeneratorOptions, _addGrace(me, opts.grace));
+    const dataRange = me._range || me;
+    const ticks = generateTicks$1(numericGeneratorOptions, dataRange);
     if (opts.bounds === 'ticks') {
       _setMinAndMaxByKey(ticks, me, 'value');
     }

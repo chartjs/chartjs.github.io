@@ -3931,6 +3931,7 @@ class Scale extends Element {
     this.labelRotation = undefined;
     this.min = undefined;
     this.max = undefined;
+    this._range = undefined;
     this.ticks = [];
     this._gridLineItems = null;
     this._labelItems = null;
@@ -4048,6 +4049,7 @@ class Scale extends Element {
       me.beforeDataLimits();
       me.determineDataLimits();
       me.afterDataLimits();
+      me._range = _addGrace(me, me.options.grace);
       me._dataLimitsCached = true;
     }
     me.beforeBuildTicks();
@@ -11559,7 +11561,8 @@ class LinearScaleBase extends Scale {
       step: tickOpts.stepSize,
       count: tickOpts.count,
     };
-    const ticks = generateTicks$1(numericGeneratorOptions, _addGrace(me, opts.grace));
+    const dataRange = me._range || me;
+    const ticks = generateTicks$1(numericGeneratorOptions, dataRange);
     if (opts.bounds === 'ticks') {
       _setMinAndMaxByKey(ticks, me, 'value');
     }
