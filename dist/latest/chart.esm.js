@@ -1,10 +1,10 @@
 /*!
- * Chart.js v3.1.0
+ * Chart.js v3.1.1
  * https://www.chartjs.org
  * (c) 2021 Chart.js Contributors
  * Released under the MIT License
  */
-import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, b as isArray, d as defaults, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as isNumberFinite, h as defined, s as sign, j as isNullOrUndef, k as clipArea, m as unclipArea, _ as _arrayUnique, t as toRadians, n as toPercentage, o as toDimension, T as TAU, p as formatNumber, q as _angleBetween, H as HALF_PI, P as PI, w as isNumber, x as _limitValue, y as _lookupByKey, z as getRelativePosition$1, A as _isPointInArea, B as _rlookupByKey, C as toPadding, D as each, E as getMaximumSize, F as _getParentNode, G as readUsedSize, I as throttled, J as supportsEventListenerOptions, K as log10, L as _factorize, M as finiteOrDefault, N as callback, O as toDegrees, Q as _measureText, R as _int16Range, S as _alignPixel, U as renderText, V as toFont, W as _toLeftRightCenter, X as _alignStartEnd, Y as overrides, Z as merge, $ as _capitalize, a0 as descriptors, a1 as isFunction, a2 as _attachContext, a3 as _createResolver, a4 as _descriptors, a5 as mergeIf, a6 as uid, a7 as debounce, a8 as retinaScale, a9 as clearCanvas, aa as _elementsEqual, ab as getAngleFromPoint, ac as _readValueToProps, ad as _updateBezierControlPoints, ae as _computeSegments, af as _boundSegments, ag as _steppedInterpolation, ah as _bezierInterpolation, ai as _pointInLine, aj as _steppedLineTo, ak as _bezierCurveTo, al as drawPoint, am as addRoundedRectPath, an as toTRBL, ao as toTRBLCorners, ap as _boundSegment, aq as _normalizeAngle, ar as getRtlAdapter, as as overrideTextDirection, at as _textX, au as restoreTextDirection, av as noop, aw as distanceBetweenPoints, ax as _addGrace, ay as _setMinAndMaxByKey, az as niceNum, aA as almostWhole, aB as almostEquals, aC as _decimalPlaces, aD as _longestText, aE as _filterBetween, aF as _lookup } from './chunks/helpers.segment.js';
+import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, b as isArray, d as defaults, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as isNumberFinite, h as defined, s as sign, j as isNullOrUndef, k as clipArea, m as unclipArea, _ as _arrayUnique, t as toRadians, n as toPercentage, o as toDimension, T as TAU, p as formatNumber, q as _angleBetween, H as HALF_PI, P as PI, w as isNumber, x as _limitValue, y as _lookupByKey, z as getRelativePosition$1, A as _isPointInArea, B as _rlookupByKey, C as toPadding, D as each, E as getMaximumSize, F as _getParentNode, G as readUsedSize, I as throttled, J as supportsEventListenerOptions, K as log10, L as _factorize, M as finiteOrDefault, N as callback, O as _addGrace, Q as toDegrees, R as _measureText, S as _int16Range, U as _alignPixel, V as renderText, W as toFont, X as _toLeftRightCenter, Y as _alignStartEnd, Z as overrides, $ as merge, a0 as _capitalize, a1 as descriptors, a2 as isFunction, a3 as _attachContext, a4 as _createResolver, a5 as _descriptors, a6 as mergeIf, a7 as uid, a8 as debounce, a9 as retinaScale, aa as clearCanvas, ab as _elementsEqual, ac as getAngleFromPoint, ad as _readValueToProps, ae as _updateBezierControlPoints, af as _computeSegments, ag as _boundSegments, ah as _steppedInterpolation, ai as _bezierInterpolation, aj as _pointInLine, ak as _steppedLineTo, al as _bezierCurveTo, am as drawPoint, an as addRoundedRectPath, ao as toTRBL, ap as toTRBLCorners, aq as _boundSegment, ar as _normalizeAngle, as as getRtlAdapter, at as overrideTextDirection, au as _textX, av as restoreTextDirection, aw as noop, ax as distanceBetweenPoints, ay as _setMinAndMaxByKey, az as niceNum, aA as almostWhole, aB as almostEquals, aC as _decimalPlaces, aD as _longestText, aE as _filterBetween, aF as _lookup } from './chunks/helpers.segment.js';
 export { d as defaults } from './chunks/helpers.segment.js';
 
 class Animator {
@@ -3465,6 +3465,7 @@ class Scale extends Element {
     this.labelRotation = undefined;
     this.min = undefined;
     this.max = undefined;
+    this._range = undefined;
     this.ticks = [];
     this._gridLineItems = null;
     this._labelItems = null;
@@ -3582,6 +3583,7 @@ class Scale extends Element {
       me.beforeDataLimits();
       me.determineDataLimits();
       me.afterDataLimits();
+      me._range = _addGrace(me, me.options.grace);
       me._dataLimitsCached = true;
     }
     me.beforeBuildTicks();
@@ -3679,6 +3681,13 @@ class Scale extends Element {
     for (i = 0, ilen = ticks.length; i < ilen; i++) {
       tick = ticks[i];
       tick.label = callback(tickOpts.callback, [tick.value, i, ticks], me);
+    }
+    for (i = 0; i < ilen; i++) {
+      if (isNullOrUndef(ticks[i].label)) {
+        ticks.splice(i, 1);
+        ilen--;
+        i--;
+      }
     }
   }
   afterTickToLabelConversion() {
@@ -4790,11 +4799,15 @@ function initOptions(config) {
   options.plugins = valueOrDefault(options.plugins, {});
   options.scales = mergeScaleConfig(config, options);
 }
-function initConfig(config) {
-  config = config || {};
-  const data = config.data = config.data || {datasets: [], labels: []};
+function initData(data) {
+  data = data || {};
   data.datasets = data.datasets || [];
   data.labels = data.labels || [];
+  return data;
+}
+function initConfig(config) {
+  config = config || {};
+  config.data = initData(config.data);
   initOptions(config);
   return config;
 }
@@ -4831,7 +4844,7 @@ class Config {
     return this._config.data;
   }
   set data(data) {
-    this._config.data = data;
+    this._config.data = initData(data);
   }
   get options() {
     return this._config.options;
@@ -4984,7 +4997,7 @@ function needContext(proxy, names) {
   return false;
 }
 
-var version = "3.1.0";
+var version = "3.1.1";
 
 const KNOWN_POSITIONS = ['top', 'bottom', 'left', 'right', 'chartArea'];
 function positionIsHorizontal(position, axis) {
@@ -6022,16 +6035,18 @@ function getLineMethod(options) {
   }
   return lineTo;
 }
-function pathVars(points, segment, params) {
-  params = params || {};
+function pathVars(points, segment, params = {}) {
   const count = points.length;
-  const start = Math.max(params.start || 0, segment.start);
-  const end = Math.min(params.end || count - 1, segment.end);
+  const {start: paramsStart = 0, end: paramsEnd = count - 1} = params;
+  const {start: segmentStart, end: segmentEnd} = segment;
+  const start = Math.max(paramsStart, segmentStart);
+  const end = Math.min(paramsEnd, segmentEnd);
+  const outside = paramsStart < segmentStart && paramsEnd < segmentStart || paramsStart > segmentEnd && paramsEnd > segmentEnd;
   return {
     count,
     start,
     loop: segment.loop,
-    ilen: end < start ? count + end - start : end - start
+    ilen: end < start && !outside ? count + end - start : end - start
   };
 }
 function pathSegment(ctx, line, segment, params) {
@@ -6633,14 +6648,17 @@ function minMaxDecimation(data, start, count, availableWidth) {
   }
   return decimated;
 }
+function cleanDecimatedDataset(dataset) {
+  if (dataset._decimated) {
+    const data = dataset._data;
+    delete dataset._decimated;
+    delete dataset._data;
+    Object.defineProperty(dataset, 'data', {value: data});
+  }
+}
 function cleanDecimatedData(chart) {
   chart.data.datasets.forEach((dataset) => {
-    if (dataset._decimated) {
-      const data = dataset._data;
-      delete dataset._decimated;
-      delete dataset._data;
-      Object.defineProperty(dataset, 'data', {value: data});
-    }
+    cleanDecimatedDataset(dataset);
   });
 }
 function getStartAndCountOfVisiblePointsSimplified(meta, points) {
@@ -6690,6 +6708,7 @@ var plugin_decimation = {
       }
       let {start, count} = getStartAndCountOfVisiblePointsSimplified(meta, data);
       if (count <= 4 * availableWidth) {
+        cleanDecimatedDataset(dataset);
         return;
       }
       if (isNullOrUndef(_data)) {
@@ -7089,7 +7108,7 @@ function _fill(ctx, cfg) {
 }
 function doFill(ctx, cfg) {
   const {line, target, above, below, area, scale} = cfg;
-  const property = line._loop ? 'angle' : 'x';
+  const property = line._loop ? 'angle' : cfg.axis;
   ctx.save();
   if (property === 'x' && below !== above) {
     _clip(ctx, target, area.top);
@@ -7103,14 +7122,14 @@ function doFill(ctx, cfg) {
 }
 function drawfill(ctx, source, area) {
   const target = getTarget(source);
-  const {line, scale} = source;
+  const {line, scale, axis} = source;
   const lineOpts = line.options;
   const fillOption = lineOpts.fill;
   const color = lineOpts.backgroundColor;
   const {above = color, below = color} = fillOption || {};
   if (target && line.points.length) {
     clipArea(ctx, area);
-    doFill(ctx, {line, target, above, below, area, scale});
+    doFill(ctx, {line, target, above, below, area, scale, axis});
     unclipArea(ctx);
   }
 }
@@ -7130,6 +7149,7 @@ var plugin_filler = {
           index: i,
           fill: decodeFill(line, i, count),
           chart,
+          axis: meta.controller.options.indexAxis,
           scale: meta.vScale,
           line,
         };
@@ -7820,6 +7840,9 @@ const positioners = {
     };
   },
   nearest(items, eventPosition) {
+    if (!items.length) {
+      return false;
+    }
     let x = eventPosition.x;
     let y = eventPosition.y;
     let minDistance = Number.POSITIVE_INFINITY;
@@ -8564,9 +8587,9 @@ class Tooltip extends Element {
     return changed;
   }
   _positionChanged(active, e) {
-    const me = this;
-    const position = positioners[me.options.position].call(me, active, e);
-    return me.caretX !== position.x || me.caretY !== position.y;
+    const {caretX, caretY, options} = this;
+    const position = positioners[options.position].call(this, active, e);
+    return position !== false && (caretX !== position.x || caretY !== position.y);
   }
 }
 Tooltip.positioners = positioners;
@@ -9001,7 +9024,8 @@ class LinearScaleBase extends Scale {
       step: tickOpts.stepSize,
       count: tickOpts.count,
     };
-    const ticks = generateTicks$1(numericGeneratorOptions, _addGrace(me, opts.grace));
+    const dataRange = me._range || me;
+    const ticks = generateTicks$1(numericGeneratorOptions, dataRange);
     if (opts.bounds === 'ticks') {
       _setMinAndMaxByKey(ticks, me, 'value');
     }
