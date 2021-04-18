@@ -9741,8 +9741,7 @@ function parse(scale, input) {
     return null;
   }
   const adapter = scale._adapter;
-  const options = scale.options.time;
-  const {parser, round, isoWeekday} = options;
+  const {parser, round, isoWeekday} = scale._parseOpts;
   let value = input;
   if (typeof parser === 'function') {
     value = parser(value);
@@ -9838,11 +9837,17 @@ class TimeScale extends Scale {
     this._majorUnit = undefined;
     this._offsets = {};
     this._normalized = false;
+    this._parseOpts = undefined;
   }
   init(scaleOpts, opts) {
     const time = scaleOpts.time || (scaleOpts.time = {});
     const adapter = this._adapter = new adapters._date(scaleOpts.adapters.date);
     mergeIf(time.displayFormats, adapter.formats());
+    this._parseOpts = {
+      parser: time.parser,
+      round: time.round,
+      isoWeekday: time.isoWeekday
+    };
     super.init(scaleOpts);
     this._normalized = opts.normalized;
   }
