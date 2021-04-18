@@ -3220,6 +3220,9 @@ defaults.set('scale', {
     major: {},
     align: 'center',
     crossAlign: 'near',
+    showLabelBackdrop: false,
+    backdropColor: 'rgba(255, 255, 255, 0.75)',
+    backdropPadding: 2,
   }
 });
 defaults.route('scale.ticks', 'color', '', 'color');
@@ -3898,7 +3901,9 @@ class Scale extends Element {
       first: valueAt(0),
       last: valueAt(length - 1),
       widest: valueAt(widest),
-      highest: valueAt(highest)
+      highest: valueAt(highest),
+      widths,
+      heights,
     };
   }
   getLabelForValue(value) {
@@ -4174,6 +4179,37 @@ class Scale extends Element {
         y = pixel;
         textOffset = (1 - lineCount) * lineHeight / 2;
       }
+      let backdrop;
+      if (optsAtIndex.showLabelBackdrop) {
+        const labelPadding = toPadding(optsAtIndex.backdropPadding);
+        const height = labelSizes.heights[i];
+        const width = labelSizes.widths[i];
+        let top = y + textOffset - labelPadding.top;
+        let left = x - labelPadding.left;
+        switch (textBaseline) {
+        case 'middle':
+          top -= height / 2;
+          break;
+        case 'bottom':
+          top -= height;
+          break;
+        }
+        switch (textAlign) {
+        case 'center':
+          left -= width / 2;
+          break;
+        case 'right':
+          left -= width;
+          break;
+        }
+        backdrop = {
+          left,
+          top,
+          width: width + labelPadding.width,
+          height: height + labelPadding.height,
+          color: optsAtIndex.backdropColor,
+        };
+      }
       items.push({
         rotation,
         label,
@@ -4184,7 +4220,8 @@ class Scale extends Element {
         textOffset,
         textAlign,
         textBaseline,
-        translation: [x, y]
+        translation: [x, y],
+        backdrop,
       });
     }
     return items;
@@ -4369,6 +4406,10 @@ class Scale extends Element {
       const item = items[i];
       const tickFont = item.font;
       const label = item.label;
+      if (item.backdrop) {
+        ctx.fillStyle = item.backdrop.color;
+        ctx.fillRect(item.backdrop.left, item.backdrop.top, item.backdrop.width, item.backdrop.height);
+      }
       let y = item.textOffset;
       renderText(ctx, label, 0, y, tickFont, item);
     }
@@ -9653,8 +9694,6 @@ RadialLinearScale.defaults = {
   startAngle: 0,
   ticks: {
     showLabelBackdrop: true,
-    backdropColor: 'rgba(255,255,255,0.75)',
-    backdropPadding: 2,
     callback: Ticks.formatters.numeric
   },
   pointLabels: {
