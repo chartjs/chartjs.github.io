@@ -1140,13 +1140,19 @@ function computeMinSampleSize(scale) {
   let min = scale._length;
   let i, ilen, curr, prev;
   const updateMinAndPrev = () => {
-    min = Math.min(min, i && Math.abs(curr - prev) || min);
+    if (curr === 32767 || curr === -32768) {
+      return;
+    }
+    if (defined(prev)) {
+      min = Math.min(min, Math.abs(curr - prev) || min);
+    }
     prev = curr;
   };
   for (i = 0, ilen = values.length; i < ilen; ++i) {
     curr = scale.getPixelForValue(values[i]);
     updateMinAndPrev();
   }
+  prev = undefined;
   for (i = 0, ilen = scale.ticks.length; i < ilen; ++i) {
     curr = scale.getPixelForTick(i);
     updateMinAndPrev();
@@ -6114,7 +6120,7 @@ function getLineMethod(options) {
   if (options.stepped) {
     return _steppedLineTo;
   }
-  if (options.tension) {
+  if (options.tension || options.cubicInterpolationMode === 'monotone') {
     return _bezierCurveTo;
   }
   return lineTo;
@@ -6205,14 +6211,14 @@ function fastPathSegment(ctx, line, segment, params) {
 function _getSegmentMethod(line) {
   const opts = line.options;
   const borderDash = opts.borderDash && opts.borderDash.length;
-  const useFastPath = !line._decimated && !line._loop && !opts.tension && !opts.stepped && !borderDash;
+  const useFastPath = !line._decimated && !line._loop && !opts.tension && opts.cubicInterpolationMode !== 'monotone' && !opts.stepped && !borderDash;
   return useFastPath ? fastPathSegment : pathSegment;
 }
 function _getInterpolationMethod(options) {
   if (options.stepped) {
     return _steppedInterpolation;
   }
-  if (options.tension) {
+  if (options.tension || options.cubicInterpolationMode === 'monotone') {
     return _bezierInterpolation;
   }
   return _pointInLine;
@@ -6267,7 +6273,7 @@ class LineElement extends Element {
   updateControlPoints(chartArea) {
     const me = this;
     const options = me.options;
-    if (options.tension && !options.stepped && !me._pointsUpdated) {
+    if ((options.tension || options.cubicInterpolationMode === 'monotone') && !options.stepped && !me._pointsUpdated) {
       const loop = options.spanGaps ? me._loop : me._fullLoop;
       _updateBezierControlPoints(me._points, options, chartArea, loop);
       me._pointsUpdated = true;
