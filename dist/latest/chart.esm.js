@@ -1,5 +1,5 @@
 /*!
- * Chart.js v3.2.0
+ * Chart.js v3.2.1
  * https://www.chartjs.org
  * (c) 2021 Chart.js Contributors
  * Released under the MIT License
@@ -1140,13 +1140,19 @@ function computeMinSampleSize(scale) {
   let min = scale._length;
   let i, ilen, curr, prev;
   const updateMinAndPrev = () => {
-    min = Math.min(min, i && Math.abs(curr - prev) || min);
+    if (curr === 32767 || curr === -32768) {
+      return;
+    }
+    if (defined(prev)) {
+      min = Math.min(min, Math.abs(curr - prev) || min);
+    }
     prev = curr;
   };
   for (i = 0, ilen = values.length; i < ilen; ++i) {
     curr = scale.getPixelForValue(values[i]);
     updateMinAndPrev();
   }
+  prev = undefined;
   for (i = 0, ilen = scale.ticks.length; i < ilen; ++i) {
     curr = scale.getPixelForTick(i);
     updateMinAndPrev();
@@ -4528,6 +4534,11 @@ class Scale extends Element {
     const opts = this.options.ticks.setContext(this.getContext(index));
     return toFont(opts.font);
   }
+  _maxDigits() {
+    const me = this;
+    const fontSize = me._resolveTickFontOptions(0).lineHeight;
+    return me.isHorizontal() ? me.width / fontSize / 0.7 : me.height / fontSize;
+  }
 }
 
 class TypedRegistry {
@@ -5070,7 +5081,7 @@ function needContext(proxy, names) {
   return false;
 }
 
-var version = "3.2.0";
+var version = "3.2.1";
 
 const KNOWN_POSITIONS = ['top', 'bottom', 'left', 'right', 'chartArea'];
 function positionIsHorizontal(position, axis) {
@@ -6109,7 +6120,7 @@ function getLineMethod(options) {
   if (options.stepped) {
     return _steppedLineTo;
   }
-  if (options.tension) {
+  if (options.tension || options.cubicInterpolationMode === 'monotone') {
     return _bezierCurveTo;
   }
   return lineTo;
@@ -6200,14 +6211,14 @@ function fastPathSegment(ctx, line, segment, params) {
 function _getSegmentMethod(line) {
   const opts = line.options;
   const borderDash = opts.borderDash && opts.borderDash.length;
-  const useFastPath = !line._decimated && !line._loop && !opts.tension && !opts.stepped && !borderDash;
+  const useFastPath = !line._decimated && !line._loop && !opts.tension && opts.cubicInterpolationMode !== 'monotone' && !opts.stepped && !borderDash;
   return useFastPath ? fastPathSegment : pathSegment;
 }
 function _getInterpolationMethod(options) {
   if (options.stepped) {
     return _steppedInterpolation;
   }
-  if (options.tension) {
+  if (options.tension || options.cubicInterpolationMode === 'monotone') {
     return _bezierInterpolation;
   }
   return _pointInLine;
@@ -6262,7 +6273,7 @@ class LineElement extends Element {
   updateControlPoints(chartArea) {
     const me = this;
     const options = me.options;
-    if (options.tension && !options.stepped && !me._pointsUpdated) {
+    if ((options.tension || options.cubicInterpolationMode === 'monotone') && !options.stepped && !me._pointsUpdated) {
       const loop = options.spanGaps ? me._loop : me._fullLoop;
       _updateBezierControlPoints(me._points, options, chartArea, loop);
       me._pointsUpdated = true;
@@ -8977,13 +8988,14 @@ CategoryScale.defaults = {
 function generateTicks$1(generationOptions, dataRange) {
   const ticks = [];
   const MIN_SPACING = 1e-14;
-  const {step, min, max, precision, count, maxTicks} = generationOptions;
+  const {step, min, max, precision, count, maxTicks, maxDigits, horizontal} = generationOptions;
   const unit = step || 1;
   const maxSpaces = maxTicks - 1;
   const {min: rmin, max: rmax} = dataRange;
   const minDefined = !isNullOrUndef(min);
   const maxDefined = !isNullOrUndef(max);
   const countDefined = !isNullOrUndef(count);
+  const minSpacing = (rmax - rmin) / maxDigits;
   let spacing = niceNum((rmax - rmin) / maxSpaces / unit) * unit;
   let factor, niceMin, niceMax, numSpaces;
   if (spacing < MIN_SPACING && !minDefined && !maxDefined) {
@@ -9026,7 +9038,7 @@ function generateTicks$1(generationOptions, dataRange) {
     if (niceMin <= min) {
       j++;
     }
-    if (almostEquals(Math.round((niceMin + j * spacing) * factor) / factor, min, spacing / 10)) {
+    if (almostEquals(Math.round((niceMin + j * spacing) * factor) / factor, min, minSpacing * (horizontal ? ('' + min).length : 1))) {
       j++;
     }
   }
@@ -9034,7 +9046,7 @@ function generateTicks$1(generationOptions, dataRange) {
     ticks.push({value: Math.round((niceMin + j * spacing) * factor) / factor});
   }
   if (maxDefined) {
-    if (almostEquals(ticks[ticks.length - 1].value, max, spacing / 10)) {
+    if (almostEquals(ticks[ticks.length - 1].value, max, minSpacing * (horizontal ? ('' + max).length : 1))) {
       ticks[ticks.length - 1].value = max;
     } else {
       ticks.push({value: max});
@@ -9119,6 +9131,8 @@ class LinearScaleBase extends Scale {
       precision: tickOpts.precision,
       step: tickOpts.stepSize,
       count: tickOpts.count,
+      maxDigits: me._maxDigits(),
+      horizontal: me.isHorizontal()
     };
     const dataRange = me._range || me;
     const ticks = generateTicks$1(numericGeneratorOptions, dataRange);
