@@ -8988,7 +8988,7 @@ CategoryScale.defaults = {
 function generateTicks$1(generationOptions, dataRange) {
   const ticks = [];
   const MIN_SPACING = 1e-14;
-  const {step, min, max, precision, count, maxTicks, maxDigits, horizontal} = generationOptions;
+  const {step, min, max, precision, count, maxTicks, maxDigits, includeBounds} = generationOptions;
   const unit = step || 1;
   const maxSpaces = maxTicks - 1;
   const {min: rmin, max: rmax} = dataRange;
@@ -9034,27 +9034,39 @@ function generateTicks$1(generationOptions, dataRange) {
   niceMax = Math.round(niceMax * factor) / factor;
   let j = 0;
   if (minDefined) {
-    ticks.push({value: min});
-    if (niceMin <= min) {
-      j++;
-    }
-    if (almostEquals(Math.round((niceMin + j * spacing) * factor) / factor, min, minSpacing * (horizontal ? ('' + min).length : 1))) {
+    if (includeBounds && niceMin !== min) {
+      ticks.push({value: min});
+      if (niceMin < min) {
+        j++;
+      }
+      if (almostEquals(Math.round((niceMin + j * spacing) * factor) / factor, min, relativeLabelSize(min, minSpacing, generationOptions))) {
+        j++;
+      }
+    } else if (niceMin < min) {
       j++;
     }
   }
   for (; j < numSpaces; ++j) {
     ticks.push({value: Math.round((niceMin + j * spacing) * factor) / factor});
   }
-  if (maxDefined) {
-    if (almostEquals(ticks[ticks.length - 1].value, max, minSpacing * (horizontal ? ('' + max).length : 1))) {
+  if (maxDefined && includeBounds && niceMax !== max) {
+    if (almostEquals(ticks[ticks.length - 1].value, max, relativeLabelSize(max, minSpacing, generationOptions))) {
       ticks[ticks.length - 1].value = max;
     } else {
       ticks.push({value: max});
     }
-  } else {
+  } else if (!maxDefined || niceMax === max) {
     ticks.push({value: niceMax});
   }
   return ticks;
+}
+function relativeLabelSize(value, minSpacing, {horizontal, minRotation}) {
+  const rot = toRadians(minRotation);
+  const useLength = (horizontal && minRotation <= 45) || (!horizontal && minRotation >= 45);
+  const l = useLength ? minSpacing * ('' + value).length : 0;
+  const sin = Math.sin(rot);
+  const cos = Math.cos(rot);
+  return horizontal ? cos * l + sin * minSpacing : sin * l + cos * minSpacing;
 }
 class LinearScaleBase extends Scale {
   constructor(cfg) {
@@ -9132,7 +9144,9 @@ class LinearScaleBase extends Scale {
       step: tickOpts.stepSize,
       count: tickOpts.count,
       maxDigits: me._maxDigits(),
-      horizontal: me.isHorizontal()
+      horizontal: me.isHorizontal(),
+      minRotation: tickOpts.minRotation || 0,
+      includeBounds: tickOpts.includeBounds !== false
     };
     const dataRange = me._range || me;
     const ticks = generateTicks$1(numericGeneratorOptions, dataRange);
