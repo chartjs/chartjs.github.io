@@ -5557,6 +5557,9 @@ function _boundSegment(segment, points, bounds) {
       continue;
     }
     value = normalize(point[property]);
+    if (value === prevValue) {
+      continue;
+    }
     inside = between(value, startBound, endBound);
     if (subStart === null && shouldStart()) {
       subStart = compare(value, startBound) === 0 ? i : prev;
