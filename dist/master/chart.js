@@ -1660,15 +1660,26 @@ function getMaximumSize(canvas, bbWidth, bbHeight, aspectRatio) {
   };
 }
 function retinaScale(chart, forceRatio, forceStyle) {
-  const pixelRatio = chart.currentDevicePixelRatio = forceRatio || 1;
-  const {canvas, width, height} = chart;
-  canvas.height = height * pixelRatio;
-  canvas.width = width * pixelRatio;
-  chart.ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+  const pixelRatio = forceRatio || 1;
+  const deviceHeight = Math.floor(chart.height * pixelRatio);
+  const deviceWidth = Math.floor(chart.width * pixelRatio);
+  chart.height = deviceHeight / pixelRatio;
+  chart.width = deviceWidth / pixelRatio;
+  const canvas = chart.canvas;
   if (canvas.style && (forceStyle || (!canvas.style.height && !canvas.style.width))) {
-    canvas.style.height = height + 'px';
-    canvas.style.width = width + 'px';
+    canvas.style.height = `${chart.height}px`;
+    canvas.style.width = `${chart.width}px`;
   }
+  if (chart.currentDevicePixelRatio !== pixelRatio
+      || canvas.height !== deviceHeight
+      || canvas.width !== deviceWidth) {
+    chart.currentDevicePixelRatio = pixelRatio;
+    canvas.height = deviceHeight;
+    canvas.width = deviceWidth;
+    chart.ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+    return true;
+  }
+  return false;
 }
 const supportsEventListenerOptions = (function() {
   let passiveSupported = false;
@@ -6515,15 +6526,13 @@ class Chart {
     const canvas = me.canvas;
     const aspectRatio = options.maintainAspectRatio && me.aspectRatio;
     const newSize = me.platform.getMaximumSize(canvas, width, height, aspectRatio);
-    const oldRatio = me.currentDevicePixelRatio;
     const newRatio = options.devicePixelRatio || me.platform.getDevicePixelRatio();
-    if (me.width === newSize.width && me.height === newSize.height && oldRatio === newRatio) {
-      return;
-    }
     me.width = newSize.width;
     me.height = newSize.height;
     me._aspectRatio = me.aspectRatio;
-    retinaScale(me, newRatio, true);
+    if (!retinaScale(me, newRatio, true)) {
+      return;
+    }
     me.notifyPlugins('resize', {size: newSize});
     callback(options.onResize, [me, newSize], me);
     if (me.attached) {

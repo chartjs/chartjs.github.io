@@ -5243,15 +5243,13 @@ class Chart {
     const canvas = me.canvas;
     const aspectRatio = options.maintainAspectRatio && me.aspectRatio;
     const newSize = me.platform.getMaximumSize(canvas, width, height, aspectRatio);
-    const oldRatio = me.currentDevicePixelRatio;
     const newRatio = options.devicePixelRatio || me.platform.getDevicePixelRatio();
-    if (me.width === newSize.width && me.height === newSize.height && oldRatio === newRatio) {
-      return;
-    }
     me.width = newSize.width;
     me.height = newSize.height;
     me._aspectRatio = me.aspectRatio;
-    retinaScale(me, newRatio, true);
+    if (!retinaScale(me, newRatio, true)) {
+      return;
+    }
     me.notifyPlugins('resize', {size: newSize});
     callback(options.onResize, [me, newSize], me);
     if (me.attached) {
