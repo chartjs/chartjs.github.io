@@ -5158,6 +5158,7 @@ class Chart {
     this._active = [];
     this._lastEvent = undefined;
     this._listeners = {};
+    this._responsiveListeners = undefined;
     this._sortedMetasets = [];
     this.scales = {};
     this.scale = undefined;
@@ -5418,7 +5419,7 @@ class Chart {
     me.buildOrUpdateScales();
     const existingEvents = new Set(Object.keys(me._listeners));
     const newEvents = new Set(me.options.events);
-    if (!setsEqual(existingEvents, newEvents)) {
+    if (!setsEqual(existingEvents, newEvents) || !!this._responsiveListeners !== me.options.responsive) {
       me.unbindEvents();
       me.bindEvents();
     }
@@ -5686,8 +5687,34 @@ class Chart {
     return this.canvas.toDataURL(...args);
   }
   bindEvents() {
+    this.bindUserEvents();
+    if (this.options.responsive) {
+      this.bindResponsiveEvents();
+    } else {
+      this.attached = true;
+    }
+  }
+  bindUserEvents() {
     const me = this;
     const listeners = me._listeners;
+    const platform = me.platform;
+    const _add = (type, listener) => {
+      platform.addEventListener(me, type, listener);
+      listeners[type] = listener;
+    };
+    const listener = function(e, x, y) {
+      e.offsetX = x;
+      e.offsetY = y;
+      me._eventHandler(e);
+    };
+    each(me.options.events, (type) => _add(type, listener));
+  }
+  bindResponsiveEvents() {
+    const me = this;
+    if (!me._responsiveListeners) {
+      me._responsiveListeners = {};
+    }
+    const listeners = me._responsiveListeners;
     const platform = me.platform;
     const _add = (type, listener) => {
       platform.addEventListener(me, type, listener);
@@ -5699,50 +5726,40 @@ class Chart {
         delete listeners[type];
       }
     };
-    let listener = function(e, x, y) {
-      e.offsetX = x;
-      e.offsetY = y;
-      me._eventHandler(e);
-    };
-    each(me.options.events, (type) => _add(type, listener));
-    if (me.options.responsive) {
-      listener = (width, height) => {
-        if (me.canvas) {
-          me.resize(width, height);
-        }
-      };
-      let detached;
-      const attached = () => {
-        _remove('attach', attached);
-        me.attached = true;
-        me.resize();
-        _add('resize', listener);
-        _add('detach', detached);
-      };
-      detached = () => {
-        me.attached = false;
-        _remove('resize', listener);
-        _add('attach', attached);
-      };
-      if (platform.isAttached(me.canvas)) {
-        attached();
-      } else {
-        detached();
+    const listener = (width, height) => {
+      if (me.canvas) {
+        me.resize(width, height);
       }
-    } else {
+    };
+    let detached;
+    const attached = () => {
+      _remove('attach', attached);
       me.attached = true;
+      me.resize();
+      _add('resize', listener);
+      _add('detach', detached);
+    };
+    detached = () => {
+      me.attached = false;
+      _remove('resize', listener);
+      _add('attach', attached);
+    };
+    if (platform.isAttached(me.canvas)) {
+      attached();
+    } else {
+      detached();
     }
   }
   unbindEvents() {
     const me = this;
-    const listeners = me._listeners;
-    if (!listeners) {
-      return;
-    }
-    me._listeners = {};
-    each(listeners, (listener, type) => {
+    each(me._listeners, (listener, type) => {
       me.platform.removeEventListener(me, type, listener);
     });
+    me._listeners = {};
+    each(me._responsiveListeners, (listener, type) => {
+      me.platform.removeEventListener(me, type, listener);
+    });
+    me._responsiveListeners = undefined;
   }
   updateHoverStyle(items, mode, enabled) {
     const prefix = enabled ? 'set' : 'remove';
