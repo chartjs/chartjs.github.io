@@ -2089,6 +2089,17 @@ class PolarAreaController extends DatasetController {
     this.innerRadius = undefined;
     this.outerRadius = undefined;
   }
+  getLabelAndValue(index) {
+    const me = this;
+    const meta = me._cachedMeta;
+    const chart = me.chart;
+    const labels = chart.data.labels || [];
+    const value = formatNumber(meta._parsed[index].r, chart.options.locale);
+    return {
+      label: labels[index] || '',
+      value,
+    };
+  }
   update(mode) {
     const arcs = this._cachedMeta.data;
     this._updateRadius();
