@@ -5208,19 +5208,25 @@ function createSubResolver(parentScopes, resolver, prop, value) {
       return false;
     }
   }
-  return _createResolver([...set], [''], rootScopes, fallback, () => {
-    const parent = resolver._getTarget();
-    if (!(prop in parent)) {
-      parent[prop] = {};
-    }
-    return parent[prop];
-  });
+  return _createResolver([...set], [''], rootScopes, fallback,
+    () => subGetTarget(resolver, prop, value));
 }
 function addScopesFromKey(set, allScopes, key, fallback) {
   while (key) {
     key = addScopes(set, allScopes, key, fallback);
   }
   return key;
+}
+function subGetTarget(resolver, prop, value) {
+  const parent = resolver._getTarget();
+  if (!(prop in parent)) {
+    parent[prop] = {};
+  }
+  const target = parent[prop];
+  if (isArray(target) && isObject(value)) {
+    return value;
+  }
+  return target;
 }
 function _resolveWithPrefixes(prop, prefixes, scopes, proxy) {
   let value;
