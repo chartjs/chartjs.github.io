@@ -2018,7 +2018,8 @@ class LineController extends DatasetController {
     return Math.max(border, firstPoint, lastPoint) / 2;
   }
   draw() {
-    this._cachedMeta.dataset.updateControlPoints(this.chart.chartArea);
+    const meta = this._cachedMeta;
+    meta.dataset.updateControlPoints(this.chart.chartArea, meta.iScale.axis);
     super.draw();
   }
 }
@@ -6297,12 +6298,12 @@ class LineElement extends Element {
       Object.assign(this, cfg);
     }
   }
-  updateControlPoints(chartArea) {
+  updateControlPoints(chartArea, indexAxis) {
     const me = this;
     const options = me.options;
     if ((options.tension || options.cubicInterpolationMode === 'monotone') && !options.stepped && !me._pointsUpdated) {
       const loop = options.spanGaps ? me._loop : me._fullLoop;
-      _updateBezierControlPoints(me._points, options, chartArea, loop);
+      _updateBezierControlPoints(me._points, options, chartArea, loop, indexAxis);
       me._pointsUpdated = true;
     }
   }
@@ -7294,7 +7295,7 @@ var plugin_filler = {
       if (!source) {
         continue;
       }
-      source.line.updateControlPoints(area);
+      source.line.updateControlPoints(area, source.axis);
       if (draw) {
         drawfill(chart.ctx, source, area);
       }

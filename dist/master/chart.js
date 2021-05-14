@@ -5269,6 +5269,7 @@ function resolveKeysFromAllScopes(scopes) {
 
 const EPSILON = Number.EPSILON || 1e-14;
 const getPoint = (points, i) => i < points.length && !points[i].skip && points[i];
+const getValueAxis = (indexAxis) => indexAxis === 'x' ? 'y' : 'x';
 function splineCurve(firstPoint, middlePoint, afterPoint, t) {
   const previous = firstPoint.skip ? middlePoint : firstPoint;
   const current = middlePoint;
@@ -5317,9 +5318,10 @@ function monotoneAdjust(points, deltaK, mK) {
     mK[i + 1] = betaK * tauK * deltaK[i];
   }
 }
-function monotoneCompute(points, mK) {
+function monotoneCompute(points, mK, indexAxis = 'x') {
+  const valueAxis = getValueAxis(indexAxis);
   const pointsLen = points.length;
-  let deltaX, pointBefore, pointCurrent;
+  let delta, pointBefore, pointCurrent;
   let pointAfter = getPoint(points, 0);
   for (let i = 0; i < pointsLen; ++i) {
     pointBefore = pointCurrent;
@@ -5328,20 +5330,22 @@ function monotoneCompute(points, mK) {
     if (!pointCurrent) {
       continue;
     }
-    const {x, y} = pointCurrent;
+    const iPixel = pointCurrent[indexAxis];
+    const vPixel = pointCurrent[valueAxis];
     if (pointBefore) {
-      deltaX = (x - pointBefore.x) / 3;
-      pointCurrent.cp1x = x - deltaX;
-      pointCurrent.cp1y = y - deltaX * mK[i];
+      delta = (iPixel - pointBefore[indexAxis]) / 3;
+      pointCurrent[`cp1${indexAxis}`] = iPixel - delta;
+      pointCurrent[`cp1${valueAxis}`] = vPixel - delta * mK[i];
     }
     if (pointAfter) {
-      deltaX = (pointAfter.x - x) / 3;
-      pointCurrent.cp2x = x + deltaX;
-      pointCurrent.cp2y = y + deltaX * mK[i];
+      delta = (pointAfter[indexAxis] - iPixel) / 3;
+      pointCurrent[`cp2${indexAxis}`] = iPixel + delta;
+      pointCurrent[`cp2${valueAxis}`] = vPixel + delta * mK[i];
     }
   }
 }
-function splineCurveMonotone(points) {
+function splineCurveMonotone(points, indexAxis = 'x') {
+  const valueAxis = getValueAxis(indexAxis);
   const pointsLen = points.length;
   const deltaK = Array(pointsLen).fill(0);
   const mK = Array(pointsLen);
@@ -5355,8 +5359,8 @@ function splineCurveMonotone(points) {
       continue;
     }
     if (pointAfter) {
-      const slopeDeltaX = (pointAfter.x - pointCurrent.x);
-      deltaK[i] = slopeDeltaX !== 0 ? (pointAfter.y - pointCurrent.y) / slopeDeltaX : 0;
+      const slopeDelta = pointAfter[indexAxis] - pointCurrent[indexAxis];
+      deltaK[i] = slopeDelta !== 0 ? (pointAfter[valueAxis] - pointCurrent[valueAxis]) / slopeDelta : 0;
     }
     mK[i] = !pointBefore ? deltaK[i]
       : !pointAfter ? deltaK[i - 1]
@@ -5364,7 +5368,7 @@ function splineCurveMonotone(points) {
       : (deltaK[i - 1] + deltaK[i]) / 2;
   }
   monotoneAdjust(points, deltaK, mK);
-  monotoneCompute(points, mK);
+  monotoneCompute(points, mK, indexAxis);
 }
 function capControlPoint(pt, min, max) {
   return Math.max(Math.min(pt, max), min);
@@ -5390,13 +5394,13 @@ function capBezierPoints(points, area) {
     }
   }
 }
-function _updateBezierControlPoints(points, options, area, loop) {
+function _updateBezierControlPoints(points, options, area, loop, indexAxis) {
   let i, ilen, point, controlPoints;
   if (options.spanGaps) {
     points = points.filter((pt) => !pt.skip);
   }
   if (options.cubicInterpolationMode === 'monotone') {
-    splineCurveMonotone(points);
+    splineCurveMonotone(points, indexAxis);
   } else {
     let prev = loop ? points[points.length - 1] : points[0];
     for (i = 0, ilen = points.length; i < ilen; ++i) {
@@ -8120,7 +8124,8 @@ class LineController extends DatasetController {
     return Math.max(border, firstPoint, lastPoint) / 2;
   }
   draw() {
-    this._cachedMeta.dataset.updateControlPoints(this.chart.chartArea);
+    const meta = this._cachedMeta;
+    meta.dataset.updateControlPoints(this.chart.chartArea, meta.iScale.axis);
     super.draw();
   }
 }
@@ -8867,12 +8872,12 @@ class LineElement extends Element {
       Object.assign(this, cfg);
     }
   }
-  updateControlPoints(chartArea) {
+  updateControlPoints(chartArea, indexAxis) {
     const me = this;
     const options = me.options;
     if ((options.tension || options.cubicInterpolationMode === 'monotone') && !options.stepped && !me._pointsUpdated) {
       const loop = options.spanGaps ? me._loop : me._fullLoop;
-      _updateBezierControlPoints(me._points, options, chartArea, loop);
+      _updateBezierControlPoints(me._points, options, chartArea, loop, indexAxis);
       me._pointsUpdated = true;
     }
   }
@@ -9864,7 +9869,7 @@ var plugin_filler = {
       if (!source) {
         continue;
       }
-      source.line.updateControlPoints(area);
+      source.line.updateControlPoints(area, source.axis);
       if (draw) {
         drawfill(chart.ctx, source, area);
       }
