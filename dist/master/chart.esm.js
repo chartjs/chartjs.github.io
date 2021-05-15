@@ -613,6 +613,7 @@ class DatasetController {
     this._drawCount = undefined;
     this.enableOptionSharing = false;
     this.$context = undefined;
+    this._syncList = [];
     this.initialize();
   }
   initialize() {
@@ -624,6 +625,9 @@ class DatasetController {
     me.addElements();
   }
   updateIndex(datasetIndex) {
+    if (this.index !== datasetIndex) {
+      clearStacks(this._cachedMeta);
+    }
     this.index = datasetIndex;
   }
   linkScales() {
@@ -675,15 +679,20 @@ class DatasetController {
     const me = this;
     const dataset = me.getDataset();
     const data = dataset.data || (dataset.data = []);
+    const _data = me._data;
     if (isObject(data)) {
       me._data = convertObjectDataToArray(data);
-    } else if (me._data !== data) {
-      if (me._data) {
-        unlistenArrayEvents(me._data, me);
-        clearStacks(me._cachedMeta);
+    } else if (_data !== data) {
+      if (_data) {
+        unlistenArrayEvents(_data, me);
+        const meta = me._cachedMeta;
+        clearStacks(meta);
+        meta._parsed = [];
+        meta.data = [];
       }
       if (data && Object.isExtensible(data)) {
         listenArrayEvents(data, me);
+        me._syncList = [];
       }
       me._data = data;
     }
@@ -702,6 +711,7 @@ class DatasetController {
     const dataset = me.getDataset();
     let stackChanged = false;
     me._dataCheck();
+    const oldStacked = meta._stacked;
     meta._stacked = isStacked(meta.vScale, meta);
     if (meta.stack !== dataset.stack) {
       stackChanged = true;
@@ -709,7 +719,7 @@ class DatasetController {
       meta.stack = dataset.stack;
     }
     me._resyncElements(resetNewElements);
-    if (stackChanged) {
+    if (stackChanged || oldStacked !== meta._stacked) {
       updateStacks(me, meta._parsed);
     }
   }
@@ -1056,15 +1066,20 @@ class DatasetController {
   }
   _resyncElements(resetNewElements) {
     const me = this;
-    const numMeta = me._cachedMeta.data.length;
-    const numData = me._data.length;
+    const data = me._data;
+    const elements = me._cachedMeta.data;
+    for (const [method, arg1, arg2] of me._syncList) {
+      me[method](arg1, arg2);
+    }
+    me._syncList = [];
+    const numMeta = elements.length;
+    const numData = data.length;
+    const count = Math.min(numData, numMeta);
     if (numData > numMeta) {
       me._insertElements(numMeta, numData - numMeta, resetNewElements);
     } else if (numData < numMeta) {
       me._removeElements(numData, numMeta - numData);
-    }
-    const count = Math.min(numData, numMeta);
-    if (count) {
+    } else if (count) {
       me.parse(0, count);
     }
   }
@@ -1106,20 +1121,20 @@ class DatasetController {
   }
   _onDataPush() {
     const count = arguments.length;
-    this._insertElements(this.getDataset().data.length - count, count);
+    this._syncList.push(['_insertElements', this.getDataset().data.length - count, count]);
   }
   _onDataPop() {
-    this._removeElements(this._cachedMeta.data.length - 1, 1);
+    this._syncList.push(['_removeElements', this._cachedMeta.data.length - 1, 1]);
   }
   _onDataShift() {
-    this._removeElements(0, 1);
+    this._syncList.push(['_removeElements', 0, 1]);
   }
   _onDataSplice(start, count) {
-    this._removeElements(start, count);
-    this._insertElements(start, arguments.length - 2);
+    this._syncList.push(['_removeElements', start, count]);
+    this._syncList.push(['_insertElements', start, arguments.length - 2]);
   }
   _onDataUnshift() {
-    this._insertElements(0, arguments.length);
+    this._syncList.push(['_insertElements', 0, arguments.length]);
   }
 }
 DatasetController.defaults = {};
