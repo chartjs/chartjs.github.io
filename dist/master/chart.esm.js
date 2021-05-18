@@ -688,12 +688,11 @@ class DatasetController {
         const meta = me._cachedMeta;
         clearStacks(meta);
         meta._parsed = [];
-        meta.data = [];
       }
       if (data && Object.isExtensible(data)) {
         listenArrayEvents(data, me);
-        me._syncList = [];
       }
+      me._syncList = [];
       me._data = data;
     }
   }
@@ -1079,7 +1078,8 @@ class DatasetController {
       me._insertElements(numMeta, numData - numMeta, resetNewElements);
     } else if (numData < numMeta) {
       me._removeElements(numData, numMeta - numData);
-    } else if (count) {
+    }
+    if (count) {
       me.parse(0, count);
     }
   }
@@ -1674,8 +1674,8 @@ function getRatioAndOffset(rotation, circumference, cutout) {
     const startY = Math.sin(startAngle);
     const endX = Math.cos(endAngle);
     const endY = Math.sin(endAngle);
-    const calcMax = (angle, a, b) => _angleBetween(angle, startAngle, endAngle) ? 1 : Math.max(a, a * cutout, b, b * cutout);
-    const calcMin = (angle, a, b) => _angleBetween(angle, startAngle, endAngle) ? -1 : Math.min(a, a * cutout, b, b * cutout);
+    const calcMax = (angle, a, b) => _angleBetween(angle, startAngle, endAngle, true) ? 1 : Math.max(a, a * cutout, b, b * cutout);
+    const calcMin = (angle, a, b) => _angleBetween(angle, startAngle, endAngle, true) ? -1 : Math.min(a, a * cutout, b, b * cutout);
     const maxX = calcMax(0, startX, endX);
     const maxY = calcMax(HALF_PI, startY, endY);
     const minX = calcMin(PI, startX, endX);
@@ -5969,10 +5969,15 @@ function rThetaToXY(r, theta, x, y) {
     y: y + r * Math.sin(theta),
   };
 }
-function pathArc(ctx, element) {
-  const {x, y, startAngle, endAngle, pixelMargin} = element;
-  const outerRadius = Math.max(element.outerRadius - pixelMargin, 0);
-  const innerRadius = element.innerRadius + pixelMargin;
+function pathArc(ctx, element, offset) {
+  const {x, y, startAngle: start, endAngle: end, pixelMargin, innerRadius: innerR} = element;
+  const outerRadius = Math.max(element.outerRadius + offset - pixelMargin, 0);
+  const innerRadius = innerR > 0 ? innerR + offset + pixelMargin : 0;
+  const alpha = end - start;
+  const beta = Math.max(0.001, alpha * outerRadius - offset / PI) / outerRadius;
+  const angleOffset = (alpha - beta) / 2;
+  const startAngle = start + angleOffset;
+  const endAngle = end - angleOffset;
   const {outerStart, outerEnd, innerStart, innerEnd} = parseBorderRadius$1(element, innerRadius, outerRadius, endAngle - startAngle);
   const outerStartAdjustedRadius = outerRadius - outerStart;
   const outerEndAdjustedRadius = outerRadius - outerEnd;
@@ -6007,10 +6012,10 @@ function pathArc(ctx, element) {
   }
   ctx.closePath();
 }
-function drawArc(ctx, element) {
+function drawArc(ctx, element, offset) {
   if (element.fullCircles) {
     element.endAngle = element.startAngle + TAU;
-    pathArc(ctx, element);
+    pathArc(ctx, element, offset);
     for (let i = 0; i < element.fullCircles; ++i) {
       ctx.fill();
     }
@@ -6018,7 +6023,7 @@ function drawArc(ctx, element) {
   if (!isNaN(element.circumference)) {
     element.endAngle = element.startAngle + element.circumference % TAU;
   }
-  pathArc(ctx, element);
+  pathArc(ctx, element, offset);
   ctx.fill();
 }
 function drawFullCircleBorders(ctx, element, inner) {
@@ -6046,7 +6051,7 @@ function drawFullCircleBorders(ctx, element, inner) {
     ctx.stroke();
   }
 }
-function drawBorder(ctx, element) {
+function drawBorder(ctx, element, offset) {
   const {options} = element;
   const inner = options.borderAlign === 'inner';
   if (!options.borderWidth) {
@@ -6065,7 +6070,7 @@ function drawBorder(ctx, element) {
   if (inner) {
     clipArc(ctx, element);
   }
-  pathArc(ctx, element);
+  pathArc(ctx, element, offset);
   ctx.stroke();
 }
 class ArcElement extends Element {
@@ -6119,21 +6124,26 @@ class ArcElement extends Element {
   draw(ctx) {
     const me = this;
     const options = me.options;
-    const offset = options.offset || 0;
+    const offset = (options.offset || 0) / 2;
     me.pixelMargin = (options.borderAlign === 'inner') ? 0.33 : 0;
     me.fullCircles = Math.floor(me.circumference / TAU);
     if (me.circumference === 0 || me.innerRadius < 0 || me.outerRadius < 0) {
       return;
     }
     ctx.save();
-    if (offset && me.circumference < TAU) {
+    let radiusOffset = 0;
+    if (offset) {
+      radiusOffset = offset / 2;
       const halfAngle = (me.startAngle + me.endAngle) / 2;
-      ctx.translate(Math.cos(halfAngle) * offset, Math.sin(halfAngle) * offset);
+      ctx.translate(Math.cos(halfAngle) * radiusOffset, Math.sin(halfAngle) * radiusOffset);
+      if (me.circumference >= PI) {
+        radiusOffset = offset;
+      }
     }
     ctx.fillStyle = options.backgroundColor;
     ctx.strokeStyle = options.borderColor;
-    drawArc(ctx, me);
-    drawBorder(ctx, me);
+    drawArc(ctx, me, radiusOffset);
+    drawBorder(ctx, me, radiusOffset);
     ctx.restore();
   }
 }
