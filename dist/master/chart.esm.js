@@ -3219,7 +3219,7 @@ const formatters = {
 };
 function calculateDelta(tickValue, ticks) {
   let delta = ticks.length > 3 ? ticks[2].value - ticks[1].value : ticks[1].value - ticks[0].value;
-  if (Math.abs(delta) > 1 && tickValue !== Math.floor(tickValue)) {
+  if (Math.abs(delta) >= 1 && tickValue !== Math.floor(tickValue)) {
     delta = tickValue - Math.floor(tickValue);
   }
   return delta;
@@ -9084,7 +9084,11 @@ function generateTicks$1(generationOptions, dataRange) {
       numSpaces = Math.ceil(numSpaces);
     }
   }
-  factor = Math.pow(10, isNullOrUndef(precision) ? _decimalPlaces(spacing) : precision);
+  const decimalPlaces = Math.max(
+    _decimalPlaces(spacing),
+    _decimalPlaces(niceMin),
+  );
+  factor = Math.pow(10, isNullOrUndef(precision) ? decimalPlaces : precision);
   niceMin = Math.round(niceMin * factor) / factor;
   niceMax = Math.round(niceMax * factor) / factor;
   let j = 0;
