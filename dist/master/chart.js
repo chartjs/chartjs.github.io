@@ -5034,7 +5034,7 @@ class Scale extends Element {
   _maxDigits() {
     const me = this;
     const fontSize = me._resolveTickFontOptions(0).lineHeight;
-    return me.isHorizontal() ? me.width / fontSize / 0.7 : me.height / fontSize;
+    return (me.isHorizontal() ? me.width : me.height) / fontSize;
   }
 }
 
@@ -11625,7 +11625,7 @@ function generateTicks$1(generationOptions, dataRange) {
   const minDefined = !isNullOrUndef(min);
   const maxDefined = !isNullOrUndef(max);
   const countDefined = !isNullOrUndef(count);
-  const minSpacing = (rmax - rmin) / maxDigits;
+  const minSpacing = (rmax - rmin) / (maxDigits + 1);
   let spacing = niceNum((rmax - rmin) / maxSpaces / unit) * unit;
   let factor, niceMin, niceMax, numSpaces;
   if (spacing < MIN_SPACING && !minDefined && !maxDefined) {
@@ -11695,12 +11695,10 @@ function generateTicks$1(generationOptions, dataRange) {
   return ticks;
 }
 function relativeLabelSize(value, minSpacing, {horizontal, minRotation}) {
-  const rot = toRadians(minRotation);
-  const useLength = (horizontal && minRotation <= 45) || (!horizontal && minRotation >= 45);
-  const l = useLength ? minSpacing * ('' + value).length : 0;
-  const sin = Math.sin(rot);
-  const cos = Math.cos(rot);
-  return horizontal ? cos * l + sin * minSpacing : sin * l + cos * minSpacing;
+  const rad = toRadians(minRotation);
+  const ratio = (horizontal ? Math.sin(rad) : Math.cos(rad)) || 0.001;
+  const length = 0.75 * minSpacing * ('' + value).length;
+  return Math.min(minSpacing / ratio, length);
 }
 class LinearScaleBase extends Scale {
   constructor(cfg) {
@@ -11827,11 +11825,12 @@ class LinearScale extends LinearScaleBase {
   }
   computeTickLimit() {
     const me = this;
-    if (me.isHorizontal()) {
-      return Math.ceil(me.width / 40);
-    }
+    const horizontal = me.isHorizontal();
+    const length = horizontal ? me.width : me.height;
+    const minRotation = toRadians(me.options.ticks.minRotation);
+    const ratio = (horizontal ? Math.sin(minRotation) : Math.cos(minRotation)) || 0.001;
     const tickFont = me._resolveTickFontOptions(0);
-    return Math.ceil(me.height / tickFont.lineHeight);
+    return Math.ceil(length / Math.min(40, tickFont.lineHeight / ratio));
   }
   getPixelForValue(value) {
     return value === null ? NaN : this.getPixelForDecimal((value - this._startValue) / this._valueRange);
