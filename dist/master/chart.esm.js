@@ -5931,8 +5931,8 @@ Object.defineProperties(Chart, {
   }
 });
 
-function clipArc(ctx, element) {
-  const {startAngle, endAngle, pixelMargin, x, y, outerRadius, innerRadius} = element;
+function clipArc(ctx, element, endAngle) {
+  const {startAngle, pixelMargin, x, y, outerRadius, innerRadius} = element;
   let angleMargin = pixelMargin / outerRadius;
   ctx.beginPath();
   ctx.arc(x, y, outerRadius, startAngle - angleMargin, endAngle + angleMargin);
@@ -5969,8 +5969,8 @@ function rThetaToXY(r, theta, x, y) {
     y: y + r * Math.sin(theta),
   };
 }
-function pathArc(ctx, element, offset) {
-  const {x, y, startAngle: start, endAngle: end, pixelMargin, innerRadius: innerR} = element;
+function pathArc(ctx, element, offset, end) {
+  const {x, y, startAngle: start, pixelMargin, innerRadius: innerR} = element;
   const outerRadius = Math.max(element.outerRadius + offset - pixelMargin, 0);
   const innerRadius = innerR > 0 ? innerR + offset + pixelMargin : 0;
   const alpha = end - start;
@@ -6013,45 +6013,44 @@ function pathArc(ctx, element, offset) {
   ctx.closePath();
 }
 function drawArc(ctx, element, offset) {
-  if (element.fullCircles) {
-    element.endAngle = element.startAngle + TAU;
-    pathArc(ctx, element, offset);
-    for (let i = 0; i < element.fullCircles; ++i) {
+  const {fullCircles, startAngle, circumference} = element;
+  let endAngle = element.endAngle;
+  if (fullCircles) {
+    pathArc(ctx, element, offset, startAngle + TAU);
+    for (let i = 0; i < fullCircles; ++i) {
       ctx.fill();
     }
+    if (!isNaN(circumference)) {
+      endAngle = startAngle + circumference % TAU;
+      if (circumference % TAU === 0) {
+        endAngle += TAU;
+      }
+    }
   }
-  if (!isNaN(element.circumference)) {
-    element.endAngle = element.startAngle + element.circumference % TAU;
-  }
-  pathArc(ctx, element, offset);
+  pathArc(ctx, element, offset, endAngle);
   ctx.fill();
+  return endAngle;
 }
 function drawFullCircleBorders(ctx, element, inner) {
-  const {x, y, startAngle, endAngle, pixelMargin} = element;
+  const {x, y, startAngle, pixelMargin, fullCircles} = element;
   const outerRadius = Math.max(element.outerRadius - pixelMargin, 0);
   const innerRadius = element.innerRadius + pixelMargin;
   let i;
   if (inner) {
-    element.endAngle = element.startAngle + TAU;
-    clipArc(ctx, element);
-    element.endAngle = endAngle;
-    if (element.endAngle === element.startAngle) {
-      element.endAngle += TAU;
-      element.fullCircles--;
-    }
+    clipArc(ctx, element, startAngle + TAU);
   }
   ctx.beginPath();
   ctx.arc(x, y, innerRadius, startAngle + TAU, startAngle, true);
-  for (i = 0; i < element.fullCircles; ++i) {
+  for (i = 0; i < fullCircles; ++i) {
     ctx.stroke();
   }
   ctx.beginPath();
   ctx.arc(x, y, outerRadius, startAngle, startAngle + TAU);
-  for (i = 0; i < element.fullCircles; ++i) {
+  for (i = 0; i < fullCircles; ++i) {
     ctx.stroke();
   }
 }
-function drawBorder(ctx, element, offset) {
+function drawBorder(ctx, element, offset, endAngle) {
   const {options} = element;
   const inner = options.borderAlign === 'inner';
   if (!options.borderWidth) {
@@ -6068,9 +6067,9 @@ function drawBorder(ctx, element, offset) {
     drawFullCircleBorders(ctx, element, inner);
   }
   if (inner) {
-    clipArc(ctx, element);
+    clipArc(ctx, element, endAngle);
   }
-  pathArc(ctx, element, offset);
+  pathArc(ctx, element, offset, endAngle);
   ctx.stroke();
 }
 class ArcElement extends Element {
@@ -6103,7 +6102,7 @@ class ArcElement extends Element {
     return (betweenAngles && withinRadius);
   }
   getCenterPoint(useFinalPosition) {
-    const {x, y, startAngle, endAngle, innerRadius, outerRadius, circumference} = this.getProps([
+    const {x, y, startAngle, endAngle, innerRadius, outerRadius} = this.getProps([
       'x',
       'y',
       'startAngle',
@@ -6112,7 +6111,7 @@ class ArcElement extends Element {
       'outerRadius',
       'circumference'
     ], useFinalPosition);
-    const halfAngle = isNaN(circumference) ? (startAngle + endAngle) / 2 : startAngle + circumference / 2;
+    const halfAngle = (startAngle + endAngle) / 2;
     const halfRadius = (innerRadius + outerRadius) / 2;
     return {
       x: x + Math.cos(halfAngle) * halfRadius,
@@ -6124,11 +6123,11 @@ class ArcElement extends Element {
   }
   draw(ctx) {
     const me = this;
-    const options = me.options;
+    const {options, circumference} = me;
     const offset = (options.offset || 0) / 2;
     me.pixelMargin = (options.borderAlign === 'inner') ? 0.33 : 0;
-    me.fullCircles = Math.floor(me.circumference / TAU);
-    if (me.circumference === 0 || me.innerRadius < 0 || me.outerRadius < 0) {
+    me.fullCircles = circumference > TAU ? Math.floor(circumference / TAU) : 0;
+    if (circumference === 0 || me.innerRadius < 0 || me.outerRadius < 0) {
       return;
     }
     ctx.save();
@@ -6143,8 +6142,8 @@ class ArcElement extends Element {
     }
     ctx.fillStyle = options.backgroundColor;
     ctx.strokeStyle = options.borderColor;
-    drawArc(ctx, me, radiusOffset);
-    drawBorder(ctx, me, radiusOffset);
+    const endAngle = drawArc(ctx, me, radiusOffset);
+    drawBorder(ctx, me, radiusOffset, endAngle);
     ctx.restore();
   }
 }
