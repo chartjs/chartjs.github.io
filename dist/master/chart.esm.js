@@ -585,13 +585,17 @@ function createDataContext(parent, index, element) {
   });
 }
 function clearStacks(meta, items) {
+  const axis = meta.vScale && meta.vScale.axis;
+  if (!axis) {
+    return;
+  }
   items = items || meta._parsed;
   for (const parsed of items) {
     const stacks = parsed._stacks;
-    if (!stacks || stacks[meta.vScale.id] === undefined || stacks[meta.vScale.id][meta.index] === undefined) {
+    if (!stacks || stacks[axis] === undefined || stacks[axis][meta.index] === undefined) {
       return;
     }
-    delete stacks[meta.vScale.id][meta.index];
+    delete stacks[axis][meta.index];
   }
 }
 const isDirectUpdateMode = (mode) => mode === 'reset' || mode === 'none';
