@@ -11625,7 +11625,7 @@ CategoryScale.defaults = {
 function generateTicks$1(generationOptions, dataRange) {
   const ticks = [];
   const MIN_SPACING = 1e-14;
-  const {step, min, max, precision, count, maxTicks, maxDigits, includeBounds} = generationOptions;
+  const {bounds, step, min, max, precision, count, maxTicks, maxDigits, includeBounds} = generationOptions;
   const unit = step || 1;
   const maxSpaces = maxTicks - 1;
   const {min: rmin, max: rmax} = dataRange;
@@ -11646,8 +11646,13 @@ function generateTicks$1(generationOptions, dataRange) {
     factor = Math.pow(10, precision);
     spacing = Math.ceil(spacing * factor) / factor;
   }
-  niceMin = Math.floor(rmin / spacing) * spacing;
-  niceMax = Math.ceil(rmax / spacing) * spacing;
+  if (bounds === 'ticks') {
+    niceMin = Math.floor(rmin / spacing) * spacing;
+    niceMax = Math.ceil(rmax / spacing) * spacing;
+  } else {
+    niceMin = rmin;
+    niceMax = rmax;
+  }
   if (minDefined && maxDefined && step && almostWhole((max - min) / step, spacing / 1000)) {
     numSpaces = Math.min((max - min) / spacing, maxTicks);
     spacing = (max - min) / numSpaces;
@@ -11777,6 +11782,7 @@ class LinearScaleBase extends Scale {
     maxTicks = Math.max(2, maxTicks);
     const numericGeneratorOptions = {
       maxTicks,
+      bounds: opts.bounds,
       min: opts.min,
       max: opts.max,
       precision: tickOpts.precision,
