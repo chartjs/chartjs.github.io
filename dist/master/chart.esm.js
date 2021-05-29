@@ -1739,7 +1739,7 @@ class DoughnutController extends DatasetController {
     const {chartArea} = chart;
     const meta = me._cachedMeta;
     const arcs = meta.data;
-    const spacing = me.getMaxBorderWidth() + me.getMaxOffset(arcs);
+    const spacing = me.getMaxBorderWidth() + me.getMaxOffset(arcs) + me.options.spacing;
     const maxSize = Math.max((Math.min(chartArea.width, chartArea.height) - spacing) / 2, 0);
     const cutout = Math.min(toPercentage(me.options.cutout, maxSize), 1);
     const chartWeight = me._getRingWeight(me.index);
@@ -1903,14 +1903,19 @@ DoughnutController.defaults = {
   animations: {
     numbers: {
       type: 'number',
-      properties: ['circumference', 'endAngle', 'innerRadius', 'outerRadius', 'startAngle', 'x', 'y', 'offset', 'borderWidth']
+      properties: ['circumference', 'endAngle', 'innerRadius', 'outerRadius', 'startAngle', 'x', 'y', 'offset', 'borderWidth', 'spacing']
     },
   },
   cutout: '50%',
   rotation: 0,
   circumference: 360,
   radius: '100%',
+  spacing: 0,
   indexAxis: 'r',
+};
+DoughnutController.descriptors = {
+  _scriptable: (name) => name !== 'spacing',
+  _indexable: (name) => name !== 'spacing',
 };
 DoughnutController.overrides = {
   aspectRatio: 1,
@@ -5976,15 +5981,23 @@ function rThetaToXY(r, theta, x, y) {
     y: y + r * Math.sin(theta),
   };
 }
-function pathArc(ctx, element, offset, end) {
+function pathArc(ctx, element, offset, spacing, end) {
   const {x, y, startAngle: start, pixelMargin, innerRadius: innerR} = element;
-  const outerRadius = Math.max(element.outerRadius + offset - pixelMargin, 0);
-  const innerRadius = innerR > 0 ? innerR + offset + pixelMargin : 0;
+  const outerRadius = Math.max(element.outerRadius + spacing + offset - pixelMargin, 0);
+  const innerRadius = innerR > 0 ? innerR + spacing + offset + pixelMargin : 0;
+  let spacingOffset = 0;
   const alpha = end - start;
+  if (spacing) {
+    const noSpacingInnerRadius = innerR > 0 ? innerR - spacing : 0;
+    const noSpacingOuterRadius = outerRadius > 0 ? outerRadius - spacing : 0;
+    const avNogSpacingRadius = (noSpacingInnerRadius + noSpacingOuterRadius) / 2;
+    const adjustedAngle = avNogSpacingRadius !== 0 ? (alpha * avNogSpacingRadius) / (avNogSpacingRadius + spacing) : alpha;
+    spacingOffset = (alpha - adjustedAngle) / 2;
+  }
   const beta = Math.max(0.001, alpha * outerRadius - offset / PI) / outerRadius;
   const angleOffset = (alpha - beta) / 2;
-  const startAngle = start + angleOffset;
-  const endAngle = end - angleOffset;
+  const startAngle = start + angleOffset + spacingOffset;
+  const endAngle = end - angleOffset - spacingOffset;
   const {outerStart, outerEnd, innerStart, innerEnd} = parseBorderRadius$1(element, innerRadius, outerRadius, endAngle - startAngle);
   const outerStartAdjustedRadius = outerRadius - outerStart;
   const outerEndAdjustedRadius = outerRadius - outerEnd;
@@ -6019,11 +6032,11 @@ function pathArc(ctx, element, offset, end) {
   }
   ctx.closePath();
 }
-function drawArc(ctx, element, offset) {
+function drawArc(ctx, element, offset, spacing) {
   const {fullCircles, startAngle, circumference} = element;
   let endAngle = element.endAngle;
   if (fullCircles) {
-    pathArc(ctx, element, offset, startAngle + TAU);
+    pathArc(ctx, element, offset, spacing, startAngle + TAU);
     for (let i = 0; i < fullCircles; ++i) {
       ctx.fill();
     }
@@ -6034,7 +6047,7 @@ function drawArc(ctx, element, offset) {
       }
     }
   }
-  pathArc(ctx, element, offset, endAngle);
+  pathArc(ctx, element, offset, spacing, endAngle);
   ctx.fill();
   return endAngle;
 }
@@ -6057,7 +6070,7 @@ function drawFullCircleBorders(ctx, element, inner) {
     ctx.stroke();
   }
 }
-function drawBorder(ctx, element, offset, endAngle) {
+function drawBorder(ctx, element, offset, spacing, endAngle) {
   const {options} = element;
   const inner = options.borderAlign === 'inner';
   if (!options.borderWidth) {
@@ -6076,7 +6089,7 @@ function drawBorder(ctx, element, offset, endAngle) {
   if (inner) {
     clipArc(ctx, element, endAngle);
   }
-  pathArc(ctx, element, offset, endAngle);
+  pathArc(ctx, element, offset, spacing, endAngle);
   ctx.stroke();
 }
 class ArcElement extends Element {
@@ -6104,8 +6117,9 @@ class ArcElement extends Element {
       'outerRadius',
       'circumference'
     ], useFinalPosition);
+    const rAdjust = this.options.spacing / 2;
     const betweenAngles = circumference >= TAU || _angleBetween(angle, startAngle, endAngle);
-    const withinRadius = (distance >= innerRadius && distance <= outerRadius);
+    const withinRadius = (distance >= innerRadius + rAdjust && distance <= outerRadius + rAdjust);
     return (betweenAngles && withinRadius);
   }
   getCenterPoint(useFinalPosition) {
@@ -6116,10 +6130,11 @@ class ArcElement extends Element {
       'endAngle',
       'innerRadius',
       'outerRadius',
-      'circumference'
+      'circumference',
     ], useFinalPosition);
+    const {offset, spacing} = this.options;
     const halfAngle = (startAngle + endAngle) / 2;
-    const halfRadius = (innerRadius + outerRadius) / 2;
+    const halfRadius = (innerRadius + outerRadius + spacing + offset) / 2;
     return {
       x: x + Math.cos(halfAngle) * halfRadius,
       y: y + Math.sin(halfAngle) * halfRadius
@@ -6132,6 +6147,7 @@ class ArcElement extends Element {
     const me = this;
     const {options, circumference} = me;
     const offset = (options.offset || 0) / 2;
+    const spacing = (options.spacing || 0) / 2;
     me.pixelMargin = (options.borderAlign === 'inner') ? 0.33 : 0;
     me.fullCircles = circumference > TAU ? Math.floor(circumference / TAU) : 0;
     if (circumference === 0 || me.innerRadius < 0 || me.outerRadius < 0) {
@@ -6149,8 +6165,8 @@ class ArcElement extends Element {
     }
     ctx.fillStyle = options.backgroundColor;
     ctx.strokeStyle = options.borderColor;
-    const endAngle = drawArc(ctx, me, radiusOffset);
-    drawBorder(ctx, me, radiusOffset, endAngle);
+    const endAngle = drawArc(ctx, me, radiusOffset, spacing);
+    drawBorder(ctx, me, radiusOffset, spacing, endAngle);
     ctx.restore();
   }
 }
@@ -6161,6 +6177,7 @@ ArcElement.defaults = {
   borderRadius: 0,
   borderWidth: 2,
   offset: 0,
+  spacing: 0,
   angle: undefined,
 };
 ArcElement.defaultRoutes = {
