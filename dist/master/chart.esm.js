@@ -1078,13 +1078,13 @@ class DatasetController {
     const numMeta = elements.length;
     const numData = data.length;
     const count = Math.min(numData, numMeta);
+    if (count) {
+      me.parse(0, count);
+    }
     if (numData > numMeta) {
       me._insertElements(numMeta, numData - numMeta, resetNewElements);
     } else if (numData < numMeta) {
       me._removeElements(numData, numMeta - numData);
-    }
-    if (count) {
-      me.parse(0, count);
     }
   }
   _insertElements(start, count, resetNewElements = true) {
