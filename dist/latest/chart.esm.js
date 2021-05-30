@@ -1,5 +1,5 @@
 /*!
- * Chart.js v3.3.1
+ * Chart.js v3.3.2
  * https://www.chartjs.org
  * (c) 2021 Chart.js Contributors
  * Released under the MIT License
@@ -1078,13 +1078,13 @@ class DatasetController {
     const numMeta = elements.length;
     const numData = data.length;
     const count = Math.min(numData, numMeta);
+    if (count) {
+      me.parse(0, count);
+    }
     if (numData > numMeta) {
       me._insertElements(numMeta, numData - numMeta, resetNewElements);
     } else if (numData < numMeta) {
       me._removeElements(numData, numMeta - numData);
-    }
-    if (count) {
-      me.parse(0, count);
     }
   }
   _insertElements(start, count, resetNewElements = true) {
@@ -5118,7 +5118,7 @@ function needContext(proxy, names) {
   return false;
 }
 
-var version = "3.3.1";
+var version = "3.3.2";
 
 const KNOWN_POSITIONS = ['top', 'bottom', 'left', 'right', 'chartArea'];
 function positionIsHorizontal(position, axis) {
@@ -5362,20 +5362,12 @@ class Chart {
       layouts.addBox(me, scale);
     });
   }
-  _updateMetasetIndex(meta, index) {
-    const metasets = this._metasets;
-    const oldIndex = meta.index;
-    if (oldIndex !== index) {
-      metasets[oldIndex] = metasets[index];
-      metasets[index] = meta;
-      meta.index = index;
-    }
-  }
   _updateMetasets() {
     const me = this;
     const metasets = me._metasets;
     const numData = me.data.datasets.length;
     const numMeta = metasets.length;
+    metasets.sort((a, b) => a.index - b.index);
     if (numMeta > numData) {
       for (let i = numData; i < numMeta; ++i) {
         me._destroyDatasetMeta(i);
@@ -5413,7 +5405,7 @@ class Chart {
       meta.type = type;
       meta.indexAxis = dataset.indexAxis || getIndexAxis(type, me.options);
       meta.order = dataset.order || 0;
-      me._updateMetasetIndex(meta, i);
+      meta.index = i;
       meta.label = '' + dataset.label;
       meta.visible = me.isDatasetVisible(i);
       if (meta.controller) {
@@ -5636,7 +5628,7 @@ class Chart {
     const metasets = me._metasets;
     let meta = metasets.filter(x => x && x._dataset === dataset).pop();
     if (!meta) {
-      meta = metasets[datasetIndex] = {
+      meta = {
         type: null,
         data: [],
         dataset: null,
@@ -5650,6 +5642,7 @@ class Chart {
         _parsed: [],
         _sorted: false
       };
+      metasets.push(meta);
     }
     return meta;
   }
