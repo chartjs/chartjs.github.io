@@ -3300,6 +3300,10 @@ defaults.describe('scale', {
 defaults.describe('scales', {
   _fallback: 'scale',
 });
+defaults.describe('scale.ticks', {
+  _scriptable: (name) => name !== 'backdropPadding' && name !== 'callback',
+  _indexable: (name) => name !== 'backdropPadding',
+});
 
 function autoSkip(scale, ticks) {
   const tickOpts = scale.options.ticks;
