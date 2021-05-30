@@ -5367,20 +5367,12 @@ class Chart {
       layouts.addBox(me, scale);
     });
   }
-  _updateMetasetIndex(meta, index) {
-    const metasets = this._metasets;
-    const oldIndex = meta.index;
-    if (oldIndex !== index) {
-      metasets[oldIndex] = metasets[index];
-      metasets[index] = meta;
-      meta.index = index;
-    }
-  }
   _updateMetasets() {
     const me = this;
     const metasets = me._metasets;
     const numData = me.data.datasets.length;
     const numMeta = metasets.length;
+    metasets.sort((a, b) => a.index - b.index);
     if (numMeta > numData) {
       for (let i = numData; i < numMeta; ++i) {
         me._destroyDatasetMeta(i);
@@ -5418,7 +5410,7 @@ class Chart {
       meta.type = type;
       meta.indexAxis = dataset.indexAxis || getIndexAxis(type, me.options);
       meta.order = dataset.order || 0;
-      me._updateMetasetIndex(meta, i);
+      meta.index = i;
       meta.label = '' + dataset.label;
       meta.visible = me.isDatasetVisible(i);
       if (meta.controller) {
@@ -5641,7 +5633,7 @@ class Chart {
     const metasets = me._metasets;
     let meta = metasets.filter(x => x && x._dataset === dataset).pop();
     if (!meta) {
-      meta = metasets[datasetIndex] = {
+      meta = {
         type: null,
         data: [],
         dataset: null,
@@ -5655,6 +5647,7 @@ class Chart {
         _parsed: [],
         _sorted: false
       };
+      metasets.push(meta);
     }
     return meta;
   }
