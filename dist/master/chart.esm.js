@@ -7639,7 +7639,7 @@ class Legend extends Element {
     const fillText = function(x, y, legendItem) {
       renderText(ctx, legendItem.text, x, y + (itemHeight / 2), labelFont, {
         strikethrough: legendItem.hidden,
-        textAlign: legendItem.textAlign
+        textAlign: rtlHelper.textAlign(legendItem.textAlign)
       });
     };
     const isHorizontal = me.isHorizontal();
@@ -7664,7 +7664,7 @@ class Legend extends Element {
       ctx.fillStyle = legendItem.fontColor || fontColor;
       const textWidth = ctx.measureText(legendItem.text).width;
       const textAlign = rtlHelper.textAlign(legendItem.textAlign || (legendItem.textAlign = labelOpts.textAlign));
-      const width = boxWidth + (fontSize / 2) + textWidth;
+      const width = boxWidth + halfFontSize + textWidth;
       let x = cursor.x;
       let y = cursor.y;
       rtlHelper.setWidth(me.width);
@@ -7681,7 +7681,7 @@ class Legend extends Element {
       }
       const realX = rtlHelper.x(x);
       drawLegendBox(realX, y, legendItem);
-      x = _textX(textAlign, x + boxWidth + halfFontSize, me.right);
+      x = _textX(textAlign, x + boxWidth + halfFontSize, isHorizontal ? x + width : me.right, opts.rtl);
       fillText(rtlHelper.x(x), y, legendItem);
       if (isHorizontal) {
         cursor.x += width + padding;
