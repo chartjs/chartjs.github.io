@@ -1341,8 +1341,8 @@ class BarController extends DatasetController {
         enableBorderRadius: !stack || isFloatBar(parsed._custom) || (me.index === stack._top || me.index === stack._bottom),
         x: horizontal ? vpixels.head : ipixels.center,
         y: horizontal ? ipixels.center : vpixels.head,
-        height: horizontal ? ipixels.size : undefined,
-        width: horizontal ? undefined : ipixels.size
+        height: horizontal ? ipixels.size : Math.abs(vpixels.size),
+        width: horizontal ? Math.abs(vpixels.size) : ipixels.size
       };
       if (includeOptions) {
         properties.options = sharedOptions || me.resolveDataElementOptions(i, mode);
