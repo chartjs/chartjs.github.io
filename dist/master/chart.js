@@ -1532,11 +1532,7 @@ function _arrayUnique(items) {
   if (set.size === ilen) {
     return items;
   }
-  const result = [];
-  set.forEach(item => {
-    result.push(item);
-  });
-  return result;
+  return Array.from(set);
 }
 
 function _getParentNode(domNode) {
@@ -5180,7 +5176,7 @@ function _resolveWithContext(target, prop, receiver) {
 function _resolveScriptable(prop, value, target, receiver) {
   const {_proxy, _context, _subProxy, _stack} = target;
   if (_stack.has(prop)) {
-    throw new Error('Recursion detected: ' + [..._stack].join('->') + '->' + prop);
+    throw new Error('Recursion detected: ' + Array.from(_stack).join('->') + '->' + prop);
   }
   _stack.add(prop);
   value = value(_context, _subProxy || receiver);
@@ -5241,7 +5237,7 @@ function createSubResolver(parentScopes, resolver, prop, value) {
       return false;
     }
   }
-  return _createResolver([...set], [''], rootScopes, fallback,
+  return _createResolver(Array.from(set), [''], rootScopes, fallback,
     () => subGetTarget(resolver, prop, value));
 }
 function addScopesFromKey(set, allScopes, key, fallback) {
@@ -5297,7 +5293,7 @@ function resolveKeysFromAllScopes(scopes) {
       set.add(key);
     }
   }
-  return [...set];
+  return Array.from(set);
 }
 
 const EPSILON = Number.EPSILON || 1e-14;
@@ -6339,7 +6335,7 @@ class Config {
       keys.forEach(key => addIfFound(scopes, defaults, key));
       keys.forEach(key => addIfFound(scopes, descriptors, key));
     });
-    const array = [...scopes];
+    const array = Array.from(scopes);
     if (keysCached.has(keyLists)) {
       cache.set(keyLists, array);
     }
