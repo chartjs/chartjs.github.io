@@ -1345,7 +1345,7 @@ class BarController extends DatasetController {
         width: horizontal ? Math.abs(vpixels.size) : ipixels.size
       };
       if (includeOptions) {
-        properties.options = sharedOptions || me.resolveDataElementOptions(i, mode);
+        properties.options = sharedOptions || me.resolveDataElementOptions(i, bars[i].active ? 'active' : mode);
       }
       me.updateElement(bars[i], i, properties, mode);
     }
@@ -1612,7 +1612,7 @@ class BubbleController extends DatasetController {
       const vPixel = properties[vAxis] = reset ? vScale.getBasePixel() : vScale.getPixelForValue(parsed[vAxis]);
       properties.skip = isNaN(iPixel) || isNaN(vPixel);
       if (includeOptions) {
-        properties.options = me.resolveDataElementOptions(i, mode);
+        properties.options = me.resolveDataElementOptions(i, point.active ? 'active' : mode);
         if (reset) {
           properties.options.radius = 0;
         }
@@ -1801,7 +1801,7 @@ class DoughnutController extends DatasetController {
         innerRadius
       };
       if (includeOptions) {
-        properties.options = sharedOptions || me.resolveDataElementOptions(i, mode);
+        properties.options = sharedOptions || me.resolveDataElementOptions(i, arc.active ? 'active' : mode);
       }
       startAngle += circumference;
       me.updateElement(arc, i, properties, mode);
@@ -2021,7 +2021,7 @@ class LineController extends DatasetController {
       properties.stop = i > 0 && (parsed[iAxis] - prevParsed[iAxis]) > maxGapLength;
       properties.parsed = parsed;
       if (includeOptions) {
-        properties.options = sharedOptions || me.resolveDataElementOptions(i, mode);
+        properties.options = sharedOptions || me.resolveDataElementOptions(i, point.active ? 'active' : mode);
       }
       if (!directUpdate) {
         me.updateElement(point, i, properties, mode);
@@ -2183,7 +2183,7 @@ class PolarAreaController extends DatasetController {
         outerRadius,
         startAngle,
         endAngle,
-        options: me.resolveDataElementOptions(i, mode)
+        options: me.resolveDataElementOptions(i, arc.active ? 'active' : mode)
       };
       me.updateElement(arc, i, properties, mode);
     }
@@ -2327,7 +2327,7 @@ class RadarController extends DatasetController {
     const reset = mode === 'reset';
     for (let i = start; i < start + count; i++) {
       const point = points[i];
-      const options = me.resolveDataElementOptions(i, mode);
+      const options = me.resolveDataElementOptions(i, point.active ? 'active' : mode);
       const pointPosition = scale.getPointPositionForValue(i, dataset.data[i]);
       const x = reset ? scale.xCenter : pointPosition.x;
       const y = reset ? scale.yCenter : pointPosition.y;
