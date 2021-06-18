@@ -1384,22 +1384,8 @@ function renderText(ctx, text, x, y, font, opts = {}) {
   const stroke = opts.strokeWidth > 0 && opts.strokeColor !== '';
   let i, line;
   ctx.save();
-  if (opts.translation) {
-    ctx.translate(opts.translation[0], opts.translation[1]);
-  }
-  if (!isNullOrUndef(opts.rotation)) {
-    ctx.rotate(opts.rotation);
-  }
   ctx.font = font.string;
-  if (opts.color) {
-    ctx.fillStyle = opts.color;
-  }
-  if (opts.textAlign) {
-    ctx.textAlign = opts.textAlign;
-  }
-  if (opts.textBaseline) {
-    ctx.textBaseline = opts.textBaseline;
-  }
+  setRenderOpts(ctx, opts);
   for (i = 0; i < lines.length; ++i) {
     line = lines[i];
     if (stroke) {
@@ -1412,23 +1398,43 @@ function renderText(ctx, text, x, y, font, opts = {}) {
       ctx.strokeText(line, x, y, opts.maxWidth);
     }
     ctx.fillText(line, x, y, opts.maxWidth);
-    if (opts.strikethrough || opts.underline) {
-      const metrics = ctx.measureText(line);
-      const left = x - metrics.actualBoundingBoxLeft;
-      const right = x + metrics.actualBoundingBoxRight;
-      const top = y - metrics.actualBoundingBoxAscent;
-      const bottom = y + metrics.actualBoundingBoxDescent;
-      const yDecoration = opts.strikethrough ? (top + bottom) / 2 : bottom;
-      ctx.strokeStyle = ctx.fillStyle;
-      ctx.beginPath();
-      ctx.lineWidth = opts.decorationWidth || 2;
-      ctx.moveTo(left, yDecoration);
-      ctx.lineTo(right, yDecoration);
-      ctx.stroke();
-    }
+    decorateText(ctx, x, y, line, opts);
     y += font.lineHeight;
   }
   ctx.restore();
+}
+function setRenderOpts(ctx, opts) {
+  if (opts.translation) {
+    ctx.translate(opts.translation[0], opts.translation[1]);
+  }
+  if (!isNullOrUndef(opts.rotation)) {
+    ctx.rotate(opts.rotation);
+  }
+  if (opts.color) {
+    ctx.fillStyle = opts.color;
+  }
+  if (opts.textAlign) {
+    ctx.textAlign = opts.textAlign;
+  }
+  if (opts.textBaseline) {
+    ctx.textBaseline = opts.textBaseline;
+  }
+}
+function decorateText(ctx, x, y, line, opts) {
+  if (opts.strikethrough || opts.underline) {
+    const metrics = ctx.measureText(line);
+    const left = x - metrics.actualBoundingBoxLeft;
+    const right = x + metrics.actualBoundingBoxRight;
+    const top = y - metrics.actualBoundingBoxAscent;
+    const bottom = y + metrics.actualBoundingBoxDescent;
+    const yDecoration = opts.strikethrough ? (top + bottom) / 2 : bottom;
+    ctx.strokeStyle = ctx.fillStyle;
+    ctx.beginPath();
+    ctx.lineWidth = opts.decorationWidth || 2;
+    ctx.moveTo(left, yDecoration);
+    ctx.lineTo(right, yDecoration);
+    ctx.stroke();
+  }
 }
 function addRoundedRectPath(ctx, rect) {
   const {x, y, w, h, radius} = rect;
@@ -9614,13 +9620,23 @@ function computeBoundary(source) {
   }
   return computeLinearBoundary(source);
 }
+function findSegmentEnd(start, end, points) {
+  for (;end > start; end--) {
+    const point = points[end];
+    if (!isNaN(point.x) && !isNaN(point.y)) {
+      break;
+    }
+  }
+  return end;
+}
 function pointsFromSegments(boundary, line) {
   const {x = null, y = null} = boundary || {};
   const linePoints = line.points;
   const points = [];
-  line.segments.forEach((segment) => {
-    const first = linePoints[segment.start];
-    const last = linePoints[segment.end];
+  line.segments.forEach(({start, end}) => {
+    end = findSegmentEnd(start, end, linePoints);
+    const first = linePoints[start];
+    const last = linePoints[end];
     if (y !== null) {
       points.push({x: first.x, y});
       points.push({x: last.x, y});
@@ -9788,13 +9804,15 @@ function _segments(line, target, property) {
   const tpoints = target.points;
   const parts = [];
   for (const segment of segments) {
-    const bounds = getBounds(property, points[segment.start], points[segment.end], segment.loop);
+    let {start, end} = segment;
+    end = findSegmentEnd(start, end, points);
+    const bounds = getBounds(property, points[start], points[end], segment.loop);
     if (!target.segments) {
       parts.push({
         source: segment,
         target: bounds,
-        start: points[segment.start],
-        end: points[segment.end]
+        start: points[start],
+        end: points[end]
       });
       continue;
     }
@@ -12029,16 +12047,11 @@ function getTickBackdropHeight(opts) {
   }
   return 0;
 }
-function measureLabelSize(ctx, lineHeight, label) {
-  if (isArray(label)) {
-    return {
-      w: _longestText(ctx, ctx.font, label),
-      h: label.length * lineHeight
-    };
-  }
+function measureLabelSize(ctx, font, label) {
+  label = isArray(label) ? label : [label];
   return {
-    w: ctx.measureText(label).width,
-    h: lineHeight
+    w: _longestText(ctx, font.string, label),
+    h: label.length * font.lineHeight
   };
 }
 function determineLimits(angle, pos, size, min, max) {
@@ -12066,17 +12079,15 @@ function fitWithPointLabels(scale) {
     b: scale.height - scale.paddingTop
   };
   const furthestAngles = {};
-  let i, textSize, pointPosition;
   const labelSizes = [];
   const padding = [];
   const valueCount = scale.getLabels().length;
-  for (i = 0; i < valueCount; i++) {
+  for (let i = 0; i < valueCount; i++) {
     const opts = scale.options.pointLabels.setContext(scale.getContext(i));
     padding[i] = opts.padding;
-    pointPosition = scale.getPointPosition(i, scale.drawingArea + padding[i]);
+    const pointPosition = scale.getPointPosition(i, scale.drawingArea + padding[i]);
     const plFont = toFont(opts.font);
-    scale.ctx.font = plFont.string;
-    textSize = measureLabelSize(scale.ctx, plFont.lineHeight, scale._pointLabels[i]);
+    const textSize = measureLabelSize(scale.ctx, plFont, scale._pointLabels[i]);
     labelSizes[i] = textSize;
     const angleRadians = scale.getIndexAngle(i);
     const angle = toDegrees(angleRadians);
@@ -12100,36 +12111,33 @@ function fitWithPointLabels(scale) {
     }
   }
   scale._setReductions(scale.drawingArea, furthestLimits, furthestAngles);
-  scale._pointLabelItems = [];
+  scale._pointLabelItems = buildPointLabelItems(scale, labelSizes, padding);
+}
+function buildPointLabelItems(scale, labelSizes, padding) {
+  const items = [];
+  const valueCount = scale.getLabels().length;
   const opts = scale.options;
   const tickBackdropHeight = getTickBackdropHeight(opts);
   const outerDistance = scale.getDistanceFromCenterForValue(opts.ticks.reverse ? scale.min : scale.max);
-  for (i = 0; i < valueCount; i++) {
+  for (let i = 0; i < valueCount; i++) {
     const extra = (i === 0 ? tickBackdropHeight / 2 : 0);
     const pointLabelPosition = scale.getPointPosition(i, outerDistance + extra + padding[i]);
     const angle = toDegrees(scale.getIndexAngle(i));
     const size = labelSizes[i];
-    adjustPointPositionForLabelHeight(angle, size, pointLabelPosition);
+    const y = yForAngle(pointLabelPosition.y, size.h, angle);
     const textAlign = getTextAlignForAngle(angle);
-    let left;
-    if (textAlign === 'left') {
-      left = pointLabelPosition.x;
-    } else if (textAlign === 'center') {
-      left = pointLabelPosition.x - (size.w / 2);
-    } else {
-      left = pointLabelPosition.x - size.w;
-    }
-    const right = left + size.w;
-    scale._pointLabelItems[i] = {
+    const left = leftForTextAlign(pointLabelPosition.x, size.w, textAlign);
+    items.push({
       x: pointLabelPosition.x,
-      y: pointLabelPosition.y,
+      y,
       textAlign,
       left,
-      top: pointLabelPosition.y,
-      right,
-      bottom: pointLabelPosition.y + size.h,
-    };
+      top: y,
+      right: left + size.w,
+      bottom: y + size.h
+    });
   }
+  return items;
 }
 function getTextAlignForAngle(angle) {
   if (angle === 0 || angle === 180) {
@@ -12139,12 +12147,21 @@ function getTextAlignForAngle(angle) {
   }
   return 'right';
 }
-function adjustPointPositionForLabelHeight(angle, textSize, position) {
-  if (angle === 90 || angle === 270) {
-    position.y -= (textSize.h / 2);
-  } else if (angle > 270 || angle < 90) {
-    position.y -= textSize.h;
+function leftForTextAlign(x, w, align) {
+  if (align === 'right') {
+    x -= w;
+  } else if (align === 'center') {
+    x -= (w / 2);
   }
+  return x;
+}
+function yForAngle(y, h, angle) {
+  if (angle === 90 || angle === 270) {
+    y -= (h / 2);
+  } else if (angle > 270 || angle < 90) {
+    y -= h;
+  }
+  return y;
 }
 function drawPointLabels(scale, labelCount) {
   const {ctx, options: {pointLabels}} = scale;
@@ -12402,6 +12419,7 @@ class RadialLinearScale extends LinearScaleBase {
       const tickFont = toFont(optsAtIndex.font);
       offset = me.getDistanceFromCenterForValue(me.ticks[index].value);
       if (optsAtIndex.showLabelBackdrop) {
+        ctx.font = tickFont.string;
         width = ctx.measureText(tick.label).width;
         ctx.fillStyle = optsAtIndex.backdropColor;
         const padding = toPadding(optsAtIndex.backdropPadding);
