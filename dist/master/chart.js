@@ -200,7 +200,7 @@ var animator = new Animator();
  * (c) 2020 Jukka Kurkela
  * Released under the MIT License
  */
-const map = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, A: 10, B: 11, C: 12, D: 13, E: 14, F: 15, a: 10, b: 11, c: 12, d: 13, e: 14, f: 15};
+const map$1 = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, A: 10, B: 11, C: 12, D: 13, E: 14, F: 15, a: 10, b: 11, c: 12, d: 13, e: 14, f: 15};
 const hex = '0123456789ABCDEF';
 const h1 = (b) => hex[b & 0xF];
 const h2 = (b) => hex[(b & 0xF0) >> 4] + hex[b & 0xF];
@@ -214,17 +214,17 @@ function hexParse(str) {
 	if (str[0] === '#') {
 		if (len === 4 || len === 5) {
 			ret = {
-				r: 255 & map[str[1]] * 17,
-				g: 255 & map[str[2]] * 17,
-				b: 255 & map[str[3]] * 17,
-				a: len === 5 ? map[str[4]] * 17 : 255
+				r: 255 & map$1[str[1]] * 17,
+				g: 255 & map$1[str[2]] * 17,
+				b: 255 & map$1[str[3]] * 17,
+				a: len === 5 ? map$1[str[4]] * 17 : 255
 			};
 		} else if (len === 7 || len === 9) {
 			ret = {
-				r: map[str[1]] << 4 | map[str[2]],
-				g: map[str[3]] << 4 | map[str[4]],
-				b: map[str[5]] << 4 | map[str[6]],
-				a: len === 9 ? (map[str[7]] << 4 | map[str[8]]) : 255
+				r: map$1[str[1]] << 4 | map$1[str[2]],
+				g: map$1[str[3]] << 4 | map$1[str[4]],
+				b: map$1[str[5]] << 4 | map$1[str[6]],
+				a: len === 9 ? (map$1[str[7]] << 4 | map$1[str[8]]) : 255
 			};
 		}
 	}
@@ -395,7 +395,7 @@ function hslString(v) {
 		? `hsla(${h}, ${s}%, ${l}%, ${b2n(v.a)})`
 		: `hsl(${h}, ${s}%, ${l}%)`;
 }
-const map$1 = {
+const map$1$1 = {
 	x: 'dark',
 	Z: 'light',
 	Y: 're',
@@ -577,13 +577,13 @@ const names = {
 function unpack() {
 	const unpacked = {};
 	const keys = Object.keys(names);
-	const tkeys = Object.keys(map$1);
+	const tkeys = Object.keys(map$1$1);
 	let i, j, k, ok, nk;
 	for (i = 0; i < keys.length; i++) {
 		ok = nk = keys[i];
 		for (j = 0; j < tkeys.length; j++) {
 			k = tkeys[j];
-			nk = nk.replace(k, map$1[k]);
+			nk = nk.replace(k, map$1$1[k]);
 		}
 		k = parseInt(names[ok], 16);
 		unpacked[nk] = [k >> 16 & 0xFF, k >> 8 & 0xFF, k & 0xFF];
@@ -10600,6 +10600,49 @@ var plugin_title = {
   },
 };
 
+const map = new WeakMap();
+var plugin_subtitle = {
+  id: 'subtitle',
+  start(chart, _args, options) {
+    const title = new Title({
+      ctx: chart.ctx,
+      options,
+      chart
+    });
+    layouts.configure(chart, title, options);
+    layouts.addBox(chart, title);
+    map.set(chart, title);
+  },
+  stop(chart) {
+    layouts.removeBox(chart, map.get(chart));
+    map.delete(chart);
+  },
+  beforeUpdate(chart, _args, options) {
+    const title = map.get(chart);
+    layouts.configure(chart, title, options);
+    title.options = options;
+  },
+  defaults: {
+    align: 'center',
+    display: false,
+    font: {
+      weight: 'normal',
+    },
+    fullSize: true,
+    padding: 0,
+    position: 'top',
+    text: '',
+    weight: 1500
+  },
+  defaultRoutes: {
+    color: 'color'
+  },
+  descriptors: {
+    _scriptable: true,
+    _indexable: false,
+  },
+};
+
 const positioners = {
   average(items) {
     if (!items.length) {
@@ -11556,6 +11599,7 @@ __proto__: null,
 Decimation: plugin_decimation,
 Filler: plugin_filler,
 Legend: plugin_legend,
+SubTitle: plugin_subtitle,
 Title: plugin_title,
 Tooltip: plugin_tooltip
 });
