@@ -11757,7 +11757,7 @@ function generateTicks$1(generationOptions, dataRange) {
   }
   const decimalPlaces = Math.max(
     _decimalPlaces(spacing),
-    _decimalPlaces(niceMin),
+    _decimalPlaces(niceMin)
   );
   factor = Math.pow(10, isNullOrUndef(precision) ? decimalPlaces : precision);
   niceMin = Math.round(niceMin * factor) / factor;
