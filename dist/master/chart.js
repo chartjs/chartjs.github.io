@@ -8049,6 +8049,7 @@ DoughnutController.overrides = {
         generateLabels(chart) {
           const data = chart.data;
           if (data.labels.length && data.datasets.length) {
+            const {labels: {pointStyle}} = chart.legend.options;
             return data.labels.map((label, i) => {
               const meta = chart.getDatasetMeta(0);
               const style = meta.controller.getStyle(i);
@@ -8057,6 +8058,7 @@ DoughnutController.overrides = {
                 fillStyle: style.backgroundColor,
                 strokeStyle: style.borderColor,
                 lineWidth: style.borderWidth,
+                pointStyle: pointStyle,
                 hidden: !chart.getDataVisibility(i),
                 index: i
               };
@@ -8353,6 +8355,7 @@ PolarAreaController.overrides = {
         generateLabels(chart) {
           const data = chart.data;
           if (data.labels.length && data.datasets.length) {
+            const {labels: {pointStyle}} = chart.legend.options;
             return data.labels.map((label, i) => {
               const meta = chart.getDatasetMeta(0);
               const style = meta.controller.getStyle(i);
@@ -8361,6 +8364,7 @@ PolarAreaController.overrides = {
                 fillStyle: style.backgroundColor,
                 strokeStyle: style.borderColor,
                 lineWidth: style.borderWidth,
+                pointStyle: pointStyle,
                 hidden: !chart.getDataVisibility(i),
                 index: i
               };
@@ -10135,7 +10139,7 @@ class Legend extends Element {
       return;
     }
     const titleHeight = me._computeTitleHeight();
-    const {legendHitBoxes: hitboxes, options: {align, labels: {padding}}} = me;
+    const {legendHitBoxes: hitboxes, options: {align, labels: {padding}, rtl}} = me;
     if (this.isHorizontal()) {
       let row = 0;
       let left = _alignStartEnd(align, me.left + padding, me.right - me.lineWidths[row]);
@@ -10147,6 +10151,19 @@ class Legend extends Element {
         hitbox.top += me.top + titleHeight + padding;
         hitbox.left = left;
         left += hitbox.width + padding;
+      }
+      if (rtl) {
+        const boxMap = hitboxes.reduce((map, box) => {
+          map[box.row] = map[box.row] || [];
+          map[box.row].push(box);
+          return map;
+        }, {});
+        const newBoxes = [];
+        Object.keys(boxMap).forEach(key => {
+          boxMap[key].reverse();
+          newBoxes.push(...boxMap[key]);
+        });
+        me.legendHitBoxes = newBoxes;
       }
     } else {
       let col = 0;
