@@ -1068,6 +1068,8 @@ const TWO_THIRDS_PI = PI * 2 / 3;
 const log10 = Math.log10;
 const sign = Math.sign;
 function niceNum(range) {
+  const roundedRange = Math.round(range);
+  range = almostEquals(range, roundedRange, range / 1000) ? roundedRange : range;
   const niceRange = Math.pow(10, Math.floor(log10(range)));
   const fraction = range / niceRange;
   const niceFraction = fraction <= 1 ? 1 : fraction <= 2 ? 2 : fraction <= 5 ? 5 : 10;
@@ -11755,7 +11757,7 @@ function generateTicks$1(generationOptions, dataRange) {
     niceMax = rmax;
   }
   if (minDefined && maxDefined && step && almostWhole((max - min) / step, spacing / 1000)) {
-    numSpaces = Math.min((max - min) / spacing, maxTicks);
+    numSpaces = Math.round(Math.min((max - min) / spacing, maxTicks));
     spacing = (max - min) / numSpaces;
     niceMin = min;
     niceMax = max;
