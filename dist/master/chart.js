@@ -9474,7 +9474,8 @@ var plugin_decimation = {
         return;
       }
       let {start, count} = getStartAndCountOfVisiblePointsSimplified(meta, data);
-      if (count <= 4 * availableWidth) {
+      const threshold = options.threshold || 4 * availableWidth;
+      if (count <= threshold) {
         cleanDecimatedDataset(dataset);
         return;
       }
