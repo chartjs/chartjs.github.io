@@ -6965,7 +6965,7 @@ function decodeFill(line, index, count) {
     }
     return target;
   }
-  return ['origin', 'start', 'end', 'stack'].indexOf(fill) >= 0 && fill;
+  return ['origin', 'start', 'end', 'stack', 'shape'].indexOf(fill) >= 0 && fill;
 }
 function computeLinearBoundary(source) {
   const {scale = {}, fill} = source;
@@ -7154,6 +7154,9 @@ function getTarget(source) {
   if (fill === 'stack') {
     return buildStackLine(source);
   }
+  if (fill === 'shape') {
+    return true;
+  }
   const boundary = computeBoundary(source);
   if (boundary instanceof simpleArc) {
     return boundary;
@@ -7284,20 +7287,24 @@ function _fill(ctx, cfg) {
   const segments = _segments(line, target, property);
   for (const {source: src, target: tgt, start, end} of segments) {
     const {style: {backgroundColor = color} = {}} = src;
+    const notShape = target !== true;
     ctx.save();
     ctx.fillStyle = backgroundColor;
-    clipBounds(ctx, scale, getBounds(property, start, end));
+    clipBounds(ctx, scale, notShape && getBounds(property, start, end));
     ctx.beginPath();
     const lineLoop = !!line.pathSegment(ctx, src);
-    if (lineLoop) {
-      ctx.closePath();
-    } else {
-      interpolatedLineTo(ctx, target, end, property);
-    }
-    const targetLoop = !!target.pathSegment(ctx, tgt, {move: lineLoop, reverse: true});
-    const loop = lineLoop && targetLoop;
-    if (!loop) {
-      interpolatedLineTo(ctx, target, start, property);
+    let loop;
+    if (notShape) {
+      if (lineLoop) {
+        ctx.closePath();
+      } else {
+        interpolatedLineTo(ctx, target, end, property);
+      }
+      const targetLoop = !!target.pathSegment(ctx, tgt, {move: lineLoop, reverse: true});
+      loop = lineLoop && targetLoop;
+      if (!loop) {
+        interpolatedLineTo(ctx, target, start, property);
+      }
     }
     ctx.closePath();
     ctx.fill(loop ? 'evenodd' : 'nonzero');
