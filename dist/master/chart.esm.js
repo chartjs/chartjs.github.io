@@ -7568,6 +7568,7 @@ class Legend extends Element {
     }
     const titleHeight = me._computeTitleHeight();
     const {legendHitBoxes: hitboxes, options: {align, labels: {padding}, rtl}} = me;
+    const rtlHelper = getRtlAdapter(rtl, me.left, me.width);
     if (this.isHorizontal()) {
       let row = 0;
       let left = _alignStartEnd(align, me.left + padding, me.right - me.lineWidths[row]);
@@ -7577,21 +7578,8 @@ class Legend extends Element {
           left = _alignStartEnd(align, me.left + padding, me.right - me.lineWidths[row]);
         }
         hitbox.top += me.top + titleHeight + padding;
-        hitbox.left = left;
+        hitbox.left = rtlHelper.leftForLtr(rtlHelper.x(left), hitbox.width);
         left += hitbox.width + padding;
-      }
-      if (rtl) {
-        const boxMap = hitboxes.reduce((map, box) => {
-          map[box.row] = map[box.row] || [];
-          map[box.row].push(box);
-          return map;
-        }, {});
-        const newBoxes = [];
-        Object.keys(boxMap).forEach(key => {
-          boxMap[key].reverse();
-          newBoxes.push(...boxMap[key]);
-        });
-        me.legendHitBoxes = newBoxes;
       }
     } else {
       let col = 0;
@@ -7603,6 +7591,7 @@ class Legend extends Element {
         }
         hitbox.top = top;
         hitbox.left += me.left + padding;
+        hitbox.left = rtlHelper.leftForLtr(rtlHelper.x(hitbox.left), hitbox.width);
         top += hitbox.height + padding;
       }
     }
