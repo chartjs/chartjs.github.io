@@ -12154,7 +12154,7 @@ function fitWithPointLabels(scale) {
   const padding = [];
   const valueCount = scale.getLabels().length;
   for (let i = 0; i < valueCount; i++) {
-    const opts = scale.options.pointLabels.setContext(scale.getContext(i));
+    const opts = scale.options.pointLabels.setContext(scale.getPointLabelContext(i));
     padding[i] = opts.padding;
     const pointPosition = scale.getPointPosition(i, scale.drawingArea + padding[i]);
     const plFont = toFont(opts.font);
@@ -12237,7 +12237,7 @@ function yForAngle(y, h, angle) {
 function drawPointLabels(scale, labelCount) {
   const {ctx, options: {pointLabels}} = scale;
   for (let i = labelCount - 1; i >= 0; i--) {
-    const optsAtIndex = pointLabels.setContext(scale.getContext(i));
+    const optsAtIndex = pointLabels.setContext(scale.getPointLabelContext(i));
     const plFont = toFont(optsAtIndex.font);
     const {x, y, textAlign, left, top, right, bottom} = scale._pointLabelItems[i];
     const {backdropColor} = optsAtIndex;
@@ -12293,6 +12293,13 @@ function drawRadiusLine(scale, gridLineOpts, radius, labelCount) {
 }
 function numberOrZero(param) {
   return isNumber(param) ? param : 0;
+}
+function createPointLabelContext(parent, index, label) {
+  return Object.assign(Object.create(parent), {
+    label,
+    index,
+    type: 'pointLabel'
+  });
 }
 class RadialLinearScale extends LinearScaleBase {
   constructor(cfg) {
@@ -12387,6 +12394,14 @@ class RadialLinearScale extends LinearScaleBase {
     const scaledDistance = distance / (me.drawingArea / (me.max - me.min));
     return me.options.reverse ? me.max - scaledDistance : me.min + scaledDistance;
   }
+  getPointLabelContext(index) {
+    const me = this;
+    const pointLabels = me._pointLabels || [];
+    if (index >= 0 && index < pointLabels.length) {
+      const pointLabel = pointLabels[index];
+      return createPointLabelContext(me.getContext(), index, pointLabel);
+    }
+  }
   getPointPosition(index, distanceFromCenter) {
     const me = this;
     const angle = me.getIndexAngle(index) - HALF_PI;
@@ -12447,7 +12462,7 @@ class RadialLinearScale extends LinearScaleBase {
     if (angleLines.display) {
       ctx.save();
       for (i = me.getLabels().length - 1; i >= 0; i--) {
-        const optsAtIndex = angleLines.setContext(me.getContext(i));
+        const optsAtIndex = angleLines.setContext(me.getPointLabelContext(i));
         const {color, lineWidth} = optsAtIndex;
         if (!lineWidth || !color) {
           continue;
