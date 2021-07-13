@@ -1264,6 +1264,12 @@ function parseArrayOrPrimitive(meta, data, start, count) {
 function isFloatBar(custom) {
   return custom && custom.barStart !== undefined && custom.barEnd !== undefined;
 }
+function barSign(size, vScale, actualBase) {
+  if (size !== 0) {
+    return sign(size);
+  }
+  return (vScale.isHorizontal() ? 1 : -1) * (vScale.min >= actualBase ? 1 : -1);
+}
 class BarController extends DatasetController {
   parsePrimitiveData(meta, data, start, count) {
     return parseArrayOrPrimitive(meta, data, start, count);
@@ -1426,8 +1432,8 @@ class BarController extends DatasetController {
   }
   _calculateBarValuePixels(index) {
     const me = this;
-    const {vScale, _stacked} = me._cachedMeta;
-    const {base: baseValue, minBarLength} = me.options;
+    const {_cachedMeta: {vScale, _stacked}, options: {base: baseValue, minBarLength}} = me;
+    const actualBase = baseValue || 0;
     const parsed = me.getParsed(index);
     const custom = parsed._custom;
     const floating = isFloatBar(custom);
@@ -1449,29 +1455,23 @@ class BarController extends DatasetController {
     }
     const startValue = !isNullOrUndef(baseValue) && !floating ? baseValue : start;
     let base = vScale.getPixelForValue(startValue);
-    if (this.chart.getDataVisibility(index)) {
+    if (me.chart.getDataVisibility(index)) {
       head = vScale.getPixelForValue(start + length);
     } else {
       head = base;
     }
     size = head - base;
-    if (minBarLength !== undefined && Math.abs(size) < minBarLength) {
-      size = size < 0 ? -minBarLength : minBarLength;
-      if (value === 0) {
+    if (Math.abs(size) < minBarLength) {
+      size = barSign(size, vScale, actualBase) * minBarLength;
+      if (value === actualBase) {
         base -= size / 2;
       }
       head = base + size;
     }
-    const actualBase = baseValue || 0;
     if (base === vScale.getPixelForValue(actualBase)) {
-      const halfGrid = vScale.getLineWidthForValue(actualBase) / 2;
-      if (size > 0) {
-        base += halfGrid;
-        size -= halfGrid;
-      } else if (size < 0) {
-        base -= halfGrid;
-        size += halfGrid;
-      }
+      const halfGrid = sign(size) * vScale.getLineWidthForValue(actualBase) / 2;
+      base += halfGrid;
+      size -= halfGrid;
     }
     return {
       size,
