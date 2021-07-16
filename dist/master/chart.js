@@ -3103,6 +3103,7 @@ function createDataContext(parent, index, element) {
   });
 }
 function clearStacks(meta, items) {
+  const datasetIndex = meta.controller.index;
   const axis = meta.vScale && meta.vScale.axis;
   if (!axis) {
     return;
@@ -3110,10 +3111,10 @@ function clearStacks(meta, items) {
   items = items || meta._parsed;
   for (const parsed of items) {
     const stacks = parsed._stacks;
-    if (!stacks || stacks[axis] === undefined || stacks[axis][meta.index] === undefined) {
+    if (!stacks || stacks[axis] === undefined || stacks[axis][datasetIndex] === undefined) {
       return;
     }
-    delete stacks[axis][meta.index];
+    delete stacks[axis][datasetIndex];
   }
 }
 const isDirectUpdateMode = (mode) => mode === 'reset' || mode === 'none';
