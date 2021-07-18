@@ -11926,9 +11926,13 @@ class LinearScaleBase extends Scale {
       }
     }
     if (min === max) {
-      setMax(max + 1);
+      let offset = 1;
+      if (max >= Number.MAX_SAFE_INTEGER || min <= Number.MIN_SAFE_INTEGER) {
+        offset = Math.abs(max * 0.05);
+      }
+      setMax(max + offset);
       if (!beginAtZero) {
-        setMin(min - 1);
+        setMin(min - offset);
       }
     }
     me.min = min;
