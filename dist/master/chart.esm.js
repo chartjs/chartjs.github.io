@@ -4,7 +4,7 @@
  * (c) 2021 Chart.js Contributors
  * Released under the MIT License
  */
-import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, b as isArray, d as defaults, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as isNumberFinite, h as defined, s as sign, j as isNullOrUndef, _ as _arrayUnique, t as toRadians, k as toPercentage, m as toDimension, T as TAU, n as formatNumber, o as _angleBetween, H as HALF_PI, P as PI, p as isNumber, q as _limitValue, w as _lookupByKey, x as getRelativePosition$1, y as _isPointInArea, z as _rlookupByKey, A as toPadding, B as each, C as getMaximumSize, D as _getParentNode, E as readUsedSize, F as throttled, G as supportsEventListenerOptions, I as log10, J as _factorize, K as finiteOrDefault, L as callback, M as _addGrace, N as toDegrees, O as _measureText, Q as _int16Range, R as _alignPixel, S as clipArea, U as renderText, V as unclipArea, W as toFont, X as _toLeftRightCenter, Y as _alignStartEnd, Z as overrides, $ as merge, a0 as _capitalize, a1 as descriptors, a2 as isFunction, a3 as _attachContext, a4 as _createResolver, a5 as _descriptors, a6 as mergeIf, a7 as uid, a8 as debounce, a9 as retinaScale, aa as clearCanvas, ab as setsEqual, ac as _elementsEqual, ad as getAngleFromPoint, ae as _readValueToProps, af as _updateBezierControlPoints, ag as _computeSegments, ah as _boundSegments, ai as _steppedInterpolation, aj as _bezierInterpolation, ak as _pointInLine, al as _steppedLineTo, am as _bezierCurveTo, an as drawPoint, ao as addRoundedRectPath, ap as toTRBL, aq as toTRBLCorners, ar as _boundSegment, as as _normalizeAngle, at as getRtlAdapter, au as overrideTextDirection, av as _textX, aw as restoreTextDirection, ax as noop, ay as distanceBetweenPoints, az as _setMinAndMaxByKey, aA as niceNum, aB as almostWhole, aC as almostEquals, aD as _decimalPlaces, aE as _longestText, aF as _filterBetween, aG as _lookup } from './chunks/helpers.segment.js';
+import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, b as isArray, d as defaults, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as isNumberFinite, h as defined, s as sign, j as isNullOrUndef, _ as _arrayUnique, t as toRadians, k as toPercentage, m as toDimension, T as TAU, n as formatNumber, o as _angleBetween, H as HALF_PI, P as PI, p as isNumber, q as _limitValue, w as _lookupByKey, x as getRelativePosition$1, y as _isPointInArea, z as _rlookupByKey, A as toPadding, B as each, C as getMaximumSize, D as _getParentNode, E as readUsedSize, F as throttled, G as supportsEventListenerOptions, I as _isDomSupported, J as log10, K as _factorize, L as finiteOrDefault, M as callback, N as _addGrace, O as toDegrees, Q as _measureText, R as _int16Range, S as _alignPixel, U as clipArea, V as renderText, W as unclipArea, X as toFont, Y as _toLeftRightCenter, Z as _alignStartEnd, $ as overrides, a0 as merge, a1 as _capitalize, a2 as descriptors, a3 as isFunction, a4 as _attachContext, a5 as _createResolver, a6 as _descriptors, a7 as mergeIf, a8 as uid, a9 as debounce, aa as retinaScale, ab as clearCanvas, ac as setsEqual, ad as _elementsEqual, ae as getAngleFromPoint, af as _readValueToProps, ag as _updateBezierControlPoints, ah as _computeSegments, ai as _boundSegments, aj as _steppedInterpolation, ak as _bezierInterpolation, al as _pointInLine, am as _steppedLineTo, an as _bezierCurveTo, ao as drawPoint, ap as addRoundedRectPath, aq as toTRBL, ar as toTRBLCorners, as as _boundSegment, at as _normalizeAngle, au as getRtlAdapter, av as overrideTextDirection, aw as _textX, ax as restoreTextDirection, ay as noop, az as distanceBetweenPoints, aA as _setMinAndMaxByKey, aB as niceNum, aC as almostWhole, aD as almostEquals, aE as _decimalPlaces, aF as _longestText, aG as _filterBetween, aH as _lookup } from './chunks/helpers.segment.js';
 export { d as defaults } from './chunks/helpers.segment.js';
 
 class Animator {
@@ -3217,6 +3217,13 @@ class DomPlatform extends BasePlatform {
   }
 }
 
+function _detectPlatform(canvas) {
+  if (!_isDomSupported() || (typeof OffscreenCanvas !== 'undefined' && canvas instanceof OffscreenCanvas)) {
+    return BasicPlatform;
+  }
+  return DomPlatform;
+}
+
 class Element {
   constructor() {
     this.x = undefined;
@@ -5040,6 +5047,9 @@ class Config {
     this._scopeCache = new Map();
     this._resolverCache = new Map();
   }
+  get platform() {
+    return this._config.platform;
+  }
   get type() {
     return this._config.type;
   }
@@ -5227,11 +5237,8 @@ function onAnimationProgress(context) {
   const animationOptions = chart.options.animation;
   callback(animationOptions && animationOptions.onProgress, [context], chart);
 }
-function isDomSupported() {
-  return typeof window !== 'undefined' && typeof document !== 'undefined';
-}
 function getCanvas(item) {
-  if (isDomSupported() && typeof item === 'string') {
+  if (_isDomSupported() && typeof item === 'string') {
     item = document.getElementById(item);
   } else if (item && item.length) {
     item = item[0];
@@ -5247,9 +5254,9 @@ const getChart = (key) => {
   return Object.values(instances).filter((c) => c.canvas === canvas).pop();
 };
 class Chart {
-  constructor(item, config) {
+  constructor(item, userConfig) {
     const me = this;
-    this.config = config = new Config(config);
+    const config = this.config = new Config(userConfig);
     const initialCanvas = getCanvas(item);
     const existingChart = getChart(initialCanvas);
     if (existingChart) {
@@ -5259,7 +5266,7 @@ class Chart {
       );
     }
     const options = config.createResolver(config.chartOptionScopes(), me.getContext());
-    this.platform = me._initializePlatform(initialCanvas, config);
+    this.platform = new (config.platform || _detectPlatform(initialCanvas))();
     const context = me.platform.acquireContext(initialCanvas, options.aspectRatio);
     const canvas = context && context.canvas;
     const height = canvas && canvas.height;
@@ -5336,14 +5343,6 @@ class Chart {
     me.bindEvents();
     me.notifyPlugins('afterInit');
     return me;
-  }
-  _initializePlatform(canvas, config) {
-    if (config.platform) {
-      return new config.platform();
-    } else if (!isDomSupported() || (typeof OffscreenCanvas !== 'undefined' && canvas instanceof OffscreenCanvas)) {
-      return new BasicPlatform();
-    }
-    return new DomPlatform();
   }
   clear() {
     clearCanvas(this.canvas, this.ctx);
@@ -10544,4 +10543,4 @@ const registerables = [
   scales,
 ];
 
-export { Animation, Animations, ArcElement, BarController, BarElement, BasePlatform, BasicPlatform, BubbleController, CategoryScale, Chart, DatasetController, plugin_decimation as Decimation, DomPlatform, DoughnutController, Element, plugin_filler as Filler, Interaction, plugin_legend as Legend, LineController, LineElement, LinearScale, LogarithmicScale, PieController, PointElement, PolarAreaController, RadarController, RadialLinearScale, Scale, ScatterController, plugin_subtitle as SubTitle, Ticks, TimeScale, TimeSeriesScale, plugin_title as Title, plugin_tooltip as Tooltip, adapters as _adapters, animator, controllers, elements, layouts, plugins, registerables, registry, scales };
+export { Animation, Animations, ArcElement, BarController, BarElement, BasePlatform, BasicPlatform, BubbleController, CategoryScale, Chart, DatasetController, plugin_decimation as Decimation, DomPlatform, DoughnutController, Element, plugin_filler as Filler, Interaction, plugin_legend as Legend, LineController, LineElement, LinearScale, LogarithmicScale, PieController, PointElement, PolarAreaController, RadarController, RadialLinearScale, Scale, ScatterController, plugin_subtitle as SubTitle, Ticks, TimeScale, TimeSeriesScale, plugin_title as Title, plugin_tooltip as Tooltip, adapters as _adapters, _detectPlatform, animator, controllers, elements, layouts, plugins, registerables, registry, scales };
