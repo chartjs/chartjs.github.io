@@ -1342,7 +1342,7 @@ function drawPoint(ctx, options, x, y) {
 }
 function _isPointInArea(point, area, margin) {
   margin = margin || 0.5;
-  return point && point.x > area.left - margin && point.x < area.right + margin &&
+  return point && area && point.x > area.left - margin && point.x < area.right + margin &&
 		point.y > area.top - margin && point.y < area.bottom + margin;
 }
 function clipArea(ctx, area) {
@@ -9166,10 +9166,10 @@ class PointElement extends Element {
     const borderWidth = radius && options.borderWidth || 0;
     return (radius + borderWidth) * 2;
   }
-  draw(ctx) {
+  draw(ctx, area) {
     const me = this;
     const options = me.options;
-    if (me.skip || options.radius < 0.1) {
+    if (me.skip || options.radius < 0.1 || !_isPointInArea(me, area, me.size(options) / 2)) {
       return;
     }
     ctx.strokeStyle = options.borderColor;

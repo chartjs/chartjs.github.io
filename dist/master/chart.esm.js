@@ -6579,10 +6579,10 @@ class PointElement extends Element {
     const borderWidth = radius && options.borderWidth || 0;
     return (radius + borderWidth) * 2;
   }
-  draw(ctx) {
+  draw(ctx, area) {
     const me = this;
     const options = me.options;
-    if (me.skip || options.radius < 0.1) {
+    if (me.skip || options.radius < 0.1 || !_isPointInArea(me, area, me.size(options) / 2)) {
       return;
     }
     ctx.strokeStyle = options.borderColor;
