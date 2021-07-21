@@ -3045,21 +3045,21 @@ function _computeSegments(line, segmentOptions) {
   }
   const loop = !!line._loop;
   const {start, end} = findStartAndEnd(points, count, loop, spanGaps);
-  const baseStyle = readStyle(line.options);
   if (spanGaps === true) {
-    return splitByStyles([{start, end, loop}], points, baseStyle, segmentOptions);
+    return splitByStyles(line, [{start, end, loop}], points, segmentOptions);
   }
   const max = end < start ? end + count : end;
   const completeLoop = !!line._fullLoop && start === 0 && end === count - 1;
-  return splitByStyles(solidSegments(points, start, max, completeLoop), points, baseStyle, segmentOptions);
+  return splitByStyles(line, solidSegments(points, start, max, completeLoop), points, segmentOptions);
 }
-function splitByStyles(segments, points, baseStyle, segmentOptions) {
+function splitByStyles(line, segments, points, segmentOptions) {
   if (!segmentOptions || !segmentOptions.setContext || !points) {
     return segments;
   }
-  return doSplitByStyles(segments, points, baseStyle, segmentOptions);
+  return doSplitByStyles(line, segments, points, segmentOptions);
 }
-function doSplitByStyles(segments, points, baseStyle, segmentOptions) {
+function doSplitByStyles(line, segments, points, segmentOptions) {
+  const baseStyle = readStyle(line.options);
   const count = points.length;
   const result = [];
   let start = segments[0].start;
@@ -3070,7 +3070,14 @@ function doSplitByStyles(segments, points, baseStyle, segmentOptions) {
     let style;
     for (i = start + 1; i <= segment.end; i++) {
       const pt = points[i % count];
-      style = readStyle(segmentOptions.setContext({type: 'segment', p0: prev, p1: pt}));
+      style = readStyle(segmentOptions.setContext({
+        type: 'segment',
+        p0: prev,
+        p1: pt,
+        p0DataIndex: (i - 1) % count,
+        p1DataIndex: i % count,
+        datasetIndex: line._datasetIndex
+      }));
       if (styleChanged(style, prevStyle)) {
         result.push({start: start, end: i - 1, loop: segment.loop, style: prevStyle});
         prevStyle = style;
@@ -8183,6 +8190,7 @@ class LineController extends DatasetController {
       start = 0;
       count = points.length;
     }
+    line._datasetIndex = me.index;
     line._decimated = !!_dataset._decimated;
     line.points = points;
     const options = me.resolveDatasetElementOptions(mode);
@@ -9011,6 +9019,7 @@ class LineElement extends Element {
     this._segments = undefined;
     this._decimated = false;
     this._pointsUpdated = false;
+    this._datasetIndex = undefined;
     if (cfg) {
       Object.assign(this, cfg);
     }

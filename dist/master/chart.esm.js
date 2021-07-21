@@ -1991,6 +1991,7 @@ class LineController extends DatasetController {
       start = 0;
       count = points.length;
     }
+    line._datasetIndex = me.index;
     line._decimated = !!_dataset._decimated;
     line.points = points;
     const options = me.resolveDatasetElementOptions(mode);
@@ -6422,6 +6423,7 @@ class LineElement extends Element {
     this._segments = undefined;
     this._decimated = false;
     this._pointsUpdated = false;
+    this._datasetIndex = undefined;
     if (cfg) {
       Object.assign(this, cfg);
     }
