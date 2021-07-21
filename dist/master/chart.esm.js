@@ -935,6 +935,9 @@ class DatasetController {
     }
     for (i = start; i < start + count; ++i) {
       const element = elements[i];
+      if (element.hidden) {
+        continue;
+      }
       if (element.active) {
         active.push(element);
       } else {
@@ -1768,7 +1771,7 @@ class DoughnutController extends DatasetController {
     const opts = me.options;
     const meta = me._cachedMeta;
     const circumference = me._getCircumference();
-    if ((reset && opts.animation.animateRotate) || !this.chart.getDataVisibility(i) || meta._parsed[i] === null) {
+    if ((reset && opts.animation.animateRotate) || !this.chart.getDataVisibility(i) || meta._parsed[i] === null || meta.data[i].hidden) {
       return 0;
     }
     return me.calculateCircumference(meta._parsed[i] * circumference / TAU);
@@ -1820,7 +1823,7 @@ class DoughnutController extends DatasetController {
     let i;
     for (i = 0; i < metaData.length; i++) {
       const value = meta._parsed[i];
-      if (value !== null && !isNaN(value) && this.chart.getDataVisibility(i)) {
+      if (value !== null && !isNaN(value) && this.chart.getDataVisibility(i) && !metaData[i].hidden) {
         total += Math.abs(value);
       }
     }
@@ -5760,20 +5763,25 @@ class Chart {
   getDataVisibility(index) {
     return !this._hiddenIndices[index];
   }
-  _updateDatasetVisibility(datasetIndex, visible) {
+  _updateVisibility(datasetIndex, dataIndex, visible) {
     const me = this;
     const mode = visible ? 'show' : 'hide';
     const meta = me.getDatasetMeta(datasetIndex);
     const anims = meta.controller._resolveAnimations(undefined, mode);
-    me.setDatasetVisibility(datasetIndex, visible);
-    anims.update(meta, {visible});
-    me.update((ctx) => ctx.datasetIndex === datasetIndex ? mode : undefined);
+    if (defined(dataIndex)) {
+      meta.data[dataIndex].hidden = !visible;
+      me.update();
+    } else {
+      me.setDatasetVisibility(datasetIndex, visible);
+      anims.update(meta, {visible});
+      me.update((ctx) => ctx.datasetIndex === datasetIndex ? mode : undefined);
+    }
   }
-  hide(datasetIndex) {
-    this._updateDatasetVisibility(datasetIndex, false);
+  hide(datasetIndex, dataIndex) {
+    this._updateVisibility(datasetIndex, dataIndex, false);
   }
-  show(datasetIndex) {
-    this._updateDatasetVisibility(datasetIndex, true);
+  show(datasetIndex, dataIndex) {
+    this._updateVisibility(datasetIndex, dataIndex, true);
   }
   _destroyDatasetMeta(datasetIndex) {
     const me = this;
