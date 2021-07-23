@@ -3275,7 +3275,7 @@ class DomPlatform extends BasePlatform {
   }
   isAttached(canvas) {
     const container = _getParentNode(canvas);
-    return !!(container && _getParentNode(container));
+    return !!(container && container.isConnected);
   }
 }
 
