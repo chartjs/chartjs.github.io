@@ -5208,6 +5208,9 @@ class Config {
       keys.forEach(key => addIfFound(scopes, descriptors, key));
     });
     const array = Array.from(scopes);
+    if (array.length === 0) {
+      array.push(Object.create(null));
+    }
     if (keysCached.has(keyLists)) {
       cache.set(keyLists, array);
     }
