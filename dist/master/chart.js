@@ -4495,22 +4495,30 @@ class DatasetController {
     }
     meta.data.splice(start, count);
   }
+  _sync(args) {
+    if (this._parsing) {
+      this._syncList.push(args);
+    } else {
+      const [method, arg1, arg2] = args;
+      this[method](arg1, arg2);
+    }
+  }
   _onDataPush() {
     const count = arguments.length;
-    this._syncList.push(['_insertElements', this.getDataset().data.length - count, count]);
+    this._sync(['_insertElements', this.getDataset().data.length - count, count]);
   }
   _onDataPop() {
-    this._syncList.push(['_removeElements', this._cachedMeta.data.length - 1, 1]);
+    this._sync(['_removeElements', this._cachedMeta.data.length - 1, 1]);
   }
   _onDataShift() {
-    this._syncList.push(['_removeElements', 0, 1]);
+    this._sync(['_removeElements', 0, 1]);
   }
   _onDataSplice(start, count) {
-    this._syncList.push(['_removeElements', start, count]);
-    this._syncList.push(['_insertElements', start, arguments.length - 2]);
+    this._sync(['_removeElements', start, count]);
+    this._sync(['_insertElements', start, arguments.length - 2]);
   }
   _onDataUnshift() {
-    this._syncList.push(['_insertElements', 0, arguments.length]);
+    this._sync(['_insertElements', 0, arguments.length]);
   }
 }
 DatasetController.defaults = {};
