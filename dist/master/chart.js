@@ -6594,7 +6594,6 @@ class Chart {
     this._responsiveListeners = undefined;
     this._sortedMetasets = [];
     this.scales = {};
-    this.scale = undefined;
     this._plugins = new PluginService();
     this.$proxies = {};
     this._hiddenIndices = {};
