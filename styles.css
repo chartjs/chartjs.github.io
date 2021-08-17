@@ -602,6 +602,9 @@ a {
 .pill__new {
   margin-right: 8px;
 }
+.pill__v3 {
+  background-color: #36A2EB;
+}
 hr {
   display: block;
   max-width: 50%;
