@@ -38,12 +38,12 @@ function throttled(fn, thisArg, updateFn) {
 }
 function debounce(fn, delay) {
   let timeout;
-  return function() {
+  return function(...args) {
     if (delay) {
       clearTimeout(timeout);
-      timeout = setTimeout(fn, delay);
+      timeout = setTimeout(fn, delay, args);
     } else {
-      fn();
+      fn.apply(this, args);
     }
     return delay;
   };
@@ -3321,39 +3321,30 @@ function fromNativeEvent(event, chart) {
 }
 function createAttachObserver(chart, type, listener) {
   const canvas = chart.canvas;
-  const container = canvas && _getParentNode(canvas);
-  const element = container || canvas;
   const observer = new MutationObserver(entries => {
-    const parent = _getParentNode(element);
-    entries.forEach(entry => {
-      for (let i = 0; i < entry.addedNodes.length; i++) {
-        const added = entry.addedNodes[i];
-        if (added === element || added === parent) {
-          listener(entry.target);
+    for (const entry of entries) {
+      for (const node of entry.addedNodes) {
+        if (node === canvas || node.contains(canvas)) {
+          return listener();
         }
       }
-    });
+    }
   });
   observer.observe(document, {childList: true, subtree: true});
   return observer;
 }
 function createDetachObserver(chart, type, listener) {
   const canvas = chart.canvas;
-  const container = canvas && _getParentNode(canvas);
-  if (!container) {
-    return;
-  }
   const observer = new MutationObserver(entries => {
-    entries.forEach(entry => {
-      for (let i = 0; i < entry.removedNodes.length; i++) {
-        if (entry.removedNodes[i] === canvas) {
-          listener();
-          break;
+    for (const entry of entries) {
+      for (const node of entry.removedNodes) {
+        if (node === canvas || node.contains(canvas)) {
+          return listener();
         }
       }
-    });
+    }
   });
-  observer.observe(container, {childList: true});
+  observer.observe(document, {childList: true, subtree: true});
   return observer;
 }
 const drpListeningCharts = new Map();
@@ -6616,7 +6607,7 @@ class Chart {
     this.attached = false;
     this._animationsDisabled = undefined;
     this.$context = undefined;
-    this._doResize = debounce(() => this.update('resize'), options.resizeDelay || 0);
+    this._doResize = debounce(mode => this.update(mode), options.resizeDelay || 0);
     instances[me.id] = me;
     if (!context || !canvas) {
       console.error("Failed to create chart: can't acquire context from the given item");
@@ -6685,6 +6676,7 @@ class Chart {
     const aspectRatio = options.maintainAspectRatio && me.aspectRatio;
     const newSize = me.platform.getMaximumSize(canvas, width, height, aspectRatio);
     const newRatio = options.devicePixelRatio || me.platform.getDevicePixelRatio();
+    const mode = me.width ? 'resize' : 'attach';
     me.width = newSize.width;
     me.height = newSize.height;
     me._aspectRatio = me.aspectRatio;
@@ -6694,7 +6686,7 @@ class Chart {
     me.notifyPlugins('resize', {size: newSize});
     callback(options.onResize, [me, newSize], me);
     if (me.attached) {
-      if (me._doResize()) {
+      if (me._doResize(mode)) {
         me.render();
       }
     }
@@ -7106,15 +7098,19 @@ class Chart {
       delete me._metasets[datasetIndex];
     }
   }
-  destroy() {
+  _stop() {
     const me = this;
-    const {canvas, ctx} = me;
     let i, ilen;
     me.stop();
     animator.remove(me);
     for (i = 0, ilen = me.data.datasets.length; i < ilen; ++i) {
       me._destroyDatasetMeta(i);
     }
+  }
+  destroy() {
+    const me = this;
+    const {canvas, ctx} = me;
+    me._stop();
     me.config.clearCache();
     if (canvas) {
       me.unbindEvents();
@@ -7185,6 +7181,8 @@ class Chart {
     detached = () => {
       me.attached = false;
       _remove('resize', listener);
+      me._stop();
+      me._resize(0, 0);
       _add('attach', attached);
     };
     if (platform.isAttached(me.canvas)) {
