@@ -6595,12 +6595,11 @@ class LineElement extends Element {
     const me = this;
     const options = me.options || {};
     const points = me.points || [];
-    if (!points.length || !options.borderWidth) {
-      return;
+    if (points.length && options.borderWidth) {
+      ctx.save();
+      draw(ctx, me, start, count);
+      ctx.restore();
     }
-    ctx.save();
-    draw(ctx, me, start, count);
-    ctx.restore();
     if (me.animated) {
       me._pointsUpdated = false;
       me._path = undefined;
