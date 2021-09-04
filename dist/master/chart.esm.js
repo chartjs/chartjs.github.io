@@ -529,8 +529,8 @@ function getOrCreateStack(stacks, stackKey, indexValue) {
   const subStack = stacks[stackKey] || (stacks[stackKey] = {});
   return subStack[indexValue] || (subStack[indexValue] = {});
 }
-function getLastIndexInStack(stack, vScale, positive) {
-  for (const meta of vScale.getMatchingVisibleMetas('bar').reverse()) {
+function getLastIndexInStack(stack, vScale, positive, type) {
+  for (const meta of vScale.getMatchingVisibleMetas(type).reverse()) {
     const value = stack[meta.index];
     if ((positive && value > 0) || (!positive && value < 0)) {
       return meta.index;
@@ -553,8 +553,8 @@ function updateStacks(controller, parsed) {
     const itemStacks = item._stacks || (item._stacks = {});
     stack = itemStacks[vAxis] = getOrCreateStack(stacks, key, index);
     stack[datasetIndex] = value;
-    stack._top = getLastIndexInStack(stack, vScale, true);
-    stack._bottom = getLastIndexInStack(stack, vScale, false);
+    stack._top = getLastIndexInStack(stack, vScale, true, meta.type);
+    stack._bottom = getLastIndexInStack(stack, vScale, false, meta.type);
   }
 }
 function getFirstScaleId(chart, axis) {
@@ -1158,19 +1158,20 @@ DatasetController.defaults = {};
 DatasetController.prototype.datasetElementType = null;
 DatasetController.prototype.dataElementType = null;
 
-function getAllScaleValues(scale) {
+function getAllScaleValues(scale, type) {
   if (!scale._cache.$bar) {
-    const metas = scale.getMatchingVisibleMetas('bar');
+    const visibleMetas = scale.getMatchingVisibleMetas(type);
     let values = [];
-    for (let i = 0, ilen = metas.length; i < ilen; i++) {
-      values = values.concat(metas[i].controller.getAllParsedValues(scale));
+    for (let i = 0, ilen = visibleMetas.length; i < ilen; i++) {
+      values = values.concat(visibleMetas[i].controller.getAllParsedValues(scale));
     }
     scale._cache.$bar = _arrayUnique(values.sort((a, b) => a - b));
   }
   return scale._cache.$bar;
 }
-function computeMinSampleSize(scale) {
-  const values = getAllScaleValues(scale);
+function computeMinSampleSize(meta) {
+  const scale = meta.iScale;
+  const values = getAllScaleValues(scale, meta.type);
   let min = scale._length;
   let i, ilen, curr, prev;
   const updateMinAndPrev = () => {
@@ -1488,7 +1489,7 @@ class BarController extends DatasetController {
       pixels.push(iScale.getPixelForValue(me.getParsed(i)[iScale.axis], i));
     }
     const barThickness = opts.barThickness;
-    const min = barThickness || computeMinSampleSize(iScale);
+    const min = barThickness || computeMinSampleSize(meta);
     return {
       min,
       pixels,
