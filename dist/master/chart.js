@@ -11017,7 +11017,7 @@ function getBackgroundPoint(options, size, alignment, chart) {
   const {caretSize, caretPadding, cornerRadius} = options;
   const {xAlign, yAlign} = alignment;
   const paddingAndSize = caretSize + caretPadding;
-  const radiusAndPadding = cornerRadius + caretPadding;
+  const {topLeft, topRight, bottomLeft, bottomRight} = toTRBLCorners(cornerRadius);
   let x = alignX(size, xAlign);
   const y = alignY(size, yAlign, paddingAndSize);
   if (yAlign === 'center') {
@@ -11027,9 +11027,9 @@ function getBackgroundPoint(options, size, alignment, chart) {
       x -= paddingAndSize;
     }
   } else if (xAlign === 'left') {
-    x -= radiusAndPadding;
+    x -= Math.max(topLeft, bottomLeft) + caretPadding;
   } else if (xAlign === 'right') {
-    x += radiusAndPadding;
+    x += Math.max(topRight, bottomRight) + caretPadding;
   }
   return {
     x: _limitValue(x, 0, chart.width - size.width),
@@ -11245,7 +11245,8 @@ class Tooltip extends Element {
   }
   getCaretPosition(tooltipPoint, size, options) {
     const {xAlign, yAlign} = this;
-    const {cornerRadius, caretSize} = options;
+    const {caretSize, cornerRadius} = options;
+    const {topLeft, topRight, bottomLeft, bottomRight} = toTRBLCorners(cornerRadius);
     const {x: ptX, y: ptY} = tooltipPoint;
     const {width, height} = size;
     let x1, x2, x3, y1, y2, y3;
@@ -11265,9 +11266,9 @@ class Tooltip extends Element {
       x3 = x1;
     } else {
       if (xAlign === 'left') {
-        x2 = ptX + cornerRadius + (caretSize);
+        x2 = ptX + Math.max(topLeft, bottomLeft) + (caretSize);
       } else if (xAlign === 'right') {
-        x2 = ptX + width - cornerRadius - caretSize;
+        x2 = ptX + width - Math.max(topRight, bottomRight) - caretSize;
       } else {
         x2 = this.caretX;
       }
@@ -11442,32 +11443,32 @@ class Tooltip extends Element {
     const {xAlign, yAlign} = this;
     const {x, y} = pt;
     const {width, height} = tooltipSize;
-    const radius = options.cornerRadius;
+    const {topLeft, topRight, bottomLeft, bottomRight} = toTRBLCorners(options.cornerRadius);
     ctx.fillStyle = options.backgroundColor;
     ctx.strokeStyle = options.borderColor;
     ctx.lineWidth = options.borderWidth;
     ctx.beginPath();
-    ctx.moveTo(x + radius, y);
+    ctx.moveTo(x + topLeft, y);
     if (yAlign === 'top') {
       this.drawCaret(pt, ctx, tooltipSize, options);
     }
-    ctx.lineTo(x + width - radius, y);
-    ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+    ctx.lineTo(x + width - topRight, y);
+    ctx.quadraticCurveTo(x + width, y, x + width, y + topRight);
     if (yAlign === 'center' && xAlign === 'right') {
       this.drawCaret(pt, ctx, tooltipSize, options);
     }
-    ctx.lineTo(x + width, y + height - radius);
-    ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+    ctx.lineTo(x + width, y + height - bottomRight);
+    ctx.quadraticCurveTo(x + width, y + height, x + width - bottomRight, y + height);
     if (yAlign === 'bottom') {
       this.drawCaret(pt, ctx, tooltipSize, options);
     }
-    ctx.lineTo(x + radius, y + height);
-    ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+    ctx.lineTo(x + bottomLeft, y + height);
+    ctx.quadraticCurveTo(x, y + height, x, y + height - bottomLeft);
     if (yAlign === 'center' && xAlign === 'left') {
       this.drawCaret(pt, ctx, tooltipSize, options);
     }
-    ctx.lineTo(x, y + radius);
-    ctx.quadraticCurveTo(x, y, x + radius, y);
+    ctx.lineTo(x, y + topLeft);
+    ctx.quadraticCurveTo(x, y, x + topLeft, y);
     ctx.closePath();
     ctx.fill();
     if (options.borderWidth > 0) {
