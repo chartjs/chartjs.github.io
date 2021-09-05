@@ -7996,9 +7996,18 @@ class DoughnutController extends DatasetController {
   parse(start, count) {
     const data = this.getDataset().data;
     const meta = this._cachedMeta;
-    let i, ilen;
-    for (i = start, ilen = start + count; i < ilen; ++i) {
-      meta._parsed[i] = +data[i];
+    if (this._parsing === false) {
+      meta._parsed = data;
+    } else {
+      let getter = (i) => +data[i];
+      if (isObject(data[start])) {
+        const {key = 'value'} = this._parsing;
+        getter = (i) => +resolveObjectKey(data[i], key);
+      }
+      let i, ilen;
+      for (i = start, ilen = start + count; i < ilen; ++i) {
+        meta._parsed[i] = getter(i);
+      }
     }
   }
   _getRotation() {
