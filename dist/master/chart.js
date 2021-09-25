@@ -7498,6 +7498,11 @@ function swap(orig, v1, v2) {
 function startEnd(v, start, end) {
   return v === 'start' ? start : v === 'end' ? end : v;
 }
+function setInflateAmount(properties, {inflateAmount}, ratio) {
+  properties.inflateAmount = inflateAmount === 'auto'
+    ? ratio === 1 ? 0.33 : 0
+    : inflateAmount;
+}
 class BarController extends DatasetController {
   parsePrimitiveData(meta, data, start, count) {
     return parseArrayOrPrimitive(meta, data, start, count);
@@ -7581,7 +7586,9 @@ class BarController extends DatasetController {
       if (includeOptions) {
         properties.options = sharedOptions || this.resolveDataElementOptions(i, bars[i].active ? 'active' : mode);
       }
-      setBorderSkipped(properties, properties.options || bars[i].options, stack, index);
+      const options = properties.options || bars[i].options;
+      setBorderSkipped(properties, options, stack, index);
+      setInflateAmount(properties, options, ruler.ratio);
       this.updateElement(bars[i], i, properties, mode);
     }
   }
@@ -9318,27 +9325,27 @@ class BarElement extends Element {
     this.base = undefined;
     this.width = undefined;
     this.height = undefined;
+    this.inflateAmount = undefined;
     if (cfg) {
       Object.assign(this, cfg);
     }
   }
   draw(ctx) {
-    const options = this.options;
+    const {inflateAmount, options: {borderColor, backgroundColor}} = this;
     const {inner, outer} = boundingRects(this);
     const addRectPath = hasRadius(outer.radius) ? addRoundedRectPath : addNormalRectPath;
-    const inflateAmount = 0.33;
     ctx.save();
     if (outer.w !== inner.w || outer.h !== inner.h) {
       ctx.beginPath();
       addRectPath(ctx, inflateRect(outer, inflateAmount, inner));
       ctx.clip();
       addRectPath(ctx, inflateRect(inner, -inflateAmount, outer));
-      ctx.fillStyle = options.borderColor;
+      ctx.fillStyle = borderColor;
       ctx.fill('evenodd');
     }
     ctx.beginPath();
-    addRectPath(ctx, inflateRect(inner, inflateAmount, outer));
-    ctx.fillStyle = options.backgroundColor;
+    addRectPath(ctx, inflateRect(inner, inflateAmount));
+    ctx.fillStyle = backgroundColor;
     ctx.fill();
     ctx.restore();
   }
@@ -9367,7 +9374,7 @@ BarElement.defaults = {
   borderSkipped: 'start',
   borderWidth: 0,
   borderRadius: 0,
-  enableBorderRadius: true,
+  inflateAmount: 'auto',
   pointStyle: undefined
 };
 BarElement.defaultRoutes = {
