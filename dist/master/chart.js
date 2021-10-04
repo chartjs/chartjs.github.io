@@ -2401,14 +2401,11 @@ function _descriptors(proxy, defaults = {scriptable: true, indexable: true}) {
 const readKey = (prefix, name) => prefix ? prefix + _capitalize(name) : name;
 const needsSubResolver = (prop, value) => isObject(value) && prop !== 'adapters';
 function _cached(target, prop, resolve) {
-  let value = target[prop];
-  if (defined(value)) {
-    return value;
+  if (Object.prototype.hasOwnProperty.call(target, prop)) {
+    return target[prop];
   }
-  value = resolve();
-  if (defined(value)) {
-    target[prop] = value;
-  }
+  const value = resolve();
+  target[prop] = value;
   return value;
 }
 function _resolveWithContext(target, prop, receiver) {
