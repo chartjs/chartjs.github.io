@@ -3704,6 +3704,8 @@ class Scale extends Element {
         max = Math.max(max, range.max);
       }
     }
+    min = maxDefined && min > max ? max : min;
+    max = minDefined && min > max ? min : max;
     return {
       min: finiteOrDefault(min, finiteOrDefault(max, min)),
       max: finiteOrDefault(max, finiteOrDefault(min, max))
