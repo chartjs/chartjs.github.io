@@ -3735,7 +3735,7 @@ class Scale extends Element {
     callback(this.options.beforeUpdate, [this]);
   }
   update(maxWidth, maxHeight, margins) {
-    const tickOpts = this.options.ticks;
+    const {beginAtZero, grace, ticks: tickOpts} = this.options;
     const sampleSize = tickOpts.sampleSize;
     this.beforeUpdate();
     this.maxWidth = maxWidth;
@@ -3760,7 +3760,7 @@ class Scale extends Element {
       this.beforeDataLimits();
       this.determineDataLimits();
       this.afterDataLimits();
-      this._range = _addGrace(this, this.options.grace);
+      this._range = _addGrace(this, grace, beginAtZero);
       this._dataLimitsCached = true;
     }
     this.beforeBuildTicks();
