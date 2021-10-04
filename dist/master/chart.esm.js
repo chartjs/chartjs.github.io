@@ -2880,6 +2880,7 @@ function placeBoxes(boxes, chartArea, params, stacks) {
   chartArea.y = y;
 }
 defaults.set('layout', {
+  autoPadding: true,
   padding: {
     top: 0,
     right: 0,
@@ -5533,16 +5534,16 @@ class Chart {
   update(mode) {
     const config = this.config;
     config.update();
-    this._options = config.createResolver(config.chartOptionScopes(), this.getContext());
+    const options = this._options = config.createResolver(config.chartOptionScopes(), this.getContext());
     each(this.scales, (scale) => {
       layouts.removeBox(this, scale);
     });
-    const animsDisabled = this._animationsDisabled = !this.options.animation;
+    const animsDisabled = this._animationsDisabled = !options.animation;
     this.ensureScalesHaveIDs();
     this.buildOrUpdateScales();
     const existingEvents = new Set(Object.keys(this._listeners));
-    const newEvents = new Set(this.options.events);
-    if (!setsEqual(existingEvents, newEvents) || !!this._responsiveListeners !== this.options.responsive) {
+    const newEvents = new Set(options.events);
+    if (!setsEqual(existingEvents, newEvents) || !!this._responsiveListeners !== options.responsive) {
       this.unbindEvents();
       this.bindEvents();
     }
@@ -5559,7 +5560,7 @@ class Chart {
       controller.buildOrUpdateElements(reset);
       minPadding = Math.max(+controller.getMaxOverflow(), minPadding);
     }
-    this._minPadding = minPadding;
+    minPadding = this._minPadding = options.layout.autoPadding ? minPadding : 0;
     this._updateLayout(minPadding);
     if (!animsDisabled) {
       each(newControllers, (controller) => {
