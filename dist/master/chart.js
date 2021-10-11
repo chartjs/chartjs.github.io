@@ -3260,11 +3260,16 @@ class BasePlatform {
   isAttached(canvas) {
     return true;
   }
+  updateConfig(config) {
+  }
 }
 
 class BasicPlatform extends BasePlatform {
   acquireContext(item) {
     return item && item.getContext && item.getContext('2d') || null;
+  }
+  updateConfig(config) {
+    config.options.animation = false;
   }
 }
 
@@ -6546,6 +6551,7 @@ class Chart {
     }
     const options = config.createResolver(config.chartOptionScopes(), this.getContext());
     this.platform = new (config.platform || _detectPlatform(initialCanvas))();
+    this.platform.updateConfig(config);
     const context = this.platform.acquireContext(initialCanvas, options.aspectRatio);
     const canvas = context && context.canvas;
     const height = canvas && canvas.height;
