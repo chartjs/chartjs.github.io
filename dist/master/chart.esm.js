@@ -5227,11 +5227,16 @@ function getResolver(resolverCache, scopes, prefixes) {
   }
   return cached;
 }
+const hasFunction = value => isObject(value)
+  && Object.keys(value).reduce((acc, key) => acc || isFunction(value[key]), false);
 function needContext(proxy, names) {
   const {isScriptable, isIndexable} = _descriptors(proxy);
   for (const prop of names) {
-    if ((isScriptable(prop) && isFunction(proxy[prop]))
-      || (isIndexable(prop) && isArray(proxy[prop]))) {
+    const scriptable = isScriptable(prop);
+    const indexable = isIndexable(prop);
+    const value = (indexable || scriptable) && proxy[prop];
+    if ((scriptable && (isFunction(value) || hasFunction(value)))
+      || (indexable && isArray(value))) {
       return true;
     }
   }
@@ -5604,12 +5609,11 @@ class Chart {
     this.notifyPlugins('afterLayout');
   }
   _updateDatasets(mode) {
-    const isFunction = typeof mode === 'function';
     if (this.notifyPlugins('beforeDatasetsUpdate', {mode, cancelable: true}) === false) {
       return;
     }
     for (let i = 0, ilen = this.data.datasets.length; i < ilen; ++i) {
-      this._updateDataset(i, isFunction ? mode({datasetIndex: i}) : mode);
+      this._updateDataset(i, isFunction(mode) ? mode({datasetIndex: i}) : mode);
     }
     this.notifyPlugins('afterDatasetsUpdate', {mode});
   }
