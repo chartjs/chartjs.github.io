@@ -6487,7 +6487,7 @@ function getResolver(resolverCache, scopes, prefixes) {
   return cached;
 }
 const hasFunction = value => isObject(value)
-  && Object.keys(value).reduce((acc, key) => acc || isFunction(value[key]), false);
+  && Object.getOwnPropertyNames(value).reduce((acc, key) => acc || isFunction(value[key]), false);
 function needContext(proxy, names) {
   const {isScriptable, isIndexable} = _descriptors(proxy);
   for (const prop of names) {
