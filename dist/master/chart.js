@@ -9751,11 +9751,11 @@ function pointsFromSegments(boundary, line) {
   return points;
 }
 function buildStackLine(source) {
-  const {chart, scale, index, line} = source;
+  const {scale, index, line} = source;
   const points = [];
   const segments = line.segments;
   const sourcePoints = line.points;
-  const linesBelow = getLinesBelow(chart, index);
+  const linesBelow = getLinesBelow(scale, index);
   linesBelow.push(createBoundaryLine({x: null, y: scale.bottom}, line));
   for (let i = 0; i < segments.length; i++) {
     const segment = segments[i];
@@ -9765,16 +9765,15 @@ function buildStackLine(source) {
   }
   return new LineElement({points, options: {}});
 }
-const isLineAndNotInHideAnimation = (meta) => meta.type === 'line' && !meta.hidden;
-function getLinesBelow(chart, index) {
+function getLinesBelow(scale, index) {
   const below = [];
-  const metas = chart.getSortedVisibleDatasetMetas();
+  const metas = scale.getMatchingVisibleMetas('line');
   for (let i = 0; i < metas.length; i++) {
     const meta = metas[i];
     if (meta.index === index) {
       break;
     }
-    if (isLineAndNotInHideAnimation(meta)) {
+    if (!meta.hidden) {
       below.unshift(meta.dataset);
     }
   }
