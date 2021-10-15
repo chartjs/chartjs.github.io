@@ -4,7 +4,7 @@
  * (c) 2021 Chart.js Contributors
  * Released under the MIT License
  */
-import { r as requestAnimFrame, a as resolve, e as effects, c as color, d as defaults, i as isObject, b as isArray, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as isNumberFinite, h as defined, s as sign, j as isNullOrUndef, _ as _arrayUnique, t as toRadians, k as toPercentage, m as toDimension, T as TAU, n as formatNumber, o as _angleBetween, H as HALF_PI, P as PI, p as isNumber, q as _limitValue, w as _lookupByKey, x as getRelativePosition$1, y as _isPointInArea, z as _rlookupByKey, A as toPadding, B as each, C as getMaximumSize, D as _getParentNode, E as readUsedSize, F as throttled, G as supportsEventListenerOptions, I as _isDomSupported, J as log10, K as _factorize, L as finiteOrDefault, M as callback, N as _addGrace, O as toDegrees, Q as _measureText, R as _int16Range, S as _alignPixel, U as clipArea, V as renderText, W as unclipArea, X as toFont, Y as _toLeftRightCenter, Z as _alignStartEnd, $ as overrides, a0 as merge, a1 as _capitalize, a2 as descriptors, a3 as isFunction, a4 as _attachContext, a5 as _createResolver, a6 as _descriptors, a7 as mergeIf, a8 as uid, a9 as debounce, aa as retinaScale, ab as clearCanvas, ac as setsEqual, ad as _elementsEqual, ae as getAngleFromPoint, af as _readValueToProps, ag as _updateBezierControlPoints, ah as _computeSegments, ai as _boundSegments, aj as _steppedInterpolation, ak as _bezierInterpolation, al as _pointInLine, am as _steppedLineTo, an as _bezierCurveTo, ao as drawPoint, ap as addRoundedRectPath, aq as toTRBL, ar as toTRBLCorners, as as _boundSegment, at as _normalizeAngle, au as getRtlAdapter, av as overrideTextDirection, aw as _textX, ax as restoreTextDirection, ay as noop, az as distanceBetweenPoints, aA as _setMinAndMaxByKey, aB as niceNum, aC as almostWhole, aD as almostEquals, aE as _decimalPlaces, aF as _longestText, aG as _filterBetween, aH as _lookup } from './chunks/helpers.segment.js';
+import { r as requestAnimFrame, a as resolve, e as effects, c as color, d as defaults, i as isObject, b as isArray, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as isNumberFinite, h as createContext, j as defined, s as sign, k as isNullOrUndef, _ as _arrayUnique, t as toRadians, m as toPercentage, n as toDimension, T as TAU, o as formatNumber, p as _angleBetween, H as HALF_PI, P as PI, q as isNumber, w as _limitValue, x as _lookupByKey, y as getRelativePosition$1, z as _isPointInArea, A as _rlookupByKey, B as toPadding, C as each, D as getMaximumSize, E as _getParentNode, F as readUsedSize, G as throttled, I as supportsEventListenerOptions, J as _isDomSupported, K as log10, L as _factorize, M as finiteOrDefault, N as callback, O as _addGrace, Q as toDegrees, R as _measureText, S as _int16Range, U as _alignPixel, V as clipArea, W as renderText, X as unclipArea, Y as toFont, Z as _toLeftRightCenter, $ as _alignStartEnd, a0 as overrides, a1 as merge, a2 as _capitalize, a3 as descriptors, a4 as isFunction, a5 as _attachContext, a6 as _createResolver, a7 as _descriptors, a8 as mergeIf, a9 as uid, aa as debounce, ab as retinaScale, ac as clearCanvas, ad as setsEqual, ae as _elementsEqual, af as getAngleFromPoint, ag as _readValueToProps, ah as _updateBezierControlPoints, ai as _computeSegments, aj as _boundSegments, ak as _steppedInterpolation, al as _bezierInterpolation, am as _pointInLine, an as _steppedLineTo, ao as _bezierCurveTo, ap as drawPoint, aq as addRoundedRectPath, ar as toTRBL, as as toTRBLCorners, at as _boundSegment, au as _normalizeAngle, av as getRtlAdapter, aw as overrideTextDirection, ax as _textX, ay as restoreTextDirection, az as noop, aA as distanceBetweenPoints, aB as _setMinAndMaxByKey, aC as niceNum, aD as almostWhole, aE as almostEquals, aF as _decimalPlaces, aG as _longestText, aH as _filterBetween, aI as _lookup } from './chunks/helpers.segment.js';
 export { d as defaults } from './chunks/helpers.segment.js';
 
 class Animator {
@@ -557,7 +557,7 @@ function getFirstScaleId(chart, axis) {
   return Object.keys(scales).filter(key => scales[key].axis === axis).shift();
 }
 function createDatasetContext(parent, index) {
-  return Object.assign(Object.create(parent),
+  return createContext(parent,
     {
       active: false,
       dataset: undefined,
@@ -569,7 +569,7 @@ function createDatasetContext(parent, index) {
   );
 }
 function createDataContext(parent, index, element) {
-  return Object.assign(Object.create(parent), {
+  return createContext(parent, {
     active: false,
     dataIndex: index,
     parsed: undefined,
@@ -2040,6 +2040,7 @@ class LineController extends DatasetController {
       start = 0;
       count = points.length;
     }
+    line._chart = this.chart;
     line._datasetIndex = this.index;
     line._decimated = !!_dataset._decimated;
     line.points = points;
@@ -2056,13 +2057,13 @@ class LineController extends DatasetController {
   }
   updateElements(points, start, count, mode) {
     const reset = mode === 'reset';
-    const {iScale, vScale, _stacked} = this._cachedMeta;
+    const {iScale, vScale, _stacked, _dataset} = this._cachedMeta;
     const firstOpts = this.resolveDataElementOptions(start, mode);
     const sharedOptions = this.getSharedOptions(firstOpts);
     const includeOptions = this.includeOptions(mode, sharedOptions);
     const iAxis = iScale.axis;
     const vAxis = vScale.axis;
-    const spanGaps = this.options.spanGaps;
+    const {spanGaps, segment} = this.options;
     const maxGapLength = isNumber(spanGaps) ? spanGaps : Number.POSITIVE_INFINITY;
     const directUpdate = this.chart._animationsDisabled || reset || mode === 'none';
     let prevParsed = start > 0 && this.getParsed(start - 1);
@@ -2075,7 +2076,10 @@ class LineController extends DatasetController {
       const vPixel = properties[vAxis] = reset || nullData ? vScale.getBasePixel() : vScale.getPixelForValue(_stacked ? this.applyStack(vScale, parsed, _stacked) : parsed[vAxis], i);
       properties.skip = isNaN(iPixel) || isNaN(vPixel) || nullData;
       properties.stop = i > 0 && (parsed[iAxis] - prevParsed[iAxis]) > maxGapLength;
-      properties.parsed = parsed;
+      if (segment) {
+        properties.parsed = parsed;
+        properties.raw = _dataset.data[i];
+      }
       if (includeOptions) {
         properties.options = sharedOptions || this.resolveDataElementOptions(i, point.active ? 'active' : mode);
       }
@@ -3573,13 +3577,13 @@ function getTitleHeight(options, fallback) {
   return (lines * font.lineHeight) + padding.height;
 }
 function createScaleContext(parent, scale) {
-  return Object.assign(Object.create(parent), {
+  return createContext(parent, {
     scale,
     type: 'scale'
   });
 }
 function createTickContext(parent, index, tick) {
-  return Object.assign(Object.create(parent), {
+  return createContext(parent, {
     tick,
     index,
     type: 'tick'
@@ -5755,7 +5759,7 @@ class Chart {
     return meta;
   }
   getContext() {
-    return this.$context || (this.$context = {chart: this, type: 'chart'});
+    return this.$context || (this.$context = createContext(null, {chart: this, type: 'chart'}));
   }
   getVisibleDatasetCount() {
     return this.getSortedVisibleDatasetMetas().length;
@@ -6433,6 +6437,7 @@ class LineElement extends Element {
     super();
     this.animated = true;
     this.options = undefined;
+    this._chart = undefined;
     this._loop = undefined;
     this._fullLoop = undefined;
     this._path = undefined;
@@ -8360,7 +8365,7 @@ function getBeforeAfterBodyLines(callback) {
   return pushOrConcat([], splitNewlines(callback));
 }
 function createTooltipContext(parent, tooltip, tooltipItems) {
-  return Object.assign(Object.create(parent), {
+  return createContext(parent, {
     tooltip,
     tooltipItems,
     type: 'tooltip'
@@ -9726,7 +9731,7 @@ function numberOrZero(param) {
   return isNumber(param) ? param : 0;
 }
 function createPointLabelContext(parent, index, label) {
-  return Object.assign(Object.create(parent), {
+  return createContext(parent, {
     label,
     index,
     type: 'pointLabel'

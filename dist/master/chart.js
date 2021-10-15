@@ -1991,6 +1991,9 @@ function _addGrace(minmax, grace, beginAtZero) {
     max: keepZero(max, change)
   };
 }
+function createContext(parentContext, context) {
+  return Object.assign(Object.create(parentContext), context);
+}
 
 const STATIC_POSITIONS = ['left', 'top', 'right', 'bottom'];
 function filterByPosition(array, position) {
@@ -3057,6 +3060,7 @@ function splitByStyles(line, segments, points, segmentOptions) {
   return doSplitByStyles(line, segments, points, segmentOptions);
 }
 function doSplitByStyles(line, segments, points, segmentOptions) {
+  const chartContext = line._chart.getContext();
   const baseStyle = readStyle(line.options);
   const {_datasetIndex: datasetIndex, options: {spanGaps}} = line;
   const count = points.length;
@@ -3088,14 +3092,14 @@ function doSplitByStyles(line, segments, points, segmentOptions) {
     let style;
     for (i = start + 1; i <= segment.end; i++) {
       const pt = points[i % count];
-      style = readStyle(segmentOptions.setContext({
+      style = readStyle(segmentOptions.setContext(createContext(chartContext, {
         type: 'segment',
         p0: prev,
         p1: pt,
         p0DataIndex: (i - 1) % count,
         p1DataIndex: i % count,
         datasetIndex
-      }));
+      })));
       if (styleChanged(style, prevStyle)) {
         addStyle(start, i - 1, segment.loop, prevStyle);
       }
@@ -3205,6 +3209,7 @@ toPadding: toPadding,
 toFont: toFont,
 resolve: resolve,
 _addGrace: _addGrace,
+createContext: createContext,
 PI: PI,
 TAU: TAU,
 PITAU: PITAU,
@@ -3937,7 +3942,7 @@ function getFirstScaleId(chart, axis) {
   return Object.keys(scales).filter(key => scales[key].axis === axis).shift();
 }
 function createDatasetContext(parent, index) {
-  return Object.assign(Object.create(parent),
+  return createContext(parent,
     {
       active: false,
       dataset: undefined,
@@ -3949,7 +3954,7 @@ function createDatasetContext(parent, index) {
   );
 }
 function createDataContext(parent, index, element) {
-  return Object.assign(Object.create(parent), {
+  return createContext(parent, {
     active: false,
     dataIndex: index,
     parsed: undefined,
@@ -4825,13 +4830,13 @@ function getTitleHeight(options, fallback) {
   return (lines * font.lineHeight) + padding.height;
 }
 function createScaleContext(parent, scale) {
-  return Object.assign(Object.create(parent), {
+  return createContext(parent, {
     scale,
     type: 'scale'
   });
 }
 function createTickContext(parent, index, tick) {
-  return Object.assign(Object.create(parent), {
+  return createContext(parent, {
     tick,
     index,
     type: 'tick'
@@ -7007,7 +7012,7 @@ class Chart {
     return meta;
   }
   getContext() {
-    return this.$context || (this.$context = {chart: this, type: 'chart'});
+    return this.$context || (this.$context = createContext(null, {chart: this, type: 'chart'}));
   }
   getVisibleDatasetCount() {
     return this.getSortedVisibleDatasetMetas().length;
@@ -8232,6 +8237,7 @@ class LineController extends DatasetController {
       start = 0;
       count = points.length;
     }
+    line._chart = this.chart;
     line._datasetIndex = this.index;
     line._decimated = !!_dataset._decimated;
     line.points = points;
@@ -8248,13 +8254,13 @@ class LineController extends DatasetController {
   }
   updateElements(points, start, count, mode) {
     const reset = mode === 'reset';
-    const {iScale, vScale, _stacked} = this._cachedMeta;
+    const {iScale, vScale, _stacked, _dataset} = this._cachedMeta;
     const firstOpts = this.resolveDataElementOptions(start, mode);
     const sharedOptions = this.getSharedOptions(firstOpts);
     const includeOptions = this.includeOptions(mode, sharedOptions);
     const iAxis = iScale.axis;
     const vAxis = vScale.axis;
-    const spanGaps = this.options.spanGaps;
+    const {spanGaps, segment} = this.options;
     const maxGapLength = isNumber(spanGaps) ? spanGaps : Number.POSITIVE_INFINITY;
     const directUpdate = this.chart._animationsDisabled || reset || mode === 'none';
     let prevParsed = start > 0 && this.getParsed(start - 1);
@@ -8267,7 +8273,10 @@ class LineController extends DatasetController {
       const vPixel = properties[vAxis] = reset || nullData ? vScale.getBasePixel() : vScale.getPixelForValue(_stacked ? this.applyStack(vScale, parsed, _stacked) : parsed[vAxis], i);
       properties.skip = isNaN(iPixel) || isNaN(vPixel) || nullData;
       properties.stop = i > 0 && (parsed[iAxis] - prevParsed[iAxis]) > maxGapLength;
-      properties.parsed = parsed;
+      if (segment) {
+        properties.parsed = parsed;
+        properties.raw = _dataset.data[i];
+      }
       if (includeOptions) {
         properties.options = sharedOptions || this.resolveDataElementOptions(i, point.active ? 'active' : mode);
       }
@@ -9045,6 +9054,7 @@ class LineElement extends Element {
     super();
     this.animated = true;
     this.options = undefined;
+    this._chart = undefined;
     this._loop = undefined;
     this._fullLoop = undefined;
     this._path = undefined;
@@ -10972,7 +10982,7 @@ function getBeforeAfterBodyLines(callback) {
   return pushOrConcat([], splitNewlines(callback));
 }
 function createTooltipContext(parent, tooltip, tooltipItems) {
-  return Object.assign(Object.create(parent), {
+  return createContext(parent, {
     tooltip,
     tooltipItems,
     type: 'tooltip'
@@ -12338,7 +12348,7 @@ function numberOrZero(param) {
   return isNumber(param) ? param : 0;
 }
 function createPointLabelContext(parent, index, label) {
-  return Object.assign(Object.create(parent), {
+  return createContext(parent, {
     label,
     index,
     type: 'pointLabel'
