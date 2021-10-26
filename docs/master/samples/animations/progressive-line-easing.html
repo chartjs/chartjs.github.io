@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Progressive Line With Easing | Chart.js</title>
+    <meta name="generator" content="VuePress 1.8.2">
+    <link rel="icon" href="/docs/master/favicon.ico">
+    <meta name="description" content="Open source HTML5 Charts for your website">
+    <link rel="preload" href="/docs/master/assets/css/0.styles.dc4c8519.css" as="style"><link rel="preload" href="/docs/master/assets/js/app.e099b8bb.js" as="script"><link rel="preload" href="/docs/master/assets/js/2.413130e4.js" as="script"><link rel="preload" href="/docs/master/assets/js/187.c00f14d6.js" as="script"><link rel="preload" href="/docs/master/assets/js/3.e2fd7cce.js" as="script"><link rel="prefetch" href="/docs/master/assets/js/10.a5e2f0da.js"><link rel="prefetch" href="/docs/master/assets/js/100.3f27950c.js"><link rel="prefetch" href="/docs/master/assets/js/101.0648d584.js"><link rel="prefetch" href="/docs/master/assets/js/102.166d5da1.js"><link rel="prefetch" href="/docs/master/assets/js/103.22f32c06.js"><link rel="prefetch" href="/docs/master/assets/js/104.4bc8dba3.js"><link rel="prefetch" href="/docs/master/assets/js/105.7d9d19ec.js"><link rel="prefetch" href="/docs/master/assets/js/106.0af453c2.js"><link rel="prefetch" href="/docs/master/assets/js/107.28064462.js"><link rel="prefetch" href="/docs/master/assets/js/108.af87f150.js"><link rel="prefetch" href="/docs/master/assets/js/109.305a4066.js"><link rel="prefetch" href="/docs/master/assets/js/11.81555e48.js"><link rel="prefetch" href="/docs/master/assets/js/110.c7cdafe3.js"><link rel="prefetch" href="/docs/master/assets/js/111.049d7d04.js"><link rel="prefetch" href="/docs/master/assets/js/112.134b8bba.js"><link rel="prefetch" href="/docs/master/assets/js/113.6e7b5433.js"><link rel="prefetch" href="/docs/master/assets/js/114.a2308b1e.js"><link rel="prefetch" href="/docs/master/assets/js/115.e6508081.js"><link rel="prefetch" href="/docs/master/assets/js/116.8792f825.js"><link rel="prefetch" href="/docs/master/assets/js/117.b446eaa4.js"><link rel="prefetch" href="/docs/master/assets/js/118.3709a4bb.js"><link rel="prefetch" href="/docs/master/assets/js/119.a8e1ce7e.js"><link rel="prefetch" href="/docs/master/assets/js/12.5318e58c.js"><link rel="prefetch" href="/docs/master/assets/js/120.0b3fa24a.js"><link rel="prefetch" href="/docs/master/assets/js/121.00f3bfa8.js"><link rel="prefetch" href="/docs/master/assets/js/122.01e22b0e.js"><link rel="prefetch" href="/docs/master/assets/js/123.e3d66577.js"><link rel="prefetch" href="/docs/master/assets/js/124.026163fb.js"><link rel="prefetch" href="/docs/master/assets/js/125.0b587dea.js"><link rel="prefetch" href="/docs/master/assets/js/126.3b2e185f.js"><link rel="prefetch" href="/docs/master/assets/js/127.a5e099fd.js"><link rel="prefetch" href="/docs/master/assets/js/128.6fa2655b.js"><link rel="prefetch" href="/docs/master/assets/js/129.01b130e1.js"><link rel="prefetch" href="/docs/master/assets/js/13.34f0a36b.js"><link rel="prefetch" href="/docs/master/assets/js/130.f84573bc.js"><link rel="prefetch" href="/docs/master/assets/js/131.ffdb5bb9.js"><link rel="prefetch" href="/docs/master/assets/js/132.04d869bf.js"><link rel="prefetch" href="/docs/master/assets/js/133.2e28d5e7.js"><link rel="prefetch" href="/docs/master/assets/js/134.82730c9b.js"><link rel="prefetch" href="/docs/master/assets/js/135.1558393c.js"><link rel="prefetch" href="/docs/master/assets/js/136.ed2733f9.js"><link rel="prefetch" href="/docs/master/assets/js/137.602cd57e.js"><link rel="prefetch" href="/docs/master/assets/js/138.d6b7cc34.js"><link rel="prefetch" href="/docs/master/assets/js/139.8e647246.js"><link rel="prefetch" href="/docs/master/assets/js/14.35c67e3e.js"><link rel="prefetch" href="/docs/master/assets/js/140.710d2eaf.js"><link rel="prefetch" href="/docs/master/assets/js/141.e1750e91.js"><link rel="prefetch" href="/docs/master/assets/js/142.bf90fea8.js"><link rel="prefetch" href="/docs/master/assets/js/143.140724b4.js"><link rel="prefetch" href="/docs/master/assets/js/144.9df4d6c8.js"><link rel="prefetch" href="/docs/master/assets/js/145.febfa863.js"><link rel="prefetch" href="/docs/master/assets/js/146.c5f7eed6.js"><link rel="prefetch" href="/docs/master/assets/js/147.f8b34fd3.js"><link rel="prefetch" href="/docs/master/assets/js/148.66650264.js"><link rel="prefetch" href="/docs/master/assets/js/149.548f7f47.js"><link rel="prefetch" href="/docs/master/assets/js/15.7587f367.js"><link rel="prefetch" href="/docs/master/assets/js/150.85f9362f.js"><link rel="prefetch" href="/docs/master/assets/js/151.482a9f35.js"><link rel="prefetch" href="/docs/master/assets/js/152.c2ec3994.js"><link rel="prefetch" href="/docs/master/assets/js/153.9bd55d15.js"><link rel="prefetch" href="/docs/master/assets/js/154.9f539141.js"><link rel="prefetch" href="/docs/master/assets/js/155.7ba95295.js"><link rel="prefetch" href="/docs/master/assets/js/156.c2ccd0b3.js"><link rel="prefetch" href="/docs/master/assets/js/157.04691de9.js"><link rel="prefetch" href="/docs/master/assets/js/158.10f960a6.js"><link rel="prefetch" href="/docs/master/assets/js/159.0a54b3ca.js"><link rel="prefetch" href="/docs/master/assets/js/16.64fda882.js"><link rel="prefetch" href="/docs/master/assets/js/160.af7a9b32.js"><link rel="prefetch" href="/docs/master/assets/js/161.5f91782b.js"><link rel="prefetch" href="/docs/master/assets/js/162.6ca1f16a.js"><link rel="prefetch" href="/docs/master/assets/js/163.9f2a3d75.js"><link rel="prefetch" href="/docs/master/assets/js/164.42a79c1f.js"><link rel="prefetch" href="/docs/master/assets/js/165.74486c25.js"><link rel="prefetch" href="/docs/master/assets/js/166.3c6c7e32.js"><link rel="prefetch" href="/docs/master/assets/js/167.2c97d8e5.js"><link rel="prefetch" href="/docs/master/assets/js/168.05f39c90.js"><link rel="prefetch" href="/docs/master/assets/js/169.6c43f346.js"><link rel="prefetch" href="/docs/master/assets/js/17.bc15589e.js"><link rel="prefetch" href="/docs/master/assets/js/170.75a9c877.js"><link rel="prefetch" href="/docs/master/assets/js/171.c57ea92b.js"><link rel="prefetch" href="/docs/master/assets/js/172.7f761bd7.js"><link rel="prefetch" href="/docs/master/assets/js/173.244da649.js"><link rel="prefetch" href="/docs/master/assets/js/174.8823b9db.js"><link rel="prefetch" href="/docs/master/assets/js/175.27e81999.js"><link rel="prefetch" href="/docs/master/assets/js/176.a33e24b6.js"><link rel="prefetch" href="/docs/master/assets/js/177.8661669d.js"><link rel="prefetch" href="/docs/master/assets/js/178.788f8845.js"><link rel="prefetch" href="/docs/master/assets/js/179.b55a1088.js"><link rel="prefetch" href="/docs/master/assets/js/18.d6e0034f.js"><link rel="prefetch" href="/docs/master/assets/js/180.d089943b.js"><link rel="prefetch" href="/docs/master/assets/js/181.13acf2a0.js"><link rel="prefetch" href="/docs/master/assets/js/182.3ead6ac7.js"><link rel="prefetch" href="/docs/master/assets/js/183.65d64eee.js"><link rel="prefetch" href="/docs/master/assets/js/184.1dee1078.js"><link rel="prefetch" href="/docs/master/assets/js/185.e4916e00.js"><link rel="prefetch" href="/docs/master/assets/js/186.977d0bc2.js"><link rel="prefetch" href="/docs/master/assets/js/188.185442d6.js"><link rel="prefetch" href="/docs/master/assets/js/189.49d8c55e.js"><link rel="prefetch" href="/docs/master/assets/js/19.f65b3c40.js"><link rel="prefetch" href="/docs/master/assets/js/190.714c23ad.js"><link rel="prefetch" href="/docs/master/assets/js/191.62ed8e93.js"><link rel="prefetch" href="/docs/master/assets/js/192.4ea5bd40.js"><link rel="prefetch" href="/docs/master/assets/js/193.36b455bf.js"><link rel="prefetch" href="/docs/master/assets/js/194.67c30a5c.js"><link rel="prefetch" href="/docs/master/assets/js/195.4dc43acc.js"><link rel="prefetch" href="/docs/master/assets/js/196.77cc2a08.js"><link rel="prefetch" href="/docs/master/assets/js/197.43daff09.js"><link rel="prefetch" href="/docs/master/assets/js/198.44e7429c.js"><link rel="prefetch" href="/docs/master/assets/js/199.f1956670.js"><link rel="prefetch" href="/docs/master/assets/js/20.51aa10bf.js"><link rel="prefetch" href="/docs/master/assets/js/200.137a83d7.js"><link rel="prefetch" href="/docs/master/assets/js/201.9646ad65.js"><link rel="prefetch" href="/docs/master/assets/js/202.bba3d4d6.js"><link rel="prefetch" href="/docs/master/assets/js/203.ee97ae91.js"><link rel="prefetch" href="/docs/master/assets/js/204.073a71ad.js"><link rel="prefetch" href="/docs/master/assets/js/205.2bec4039.js"><link rel="prefetch" href="/docs/master/assets/js/206.428cabeb.js"><link rel="prefetch" href="/docs/master/assets/js/207.d640cca6.js"><link rel="prefetch" href="/docs/master/assets/js/208.286fdd96.js"><link rel="prefetch" href="/docs/master/assets/js/209.d7337386.js"><link rel="prefetch" href="/docs/master/assets/js/21.ff8dd7f2.js"><link rel="prefetch" href="/docs/master/assets/js/210.6f6345f3.js"><link rel="prefetch" href="/docs/master/assets/js/211.b78a70e5.js"><link rel="prefetch" href="/docs/master/assets/js/212.2069af08.js"><link rel="prefetch" href="/docs/master/assets/js/213.c59f229d.js"><link rel="prefetch" href="/docs/master/assets/js/214.e3bd5725.js"><link rel="prefetch" href="/docs/master/assets/js/215.01acc994.js"><link rel="prefetch" href="/docs/master/assets/js/216.8cac0f20.js"><link rel="prefetch" href="/docs/master/assets/js/217.2fb9e7a1.js"><link rel="prefetch" href="/docs/master/assets/js/218.ad6ade75.js"><link rel="prefetch" href="/docs/master/assets/js/219.32498948.js"><link rel="prefetch" href="/docs/master/assets/js/22.2595657d.js"><link rel="prefetch" href="/docs/master/assets/js/220.d863dc72.js"><link rel="prefetch" href="/docs/master/assets/js/221.e97b3327.js"><link rel="prefetch" href="/docs/master/assets/js/222.9423f8bb.js"><link rel="prefetch" href="/docs/master/assets/js/223.49e90afc.js"><link rel="prefetch" href="/docs/master/assets/js/224.422112aa.js"><link rel="prefetch" href="/docs/master/assets/js/225.462df12f.js"><link rel="prefetch" href="/docs/master/assets/js/226.d311c24b.js"><link rel="prefetch" href="/docs/master/assets/js/227.1432e018.js"><link rel="prefetch" href="/docs/master/assets/js/228.5dbb7c20.js"><link rel="prefetch" href="/docs/master/assets/js/229.5b0b276a.js"><link rel="prefetch" href="/docs/master/assets/js/23.ed20c6cb.js"><link rel="prefetch" href="/docs/master/assets/js/230.b5c49b55.js"><link rel="prefetch" href="/docs/master/assets/js/231.4dd45f15.js"><link rel="prefetch" href="/docs/master/assets/js/232.da2cb431.js"><link rel="prefetch" href="/docs/master/assets/js/233.32df7400.js"><link rel="prefetch" href="/docs/master/assets/js/234.150d53b8.js"><link rel="prefetch" href="/docs/master/assets/js/235.888b655d.js"><link rel="prefetch" href="/docs/master/assets/js/236.fd59b2ca.js"><link rel="prefetch" href="/docs/master/assets/js/237.339c64dd.js"><link rel="prefetch" href="/docs/master/assets/js/238.6b92a4cc.js"><link rel="prefetch" href="/docs/master/assets/js/239.e7c56491.js"><link rel="prefetch" href="/docs/master/assets/js/24.5f62f497.js"><link rel="prefetch" href="/docs/master/assets/js/240.90972bd0.js"><link rel="prefetch" href="/docs/master/assets/js/241.cb0699d9.js"><link rel="prefetch" href="/docs/master/assets/js/242.a44bfd8f.js"><link rel="prefetch" href="/docs/master/assets/js/243.49aa91c0.js"><link rel="prefetch" href="/docs/master/assets/js/244.37e70b92.js"><link rel="prefetch" href="/docs/master/assets/js/245.86edd9d9.js"><link rel="prefetch" href="/docs/master/assets/js/246.567a627f.js"><link rel="prefetch" href="/docs/master/assets/js/247.714b8810.js"><link rel="prefetch" href="/docs/master/assets/js/248.f3152c38.js"><link rel="prefetch" href="/docs/master/assets/js/249.c3adb24d.js"><link rel="prefetch" href="/docs/master/assets/js/25.6543b10d.js"><link rel="prefetch" href="/docs/master/assets/js/26.6e1e4f51.js"><link rel="prefetch" href="/docs/master/assets/js/27.450079b9.js"><link rel="prefetch" href="/docs/master/assets/js/28.f541003b.js"><link rel="prefetch" href="/docs/master/assets/js/29.eaf581cb.js"><link rel="prefetch" href="/docs/master/assets/js/30.d6a4278b.js"><link rel="prefetch" href="/docs/master/assets/js/31.0f1cd7ad.js"><link rel="prefetch" href="/docs/master/assets/js/32.96cc6c68.js"><link rel="prefetch" href="/docs/master/assets/js/33.59f7d824.js"><link rel="prefetch" href="/docs/master/assets/js/34.060f7ddf.js"><link rel="prefetch" href="/docs/master/assets/js/35.040c9c83.js"><link rel="prefetch" href="/docs/master/assets/js/36.eed9bf33.js"><link rel="prefetch" href="/docs/master/assets/js/37.eb36b128.js"><link rel="prefetch" href="/docs/master/assets/js/38.3fc3896a.js"><link rel="prefetch" href="/docs/master/assets/js/39.f03d639a.js"><link rel="prefetch" href="/docs/master/assets/js/4.cfb630b3.js"><link rel="prefetch" href="/docs/master/assets/js/40.5197c9f2.js"><link rel="prefetch" href="/docs/master/assets/js/41.7e8f5f3a.js"><link rel="prefetch" href="/docs/master/assets/js/42.858d48b5.js"><link rel="prefetch" href="/docs/master/assets/js/43.07a1f65b.js"><link rel="prefetch" href="/docs/master/assets/js/44.e27eab9e.js"><link rel="prefetch" href="/docs/master/assets/js/45.7b3158a2.js"><link rel="prefetch" href="/docs/master/assets/js/46.19ed5555.js"><link rel="prefetch" href="/docs/master/assets/js/47.7b4773a5.js"><link rel="prefetch" href="/docs/master/assets/js/48.0d1fd7c6.js"><link rel="prefetch" href="/docs/master/assets/js/49.0039e354.js"><link rel="prefetch" href="/docs/master/assets/js/5.82c7afe1.js"><link rel="prefetch" href="/docs/master/assets/js/50.e68db455.js"><link rel="prefetch" href="/docs/master/assets/js/51.80c8bada.js"><link rel="prefetch" href="/docs/master/assets/js/52.5cf18f58.js"><link rel="prefetch" href="/docs/master/assets/js/53.2495e6b3.js"><link rel="prefetch" href="/docs/master/assets/js/54.5f59e77d.js"><link rel="prefetch" href="/docs/master/assets/js/55.a4a30aa5.js"><link rel="prefetch" href="/docs/master/assets/js/56.c3e6afcb.js"><link rel="prefetch" href="/docs/master/assets/js/57.8905dac1.js"><link rel="prefetch" href="/docs/master/assets/js/58.11887c40.js"><link rel="prefetch" href="/docs/master/assets/js/59.b798a0d0.js"><link rel="prefetch" href="/docs/master/assets/js/6.3a712537.js"><link rel="prefetch" href="/docs/master/assets/js/60.569ad465.js"><link rel="prefetch" href="/docs/master/assets/js/61.abe23ced.js"><link rel="prefetch" href="/docs/master/assets/js/62.04724fa4.js"><link rel="prefetch" href="/docs/master/assets/js/63.ae8a6865.js"><link rel="prefetch" href="/docs/master/assets/js/64.66c2a10d.js"><link rel="prefetch" href="/docs/master/assets/js/65.097b199e.js"><link rel="prefetch" href="/docs/master/assets/js/66.b0ee97b0.js"><link rel="prefetch" href="/docs/master/assets/js/67.0620c42a.js"><link rel="prefetch" href="/docs/master/assets/js/68.09aabe01.js"><link rel="prefetch" href="/docs/master/assets/js/69.b24ed83f.js"><link rel="prefetch" href="/docs/master/assets/js/7.5ce46ca3.js"><link rel="prefetch" href="/docs/master/assets/js/70.2e005955.js"><link rel="prefetch" href="/docs/master/assets/js/71.d86fe973.js"><link rel="prefetch" href="/docs/master/assets/js/72.5944cdfe.js"><link rel="prefetch" href="/docs/master/assets/js/73.22a1c777.js"><link rel="prefetch" href="/docs/master/assets/js/74.656ff8af.js"><link rel="prefetch" href="/docs/master/assets/js/75.e8dc50bb.js"><link rel="prefetch" href="/docs/master/assets/js/76.52886d61.js"><link rel="prefetch" href="/docs/master/assets/js/77.44e4b54b.js"><link rel="prefetch" href="/docs/master/assets/js/78.0402514b.js"><link rel="prefetch" href="/docs/master/assets/js/79.ae9ab12d.js"><link rel="prefetch" href="/docs/master/assets/js/8.eabe9f87.js"><link rel="prefetch" href="/docs/master/assets/js/80.cbb338a1.js"><link rel="prefetch" href="/docs/master/assets/js/81.e188a87c.js"><link rel="prefetch" href="/docs/master/assets/js/82.81f5bfb2.js"><link rel="prefetch" href="/docs/master/assets/js/83.61dfad21.js"><link rel="prefetch" href="/docs/master/assets/js/84.6b1035bd.js"><link rel="prefetch" href="/docs/master/assets/js/85.cf7c95ba.js"><link rel="prefetch" href="/docs/master/assets/js/86.2bb03b5f.js"><link rel="prefetch" href="/docs/master/assets/js/87.0fb0a056.js"><link rel="prefetch" href="/docs/master/assets/js/88.9795fb0b.js"><link rel="prefetch" href="/docs/master/assets/js/89.801fd48e.js"><link rel="prefetch" href="/docs/master/assets/js/9.3252b053.js"><link rel="prefetch" href="/docs/master/assets/js/90.0325e9f3.js"><link rel="prefetch" href="/docs/master/assets/js/91.127409dc.js"><link rel="prefetch" href="/docs/master/assets/js/92.37171da5.js"><link rel="prefetch" href="/docs/master/assets/js/93.16c9ea3a.js"><link rel="prefetch" href="/docs/master/assets/js/94.254e5cc1.js"><link rel="prefetch" href="/docs/master/assets/js/95.afd005d3.js"><link rel="prefetch" href="/docs/master/assets/js/96.b2370393.js"><link rel="prefetch" href="/docs/master/assets/js/97.02dc3487.js"><link rel="prefetch" href="/docs/master/assets/js/98.83f7a823.js"><link rel="prefetch" href="/docs/master/assets/js/99.333f5f59.js">
+    <link rel="stylesheet" href="/docs/master/assets/css/0.styles.dc4c8519.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/docs/master/" class="home-link router-link-active"><img src="/docs/master/favicon.ico" alt="Chart.js" class="logo"> <span class="site-name can-hide">Chart.js</span></a> <div class="links"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div> <nav class="nav-links can-hide"><div class="nav-item"><a href="/docs/master/" class="nav-link">
+  Home
+</a></div><div class="nav-item"><a href="/docs/master/api/" class="nav-link">
+  API
+</a></div><div class="nav-item"><a href="/docs/master/samples/" class="nav-link router-link-active">
+  Samples
+</a></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="Community Menu" class="dropdown-title"><span class="title">Ecosystem</span> <span class="arrow down"></span></button> <button type="button" aria-label="Community Menu" class="mobile-dropdown-title"><span class="title">Ecosystem</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="https://github.com/chartjs/awesome" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  Awesome
+  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></li><li class="dropdown-item"><!----> <a href="https://chartjs-slack.herokuapp.com/" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  Slack
+  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></li><li class="dropdown-item"><!----> <a href="https://stackoverflow.com/questions/tagged/chart.js" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  Stack Overflow
+  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></li></ul></div></div> <a href="https://github.com/chartjs/Chart.js" target="_blank" rel="noopener noreferrer" class="repo-link">
+    GitHub
+    <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></nav></div></header> <div class="sidebar-mask"></div> <aside class="sidebar"><nav class="nav-links"><div class="nav-item"><a href="/docs/master/" class="nav-link">
+  Home
+</a></div><div class="nav-item"><a href="/docs/master/api/" class="nav-link">
+  API
+</a></div><div class="nav-item"><a href="/docs/master/samples/" class="nav-link router-link-active">
+  Samples
+</a></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="Community Menu" class="dropdown-title"><span class="title">Ecosystem</span> <span class="arrow down"></span></button> <button type="button" aria-label="Community Menu" class="mobile-dropdown-title"><span class="title">Ecosystem</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="https://github.com/chartjs/awesome" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  Awesome
+  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></li><li class="dropdown-item"><!----> <a href="https://chartjs-slack.herokuapp.com/" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  Slack
+  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></li><li class="dropdown-item"><!----> <a href="https://stackoverflow.com/questions/tagged/chart.js" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  Stack Overflow
+  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></li></ul></div></div> <a href="https://github.com/chartjs/Chart.js" target="_blank" rel="noopener noreferrer" class="repo-link">
+    GitHub
+    <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></nav>  <ul class="sidebar-links"><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>Bar Charts</span> <span class="arrow right"></span></p> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>Line Charts</span> <span class="arrow right"></span></p> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>Other charts</span> <span class="arrow right"></span></p> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>Area charts</span> <span class="arrow right"></span></p> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>Scales</span> <span class="arrow right"></span></p> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>Scale Options</span> <span class="arrow right"></span></p> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>Legend</span> <span class="arrow right"></span></p> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>Title</span> <span class="arrow right"></span></p> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>Subtitle</span> <span class="arrow right"></span></p> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>Tooltip</span> <span class="arrow right"></span></p> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>Scriptable Options</span> <span class="arrow right"></span></p> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading open"><span>Animations</span> <span class="arrow down"></span></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/docs/master/samples/animations/delay.html" class="sidebar-link">Delay</a></li><li><a href="/docs/master/samples/animations/drop.html" class="sidebar-link">Drop</a></li><li><a href="/docs/master/samples/animations/loop.html" class="sidebar-link">Loop</a></li><li><a href="/docs/master/samples/animations/progressive-line.html" class="sidebar-link">Progressive Line</a></li><li><a href="/docs/master/samples/animations/progressive-line-easing.html" aria-current="page" class="active sidebar-link">Progressive Line With Easing</a></li></ul></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>Advanced</span> <span class="arrow right"></span></p> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>Plugins</span> <span class="arrow right"></span></p> <!----></section></li><li><a href="/docs/master/samples/utils.html" class="sidebar-link">Utils</a></li></ul> </aside> <main class="page"> <div class="theme-default-content content__default"><h1 id="progressive-line-with-easing"><a href="#progressive-line-with-easing" class="header-anchor">#</a> Progressive Line With Easing</h1> <div class="chart-editor" data-v-365c20ab><div class="chart-view" data-v-365c20ab><canvas></canvas></div> <div class="chart-actions" data-v-2afd21f1 data-v-365c20ab></div> <div class="code-editor" data-v-66ca8197 data-v-365c20ab><div class="code-editor-header" data-v-66ca8197><div class="code-editor-tabs" data-v-66ca8197><button class="code-editor-tab active" data-v-66ca8197>
+        config
+      </button><button class="code-editor-tab" data-v-66ca8197>
+        animation
+      </button><button class="code-editor-tab" data-v-66ca8197>
+        data
+      </button><button class="code-editor-tab" data-v-66ca8197>
+        actions
+      </button></div> <div class="code-editor-tools" data-v-66ca8197><!----> <a href="https://github.com/chartjs/Chart.js/blob/master/docs/samples/animations/progressive-line-easing.md" title="View on GitHub" target="_blank" class="code-editor-tool fab fa-github fa-lg" data-v-66ca8197></a></div></div> <div class="code-editor-views" data-v-66ca8197><div class="editor-textarea ps" data-v-05f11386 data-v-66ca8197><div class="editor-textarea-content" data-v-05f11386><div class="prism-editor-wrapper" data-v-05f11386><div class="prism-editor__container"><textarea spellCheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" data-gramm="false" placeholder="" data-testid="textarea" class="prism-editor__textarea">const config = {
+  type: 'line',
+  data: {
+    datasets: [{
+      borderColor: Utils.CHART_COLORS.red,
+      borderWidth: 1,
+      radius: 0,
+      data: data,
+    },
+    {
+      borderColor: Utils.CHART_COLORS.blue,
+      borderWidth: 1,
+      radius: 0,
+      data: data2,
+    }]
+  },
+  options: {
+    animation,
+    interaction: {
+      intersect: false
+    },
+    plugins: {
+      legend: false,
+      title: {
+        display: true,
+        text: () =&gt; easing.name
+      }
+    },
+    scales: {
+      x: {
+        type: 'linear'
+      }
+    }
+  }
+};</textarea><pre data-testid="preview" class="prism-editor__editor"><span class="token keyword">const</span> config <span class="token operator">=</span> <span class="token punctuation">{</span>
+  type<span class="token operator">:</span> <span class="token string">'line'</span><span class="token punctuation">,</span>
+  data<span class="token operator">:</span> <span class="token punctuation">{</span>
+    datasets<span class="token operator">:</span> <span class="token punctuation">[</span><span class="token punctuation">{</span>
+      borderColor<span class="token operator">:</span> Utils<span class="token punctuation">.</span><span class="token constant">CHART_COLORS</span><span class="token punctuation">.</span>red<span class="token punctuation">,</span>
+      borderWidth<span class="token operator">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+      radius<span class="token operator">:</span> <span class="token number">0</span><span class="token punctuation">,</span>
+      data<span class="token operator">:</span> data<span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">{</span>
+      borderColor<span class="token operator">:</span> Utils<span class="token punctuation">.</span><span class="token constant">CHART_COLORS</span><span class="token punctuation">.</span>blue<span class="token punctuation">,</span>
+      borderWidth<span class="token operator">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+      radius<span class="token operator">:</span> <span class="token number">0</span><span class="token punctuation">,</span>
+      data<span class="token operator">:</span> data2<span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token punctuation">]</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  options<span class="token operator">:</span> <span class="token punctuation">{</span>
+    animation<span class="token punctuation">,</span>
+    interaction<span class="token operator">:</span> <span class="token punctuation">{</span>
+      intersect<span class="token operator">:</span> <span class="token boolean">false</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    plugins<span class="token operator">:</span> <span class="token punctuation">{</span>
+      legend<span class="token operator">:</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+      title<span class="token operator">:</span> <span class="token punctuation">{</span>
+        display<span class="token operator">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+        <span class="token function-variable function">text</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> easing<span class="token punctuation">.</span>name
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    scales<span class="token operator">:</span> <span class="token punctuation">{</span>
+      x<span class="token operator">:</span> <span class="token punctuation">{</span>
+        type<span class="token operator">:</span> <span class="token string">'linear'</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span><br /></pre></div></div></div></div><div class="editor-textarea ps" style="display:none;" data-v-05f11386 data-v-66ca8197><div class="editor-textarea-content" data-v-05f11386><div class="prism-editor-wrapper" data-v-05f11386><div class="prism-editor__container"><textarea spellCheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" data-gramm="false" placeholder="" data-testid="textarea" class="prism-editor__textarea">let easing = helpers.easingEffects.easeOutQuad;
+let restart = false;
+const totalDuration = 5000;
+const duration = (ctx) =&gt; easing(ctx.index / data.length) * totalDuration / data.length;
+const delay = (ctx) =&gt; easing(ctx.index / data.length) * totalDuration;
+const previousY = (ctx) =&gt; ctx.index === 0 ? ctx.chart.scales.y.getPixelForValue(100) : ctx.chart.getDatasetMeta(ctx.datasetIndex).data[ctx.index - 1].getProps(['y'], true).y;
+const animation = {
+  x: {
+    type: 'number',
+    easing: 'linear',
+    duration: duration,
+    from: NaN, // the point is initially skipped
+    delay(ctx) {
+      if (ctx.type !== 'data' || ctx.xStarted) {
+        return 0;
+      }
+      ctx.xStarted = true;
+      return delay(ctx);
+    }
+  },
+  y: {
+    type: 'number',
+    easing: 'linear',
+    duration: duration,
+    from: previousY,
+    delay(ctx) {
+      if (ctx.type !== 'data' || ctx.yStarted) {
+        return 0;
+      }
+      ctx.yStarted = true;
+      return delay(ctx);
+    }
+  }
+};</textarea><pre data-testid="preview" class="prism-editor__editor"><span class="token keyword">let</span> easing <span class="token operator">=</span> helpers<span class="token punctuation">.</span>easingEffects<span class="token punctuation">.</span>easeOutQuad<span class="token punctuation">;</span>
+<span class="token keyword">let</span> restart <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> totalDuration <span class="token operator">=</span> <span class="token number">5000</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> <span class="token function-variable function">duration</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token parameter">ctx</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token function">easing</span><span class="token punctuation">(</span>ctx<span class="token punctuation">.</span>index <span class="token operator">/</span> data<span class="token punctuation">.</span>length<span class="token punctuation">)</span> <span class="token operator">*</span> totalDuration <span class="token operator">/</span> data<span class="token punctuation">.</span>length<span class="token punctuation">;</span>
+<span class="token keyword">const</span> <span class="token function-variable function">delay</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token parameter">ctx</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token function">easing</span><span class="token punctuation">(</span>ctx<span class="token punctuation">.</span>index <span class="token operator">/</span> data<span class="token punctuation">.</span>length<span class="token punctuation">)</span> <span class="token operator">*</span> totalDuration<span class="token punctuation">;</span>
+<span class="token keyword">const</span> <span class="token function-variable function">previousY</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token parameter">ctx</span><span class="token punctuation">)</span> <span class="token operator">=></span> ctx<span class="token punctuation">.</span>index <span class="token operator">===</span> <span class="token number">0</span> <span class="token operator">?</span> ctx<span class="token punctuation">.</span>chart<span class="token punctuation">.</span>scales<span class="token punctuation">.</span>y<span class="token punctuation">.</span><span class="token function">getPixelForValue</span><span class="token punctuation">(</span><span class="token number">100</span><span class="token punctuation">)</span> <span class="token operator">:</span> ctx<span class="token punctuation">.</span>chart<span class="token punctuation">.</span><span class="token function">getDatasetMeta</span><span class="token punctuation">(</span>ctx<span class="token punctuation">.</span>datasetIndex<span class="token punctuation">)</span><span class="token punctuation">.</span>data<span class="token punctuation">[</span>ctx<span class="token punctuation">.</span>index <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">.</span><span class="token function">getProps</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'y'</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">.</span>y<span class="token punctuation">;</span>
+<span class="token keyword">const</span> animation <span class="token operator">=</span> <span class="token punctuation">{</span>
+  x<span class="token operator">:</span> <span class="token punctuation">{</span>
+    type<span class="token operator">:</span> <span class="token string">'number'</span><span class="token punctuation">,</span>
+    easing<span class="token operator">:</span> <span class="token string">'linear'</span><span class="token punctuation">,</span>
+    duration<span class="token operator">:</span> duration<span class="token punctuation">,</span>
+    from<span class="token operator">:</span> <span class="token number">NaN</span><span class="token punctuation">,</span> <span class="token comment">// the point is initially skipped</span>
+    <span class="token function">delay</span><span class="token punctuation">(</span><span class="token parameter">ctx</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span>ctx<span class="token punctuation">.</span>type <span class="token operator">!==</span> <span class="token string">'data'</span> <span class="token operator">||</span> ctx<span class="token punctuation">.</span>xStarted<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+      <span class="token punctuation">}</span>
+      ctx<span class="token punctuation">.</span>xStarted <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
+      <span class="token keyword">return</span> <span class="token function">delay</span><span class="token punctuation">(</span>ctx<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  y<span class="token operator">:</span> <span class="token punctuation">{</span>
+    type<span class="token operator">:</span> <span class="token string">'number'</span><span class="token punctuation">,</span>
+    easing<span class="token operator">:</span> <span class="token string">'linear'</span><span class="token punctuation">,</span>
+    duration<span class="token operator">:</span> duration<span class="token punctuation">,</span>
+    from<span class="token operator">:</span> previousY<span class="token punctuation">,</span>
+    <span class="token function">delay</span><span class="token punctuation">(</span><span class="token parameter">ctx</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span>ctx<span class="token punctuation">.</span>type <span class="token operator">!==</span> <span class="token string">'data'</span> <span class="token operator">||</span> ctx<span class="token punctuation">.</span>yStarted<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+      <span class="token punctuation">}</span>
+      ctx<span class="token punctuation">.</span>yStarted <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
+      <span class="token keyword">return</span> <span class="token function">delay</span><span class="token punctuation">(</span>ctx<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span><br /></pre></div></div></div></div><div class="editor-textarea ps" style="display:none;" data-v-05f11386 data-v-66ca8197><div class="editor-textarea-content" data-v-05f11386><div class="prism-editor-wrapper" data-v-05f11386><div class="prism-editor__container"><textarea spellCheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" data-gramm="false" placeholder="" data-testid="textarea" class="prism-editor__textarea">const data = [];
+const data2 = [];
+let prev = 100;
+let prev2 = 80;
+for (let i = 0; i &lt; 1000; i++) {
+  prev += 5 - Math.random() * 10;
+  data.push({x: i, y: prev});
+  prev2 += 5 - Math.random() * 10;
+  data2.push({x: i, y: prev2});
+}</textarea><pre data-testid="preview" class="prism-editor__editor"><span class="token keyword">const</span> data <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> data2 <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+<span class="token keyword">let</span> prev <span class="token operator">=</span> <span class="token number">100</span><span class="token punctuation">;</span>
+<span class="token keyword">let</span> prev2 <span class="token operator">=</span> <span class="token number">80</span><span class="token punctuation">;</span>
+<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">let</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> <span class="token number">1000</span><span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  prev <span class="token operator">+=</span> <span class="token number">5</span> <span class="token operator">-</span> Math<span class="token punctuation">.</span><span class="token function">random</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token number">10</span><span class="token punctuation">;</span>
+  data<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span><span class="token punctuation">{</span>x<span class="token operator">:</span> i<span class="token punctuation">,</span> y<span class="token operator">:</span> prev<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  prev2 <span class="token operator">+=</span> <span class="token number">5</span> <span class="token operator">-</span> Math<span class="token punctuation">.</span><span class="token function">random</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token number">10</span><span class="token punctuation">;</span>
+  data2<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span><span class="token punctuation">{</span>x<span class="token operator">:</span> i<span class="token punctuation">,</span> y<span class="token operator">:</span> prev2<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><br /></pre></div></div></div></div><div class="editor-textarea ps" style="display:none;" data-v-05f11386 data-v-66ca8197><div class="editor-textarea-content" data-v-05f11386><div class="prism-editor-wrapper" data-v-05f11386><div class="prism-editor__container"><textarea spellCheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" data-gramm="false" placeholder="" data-testid="textarea" class="prism-editor__textarea">function restartAnims(chart) {
+  chart.stop();
+  const meta0 = chart.getDatasetMeta(0);
+  const meta1 = chart.getDatasetMeta(1);
+  for (let i = 0; i &lt; data.length; i++) {
+    const ctx0 = meta0.controller.getContext(i);
+    const ctx1 = meta1.controller.getContext(i);
+    ctx0.xStarted = ctx0.yStarted = false;
+    ctx1.xStarted = ctx1.yStarted = false;
+  }
+  chart.update();
+}
+const actions = [
+  {
+    name: 'easeOutQuad',
+    handler(chart) {
+      easing = helpers.easingEffects.easeOutQuad;
+      restartAnims(chart);
+    }
+  },
+  {
+    name: 'easeOutCubic',
+    handler(chart) {
+      easing = helpers.easingEffects.easeOutCubic;
+      restartAnims(chart);
+    }
+  },
+  {
+    name: 'easeOutQuart',
+    handler(chart) {
+      easing = helpers.easingEffects.easeOutQuart;
+      restartAnims(chart);
+    }
+  },
+  {
+    name: 'easeOutQuint',
+    handler(chart) {
+      easing = helpers.easingEffects.easeOutQuint;
+      restartAnims(chart);
+    }
+  },
+  {
+    name: 'easeInQuad',
+    handler(chart) {
+      easing = helpers.easingEffects.easeInQuad;
+      restartAnims(chart);
+    }
+  },
+  {
+    name: 'easeInCubic',
+    handler(chart) {
+      easing = helpers.easingEffects.easeInCubic;
+      restartAnims(chart);
+    }
+  },
+  {
+    name: 'easeInQuart',
+    handler(chart) {
+      easing = helpers.easingEffects.easeInQuart;
+      restartAnims(chart);
+    }
+  },
+  {
+    name: 'easeInQuint',
+    handler(chart) {
+      easing = helpers.easingEffects.easeInQuint;
+      restartAnims(chart);
+    }
+  },
+];</textarea><pre data-testid="preview" class="prism-editor__editor"><span class="token keyword">function</span> <span class="token function">restartAnims</span><span class="token punctuation">(</span><span class="token parameter">chart</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  chart<span class="token punctuation">.</span><span class="token function">stop</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">const</span> meta0 <span class="token operator">=</span> chart<span class="token punctuation">.</span><span class="token function">getDatasetMeta</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">const</span> meta1 <span class="token operator">=</span> chart<span class="token punctuation">.</span><span class="token function">getDatasetMeta</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">let</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> data<span class="token punctuation">.</span>length<span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">const</span> ctx0 <span class="token operator">=</span> meta0<span class="token punctuation">.</span>controller<span class="token punctuation">.</span><span class="token function">getContext</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">const</span> ctx1 <span class="token operator">=</span> meta1<span class="token punctuation">.</span>controller<span class="token punctuation">.</span><span class="token function">getContext</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    ctx0<span class="token punctuation">.</span>xStarted <span class="token operator">=</span> ctx0<span class="token punctuation">.</span>yStarted <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+    ctx1<span class="token punctuation">.</span>xStarted <span class="token operator">=</span> ctx1<span class="token punctuation">.</span>yStarted <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+  chart<span class="token punctuation">.</span><span class="token function">update</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span class="token keyword">const</span> actions <span class="token operator">=</span> <span class="token punctuation">[</span>
+  <span class="token punctuation">{</span>
+    name<span class="token operator">:</span> <span class="token string">'easeOutQuad'</span><span class="token punctuation">,</span>
+    <span class="token function">handler</span><span class="token punctuation">(</span><span class="token parameter">chart</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      easing <span class="token operator">=</span> helpers<span class="token punctuation">.</span>easingEffects<span class="token punctuation">.</span>easeOutQuad<span class="token punctuation">;</span>
+      <span class="token function">restartAnims</span><span class="token punctuation">(</span>chart<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token punctuation">{</span>
+    name<span class="token operator">:</span> <span class="token string">'easeOutCubic'</span><span class="token punctuation">,</span>
+    <span class="token function">handler</span><span class="token punctuation">(</span><span class="token parameter">chart</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      easing <span class="token operator">=</span> helpers<span class="token punctuation">.</span>easingEffects<span class="token punctuation">.</span>easeOutCubic<span class="token punctuation">;</span>
+      <span class="token function">restartAnims</span><span class="token punctuation">(</span>chart<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token punctuation">{</span>
+    name<span class="token operator">:</span> <span class="token string">'easeOutQuart'</span><span class="token punctuation">,</span>
+    <span class="token function">handler</span><span class="token punctuation">(</span><span class="token parameter">chart</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      easing <span class="token operator">=</span> helpers<span class="token punctuation">.</span>easingEffects<span class="token punctuation">.</span>easeOutQuart<span class="token punctuation">;</span>
+      <span class="token function">restartAnims</span><span class="token punctuation">(</span>chart<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token punctuation">{</span>
+    name<span class="token operator">:</span> <span class="token string">'easeOutQuint'</span><span class="token punctuation">,</span>
+    <span class="token function">handler</span><span class="token punctuation">(</span><span class="token parameter">chart</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      easing <span class="token operator">=</span> helpers<span class="token punctuation">.</span>easingEffects<span class="token punctuation">.</span>easeOutQuint<span class="token punctuation">;</span>
+      <span class="token function">restartAnims</span><span class="token punctuation">(</span>chart<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token punctuation">{</span>
+    name<span class="token operator">:</span> <span class="token string">'easeInQuad'</span><span class="token punctuation">,</span>
+    <span class="token function">handler</span><span class="token punctuation">(</span><span class="token parameter">chart</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      easing <span class="token operator">=</span> helpers<span class="token punctuation">.</span>easingEffects<span class="token punctuation">.</span>easeInQuad<span class="token punctuation">;</span>
+      <span class="token function">restartAnims</span><span class="token punctuation">(</span>chart<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token punctuation">{</span>
+    name<span class="token operator">:</span> <span class="token string">'easeInCubic'</span><span class="token punctuation">,</span>
+    <span class="token function">handler</span><span class="token punctuation">(</span><span class="token parameter">chart</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      easing <span class="token operator">=</span> helpers<span class="token punctuation">.</span>easingEffects<span class="token punctuation">.</span>easeInCubic<span class="token punctuation">;</span>
+      <span class="token function">restartAnims</span><span class="token punctuation">(</span>chart<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token punctuation">{</span>
+    name<span class="token operator">:</span> <span class="token string">'easeInQuart'</span><span class="token punctuation">,</span>
+    <span class="token function">handler</span><span class="token punctuation">(</span><span class="token parameter">chart</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      easing <span class="token operator">=</span> helpers<span class="token punctuation">.</span>easingEffects<span class="token punctuation">.</span>easeInQuart<span class="token punctuation">;</span>
+      <span class="token function">restartAnims</span><span class="token punctuation">(</span>chart<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token punctuation">{</span>
+    name<span class="token operator">:</span> <span class="token string">'easeInQuint'</span><span class="token punctuation">,</span>
+    <span class="token function">handler</span><span class="token punctuation">(</span><span class="token parameter">chart</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      easing <span class="token operator">=</span> helpers<span class="token punctuation">.</span>easingEffects<span class="token punctuation">.</span>easeInQuint<span class="token punctuation">;</span>
+      <span class="token function">restartAnims</span><span class="token punctuation">(</span>chart<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">;</span><br /></pre></div></div></div></div></div></div></div></div> <footer class="page-edit"><!----> <div class="last-updated"><span class="prefix">Last Updated:</span> <span class="time">10/26/2021, 11:49:04 AM</span></div></footer> <div class="page-nav"><p class="inner"><span class="prev">
+      ←
+      <a href="/docs/master/samples/animations/progressive-line.html" class="prev">
+        Progressive Line
+      </a></span> <span class="next"><a href="/docs/master/samples/advanced/data-decimation.html">
+        Data Decimation
+      </a>
+      →
+    </span></p></div> </main></div><div class="global-ui"></div></div>
+    <script src="/docs/master/assets/js/app.e099b8bb.js" defer></script><script src="/docs/master/assets/js/2.413130e4.js" defer></script><script src="/docs/master/assets/js/187.c00f14d6.js" defer></script><script src="/docs/master/assets/js/3.e2fd7cce.js" defer></script>
+  </body>
+</html>
