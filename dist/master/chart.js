@@ -11996,7 +11996,7 @@ class LinearScaleBase extends Scale {
     this._valueRange = end - start;
   }
   getLabelForValue(value) {
-    return formatNumber(value, this.chart.options.locale);
+    return formatNumber(value, this.chart.options.locale, this.options.ticks.format);
   }
 }
 
@@ -12129,7 +12129,9 @@ class LogarithmicScale extends Scale {
     return ticks;
   }
   getLabelForValue(value) {
-    return value === undefined ? '0' : formatNumber(value, this.chart.options.locale);
+    return value === undefined
+      ? '0'
+      : formatNumber(value, this.chart.options.locale, this.options.ticks.format);
   }
   configure() {
     const start = this.min;
