@@ -4501,6 +4501,7 @@ class DatasetController {
       const [method, arg1, arg2] = args;
       this[method](arg1, arg2);
     }
+    this.chart._dataChanges.push([this.index, ...args]);
   }
   _onDataPush() {
     const count = arguments.length;
@@ -4513,8 +4514,13 @@ class DatasetController {
     this._sync(['_removeElements', 0, 1]);
   }
   _onDataSplice(start, count) {
-    this._sync(['_removeElements', start, count]);
-    this._sync(['_insertElements', start, arguments.length - 2]);
+    if (count) {
+      this._sync(['_removeElements', start, count]);
+    }
+    const newCount = arguments.length - 2;
+    if (newCount) {
+      this._sync(['_insertElements', start, newCount]);
+    }
   }
   _onDataUnshift() {
     this._sync(['_insertElements', 0, arguments.length]);
@@ -6551,6 +6557,19 @@ const getChart = (key) => {
   const canvas = getCanvas(key);
   return Object.values(instances).filter((c) => c.canvas === canvas).pop();
 };
+function moveNumericKeys(obj, start, move) {
+  const keys = Object.keys(obj);
+  for (const key of keys) {
+    const intKey = +key;
+    if (intKey >= start) {
+      const value = obj[key];
+      delete obj[key];
+      if (move > 0 || intKey > start) {
+        obj[intKey + move] = value;
+      }
+    }
+  }
+}
 class Chart {
   constructor(item, userConfig) {
     const config = this.config = new Config(userConfig);
@@ -6595,6 +6614,7 @@ class Chart {
     this._animationsDisabled = undefined;
     this.$context = undefined;
     this._doResize = debounce(mode => this.update(mode), options.resizeDelay || 0);
+    this._dataChanges = [];
     instances[this.id] = this;
     if (!context || !canvas) {
       console.error("Failed to create chart: can't acquire context from the given item");
@@ -6814,18 +6834,10 @@ class Chart {
     const config = this.config;
     config.update();
     const options = this._options = config.createResolver(config.chartOptionScopes(), this.getContext());
-    each(this.scales, (scale) => {
-      layouts.removeBox(this, scale);
-    });
     const animsDisabled = this._animationsDisabled = !options.animation;
-    this.ensureScalesHaveIDs();
-    this.buildOrUpdateScales();
-    const existingEvents = new Set(Object.keys(this._listeners));
-    const newEvents = new Set(options.events);
-    if (!setsEqual(existingEvents, newEvents) || !!this._responsiveListeners !== options.responsive) {
-      this.unbindEvents();
-      this.bindEvents();
-    }
+    this._updateScales();
+    this._checkEventBindings();
+    this._updateHiddenIndices();
     this._plugins.invalidate();
     if (this.notifyPlugins('beforeUpdate', {mode, cancelable: true}) === false) {
       return;
@@ -6853,6 +6865,52 @@ class Chart {
       this._eventHandler(this._lastEvent, true);
     }
     this.render();
+  }
+  _updateScales() {
+    each(this.scales, (scale) => {
+      layouts.removeBox(this, scale);
+    });
+    this.ensureScalesHaveIDs();
+    this.buildOrUpdateScales();
+  }
+  _checkEventBindings() {
+    const options = this.options;
+    const existingEvents = new Set(Object.keys(this._listeners));
+    const newEvents = new Set(options.events);
+    if (!setsEqual(existingEvents, newEvents) || !!this._responsiveListeners !== options.responsive) {
+      this.unbindEvents();
+      this.bindEvents();
+    }
+  }
+  _updateHiddenIndices() {
+    const {_hiddenIndices} = this;
+    const changes = this._getUniformDataChanges() || [];
+    for (const {method, start, count} of changes) {
+      const move = method === '_removeElements' ? -count : count;
+      moveNumericKeys(_hiddenIndices, start, move);
+    }
+  }
+  _getUniformDataChanges() {
+    const _dataChanges = this._dataChanges;
+    if (!_dataChanges || !_dataChanges.length) {
+      return;
+    }
+    this._dataChanges = [];
+    const datasetCount = this.data.datasets.length;
+    const makeSet = (idx) => new Set(
+      _dataChanges
+        .filter(c => c[0] === idx)
+        .map((c, i) => i + ',' + c.splice(1).join(','))
+    );
+    const changeSet = makeSet(0);
+    for (let i = 1; i < datasetCount; i++) {
+      if (!setsEqual(changeSet, makeSet(i))) {
+        return;
+      }
+    }
+    return Array.from(changeSet)
+      .map(c => c.split(','))
+      .map(a => ({method: a[1], start: +a[2], count: +a[3]}));
   }
   _updateLayout(minPadding) {
     if (this.notifyPlugins('beforeLayout', {cancelable: true}) === false) {
