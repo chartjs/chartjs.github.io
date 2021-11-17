@@ -4,7 +4,7 @@
  * (c) 2021 Chart.js Contributors
  * Released under the MIT License
  */
-import { r as requestAnimFrame, a as resolve, e as effects, c as color, d as defaults, i as isObject, b as isArray, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as isNumberFinite, h as createContext, j as defined, s as sign, k as isNullOrUndef, _ as _arrayUnique, t as toRadians, m as toPercentage, n as toDimension, T as TAU, o as formatNumber, p as _angleBetween, H as HALF_PI, P as PI, q as isNumber, w as _limitValue, x as _lookupByKey, y as getRelativePosition$1, z as _isPointInArea, A as _rlookupByKey, B as toPadding, C as each, D as getMaximumSize, E as _getParentNode, F as readUsedSize, G as throttled, I as supportsEventListenerOptions, J as _isDomSupported, K as log10, L as _factorize, M as finiteOrDefault, N as callback, O as _addGrace, Q as toDegrees, R as _measureText, S as _int16Range, U as _alignPixel, V as clipArea, W as renderText, X as unclipArea, Y as toFont, Z as _toLeftRightCenter, $ as _alignStartEnd, a0 as overrides, a1 as merge, a2 as _capitalize, a3 as descriptors, a4 as isFunction, a5 as _attachContext, a6 as _createResolver, a7 as _descriptors, a8 as mergeIf, a9 as uid, aa as debounce, ab as retinaScale, ac as clearCanvas, ad as setsEqual, ae as _elementsEqual, af as getAngleFromPoint, ag as _readValueToProps, ah as _updateBezierControlPoints, ai as _computeSegments, aj as _boundSegments, ak as _steppedInterpolation, al as _bezierInterpolation, am as _pointInLine, an as _steppedLineTo, ao as _bezierCurveTo, ap as drawPoint, aq as addRoundedRectPath, ar as toTRBL, as as toTRBLCorners, at as _boundSegment, au as _normalizeAngle, av as getRtlAdapter, aw as overrideTextDirection, ax as _textX, ay as restoreTextDirection, az as noop, aA as distanceBetweenPoints, aB as _setMinAndMaxByKey, aC as niceNum, aD as almostWhole, aE as almostEquals, aF as _decimalPlaces, aG as _longestText, aH as _filterBetween, aI as _lookup } from './chunks/helpers.segment.js';
+import { r as requestAnimFrame, a as resolve, e as effects, c as color, d as defaults, i as isObject, b as isArray, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as isNumberFinite, h as createContext, j as defined, s as sign, k as isNullOrUndef, _ as _arrayUnique, t as toRadians, m as toPercentage, n as toDimension, T as TAU, o as formatNumber, p as _angleBetween, H as HALF_PI, P as PI, q as isNumber, w as _limitValue, x as _lookupByKey, y as getRelativePosition$1, z as _isPointInArea, A as _rlookupByKey, B as toPadding, C as each, D as getMaximumSize, E as _getParentNode, F as readUsedSize, G as throttled, I as supportsEventListenerOptions, J as _isDomSupported, K as log10, L as _factorize, M as finiteOrDefault, N as callback, O as _addGrace, Q as toDegrees, R as _measureText, S as _int16Range, U as _alignPixel, V as clipArea, W as renderText, X as unclipArea, Y as toFont, Z as _toLeftRightCenter, $ as _alignStartEnd, a0 as overrides, a1 as merge, a2 as _capitalize, a3 as descriptors, a4 as isFunction, a5 as _attachContext, a6 as _createResolver, a7 as _descriptors, a8 as mergeIf, a9 as uid, aa as debounce, ab as retinaScale, ac as clearCanvas, ad as setsEqual, ae as _elementsEqual, af as getAngleFromPoint, ag as _isBetween, ah as _readValueToProps, ai as _updateBezierControlPoints, aj as _computeSegments, ak as _boundSegments, al as _steppedInterpolation, am as _bezierInterpolation, an as _pointInLine, ao as _steppedLineTo, ap as _bezierCurveTo, aq as drawPoint, ar as addRoundedRectPath, as as toTRBL, at as toTRBLCorners, au as _boundSegment, av as _normalizeAngle, aw as getRtlAdapter, ax as overrideTextDirection, ay as _textX, az as restoreTextDirection, aA as noop, aB as distanceBetweenPoints, aC as _setMinAndMaxByKey, aD as niceNum, aE as almostWhole, aF as almostEquals, aG as _decimalPlaces, aH as _longestText, aI as _filterBetween, aJ as _lookup } from './chunks/helpers.segment.js';
 export { d as defaults } from './chunks/helpers.segment.js';
 
 class Animator {
@@ -726,6 +726,7 @@ class DatasetController {
     const scopes = config.getOptionScopes(this.getDataset(), scopeKeys, true);
     this.options = config.createResolver(scopes, this.getContext());
     this._parsing = this.options.parsing;
+    this._cachedDataOpts = {};
   }
   parse(start, count) {
     const {_cachedMeta: meta, _data: data} = this;
@@ -897,8 +898,6 @@ class DatasetController {
   }
   _update(mode) {
     const meta = this._cachedMeta;
-    this.configure();
-    this._cachedDataOpts = {};
     this.update(mode || 'default');
     meta._clip = toClip(valueOrDefault(this.options.clip, defaultClip(meta.xScale, meta.yScale, this.getMaxOverflow())));
   }
@@ -1905,9 +1904,6 @@ class DoughnutController extends DatasetController {
           meta = chart.getDatasetMeta(i);
           arcs = meta.data;
           controller = meta.controller;
-          if (controller !== this) {
-            controller.configure();
-          }
           break;
         }
       }
@@ -5624,6 +5620,9 @@ class Chart {
       return;
     }
     for (let i = 0, ilen = this.data.datasets.length; i < ilen; ++i) {
+      this.getDatasetMeta(i).controller.configure();
+    }
+    for (let i = 0, ilen = this.data.datasets.length; i < ilen; ++i) {
       this._updateDataset(i, isFunction(mode) ? mode({datasetIndex: i}) : mode);
     }
     this.notifyPlugins('afterDatasetsUpdate', {mode});
@@ -6218,8 +6217,9 @@ class ArcElement extends Element {
       'circumference'
     ], useFinalPosition);
     const rAdjust = this.options.spacing / 2;
-    const betweenAngles = circumference >= TAU || _angleBetween(angle, startAngle, endAngle);
-    const withinRadius = (distance >= innerRadius + rAdjust && distance <= outerRadius + rAdjust);
+    const _circumference = valueOrDefault(circumference, endAngle - startAngle);
+    const betweenAngles = _circumference >= TAU || _angleBetween(angle, startAngle, endAngle);
+    const withinRadius = _isBetween(distance, innerRadius + rAdjust, outerRadius + rAdjust);
     return (betweenAngles && withinRadius);
   }
   getCenterPoint(useFinalPosition) {
@@ -6707,8 +6707,8 @@ function inRange(bar, x, y, useFinalPosition) {
   const skipBoth = skipX && skipY;
   const bounds = bar && !skipBoth && getBarBounds(bar, useFinalPosition);
   return bounds
-		&& (skipX || x >= bounds.left && x <= bounds.right)
-		&& (skipY || y >= bounds.top && y <= bounds.bottom);
+		&& (skipX || _isBetween(x, bounds.left, bounds.right))
+		&& (skipY || _isBetween(y, bounds.top, bounds.bottom));
 }
 function hasRadius(radius) {
   return radius.topLeft || radius.topRight || radius.bottomLeft || radius.bottomRight;
@@ -7205,7 +7205,7 @@ function findPoint(line, sourcePoint, property) {
     const segment = segments[i];
     const firstValue = linePoints[segment.start][property];
     const lastValue = linePoints[segment.end][property];
-    if (pointValue >= firstValue && pointValue <= lastValue) {
+    if (_isBetween(pointValue, firstValue, lastValue)) {
       first = pointValue === firstValue;
       last = pointValue === lastValue;
       break;
@@ -7824,11 +7824,13 @@ class Legend extends Element {
   }
   _getLegendItemAt(x, y) {
     let i, hitBox, lh;
-    if (x >= this.left && x <= this.right && y >= this.top && y <= this.bottom) {
+    if (_isBetween(x, this.left, this.right)
+      && _isBetween(y, this.top, this.bottom)) {
       lh = this.legendHitBoxes;
       for (i = 0; i < lh.length; ++i) {
         hitBox = lh[i];
-        if (x >= hitBox.left && x <= hitBox.left + hitBox.width && y >= hitBox.top && y <= hitBox.top + hitBox.height) {
+        if (_isBetween(x, hitBox.left, hitBox.left + hitBox.width)
+          && _isBetween(y, hitBox.top, hitBox.top + hitBox.height)) {
           return this.legendItems[i];
         }
       }
