@@ -1,5 +1,5 @@
 /*!
- * Chart.js v3.6.0
+ * Chart.js v3.6.1
  * https://www.chartjs.org
  * (c) 2021 Chart.js Contributors
  * Released under the MIT License
@@ -1166,6 +1166,9 @@ function _limitValue(value, min, max) {
 function _int16Range(value) {
   return _limitValue(value, -32768, 32767);
 }
+function _isBetween(value, start, end, epsilon = 1e-6) {
+  return value >= Math.min(start, end) - epsilon && value <= Math.max(start, end) + epsilon;
+}
 
 function toFontString(font) {
   if (!font || isNullOrUndef(font.size) || isNullOrUndef(font.family)) {
@@ -2301,7 +2304,7 @@ var layouts = {
     each(boxes.chartArea, (layout) => {
       const box = layout.box;
       Object.assign(box, chart.chartArea);
-      box.update(chartArea.w, chartArea.h);
+      box.update(chartArea.w, chartArea.h, {left: 0, top: 0, right: 0, bottom: 0});
     });
   }
 };
@@ -2404,7 +2407,8 @@ function _descriptors(proxy, defaults = {scriptable: true, indexable: true}) {
   };
 }
 const readKey = (prefix, name) => prefix ? prefix + _capitalize(name) : name;
-const needsSubResolver = (prop, value) => isObject(value) && prop !== 'adapters';
+const needsSubResolver = (prop, value) => isObject(value) && prop !== 'adapters' &&
+  (Object.getPrototypeOf(value) === null || value.constructor === Object);
 function _cached(target, prop, resolve) {
   if (Object.prototype.hasOwnProperty.call(target, prop)) {
     return target[prop];
@@ -2435,7 +2439,7 @@ function _resolveScriptable(prop, value, target, receiver) {
   _stack.add(prop);
   value = value(_context, _subProxy || receiver);
   _stack.delete(prop);
-  if (isObject(value)) {
+  if (needsSubResolver(prop, value)) {
     value = createSubResolver(_proxy._scopes, _proxy, prop, value);
   }
   return value;
@@ -2900,7 +2904,7 @@ function propertyFn(property) {
     };
   }
   return {
-    between: (n, s, e) => n >= Math.min(s, e) && n <= Math.max(e, s),
+    between: _isBetween,
     compare: (a, b) => a - b,
     normalize: x => x
   };
@@ -3236,6 +3240,7 @@ _normalizeAngle: _normalizeAngle,
 _angleBetween: _angleBetween,
 _limitValue: _limitValue,
 _int16Range: _int16Range,
+_isBetween: _isBetween,
 getRtlAdapter: getRtlAdapter,
 overrideTextDirection: overrideTextDirection,
 restoreTextDirection: restoreTextDirection,
@@ -3344,15 +3349,23 @@ function fromNativeEvent(event, chart) {
     y: y !== undefined ? y : null,
   };
 }
+function nodeListContains(nodeList, canvas) {
+  for (const node of nodeList) {
+    if (node === canvas || node.contains(canvas)) {
+      return true;
+    }
+  }
+}
 function createAttachObserver(chart, type, listener) {
   const canvas = chart.canvas;
   const observer = new MutationObserver(entries => {
+    let trigger = false;
     for (const entry of entries) {
-      for (const node of entry.addedNodes) {
-        if (node === canvas || node.contains(canvas)) {
-          return listener();
-        }
-      }
+      trigger = trigger || nodeListContains(entry.addedNodes, canvas);
+      trigger = trigger && !nodeListContains(entry.removedNodes, canvas);
+    }
+    if (trigger) {
+      listener();
     }
   });
   observer.observe(document, {childList: true, subtree: true});
@@ -3361,12 +3374,13 @@ function createAttachObserver(chart, type, listener) {
 function createDetachObserver(chart, type, listener) {
   const canvas = chart.canvas;
   const observer = new MutationObserver(entries => {
+    let trigger = false;
     for (const entry of entries) {
-      for (const node of entry.removedNodes) {
-        if (node === canvas || node.contains(canvas)) {
-          return listener();
-        }
-      }
+      trigger = trigger || nodeListContains(entry.removedNodes, canvas);
+      trigger = trigger && !nodeListContains(entry.addedNodes, canvas);
+    }
+    if (trigger) {
+      listener();
     }
   });
   observer.observe(document, {childList: true, subtree: true});
@@ -4111,6 +4125,7 @@ class DatasetController {
     const scopes = config.getOptionScopes(this.getDataset(), scopeKeys, true);
     this.options = config.createResolver(scopes, this.getContext());
     this._parsing = this.options.parsing;
+    this._cachedDataOpts = {};
   }
   parse(start, count) {
     const {_cachedMeta: meta, _data: data} = this;
@@ -4282,8 +4297,6 @@ class DatasetController {
   }
   _update(mode) {
     const meta = this._cachedMeta;
-    this.configure();
-    this._cachedDataOpts = {};
     this.update(mode || 'default');
     meta._clip = toClip(valueOrDefault(this.options.clip, defaultClip(meta.xScale, meta.yScale, this.getMaxOverflow())));
   }
@@ -4497,6 +4510,7 @@ class DatasetController {
       const [method, arg1, arg2] = args;
       this[method](arg1, arg2);
     }
+    this.chart._dataChanges.push([this.index, ...args]);
   }
   _onDataPush() {
     const count = arguments.length;
@@ -4509,8 +4523,13 @@ class DatasetController {
     this._sync(['_removeElements', 0, 1]);
   }
   _onDataSplice(start, count) {
-    this._sync(['_removeElements', start, count]);
-    this._sync(['_insertElements', start, arguments.length - 2]);
+    if (count) {
+      this._sync(['_removeElements', start, count]);
+    }
+    const newCount = arguments.length - 2;
+    if (newCount) {
+      this._sync(['_insertElements', start, newCount]);
+    }
   }
   _onDataUnshift() {
     this._sync(['_insertElements', 0, arguments.length]);
@@ -6507,7 +6526,7 @@ function needContext(proxy, names) {
   return false;
 }
 
-var version = "3.6.0";
+var version = "3.6.1";
 
 const KNOWN_POSITIONS = ['top', 'bottom', 'left', 'right', 'chartArea'];
 function positionIsHorizontal(position, axis) {
@@ -6547,6 +6566,19 @@ const getChart = (key) => {
   const canvas = getCanvas(key);
   return Object.values(instances).filter((c) => c.canvas === canvas).pop();
 };
+function moveNumericKeys(obj, start, move) {
+  const keys = Object.keys(obj);
+  for (const key of keys) {
+    const intKey = +key;
+    if (intKey >= start) {
+      const value = obj[key];
+      delete obj[key];
+      if (move > 0 || intKey > start) {
+        obj[intKey + move] = value;
+      }
+    }
+  }
+}
 class Chart {
   constructor(item, userConfig) {
     const config = this.config = new Config(userConfig);
@@ -6591,6 +6623,7 @@ class Chart {
     this._animationsDisabled = undefined;
     this.$context = undefined;
     this._doResize = debounce(mode => this.update(mode), options.resizeDelay || 0);
+    this._dataChanges = [];
     instances[this.id] = this;
     if (!context || !canvas) {
       console.error("Failed to create chart: can't acquire context from the given item");
@@ -6810,18 +6843,10 @@ class Chart {
     const config = this.config;
     config.update();
     const options = this._options = config.createResolver(config.chartOptionScopes(), this.getContext());
-    each(this.scales, (scale) => {
-      layouts.removeBox(this, scale);
-    });
     const animsDisabled = this._animationsDisabled = !options.animation;
-    this.ensureScalesHaveIDs();
-    this.buildOrUpdateScales();
-    const existingEvents = new Set(Object.keys(this._listeners));
-    const newEvents = new Set(options.events);
-    if (!setsEqual(existingEvents, newEvents) || !!this._responsiveListeners !== options.responsive) {
-      this.unbindEvents();
-      this.bindEvents();
-    }
+    this._updateScales();
+    this._checkEventBindings();
+    this._updateHiddenIndices();
     this._plugins.invalidate();
     if (this.notifyPlugins('beforeUpdate', {mode, cancelable: true}) === false) {
       return;
@@ -6850,6 +6875,52 @@ class Chart {
     }
     this.render();
   }
+  _updateScales() {
+    each(this.scales, (scale) => {
+      layouts.removeBox(this, scale);
+    });
+    this.ensureScalesHaveIDs();
+    this.buildOrUpdateScales();
+  }
+  _checkEventBindings() {
+    const options = this.options;
+    const existingEvents = new Set(Object.keys(this._listeners));
+    const newEvents = new Set(options.events);
+    if (!setsEqual(existingEvents, newEvents) || !!this._responsiveListeners !== options.responsive) {
+      this.unbindEvents();
+      this.bindEvents();
+    }
+  }
+  _updateHiddenIndices() {
+    const {_hiddenIndices} = this;
+    const changes = this._getUniformDataChanges() || [];
+    for (const {method, start, count} of changes) {
+      const move = method === '_removeElements' ? -count : count;
+      moveNumericKeys(_hiddenIndices, start, move);
+    }
+  }
+  _getUniformDataChanges() {
+    const _dataChanges = this._dataChanges;
+    if (!_dataChanges || !_dataChanges.length) {
+      return;
+    }
+    this._dataChanges = [];
+    const datasetCount = this.data.datasets.length;
+    const makeSet = (idx) => new Set(
+      _dataChanges
+        .filter(c => c[0] === idx)
+        .map((c, i) => i + ',' + c.splice(1).join(','))
+    );
+    const changeSet = makeSet(0);
+    for (let i = 1; i < datasetCount; i++) {
+      if (!setsEqual(changeSet, makeSet(i))) {
+        return;
+      }
+    }
+    return Array.from(changeSet)
+      .map(c => c.split(','))
+      .map(a => ({method: a[1], start: +a[2], count: +a[3]}));
+  }
   _updateLayout(minPadding) {
     if (this.notifyPlugins('beforeLayout', {cancelable: true}) === false) {
       return;
@@ -6875,6 +6946,9 @@ class Chart {
   _updateDatasets(mode) {
     if (this.notifyPlugins('beforeDatasetsUpdate', {mode, cancelable: true}) === false) {
       return;
+    }
+    for (let i = 0, ilen = this.data.datasets.length; i < ilen; ++i) {
+      this.getDatasetMeta(i).controller.configure();
     }
     for (let i = 0, ilen = this.data.datasets.length; i < ilen; ++i) {
       this._updateDataset(i, isFunction(mode) ? mode({datasetIndex: i}) : mode);
@@ -8102,9 +8176,6 @@ class DoughnutController extends DatasetController {
           meta = chart.getDatasetMeta(i);
           arcs = meta.data;
           controller = meta.controller;
-          if (controller !== this) {
-            controller.configure();
-          }
           break;
         }
       }
@@ -8835,8 +8906,9 @@ class ArcElement extends Element {
       'circumference'
     ], useFinalPosition);
     const rAdjust = this.options.spacing / 2;
-    const betweenAngles = circumference >= TAU || _angleBetween(angle, startAngle, endAngle);
-    const withinRadius = (distance >= innerRadius + rAdjust && distance <= outerRadius + rAdjust);
+    const _circumference = valueOrDefault(circumference, endAngle - startAngle);
+    const betweenAngles = _circumference >= TAU || _angleBetween(angle, startAngle, endAngle);
+    const withinRadius = _isBetween(distance, innerRadius + rAdjust, outerRadius + rAdjust);
     return (betweenAngles && withinRadius);
   }
   getCenterPoint(useFinalPosition) {
@@ -9324,8 +9396,8 @@ function inRange(bar, x, y, useFinalPosition) {
   const skipBoth = skipX && skipY;
   const bounds = bar && !skipBoth && getBarBounds(bar, useFinalPosition);
   return bounds
-		&& (skipX || x >= bounds.left && x <= bounds.right)
-		&& (skipY || y >= bounds.top && y <= bounds.bottom);
+		&& (skipX || _isBetween(x, bounds.left, bounds.right))
+		&& (skipY || _isBetween(y, bounds.top, bounds.bottom));
 }
 function hasRadius(radius) {
   return radius.topLeft || radius.topRight || radius.bottomLeft || radius.bottomRight;
@@ -9822,7 +9894,7 @@ function findPoint(line, sourcePoint, property) {
     const segment = segments[i];
     const firstValue = linePoints[segment.start][property];
     const lastValue = linePoints[segment.end][property];
-    if (pointValue >= firstValue && pointValue <= lastValue) {
+    if (_isBetween(pointValue, firstValue, lastValue)) {
       first = pointValue === firstValue;
       last = pointValue === lastValue;
       break;
@@ -10441,11 +10513,13 @@ class Legend extends Element {
   }
   _getLegendItemAt(x, y) {
     let i, hitBox, lh;
-    if (x >= this.left && x <= this.right && y >= this.top && y <= this.bottom) {
+    if (_isBetween(x, this.left, this.right)
+      && _isBetween(y, this.top, this.bottom)) {
       lh = this.legendHitBoxes;
       for (i = 0; i < lh.length; ++i) {
         hitBox = lh[i];
-        if (x >= hitBox.left && x <= hitBox.left + hitBox.width && y >= hitBox.top && y <= hitBox.top + hitBox.height) {
+        if (_isBetween(x, hitBox.left, hitBox.left + hitBox.width)
+          && _isBetween(y, hitBox.top, hitBox.top + hitBox.height)) {
           return this.legendItems[i];
         }
       }
@@ -10961,9 +11035,9 @@ function getBackgroundPoint(options, size, alignment, chart) {
       x -= paddingAndSize;
     }
   } else if (xAlign === 'left') {
-    x -= Math.max(topLeft, bottomLeft) + caretPadding;
+    x -= Math.max(topLeft, bottomLeft) + caretSize;
   } else if (xAlign === 'right') {
-    x += Math.max(topRight, bottomRight) + caretPadding;
+    x += Math.max(topRight, bottomRight) + caretSize;
   }
   return {
     x: _limitValue(x, 0, chart.width - size.width),
@@ -11695,13 +11769,19 @@ Title: plugin_title,
 Tooltip: plugin_tooltip
 });
 
-const addIfString = (labels, raw, index) => typeof raw === 'string'
-  ? labels.push(raw) - 1
-  : isNaN(raw) ? null : index;
-function findOrAddLabel(labels, raw, index) {
+const addIfString = (labels, raw, index, addedLabels) => {
+  if (typeof raw === 'string') {
+    index = labels.push(raw) - 1;
+    addedLabels.unshift({index, label: raw});
+  } else if (isNaN(raw)) {
+    index = null;
+  }
+  return index;
+};
+function findOrAddLabel(labels, raw, index, addedLabels) {
   const first = labels.indexOf(raw);
   if (first === -1) {
-    return addIfString(labels, raw, index);
+    return addIfString(labels, raw, index, addedLabels);
   }
   const last = labels.lastIndexOf(raw);
   return first !== last ? index : first;
@@ -11712,6 +11792,20 @@ class CategoryScale extends Scale {
     super(cfg);
     this._startValue = undefined;
     this._valueRange = 0;
+    this._addedLabels = [];
+  }
+  init(scaleOptions) {
+    const added = this._addedLabels;
+    if (added.length) {
+      const labels = this.getLabels();
+      for (const {index, label} of added) {
+        if (labels[index] === label) {
+          labels.splice(index, 1);
+        }
+      }
+      this._addedLabels = [];
+    }
+    super.init(scaleOptions);
   }
   parse(raw, index) {
     if (isNullOrUndef(raw)) {
@@ -11719,7 +11813,7 @@ class CategoryScale extends Scale {
     }
     const labels = this.getLabels();
     index = isFinite(index) && labels[index] === raw ? index
-      : findOrAddLabel(labels, raw, valueOrDefault(index, raw));
+      : findOrAddLabel(labels, raw, valueOrDefault(index, raw), this._addedLabels);
     return validIndex(index, labels.length - 1);
   }
   determineDataLimits() {
@@ -11996,7 +12090,7 @@ class LinearScaleBase extends Scale {
     this._valueRange = end - start;
   }
   getLabelForValue(value) {
-    return formatNumber(value, this.chart.options.locale);
+    return formatNumber(value, this.chart.options.locale, this.options.ticks.format);
   }
 }
 
@@ -12129,7 +12223,9 @@ class LogarithmicScale extends Scale {
     return ticks;
   }
   getLabelForValue(value) {
-    return value === undefined ? '0' : formatNumber(value, this.chart.options.locale);
+    return value === undefined
+      ? '0'
+      : formatNumber(value, this.chart.options.locale, this.options.ticks.format);
   }
   configure() {
     const start = this.min;
