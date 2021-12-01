@@ -2347,8 +2347,7 @@ function _createResolver(scopes, prefixes = [''], rootScopes = scopes, fallback,
     },
     set(target, prop, value) {
       const storage = target._storage || (target._storage = getTarget());
-      storage[prop] = value;
-      delete target[prop];
+      target[prop] = storage[prop] = value;
       delete target._keys;
       return true;
     }
