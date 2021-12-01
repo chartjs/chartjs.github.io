@@ -2671,12 +2671,10 @@ var Interaction = {
       return getNearestItems(chart, position, axis, options.intersect, useFinalPosition);
     },
     x(chart, e, options, useFinalPosition) {
-      options.axis = 'x';
-      return getAxisItems(chart, e, options, useFinalPosition);
+      return getAxisItems(chart, e, {axis: 'x', intersect: options.intersect}, useFinalPosition);
     },
     y(chart, e, options, useFinalPosition) {
-      options.axis = 'y';
-      return getAxisItems(chart, e, options, useFinalPosition);
+      return getAxisItems(chart, e, {axis: 'y', intersect: options.intersect}, useFinalPosition);
     }
   }
 };
