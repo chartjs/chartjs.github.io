@@ -1,5 +1,5 @@
 /*!
- * Chart.js v3.6.1
+ * Chart.js v3.6.2
  * https://www.chartjs.org
  * (c) 2021 Chart.js Contributors
  * Released under the MIT License
@@ -2671,12 +2671,10 @@ var Interaction = {
       return getNearestItems(chart, position, axis, options.intersect, useFinalPosition);
     },
     x(chart, e, options, useFinalPosition) {
-      options.axis = 'x';
-      return getAxisItems(chart, e, options, useFinalPosition);
+      return getAxisItems(chart, e, {axis: 'x', intersect: options.intersect}, useFinalPosition);
     },
     y(chart, e, options, useFinalPosition) {
-      options.axis = 'y';
-      return getAxisItems(chart, e, options, useFinalPosition);
+      return getAxisItems(chart, e, {axis: 'y', intersect: options.intersect}, useFinalPosition);
     }
   }
 };
@@ -5265,7 +5263,7 @@ function needContext(proxy, names) {
   return false;
 }
 
-var version = "3.6.1";
+var version = "3.6.2";
 
 const KNOWN_POSITIONS = ['top', 'bottom', 'left', 'right', 'chartArea'];
 function positionIsHorizontal(position, axis) {
