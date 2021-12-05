@@ -4,7 +4,7 @@
  * (c) 2021 Chart.js Contributors
  * Released under the MIT License
  */
-import { r as requestAnimFrame, a as resolve, e as effects, c as color, d as defaults, i as isObject, b as isArray, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as isNumberFinite, h as createContext, j as defined, s as sign, k as isNullOrUndef, _ as _arrayUnique, t as toRadians, m as toPercentage, n as toDimension, T as TAU, o as formatNumber, p as _angleBetween, H as HALF_PI, P as PI, q as isNumber, w as _limitValue, x as _lookupByKey, y as getRelativePosition$1, z as _isPointInArea, A as _rlookupByKey, B as toPadding, C as each, D as getMaximumSize, E as _getParentNode, F as readUsedSize, G as throttled, I as supportsEventListenerOptions, J as _isDomSupported, K as log10, L as _factorize, M as finiteOrDefault, N as callback, O as _addGrace, Q as toDegrees, R as _measureText, S as _int16Range, U as _alignPixel, V as clipArea, W as renderText, X as unclipArea, Y as toFont, Z as _toLeftRightCenter, $ as _alignStartEnd, a0 as overrides, a1 as merge, a2 as _capitalize, a3 as descriptors, a4 as isFunction, a5 as _attachContext, a6 as _createResolver, a7 as _descriptors, a8 as mergeIf, a9 as uid, aa as debounce, ab as retinaScale, ac as clearCanvas, ad as setsEqual, ae as _elementsEqual, af as getAngleFromPoint, ag as _isBetween, ah as _readValueToProps, ai as _updateBezierControlPoints, aj as _computeSegments, ak as _boundSegments, al as _steppedInterpolation, am as _bezierInterpolation, an as _pointInLine, ao as _steppedLineTo, ap as _bezierCurveTo, aq as drawPoint, ar as addRoundedRectPath, as as toTRBL, at as toTRBLCorners, au as _boundSegment, av as _normalizeAngle, aw as getRtlAdapter, ax as overrideTextDirection, ay as _textX, az as restoreTextDirection, aA as noop, aB as distanceBetweenPoints, aC as _setMinAndMaxByKey, aD as niceNum, aE as almostWhole, aF as almostEquals, aG as _decimalPlaces, aH as _longestText, aI as _filterBetween, aJ as _lookup } from './chunks/helpers.segment.js';
+import { r as requestAnimFrame, a as resolve, e as effects, c as color, d as defaults, i as isObject, b as isArray, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as isNumberFinite, h as createContext, j as defined, s as sign, k as isNullOrUndef, _ as _arrayUnique, t as toRadians, m as toPercentage, n as toDimension, T as TAU, o as formatNumber, p as _angleBetween, H as HALF_PI, P as PI, q as isNumber, w as _limitValue, x as _lookupByKey, y as getRelativePosition$1, z as _isPointInArea, A as _rlookupByKey, B as getAngleFromPoint, C as toPadding, D as each, E as getMaximumSize, F as _getParentNode, G as readUsedSize, I as throttled, J as supportsEventListenerOptions, K as _isDomSupported, L as log10, M as _factorize, N as finiteOrDefault, O as callback, Q as _addGrace, R as toDegrees, S as _measureText, U as _int16Range, V as _alignPixel, W as clipArea, X as renderText, Y as unclipArea, Z as toFont, $ as _toLeftRightCenter, a0 as _alignStartEnd, a1 as overrides, a2 as merge, a3 as _capitalize, a4 as descriptors, a5 as isFunction, a6 as _attachContext, a7 as _createResolver, a8 as _descriptors, a9 as mergeIf, aa as uid, ab as debounce, ac as retinaScale, ad as clearCanvas, ae as setsEqual, af as _elementsEqual, ag as _isBetween, ah as _readValueToProps, ai as _updateBezierControlPoints, aj as _computeSegments, ak as _boundSegments, al as _steppedInterpolation, am as _bezierInterpolation, an as _pointInLine, ao as _steppedLineTo, ap as _bezierCurveTo, aq as drawPoint, ar as addRoundedRectPath, as as toTRBL, at as toTRBLCorners, au as _boundSegment, av as _normalizeAngle, aw as getRtlAdapter, ax as overrideTextDirection, ay as _textX, az as restoreTextDirection, aA as noop, aB as distanceBetweenPoints, aC as _setMinAndMaxByKey, aD as niceNum, aE as almostWhole, aF as almostEquals, aG as _decimalPlaces, aH as _longestText, aI as _filterBetween, aJ as _lookup } from './chunks/helpers.segment.js';
 export { d as defaults } from './chunks/helpers.segment.js';
 
 class Animator {
@@ -911,6 +911,7 @@ class DatasetController {
     const active = [];
     const start = this._drawStart || 0;
     const count = this._drawCount || (elements.length - start);
+    const drawActiveElementsOnTop = this.options.drawActiveElementsOnTop;
     let i;
     if (meta.dataset) {
       meta.dataset.draw(ctx, area, start, count);
@@ -920,7 +921,7 @@ class DatasetController {
       if (element.hidden) {
         continue;
       }
-      if (element.active) {
+      if (element.active && drawActiveElementsOnTop) {
         active.push(element);
       } else {
         element.draw(ctx, area);
@@ -2526,7 +2527,7 @@ function evaluateAllVisibleItems(chart, handler) {
 function binarySearch(metaset, axis, value, intersect) {
   const {controller, data, _sorted} = metaset;
   const iScale = controller._cachedMeta.iScale;
-  if (iScale && axis === iScale.axis && _sorted && data.length) {
+  if (iScale && axis === iScale.axis && axis !== 'r' && _sorted && data.length) {
     const lookupMethod = iScale._reversePixels ? _rlookupByKey : _lookupByKey;
     if (!intersect) {
       return lookupMethod(data, axis, value);
@@ -2578,19 +2579,30 @@ function getIntersectItems(chart, position, axis, useFinalPosition) {
   optimizedEvaluateItems(chart, axis, position, evaluationFunc, true);
   return items;
 }
-function getNearestItems(chart, position, axis, intersect, useFinalPosition) {
+function getNearestRadialItems(chart, position, axis, useFinalPosition) {
+  let items = [];
+  function evaluationFunc(element, datasetIndex, index) {
+    const {startAngle, endAngle} = element.getProps(['startAngle', 'endAngle'], useFinalPosition);
+    const {angle} = getAngleFromPoint(element, {x: position.x, y: position.y});
+    if (_angleBetween(angle, startAngle, endAngle)) {
+      items.push({element, datasetIndex, index});
+    }
+  }
+  optimizedEvaluateItems(chart, axis, position, evaluationFunc);
+  return items;
+}
+function getNearestCartesianItems(chart, position, axis, intersect, useFinalPosition) {
+  let items = [];
   const distanceMetric = getDistanceMetricForAxis(axis);
   let minDistance = Number.POSITIVE_INFINITY;
-  let items = [];
-  if (!_isPointInArea(position, chart.chartArea, chart._minPadding)) {
-    return items;
-  }
-  const evaluationFunc = function(element, datasetIndex, index) {
-    if (intersect && !element.inRange(position.x, position.y, useFinalPosition)) {
+  function evaluationFunc(element, datasetIndex, index) {
+    const inRange = element.inRange(position.x, position.y, useFinalPosition);
+    if (intersect && !inRange) {
       return;
     }
     const center = element.getCenterPoint(useFinalPosition);
-    if (!_isPointInArea(center, chart.chartArea, chart._minPadding) && !element.inRange(position.x, position.y, useFinalPosition)) {
+    const pointInArea = _isPointInArea(center, chart.chartArea, chart._minPadding);
+    if (!pointInArea && !inRange) {
       return;
     }
     const distance = distanceMetric(position, center);
@@ -2600,9 +2612,17 @@ function getNearestItems(chart, position, axis, intersect, useFinalPosition) {
     } else if (distance === minDistance) {
       items.push({element, datasetIndex, index});
     }
-  };
+  }
   optimizedEvaluateItems(chart, axis, position, evaluationFunc);
   return items;
+}
+function getNearestItems(chart, position, axis, intersect, useFinalPosition) {
+  if (!_isPointInArea(position, chart.chartArea, chart._minPadding)) {
+    return [];
+  }
+  return axis === 'r' && !intersect
+    ? getNearestRadialItems(chart, position, axis, useFinalPosition)
+    : getNearestCartesianItems(chart, position, axis, intersect, useFinalPosition);
 }
 function getAxisItems(chart, e, options, useFinalPosition) {
   const position = getRelativePosition(e, chart);
