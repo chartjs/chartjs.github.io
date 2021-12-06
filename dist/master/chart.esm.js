@@ -8307,7 +8307,7 @@ function createTooltipItem(chart, item) {
   };
 }
 function getTooltipSize(tooltip, options) {
-  const ctx = tooltip._chart.ctx;
+  const ctx = tooltip.chart.ctx;
   const {body, footer, title} = tooltip;
   const {boxWidth, boxHeight} = options;
   const bodyFont = toFont(options.bodyFont);
@@ -8395,9 +8395,9 @@ function determineXAlign(chart, options, size, yAlign) {
   return xAlign;
 }
 function determineAlignment(chart, options, size) {
-  const yAlign = options.yAlign || determineYAlign(chart, size);
+  const yAlign = size.yAlign || options.yAlign || determineYAlign(chart, size);
   return {
-    xAlign: options.xAlign || determineXAlign(chart, options, size, yAlign),
+    xAlign: size.xAlign || options.xAlign || determineXAlign(chart, options, size, yAlign),
     yAlign
   };
 }
@@ -8471,13 +8471,14 @@ class Tooltip extends Element {
     super();
     this.opacity = 0;
     this._active = [];
-    this._chart = config._chart;
     this._eventPosition = undefined;
     this._size = undefined;
     this._cachedAnimations = undefined;
     this._tooltipItems = [];
     this.$animations = undefined;
     this.$context = undefined;
+    this.chart = config.chart || config._chart;
+    this._chart = this.chart;
     this.options = config.options;
     this.dataPoints = undefined;
     this.title = undefined;
@@ -8507,10 +8508,10 @@ class Tooltip extends Element {
     if (cached) {
       return cached;
     }
-    const chart = this._chart;
+    const chart = this.chart;
     const options = this.options.setContext(this.getContext());
     const opts = options.enabled && chart.options.animation && options.animations;
-    const animations = new Animations(this._chart, opts);
+    const animations = new Animations(this.chart, opts);
     if (opts._cacheable) {
       this._cachedAnimations = Object.freeze(animations);
     }
@@ -8518,7 +8519,7 @@ class Tooltip extends Element {
   }
   getContext() {
     return this.$context ||
-			(this.$context = createTooltipContext(this._chart.getContext(), this, this._tooltipItems));
+			(this.$context = createTooltipContext(this.chart.getContext(), this, this._tooltipItems));
   }
   getTitle(context, options) {
     const {callbacks} = options;
@@ -8567,14 +8568,14 @@ class Tooltip extends Element {
   }
   _createItems(options) {
     const active = this._active;
-    const data = this._chart.data;
+    const data = this.chart.data;
     const labelColors = [];
     const labelPointStyles = [];
     const labelTextColors = [];
     let tooltipItems = [];
     let i, len;
     for (i = 0, len = active.length; i < len; ++i) {
-      tooltipItems.push(createTooltipItem(this._chart, active[i]));
+      tooltipItems.push(createTooltipItem(this.chart, active[i]));
     }
     if (options.filter) {
       tooltipItems = tooltipItems.filter((element, index, array) => options.filter(element, index, array, data));
@@ -8615,8 +8616,8 @@ class Tooltip extends Element {
       this.footer = this.getFooter(tooltipItems, options);
       const size = this._size = getTooltipSize(this, options);
       const positionAndSize = Object.assign({}, position, size);
-      const alignment = determineAlignment(this._chart, options, positionAndSize);
-      const backgroundPoint = getBackgroundPoint(options, positionAndSize, alignment, this._chart);
+      const alignment = determineAlignment(this.chart, options, positionAndSize);
+      const backgroundPoint = getBackgroundPoint(options, positionAndSize, alignment, this.chart);
       this.xAlign = alignment.xAlign;
       this.yAlign = alignment.yAlign;
       properties = {
@@ -8635,7 +8636,7 @@ class Tooltip extends Element {
       this._resolveAnimations().update(this, properties);
     }
     if (changed && options.external) {
-      options.external.call(this, {chart: this._chart, tooltip: this, replay});
+      options.external.call(this, {chart: this.chart, tooltip: this, replay});
     }
   }
   drawCaret(tooltipPoint, ctx, size, options) {
@@ -8873,7 +8874,7 @@ class Tooltip extends Element {
     }
   }
   _updateAnimationTarget(options) {
-    const chart = this._chart;
+    const chart = this.chart;
     const anims = this.$animations;
     const animX = anims && anims.x;
     const animY = anims && anims.y;
@@ -8934,7 +8935,7 @@ class Tooltip extends Element {
   setActiveElements(activeElements, eventPosition) {
     const lastActive = this._active;
     const active = activeElements.map(({datasetIndex, index}) => {
-      const meta = this._chart.getDatasetMeta(datasetIndex);
+      const meta = this.chart.getDatasetMeta(datasetIndex);
       if (!meta) {
         throw new Error('Cannot find a dataset at index ' + datasetIndex);
       }
@@ -8958,7 +8959,7 @@ class Tooltip extends Element {
     let changed = false;
     let active = [];
     if (e.type !== 'mouseout') {
-      active = this._chart.getElementsAtEventForMode(e, options.mode, options, replay);
+      active = this.chart.getElementsAtEventForMode(e, options.mode, options, replay);
       if (options.reverse) {
         active.reverse();
       }
@@ -8990,7 +8991,7 @@ var plugin_tooltip = {
   positioners,
   afterInit(chart, _args, options) {
     if (options) {
-      chart.tooltip = new Tooltip({_chart: chart, options});
+      chart.tooltip = new Tooltip({chart, options});
     }
   },
   beforeUpdate(chart, _args, options) {
