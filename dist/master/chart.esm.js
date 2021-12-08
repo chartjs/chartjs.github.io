@@ -4,7 +4,7 @@
  * (c) 2021 Chart.js Contributors
  * Released under the MIT License
  */
-import { r as requestAnimFrame, a as resolve, e as effects, c as color, d as defaults, i as isObject, b as isArray, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as isNumberFinite, h as createContext, j as defined, s as sign, k as isNullOrUndef, _ as _arrayUnique, t as toRadians, m as toPercentage, n as toDimension, T as TAU, o as formatNumber, p as _angleBetween, H as HALF_PI, P as PI, q as isNumber, w as _limitValue, x as _lookupByKey, y as getRelativePosition$1, z as _isPointInArea, A as _rlookupByKey, B as getAngleFromPoint, C as toPadding, D as each, E as getMaximumSize, F as _getParentNode, G as readUsedSize, I as throttled, J as supportsEventListenerOptions, K as _isDomSupported, L as log10, M as _factorize, N as finiteOrDefault, O as callback, Q as _addGrace, R as toDegrees, S as _measureText, U as _int16Range, V as _alignPixel, W as clipArea, X as renderText, Y as unclipArea, Z as toFont, $ as _toLeftRightCenter, a0 as _alignStartEnd, a1 as overrides, a2 as merge, a3 as _capitalize, a4 as descriptors, a5 as isFunction, a6 as _attachContext, a7 as _createResolver, a8 as _descriptors, a9 as mergeIf, aa as uid, ab as debounce, ac as retinaScale, ad as clearCanvas, ae as setsEqual, af as _elementsEqual, ag as _isBetween, ah as _readValueToProps, ai as _updateBezierControlPoints, aj as _computeSegments, ak as _boundSegments, al as _steppedInterpolation, am as _bezierInterpolation, an as _pointInLine, ao as _steppedLineTo, ap as _bezierCurveTo, aq as drawPoint, ar as addRoundedRectPath, as as toTRBL, at as toTRBLCorners, au as _boundSegment, av as _normalizeAngle, aw as getRtlAdapter, ax as overrideTextDirection, ay as _textX, az as restoreTextDirection, aA as noop, aB as distanceBetweenPoints, aC as _setMinAndMaxByKey, aD as niceNum, aE as almostWhole, aF as almostEquals, aG as _decimalPlaces, aH as _longestText, aI as _filterBetween, aJ as _lookup } from './chunks/helpers.segment.js';
+import { r as requestAnimFrame, a as resolve, e as effects, c as color, d as defaults, i as isObject, b as isArray, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as isNumberFinite, h as createContext, j as defined, s as sign, k as isNullOrUndef, _ as _arrayUnique, t as toRadians, m as toPercentage, n as toDimension, T as TAU, o as formatNumber, p as _angleBetween, H as HALF_PI, P as PI, q as isNumber, w as _limitValue, x as _lookupByKey, y as getRelativePosition$1, z as _isPointInArea, A as _rlookupByKey, B as getAngleFromPoint, C as toPadding, D as each, E as getMaximumSize, F as _getParentNode, G as readUsedSize, I as throttled, J as supportsEventListenerOptions, K as _isDomSupported, L as log10, M as _factorize, N as finiteOrDefault, O as callback, Q as _addGrace, R as toDegrees, S as _measureText, U as _int16Range, V as _alignPixel, W as clipArea, X as renderText, Y as unclipArea, Z as toFont, $ as _toLeftRightCenter, a0 as _alignStartEnd, a1 as overrides, a2 as merge, a3 as _capitalize, a4 as descriptors, a5 as isFunction, a6 as _attachContext, a7 as _createResolver, a8 as _descriptors, a9 as mergeIf, aa as uid, ab as debounce, ac as retinaScale, ad as clearCanvas, ae as setsEqual, af as _elementsEqual, ag as _isClickEvent, ah as _isBetween, ai as _readValueToProps, aj as _updateBezierControlPoints, ak as _computeSegments, al as _boundSegments, am as _steppedInterpolation, an as _bezierInterpolation, ao as _pointInLine, ap as _steppedLineTo, aq as _bezierCurveTo, ar as drawPoint, as as addRoundedRectPath, at as toTRBL, au as toTRBLCorners, av as _boundSegment, aw as _normalizeAngle, ax as getRtlAdapter, ay as overrideTextDirection, az as _textX, aA as restoreTextDirection, aB as noop, aC as distanceBetweenPoints, aD as _setMinAndMaxByKey, aE as niceNum, aF as almostWhole, aG as almostEquals, aH as _decimalPlaces, aI as _longestText, aJ as _filterBetween, aK as _lookup } from './chunks/helpers.segment.js';
 export { d as defaults } from './chunks/helpers.segment.js';
 
 class Animator {
@@ -5336,6 +5336,15 @@ function moveNumericKeys(obj, start, move) {
     }
   }
 }
+function determineLastEvent(e, lastEvent, inChartArea, isClick) {
+  if (!inChartArea || e.type === 'mouseout') {
+    return null;
+  }
+  if (isClick) {
+    return lastEvent;
+  }
+  return e;
+}
 class Chart {
   constructor(item, userConfig) {
     const config = this.config = new Config(userConfig);
@@ -6046,12 +6055,17 @@ class Chart {
     }
   }
   _eventHandler(e, replay) {
-    const args = {event: e, replay, cancelable: true};
+    const args = {
+      event: e,
+      replay,
+      cancelable: true,
+      inChartArea: _isPointInArea(e, this.chartArea, this._minPadding)
+    };
     const eventFilter = (plugin) => (plugin.options.events || this.options.events).includes(e.native.type);
     if (this.notifyPlugins('beforeEvent', args, eventFilter) === false) {
       return;
     }
-    const changed = this._handleEvent(e, replay);
+    const changed = this._handleEvent(e, replay, args.inChartArea);
     args.cancelable = false;
     this.notifyPlugins('afterEvent', args, eventFilter);
     if (changed || args.changed) {
@@ -6059,31 +6073,36 @@ class Chart {
     }
     return this;
   }
-  _handleEvent(e, replay) {
+  _handleEvent(e, replay, inChartArea) {
     const {_active: lastActive = [], options} = this;
-    const hoverOptions = options.hover;
     const useFinalPosition = replay;
-    let active = [];
-    let changed = false;
-    let lastEvent = null;
-    if (e.type !== 'mouseout') {
-      active = this.getElementsAtEventForMode(e, hoverOptions.mode, hoverOptions, useFinalPosition);
-      lastEvent = e.type === 'click' ? this._lastEvent : e;
-    }
-    this._lastEvent = null;
-    if (_isPointInArea(e, this.chartArea, this._minPadding)) {
+    const active = this._getActiveElements(e, lastActive, inChartArea, useFinalPosition);
+    const isClick = _isClickEvent(e);
+    const lastEvent = determineLastEvent(e, this._lastEvent, inChartArea, isClick);
+    if (inChartArea) {
+      this._lastEvent = null;
       callback(options.onHover, [e, active, this], this);
-      if (e.type === 'mouseup' || e.type === 'click' || e.type === 'contextmenu') {
+      if (isClick) {
         callback(options.onClick, [e, active, this], this);
       }
     }
-    changed = !_elementsEqual(active, lastActive);
+    const changed = !_elementsEqual(active, lastActive);
     if (changed || replay) {
       this._active = active;
       this._updateHoverStyles(active, lastActive, replay);
     }
     this._lastEvent = lastEvent;
     return changed;
+  }
+  _getActiveElements(e, lastActive, inChartArea, useFinalPosition) {
+    if (e.type === 'mouseout') {
+      return [];
+    }
+    if (!inChartArea) {
+      return lastActive;
+    }
+    const hoverOptions = this.options.hover;
+    return this.getElementsAtEventForMode(e, hoverOptions.mode, hoverOptions, useFinalPosition);
   }
 }
 const invalidatePlugins = () => each(Chart.instances, (chart) => chart._plugins.invalidate());
@@ -8953,19 +8972,12 @@ class Tooltip extends Element {
       this.update(true);
     }
   }
-  handleEvent(e, replay) {
+  handleEvent(e, replay, inChartArea = true) {
     const options = this.options;
     const lastActive = this._active || [];
-    let changed = false;
-    let active = [];
-    if (e.type !== 'mouseout') {
-      active = this.chart.getElementsAtEventForMode(e, options.mode, options, replay);
-      if (options.reverse) {
-        active.reverse();
-      }
-    }
+    const active = this._getActiveElements(e, lastActive, replay, inChartArea);
     const positionChanged = this._positionChanged(active, e);
-    changed = replay || !_elementsEqual(active, lastActive) || positionChanged;
+    const changed = replay || !_elementsEqual(active, lastActive) || positionChanged;
     if (changed) {
       this._active = active;
       if (options.enabled || options.external) {
@@ -8977,6 +8989,20 @@ class Tooltip extends Element {
       }
     }
     return changed;
+  }
+  _getActiveElements(e, lastActive, replay, inChartArea) {
+    const options = this.options;
+    if (e.type === 'mouseout') {
+      return [];
+    }
+    if (!inChartArea) {
+      return lastActive;
+    }
+    const active = this.chart.getElementsAtEventForMode(e, options.mode, options, replay);
+    if (options.reverse) {
+      active.reverse();
+    }
+    return active;
   }
   _positionChanged(active, e) {
     const {caretX, caretY, options} = this;
@@ -9020,7 +9046,7 @@ var plugin_tooltip = {
   afterEvent(chart, args) {
     if (chart.tooltip) {
       const useFinalPosition = args.replay;
-      if (chart.tooltip.handleEvent(args.event, useFinalPosition)) {
+      if (chart.tooltip.handleEvent(args.event, useFinalPosition, args.inChartArea)) {
         args.changed = true;
       }
     }

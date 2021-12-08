@@ -942,6 +942,9 @@ const setsEqual = (a, b) => {
   }
   return true;
 };
+function _isClickEvent(e) {
+  return e.type === 'mouseup' || e.type === 'click' || e.type === 'contextmenu';
+}
 
 const overrides = Object.create(null);
 const descriptors = Object.create(null);
@@ -3177,6 +3180,7 @@ _capitalize: _capitalize,
 defined: defined,
 isFunction: isFunction,
 setsEqual: setsEqual,
+_isClickEvent: _isClickEvent,
 toFontString: toFontString,
 _measureText: _measureText,
 _longestText: _longestText,
@@ -6597,6 +6601,15 @@ function moveNumericKeys(obj, start, move) {
     }
   }
 }
+function determineLastEvent(e, lastEvent, inChartArea, isClick) {
+  if (!inChartArea || e.type === 'mouseout') {
+    return null;
+  }
+  if (isClick) {
+    return lastEvent;
+  }
+  return e;
+}
 class Chart {
   constructor(item, userConfig) {
     const config = this.config = new Config(userConfig);
@@ -7307,12 +7320,17 @@ class Chart {
     }
   }
   _eventHandler(e, replay) {
-    const args = {event: e, replay, cancelable: true};
+    const args = {
+      event: e,
+      replay,
+      cancelable: true,
+      inChartArea: _isPointInArea(e, this.chartArea, this._minPadding)
+    };
     const eventFilter = (plugin) => (plugin.options.events || this.options.events).includes(e.native.type);
     if (this.notifyPlugins('beforeEvent', args, eventFilter) === false) {
       return;
     }
-    const changed = this._handleEvent(e, replay);
+    const changed = this._handleEvent(e, replay, args.inChartArea);
     args.cancelable = false;
     this.notifyPlugins('afterEvent', args, eventFilter);
     if (changed || args.changed) {
@@ -7320,31 +7338,36 @@ class Chart {
     }
     return this;
   }
-  _handleEvent(e, replay) {
+  _handleEvent(e, replay, inChartArea) {
     const {_active: lastActive = [], options} = this;
-    const hoverOptions = options.hover;
     const useFinalPosition = replay;
-    let active = [];
-    let changed = false;
-    let lastEvent = null;
-    if (e.type !== 'mouseout') {
-      active = this.getElementsAtEventForMode(e, hoverOptions.mode, hoverOptions, useFinalPosition);
-      lastEvent = e.type === 'click' ? this._lastEvent : e;
-    }
-    this._lastEvent = null;
-    if (_isPointInArea(e, this.chartArea, this._minPadding)) {
+    const active = this._getActiveElements(e, lastActive, inChartArea, useFinalPosition);
+    const isClick = _isClickEvent(e);
+    const lastEvent = determineLastEvent(e, this._lastEvent, inChartArea, isClick);
+    if (inChartArea) {
+      this._lastEvent = null;
       callback(options.onHover, [e, active, this], this);
-      if (e.type === 'mouseup' || e.type === 'click' || e.type === 'contextmenu') {
+      if (isClick) {
         callback(options.onClick, [e, active, this], this);
       }
     }
-    changed = !_elementsEqual(active, lastActive);
+    const changed = !_elementsEqual(active, lastActive);
     if (changed || replay) {
       this._active = active;
       this._updateHoverStyles(active, lastActive, replay);
     }
     this._lastEvent = lastEvent;
     return changed;
+  }
+  _getActiveElements(e, lastActive, inChartArea, useFinalPosition) {
+    if (e.type === 'mouseout') {
+      return [];
+    }
+    if (!inChartArea) {
+      return lastActive;
+    }
+    const hoverOptions = this.options.hover;
+    return this.getElementsAtEventForMode(e, hoverOptions.mode, hoverOptions, useFinalPosition);
   }
 }
 const invalidatePlugins = () => each(Chart.instances, (chart) => chart._plugins.invalidate());
@@ -11575,19 +11598,12 @@ class Tooltip extends Element {
       this.update(true);
     }
   }
-  handleEvent(e, replay) {
+  handleEvent(e, replay, inChartArea = true) {
     const options = this.options;
     const lastActive = this._active || [];
-    let changed = false;
-    let active = [];
-    if (e.type !== 'mouseout') {
-      active = this.chart.getElementsAtEventForMode(e, options.mode, options, replay);
-      if (options.reverse) {
-        active.reverse();
-      }
-    }
+    const active = this._getActiveElements(e, lastActive, replay, inChartArea);
     const positionChanged = this._positionChanged(active, e);
-    changed = replay || !_elementsEqual(active, lastActive) || positionChanged;
+    const changed = replay || !_elementsEqual(active, lastActive) || positionChanged;
     if (changed) {
       this._active = active;
       if (options.enabled || options.external) {
@@ -11599,6 +11615,20 @@ class Tooltip extends Element {
       }
     }
     return changed;
+  }
+  _getActiveElements(e, lastActive, replay, inChartArea) {
+    const options = this.options;
+    if (e.type === 'mouseout') {
+      return [];
+    }
+    if (!inChartArea) {
+      return lastActive;
+    }
+    const active = this.chart.getElementsAtEventForMode(e, options.mode, options, replay);
+    if (options.reverse) {
+      active.reverse();
+    }
+    return active;
   }
   _positionChanged(active, e) {
     const {caretX, caretY, options} = this;
@@ -11642,7 +11672,7 @@ var plugin_tooltip = {
   afterEvent(chart, args) {
     if (chart.tooltip) {
       const useFinalPosition = args.replay;
-      if (chart.tooltip.handleEvent(args.event, useFinalPosition)) {
+      if (chart.tooltip.handleEvent(args.event, useFinalPosition, args.inChartArea)) {
         args.changed = true;
       }
     }
