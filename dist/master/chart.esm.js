@@ -5636,8 +5636,11 @@ class Chart {
     this._updateDatasets(mode);
     this.notifyPlugins('afterUpdate', {mode});
     this._layers.sort(compare2Level('z', '_idx'));
-    if (this._lastEvent) {
-      this._eventHandler(this._lastEvent, true);
+    const {_active, _lastEvent} = this;
+    if (_lastEvent) {
+      this._eventHandler(_lastEvent, true);
+    } else if (_active.length) {
+      this._updateHoverStyles(_active, _active, true);
     }
     this.render();
   }
@@ -6036,6 +6039,7 @@ class Chart {
     const changed = !_elementsEqual(active, lastActive);
     if (changed) {
       this._active = active;
+      this._lastEvent = null;
       this._updateHoverStyles(active, lastActive);
     }
   }
@@ -8969,10 +8973,15 @@ class Tooltip extends Element {
     if (changed || positionChanged) {
       this._active = active;
       this._eventPosition = eventPosition;
+      this._ignoreReplayEvents = true;
       this.update(true);
     }
   }
   handleEvent(e, replay, inChartArea = true) {
+    if (replay && this._ignoreReplayEvents) {
+      return false;
+    }
+    this._ignoreReplayEvents = false;
     const options = this.options;
     const lastActive = this._active || [];
     const active = this._getActiveElements(e, lastActive, replay, inChartArea);
