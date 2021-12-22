@@ -9737,7 +9737,7 @@ function fitWithPointLabels(scale) {
   const furthestAngles = {};
   const labelSizes = [];
   const padding = [];
-  const valueCount = scale.getLabels().length;
+  const valueCount = scale._pointLabels.length;
   for (let i = 0; i < valueCount; i++) {
     const opts = scale.options.pointLabels.setContext(scale.getPointLabelContext(i));
     padding[i] = opts.padding;
@@ -9771,7 +9771,7 @@ function fitWithPointLabels(scale) {
 }
 function buildPointLabelItems(scale, labelSizes, padding) {
   const items = [];
-  const valueCount = scale.getLabels().length;
+  const valueCount = scale._pointLabels.length;
   const opts = scale.options;
   const tickBackdropHeight = getTickBackdropHeight(opts);
   const outerDistance = scale.getDistanceFromCenterForValue(opts.ticks.reverse ? scale.min : scale.max);
@@ -9915,10 +9915,12 @@ class RadialLinearScale extends LinearScaleBase {
   }
   generateTickLabels(ticks) {
     LinearScaleBase.prototype.generateTickLabels.call(this, ticks);
-    this._pointLabels = this.getLabels().map((value, index) => {
-      const label = callback(this.options.pointLabels.callback, [value, index], this);
-      return label || label === 0 ? label : '';
-    });
+    this._pointLabels = this.getLabels()
+      .map((value, index) => {
+        const label = callback(this.options.pointLabels.callback, [value, index], this);
+        return label || label === 0 ? label : '';
+      })
+      .filter((v, i) => this.chart.getDataVisibility(i));
   }
   fit() {
     const opts = this.options;
@@ -9951,7 +9953,7 @@ class RadialLinearScale extends LinearScaleBase {
     this.yCenter = Math.floor(((maxTop + maxBottom) / 2) + this.top + this.paddingTop);
   }
   getIndexAngle(index) {
-    const angleMultiplier = TAU / this.getLabels().length;
+    const angleMultiplier = TAU / this._pointLabels.length;
     const startAngle = this.options.startAngle || 0;
     return _normalizeAngle(index * angleMultiplier + toRadians(startAngle));
   }
@@ -10008,7 +10010,7 @@ class RadialLinearScale extends LinearScaleBase {
       const ctx = this.ctx;
       ctx.save();
       ctx.beginPath();
-      pathRadiusLine(this, this.getDistanceFromCenterForValue(this._endValue), circular, this.getLabels().length);
+      pathRadiusLine(this, this.getDistanceFromCenterForValue(this._endValue), circular, this._pointLabels.length);
       ctx.closePath();
       ctx.fillStyle = backgroundColor;
       ctx.fill();
@@ -10019,7 +10021,7 @@ class RadialLinearScale extends LinearScaleBase {
     const ctx = this.ctx;
     const opts = this.options;
     const {angleLines, grid} = opts;
-    const labelCount = this.getLabels().length;
+    const labelCount = this._pointLabels.length;
     let i, offset, position;
     if (opts.pointLabels.display) {
       drawPointLabels(this, labelCount);
@@ -10035,7 +10037,7 @@ class RadialLinearScale extends LinearScaleBase {
     }
     if (angleLines.display) {
       ctx.save();
-      for (i = this.getLabels().length - 1; i >= 0; i--) {
+      for (i = labelCount - 1; i >= 0; i--) {
         const optsAtIndex = angleLines.setContext(this.getPointLabelContext(i));
         const {color, lineWidth} = optsAtIndex;
         if (!lineWidth || !color) {
