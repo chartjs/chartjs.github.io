@@ -1,5 +1,5 @@
 /*!
- * Chart.js v3.6.2
+ * Chart.js v3.7.0
  * https://www.chartjs.org
  * (c) 2021 Chart.js Contributors
  * Released under the MIT License
@@ -5283,7 +5283,7 @@ function needContext(proxy, names) {
   return false;
 }
 
-var version = "3.6.2";
+var version = "3.7.0";
 
 const KNOWN_POSITIONS = ['top', 'bottom', 'left', 'right', 'chartArea'];
 function positionIsHorizontal(position, axis) {

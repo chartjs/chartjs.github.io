@@ -1,5 +1,5 @@
 /*!
- * Chart.js v3.6.2
+ * Chart.js v3.7.0
  * https://www.chartjs.org
  * (c) 2021 Chart.js Contributors
  * Released under the MIT License
@@ -8,7 +8,7 @@
 typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
 typeof define === 'function' && define.amd ? define(factory) :
 (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.Chart = factory());
-}(this, (function () { 'use strict';
+})(this, (function () { 'use strict';
 
 function fontString(pixelSize, fontStyle, fontFamily) {
   return fontStyle + ' ' + pixelSize + 'px ' + fontFamily;
@@ -6548,7 +6548,7 @@ function needContext(proxy, names) {
   return false;
 }
 
-var version = "3.6.2";
+var version = "3.7.0";
 
 const KNOWN_POSITIONS = ['top', 'bottom', 'left', 'right', 'chartArea'];
 function positionIsHorizontal(position, axis) {
@@ -13247,4 +13247,4 @@ if (typeof window !== 'undefined') {
 
 return Chart;
 
-})));
+}));
