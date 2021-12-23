@@ -12579,7 +12579,7 @@ class RadialLinearScale extends LinearScaleBase {
     this.yCenter = Math.floor(((maxTop + maxBottom) / 2) + this.top + this.paddingTop);
   }
   getIndexAngle(index) {
-    const angleMultiplier = TAU / this._pointLabels.length;
+    const angleMultiplier = TAU / (this._pointLabels.length || 1);
     const startAngle = this.options.startAngle || 0;
     return _normalizeAngle(index * angleMultiplier + toRadians(startAngle));
   }
