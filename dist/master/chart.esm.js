@@ -1,7 +1,7 @@
 /*!
  * Chart.js v3.7.0
  * https://www.chartjs.org
- * (c) 2021 Chart.js Contributors
+ * (c) 2022 Chart.js Contributors
  * Released under the MIT License
  */
 import { r as requestAnimFrame, a as resolve, e as effects, c as color, d as defaults, i as isObject, b as isArray, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as isNumberFinite, h as createContext, j as defined, s as sign, k as isNullOrUndef, _ as _arrayUnique, t as toRadians, m as toPercentage, n as toDimension, T as TAU, o as formatNumber, p as _angleBetween, H as HALF_PI, P as PI, q as isNumber, w as _limitValue, x as _lookupByKey, y as getRelativePosition$1, z as _isPointInArea, A as _rlookupByKey, B as getAngleFromPoint, C as toPadding, D as each, E as getMaximumSize, F as _getParentNode, G as readUsedSize, I as throttled, J as supportsEventListenerOptions, K as _isDomSupported, L as log10, M as _factorize, N as finiteOrDefault, O as callback, Q as _addGrace, R as toDegrees, S as _measureText, U as _int16Range, V as _alignPixel, W as clipArea, X as renderText, Y as unclipArea, Z as toFont, $ as _toLeftRightCenter, a0 as _alignStartEnd, a1 as overrides, a2 as merge, a3 as _capitalize, a4 as descriptors, a5 as isFunction, a6 as _attachContext, a7 as _createResolver, a8 as _descriptors, a9 as mergeIf, aa as uid, ab as debounce, ac as retinaScale, ad as clearCanvas, ae as setsEqual, af as _elementsEqual, ag as _isClickEvent, ah as _isBetween, ai as _readValueToProps, aj as _updateBezierControlPoints, ak as _computeSegments, al as _boundSegments, am as _steppedInterpolation, an as _bezierInterpolation, ao as _pointInLine, ap as _steppedLineTo, aq as _bezierCurveTo, ar as drawPoint, as as addRoundedRectPath, at as toTRBL, au as toTRBLCorners, av as _boundSegment, aw as _normalizeAngle, ax as getRtlAdapter, ay as overrideTextDirection, az as _textX, aA as restoreTextDirection, aB as noop, aC as distanceBetweenPoints, aD as _setMinAndMaxByKey, aE as niceNum, aF as almostWhole, aG as almostEquals, aH as _decimalPlaces, aI as _longestText, aJ as _filterBetween, aK as _lookup } from './chunks/helpers.segment.js';
@@ -7383,9 +7383,28 @@ function resolveTarget(sources, index, propagate) {
   return false;
 }
 function _clip(ctx, target, clipY) {
+  const {segments, points} = target;
+  let first = true;
+  let lineLoop = false;
   ctx.beginPath();
-  target.path(ctx);
-  ctx.lineTo(target.last().x, clipY);
+  for (const segment of segments) {
+    const {start, end} = segment;
+    const firstPoint = points[start];
+    const lastPoint = points[findSegmentEnd(start, end, points)];
+    if (first) {
+      ctx.moveTo(firstPoint.x, firstPoint.y);
+      first = false;
+    } else {
+      ctx.lineTo(firstPoint.x, clipY);
+      ctx.lineTo(firstPoint.x, firstPoint.y);
+    }
+    lineLoop = !!target.pathSegment(ctx, segment, {move: lineLoop});
+    if (lineLoop) {
+      ctx.closePath();
+    } else {
+      ctx.lineTo(lastPoint.x, clipY);
+    }
+  }
   ctx.lineTo(target.first().x, clipY);
   ctx.closePath();
   ctx.clip();

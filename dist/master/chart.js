@@ -1,7 +1,7 @@
 /*!
  * Chart.js v3.7.0
  * https://www.chartjs.org
- * (c) 2021 Chart.js Contributors
+ * (c) 2022 Chart.js Contributors
  * Released under the MIT License
  */
 (function (global, factory) {
@@ -10009,9 +10009,28 @@ function resolveTarget(sources, index, propagate) {
   return false;
 }
 function _clip(ctx, target, clipY) {
+  const {segments, points} = target;
+  let first = true;
+  let lineLoop = false;
   ctx.beginPath();
-  target.path(ctx);
-  ctx.lineTo(target.last().x, clipY);
+  for (const segment of segments) {
+    const {start, end} = segment;
+    const firstPoint = points[start];
+    const lastPoint = points[findSegmentEnd(start, end, points)];
+    if (first) {
+      ctx.moveTo(firstPoint.x, firstPoint.y);
+      first = false;
+    } else {
+      ctx.lineTo(firstPoint.x, clipY);
+      ctx.lineTo(firstPoint.x, firstPoint.y);
+    }
+    lineLoop = !!target.pathSegment(ctx, segment, {move: lineLoop});
+    if (lineLoop) {
+      ctx.closePath();
+    } else {
+      ctx.lineTo(lastPoint.x, clipY);
+    }
+  }
   ctx.lineTo(target.first().x, clipY);
   ctx.closePath();
   ctx.clip();
