@@ -2573,6 +2573,20 @@ function resolveKeysFromAllScopes(scopes) {
   }
   return Array.from(set);
 }
+function _parseObjectDataRadialScale(meta, data, start, count) {
+  const {iScale} = meta;
+  const {key = 'r'} = this._parsing;
+  const parsed = new Array(count);
+  let i, ilen, index, item;
+  for (i = 0, ilen = count; i < ilen; ++i) {
+    index = i + start;
+    item = data[index];
+    parsed[i] = {
+      r: iScale.parse(resolveObjectKey(item, key), index)
+    };
+  }
+  return parsed;
+}
 
 const EPSILON = Number.EPSILON || 1e-14;
 const getPoint = (points, i) => i < points.length && !points[i].skip && points[i];
@@ -3204,6 +3218,7 @@ _arrayUnique: _arrayUnique,
 _createResolver: _createResolver,
 _attachContext: _attachContext,
 _descriptors: _descriptors,
+_parseObjectDataRadialScale: _parseObjectDataRadialScale,
 splineCurve: splineCurve,
 splineCurveMonotone: splineCurveMonotone,
 _updateBezierControlPoints: _updateBezierControlPoints,
@@ -8513,6 +8528,9 @@ class PolarAreaController extends DatasetController {
       value,
     };
   }
+  parseObjectData(meta, data, start, count) {
+    return _parseObjectDataRadialScale.bind(this)(meta, data, start, count);
+  }
   update(mode) {
     const arcs = this._cachedMeta.data;
     this._updateRadius();
@@ -8532,7 +8550,6 @@ class PolarAreaController extends DatasetController {
   updateElements(arcs, start, count, mode) {
     const reset = mode === 'reset';
     const chart = this.chart;
-    const dataset = this.getDataset();
     const opts = chart.options;
     const animationOpts = opts.animation;
     const scale = this._cachedMeta.rScale;
@@ -8549,7 +8566,7 @@ class PolarAreaController extends DatasetController {
       const arc = arcs[i];
       let startAngle = angle;
       let endAngle = angle + this._computeAngle(i, mode, defaultAngle);
-      let outerRadius = chart.getDataVisibility(i) ? scale.getDistanceFromCenterForValue(dataset.data[i]) : 0;
+      let outerRadius = chart.getDataVisibility(i) ? scale.getDistanceFromCenterForValue(this.getParsed(i).r) : 0;
       angle = endAngle;
       if (reset) {
         if (animationOpts.animateScale) {
@@ -8572,11 +8589,10 @@ class PolarAreaController extends DatasetController {
     }
   }
   countVisibleElements() {
-    const dataset = this.getDataset();
     const meta = this._cachedMeta;
     let count = 0;
     meta.data.forEach((element, index) => {
-      if (!isNaN(dataset.data[index]) && this.chart.getDataVisibility(index)) {
+      if (!isNaN(this.getParsed(index).r) && this.chart.getDataVisibility(index)) {
         count++;
       }
     });
@@ -8683,6 +8699,9 @@ class RadarController extends DatasetController {
       value: '' + vScale.getLabelForValue(parsed[vScale.axis])
     };
   }
+  parseObjectData(meta, data, start, count) {
+    return _parseObjectDataRadialScale.bind(this)(meta, data, start, count);
+  }
   update(mode) {
     const meta = this._cachedMeta;
     const line = meta.dataset;
@@ -8704,13 +8723,12 @@ class RadarController extends DatasetController {
     this.updateElements(points, 0, points.length, mode);
   }
   updateElements(points, start, count, mode) {
-    const dataset = this.getDataset();
     const scale = this._cachedMeta.rScale;
     const reset = mode === 'reset';
     for (let i = start; i < start + count; i++) {
       const point = points[i];
       const options = this.resolveDataElementOptions(i, point.active ? 'active' : mode);
-      const pointPosition = scale.getPointPositionForValue(i, dataset.data[i]);
+      const pointPosition = scale.getPointPositionForValue(i, this.getParsed(i).r);
       const x = reset ? scale.xCenter : pointPosition.x;
       const y = reset ? scale.yCenter : pointPosition.y;
       const properties = {

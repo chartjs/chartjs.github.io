@@ -4,7 +4,7 @@
  * (c) 2022 Chart.js Contributors
  * Released under the MIT License
  */
-import { r as requestAnimFrame, a as resolve, e as effects, c as color, d as defaults, i as isObject, b as isArray, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as isNumberFinite, h as createContext, j as defined, s as sign, k as isNullOrUndef, _ as _arrayUnique, t as toRadians, m as toPercentage, n as toDimension, T as TAU, o as formatNumber, p as _angleBetween, H as HALF_PI, P as PI, q as isNumber, w as _limitValue, x as _lookupByKey, y as getRelativePosition$1, z as _isPointInArea, A as _rlookupByKey, B as getAngleFromPoint, C as toPadding, D as each, E as getMaximumSize, F as _getParentNode, G as readUsedSize, I as throttled, J as supportsEventListenerOptions, K as _isDomSupported, L as log10, M as _factorize, N as finiteOrDefault, O as callback, Q as _addGrace, R as toDegrees, S as _measureText, U as _int16Range, V as _alignPixel, W as clipArea, X as renderText, Y as unclipArea, Z as toFont, $ as _toLeftRightCenter, a0 as _alignStartEnd, a1 as overrides, a2 as merge, a3 as _capitalize, a4 as descriptors, a5 as isFunction, a6 as _attachContext, a7 as _createResolver, a8 as _descriptors, a9 as mergeIf, aa as uid, ab as debounce, ac as retinaScale, ad as clearCanvas, ae as setsEqual, af as _elementsEqual, ag as _isClickEvent, ah as _isBetween, ai as _readValueToProps, aj as _updateBezierControlPoints, ak as _computeSegments, al as _boundSegments, am as _steppedInterpolation, an as _bezierInterpolation, ao as _pointInLine, ap as _steppedLineTo, aq as _bezierCurveTo, ar as drawPoint, as as addRoundedRectPath, at as toTRBL, au as toTRBLCorners, av as _boundSegment, aw as _normalizeAngle, ax as getRtlAdapter, ay as overrideTextDirection, az as _textX, aA as restoreTextDirection, aB as noop, aC as distanceBetweenPoints, aD as _setMinAndMaxByKey, aE as niceNum, aF as almostWhole, aG as almostEquals, aH as _decimalPlaces, aI as _longestText, aJ as _filterBetween, aK as _lookup } from './chunks/helpers.segment.js';
+import { r as requestAnimFrame, a as resolve, e as effects, c as color, d as defaults, i as isObject, b as isArray, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as isNumberFinite, h as createContext, j as defined, s as sign, k as isNullOrUndef, _ as _arrayUnique, t as toRadians, m as toPercentage, n as toDimension, T as TAU, o as formatNumber, p as _angleBetween, H as HALF_PI, P as PI, q as isNumber, w as _limitValue, x as _lookupByKey, y as _parseObjectDataRadialScale, z as getRelativePosition$1, A as _isPointInArea, B as _rlookupByKey, C as getAngleFromPoint, D as toPadding, E as each, F as getMaximumSize, G as _getParentNode, I as readUsedSize, J as throttled, K as supportsEventListenerOptions, L as _isDomSupported, M as log10, N as _factorize, O as finiteOrDefault, Q as callback, R as _addGrace, S as toDegrees, U as _measureText, V as _int16Range, W as _alignPixel, X as clipArea, Y as renderText, Z as unclipArea, $ as toFont, a0 as _toLeftRightCenter, a1 as _alignStartEnd, a2 as overrides, a3 as merge, a4 as _capitalize, a5 as descriptors, a6 as isFunction, a7 as _attachContext, a8 as _createResolver, a9 as _descriptors, aa as mergeIf, ab as uid, ac as debounce, ad as retinaScale, ae as clearCanvas, af as setsEqual, ag as _elementsEqual, ah as _isClickEvent, ai as _isBetween, aj as _readValueToProps, ak as _updateBezierControlPoints, al as _computeSegments, am as _boundSegments, an as _steppedInterpolation, ao as _bezierInterpolation, ap as _pointInLine, aq as _steppedLineTo, ar as _bezierCurveTo, as as drawPoint, at as addRoundedRectPath, au as toTRBL, av as toTRBLCorners, aw as _boundSegment, ax as _normalizeAngle, ay as getRtlAdapter, az as overrideTextDirection, aA as _textX, aB as restoreTextDirection, aC as noop, aD as distanceBetweenPoints, aE as _setMinAndMaxByKey, aF as niceNum, aG as almostWhole, aH as almostEquals, aI as _decimalPlaces, aJ as _longestText, aK as _filterBetween, aL as _lookup } from './chunks/helpers.segment.js';
 export { d as defaults } from './chunks/helpers.segment.js';
 
 class Animator {
@@ -2189,6 +2189,9 @@ class PolarAreaController extends DatasetController {
       value,
     };
   }
+  parseObjectData(meta, data, start, count) {
+    return _parseObjectDataRadialScale.bind(this)(meta, data, start, count);
+  }
   update(mode) {
     const arcs = this._cachedMeta.data;
     this._updateRadius();
@@ -2208,7 +2211,6 @@ class PolarAreaController extends DatasetController {
   updateElements(arcs, start, count, mode) {
     const reset = mode === 'reset';
     const chart = this.chart;
-    const dataset = this.getDataset();
     const opts = chart.options;
     const animationOpts = opts.animation;
     const scale = this._cachedMeta.rScale;
@@ -2225,7 +2227,7 @@ class PolarAreaController extends DatasetController {
       const arc = arcs[i];
       let startAngle = angle;
       let endAngle = angle + this._computeAngle(i, mode, defaultAngle);
-      let outerRadius = chart.getDataVisibility(i) ? scale.getDistanceFromCenterForValue(dataset.data[i]) : 0;
+      let outerRadius = chart.getDataVisibility(i) ? scale.getDistanceFromCenterForValue(this.getParsed(i).r) : 0;
       angle = endAngle;
       if (reset) {
         if (animationOpts.animateScale) {
@@ -2248,11 +2250,10 @@ class PolarAreaController extends DatasetController {
     }
   }
   countVisibleElements() {
-    const dataset = this.getDataset();
     const meta = this._cachedMeta;
     let count = 0;
     meta.data.forEach((element, index) => {
-      if (!isNaN(dataset.data[index]) && this.chart.getDataVisibility(index)) {
+      if (!isNaN(this.getParsed(index).r) && this.chart.getDataVisibility(index)) {
         count++;
       }
     });
@@ -2359,6 +2360,9 @@ class RadarController extends DatasetController {
       value: '' + vScale.getLabelForValue(parsed[vScale.axis])
     };
   }
+  parseObjectData(meta, data, start, count) {
+    return _parseObjectDataRadialScale.bind(this)(meta, data, start, count);
+  }
   update(mode) {
     const meta = this._cachedMeta;
     const line = meta.dataset;
@@ -2380,13 +2384,12 @@ class RadarController extends DatasetController {
     this.updateElements(points, 0, points.length, mode);
   }
   updateElements(points, start, count, mode) {
-    const dataset = this.getDataset();
     const scale = this._cachedMeta.rScale;
     const reset = mode === 'reset';
     for (let i = start; i < start + count; i++) {
       const point = points[i];
       const options = this.resolveDataElementOptions(i, point.active ? 'active' : mode);
-      const pointPosition = scale.getPointPositionForValue(i, dataset.data[i]);
+      const pointPosition = scale.getPointPositionForValue(i, this.getParsed(i).r);
       const x = reset ? scale.xCenter : pointPosition.x;
       const y = reset ? scale.yCenter : pointPosition.y;
       const properties = {
