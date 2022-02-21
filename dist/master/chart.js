@@ -4050,6 +4050,7 @@ class DatasetController {
     this._drawStart = undefined;
     this._drawCount = undefined;
     this.enableOptionSharing = false;
+    this.supportsDecimation = false;
     this.$context = undefined;
     this._syncList = [];
     this.initialize();
@@ -8374,6 +8375,7 @@ DoughnutController.overrides = {
 class LineController extends DatasetController {
   initialize() {
     this.enableOptionSharing = true;
+    this.supportsDecimation = true;
     super.initialize();
   }
   update(mode) {
@@ -9722,7 +9724,7 @@ var plugin_decimation = {
       if (resolve([indexAxis, chart.options.indexAxis]) === 'y') {
         return;
       }
-      if (meta.type !== 'line') {
+      if (!meta.controller.supportsDecimation) {
         return;
       }
       const xAxis = chart.scales[meta.xAxisID];
