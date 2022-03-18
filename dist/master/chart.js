@@ -9857,6 +9857,23 @@ function _getEdge(a, b, prop, fn) {
   return a ? a[prop] : b ? b[prop] : 0;
 }
 
+function _createBoundaryLine(boundary, line) {
+  let points = [];
+  let _loop = false;
+  if (isArray(boundary)) {
+    _loop = true;
+    points = boundary;
+  } else {
+    points = _pointsFromSegments(boundary, line);
+  }
+  return points.length ? new LineElement({
+    points,
+    options: {tension: 0},
+    _loop,
+    _fullLoop: _loop
+  }) : null;
+}
+
 function _resolveTarget(sources, index, propagate) {
   const source = sources[index];
   let fill = source.fill;
@@ -10053,22 +10070,6 @@ function _getTarget(source) {
     return boundary;
   }
   return _createBoundaryLine(boundary, line);
-}
-function _createBoundaryLine(boundary, line) {
-  let points = [];
-  let _loop = false;
-  if (isArray(boundary)) {
-    _loop = true;
-    points = boundary;
-  } else {
-    points = _pointsFromSegments(boundary, line);
-  }
-  return points.length ? new LineElement({
-    points,
-    options: {tension: 0},
-    _loop,
-    _fullLoop: _loop
-  }) : null;
 }
 function getLineByIndex(chart, index) {
   const meta = chart.getDatasetMeta(index);
