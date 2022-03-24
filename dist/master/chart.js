@@ -1059,6 +1059,99 @@ var defaults = new Defaults({
   }
 });
 
+function _lookup(table, value, cmp) {
+  cmp = cmp || ((index) => table[index] < value);
+  let hi = table.length - 1;
+  let lo = 0;
+  let mid;
+  while (hi - lo > 1) {
+    mid = (lo + hi) >> 1;
+    if (cmp(mid)) {
+      lo = mid;
+    } else {
+      hi = mid;
+    }
+  }
+  return {lo, hi};
+}
+const _lookupByKey = (table, key, value) =>
+  _lookup(table, value, index => table[index][key] < value);
+const _rlookupByKey = (table, key, value) =>
+  _lookup(table, value, index => table[index][key] >= value);
+function _filterBetween(values, min, max) {
+  let start = 0;
+  let end = values.length;
+  while (start < end && values[start] < min) {
+    start++;
+  }
+  while (end > start && values[end - 1] > max) {
+    end--;
+  }
+  return start > 0 || end < values.length
+    ? values.slice(start, end)
+    : values;
+}
+const arrayEvents = ['push', 'pop', 'shift', 'splice', 'unshift'];
+function listenArrayEvents(array, listener) {
+  if (array._chartjs) {
+    array._chartjs.listeners.push(listener);
+    return;
+  }
+  Object.defineProperty(array, '_chartjs', {
+    configurable: true,
+    enumerable: false,
+    value: {
+      listeners: [listener]
+    }
+  });
+  arrayEvents.forEach((key) => {
+    const method = '_onData' + _capitalize(key);
+    const base = array[key];
+    Object.defineProperty(array, key, {
+      configurable: true,
+      enumerable: false,
+      value(...args) {
+        const res = base.apply(this, args);
+        array._chartjs.listeners.forEach((object) => {
+          if (typeof object[method] === 'function') {
+            object[method](...args);
+          }
+        });
+        return res;
+      }
+    });
+  });
+}
+function unlistenArrayEvents(array, listener) {
+  const stub = array._chartjs;
+  if (!stub) {
+    return;
+  }
+  const listeners = stub.listeners;
+  const index = listeners.indexOf(listener);
+  if (index !== -1) {
+    listeners.splice(index, 1);
+  }
+  if (listeners.length > 0) {
+    return;
+  }
+  arrayEvents.forEach((key) => {
+    delete array[key];
+  });
+  delete array._chartjs;
+}
+function _arrayUnique(items) {
+  const set = new Set();
+  let i, ilen;
+  for (i = 0, ilen = items.length; i < ilen; ++i) {
+    set.add(items[i]);
+  }
+  if (set.size === ilen) {
+    return items;
+  }
+  return Array.from(set);
+}
+
 const PI = Math.PI;
 const TAU = 2 * PI;
 const PITAU = TAU + PI;
@@ -1173,6 +1266,352 @@ function _int16Range(value) {
 function _isBetween(value, start, end, epsilon = 1e-6) {
   return value >= Math.min(start, end) - epsilon && value <= Math.max(start, end) + epsilon;
 }
+
+function _isDomSupported() {
+  return typeof window !== 'undefined' && typeof document !== 'undefined';
+}
+function _getParentNode(domNode) {
+  let parent = domNode.parentNode;
+  if (parent && parent.toString() === '[object ShadowRoot]') {
+    parent = parent.host;
+  }
+  return parent;
+}
+function parseMaxStyle(styleValue, node, parentProperty) {
+  let valueInPixels;
+  if (typeof styleValue === 'string') {
+    valueInPixels = parseInt(styleValue, 10);
+    if (styleValue.indexOf('%') !== -1) {
+      valueInPixels = valueInPixels / 100 * node.parentNode[parentProperty];
+    }
+  } else {
+    valueInPixels = styleValue;
+  }
+  return valueInPixels;
+}
+const getComputedStyle = (element) => window.getComputedStyle(element, null);
+function getStyle(el, property) {
+  return getComputedStyle(el).getPropertyValue(property);
+}
+const positions = ['top', 'right', 'bottom', 'left'];
+function getPositionedStyle(styles, style, suffix) {
+  const result = {};
+  suffix = suffix ? '-' + suffix : '';
+  for (let i = 0; i < 4; i++) {
+    const pos = positions[i];
+    result[pos] = parseFloat(styles[style + '-' + pos + suffix]) || 0;
+  }
+  result.width = result.left + result.right;
+  result.height = result.top + result.bottom;
+  return result;
+}
+const useOffsetPos = (x, y, target) => (x > 0 || y > 0) && (!target || !target.shadowRoot);
+function getCanvasPosition(e, canvas) {
+  const touches = e.touches;
+  const source = touches && touches.length ? touches[0] : e;
+  const {offsetX, offsetY} = source;
+  let box = false;
+  let x, y;
+  if (useOffsetPos(offsetX, offsetY, e.target)) {
+    x = offsetX;
+    y = offsetY;
+  } else {
+    const rect = canvas.getBoundingClientRect();
+    x = source.clientX - rect.left;
+    y = source.clientY - rect.top;
+    box = true;
+  }
+  return {x, y, box};
+}
+function getRelativePosition(evt, chart) {
+  if ('native' in evt) {
+    return evt;
+  }
+  const {canvas, currentDevicePixelRatio} = chart;
+  const style = getComputedStyle(canvas);
+  const borderBox = style.boxSizing === 'border-box';
+  const paddings = getPositionedStyle(style, 'padding');
+  const borders = getPositionedStyle(style, 'border', 'width');
+  const {x, y, box} = getCanvasPosition(evt, canvas);
+  const xOffset = paddings.left + (box && borders.left);
+  const yOffset = paddings.top + (box && borders.top);
+  let {width, height} = chart;
+  if (borderBox) {
+    width -= paddings.width + borders.width;
+    height -= paddings.height + borders.height;
+  }
+  return {
+    x: Math.round((x - xOffset) / width * canvas.width / currentDevicePixelRatio),
+    y: Math.round((y - yOffset) / height * canvas.height / currentDevicePixelRatio)
+  };
+}
+function getContainerSize(canvas, width, height) {
+  let maxWidth, maxHeight;
+  if (width === undefined || height === undefined) {
+    const container = _getParentNode(canvas);
+    if (!container) {
+      width = canvas.clientWidth;
+      height = canvas.clientHeight;
+    } else {
+      const rect = container.getBoundingClientRect();
+      const containerStyle = getComputedStyle(container);
+      const containerBorder = getPositionedStyle(containerStyle, 'border', 'width');
+      const containerPadding = getPositionedStyle(containerStyle, 'padding');
+      width = rect.width - containerPadding.width - containerBorder.width;
+      height = rect.height - containerPadding.height - containerBorder.height;
+      maxWidth = parseMaxStyle(containerStyle.maxWidth, container, 'clientWidth');
+      maxHeight = parseMaxStyle(containerStyle.maxHeight, container, 'clientHeight');
+    }
+  }
+  return {
+    width,
+    height,
+    maxWidth: maxWidth || INFINITY,
+    maxHeight: maxHeight || INFINITY
+  };
+}
+const round1 = v => Math.round(v * 10) / 10;
+function getMaximumSize(canvas, bbWidth, bbHeight, aspectRatio) {
+  const style = getComputedStyle(canvas);
+  const margins = getPositionedStyle(style, 'margin');
+  const maxWidth = parseMaxStyle(style.maxWidth, canvas, 'clientWidth') || INFINITY;
+  const maxHeight = parseMaxStyle(style.maxHeight, canvas, 'clientHeight') || INFINITY;
+  const containerSize = getContainerSize(canvas, bbWidth, bbHeight);
+  let {width, height} = containerSize;
+  if (style.boxSizing === 'content-box') {
+    const borders = getPositionedStyle(style, 'border', 'width');
+    const paddings = getPositionedStyle(style, 'padding');
+    width -= paddings.width + borders.width;
+    height -= paddings.height + borders.height;
+  }
+  width = Math.max(0, width - margins.width);
+  height = Math.max(0, aspectRatio ? Math.floor(width / aspectRatio) : height - margins.height);
+  width = round1(Math.min(width, maxWidth, containerSize.maxWidth));
+  height = round1(Math.min(height, maxHeight, containerSize.maxHeight));
+  if (width && !height) {
+    height = round1(width / 2);
+  }
+  return {
+    width,
+    height
+  };
+}
+function retinaScale(chart, forceRatio, forceStyle) {
+  const pixelRatio = forceRatio || 1;
+  const deviceHeight = Math.floor(chart.height * pixelRatio);
+  const deviceWidth = Math.floor(chart.width * pixelRatio);
+  chart.height = deviceHeight / pixelRatio;
+  chart.width = deviceWidth / pixelRatio;
+  const canvas = chart.canvas;
+  if (canvas.style && (forceStyle || (!canvas.style.height && !canvas.style.width))) {
+    canvas.style.height = `${chart.height}px`;
+    canvas.style.width = `${chart.width}px`;
+  }
+  if (chart.currentDevicePixelRatio !== pixelRatio
+      || canvas.height !== deviceHeight
+      || canvas.width !== deviceWidth) {
+    chart.currentDevicePixelRatio = pixelRatio;
+    canvas.height = deviceHeight;
+    canvas.width = deviceWidth;
+    chart.ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+    return true;
+  }
+  return false;
+}
+const supportsEventListenerOptions = (function() {
+  let passiveSupported = false;
+  try {
+    const options = {
+      get passive() {
+        passiveSupported = true;
+        return false;
+      }
+    };
+    window.addEventListener('test', null, options);
+    window.removeEventListener('test', null, options);
+  } catch (e) {
+  }
+  return passiveSupported;
+}());
+function readUsedSize(element, property) {
+  const value = getStyle(element, property);
+  const matches = value && value.match(/^(\d+)(\.\d+)?px$/);
+  return matches ? +matches[1] : undefined;
+}
+
+function binarySearch(metaset, axis, value, intersect) {
+  const {controller, data, _sorted} = metaset;
+  const iScale = controller._cachedMeta.iScale;
+  if (iScale && axis === iScale.axis && axis !== 'r' && _sorted && data.length) {
+    const lookupMethod = iScale._reversePixels ? _rlookupByKey : _lookupByKey;
+    if (!intersect) {
+      return lookupMethod(data, axis, value);
+    } else if (controller._sharedOptions) {
+      const el = data[0];
+      const range = typeof el.getRange === 'function' && el.getRange(axis);
+      if (range) {
+        const start = lookupMethod(data, axis, value - range);
+        const end = lookupMethod(data, axis, value + range);
+        return {lo: start.lo, hi: end.hi};
+      }
+    }
+  }
+  return {lo: 0, hi: data.length - 1};
+}
+function evaluateInteractionItems(chart, axis, position, handler, intersect) {
+  const metasets = chart.getSortedVisibleDatasetMetas();
+  const value = position[axis];
+  for (let i = 0, ilen = metasets.length; i < ilen; ++i) {
+    const {index, data} = metasets[i];
+    const {lo, hi} = binarySearch(metasets[i], axis, value, intersect);
+    for (let j = lo; j <= hi; ++j) {
+      const element = data[j];
+      if (!element.skip) {
+        handler(element, index, j);
+      }
+    }
+  }
+}
+function getDistanceMetricForAxis(axis) {
+  const useX = axis.indexOf('x') !== -1;
+  const useY = axis.indexOf('y') !== -1;
+  return function(pt1, pt2) {
+    const deltaX = useX ? Math.abs(pt1.x - pt2.x) : 0;
+    const deltaY = useY ? Math.abs(pt1.y - pt2.y) : 0;
+    return Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
+  };
+}
+function getIntersectItems(chart, position, axis, useFinalPosition) {
+  const items = [];
+  if (!chart.isPointInArea(position)) {
+    return items;
+  }
+  const evaluationFunc = function(element, datasetIndex, index) {
+    if (element.inRange(position.x, position.y, useFinalPosition)) {
+      items.push({element, datasetIndex, index});
+    }
+  };
+  evaluateInteractionItems(chart, axis, position, evaluationFunc, true);
+  return items;
+}
+function getNearestRadialItems(chart, position, axis, useFinalPosition) {
+  let items = [];
+  function evaluationFunc(element, datasetIndex, index) {
+    const {startAngle, endAngle} = element.getProps(['startAngle', 'endAngle'], useFinalPosition);
+    const {angle} = getAngleFromPoint(element, {x: position.x, y: position.y});
+    if (_angleBetween(angle, startAngle, endAngle)) {
+      items.push({element, datasetIndex, index});
+    }
+  }
+  evaluateInteractionItems(chart, axis, position, evaluationFunc);
+  return items;
+}
+function getNearestCartesianItems(chart, position, axis, intersect, useFinalPosition) {
+  let items = [];
+  const distanceMetric = getDistanceMetricForAxis(axis);
+  let minDistance = Number.POSITIVE_INFINITY;
+  function evaluationFunc(element, datasetIndex, index) {
+    const inRange = element.inRange(position.x, position.y, useFinalPosition);
+    if (intersect && !inRange) {
+      return;
+    }
+    const center = element.getCenterPoint(useFinalPosition);
+    const pointInArea = chart.isPointInArea(center);
+    if (!pointInArea && !inRange) {
+      return;
+    }
+    const distance = distanceMetric(position, center);
+    if (distance < minDistance) {
+      items = [{element, datasetIndex, index}];
+      minDistance = distance;
+    } else if (distance === minDistance) {
+      items.push({element, datasetIndex, index});
+    }
+  }
+  evaluateInteractionItems(chart, axis, position, evaluationFunc);
+  return items;
+}
+function getNearestItems(chart, position, axis, intersect, useFinalPosition) {
+  if (!chart.isPointInArea(position)) {
+    return [];
+  }
+  return axis === 'r' && !intersect
+    ? getNearestRadialItems(chart, position, axis, useFinalPosition)
+    : getNearestCartesianItems(chart, position, axis, intersect, useFinalPosition);
+}
+function getAxisItems(chart, position, axis, intersect, useFinalPosition) {
+  const items = [];
+  const rangeMethod = axis === 'x' ? 'inXRange' : 'inYRange';
+  let intersectsItem = false;
+  evaluateInteractionItems(chart, axis, position, (element, datasetIndex, index) => {
+    if (element[rangeMethod](position[axis], useFinalPosition)) {
+      items.push({element, datasetIndex, index});
+      intersectsItem = intersectsItem || element.inRange(position.x, position.y, useFinalPosition);
+    }
+  });
+  if (intersect && !intersectsItem) {
+    return [];
+  }
+  return items;
+}
+var Interaction = {
+  evaluateInteractionItems,
+  modes: {
+    index(chart, e, options, useFinalPosition) {
+      const position = getRelativePosition(e, chart);
+      const axis = options.axis || 'x';
+      const items = options.intersect
+        ? getIntersectItems(chart, position, axis, useFinalPosition)
+        : getNearestItems(chart, position, axis, false, useFinalPosition);
+      const elements = [];
+      if (!items.length) {
+        return [];
+      }
+      chart.getSortedVisibleDatasetMetas().forEach((meta) => {
+        const index = items[0].index;
+        const element = meta.data[index];
+        if (element && !element.skip) {
+          elements.push({element, datasetIndex: meta.index, index});
+        }
+      });
+      return elements;
+    },
+    dataset(chart, e, options, useFinalPosition) {
+      const position = getRelativePosition(e, chart);
+      const axis = options.axis || 'xy';
+      let items = options.intersect
+        ? getIntersectItems(chart, position, axis, useFinalPosition) :
+        getNearestItems(chart, position, axis, false, useFinalPosition);
+      if (items.length > 0) {
+        const datasetIndex = items[0].datasetIndex;
+        const data = chart.getDatasetMeta(datasetIndex).data;
+        items = [];
+        for (let i = 0; i < data.length; ++i) {
+          items.push({element: data[i], datasetIndex, index: i});
+        }
+      }
+      return items;
+    },
+    point(chart, e, options, useFinalPosition) {
+      const position = getRelativePosition(e, chart);
+      const axis = options.axis || 'xy';
+      return getIntersectItems(chart, position, axis, useFinalPosition);
+    },
+    nearest(chart, e, options, useFinalPosition) {
+      const position = getRelativePosition(e, chart);
+      const axis = options.axis || 'xy';
+      return getNearestItems(chart, position, axis, options.intersect, useFinalPosition);
+    },
+    x(chart, e, options, useFinalPosition) {
+      const position = getRelativePosition(e, chart);
+      return getAxisItems(chart, position, 'x', options.intersect, useFinalPosition);
+    },
+    y(chart, e, options, useFinalPosition) {
+      const position = getRelativePosition(e, chart);
+      return getAxisItems(chart, position, 'y', options.intersect, useFinalPosition);
+    }
+  }
+};
 
 function toFontString(font) {
   if (!font || isNullOrUndef(font.size) || isNullOrUndef(font.family)) {
@@ -1454,466 +1893,6 @@ function addRoundedRectPath(ctx, rect) {
   ctx.arc(x + w - radius.topRight, y + radius.topRight, radius.topRight, 0, -HALF_PI, true);
   ctx.lineTo(x + radius.topLeft, y);
 }
-
-function _lookup(table, value, cmp) {
-  cmp = cmp || ((index) => table[index] < value);
-  let hi = table.length - 1;
-  let lo = 0;
-  let mid;
-  while (hi - lo > 1) {
-    mid = (lo + hi) >> 1;
-    if (cmp(mid)) {
-      lo = mid;
-    } else {
-      hi = mid;
-    }
-  }
-  return {lo, hi};
-}
-const _lookupByKey = (table, key, value) =>
-  _lookup(table, value, index => table[index][key] < value);
-const _rlookupByKey = (table, key, value) =>
-  _lookup(table, value, index => table[index][key] >= value);
-function _filterBetween(values, min, max) {
-  let start = 0;
-  let end = values.length;
-  while (start < end && values[start] < min) {
-    start++;
-  }
-  while (end > start && values[end - 1] > max) {
-    end--;
-  }
-  return start > 0 || end < values.length
-    ? values.slice(start, end)
-    : values;
-}
-const arrayEvents = ['push', 'pop', 'shift', 'splice', 'unshift'];
-function listenArrayEvents(array, listener) {
-  if (array._chartjs) {
-    array._chartjs.listeners.push(listener);
-    return;
-  }
-  Object.defineProperty(array, '_chartjs', {
-    configurable: true,
-    enumerable: false,
-    value: {
-      listeners: [listener]
-    }
-  });
-  arrayEvents.forEach((key) => {
-    const method = '_onData' + _capitalize(key);
-    const base = array[key];
-    Object.defineProperty(array, key, {
-      configurable: true,
-      enumerable: false,
-      value(...args) {
-        const res = base.apply(this, args);
-        array._chartjs.listeners.forEach((object) => {
-          if (typeof object[method] === 'function') {
-            object[method](...args);
-          }
-        });
-        return res;
-      }
-    });
-  });
-}
-function unlistenArrayEvents(array, listener) {
-  const stub = array._chartjs;
-  if (!stub) {
-    return;
-  }
-  const listeners = stub.listeners;
-  const index = listeners.indexOf(listener);
-  if (index !== -1) {
-    listeners.splice(index, 1);
-  }
-  if (listeners.length > 0) {
-    return;
-  }
-  arrayEvents.forEach((key) => {
-    delete array[key];
-  });
-  delete array._chartjs;
-}
-function _arrayUnique(items) {
-  const set = new Set();
-  let i, ilen;
-  for (i = 0, ilen = items.length; i < ilen; ++i) {
-    set.add(items[i]);
-  }
-  if (set.size === ilen) {
-    return items;
-  }
-  return Array.from(set);
-}
-
-function _isDomSupported() {
-  return typeof window !== 'undefined' && typeof document !== 'undefined';
-}
-function _getParentNode(domNode) {
-  let parent = domNode.parentNode;
-  if (parent && parent.toString() === '[object ShadowRoot]') {
-    parent = parent.host;
-  }
-  return parent;
-}
-function parseMaxStyle(styleValue, node, parentProperty) {
-  let valueInPixels;
-  if (typeof styleValue === 'string') {
-    valueInPixels = parseInt(styleValue, 10);
-    if (styleValue.indexOf('%') !== -1) {
-      valueInPixels = valueInPixels / 100 * node.parentNode[parentProperty];
-    }
-  } else {
-    valueInPixels = styleValue;
-  }
-  return valueInPixels;
-}
-const getComputedStyle = (element) => window.getComputedStyle(element, null);
-function getStyle(el, property) {
-  return getComputedStyle(el).getPropertyValue(property);
-}
-const positions = ['top', 'right', 'bottom', 'left'];
-function getPositionedStyle(styles, style, suffix) {
-  const result = {};
-  suffix = suffix ? '-' + suffix : '';
-  for (let i = 0; i < 4; i++) {
-    const pos = positions[i];
-    result[pos] = parseFloat(styles[style + '-' + pos + suffix]) || 0;
-  }
-  result.width = result.left + result.right;
-  result.height = result.top + result.bottom;
-  return result;
-}
-const useOffsetPos = (x, y, target) => (x > 0 || y > 0) && (!target || !target.shadowRoot);
-function getCanvasPosition(evt, canvas) {
-  const e = evt.native || evt;
-  const touches = e.touches;
-  const source = touches && touches.length ? touches[0] : e;
-  const {offsetX, offsetY} = source;
-  let box = false;
-  let x, y;
-  if (useOffsetPos(offsetX, offsetY, e.target)) {
-    x = offsetX;
-    y = offsetY;
-  } else {
-    const rect = canvas.getBoundingClientRect();
-    x = source.clientX - rect.left;
-    y = source.clientY - rect.top;
-    box = true;
-  }
-  return {x, y, box};
-}
-function getRelativePosition$1(evt, chart) {
-  const {canvas, currentDevicePixelRatio} = chart;
-  const style = getComputedStyle(canvas);
-  const borderBox = style.boxSizing === 'border-box';
-  const paddings = getPositionedStyle(style, 'padding');
-  const borders = getPositionedStyle(style, 'border', 'width');
-  const {x, y, box} = getCanvasPosition(evt, canvas);
-  const xOffset = paddings.left + (box && borders.left);
-  const yOffset = paddings.top + (box && borders.top);
-  let {width, height} = chart;
-  if (borderBox) {
-    width -= paddings.width + borders.width;
-    height -= paddings.height + borders.height;
-  }
-  return {
-    x: Math.round((x - xOffset) / width * canvas.width / currentDevicePixelRatio),
-    y: Math.round((y - yOffset) / height * canvas.height / currentDevicePixelRatio)
-  };
-}
-function getContainerSize(canvas, width, height) {
-  let maxWidth, maxHeight;
-  if (width === undefined || height === undefined) {
-    const container = _getParentNode(canvas);
-    if (!container) {
-      width = canvas.clientWidth;
-      height = canvas.clientHeight;
-    } else {
-      const rect = container.getBoundingClientRect();
-      const containerStyle = getComputedStyle(container);
-      const containerBorder = getPositionedStyle(containerStyle, 'border', 'width');
-      const containerPadding = getPositionedStyle(containerStyle, 'padding');
-      width = rect.width - containerPadding.width - containerBorder.width;
-      height = rect.height - containerPadding.height - containerBorder.height;
-      maxWidth = parseMaxStyle(containerStyle.maxWidth, container, 'clientWidth');
-      maxHeight = parseMaxStyle(containerStyle.maxHeight, container, 'clientHeight');
-    }
-  }
-  return {
-    width,
-    height,
-    maxWidth: maxWidth || INFINITY,
-    maxHeight: maxHeight || INFINITY
-  };
-}
-const round1 = v => Math.round(v * 10) / 10;
-function getMaximumSize(canvas, bbWidth, bbHeight, aspectRatio) {
-  const style = getComputedStyle(canvas);
-  const margins = getPositionedStyle(style, 'margin');
-  const maxWidth = parseMaxStyle(style.maxWidth, canvas, 'clientWidth') || INFINITY;
-  const maxHeight = parseMaxStyle(style.maxHeight, canvas, 'clientHeight') || INFINITY;
-  const containerSize = getContainerSize(canvas, bbWidth, bbHeight);
-  let {width, height} = containerSize;
-  if (style.boxSizing === 'content-box') {
-    const borders = getPositionedStyle(style, 'border', 'width');
-    const paddings = getPositionedStyle(style, 'padding');
-    width -= paddings.width + borders.width;
-    height -= paddings.height + borders.height;
-  }
-  width = Math.max(0, width - margins.width);
-  height = Math.max(0, aspectRatio ? Math.floor(width / aspectRatio) : height - margins.height);
-  width = round1(Math.min(width, maxWidth, containerSize.maxWidth));
-  height = round1(Math.min(height, maxHeight, containerSize.maxHeight));
-  if (width && !height) {
-    height = round1(width / 2);
-  }
-  return {
-    width,
-    height
-  };
-}
-function retinaScale(chart, forceRatio, forceStyle) {
-  const pixelRatio = forceRatio || 1;
-  const deviceHeight = Math.floor(chart.height * pixelRatio);
-  const deviceWidth = Math.floor(chart.width * pixelRatio);
-  chart.height = deviceHeight / pixelRatio;
-  chart.width = deviceWidth / pixelRatio;
-  const canvas = chart.canvas;
-  if (canvas.style && (forceStyle || (!canvas.style.height && !canvas.style.width))) {
-    canvas.style.height = `${chart.height}px`;
-    canvas.style.width = `${chart.width}px`;
-  }
-  if (chart.currentDevicePixelRatio !== pixelRatio
-      || canvas.height !== deviceHeight
-      || canvas.width !== deviceWidth) {
-    chart.currentDevicePixelRatio = pixelRatio;
-    canvas.height = deviceHeight;
-    canvas.width = deviceWidth;
-    chart.ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
-    return true;
-  }
-  return false;
-}
-const supportsEventListenerOptions = (function() {
-  let passiveSupported = false;
-  try {
-    const options = {
-      get passive() {
-        passiveSupported = true;
-        return false;
-      }
-    };
-    window.addEventListener('test', null, options);
-    window.removeEventListener('test', null, options);
-  } catch (e) {
-  }
-  return passiveSupported;
-}());
-function readUsedSize(element, property) {
-  const value = getStyle(element, property);
-  const matches = value && value.match(/^(\d+)(\.\d+)?px$/);
-  return matches ? +matches[1] : undefined;
-}
-
-function getRelativePosition(e, chart) {
-  if ('native' in e) {
-    return {
-      x: e.x,
-      y: e.y
-    };
-  }
-  return getRelativePosition$1(e, chart);
-}
-function evaluateAllVisibleItems(chart, handler) {
-  const metasets = chart.getSortedVisibleDatasetMetas();
-  let index, data, element;
-  for (let i = 0, ilen = metasets.length; i < ilen; ++i) {
-    ({index, data} = metasets[i]);
-    for (let j = 0, jlen = data.length; j < jlen; ++j) {
-      element = data[j];
-      if (!element.skip) {
-        handler(element, index, j);
-      }
-    }
-  }
-}
-function binarySearch(metaset, axis, value, intersect) {
-  const {controller, data, _sorted} = metaset;
-  const iScale = controller._cachedMeta.iScale;
-  if (iScale && axis === iScale.axis && axis !== 'r' && _sorted && data.length) {
-    const lookupMethod = iScale._reversePixels ? _rlookupByKey : _lookupByKey;
-    if (!intersect) {
-      return lookupMethod(data, axis, value);
-    } else if (controller._sharedOptions) {
-      const el = data[0];
-      const range = typeof el.getRange === 'function' && el.getRange(axis);
-      if (range) {
-        const start = lookupMethod(data, axis, value - range);
-        const end = lookupMethod(data, axis, value + range);
-        return {lo: start.lo, hi: end.hi};
-      }
-    }
-  }
-  return {lo: 0, hi: data.length - 1};
-}
-function optimizedEvaluateItems(chart, axis, position, handler, intersect) {
-  const metasets = chart.getSortedVisibleDatasetMetas();
-  const value = position[axis];
-  for (let i = 0, ilen = metasets.length; i < ilen; ++i) {
-    const {index, data} = metasets[i];
-    const {lo, hi} = binarySearch(metasets[i], axis, value, intersect);
-    for (let j = lo; j <= hi; ++j) {
-      const element = data[j];
-      if (!element.skip) {
-        handler(element, index, j);
-      }
-    }
-  }
-}
-function getDistanceMetricForAxis(axis) {
-  const useX = axis.indexOf('x') !== -1;
-  const useY = axis.indexOf('y') !== -1;
-  return function(pt1, pt2) {
-    const deltaX = useX ? Math.abs(pt1.x - pt2.x) : 0;
-    const deltaY = useY ? Math.abs(pt1.y - pt2.y) : 0;
-    return Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
-  };
-}
-function getIntersectItems(chart, position, axis, useFinalPosition) {
-  const items = [];
-  if (!_isPointInArea(position, chart.chartArea, chart._minPadding)) {
-    return items;
-  }
-  const evaluationFunc = function(element, datasetIndex, index) {
-    if (element.inRange(position.x, position.y, useFinalPosition)) {
-      items.push({element, datasetIndex, index});
-    }
-  };
-  optimizedEvaluateItems(chart, axis, position, evaluationFunc, true);
-  return items;
-}
-function getNearestRadialItems(chart, position, axis, useFinalPosition) {
-  let items = [];
-  function evaluationFunc(element, datasetIndex, index) {
-    const {startAngle, endAngle} = element.getProps(['startAngle', 'endAngle'], useFinalPosition);
-    const {angle} = getAngleFromPoint(element, {x: position.x, y: position.y});
-    if (_angleBetween(angle, startAngle, endAngle)) {
-      items.push({element, datasetIndex, index});
-    }
-  }
-  optimizedEvaluateItems(chart, axis, position, evaluationFunc);
-  return items;
-}
-function getNearestCartesianItems(chart, position, axis, intersect, useFinalPosition) {
-  let items = [];
-  const distanceMetric = getDistanceMetricForAxis(axis);
-  let minDistance = Number.POSITIVE_INFINITY;
-  function evaluationFunc(element, datasetIndex, index) {
-    const inRange = element.inRange(position.x, position.y, useFinalPosition);
-    if (intersect && !inRange) {
-      return;
-    }
-    const center = element.getCenterPoint(useFinalPosition);
-    const pointInArea = _isPointInArea(center, chart.chartArea, chart._minPadding);
-    if (!pointInArea && !inRange) {
-      return;
-    }
-    const distance = distanceMetric(position, center);
-    if (distance < minDistance) {
-      items = [{element, datasetIndex, index}];
-      minDistance = distance;
-    } else if (distance === minDistance) {
-      items.push({element, datasetIndex, index});
-    }
-  }
-  optimizedEvaluateItems(chart, axis, position, evaluationFunc);
-  return items;
-}
-function getNearestItems(chart, position, axis, intersect, useFinalPosition) {
-  if (!_isPointInArea(position, chart.chartArea, chart._minPadding)) {
-    return [];
-  }
-  return axis === 'r' && !intersect
-    ? getNearestRadialItems(chart, position, axis, useFinalPosition)
-    : getNearestCartesianItems(chart, position, axis, intersect, useFinalPosition);
-}
-function getAxisItems(chart, e, options, useFinalPosition) {
-  const position = getRelativePosition(e, chart);
-  const items = [];
-  const axis = options.axis;
-  const rangeMethod = axis === 'x' ? 'inXRange' : 'inYRange';
-  let intersectsItem = false;
-  evaluateAllVisibleItems(chart, (element, datasetIndex, index) => {
-    if (element[rangeMethod](position[axis], useFinalPosition)) {
-      items.push({element, datasetIndex, index});
-    }
-    if (element.inRange(position.x, position.y, useFinalPosition)) {
-      intersectsItem = true;
-    }
-  });
-  if (options.intersect && !intersectsItem) {
-    return [];
-  }
-  return items;
-}
-var Interaction = {
-  modes: {
-    index(chart, e, options, useFinalPosition) {
-      const position = getRelativePosition(e, chart);
-      const axis = options.axis || 'x';
-      const items = options.intersect
-        ? getIntersectItems(chart, position, axis, useFinalPosition)
-        : getNearestItems(chart, position, axis, false, useFinalPosition);
-      const elements = [];
-      if (!items.length) {
-        return [];
-      }
-      chart.getSortedVisibleDatasetMetas().forEach((meta) => {
-        const index = items[0].index;
-        const element = meta.data[index];
-        if (element && !element.skip) {
-          elements.push({element, datasetIndex: meta.index, index});
-        }
-      });
-      return elements;
-    },
-    dataset(chart, e, options, useFinalPosition) {
-      const position = getRelativePosition(e, chart);
-      const axis = options.axis || 'xy';
-      let items = options.intersect
-        ? getIntersectItems(chart, position, axis, useFinalPosition) :
-        getNearestItems(chart, position, axis, false, useFinalPosition);
-      if (items.length > 0) {
-        const datasetIndex = items[0].datasetIndex;
-        const data = chart.getDatasetMeta(datasetIndex).data;
-        items = [];
-        for (let i = 0; i < data.length; ++i) {
-          items.push({element: data[i], datasetIndex, index: i});
-        }
-      }
-      return items;
-    },
-    point(chart, e, options, useFinalPosition) {
-      const position = getRelativePosition(e, chart);
-      const axis = options.axis || 'xy';
-      return getIntersectItems(chart, position, axis, useFinalPosition);
-    },
-    nearest(chart, e, options, useFinalPosition) {
-      const position = getRelativePosition(e, chart);
-      const axis = options.axis || 'xy';
-      return getNearestItems(chart, position, axis, options.intersect, useFinalPosition);
-    },
-    x(chart, e, options, useFinalPosition) {
-      return getAxisItems(chart, e, {axis: 'x', intersect: options.intersect}, useFinalPosition);
-    },
-    y(chart, e, options, useFinalPosition) {
-      return getAxisItems(chart, e, {axis: 'y', intersect: options.intersect}, useFinalPosition);
-    }
-  }
-};
 
 const LINE_HEIGHT = new RegExp(/^(normal|(\d+(?:\.\d+)?)(px|em|%)?)$/);
 const FONT_STYLE = new RegExp(/^(normal|italic|initial|inherit|unset|(oblique( -?[0-9]?[0-9]deg)?))$/);
@@ -3225,7 +3204,7 @@ _updateBezierControlPoints: _updateBezierControlPoints,
 _isDomSupported: _isDomSupported,
 _getParentNode: _getParentNode,
 getStyle: getStyle,
-getRelativePosition: getRelativePosition$1,
+getRelativePosition: getRelativePosition,
 getMaximumSize: getMaximumSize,
 retinaScale: retinaScale,
 supportsEventListenerOptions: supportsEventListenerOptions,
@@ -3376,7 +3355,7 @@ function removeListener(chart, type, listener) {
 }
 function fromNativeEvent(event, chart) {
   const type = EVENT_TYPES[event.type] || event.type;
-  const {x, y} = getRelativePosition$1(event, chart);
+  const {x, y} = getRelativePosition(event, chart);
   return {
     type,
     chart,
@@ -7117,6 +7096,9 @@ class Chart {
     args.cancelable = false;
     this.notifyPlugins('afterDatasetDraw', args);
   }
+  isPointInArea(point) {
+    return _isPointInArea(point, this.chartArea, this._minPadding);
+  }
   getElementsAtEventForMode(e, mode, options, useFinalPosition) {
     const method = Interaction.modes[mode];
     if (typeof method === 'function') {
@@ -7356,7 +7338,7 @@ class Chart {
       event: e,
       replay,
       cancelable: true,
-      inChartArea: _isPointInArea(e, this.chartArea, this._minPadding)
+      inChartArea: this.isPointInArea(e)
     };
     const eventFilter = (plugin) => (plugin.options.events || this.options.events).includes(e.native.type);
     if (this.notifyPlugins('beforeEvent', args, eventFilter) === false) {
