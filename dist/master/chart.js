@@ -5080,6 +5080,7 @@ class Scale extends Element {
     if (tickOpts.display && (tickOpts.autoSkip || tickOpts.source === 'auto')) {
       this.ticks = autoSkip(this, this.ticks);
       this._labelSizes = null;
+      this.afterAutoSkip();
     }
     if (samplingEnabled) {
       this._convertTicksToLabels(this.ticks);
@@ -5200,6 +5201,7 @@ class Scale extends Element {
   afterCalculateLabelRotation() {
     callback(this.options.afterCalculateLabelRotation, [this]);
   }
+  afterAutoSkip() {}
   beforeFit() {
     callback(this.options.beforeFit, [this]);
   }
@@ -13017,6 +13019,11 @@ class TimeScale extends Scale {
       ticks.reverse();
     }
     return ticksFromTimestamps(this, ticks, this._majorUnit);
+  }
+  afterAutoSkip() {
+    if (this.options.offsetAfterAutoskip) {
+      this.initOffsets(this.ticks.map(tick => +tick.value));
+    }
   }
   initOffsets(timestamps) {
     let start = 0;
