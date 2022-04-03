@@ -11601,6 +11601,9 @@ class Tooltip extends Element {
       }
     }
   }
+  _willRender() {
+    return !!this.opacity;
+  }
   draw(ctx) {
     const options = this.options.setContext(this.getContext());
     let opacity = this.opacity;
@@ -11721,16 +11724,16 @@ var plugin_tooltip = {
   },
   afterDraw(chart) {
     const tooltip = chart.tooltip;
-    const args = {
-      tooltip
-    };
-    if (chart.notifyPlugins('beforeTooltipDraw', args) === false) {
-      return;
-    }
-    if (tooltip) {
+    if (tooltip && tooltip._willRender()) {
+      const args = {
+        tooltip
+      };
+      if (chart.notifyPlugins('beforeTooltipDraw', args) === false) {
+        return;
+      }
       tooltip.draw(chart.ctx);
+      chart.notifyPlugins('afterTooltipDraw', args);
     }
-    chart.notifyPlugins('afterTooltipDraw', args);
   },
   afterEvent(chart, args) {
     if (chart.tooltip) {
