@@ -7994,7 +7994,7 @@ class Legend extends Element {
       return;
     }
     const hoveredItem = this._getLegendItemAt(e.x, e.y);
-    if (e.type === 'mousemove') {
+    if (e.type === 'mousemove' || e.type === 'mouseout') {
       const previous = this._hoveredItem;
       const sameItem = itemsEqual(previous, hoveredItem);
       if (previous && !sameItem) {
@@ -8010,7 +8010,7 @@ class Legend extends Element {
   }
 }
 function isListened(type, opts) {
-  if (type === 'mousemove' && (opts.onHover || opts.onLeave)) {
+  if ((type === 'mousemove' || type === 'mouseout') && (opts.onHover || opts.onLeave)) {
     return true;
   }
   if (opts.onClick && (type === 'click' || type === 'mouseup')) {
