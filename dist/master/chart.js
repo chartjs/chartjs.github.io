@@ -8408,7 +8408,7 @@ class LineController extends DatasetController {
       const iPixel = properties[iAxis] = iScale.getPixelForValue(parsed[iAxis], i);
       const vPixel = properties[vAxis] = reset || nullData ? vScale.getBasePixel() : vScale.getPixelForValue(_stacked ? this.applyStack(vScale, parsed, _stacked) : parsed[vAxis], i);
       properties.skip = isNaN(iPixel) || isNaN(vPixel) || nullData;
-      properties.stop = i > 0 && (parsed[iAxis] - prevParsed[iAxis]) > maxGapLength;
+      properties.stop = i > 0 && (Math.abs(parsed[iAxis] - prevParsed[iAxis])) > maxGapLength;
       if (segment) {
         properties.parsed = parsed;
         properties.raw = _dataset.data[i];
