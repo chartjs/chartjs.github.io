@@ -747,7 +747,13 @@ function index_esm(input) {
 	return new Color(input);
 }
 
-const isPatternOrGradient = (value) => value instanceof CanvasGradient || value instanceof CanvasPattern;
+function isPatternOrGradient(value) {
+  if (value && typeof value === 'object') {
+    const type = value.toString();
+    return type === '[object CanvasPattern]' || type === '[object CanvasGradient]';
+  }
+  return false;
+}
 function color(value) {
   return isPatternOrGradient(value) ? value : index_esm(value);
 }
@@ -3147,6 +3153,7 @@ function styleChanged(style, prevStyle) {
 var helpers = /*#__PURE__*/Object.freeze({
 __proto__: null,
 easingEffects: effects,
+isPatternOrGradient: isPatternOrGradient,
 color: color,
 getHoverColor: getHoverColor,
 noop: noop,
