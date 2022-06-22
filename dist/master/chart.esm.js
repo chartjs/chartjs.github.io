@@ -7237,6 +7237,9 @@ function _createBoundaryLine(boundary, line) {
     _fullLoop: _loop
   }) : null;
 }
+function _shouldApplyFill(source) {
+  return source && source.fill !== false;
+}
 
 function _resolveTarget(sources, index, propagate) {
   const source = sources[index];
@@ -7621,7 +7624,7 @@ var index = {
         continue;
       }
       source.line.updateControlPoints(area, source.axis);
-      if (draw) {
+      if (draw && source.fill) {
         _drawfill(chart.ctx, source, area);
       }
     }
@@ -7633,14 +7636,14 @@ var index = {
     const metasets = chart.getSortedVisibleDatasetMetas();
     for (let i = metasets.length - 1; i >= 0; --i) {
       const source = metasets[i].$filler;
-      if (source) {
+      if (_shouldApplyFill(source)) {
         _drawfill(chart.ctx, source, chart.chartArea);
       }
     }
   },
   beforeDatasetDraw(chart, args, options) {
     const source = args.meta.$filler;
-    if (!source || source.fill === false || options.drawTime !== 'beforeDatasetDraw') {
+    if (!_shouldApplyFill(source) || options.drawTime !== 'beforeDatasetDraw') {
       return;
     }
     _drawfill(chart.ctx, source, chart.chartArea);
