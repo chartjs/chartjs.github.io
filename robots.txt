@@ -1,0 +1,8 @@
+# This robots.txt file discourages search engines from indexing
+# all versions of documentation pages except for the "latest". 
+# See https://github.com/chartjs/Chart.js/issues/9519 for details
+
+User-agent: *
+Allow: /
+Allow: /docs/latest/
+Disallow: /docs/*/
