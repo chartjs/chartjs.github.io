@@ -1538,7 +1538,10 @@ function clearCanvas(canvas, ctx) {
   ctx.restore();
 }
 function drawPoint(ctx, options, x, y) {
-  let type, xOffset, yOffset, size, cornerRadius;
+  drawPointLegend(ctx, options, x, y, null);
+}
+function drawPointLegend(ctx, options, x, y, w) {
+  let type, xOffset, yOffset, size, cornerRadius, width;
   const style = options.pointStyle;
   const rotation = options.rotation;
   const radius = options.radius;
@@ -1560,7 +1563,11 @@ function drawPoint(ctx, options, x, y) {
   ctx.beginPath();
   switch (style) {
   default:
-    ctx.arc(x, y, radius, 0, TAU);
+    if (w) {
+      ctx.ellipse(x, y, w / 2, radius, 0, 0, TAU);
+    } else {
+      ctx.arc(x, y, radius, 0, TAU);
+    }
     ctx.closePath();
     break;
   case 'triangle':
@@ -1585,7 +1592,8 @@ function drawPoint(ctx, options, x, y) {
   case 'rect':
     if (!rotation) {
       size = Math.SQRT1_2 * radius;
-      ctx.rect(x - size, y - size, 2 * size, 2 * size);
+      width = w ? w / 2 : size;
+      ctx.rect(x - width, y - size, 2 * width, 2 * size);
       break;
     }
     rad += QUARTER_PI;
@@ -1624,7 +1632,7 @@ function drawPoint(ctx, options, x, y) {
     ctx.lineTo(x - yOffset, y + xOffset);
     break;
   case 'line':
-    xOffset = Math.cos(rad) * radius;
+    xOffset = w ? w / 2 : Math.cos(rad) * radius;
     yOffset = Math.sin(rad) * radius;
     ctx.moveTo(x - xOffset, y - yOffset);
     ctx.lineTo(x + xOffset, y + yOffset);
@@ -2725,6 +2733,7 @@ _longestText: _longestText,
 _alignPixel: _alignPixel,
 clearCanvas: clearCanvas,
 drawPoint: drawPoint,
+drawPointLegend: drawPointLegend,
 _isPointInArea: _isPointInArea,
 clipArea: clipArea,
 unclipArea: unclipArea,
@@ -10323,7 +10332,7 @@ const getBoxSize = (labelOpts, fontSize) => {
   let {boxHeight = fontSize, boxWidth = fontSize} = labelOpts;
   if (labelOpts.usePointStyle) {
     boxHeight = Math.min(boxHeight, fontSize);
-    boxWidth = Math.min(boxWidth, fontSize);
+    boxWidth = labelOpts.pointStyleWidth || Math.min(boxWidth, fontSize);
   }
   return {
     boxWidth,
@@ -10540,14 +10549,14 @@ class Legend extends Element {
       ctx.setLineDash(valueOrDefault(legendItem.lineDash, []));
       if (labelOpts.usePointStyle) {
         const drawOptions = {
-          radius: boxWidth * Math.SQRT2 / 2,
+          radius: boxHeight * Math.SQRT2 / 2,
           pointStyle: legendItem.pointStyle,
           rotation: legendItem.rotation,
           borderWidth: lineWidth
         };
         const centerX = rtlHelper.xPlus(x, boxWidth / 2);
         const centerY = y + halfFontSize;
-        drawPoint(ctx, drawOptions, centerX, centerY);
+        drawPointLegend(ctx, drawOptions, centerX, centerY, boxWidth);
       } else {
         const yBoxTop = y + Math.max((fontSize - boxHeight) / 2, 0);
         const xBoxLeft = rtlHelper.leftForLtr(x, boxWidth);

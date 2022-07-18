@@ -4,7 +4,7 @@
  * (c) 2022 Chart.js Contributors
  * Released under the MIT License
  */
-import { r as requestAnimFrame, a as resolve, e as effects, c as color, d as defaults, i as isObject, b as isArray, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as isNumberFinite, h as createContext, j as defined, s as sign, k as isNullOrUndef, _ as _arrayUnique, t as toRadians, m as toPercentage, n as toDimension, T as TAU, o as formatNumber, p as _angleBetween, H as HALF_PI, P as PI, q as isNumber, w as _limitValue, x as _lookupByKey, y as _parseObjectDataRadialScale, z as getRelativePosition, A as _rlookupByKey, B as _isPointInArea, C as getAngleFromPoint, D as toPadding, E as each, F as getMaximumSize, G as _getParentNode, I as readUsedSize, J as throttled, K as supportsEventListenerOptions, L as _isDomSupported, M as log10, N as _factorize, O as finiteOrDefault, Q as callback, R as _addGrace, S as toDegrees, U as _measureText, V as _int16Range, W as _alignPixel, X as clipArea, Y as renderText, Z as unclipArea, $ as toFont, a0 as _toLeftRightCenter, a1 as _alignStartEnd, a2 as overrides, a3 as merge, a4 as _capitalize, a5 as descriptors, a6 as isFunction, a7 as _attachContext, a8 as _createResolver, a9 as _descriptors, aa as mergeIf, ab as uid, ac as debounce, ad as retinaScale, ae as clearCanvas, af as setsEqual, ag as _elementsEqual, ah as _isClickEvent, ai as _isBetween, aj as _readValueToProps, ak as _updateBezierControlPoints, al as _computeSegments, am as _boundSegments, an as _steppedInterpolation, ao as _bezierInterpolation, ap as _pointInLine, aq as _steppedLineTo, ar as _bezierCurveTo, as as drawPoint, at as addRoundedRectPath, au as toTRBL, av as toTRBLCorners, aw as _boundSegment, ax as _normalizeAngle, ay as getRtlAdapter, az as overrideTextDirection, aA as _textX, aB as restoreTextDirection, aC as noop, aD as distanceBetweenPoints, aE as _setMinAndMaxByKey, aF as niceNum, aG as almostWhole, aH as almostEquals, aI as _decimalPlaces, aJ as _longestText, aK as _filterBetween, aL as _lookup } from './chunks/helpers.segment.js';
+import { r as requestAnimFrame, a as resolve, e as effects, c as color, d as defaults, i as isObject, b as isArray, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as isNumberFinite, h as createContext, j as defined, s as sign, k as isNullOrUndef, _ as _arrayUnique, t as toRadians, m as toPercentage, n as toDimension, T as TAU, o as formatNumber, p as _angleBetween, H as HALF_PI, P as PI, q as isNumber, w as _limitValue, x as _lookupByKey, y as _parseObjectDataRadialScale, z as getRelativePosition, A as _rlookupByKey, B as _isPointInArea, C as getAngleFromPoint, D as toPadding, E as each, F as getMaximumSize, G as _getParentNode, I as readUsedSize, J as throttled, K as supportsEventListenerOptions, L as _isDomSupported, M as log10, N as _factorize, O as finiteOrDefault, Q as callback, R as _addGrace, S as toDegrees, U as _measureText, V as _int16Range, W as _alignPixel, X as clipArea, Y as renderText, Z as unclipArea, $ as toFont, a0 as _toLeftRightCenter, a1 as _alignStartEnd, a2 as overrides, a3 as merge, a4 as _capitalize, a5 as descriptors, a6 as isFunction, a7 as _attachContext, a8 as _createResolver, a9 as _descriptors, aa as mergeIf, ab as uid, ac as debounce, ad as retinaScale, ae as clearCanvas, af as setsEqual, ag as _elementsEqual, ah as _isClickEvent, ai as _isBetween, aj as _readValueToProps, ak as _updateBezierControlPoints, al as _computeSegments, am as _boundSegments, an as _steppedInterpolation, ao as _bezierInterpolation, ap as _pointInLine, aq as _steppedLineTo, ar as _bezierCurveTo, as as drawPoint, at as addRoundedRectPath, au as toTRBL, av as toTRBLCorners, aw as _boundSegment, ax as _normalizeAngle, ay as getRtlAdapter, az as overrideTextDirection, aA as _textX, aB as restoreTextDirection, aC as drawPointLegend, aD as noop, aE as distanceBetweenPoints, aF as _setMinAndMaxByKey, aG as niceNum, aH as almostWhole, aI as almostEquals, aJ as _decimalPlaces, aK as _longestText, aL as _filterBetween, aM as _lookup } from './chunks/helpers.segment.js';
 export { d as defaults } from './chunks/helpers.segment.js';
 
 class Animator {
@@ -7650,7 +7650,7 @@ const getBoxSize = (labelOpts, fontSize) => {
   let {boxHeight = fontSize, boxWidth = fontSize} = labelOpts;
   if (labelOpts.usePointStyle) {
     boxHeight = Math.min(boxHeight, fontSize);
-    boxWidth = Math.min(boxWidth, fontSize);
+    boxWidth = labelOpts.pointStyleWidth || Math.min(boxWidth, fontSize);
   }
   return {
     boxWidth,
@@ -7867,14 +7867,14 @@ class Legend extends Element {
       ctx.setLineDash(valueOrDefault(legendItem.lineDash, []));
       if (labelOpts.usePointStyle) {
         const drawOptions = {
-          radius: boxWidth * Math.SQRT2 / 2,
+          radius: boxHeight * Math.SQRT2 / 2,
           pointStyle: legendItem.pointStyle,
           rotation: legendItem.rotation,
           borderWidth: lineWidth
         };
         const centerX = rtlHelper.xPlus(x, boxWidth / 2);
         const centerY = y + halfFontSize;
-        drawPoint(ctx, drawOptions, centerX, centerY);
+        drawPointLegend(ctx, drawOptions, centerX, centerY, boxWidth);
       } else {
         const yBoxTop = y + Math.max((fontSize - boxHeight) / 2, 0);
         const xBoxLeft = rtlHelper.leftForLtr(x, boxWidth);
