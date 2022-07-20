@@ -8816,7 +8816,7 @@ class Tooltip extends Element {
       ctx.fillStyle = labelColors.backgroundColor;
       drawPoint(ctx, drawOptions, centerX, centerY);
     } else {
-      ctx.lineWidth = labelColors.borderWidth || 1;
+      ctx.lineWidth = isObject(labelColors.borderWidth) ? Math.max(...Object.values(labelColors.borderWidth)) : (labelColors.borderWidth || 1);
       ctx.strokeStyle = labelColors.borderColor;
       ctx.setLineDash(labelColors.borderDash || []);
       ctx.lineDashOffset = labelColors.borderDashOffset || 0;
