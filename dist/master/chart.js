@@ -5567,7 +5567,7 @@ class Scale extends Element {
       const optsAtIndex = grid.setContext(this.getContext(i));
       const lineWidth = optsAtIndex.lineWidth;
       const lineColor = optsAtIndex.color;
-      const borderDash = grid.borderDash || [];
+      const borderDash = optsAtIndex.borderDash || [];
       const borderDashOffset = optsAtIndex.borderDashOffset;
       const tickWidth = optsAtIndex.tickWidth;
       const tickColor = optsAtIndex.tickColor;
