@@ -935,24 +935,41 @@ function _deprecated(scope, value, previous, current) {
 			'" is deprecated. Please use "' + current + '" instead');
   }
 }
-const emptyString = '';
-const dot = '.';
-function indexOfDotOrLength(key, start) {
-  const idx = key.indexOf(dot, start);
-  return idx === -1 ? key.length : idx;
-}
+const keyResolvers = {
+  '': v => v,
+  x: o => o.x,
+  y: o => o.y
+};
 function resolveObjectKey(obj, key) {
-  if (key === emptyString) {
+  const resolver = keyResolvers[key] || (keyResolvers[key] = _getKeyResolver(key));
+  return resolver(obj);
+}
+function _getKeyResolver(key) {
+  const keys = _splitKey(key);
+  return obj => {
+    for (const k of keys) {
+      if (k === '') {
+        break;
+      }
+      obj = obj && obj[k];
+    }
     return obj;
+  };
+}
+function _splitKey(key) {
+  const parts = key.split('.');
+  const keys = [];
+  let tmp = '';
+  for (const part of parts) {
+    tmp += part;
+    if (tmp.endsWith('\\')) {
+      tmp = tmp.slice(0, -1) + '.';
+    } else {
+      keys.push(tmp);
+      tmp = '';
+    }
   }
-  let pos = 0;
-  let idx = indexOfDotOrLength(key, pos);
-  while (obj && idx > pos) {
-    obj = obj[key.slice(pos, idx)];
-    pos = idx + 1;
-    idx = indexOfDotOrLength(key, pos);
-  }
-  return obj;
+  return keys;
 }
 function _capitalize(str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
@@ -2722,6 +2739,7 @@ mergeIf: mergeIf,
 _mergerIf: _mergerIf,
 _deprecated: _deprecated,
 resolveObjectKey: resolveObjectKey,
+_splitKey: _splitKey,
 _capitalize: _capitalize,
 defined: defined,
 isFunction: isFunction,
