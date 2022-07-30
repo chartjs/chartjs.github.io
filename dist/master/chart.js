@@ -7518,6 +7518,7 @@ class DateAdapter {
   constructor(options) {
     this.options = options || {};
   }
+  init(chartOptions) {}
   formats() {
     return abstract();
   }
@@ -13058,6 +13059,7 @@ class TimeScale extends Scale {
   init(scaleOpts, opts) {
     const time = scaleOpts.time || (scaleOpts.time = {});
     const adapter = this._adapter = new _adapters._date(scaleOpts.adapters.date);
+    adapter.init(opts);
     mergeIf(time.displayFormats, adapter.formats());
     this._parseOpts = {
       parser: time.parser,
