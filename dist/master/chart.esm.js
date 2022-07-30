@@ -6221,7 +6221,7 @@ function rThetaToXY(r, theta, x, y) {
     y: y + r * Math.sin(theta),
   };
 }
-function pathArc(ctx, element, offset, spacing, end) {
+function pathArc(ctx, element, offset, spacing, end, circular) {
   const {x, y, startAngle: start, pixelMargin, innerRadius: innerR} = element;
   const outerRadius = Math.max(element.outerRadius + spacing + offset - pixelMargin, 0);
   const innerRadius = innerR > 0 ? innerR + spacing + offset + pixelMargin : 0;
@@ -6248,35 +6248,45 @@ function pathArc(ctx, element, offset, spacing, end) {
   const innerStartAdjustedAngle = startAngle + innerStart / innerStartAdjustedRadius;
   const innerEndAdjustedAngle = endAngle - innerEnd / innerEndAdjustedRadius;
   ctx.beginPath();
-  ctx.arc(x, y, outerRadius, outerStartAdjustedAngle, outerEndAdjustedAngle);
-  if (outerEnd > 0) {
-    const pCenter = rThetaToXY(outerEndAdjustedRadius, outerEndAdjustedAngle, x, y);
-    ctx.arc(pCenter.x, pCenter.y, outerEnd, outerEndAdjustedAngle, endAngle + HALF_PI);
-  }
-  const p4 = rThetaToXY(innerEndAdjustedRadius, endAngle, x, y);
-  ctx.lineTo(p4.x, p4.y);
-  if (innerEnd > 0) {
-    const pCenter = rThetaToXY(innerEndAdjustedRadius, innerEndAdjustedAngle, x, y);
-    ctx.arc(pCenter.x, pCenter.y, innerEnd, endAngle + HALF_PI, innerEndAdjustedAngle + Math.PI);
-  }
-  ctx.arc(x, y, innerRadius, endAngle - (innerEnd / innerRadius), startAngle + (innerStart / innerRadius), true);
-  if (innerStart > 0) {
-    const pCenter = rThetaToXY(innerStartAdjustedRadius, innerStartAdjustedAngle, x, y);
-    ctx.arc(pCenter.x, pCenter.y, innerStart, innerStartAdjustedAngle + Math.PI, startAngle - HALF_PI);
-  }
-  const p8 = rThetaToXY(outerStartAdjustedRadius, startAngle, x, y);
-  ctx.lineTo(p8.x, p8.y);
-  if (outerStart > 0) {
-    const pCenter = rThetaToXY(outerStartAdjustedRadius, outerStartAdjustedAngle, x, y);
-    ctx.arc(pCenter.x, pCenter.y, outerStart, startAngle - HALF_PI, outerStartAdjustedAngle);
+  if (circular) {
+    ctx.arc(x, y, outerRadius, outerStartAdjustedAngle, outerEndAdjustedAngle);
+    if (outerEnd > 0) {
+      const pCenter = rThetaToXY(outerEndAdjustedRadius, outerEndAdjustedAngle, x, y);
+      ctx.arc(pCenter.x, pCenter.y, outerEnd, outerEndAdjustedAngle, endAngle + HALF_PI);
+    }
+    const p4 = rThetaToXY(innerEndAdjustedRadius, endAngle, x, y);
+    ctx.lineTo(p4.x, p4.y);
+    if (innerEnd > 0) {
+      const pCenter = rThetaToXY(innerEndAdjustedRadius, innerEndAdjustedAngle, x, y);
+      ctx.arc(pCenter.x, pCenter.y, innerEnd, endAngle + HALF_PI, innerEndAdjustedAngle + Math.PI);
+    }
+    ctx.arc(x, y, innerRadius, endAngle - (innerEnd / innerRadius), startAngle + (innerStart / innerRadius), true);
+    if (innerStart > 0) {
+      const pCenter = rThetaToXY(innerStartAdjustedRadius, innerStartAdjustedAngle, x, y);
+      ctx.arc(pCenter.x, pCenter.y, innerStart, innerStartAdjustedAngle + Math.PI, startAngle - HALF_PI);
+    }
+    const p8 = rThetaToXY(outerStartAdjustedRadius, startAngle, x, y);
+    ctx.lineTo(p8.x, p8.y);
+    if (outerStart > 0) {
+      const pCenter = rThetaToXY(outerStartAdjustedRadius, outerStartAdjustedAngle, x, y);
+      ctx.arc(pCenter.x, pCenter.y, outerStart, startAngle - HALF_PI, outerStartAdjustedAngle);
+    }
+  } else {
+    ctx.moveTo(x, y);
+    const outerStartX = Math.cos(outerStartAdjustedAngle) * outerRadius + x;
+    const outerStartY = Math.sin(outerStartAdjustedAngle) * outerRadius + y;
+    ctx.lineTo(outerStartX, outerStartY);
+    const outerEndX = Math.cos(outerEndAdjustedAngle) * outerRadius + x;
+    const outerEndY = Math.sin(outerEndAdjustedAngle) * outerRadius + y;
+    ctx.lineTo(outerEndX, outerEndY);
   }
   ctx.closePath();
 }
-function drawArc(ctx, element, offset, spacing) {
+function drawArc(ctx, element, offset, spacing, circular) {
   const {fullCircles, startAngle, circumference} = element;
   let endAngle = element.endAngle;
   if (fullCircles) {
-    pathArc(ctx, element, offset, spacing, startAngle + TAU);
+    pathArc(ctx, element, offset, spacing, startAngle + TAU, circular);
     for (let i = 0; i < fullCircles; ++i) {
       ctx.fill();
     }
@@ -6287,7 +6297,7 @@ function drawArc(ctx, element, offset, spacing) {
       }
     }
   }
-  pathArc(ctx, element, offset, spacing, endAngle);
+  pathArc(ctx, element, offset, spacing, endAngle, circular);
   ctx.fill();
   return endAngle;
 }
@@ -6310,7 +6320,7 @@ function drawFullCircleBorders(ctx, element, inner) {
     ctx.stroke();
   }
 }
-function drawBorder(ctx, element, offset, spacing, endAngle) {
+function drawBorder(ctx, element, offset, spacing, endAngle, circular) {
   const {options} = element;
   const {borderWidth, borderJoinStyle} = options;
   const inner = options.borderAlign === 'inner';
@@ -6330,7 +6340,7 @@ function drawBorder(ctx, element, offset, spacing, endAngle) {
   if (inner) {
     clipArc(ctx, element, endAngle);
   }
-  pathArc(ctx, element, offset, spacing, endAngle);
+  pathArc(ctx, element, offset, spacing, endAngle, circular);
   ctx.stroke();
 }
 class ArcElement extends Element {
@@ -6389,6 +6399,7 @@ class ArcElement extends Element {
     const {options, circumference} = this;
     const offset = (options.offset || 0) / 2;
     const spacing = (options.spacing || 0) / 2;
+    const circular = options.circular;
     this.pixelMargin = (options.borderAlign === 'inner') ? 0.33 : 0;
     this.fullCircles = circumference > TAU ? Math.floor(circumference / TAU) : 0;
     if (circumference === 0 || this.innerRadius < 0 || this.outerRadius < 0) {
@@ -6406,8 +6417,8 @@ class ArcElement extends Element {
     }
     ctx.fillStyle = options.backgroundColor;
     ctx.strokeStyle = options.borderColor;
-    const endAngle = drawArc(ctx, this, radiusOffset, spacing);
-    drawBorder(ctx, this, radiusOffset, spacing, endAngle);
+    const endAngle = drawArc(ctx, this, radiusOffset, spacing, circular);
+    drawBorder(ctx, this, radiusOffset, spacing, endAngle, circular);
     ctx.restore();
   }
 }
@@ -6421,6 +6432,7 @@ ArcElement.defaults = {
   offset: 0,
   spacing: 0,
   angle: undefined,
+  circular: true,
 };
 ArcElement.defaultRoutes = {
   backgroundColor: 'backgroundColor'
