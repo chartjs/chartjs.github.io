@@ -6443,7 +6443,7 @@ class ArcElement extends Element {
   }
   draw(ctx) {
     const {options, circumference} = this;
-    const offset = (options.offset || 0) / 2;
+    const offset = (options.offset || 0) / 4;
     const spacing = (options.spacing || 0) / 2;
     const circular = options.circular;
     this.pixelMargin = (options.borderAlign === 'inner') ? 0.33 : 0;
@@ -6452,15 +6452,10 @@ class ArcElement extends Element {
       return;
     }
     ctx.save();
-    let radiusOffset = 0;
-    if (offset) {
-      radiusOffset = offset / 2;
-      const halfAngle = (this.startAngle + this.endAngle) / 2;
-      ctx.translate(Math.cos(halfAngle) * radiusOffset, Math.sin(halfAngle) * radiusOffset);
-      if (this.circumference >= PI) {
-        radiusOffset = offset;
-      }
-    }
+    const halfAngle = (this.startAngle + this.endAngle) / 2;
+    ctx.translate(Math.cos(halfAngle) * offset, Math.sin(halfAngle) * offset);
+    const fix = 1 - Math.sin(Math.min(PI, circumference || 0));
+    const radiusOffset = offset * fix;
     ctx.fillStyle = options.backgroundColor;
     ctx.strokeStyle = options.borderColor;
     const endAngle = drawArc(ctx, this, radiusOffset, spacing, circular);
