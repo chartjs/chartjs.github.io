@@ -650,7 +650,7 @@ class Animator {
     return this._charts.delete(chart);
   }
 }
-var animator = new Animator();
+var animator = /* #__PURE__ */ new Animator();
 
 /*!
  * @kurkle/color v0.2.1
@@ -1347,7 +1347,7 @@ class Defaults {
     });
   }
 }
-var defaults = new Defaults({
+var defaults = /* #__PURE__ */ new Defaults({
   _scriptable: (name) => !name.startsWith('on'),
   _indexable: (name) => name !== 'events',
   hover: {
@@ -4126,6 +4126,9 @@ const cloneIfNotShared = (cached, shared) => shared ? cached : Object.assign({},
 const createStack = (canStack, meta, chart) => canStack && !meta.hidden && meta._stacked
   && {keys: getSortedDatasetIndices(chart, true), values: null};
 class DatasetController {
+  static defaults = {};
+  static datasetElementType = null;
+  static dataElementType = null;
   constructor(chart, datasetIndex) {
     this.chart = chart;
     this._ctx = chart.ctx;
@@ -4144,6 +4147,8 @@ class DatasetController {
     this.supportsDecimation = false;
     this.$context = undefined;
     this._syncList = [];
+    this.datasetElementType = new.target.datasetElementType;
+    this.dataElementType = new.target.dataElementType;
     this.initialize();
   }
   initialize() {
@@ -4672,11 +4677,10 @@ class DatasetController {
     this._sync(['_insertElements', 0, arguments.length]);
   }
 }
-DatasetController.defaults = {};
-DatasetController.prototype.datasetElementType = null;
-DatasetController.prototype.dataElementType = null;
 
 class Element {
+  static defaults = {};
+  static defaultRoutes = undefined;
   constructor() {
     this.x = undefined;
     this.y = undefined;
@@ -4703,8 +4707,6 @@ class Element {
     return ret;
   }
 }
-Element.defaults = {};
-Element.defaultRoutes = undefined;
 
 const formatters = {
   values(value) {
@@ -6288,7 +6290,7 @@ class Registry {
     return item;
   }
 }
-var registry = new Registry();
+var registry = /* #__PURE__ */ new Registry();
 
 class PluginService {
   constructor() {
@@ -6748,6 +6750,20 @@ function determineLastEvent(e, lastEvent, inChartArea, isClick) {
   return e;
 }
 class Chart {
+  static defaults = defaults;
+  static instances = instances;
+  static overrides = overrides;
+  static registry = registry;
+  static version = version;
+  static getChart = getChart;
+  static register(...items) {
+    registry.add(...items);
+    invalidatePlugins();
+  }
+  static unregister(...items) {
+    registry.remove(...items);
+    invalidatePlugins();
+  }
   constructor(item, userConfig) {
     const config = this.config = new Config(userConfig);
     const initialCanvas = getCanvas(item);
@@ -6825,6 +6841,9 @@ class Chart {
   }
   set options(options) {
     this.config.options = options;
+  }
+  get registry() {
+    return registry;
   }
   _initialize() {
     this.notifyPlugins('beforeInit');
@@ -6987,7 +7006,7 @@ class Chart {
       } else {
         const ControllerClass = registry.getController(type);
         const {datasetElementType, dataElementType} = defaults.datasets[type];
-        Object.assign(ControllerClass.prototype, {
+        Object.assign(ControllerClass, {
           dataElementType: registry.getElement(dataElementType),
           datasetElementType: datasetElementType && registry.getElement(datasetElementType)
         });
@@ -7514,53 +7533,17 @@ class Chart {
     return this.getElementsAtEventForMode(e, hoverOptions.mode, hoverOptions, useFinalPosition);
   }
 }
-const invalidatePlugins = () => each(Chart.instances, (chart) => chart._plugins.invalidate());
-const enumerable = true;
-Object.defineProperties(Chart, {
-  defaults: {
-    enumerable,
-    value: defaults
-  },
-  instances: {
-    enumerable,
-    value: instances
-  },
-  overrides: {
-    enumerable,
-    value: overrides
-  },
-  registry: {
-    enumerable,
-    value: registry
-  },
-  version: {
-    enumerable,
-    value: version
-  },
-  getChart: {
-    enumerable,
-    value: getChart
-  },
-  register: {
-    enumerable,
-    value: (...items) => {
-      registry.add(...items);
-      invalidatePlugins();
-    }
-  },
-  unregister: {
-    enumerable,
-    value: (...items) => {
-      registry.remove(...items);
-      invalidatePlugins();
-    }
-  }
-});
+function invalidatePlugins() {
+  return each(Chart.instances, (chart) => chart._plugins.invalidate());
+}
 
 function abstract() {
   throw new Error('This method is not implemented: Check that a complete date adapter is provided.');
 }
 class DateAdapter {
+  static override(members) {
+    Object.assign(DateAdapter.prototype, members);
+  }
   constructor(options) {
     this.options = options || {};
   }
@@ -7587,9 +7570,6 @@ class DateAdapter {
     return abstract();
   }
 }
-DateAdapter.override = function(members) {
-  Object.assign(DateAdapter.prototype, members);
-};
 var _adapters = {
   _date: DateAdapter
 };
@@ -7786,6 +7766,35 @@ function setInflateAmount(properties, {inflateAmount}, ratio) {
     : inflateAmount;
 }
 class BarController extends DatasetController {
+  static id = 'bar';
+  static defaults = {
+    datasetElementType: false,
+    dataElementType: 'bar',
+    categoryPercentage: 0.8,
+    barPercentage: 0.9,
+    grouped: true,
+    animations: {
+      numbers: {
+        type: 'number',
+        properties: ['x', 'y', 'base', 'width', 'height']
+      }
+    }
+  };
+  static overrides = {
+    scales: {
+      _index_: {
+        type: 'category',
+        offset: true,
+        grid: {
+          offset: true
+        }
+      },
+      _value_: {
+        type: 'linear',
+        beginAtZero: true,
+      }
+    }
+  };
   parsePrimitiveData(meta, data, start, count) {
     return parseArrayOrPrimitive(meta, data, start, count);
   }
@@ -8027,37 +8036,38 @@ class BarController extends DatasetController {
     }
   }
 }
-BarController.id = 'bar';
-BarController.defaults = {
-  datasetElementType: false,
-  dataElementType: 'bar',
-  categoryPercentage: 0.8,
-  barPercentage: 0.9,
-  grouped: true,
-  animations: {
-    numbers: {
-      type: 'number',
-      properties: ['x', 'y', 'base', 'width', 'height']
-    }
-  }
-};
-BarController.overrides = {
-  scales: {
-    _index_: {
-      type: 'category',
-      offset: true,
-      grid: {
-        offset: true
-      }
-    },
-    _value_: {
-      type: 'linear',
-      beginAtZero: true,
-    }
-  }
-};
 
 class BubbleController extends DatasetController {
+  static id = 'bubble';
+  static defaults = {
+    datasetElementType: false,
+    dataElementType: 'point',
+    animations: {
+      numbers: {
+        type: 'number',
+        properties: ['x', 'y', 'borderWidth', 'radius']
+      }
+    }
+  };
+  static overrides = {
+    scales: {
+      x: {
+        type: 'linear'
+      },
+      y: {
+        type: 'linear'
+      }
+    },
+    plugins: {
+      tooltip: {
+        callbacks: {
+          title() {
+            return '';
+          }
+        }
+      }
+    }
+  };
   initialize() {
     this.enableOptionSharing = true;
     super.initialize();
@@ -8145,36 +8155,6 @@ class BubbleController extends DatasetController {
     return values;
   }
 }
-BubbleController.id = 'bubble';
-BubbleController.defaults = {
-  datasetElementType: false,
-  dataElementType: 'point',
-  animations: {
-    numbers: {
-      type: 'number',
-      properties: ['x', 'y', 'borderWidth', 'radius']
-    }
-  }
-};
-BubbleController.overrides = {
-  scales: {
-    x: {
-      type: 'linear'
-    },
-    y: {
-      type: 'linear'
-    }
-  },
-  plugins: {
-    tooltip: {
-      callbacks: {
-        title() {
-          return '';
-        }
-      }
-    }
-  }
-};
 
 function getRatioAndOffset(rotation, circumference, cutout) {
   let ratioX = 1;
@@ -8202,6 +8182,82 @@ function getRatioAndOffset(rotation, circumference, cutout) {
   return {ratioX, ratioY, offsetX, offsetY};
 }
 class DoughnutController extends DatasetController {
+  static id = 'doughnut';
+  static defaults = {
+    datasetElementType: false,
+    dataElementType: 'arc',
+    animation: {
+      animateRotate: true,
+      animateScale: false
+    },
+    animations: {
+      numbers: {
+        type: 'number',
+        properties: ['circumference', 'endAngle', 'innerRadius', 'outerRadius', 'startAngle', 'x', 'y', 'offset', 'borderWidth', 'spacing']
+      },
+    },
+    cutout: '50%',
+    rotation: 0,
+    circumference: 360,
+    radius: '100%',
+    spacing: 0,
+    indexAxis: 'r',
+  };
+  static descriptors = {
+    _scriptable: (name) => name !== 'spacing',
+    _indexable: (name) => name !== 'spacing',
+  };
+  static overrides = {
+    aspectRatio: 1,
+    plugins: {
+      legend: {
+        labels: {
+          generateLabels(chart) {
+            const data = chart.data;
+            if (data.labels.length && data.datasets.length) {
+              const {labels: {pointStyle}} = chart.legend.options;
+              return data.labels.map((label, i) => {
+                const meta = chart.getDatasetMeta(0);
+                const style = meta.controller.getStyle(i);
+                return {
+                  text: label,
+                  fillStyle: style.backgroundColor,
+                  strokeStyle: style.borderColor,
+                  lineWidth: style.borderWidth,
+                  pointStyle: pointStyle,
+                  hidden: !chart.getDataVisibility(i),
+                  index: i
+                };
+              });
+            }
+            return [];
+          }
+        },
+        onClick(e, legendItem, legend) {
+          legend.chart.toggleDataVisibility(legendItem.index);
+          legend.chart.update();
+        }
+      },
+      tooltip: {
+        callbacks: {
+          title() {
+            return '';
+          },
+          label(tooltipItem) {
+            let dataLabel = tooltipItem.label;
+            const value = ': ' + tooltipItem.formattedValue;
+            if (isArray(dataLabel)) {
+              dataLabel = dataLabel.slice();
+              dataLabel[0] += value;
+            } else {
+              dataLabel += value;
+            }
+            return dataLabel;
+          }
+        }
+      }
+    }
+  };
   constructor(chart, datasetIndex) {
     super(chart, datasetIndex);
     this.enableOptionSharing = true;
@@ -8399,84 +8455,25 @@ class DoughnutController extends DatasetController {
     return this._getRingWeightOffset(this.chart.data.datasets.length) || 1;
   }
 }
-DoughnutController.id = 'doughnut';
-DoughnutController.defaults = {
-  datasetElementType: false,
-  dataElementType: 'arc',
-  animation: {
-    animateRotate: true,
-    animateScale: false
-  },
-  animations: {
-    numbers: {
-      type: 'number',
-      properties: ['circumference', 'endAngle', 'innerRadius', 'outerRadius', 'startAngle', 'x', 'y', 'offset', 'borderWidth', 'spacing']
-    },
-  },
-  cutout: '50%',
-  rotation: 0,
-  circumference: 360,
-  radius: '100%',
-  spacing: 0,
-  indexAxis: 'r',
-};
-DoughnutController.descriptors = {
-  _scriptable: (name) => name !== 'spacing',
-  _indexable: (name) => name !== 'spacing',
-};
-DoughnutController.overrides = {
-  aspectRatio: 1,
-  plugins: {
-    legend: {
-      labels: {
-        generateLabels(chart) {
-          const data = chart.data;
-          if (data.labels.length && data.datasets.length) {
-            const {labels: {pointStyle}} = chart.legend.options;
-            return data.labels.map((label, i) => {
-              const meta = chart.getDatasetMeta(0);
-              const style = meta.controller.getStyle(i);
-              return {
-                text: label,
-                fillStyle: style.backgroundColor,
-                strokeStyle: style.borderColor,
-                lineWidth: style.borderWidth,
-                pointStyle: pointStyle,
-                hidden: !chart.getDataVisibility(i),
-                index: i
-              };
-            });
-          }
-          return [];
-        }
-      },
-      onClick(e, legendItem, legend) {
-        legend.chart.toggleDataVisibility(legendItem.index);
-        legend.chart.update();
-      }
-    },
-    tooltip: {
-      callbacks: {
-        title() {
-          return '';
-        },
-        label(tooltipItem) {
-          let dataLabel = tooltipItem.label;
-          const value = ': ' + tooltipItem.formattedValue;
-          if (isArray(dataLabel)) {
-            dataLabel = dataLabel.slice();
-            dataLabel[0] += value;
-          } else {
-            dataLabel += value;
-          }
-          return dataLabel;
-        }
-      }
-    }
-  }
-};
 
 class LineController extends DatasetController {
+  static id = 'line';
+  static defaults = {
+    datasetElementType: 'line',
+    dataElementType: 'point',
+    showLine: true,
+    spanGaps: false,
+  };
+  static overrides = {
+    scales: {
+      _index_: {
+        type: 'category',
+      },
+      _value_: {
+        type: 'linear',
+      },
+    }
+  };
   initialize() {
     this.enableOptionSharing = true;
     this.supportsDecimation = true;
@@ -8558,25 +8555,83 @@ class LineController extends DatasetController {
     super.draw();
   }
 }
-LineController.id = 'line';
-LineController.defaults = {
-  datasetElementType: 'line',
-  dataElementType: 'point',
-  showLine: true,
-  spanGaps: false,
-};
-LineController.overrides = {
-  scales: {
-    _index_: {
-      type: 'category',
-    },
-    _value_: {
-      type: 'linear',
-    },
-  }
-};
 
 class PolarAreaController extends DatasetController {
+  static id = 'polarArea';
+  static defaults = {
+    dataElementType: 'arc',
+    animation: {
+      animateRotate: true,
+      animateScale: true
+    },
+    animations: {
+      numbers: {
+        type: 'number',
+        properties: ['x', 'y', 'startAngle', 'endAngle', 'innerRadius', 'outerRadius']
+      },
+    },
+    indexAxis: 'r',
+    startAngle: 0,
+  };
+  static overrides = {
+    aspectRatio: 1,
+    plugins: {
+      legend: {
+        labels: {
+          generateLabels(chart) {
+            const data = chart.data;
+            if (data.labels.length && data.datasets.length) {
+              const {labels: {pointStyle}} = chart.legend.options;
+              return data.labels.map((label, i) => {
+                const meta = chart.getDatasetMeta(0);
+                const style = meta.controller.getStyle(i);
+                return {
+                  text: label,
+                  fillStyle: style.backgroundColor,
+                  strokeStyle: style.borderColor,
+                  lineWidth: style.borderWidth,
+                  pointStyle: pointStyle,
+                  hidden: !chart.getDataVisibility(i),
+                  index: i
+                };
+              });
+            }
+            return [];
+          }
+        },
+        onClick(e, legendItem, legend) {
+          legend.chart.toggleDataVisibility(legendItem.index);
+          legend.chart.update();
+        }
+      },
+      tooltip: {
+        callbacks: {
+          title() {
+            return '';
+          },
+          label(context) {
+            return context.chart.data.labels[context.dataIndex] + ': ' + context.formattedValue;
+          }
+        }
+      }
+    },
+    scales: {
+      r: {
+        type: 'radialLinear',
+        angleLines: {
+          display: false
+        },
+        beginAtZero: true,
+        grid: {
+          circular: true
+        },
+        pointLabels: {
+          display: false
+        },
+        startAngle: 0
+      }
+    }
+  };
   constructor(chart, datasetIndex) {
     super(chart, datasetIndex);
     this.innerRadius = undefined;
@@ -8684,93 +8739,38 @@ class PolarAreaController extends DatasetController {
       : 0;
   }
 }
-PolarAreaController.id = 'polarArea';
-PolarAreaController.defaults = {
-  dataElementType: 'arc',
-  animation: {
-    animateRotate: true,
-    animateScale: true
-  },
-  animations: {
-    numbers: {
-      type: 'number',
-      properties: ['x', 'y', 'startAngle', 'endAngle', 'innerRadius', 'outerRadius']
-    },
-  },
-  indexAxis: 'r',
-  startAngle: 0,
-};
-PolarAreaController.overrides = {
-  aspectRatio: 1,
-  plugins: {
-    legend: {
-      labels: {
-        generateLabels(chart) {
-          const data = chart.data;
-          if (data.labels.length && data.datasets.length) {
-            const {labels: {pointStyle}} = chart.legend.options;
-            return data.labels.map((label, i) => {
-              const meta = chart.getDatasetMeta(0);
-              const style = meta.controller.getStyle(i);
-              return {
-                text: label,
-                fillStyle: style.backgroundColor,
-                strokeStyle: style.borderColor,
-                lineWidth: style.borderWidth,
-                pointStyle: pointStyle,
-                hidden: !chart.getDataVisibility(i),
-                index: i
-              };
-            });
-          }
-          return [];
-        }
-      },
-      onClick(e, legendItem, legend) {
-        legend.chart.toggleDataVisibility(legendItem.index);
-        legend.chart.update();
-      }
-    },
-    tooltip: {
-      callbacks: {
-        title() {
-          return '';
-        },
-        label(context) {
-          return context.chart.data.labels[context.dataIndex] + ': ' + context.formattedValue;
-        }
-      }
-    }
-  },
-  scales: {
-    r: {
-      type: 'radialLinear',
-      angleLines: {
-        display: false
-      },
-      beginAtZero: true,
-      grid: {
-        circular: true
-      },
-      pointLabels: {
-        display: false
-      },
-      startAngle: 0
-    }
-  }
-};
 
 class PieController extends DoughnutController {
+  static id = 'pie';
+  static defaults = {
+    cutout: 0,
+    rotation: 0,
+    circumference: 360,
+    radius: '100%'
+  };
 }
-PieController.id = 'pie';
-PieController.defaults = {
-  cutout: 0,
-  rotation: 0,
-  circumference: 360,
-  radius: '100%'
-};
 
 class RadarController extends DatasetController {
+  static id = 'radar';
+  static defaults = {
+    datasetElementType: 'line',
+    dataElementType: 'point',
+    indexAxis: 'r',
+    showLine: true,
+    elements: {
+      line: {
+        fill: 'start'
+      }
+    },
+  };
+  static overrides = {
+    aspectRatio: 1,
+    scales: {
+      r: {
+        type: 'radialLinear',
+      }
+    }
+  };
   getLabelAndValue(index) {
     const vScale = this._cachedMeta.vScale;
     const parsed = this.getParsed(index);
@@ -8822,28 +8822,40 @@ class RadarController extends DatasetController {
     }
   }
 }
-RadarController.id = 'radar';
-RadarController.defaults = {
-  datasetElementType: 'line',
-  dataElementType: 'point',
-  indexAxis: 'r',
-  showLine: true,
-  elements: {
-    line: {
-      fill: 'start'
-    }
-  },
-};
-RadarController.overrides = {
-  aspectRatio: 1,
-  scales: {
-    r: {
-      type: 'radialLinear',
-    }
-  }
-};
 
 class ScatterController extends DatasetController {
+  static id = 'scatter';
+  static defaults = {
+    datasetElementType: false,
+    dataElementType: 'point',
+    showLine: false,
+    fill: false
+  };
+  static overrides = {
+    interaction: {
+      mode: 'point'
+    },
+    plugins: {
+      tooltip: {
+        callbacks: {
+          title() {
+            return '';
+          },
+          label(item) {
+            return '(' + item.label + ', ' + item.formattedValue + ')';
+          }
+        }
+      }
+    },
+    scales: {
+      x: {
+        type: 'linear'
+      },
+      y: {
+        type: 'linear'
+      }
+    }
+  };
   update(mode) {
     const meta = this._cachedMeta;
     const {data: points = []} = meta;
@@ -8873,7 +8885,7 @@ class ScatterController extends DatasetController {
   addElements() {
     const {showLine} = this.options;
     if (!this.datasetElementType && showLine) {
-      this.datasetElementType = registry.getElement('line');
+      this.datasetElementType = this.chart.registry.getElement('line');
     }
     super.addElements();
   }
@@ -8932,38 +8944,6 @@ class ScatterController extends DatasetController {
     return Math.max(border, firstPoint, lastPoint) / 2;
   }
 }
-ScatterController.id = 'scatter';
-ScatterController.defaults = {
-  datasetElementType: false,
-  dataElementType: 'point',
-  showLine: false,
-  fill: false
-};
-ScatterController.overrides = {
-  interaction: {
-    mode: 'point'
-  },
-  plugins: {
-    tooltip: {
-      callbacks: {
-        title() {
-          return '';
-        },
-        label(item) {
-          return '(' + item.label + ', ' + item.formattedValue + ')';
-        }
-      }
-    }
-  },
-  scales: {
-    x: {
-      type: 'linear'
-    },
-    y: {
-      type: 'linear'
-    }
-  }
-};
 
 var controllers = /*#__PURE__*/Object.freeze({
 __proto__: null,
@@ -9138,6 +9118,21 @@ function drawBorder(ctx, element, offset, spacing, endAngle, circular) {
   ctx.stroke();
 }
 class ArcElement extends Element {
+  static id = 'arc';
+  static defaults = {
+    borderAlign: 'center',
+    borderColor: '#fff',
+    borderJoinStyle: undefined,
+    borderRadius: 0,
+    borderWidth: 2,
+    offset: 0,
+    spacing: 0,
+    angle: undefined,
+    circular: true,
+  };
+  static defaultRoutes = {
+    backgroundColor: 'backgroundColor'
+  };
   constructor(cfg) {
     super();
     this.options = undefined;
@@ -9211,21 +9206,6 @@ class ArcElement extends Element {
     ctx.restore();
   }
 }
-ArcElement.id = 'arc';
-ArcElement.defaults = {
-  borderAlign: 'center',
-  borderColor: '#fff',
-  borderJoinStyle: undefined,
-  borderRadius: 0,
-  borderWidth: 2,
-  offset: 0,
-  spacing: 0,
-  angle: undefined,
-  circular: true,
-};
-ArcElement.defaultRoutes = {
-  backgroundColor: 'backgroundColor'
-};
 
 function setStyle(ctx, options, style = options) {
   ctx.lineCap = valueOrDefault(style.borderCapStyle, options.borderCapStyle);
@@ -9377,6 +9357,28 @@ function draw(ctx, line, start, count) {
   }
 }
 class LineElement extends Element {
+  static id = 'line';
+  static defaults = {
+    borderCapStyle: 'butt',
+    borderDash: [],
+    borderDashOffset: 0,
+    borderJoinStyle: 'miter',
+    borderWidth: 3,
+    capBezierPoints: true,
+    cubicInterpolationMode: 'default',
+    fill: false,
+    spanGaps: false,
+    stepped: false,
+    tension: 0,
+  };
+  static defaultRoutes = {
+    backgroundColor: 'backgroundColor',
+    borderColor: 'borderColor'
+  };
+  static descriptors = {
+    _scriptable: true,
+    _indexable: (name) => name !== 'borderDash' && name !== 'fill',
+  };
   constructor(cfg) {
     super();
     this.animated = true;
@@ -9480,28 +9482,6 @@ class LineElement extends Element {
     }
   }
 }
-LineElement.id = 'line';
-LineElement.defaults = {
-  borderCapStyle: 'butt',
-  borderDash: [],
-  borderDashOffset: 0,
-  borderJoinStyle: 'miter',
-  borderWidth: 3,
-  capBezierPoints: true,
-  cubicInterpolationMode: 'default',
-  fill: false,
-  spanGaps: false,
-  stepped: false,
-  tension: 0,
-};
-LineElement.defaultRoutes = {
-  backgroundColor: 'backgroundColor',
-  borderColor: 'borderColor'
-};
-LineElement.descriptors = {
-  _scriptable: true,
-  _indexable: (name) => name !== 'borderDash' && name !== 'fill',
-};
 
 function inRange$1(el, pos, axis, useFinalPosition) {
   const options = el.options;
@@ -9509,6 +9489,20 @@ function inRange$1(el, pos, axis, useFinalPosition) {
   return (Math.abs(pos - value) < options.radius + options.hitRadius);
 }
 class PointElement extends Element {
+  static id = 'point';
+  static defaults = {
+    borderWidth: 1,
+    hitRadius: 1,
+    hoverBorderWidth: 1,
+    hoverRadius: 4,
+    pointStyle: 'circle',
+    radius: 3,
+    rotation: 0
+  };
+  static defaultRoutes = {
+    backgroundColor: 'backgroundColor',
+    borderColor: 'borderColor'
+  };
   constructor(cfg) {
     super();
     this.options = undefined;
@@ -9556,20 +9550,6 @@ class PointElement extends Element {
     return options.radius + options.hitRadius;
   }
 }
-PointElement.id = 'point';
-PointElement.defaults = {
-  borderWidth: 1,
-  hitRadius: 1,
-  hoverBorderWidth: 1,
-  hoverRadius: 4,
-  pointStyle: 'circle',
-  radius: 3,
-  rotation: 0
-};
-PointElement.defaultRoutes = {
-  backgroundColor: 'backgroundColor',
-  borderColor: 'borderColor'
-};
 
 function getBarBounds(bar, useFinalPosition) {
   const {x, y, base, width, height} = bar.getProps(['x', 'y', 'base', 'width', 'height'], useFinalPosition);
@@ -9674,6 +9654,18 @@ function inflateRect(rect, amount, refRect = {}) {
   };
 }
 class BarElement extends Element {
+  static id = 'bar';
+  static defaults = {
+    borderSkipped: 'start',
+    borderWidth: 0,
+    borderRadius: 0,
+    inflateAmount: 'auto',
+    pointStyle: undefined
+  };
+  static defaultRoutes = {
+    backgroundColor: 'backgroundColor',
+    borderColor: 'borderColor'
+  };
   constructor(cfg) {
     super();
     this.options = undefined;
@@ -9725,18 +9717,6 @@ class BarElement extends Element {
     return axis === 'x' ? this.width / 2 : this.height / 2;
   }
 }
-BarElement.id = 'bar';
-BarElement.defaults = {
-  borderSkipped: 'start',
-  borderWidth: 0,
-  borderRadius: 0,
-  inflateAmount: 'auto',
-  pointStyle: undefined
-};
-BarElement.defaultRoutes = {
-  backgroundColor: 'backgroundColor',
-  borderColor: 'borderColor'
-};
 
 var elements = /*#__PURE__*/Object.freeze({
 __proto__: null,
@@ -11360,6 +11340,7 @@ function overrideCallbacks(callbacks, context) {
   return override ? callbacks.override(override) : callbacks;
 }
 class Tooltip extends Element {
+  static positioners = positioners;
   constructor(config) {
     super();
     this.opacity = 0;
@@ -11892,7 +11873,6 @@ class Tooltip extends Element {
     return position !== false && (caretX !== position.x || caretY !== position.y);
   }
 }
-Tooltip.positioners = positioners;
 var plugin_tooltip = {
   id: 'tooltip',
   _element: Tooltip,
@@ -12096,7 +12076,20 @@ function findOrAddLabel(labels, raw, index, addedLabels) {
   return first !== last ? index : first;
 }
 const validIndex = (index, max) => index === null ? null : _limitValue(Math.round(index), 0, max);
+function _getLabelForValue(value) {
+  const labels = this.getLabels();
+  if (value >= 0 && value < labels.length) {
+    return labels[value];
+  }
+  return value;
+}
 class CategoryScale extends Scale {
+  static id = 'category';
+  static defaults = {
+    ticks: {
+      callback: _getLabelForValue
+    }
+  };
   constructor(cfg) {
     super(cfg);
     this._startValue = undefined;
@@ -12154,11 +12147,7 @@ class CategoryScale extends Scale {
     return ticks;
   }
   getLabelForValue(value) {
-    const labels = this.getLabels();
-    if (value >= 0 && value < labels.length) {
-      return labels[value];
-    }
-    return value;
+    return _getLabelForValue.call(this, value);
   }
   configure() {
     super.configure();
@@ -12186,12 +12175,6 @@ class CategoryScale extends Scale {
     return this.bottom;
   }
 }
-CategoryScale.id = 'category';
-CategoryScale.defaults = {
-  ticks: {
-    callback: CategoryScale.prototype.getLabelForValue
-  }
-};
 
 function generateTicks$1(generationOptions, dataRange) {
   const ticks = [];
@@ -12404,6 +12387,12 @@ class LinearScaleBase extends Scale {
 }
 
 class LinearScale extends LinearScaleBase {
+  static id = 'linear';
+  static defaults = {
+    ticks: {
+      callback: Ticks.formatters.numeric
+    }
+  };
   determineDataLimits() {
     const {min, max} = this.getMinMax(true);
     this.min = isNumberFinite(min) ? min : 0;
@@ -12425,12 +12414,6 @@ class LinearScale extends LinearScaleBase {
     return this._startValue + this.getDecimalForPixel(pixel) * this._valueRange;
   }
 }
-LinearScale.id = 'linear';
-LinearScale.defaults = {
-  ticks: {
-    callback: Ticks.formatters.numeric
-  }
-};
 
 function isMajor(tickVal) {
   const remain = tickVal / (Math.pow(10, Math.floor(log10(tickVal))));
@@ -12459,6 +12442,15 @@ function generateTicks(generationOptions, dataRange) {
   return ticks;
 }
 class LogarithmicScale extends Scale {
+  static id = 'logarithmic';
+  static defaults = {
+    ticks: {
+      callback: Ticks.formatters.logarithmic,
+      major: {
+        enabled: true
+      }
+    }
+  };
   constructor(cfg) {
     super(cfg);
     this.start = undefined;
@@ -12558,15 +12550,6 @@ class LogarithmicScale extends Scale {
     return Math.pow(10, this._startValue + decimal * this._valueRange);
   }
 }
-LogarithmicScale.id = 'logarithmic';
-LogarithmicScale.defaults = {
-  ticks: {
-    callback: Ticks.formatters.logarithmic,
-    major: {
-      enabled: true
-    }
-  }
-};
 
 function getTickBackdropHeight(opts) {
   const tickOpts = opts.ticks;
@@ -12786,6 +12769,49 @@ function createPointLabelContext(parent, index, label) {
   });
 }
 class RadialLinearScale extends LinearScaleBase {
+  static id = 'radialLinear';
+  static defaults = {
+    display: true,
+    animate: true,
+    position: 'chartArea',
+    angleLines: {
+      display: true,
+      lineWidth: 1,
+      borderDash: [],
+      borderDashOffset: 0.0
+    },
+    grid: {
+      circular: false
+    },
+    startAngle: 0,
+    ticks: {
+      showLabelBackdrop: true,
+      callback: Ticks.formatters.numeric
+    },
+    pointLabels: {
+      backdropColor: undefined,
+      backdropPadding: 2,
+      display: true,
+      font: {
+        size: 10
+      },
+      callback(label) {
+        return label;
+      },
+      padding: 5,
+      centerPointLabels: false
+    }
+  };
+  static defaultRoutes = {
+    'angleLines.color': 'borderColor',
+    'pointLabels.color': 'color',
+    'ticks.color': 'color'
+  };
+  static descriptors = {
+    angleLines: {
+      _fallback: 'grid'
+    }
+  };
   constructor(cfg) {
     super(cfg);
     this.xCenter = undefined;
@@ -12980,49 +13006,6 @@ class RadialLinearScale extends LinearScaleBase {
   }
   drawTitle() {}
 }
-RadialLinearScale.id = 'radialLinear';
-RadialLinearScale.defaults = {
-  display: true,
-  animate: true,
-  position: 'chartArea',
-  angleLines: {
-    display: true,
-    lineWidth: 1,
-    borderDash: [],
-    borderDashOffset: 0.0
-  },
-  grid: {
-    circular: false
-  },
-  startAngle: 0,
-  ticks: {
-    showLabelBackdrop: true,
-    callback: Ticks.formatters.numeric
-  },
-  pointLabels: {
-    backdropColor: undefined,
-    backdropPadding: 2,
-    display: true,
-    font: {
-      size: 10
-    },
-    callback(label) {
-      return label;
-    },
-    padding: 5,
-    centerPointLabels: false
-  }
-};
-RadialLinearScale.defaultRoutes = {
-  'angleLines.color': 'borderColor',
-  'pointLabels.color': 'color',
-  'ticks.color': 'color'
-};
-RadialLinearScale.descriptors = {
-  angleLines: {
-    _fallback: 'grid'
-  }
-};
 
 const INTERVALS = {
   millisecond: {common: true, size: 1, steps: 1000},
@@ -13129,6 +13112,25 @@ function ticksFromTimestamps(scale, values, majorUnit) {
   return (ilen === 0 || !majorUnit) ? ticks : setMajorTicks(scale, ticks, map, majorUnit);
 }
 class TimeScale extends Scale {
+  static id = 'time';
+  static defaults = {
+    bounds: 'data',
+    adapters: {},
+    time: {
+      parser: false,
+      unit: false,
+      round: false,
+      isoWeekday: false,
+      minUnit: 'millisecond',
+      displayFormats: {}
+    },
+    ticks: {
+      source: 'auto',
+      major: {
+        enabled: false
+      }
+    }
+  };
   constructor(props) {
     super(props);
     this._cache = {
@@ -13376,25 +13378,6 @@ class TimeScale extends Scale {
     return _arrayUnique(values.sort(sorter));
   }
 }
-TimeScale.id = 'time';
-TimeScale.defaults = {
-  bounds: 'data',
-  adapters: {},
-  time: {
-    parser: false,
-    unit: false,
-    round: false,
-    isoWeekday: false,
-    minUnit: 'millisecond',
-    displayFormats: {}
-  },
-  ticks: {
-    source: 'auto',
-    major: {
-      enabled: false
-    }
-  }
-};
 
 function interpolate(table, val, reverse) {
   let lo = 0;
@@ -13417,6 +13400,8 @@ function interpolate(table, val, reverse) {
   return span ? prevTarget + (nextTarget - prevTarget) * (val - prevSource) / span : prevTarget;
 }
 class TimeSeriesScale extends TimeScale {
+  static id = 'timeseries';
+  static defaults = TimeScale.defaults;
   constructor(props) {
     super(props);
     this._table = [];
@@ -13481,8 +13466,6 @@ class TimeSeriesScale extends TimeScale {
     return interpolate(this._table, decimal * this._tableRange + this._minPos, true);
   }
 }
-TimeSeriesScale.id = 'timeseries';
-TimeSeriesScale.defaults = TimeScale.defaults;
 
 var scales = /*#__PURE__*/Object.freeze({
 __proto__: null,
