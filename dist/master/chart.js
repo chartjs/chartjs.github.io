@@ -6020,7 +6020,6 @@ class Chart {
       this.canvas = null;
       this.ctx = null;
     }
-    this.notifyPlugins('destroy');
     delete instances[this.id];
     this.notifyPlugins('afterDestroy');
   }
