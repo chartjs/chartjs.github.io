@@ -4,8 +4,8 @@
  * (c) 2022 Chart.js Contributors
  * Released under the MIT License
  */
-import { r as requestAnimFrame, a as resolve, e as effects, c as color, d as defaults, i as isObject, b as isArray, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as isNumberFinite, h as defined, s as sign, j as createContext, k as isNullOrUndef, _ as _arrayUnique, t as toRadians, m as toPercentage, n as toDimension, T as TAU, o as formatNumber, p as _angleBetween, H as HALF_PI, P as PI, q as _getStartAndCountOfVisiblePoints, w as _scaleRangesChanged, x as isNumber, y as _parseObjectDataRadialScale, z as getRelativePosition, A as _rlookupByKey, B as _lookupByKey, C as _isPointInArea, D as getAngleFromPoint, E as toPadding, F as each, G as getMaximumSize, I as _getParentNode, J as readUsedSize, K as supportsEventListenerOptions, L as throttled, M as _isDomSupported, N as log10, O as _factorize, Q as finiteOrDefault, R as callback, S as _addGrace, U as _limitValue, V as toDegrees, W as _measureText, X as _int16Range, Y as _alignPixel, Z as clipArea, $ as renderText, a0 as unclipArea, a1 as toFont, a2 as _toLeftRightCenter, a3 as _alignStartEnd, a4 as overrides, a5 as merge, a6 as _capitalize, a7 as descriptors, a8 as isFunction, a9 as _attachContext, aa as _createResolver, ab as _descriptors, ac as mergeIf, ad as uid, ae as debounce, af as retinaScale, ag as clearCanvas, ah as setsEqual, ai as _elementsEqual, aj as _isClickEvent, ak as _isBetween, al as _readValueToProps, am as _updateBezierControlPoints, an as _computeSegments, ao as _boundSegments, ap as _steppedInterpolation, aq as _bezierInterpolation, ar as _pointInLine, as as _steppedLineTo, at as _bezierCurveTo, au as drawPoint, av as addRoundedRectPath, aw as toTRBL, ax as toTRBLCorners, ay as _boundSegment, az as _normalizeAngle, aA as getRtlAdapter, aB as overrideTextDirection, aC as _textX, aD as restoreTextDirection, aE as drawPointLegend, aF as noop, aG as distanceBetweenPoints, aH as _setMinAndMaxByKey, aI as niceNum, aJ as almostWhole, aK as almostEquals, aL as _decimalPlaces, aM as _longestText, aN as _filterBetween, aO as _lookup } from './chunks/helpers.segment.js';
-export { d as defaults } from './chunks/helpers.segment.js';
+import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, d as defaults, b as isArray, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as isNumberFinite, h as defined, s as sign, j as createContext, k as isNullOrUndef, _ as _arrayUnique, t as toRadians, T as TAU, m as toPercentage, n as toDimension, o as formatNumber, p as _angleBetween, H as HALF_PI, P as PI, q as _getStartAndCountOfVisiblePoints, w as _scaleRangesChanged, x as isNumber, y as _parseObjectDataRadialScale, z as getRelativePosition, A as _rlookupByKey, B as _lookupByKey, C as _isPointInArea, D as getAngleFromPoint, E as toPadding, F as each, G as getMaximumSize, I as _getParentNode, J as readUsedSize, K as supportsEventListenerOptions, L as throttled, M as _isDomSupported, N as _factorize, O as finiteOrDefault, Q as callback, R as _addGrace, S as _limitValue, U as toDegrees, V as _measureText, W as _int16Range, X as _alignPixel, Y as clipArea, Z as renderText, $ as unclipArea, a0 as toFont, a1 as _toLeftRightCenter, a2 as _alignStartEnd, a3 as overrides, a4 as merge, a5 as _capitalize, a6 as descriptors, a7 as isFunction, a8 as _attachContext, a9 as _createResolver, aa as _descriptors, ab as mergeIf, ac as uid, ad as debounce, ae as retinaScale, af as clearCanvas, ag as setsEqual, ah as _elementsEqual, ai as _isClickEvent, aj as _isBetween, ak as _readValueToProps, al as _updateBezierControlPoints, am as _computeSegments, an as _boundSegments, ao as _steppedInterpolation, ap as _bezierInterpolation, aq as _pointInLine, ar as _steppedLineTo, as as _bezierCurveTo, at as drawPoint, au as addRoundedRectPath, av as toTRBL, aw as toTRBLCorners, ax as _boundSegment, ay as _normalizeAngle, az as getRtlAdapter, aA as overrideTextDirection, aB as _textX, aC as restoreTextDirection, aD as drawPointLegend, aE as noop, aF as distanceBetweenPoints, aG as _setMinAndMaxByKey, aH as niceNum, aI as almostWhole, aJ as almostEquals, aK as _decimalPlaces, aL as Ticks, aM as log10, aN as _longestText, aO as _filterBetween, aP as _lookup } from './chunks/helpers.segment.js';
+export { aL as Ticks, d as defaults } from './chunks/helpers.segment.js';
 
 class Animator {
   constructor() {
@@ -239,72 +239,6 @@ class Animation {
   }
 }
 
-const numbers = ['x', 'y', 'borderWidth', 'radius', 'tension'];
-const colors = ['color', 'borderColor', 'backgroundColor'];
-defaults.set('animation', {
-  delay: undefined,
-  duration: 1000,
-  easing: 'easeOutQuart',
-  fn: undefined,
-  from: undefined,
-  loop: undefined,
-  to: undefined,
-  type: undefined,
-});
-const animationOptions = Object.keys(defaults.animation);
-defaults.describe('animation', {
-  _fallback: false,
-  _indexable: false,
-  _scriptable: (name) => name !== 'onProgress' && name !== 'onComplete' && name !== 'fn',
-});
-defaults.set('animations', {
-  colors: {
-    type: 'color',
-    properties: colors
-  },
-  numbers: {
-    type: 'number',
-    properties: numbers
-  },
-});
-defaults.describe('animations', {
-  _fallback: 'animation',
-});
-defaults.set('transitions', {
-  active: {
-    animation: {
-      duration: 400
-    }
-  },
-  resize: {
-    animation: {
-      duration: 0
-    }
-  },
-  show: {
-    animations: {
-      colors: {
-        from: 'transparent'
-      },
-      visible: {
-        type: 'boolean',
-        duration: 0
-      },
-    }
-  },
-  hide: {
-    animations: {
-      colors: {
-        to: 'transparent'
-      },
-      visible: {
-        type: 'boolean',
-        easing: 'linear',
-        fn: v => v | 0
-      },
-    }
-  }
-});
 class Animations {
   constructor(chart, config) {
     this._chart = chart;
@@ -315,6 +249,7 @@ class Animations {
     if (!isObject(config)) {
       return;
     }
+    const animationOptions = Object.keys(defaults.animation);
     const animatedProps = this._properties;
     Object.getOwnPropertyNames(config).forEach(key => {
       const cfg = config[key];
@@ -2964,15 +2899,6 @@ function placeBoxes(boxes, chartArea, params, stacks) {
   chartArea.x = x;
   chartArea.y = y;
 }
-defaults.set('layout', {
-  autoPadding: true,
-  padding: {
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0
-  }
-});
 var layouts = {
   addBox(chart, item) {
     if (!chart.boxes) {
@@ -3379,117 +3305,6 @@ class Element {
     return ret;
   }
 }
-
-const formatters = {
-  values(value) {
-    return isArray(value) ? value : '' + value;
-  },
-  numeric(tickValue, index, ticks) {
-    if (tickValue === 0) {
-      return '0';
-    }
-    const locale = this.chart.options.locale;
-    let notation;
-    let delta = tickValue;
-    if (ticks.length > 1) {
-      const maxTick = Math.max(Math.abs(ticks[0].value), Math.abs(ticks[ticks.length - 1].value));
-      if (maxTick < 1e-4 || maxTick > 1e+15) {
-        notation = 'scientific';
-      }
-      delta = calculateDelta(tickValue, ticks);
-    }
-    const logDelta = log10(Math.abs(delta));
-    const numDecimal = Math.max(Math.min(-1 * Math.floor(logDelta), 20), 0);
-    const options = {notation, minimumFractionDigits: numDecimal, maximumFractionDigits: numDecimal};
-    Object.assign(options, this.options.ticks.format);
-    return formatNumber(tickValue, locale, options);
-  },
-  logarithmic(tickValue, index, ticks) {
-    if (tickValue === 0) {
-      return '0';
-    }
-    const remain = tickValue / (Math.pow(10, Math.floor(log10(tickValue))));
-    if (remain === 1 || remain === 2 || remain === 5) {
-      return formatters.numeric.call(this, tickValue, index, ticks);
-    }
-    return '';
-  }
-};
-function calculateDelta(tickValue, ticks) {
-  let delta = ticks.length > 3 ? ticks[2].value - ticks[1].value : ticks[1].value - ticks[0].value;
-  if (Math.abs(delta) >= 1 && tickValue !== Math.floor(tickValue)) {
-    delta = tickValue - Math.floor(tickValue);
-  }
-  return delta;
-}
-var Ticks = {formatters};
-
-defaults.set('scale', {
-  display: true,
-  offset: false,
-  reverse: false,
-  beginAtZero: false,
-  bounds: 'ticks',
-  grace: 0,
-  grid: {
-    display: true,
-    lineWidth: 1,
-    drawBorder: true,
-    drawOnChartArea: true,
-    drawTicks: true,
-    tickLength: 8,
-    tickWidth: (_ctx, options) => options.lineWidth,
-    tickColor: (_ctx, options) => options.color,
-    offset: false,
-    borderDash: [],
-    borderDashOffset: 0.0,
-    borderWidth: 1
-  },
-  title: {
-    display: false,
-    text: '',
-    padding: {
-      top: 4,
-      bottom: 4
-    }
-  },
-  ticks: {
-    minRotation: 0,
-    maxRotation: 50,
-    mirror: false,
-    textStrokeWidth: 0,
-    textStrokeColor: '',
-    padding: 3,
-    display: true,
-    autoSkip: true,
-    autoSkipPadding: 3,
-    labelOffset: 0,
-    callback: Ticks.formatters.values,
-    minor: {},
-    major: {},
-    align: 'center',
-    crossAlign: 'near',
-    showLabelBackdrop: false,
-    backdropColor: 'rgba(255, 255, 255, 0.75)',
-    backdropPadding: 2,
-  }
-});
-defaults.route('scale.ticks', 'color', '', 'color');
-defaults.route('scale.grid', 'color', '', 'borderColor');
-defaults.route('scale.grid', 'borderColor', '', 'borderColor');
-defaults.route('scale.title', 'color', '', 'color');
-defaults.describe('scale', {
-  _fallback: false,
-  _scriptable: (name) => !name.startsWith('before') && !name.startsWith('after') && name !== 'callback' && name !== 'parser',
-  _indexable: (name) => name !== 'borderDash' && name !== 'tickBorderDash',
-});
-defaults.describe('scales', {
-  _fallback: 'scale',
-});
-defaults.describe('scale.ticks', {
-  _scriptable: (name) => name !== 'backdropPadding' && name !== 'callback',
-  _indexable: (name) => name !== 'backdropPadding',
-});
 
 function autoSkip(scale, ticks) {
   const tickOpts = scale.options.ticks;
@@ -6207,6 +6022,7 @@ class Chart {
 function invalidatePlugins() {
   return each(Chart.instances, (chart) => chart._plugins.invalidate());
 }
+var Chart$1 = Chart;
 
 function clipArc(ctx, element, endAngle) {
   const {startAngle, pixelMargin, x, y, outerRadius, innerRadius} = element;
@@ -10269,7 +10085,7 @@ const INTERVALS = {
   quarter: {common: false, size: 7.884e9, steps: 4},
   year: {common: true, size: 3.154e10}
 };
-const UNITS = (Object.keys(INTERVALS));
+const UNITS =  /* #__PURE__ */ (Object.keys(INTERVALS));
 function sorter(a, b) {
   return a - b;
 }
@@ -10720,6 +10536,7 @@ class TimeSeriesScale extends TimeScale {
     return interpolate(this._table, decimal * this._tableRange + this._minPos, true);
   }
 }
+var TimeSeriesScale$1 = TimeSeriesScale;
 
 var scales = /*#__PURE__*/Object.freeze({
 __proto__: null,
@@ -10728,7 +10545,7 @@ LinearScale: LinearScale,
 LogarithmicScale: LogarithmicScale,
 RadialLinearScale: RadialLinearScale,
 TimeScale: TimeScale,
-TimeSeriesScale: TimeSeriesScale
+TimeSeriesScale: TimeSeriesScale$1
 });
 
 const registerables = [
@@ -10738,4 +10555,4 @@ const registerables = [
   scales,
 ];
 
-export { Animation, Animations, ArcElement, BarController, BarElement, BasePlatform, BasicPlatform, BubbleController, CategoryScale, Chart, DatasetController, plugin_decimation as Decimation, DomPlatform, DoughnutController, Element, index as Filler, Interaction, plugin_legend as Legend, LineController, LineElement, LinearScale, LogarithmicScale, PieController, PointElement, PolarAreaController, RadarController, RadialLinearScale, Scale, ScatterController, plugin_subtitle as SubTitle, Ticks, TimeScale, TimeSeriesScale, plugin_title as Title, plugin_tooltip as Tooltip, adapters as _adapters, _detectPlatform, animator, controllers, elements, layouts, plugins, registerables, registry, scales };
+export { Animation, Animations, ArcElement, BarController, BarElement, BasePlatform, BasicPlatform, BubbleController, CategoryScale, Chart$1 as Chart, DatasetController, plugin_decimation as Decimation, DomPlatform, DoughnutController, Element, index as Filler, Interaction, plugin_legend as Legend, LineController, LineElement, LinearScale, LogarithmicScale, PieController, PointElement, PolarAreaController, RadarController, RadialLinearScale, Scale, ScatterController, plugin_subtitle as SubTitle, TimeScale, TimeSeriesScale$1 as TimeSeriesScale, plugin_title as Title, plugin_tooltip as Tooltip, adapters as _adapters, _detectPlatform, animator, controllers, elements, layouts, plugins, registerables, registry, scales };
