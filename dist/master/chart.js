@@ -1570,15 +1570,6 @@ class BubbleController extends DatasetController {
       y: {
         type: 'linear'
       }
-    },
-    plugins: {
-      tooltip: {
-        callbacks: {
-          title() {
-            return '';
-          }
-        }
-      }
     }
   };
   initialize() {
@@ -1618,13 +1609,14 @@ class BubbleController extends DatasetController {
   }
   getLabelAndValue(index) {
     const meta = this._cachedMeta;
+    const labels = this.chart.data.labels || [];
     const {xScale, yScale} = meta;
     const parsed = this.getParsed(index);
     const x = xScale.getLabelForValue(parsed.x);
     const y = yScale.getLabelForValue(parsed.y);
     const r = parsed._custom;
     return {
-      label: meta.label,
+      label: labels[index] || '',
       value: '(' + x + ', ' + y + (r ? ', ' + r : '') + ')'
     };
   }
@@ -1749,24 +1741,6 @@ class DoughnutController extends DatasetController {
         onClick(e, legendItem, legend) {
           legend.chart.toggleDataVisibility(legendItem.index);
           legend.chart.update();
-        }
-      },
-      tooltip: {
-        callbacks: {
-          title() {
-            return '';
-          },
-          label(tooltipItem) {
-            let dataLabel = tooltipItem.label;
-            const value = ': ' + tooltipItem.formattedValue;
-            if (isArray(dataLabel)) {
-              dataLabel = dataLabel.slice();
-              dataLabel[0] += value;
-            } else {
-              dataLabel += value;
-            }
-            return dataLabel;
-          }
         }
       }
     }
@@ -2116,16 +2090,6 @@ class PolarAreaController extends DatasetController {
           legend.chart.toggleDataVisibility(legendItem.index);
           legend.chart.update();
         }
-      },
-      tooltip: {
-        callbacks: {
-          title() {
-            return '';
-          },
-          label(context) {
-            return context.chart.data.labels[context.dataIndex] + ': ' + context.formattedValue;
-          }
-        }
       }
     },
     scales: {
@@ -2348,18 +2312,6 @@ class ScatterController extends DatasetController {
     interaction: {
       mode: 'point'
     },
-    plugins: {
-      tooltip: {
-        callbacks: {
-          title() {
-            return '';
-          },
-          label(item) {
-            return '(' + item.label + ', ' + item.formattedValue + ')';
-          }
-        }
-      }
-    },
     scales: {
       x: {
         type: 'linear'
@@ -2369,6 +2321,18 @@ class ScatterController extends DatasetController {
       }
     }
   };
+  getLabelAndValue(index) {
+    const meta = this._cachedMeta;
+    const labels = this.chart.data.labels || [];
+    const {xScale, yScale} = meta;
+    const parsed = this.getParsed(index);
+    const x = xScale.getLabelForValue(parsed.x);
+    const y = yScale.getLabelForValue(parsed.y);
+    return {
+      label: labels[index] || '',
+      value: '(' + x + ', ' + y + ')'
+    };
+  }
   update(mode) {
     const meta = this._cachedMeta;
     const {data: points = []} = meta;
