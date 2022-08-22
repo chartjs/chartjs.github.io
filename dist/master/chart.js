@@ -10002,35 +10002,64 @@ class LinearScale extends LinearScaleBase {
     }
 }
 
+const log10Floor = (v)=>Math.floor(log10(v));
+const changeExponent = (v, m)=>Math.pow(10, log10Floor(v) + m);
 function isMajor(tickVal) {
-    const remain = tickVal / Math.pow(10, Math.floor(log10(tickVal)));
+    const remain = tickVal / Math.pow(10, log10Floor(tickVal));
     return remain === 1;
 }
- function generateTicks(generationOptions, dataRange) {
-    const endExp = Math.floor(log10(dataRange.max));
-    const endSignificand = Math.ceil(dataRange.max / Math.pow(10, endExp));
+function steps(min, max, rangeExp) {
+    const rangeStep = Math.pow(10, rangeExp);
+    const start = Math.floor(min / rangeStep);
+    const end = Math.ceil(max / rangeStep);
+    return end - start;
+}
+function startExp(min, max) {
+    const range = max - min;
+    let rangeExp = log10Floor(range);
+    while(steps(min, max, rangeExp) > 10){
+        rangeExp++;
+    }
+    while(steps(min, max, rangeExp) < 10){
+        rangeExp--;
+    }
+    return Math.min(rangeExp, log10Floor(min));
+}
+ function generateTicks(generationOptions, { min , max  }) {
+    min = finiteOrDefault(generationOptions.min, min);
     const ticks = [];
-    let tickVal = finiteOrDefault(generationOptions.min, Math.pow(10, Math.floor(log10(dataRange.min))));
-    let exp = Math.floor(log10(tickVal));
-    let significand = Math.floor(tickVal / Math.pow(10, exp));
+    const minExp = log10Floor(min);
+    let exp = startExp(min, max);
     let precision = exp < 0 ? Math.pow(10, Math.abs(exp)) : 1;
-    do {
+    const stepSize = Math.pow(10, exp);
+    const base = minExp > exp ? Math.pow(10, minExp) : 0;
+    const start = Math.round((min - base) * precision) / precision;
+    const offset = Math.floor((min - base) / stepSize / 10) * stepSize * 10;
+    let significand = Math.floor((start - offset) / Math.pow(10, exp));
+    let value = finiteOrDefault(generationOptions.min, Math.round((base + offset + significand * Math.pow(10, exp)) * precision) / precision);
+    while(value < max){
         ticks.push({
-            value: tickVal,
-            major: isMajor(tickVal)
+            value,
+            major: isMajor(value),
+            significand
         });
-        ++significand;
-        if (significand === 10) {
-            significand = 1;
-            ++exp;
+        if (significand >= 10) {
+            significand = significand < 15 ? 15 : 20;
+        } else {
+            significand++;
+        }
+        if (significand >= 20) {
+            exp++;
+            significand = 2;
             precision = exp >= 0 ? 1 : precision;
         }
-        tickVal = Math.round(significand * Math.pow(10, exp) * precision) / precision;
-    }while (exp < endExp || exp === endExp && significand < endSignificand)
-    const lastTick = finiteOrDefault(generationOptions.max, tickVal);
+        value = Math.round((base + offset + significand * Math.pow(10, exp)) * precision) / precision;
+    }
+    const lastTick = finiteOrDefault(generationOptions.max, value);
     ticks.push({
         value: lastTick,
-        major: isMajor(tickVal)
+        major: isMajor(lastTick),
+        significand
     });
     return ticks;
 }
@@ -10069,6 +10098,9 @@ class LogarithmicScale extends Scale {
         if (this.options.beginAtZero) {
             this._zero = true;
         }
+        if (this._zero && this.min !== this._suggestedMin && !isNumberFinite(this._userMin)) {
+            this.min = min === changeExponent(this.min, 0) ? changeExponent(this.min, -1) : changeExponent(this.min, 0);
+        }
         this.handleTickRangeOptions();
     }
     handleTickRangeOptions() {
@@ -10077,24 +10109,20 @@ class LogarithmicScale extends Scale {
         let max = this.max;
         const setMin = (v)=>min = minDefined ? min : v;
         const setMax = (v)=>max = maxDefined ? max : v;
-        const exp = (v, m)=>Math.pow(10, Math.floor(log10(v)) + m);
         if (min === max) {
             if (min <= 0) {
                 setMin(1);
                 setMax(10);
             } else {
-                setMin(exp(min, -1));
-                setMax(exp(max, +1));
+                setMin(changeExponent(min, -1));
+                setMax(changeExponent(max, +1));
             }
         }
         if (min <= 0) {
-            setMin(exp(max, -1));
+            setMin(changeExponent(max, -1));
         }
         if (max <= 0) {
-            setMax(exp(min, +1));
-        }
-        if (this._zero && this.min !== this._suggestedMin && min === exp(this.min, 0)) {
-            setMin(exp(min, -1));
+            setMax(changeExponent(min, +1));
         }
         this.min = min;
         this.max = max;
