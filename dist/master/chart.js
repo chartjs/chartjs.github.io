@@ -9006,7 +9006,7 @@ var plugin_tooltip = {
       const args = {
         tooltip
       };
-      if (chart.notifyPlugins('beforeTooltipDraw', args) === false) {
+      if (chart.notifyPlugins('beforeTooltipDraw', {...args, cancelable: true}) === false) {
         return;
       }
       tooltip.draw(chart.ctx);
