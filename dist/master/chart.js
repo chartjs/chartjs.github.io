@@ -8965,8 +8965,7 @@ class Tooltip extends Element {
         this._tooltipItems = [];
         this.$animations = undefined;
         this.$context = undefined;
-        this.chart = config.chart || config._chart;
-        this._chart = this.chart;
+        this.chart = config.chart;
         this.options = config.options;
         this.dataPoints = undefined;
         this.title = undefined;
