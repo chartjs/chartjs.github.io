@@ -5164,10 +5164,14 @@ function axisFromPosition(position) {
     }
 }
 function determineAxis(id, scaleOptions) {
-    if (id === 'x' || id === 'y') {
+    if (id === 'x' || id === 'y' || id === 'r') {
         return id;
     }
-    return scaleOptions.axis || axisFromPosition(scaleOptions.position) || id.charAt(0).toLowerCase();
+    id = scaleOptions.axis || axisFromPosition(scaleOptions.position) || id.length > 1 && determineAxis(id[0].toLowerCase(), scaleOptions);
+    if (id) {
+        return id;
+    }
+    throw new Error(`Cannot determine type of '${name}' axis. Please provide 'axis' or 'position' option.`);
 }
 function mergeScaleConfig(config, options) {
     const chartDefaults = overrides[config.type] || {
@@ -5175,7 +5179,6 @@ function mergeScaleConfig(config, options) {
     };
     const configScales = options.scales || {};
     const chartIndexAxis = getIndexAxis(config.type, options);
-    const firstIDs = Object.create(null);
     const scales = Object.create(null);
     Object.keys(configScales).forEach((id)=>{
         const scaleConf = configScales[id];
@@ -5188,7 +5191,6 @@ function mergeScaleConfig(config, options) {
         const axis = determineAxis(id, scaleConf);
         const defaultId = getDefaultScaleIDFromAxis(axis, chartIndexAxis);
         const defaultScaleOptions = chartDefaults.scales || {};
-        firstIDs[axis] = firstIDs[axis] || id;
         scales[id] = mergeIf(Object.create(null), [
             {
                 axis
@@ -5205,7 +5207,7 @@ function mergeScaleConfig(config, options) {
         const defaultScaleOptions = datasetDefaults.scales || {};
         Object.keys(defaultScaleOptions).forEach((defaultID)=>{
             const axis = getAxisFromDefaultScaleID(defaultID, indexAxis);
-            const id = dataset[axis + 'AxisID'] || firstIDs[axis] || axis;
+            const id = dataset[axis + 'AxisID'] || axis;
             scales[id] = scales[id] || Object.create(null);
             mergeIf(scales[id], [
                 {
