@@ -3456,11 +3456,7 @@ class Element {
     hasValue() {
         return isNumber(this.x) && isNumber(this.y);
     }
-    /**
-   * Gets the current or final value of each prop. Can return extra properties (whole object).
-   * @param props - properties to get
-   * @param [final] - get the final value (animation target)
-   */ getProps(props, final) {
+    getProps(props, final) {
         const anims = this.$animations;
         if (!final || !anims) {
             // let's not create an object, if not needed
@@ -10785,7 +10781,7 @@ class TimeScale extends Scale {
         this._normalized = false;
         this._parseOpts = undefined;
     }
-    init(scaleOpts, opts) {
+    init(scaleOpts, opts = {}) {
         const time = scaleOpts.time || (scaleOpts.time = {});
          const adapter = this._adapter = new adapters._date(scaleOpts.adapters.date);
         adapter.init(opts);
@@ -10874,7 +10870,7 @@ class TimeScale extends Scale {
             this.initOffsets(this.ticks.map((tick)=>+tick.value));
         }
     }
- initOffsets(timestamps) {
+ initOffsets(timestamps = []) {
         let start = 0;
         let end = 0;
         let first, last;
