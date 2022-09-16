@@ -8033,7 +8033,7 @@ class Legend extends Element {
             height = this._fitRows(titleHeight, fontSize, boxWidth, itemHeight) + 10;
         } else {
             height = this.maxHeight;
-            width = this._fitCols(titleHeight, fontSize, boxWidth, itemHeight) + 10;
+            width = this._fitCols(titleHeight, labelFont, boxWidth, itemHeight) + 10;
         }
         this.width = Math.min(width, options.maxWidth || this.maxWidth);
         this.height = Math.min(height, options.maxHeight || this.maxHeight);
@@ -8069,7 +8069,7 @@ class Legend extends Element {
         });
         return totalHeight;
     }
-    _fitCols(titleHeight, fontSize, boxWidth, itemHeight) {
+    _fitCols(titleHeight, labelFont, boxWidth, _itemHeight) {
         const { ctx , maxHeight , options: { labels: { padding  }  }  } = this;
         const hitboxes = this.legendHitBoxes = [];
         const columnSizes = this.columnSizes = [];
@@ -8080,7 +8080,7 @@ class Legend extends Element {
         let left = 0;
         let col = 0;
         this.legendItems.forEach((legendItem, i)=>{
-            const itemWidth = boxWidth + fontSize / 2 + ctx.measureText(legendItem.text).width;
+            const { itemWidth , itemHeight  } = calculateItemSize(boxWidth, labelFont, ctx, legendItem, _itemHeight);
             if (i > 0 && currentColHeight + itemHeight + 2 * padding > heightLimit) {
                 totalWidth += currentColWidth + padding;
                 columnSizes.push({
@@ -8264,6 +8264,9 @@ class Legend extends Element {
             fillText(rtlHelper.x(x), y, legendItem);
             if (isHorizontal) {
                 cursor.x += width + padding;
+            } else if (typeof legendItem.text !== 'string') {
+                const fontLineHeight = labelFont.lineHeight;
+                cursor.y += calculateLegendItemHeight(legendItem, fontLineHeight);
             } else {
                 cursor.y += lineHeight;
             }
@@ -8353,6 +8356,32 @@ class Legend extends Element {
             ], this);
         }
     }
+}
+function calculateItemSize(boxWidth, labelFont, ctx, legendItem, _itemHeight) {
+    const itemWidth = calculateItemWidth(legendItem, boxWidth, labelFont, ctx);
+    const itemHeight = calculateItemHeight(_itemHeight, legendItem, labelFont.lineHeight);
+    return {
+        itemWidth,
+        itemHeight
+    };
+}
+function calculateItemWidth(legendItem, boxWidth, labelFont, ctx) {
+    let legendItemText = legendItem.text;
+    if (legendItemText && typeof legendItemText !== 'string') {
+        legendItemText = legendItemText.reduce((a, b)=>a.length > b.length ? a : b);
+    }
+    return boxWidth + labelFont.size / 2 + ctx.measureText(legendItemText).width;
+}
+function calculateItemHeight(_itemHeight, legendItem, fontLineHeight) {
+    let itemHeight = _itemHeight;
+    if (typeof legendItem.text !== 'string') {
+        itemHeight = calculateLegendItemHeight(legendItem, fontLineHeight);
+    }
+    return itemHeight;
+}
+function calculateLegendItemHeight(legendItem, fontLineHeight) {
+    const labelHeight = legendItem.text ? legendItem.text.length + 0.5 : 0;
+    return fontLineHeight * labelHeight;
 }
 function isListened(type, opts) {
     if ((type === 'mousemove' || type === 'mouseout') && (opts.onHover || opts.onLeave)) {
