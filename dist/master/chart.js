@@ -589,6 +589,9 @@ class DatasetController {
         this.linkScales();
         meta._stacked = isStacked(meta.vScale, meta);
         this.addElements();
+        if (this.options.fill && !this.chart.isPluginEnabled('filler')) {
+            console.warn("Tried to use the 'fill' option without the 'Filler' plugin enabled. Please import and register the 'Filler' plugin and make sure it is not disabled in the options");
+        }
     }
     updateIndex(datasetIndex) {
         if (this.index !== datasetIndex) {
@@ -6271,6 +6274,9 @@ class Chart {
     }
  notifyPlugins(hook, args, filter) {
         return this._plugins.notify(this, hook, args, filter);
+    }
+ isPluginEnabled(pluginId) {
+        return this._plugins._cache.filter((p)=>p.plugin.id === pluginId).length === 1;
     }
  _updateHoverStyles(active, lastActive, replay) {
         const hoverOptions = this.options.hover;
