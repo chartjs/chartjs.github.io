@@ -149,7 +149,7 @@ const interpolators = {
     boolean (from, to, factor) {
         return factor > 0.5 ? to : from;
     },
-    color (from, to, factor) {
+ color (from, to, factor) {
         const c0 = color(from || transparent);
         const c1 = c0.valid && color(to || transparent);
         return c1 && c1.valid ? c1.mix(c0, factor).hexString() : to;
@@ -1102,7 +1102,7 @@ class DatasetController {
             ...args
         ]);
     }
- _onDataPush() {
+    _onDataPush() {
         const count = arguments.length;
         this._sync([
             '_insertElements',
@@ -1110,21 +1110,21 @@ class DatasetController {
             count
         ]);
     }
- _onDataPop() {
+    _onDataPop() {
         this._sync([
             '_removeElements',
             this._cachedMeta.data.length - 1,
             1
         ]);
     }
- _onDataShift() {
+    _onDataShift() {
         this._sync([
             '_removeElements',
             0,
             1
         ]);
     }
- _onDataSplice(start, count) {
+    _onDataSplice(start, count) {
         if (count) {
             this._sync([
                 '_removeElements',
@@ -1141,7 +1141,7 @@ class DatasetController {
             ]);
         }
     }
- _onDataUnshift() {
+    _onDataUnshift() {
         this._sync([
             '_insertElements',
             0,
@@ -6550,7 +6550,7 @@ class ArcElement extends Element {
         }
     }
  inRange(chartX, chartY, useFinalPosition) {
-        const point = this.getProps([
+        const point =  this.getProps([
             'x',
             'y'
         ], useFinalPosition);
