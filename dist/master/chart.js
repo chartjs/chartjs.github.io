@@ -5522,6 +5522,17 @@ function moveNumericKeys(obj, start, move) {
     }
     return e;
 }
+function getDatasetArea(meta) {
+    const { xScale , yScale  } = meta;
+    if (xScale && yScale) {
+        return {
+            left: xScale.left,
+            right: xScale.right,
+            top: yScale.top,
+            bottom: yScale.bottom
+        };
+    }
+}
 class Chart {
     static defaults = defaults;
     static instances = instances;
@@ -6022,7 +6033,7 @@ class Chart {
         const ctx = this.ctx;
         const clip = meta._clip;
         const useClip = !clip.disabled;
-        const area = this.chartArea;
+        const area = getDatasetArea(meta) || this.chartArea;
         const args = {
             meta,
             index: meta.index,
