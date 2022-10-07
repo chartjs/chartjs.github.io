@@ -6914,7 +6914,9 @@ function inRange$1(el, pos, axis, useFinalPosition) {
 }
 class PointElement extends Element {
     static id = 'point';
- static defaults = {
+    /**
+   * @type {any}
+   */ static defaults = {
         borderWidth: 1,
         hitRadius: 1,
         hoverBorderWidth: 1,
@@ -6923,7 +6925,9 @@ class PointElement extends Element {
         radius: 3,
         rotation: 0
     };
- static defaultRoutes = {
+    /**
+   * @type {any}
+   */ static defaultRoutes = {
         backgroundColor: 'backgroundColor',
         borderColor: 'borderColor'
     };
@@ -6939,7 +6943,7 @@ class PointElement extends Element {
     }
     inRange(mouseX, mouseY, useFinalPosition) {
         const options = this.options;
-        const { x , y  } =  this.getProps([
+        const { x , y  } = this.getProps([
             'x',
             'y'
         ], useFinalPosition);
@@ -6980,6 +6984,7 @@ class PointElement extends Element {
     }
     getRange() {
         const options = this.options || {};
+        // @ts-expect-error Fallbacks should never be hit in practice
         return options.radius + options.hitRadius;
     }
 }
