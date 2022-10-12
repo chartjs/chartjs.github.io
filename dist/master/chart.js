@@ -1,5 +1,5 @@
 /*!
- * Chart.js v4.0.0-dev
+ * Chart.js v4.0.0-alpha.1
  * https://www.chartjs.org
  * (c) 2022 Chart.js Contributors
  * Released under the MIT License
@@ -5441,7 +5441,7 @@ function needContext(proxy, names) {
     return false;
 }
 
-var version = "4.0.0-dev";
+var version = "4.0.0-alpha.1";
 
 const KNOWN_POSITIONS = [
     'top',
@@ -6357,6 +6357,8 @@ var Chart$1 = Chart;
 function clipArc(ctx, element, endAngle) {
     const { startAngle , pixelMargin , x , y , outerRadius , innerRadius  } = element;
     let angleMargin = pixelMargin / outerRadius;
+    // Draw an inner border by clipping the arc and drawing a double-width border
+    // Enlarge the clipping arc by 0.33 pixels to eliminate glitches between borders
     ctx.beginPath();
     ctx.arc(x, y, outerRadius, startAngle - angleMargin, endAngle + angleMargin);
     if (innerRadius > pixelMargin) {
@@ -6376,10 +6378,19 @@ function toRadiusCorners(value) {
         'innerEnd'
     ]);
 }
- function parseBorderRadius$1(arc, innerRadius, outerRadius, angleDelta) {
+/**
+ * Parse border radius from the provided options
+ */ function parseBorderRadius$1(arc, innerRadius, outerRadius, angleDelta) {
     const o = toRadiusCorners(arc.options.borderRadius);
     const halfThickness = (outerRadius - innerRadius) / 2;
     const innerLimit = Math.min(halfThickness, angleDelta * innerRadius / 2);
+    // Outer limits are complicated. We want to compute the available angular distance at
+    // a radius of outerRadius - borderRadius because for small angular distances, this term limits.
+    // We compute at r = outerRadius - borderRadius because this circle defines the center of the border corners.
+    //
+    // If the borderRadius is large, that value can become negative.
+    // This causes the outer borders to lose their radius entirely, which is rather unexpected. To solve that, if borderRadius > outerRadius
+    // we know that the thickness term will dominate and compute the limits at that point
     const computeOuterLimit = (val)=>{
         const outerArcLimit = (outerRadius - Math.min(halfThickness, val)) * angleDelta / 2;
         return _limitValue(val, 0, Math.min(halfThickness, outerArcLimit));
@@ -6391,19 +6402,40 @@ function toRadiusCorners(value) {
         innerEnd: _limitValue(o.innerEnd, 0, innerLimit)
     };
 }
- function rThetaToXY(r, theta, x, y) {
+/**
+ * Convert (r, 𝜃) to (x, y)
+ */ function rThetaToXY(r, theta, x, y) {
     return {
         x: x + r * Math.cos(theta),
         y: y + r * Math.sin(theta)
     };
 }
- function pathArc(ctx, element, offset, spacing, end, circular) {
+/**
+ * Path the arc, respecting the border radius
+ *
+ * 8 points of interest exist around the arc segment.
+ * These points define the intersection of the arc edges and the corners.
+ *
+ *   Start      End
+ *
+ *    1---------2    Outer
+ *   /           \
+ *   8           3
+ *   |           |
+ *   |           |
+ *   7           4
+ *   \           /
+ *    6---------5    Inner
+ */ function pathArc(ctx, element, offset, spacing, end, circular) {
     const { x , y , startAngle: start , pixelMargin , innerRadius: innerR  } = element;
     const outerRadius = Math.max(element.outerRadius + spacing + offset - pixelMargin, 0);
     const innerRadius = innerR > 0 ? innerR + spacing + offset + pixelMargin : 0;
     let spacingOffset = 0;
     const alpha = end - start;
     if (spacing) {
+        // When spacing is present, it is the same for all items
+        // So we adjust the start and end angle of the arc such that
+        // the distance is the same as it would be without the spacing
         const noSpacingInnerRadius = innerR > 0 ? innerR - spacing : 0;
         const noSpacingOuterRadius = outerRadius > 0 ? outerRadius - spacing : 0;
         const avNogSpacingRadius = (noSpacingInnerRadius + noSpacingOuterRadius) / 2;
@@ -6425,24 +6457,32 @@ function toRadiusCorners(value) {
     const innerEndAdjustedAngle = endAngle - innerEnd / innerEndAdjustedRadius;
     ctx.beginPath();
     if (circular) {
+        // The first arc segment from point 1 to point 2
         ctx.arc(x, y, outerRadius, outerStartAdjustedAngle, outerEndAdjustedAngle);
+        // The corner segment from point 2 to point 3
         if (outerEnd > 0) {
             const pCenter = rThetaToXY(outerEndAdjustedRadius, outerEndAdjustedAngle, x, y);
             ctx.arc(pCenter.x, pCenter.y, outerEnd, outerEndAdjustedAngle, endAngle + HALF_PI);
         }
+        // The line from point 3 to point 4
         const p4 = rThetaToXY(innerEndAdjustedRadius, endAngle, x, y);
         ctx.lineTo(p4.x, p4.y);
+        // The corner segment from point 4 to point 5
         if (innerEnd > 0) {
             const pCenter1 = rThetaToXY(innerEndAdjustedRadius, innerEndAdjustedAngle, x, y);
             ctx.arc(pCenter1.x, pCenter1.y, innerEnd, endAngle + HALF_PI, innerEndAdjustedAngle + Math.PI);
         }
+        // The inner arc from point 5 to point 6
         ctx.arc(x, y, innerRadius, endAngle - innerEnd / innerRadius, startAngle + innerStart / innerRadius, true);
+        // The corner segment from point 6 to point 7
         if (innerStart > 0) {
             const pCenter2 = rThetaToXY(innerStartAdjustedRadius, innerStartAdjustedAngle, x, y);
             ctx.arc(pCenter2.x, pCenter2.y, innerStart, innerStartAdjustedAngle + Math.PI, startAngle - HALF_PI);
         }
+        // The line from point 7 to point 8
         const p8 = rThetaToXY(outerStartAdjustedRadius, startAngle, x, y);
         ctx.lineTo(p8.x, p8.y);
+        // The corner segment from point 8 to point 1
         if (outerStart > 0) {
             const pCenter3 = rThetaToXY(outerStartAdjustedRadius, outerStartAdjustedAngle, x, y);
             ctx.arc(pCenter3.x, pCenter3.y, outerStart, startAngle - HALF_PI, outerStartAdjustedAngle);
@@ -6521,7 +6561,7 @@ function drawBorder(ctx, element, offset, spacing, endAngle, circular) {
 }
 class ArcElement extends Element {
     static id = 'arc';
- static defaults = {
+    static defaults = {
         borderAlign: 'center',
         borderColor: '#fff',
         borderJoinStyle: undefined,
@@ -6532,7 +6572,7 @@ class ArcElement extends Element {
         angle: undefined,
         circular: true
     };
- static defaultRoutes = {
+    static defaultRoutes = {
         backgroundColor: 'backgroundColor'
     };
     constructor(cfg){
@@ -6549,8 +6589,8 @@ class ArcElement extends Element {
             Object.assign(this, cfg);
         }
     }
- inRange(chartX, chartY, useFinalPosition) {
-        const point =  this.getProps([
+    inRange(chartX, chartY, useFinalPosition) {
+        const point = this.getProps([
             'x',
             'y'
         ], useFinalPosition);
@@ -6558,7 +6598,7 @@ class ArcElement extends Element {
             x: chartX,
             y: chartY
         });
-        const { startAngle , endAngle , innerRadius , outerRadius , circumference  } =  this.getProps([
+        const { startAngle , endAngle , innerRadius , outerRadius , circumference  } = this.getProps([
             'startAngle',
             'endAngle',
             'innerRadius',
@@ -6571,15 +6611,15 @@ class ArcElement extends Element {
         const withinRadius = _isBetween(distance, innerRadius + rAdjust, outerRadius + rAdjust);
         return betweenAngles && withinRadius;
     }
- getCenterPoint(useFinalPosition) {
-        const { x , y , startAngle , endAngle , innerRadius , outerRadius  } =  this.getProps([
+    getCenterPoint(useFinalPosition) {
+        const { x , y , startAngle , endAngle , innerRadius , outerRadius  } = this.getProps([
             'x',
             'y',
             'startAngle',
             'endAngle',
             'innerRadius',
             'outerRadius',
-            'circumference',
+            'circumference', 
         ], useFinalPosition);
         const { offset , spacing  } = this.options;
         const halfAngle = (startAngle + endAngle) / 2;
@@ -6589,7 +6629,7 @@ class ArcElement extends Element {
             y: y + Math.sin(halfAngle) * halfRadius
         };
     }
- tooltipPosition(useFinalPosition) {
+    tooltipPosition(useFinalPosition) {
         return this.getCenterPoint(useFinalPosition);
     }
     draw(ctx) {
