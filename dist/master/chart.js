@@ -4466,8 +4466,8 @@ class Scale extends Element {
                 const labelPadding = toPadding(optsAtIndex.backdropPadding);
                 const height = labelSizes.heights[i];
                 const width = labelSizes.widths[i];
-                let top = y + textOffset - labelPadding.top;
-                let left = x - labelPadding.left;
+                let top = textOffset - labelPadding.top;
+                let left = 0 - labelPadding.left;
                 switch(textBaseline){
                     case 'middle':
                         top -= height / 2;
@@ -4728,10 +4728,6 @@ class Scale extends Element {
             const item = items[i];
             const tickFont = item.font;
             const label = item.label;
-            if (item.backdrop) {
-                ctx.fillStyle = item.backdrop.color;
-                ctx.fillRect(item.backdrop.left, item.backdrop.top, item.backdrop.width, item.backdrop.height);
-            }
             let y = item.textOffset;
             renderText(ctx, label, 0, y, tickFont, item);
         }
