@@ -7219,6 +7219,75 @@ PointElement: PointElement,
 BarElement: BarElement
 });
 
+const BORDER_COLORS = [
+    'rgb(54, 162, 235)',
+    'rgb(255, 99, 132)',
+    'rgb(255, 159, 64)',
+    'rgb(255, 205, 86)',
+    'rgb(75, 192, 192)',
+    'rgb(153, 102, 255)',
+    'rgb(201, 203, 207)' // grey
+];
+// Border colors with 50% transparency
+const BACKGROUND_COLORS = /* #__PURE__ */ BORDER_COLORS.map((color)=>color.replace('rgb(', 'rgba(').replace(')', ', 0.5)'));
+function getBorderColor(i) {
+    return BORDER_COLORS[i % BORDER_COLORS.length];
+}
+function getBackgroundColor(i) {
+    return BACKGROUND_COLORS[i % BACKGROUND_COLORS.length];
+}
+function createDefaultDatasetColorizer() {
+    return (dataset, i)=>{
+        dataset.borderColor = getBorderColor(i);
+        dataset.backgroundColor = getBackgroundColor(i);
+    };
+}
+function createDoughnutDatasetColorizer() {
+    let i = 0;
+    return (dataset)=>{
+        dataset.backgroundColor = dataset.data.map(()=>getBorderColor(i++));
+    };
+}
+function createPolarAreaDatasetColorizer() {
+    let i = 0;
+    return (dataset)=>{
+        dataset.backgroundColor = dataset.data.map(()=>getBackgroundColor(i++));
+    };
+}
+function containsColorsDefinitions(descriptors) {
+    let k;
+    for(k in descriptors){
+        if (descriptors[k].borderColor || descriptors[k].backgroundColor) {
+            return true;
+        }
+    }
+    return false;
+}
+var plugin_colors = {
+    id: 'colors',
+    defaults: {
+        enabled: true
+    },
+    beforeLayout (chart, _args, options) {
+        if (!options.enabled) {
+            return;
+        }
+        const { type , options: { elements  } , data: { datasets  }  } = chart.config;
+        if (containsColorsDefinitions(datasets) || elements && containsColorsDefinitions(elements)) {
+            return;
+        }
+        let colorizer;
+        if (type === 'doughnut') {
+            colorizer = createDoughnutDatasetColorizer();
+        } else if (type === 'polarArea') {
+            colorizer = createPolarAreaDatasetColorizer();
+        } else {
+            colorizer = createDefaultDatasetColorizer();
+        }
+        datasets.forEach(colorizer);
+    }
+};
+
 function lttbDecimation(data, start, count, availableWidth, options) {
  const samples = options.samples || availableWidth;
     if (samples >= count) {
@@ -9711,6 +9780,7 @@ var plugin_tooltip = {
 
 var plugins = /*#__PURE__*/Object.freeze({
 __proto__: null,
+Colors: plugin_colors,
 Decimation: plugin_decimation,
 Filler: index,
 Legend: plugin_legend,
@@ -11233,5 +11303,5 @@ const registerables = [
     scales, 
 ];
 
-export { Animation, Animations, ArcElement, BarController, BarElement, BasePlatform, BasicPlatform, BubbleController, CategoryScale, Chart$1 as Chart, DatasetController, plugin_decimation as Decimation, DomPlatform, DoughnutController, Element, index as Filler, Interaction, plugin_legend as Legend, LineController, LineElement, LinearScale, LogarithmicScale, PieController, PointElement, PolarAreaController, RadarController, RadialLinearScale, Scale, ScatterController, plugin_subtitle as SubTitle, TimeScale, TimeSeriesScale$1 as TimeSeriesScale, plugin_title as Title, plugin_tooltip as Tooltip, adapters as _adapters, _detectPlatform, animator, controllers, elements, layouts, plugins, registerables, registry, scales };
+export { Animation, Animations, ArcElement, BarController, BarElement, BasePlatform, BasicPlatform, BubbleController, CategoryScale, Chart$1 as Chart, plugin_colors as Colors, DatasetController, plugin_decimation as Decimation, DomPlatform, DoughnutController, Element, index as Filler, Interaction, plugin_legend as Legend, LineController, LineElement, LinearScale, LogarithmicScale, PieController, PointElement, PolarAreaController, RadarController, RadialLinearScale, Scale, ScatterController, plugin_subtitle as SubTitle, TimeScale, TimeSeriesScale$1 as TimeSeriesScale, plugin_title as Title, plugin_tooltip as Tooltip, adapters as _adapters, _detectPlatform, animator, controllers, elements, layouts, plugins, registerables, registry, scales };
 //# sourceMappingURL=chart.js.map
