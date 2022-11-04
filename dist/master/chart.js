@@ -1814,7 +1814,7 @@ class DoughnutController extends DatasetController {
                     generateLabels (chart) {
                         const data = chart.data;
                         if (data.labels.length && data.datasets.length) {
-                            const { labels: { pointStyle  }  } = chart.legend.options;
+                            const { labels: { pointStyle , color  }  } = chart.legend.options;
                             return data.labels.map((label, i)=>{
                                 const meta = chart.getDatasetMeta(0);
                                 const style = meta.controller.getStyle(i);
@@ -1822,6 +1822,7 @@ class DoughnutController extends DatasetController {
                                     text: label,
                                     fillStyle: style.backgroundColor,
                                     strokeStyle: style.borderColor,
+                                    fontColor: color,
                                     lineWidth: style.borderWidth,
                                     pointStyle: pointStyle,
                                     hidden: !chart.getDataVisibility(i),
@@ -2175,7 +2176,7 @@ class PolarAreaController extends DatasetController {
                     generateLabels (chart) {
                         const data = chart.data;
                         if (data.labels.length && data.datasets.length) {
-                            const { labels: { pointStyle  }  } = chart.legend.options;
+                            const { labels: { pointStyle , color  }  } = chart.legend.options;
                             return data.labels.map((label, i)=>{
                                 const meta = chart.getDatasetMeta(0);
                                 const style = meta.controller.getStyle(i);
@@ -2183,6 +2184,7 @@ class PolarAreaController extends DatasetController {
                                     text: label,
                                     fillStyle: style.backgroundColor,
                                     strokeStyle: style.borderColor,
+                                    fontColor: color,
                                     lineWidth: style.borderWidth,
                                     pointStyle: pointStyle,
                                     hidden: !chart.getDataVisibility(i),
@@ -7254,6 +7256,14 @@ function createPolarAreaDatasetColorizer() {
         dataset.backgroundColor = dataset.data.map(()=>getBackgroundColor(i++));
     };
 }
+function getColorizer(type) {
+    if (type === 'doughnut' || type === 'pie') {
+        return createDoughnutDatasetColorizer();
+    } else if (type === 'polarArea') {
+        return createPolarAreaDatasetColorizer();
+    }
+    return createDefaultDatasetColorizer();
+}
 function containsColorsDefinitions(descriptors) {
     let k;
     for(k in descriptors){
@@ -7276,14 +7286,7 @@ var plugin_colors = {
         if (containsColorsDefinitions(datasets) || elements && containsColorsDefinitions(elements)) {
             return;
         }
-        let colorizer;
-        if (type === 'doughnut') {
-            colorizer = createDoughnutDatasetColorizer();
-        } else if (type === 'polarArea') {
-            colorizer = createPolarAreaDatasetColorizer();
-        } else {
-            colorizer = createDefaultDatasetColorizer();
-        }
+        const colorizer = getColorizer(type);
         datasets.forEach(colorizer);
     }
 };
