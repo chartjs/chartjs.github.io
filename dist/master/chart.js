@@ -952,7 +952,7 @@ class DatasetController {
         ];
         const scopes = config.getOptionScopes(this.getDataset(), scopeKeys);
         const names = Object.keys(defaults.elements[elementType]);
-        const context = ()=>this.getContext(index, active);
+        const context = ()=>this.getContext(index, active, mode);
         const values = config.resolveNamedOptions(scopes, names, context, prefixes);
         if (values.$shared) {
             values.$shared = sharing;
@@ -7229,31 +7229,31 @@ function getBorderColor(i) {
 function getBackgroundColor(i) {
     return BACKGROUND_COLORS[i % BACKGROUND_COLORS.length];
 }
-function createDefaultDatasetColorizer() {
-    return (dataset, i)=>{
-        dataset.borderColor = getBorderColor(i);
-        dataset.backgroundColor = getBackgroundColor(i);
-    };
+function colorizeDefaultDataset(dataset, i) {
+    dataset.borderColor = getBorderColor(i);
+    dataset.backgroundColor = getBackgroundColor(i);
+    return ++i;
 }
-function createDoughnutDatasetColorizer() {
+function colorizeDoughnutDataset(dataset, i) {
+    dataset.backgroundColor = dataset.data.map(()=>getBorderColor(i++));
+    return i;
+}
+function colorizePolarAreaDataset(dataset, i) {
+    dataset.backgroundColor = dataset.data.map(()=>getBackgroundColor(i++));
+    return i;
+}
+function getColorizer(chartType) {
     let i = 0;
     return (dataset)=>{
-        dataset.backgroundColor = dataset.data.map(()=>getBorderColor(i++));
+        const type = dataset.type || chartType;
+        if (type === 'doughnut' || type === 'pie') {
+            i = colorizeDoughnutDataset(dataset, i);
+        } else if (type === 'polarArea') {
+            i = colorizePolarAreaDataset(dataset, i);
+        } else if (type) {
+            i = colorizeDefaultDataset(dataset, i);
+        }
     };
-}
-function createPolarAreaDatasetColorizer() {
-    let i = 0;
-    return (dataset)=>{
-        dataset.backgroundColor = dataset.data.map(()=>getBackgroundColor(i++));
-    };
-}
-function getColorizer(type) {
-    if (type === 'doughnut' || type === 'pie') {
-        return createDoughnutDatasetColorizer();
-    } else if (type === 'polarArea') {
-        return createPolarAreaDatasetColorizer();
-    }
-    return createDefaultDatasetColorizer();
 }
 function containsColorsDefinitions(descriptors) {
     let k;
