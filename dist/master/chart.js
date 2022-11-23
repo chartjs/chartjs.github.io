@@ -509,6 +509,8 @@ function updateStacks(controller, parsed) {
         stack[datasetIndex] = value;
         stack._top = getLastIndexInStack(stack, vScale, true, meta.type);
         stack._bottom = getLastIndexInStack(stack, vScale, false, meta.type);
+        const visualValues = stack._visualValues || (stack._visualValues = {});
+        visualValues[datasetIndex] = value;
     }
 }
 function getFirstScaleId(chart, axis) {
@@ -550,6 +552,9 @@ function clearStacks(meta, items) {
             return;
         }
         delete stacks[axis][datasetIndex];
+        if (stacks[axis]._visualValues !== undefined && stacks[axis]._visualValues[datasetIndex] !== undefined) {
+            delete stacks[axis]._visualValues[datasetIndex];
+        }
     }
 }
 const isDirectUpdateMode = (mode)=>mode === 'reset' || mode === 'none';
@@ -787,7 +792,7 @@ class DatasetController {
         const value = parsed[scale.axis];
         const stack = {
             keys: getSortedDatasetIndices(chart, true),
-            values: parsed._stacks[scale.axis]
+            values: parsed._stacks[scale.axis]._visualValues
         };
         return applyStack(stack, value, meta.index, {
             mode
@@ -1532,7 +1537,7 @@ class BarController extends DatasetController {
         };
     }
  _calculateBarValuePixels(index) {
-        const { _cachedMeta: { vScale , _stacked  } , options: { base: baseValue , minBarLength  }  } = this;
+        const { _cachedMeta: { vScale , _stacked , index: datasetIndex  } , options: { base: baseValue , minBarLength  }  } = this;
         const actualBase = baseValue || 0;
         const parsed = this.getParsed(index);
         const custom = parsed._custom;
@@ -1572,6 +1577,9 @@ class BarController extends DatasetController {
             const max = Math.max(startPixel, endPixel);
             base = Math.max(Math.min(base, max), min);
             head = base + size;
+            if (_stacked && !floating) {
+                parsed._stacks[vScale.axis]._visualValues[datasetIndex] = vScale.getValueForPixel(head) - vScale.getValueForPixel(base);
+            }
         }
         if (base === vScale.getPixelForValue(actualBase)) {
             const halfGrid = sign(size) * vScale.getLineWidthForValue(actualBase) / 2;
