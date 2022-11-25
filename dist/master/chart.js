@@ -7250,15 +7250,15 @@ function colorizePolarAreaDataset(dataset, i) {
     dataset.backgroundColor = dataset.data.map(()=>getBackgroundColor(i++));
     return i;
 }
-function getColorizer(chartType) {
+function getColorizer(chart) {
     let i = 0;
-    return (dataset)=>{
-        const type = dataset.type || chartType;
-        if (type === 'doughnut' || type === 'pie') {
+    return (dataset, datasetIndex)=>{
+        const controller = chart.getDatasetMeta(datasetIndex).controller;
+        if (controller instanceof DoughnutController) {
             i = colorizeDoughnutDataset(dataset, i);
-        } else if (type === 'polarArea') {
+        } else if (controller instanceof PolarAreaController) {
             i = colorizePolarAreaDataset(dataset, i);
-        } else if (type) {
+        } else if (controller) {
             i = colorizeDefaultDataset(dataset, i);
         }
     };
@@ -7285,7 +7285,7 @@ var plugin_colors = {
         if (containsColorsDefinitions(datasets) || elements && containsColorsDefinitions(elements)) {
             return;
         }
-        const colorizer = getColorizer(type);
+        const colorizer = getColorizer(chart);
         datasets.forEach(colorizer);
     }
 };
