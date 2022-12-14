@@ -7276,14 +7276,15 @@ function containsColorsDefinitions(descriptors) {
 var plugin_colors = {
     id: 'colors',
     defaults: {
-        enabled: true
+        enabled: true,
+        forceOverride: false
     },
     beforeLayout (chart, _args, options) {
         if (!options.enabled) {
             return;
         }
-        const { type , options: { elements  } , data: { datasets  }  } = chart.config;
-        if (containsColorsDefinitions(datasets) || elements && containsColorsDefinitions(elements)) {
+        const { options: { elements  } , data: { datasets  }  } = chart.config;
+        if (!options.forceOverride && (containsColorsDefinitions(datasets) || elements && containsColorsDefinitions(elements))) {
             return;
         }
         const colorizer = getColorizer(chart);
