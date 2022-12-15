@@ -5,7 +5,6 @@
 		<title>Chart.js | Open source HTML5 Charts for your website</title>
 		
 	<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' www.google-analytics.com *.typekit.net">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<script src="https://use.typekit.net/kfx1lmb.js"></script>
 <script>try{Typekit.load({ async: true });}catch(e){}</script>
 
@@ -40,17 +39,45 @@
 				<img class="chart-logo fade-in animation-delay__3" src="./img/chartjs-logo.svg"/>
 				<div class="fade-in fade-in animation-delay__5">
 					<h1 class="hero-title">Chart.js</h1>
-					<h2 class="hero-subtitle">Simple yet flexible JavaScript charting for designers &amp; developers</h2>
+					<h2 class="hero-subtitle">Simple yet flexible JavaScript charting library for the modern web</h2>
 				</div>
 				<div class="hero-button-wrapper fade-in animation-delay__6">
-					<a class="button button__red" href="./docs">Documentation</a>
+					<a class="button button__red" href="./docs">Get Started</a>
 					<a class="button button__blue" href="./docs/latest/samples">Samples</a>
 					<a class="button button__green" href="https://github.com/chartjs/awesome" target="_blank">Ecosystem</a>
 					<a class="button button__black" href="https://github.com/chartjs/Chart.js" target="_blank">GitHub</a>
 				</div>
+        <!-- Meetup banner, remove after Jan 26, 2023 -->
+        <div style="margin: auto; max-width: 500px; padding-bottom: 2em; line-height: 1.25em; font-weight: bold;">
+          Join Chart.js maintainers and community at the first Chart.js meetup in January 2023. <a href="https://cube.dev/events/chart-js-community-meetup" target="_blank">Check agenda and register</a>
+        </div>
+        <!-- End meetup banner -->
 			</div>
-			<hr/>
 			<div class="feature-container fade-in animation-delay__7">
+        <div class="feature">
+          <div class="feature-text feature-text__pull-right">
+            <h3 class="subtitle">
+              <span class="pill pill__new pill__v4">New in 4.0</span>
+              Colors plugin
+            </h3>
+            <p class="description"><a href="https://www.chartjs.org/docs/latest/general/colors.html#default-color-palette">Default palette</a> of Chart.js brand colors is available as a built-in time-saving zero-configuration plugin.</p>
+          </div>
+          <div class="feature-chart feature-chart__left feature-chart__pull-right">
+            <canvas id="v4colors" height="200" width="300"></canvas>
+          </div>
+        </div>
+        <div class="feature">
+					<div class="feature-text">
+						<h3 class="subtitle">
+							<span class="pill pill__new pill__v4">New in 4.0</span>
+							Tree-shaking
+						</h3>
+						<p class="description">JavaScript bundle size can be reduced by dozens of kilobytes by registering only <a href="https://www.chartjs.org/docs/latest/getting-started/integration.html#bundle-optimization" tagrtet="_blank">necessary components</a>.</p>
+					</div>
+					<div class="feature-chart feature-chart__right">
+						<img src="./img/tree-shaking.png" width="300"/>
+					</div>
+				</div>
 				<div class="feature">
 					<div class="feature-text feature-text__pull-right">
 						<h3 class="subtitle">
@@ -69,7 +96,7 @@
 							<span class="pill pill__new pill__v3">New in 3.4</span>
 							Subtitle plugin
 						</h3>
-						<p class="description">A secondary title plugin with all the same options as main title</p>
+						<p class="description">A secondary title <a href="https://www.chartjs.org/docs/latest/configuration/subtitle.html">plugin</a> with all the same options as main title.</p>
 					</div>
 					<div class="feature-chart feature-chart__right">
 						<canvas id="v34subtitle" height="200" width="300"></canvas>
@@ -105,7 +132,7 @@
 							<span class="pill pill__new pill__v3">New in 3.0</span>
 							Performance!
 						</h3>
-						<p class="description">Numerous performance enhancements have been introduced. This example has 1M (2x500k) points with the new decimation plugin enabled.</p>
+						<p class="description">Numerous performance enhancements have been introduced. This example has 1M (2x500k) points with the new <a href="https://www.chartjs.org/docs/latest/configuration/decimation.html">decimation plugin</a> enabled.</p>
 					</div>
 					<div class="feature-chart feature-chart__left feature-chart__pull-right">
 						<canvas id="v3perf" height="200" width="300"></canvas>
@@ -141,7 +168,7 @@
 							<span class="pill pill__new">New in 2.0</span>
 							Animate everything!
 						</h3>
-						<p class="description">Out of the box stunning transitions when changing data, updating colours and adding datasets.</p>
+						<p class="description">Out of the box stunning <a href="https://www.chartjs.org/docs/latest/configuration/animations.html">transitions</a> when changing data, updating colours and adding datasets.</p>
 					</div>
 					<div class="feature-chart feature-chart__right">
 						<canvas id="animate-chart" height="200" width="300"></canvas>
