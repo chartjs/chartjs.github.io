@@ -1,11 +1,12 @@
 /*!
- * Chart.js v4.0.1
+ * Chart.js v4.1.0
  * https://www.chartjs.org
  * (c) 2022 Chart.js Contributors
  * Released under the MIT License
  */
-import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, d as defaults, b as isArray, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as isNumberFinite, h as defined, s as sign, j as createContext, k as isNullOrUndef, _ as _arrayUnique, t as toRadians, T as TAU, m as toPercentage, n as toDimension, o as formatNumber, p as _angleBetween, H as HALF_PI, P as PI, q as _getStartAndCountOfVisiblePoints, w as _scaleRangesChanged, x as isNumber, y as _parseObjectDataRadialScale, z as getRelativePosition, A as _rlookupByKey, B as _lookupByKey, C as _isPointInArea, D as getAngleFromPoint, E as toPadding, F as each, G as getMaximumSize, I as _getParentNode, J as readUsedSize, K as supportsEventListenerOptions, L as throttled, M as _isDomSupported, N as _factorize, O as finiteOrDefault, Q as callback, R as _addGrace, S as _limitValue, U as toDegrees, V as _measureText, W as _int16Range, X as _alignPixel, Y as clipArea, Z as renderText, $ as unclipArea, a0 as toFont, a1 as _toLeftRightCenter, a2 as _alignStartEnd, a3 as overrides, a4 as merge, a5 as _capitalize, a6 as descriptors, a7 as isFunction, a8 as _attachContext, a9 as _createResolver, aa as _descriptors, ab as mergeIf, ac as uid, ad as debounce, ae as retinaScale, af as clearCanvas, ag as setsEqual, ah as _elementsEqual, ai as _isClickEvent, aj as _isBetween, ak as _readValueToProps, al as _updateBezierControlPoints, am as _computeSegments, an as _boundSegments, ao as _steppedInterpolation, ap as _bezierInterpolation, aq as _pointInLine, ar as _steppedLineTo, as as _bezierCurveTo, at as drawPoint, au as addRoundedRectPath, av as toTRBL, aw as toTRBLCorners, ax as _boundSegment, ay as _normalizeAngle, az as getRtlAdapter, aA as overrideTextDirection, aB as _textX, aC as restoreTextDirection, aD as drawPointLegend, aE as distanceBetweenPoints, aF as noop, aG as _setMinAndMaxByKey, aH as niceNum, aI as almostWhole, aJ as almostEquals, aK as _decimalPlaces, aL as Ticks, aM as log10, aN as _longestText, aO as _filterBetween, aP as _lookup } from './chunks/helpers.segment.js';
+import { r as requestAnimFrame, a as resolve, e as effects, c as color, i as isObject, d as defaults, b as isArray, v as valueOrDefault, u as unlistenArrayEvents, l as listenArrayEvents, f as resolveObjectKey, g as isNumberFinite, h as defined, s as sign, j as createContext, k as isNullOrUndef, _ as _arrayUnique, t as toRadians, m as toPercentage, n as toDimension, T as TAU, o as formatNumber, p as _angleBetween, H as HALF_PI, P as PI, q as _getStartAndCountOfVisiblePoints, w as _scaleRangesChanged, x as isNumber, y as _parseObjectDataRadialScale, z as getRelativePosition, A as _rlookupByKey, B as _lookupByKey, C as _isPointInArea, D as getAngleFromPoint, E as toPadding, F as each, G as getMaximumSize, I as _getParentNode, J as readUsedSize, K as supportsEventListenerOptions, L as throttled, M as _isDomSupported, N as _factorize, O as finiteOrDefault, Q as callback, R as _addGrace, S as _limitValue, U as toDegrees, V as _measureText, W as _int16Range, X as _alignPixel, Y as clipArea, Z as renderText, $ as unclipArea, a0 as toFont, a1 as _toLeftRightCenter, a2 as _alignStartEnd, a3 as overrides, a4 as merge, a5 as _capitalize, a6 as descriptors, a7 as isFunction, a8 as _attachContext, a9 as _createResolver, aa as _descriptors, ab as mergeIf, ac as uid, ad as debounce, ae as retinaScale, af as clearCanvas, ag as setsEqual, ah as _elementsEqual, ai as _isClickEvent, aj as _isBetween, ak as _readValueToProps, al as _updateBezierControlPoints, am as _computeSegments, an as _boundSegments, ao as _steppedInterpolation, ap as _bezierInterpolation, aq as _pointInLine, ar as _steppedLineTo, as as _bezierCurveTo, at as drawPoint, au as addRoundedRectPath, av as toTRBL, aw as toTRBLCorners, ax as _boundSegment, ay as _normalizeAngle, az as getRtlAdapter, aA as overrideTextDirection, aB as _textX, aC as restoreTextDirection, aD as drawPointLegend, aE as distanceBetweenPoints, aF as noop, aG as _setMinAndMaxByKey, aH as niceNum, aI as almostWhole, aJ as almostEquals, aK as _decimalPlaces, aL as Ticks, aM as log10, aN as _longestText, aO as _filterBetween, aP as _lookup } from './chunks/helpers.segment.js';
 export { aL as Ticks, d as defaults } from './chunks/helpers.segment.js';
+import '@kurkle/color';
 
 class Animator {
     constructor(){
@@ -350,7 +351,8 @@ class Animations {
             return true;
         }
     }
-}function awaitAll(animations, properties) {
+}
+function awaitAll(animations, properties) {
     const running = [];
     const keys = Object.keys(properties);
     for(let i = 0; i < keys.length; i++){
@@ -508,6 +510,8 @@ function updateStacks(controller, parsed) {
         stack[datasetIndex] = value;
         stack._top = getLastIndexInStack(stack, vScale, true, meta.type);
         stack._bottom = getLastIndexInStack(stack, vScale, false, meta.type);
+        const visualValues = stack._visualValues || (stack._visualValues = {});
+        visualValues[datasetIndex] = value;
     }
 }
 function getFirstScaleId(chart, axis) {
@@ -549,6 +553,9 @@ function clearStacks(meta, items) {
             return;
         }
         delete stacks[axis][datasetIndex];
+        if (stacks[axis]._visualValues !== undefined && stacks[axis]._visualValues[datasetIndex] !== undefined) {
+            delete stacks[axis]._visualValues[datasetIndex];
+        }
     }
 }
 const isDirectUpdateMode = (mode)=>mode === 'reset' || mode === 'none';
@@ -786,7 +793,7 @@ class DatasetController {
         const value = parsed[scale.axis];
         const stack = {
             keys: getSortedDatasetIndices(chart, true),
-            values: parsed._stacks[scale.axis]
+            values: parsed._stacks[scale.axis]._visualValues
         };
         return applyStack(stack, value, meta.index, {
             mode
@@ -951,7 +958,7 @@ class DatasetController {
         ];
         const scopes = config.getOptionScopes(this.getDataset(), scopeKeys);
         const names = Object.keys(defaults.elements[elementType]);
-        const context = ()=>this.getContext(index, active);
+        const context = ()=>this.getContext(index, active, mode);
         const values = config.resolveNamedOptions(scopes, names, context, prefixes);
         if (values.$shared) {
             values.$shared = sharing;
@@ -1531,7 +1538,7 @@ class BarController extends DatasetController {
         };
     }
  _calculateBarValuePixels(index) {
-        const { _cachedMeta: { vScale , _stacked  } , options: { base: baseValue , minBarLength  }  } = this;
+        const { _cachedMeta: { vScale , _stacked , index: datasetIndex  } , options: { base: baseValue , minBarLength  }  } = this;
         const actualBase = baseValue || 0;
         const parsed = this.getParsed(index);
         const custom = parsed._custom;
@@ -1571,6 +1578,9 @@ class BarController extends DatasetController {
             const max = Math.max(startPixel, endPixel);
             base = Math.max(Math.min(base, max), min);
             head = base + size;
+            if (_stacked && !floating) {
+                parsed._stacks[vScale.axis]._visualValues[datasetIndex] = vScale.getValueForPixel(head) - vScale.getValueForPixel(base);
+            }
         }
         if (base === vScale.getPixelForValue(actualBase)) {
             const halfGrid = sign(size) * vScale.getLineWidthForValue(actualBase) / 2;
@@ -3818,6 +3828,10 @@ class Scale extends Element {
         const data = this.chart.data;
         return this.options.labels || (this.isHorizontal() ? data.xLabels : data.yLabels) || data.labels || [];
     }
+ getLabelItems(chartArea = this.chart.chartArea) {
+        const items = this._labelItems || (this._labelItems = this._computeLabelItems(chartArea));
+        return items;
+    }
     beforeLayout() {
         this._cache = {};
         this._dataLimitsCached = false;
@@ -4498,20 +4512,22 @@ class Scale extends Element {
                 };
             }
             items.push({
-                rotation,
                 label,
                 font,
-                color,
-                strokeColor,
-                strokeWidth,
                 textOffset,
-                textAlign: tickTextAlign,
-                textBaseline,
-                translation: [
-                    x,
-                    y
-                ],
-                backdrop
+                options: {
+                    rotation,
+                    color,
+                    strokeColor,
+                    strokeWidth,
+                    textAlign: tickTextAlign,
+                    textBaseline,
+                    translation: [
+                        x,
+                        y
+                    ],
+                    backdrop
+                }
             });
         }
         return items;
@@ -4727,14 +4743,13 @@ class Scale extends Element {
         if (area) {
             clipArea(ctx, area);
         }
-        const items = this._labelItems || (this._labelItems = this._computeLabelItems(chartArea));
-        let i, ilen;
-        for(i = 0, ilen = items.length; i < ilen; ++i){
-            const item = items[i];
+        const items = this.getLabelItems(chartArea);
+        for (const item of items){
+            const renderTextOptions = item.options;
             const tickFont = item.font;
             const label = item.label;
-            let y = item.textOffset;
-            renderText(ctx, label, 0, y, tickFont, item);
+            const y = item.textOffset;
+            renderText(ctx, label, 0, y, tickFont, renderTextOptions);
         }
         if (area) {
             unclipArea(ctx);
@@ -4890,7 +4905,8 @@ class TypedRegistry {
             }
         }
     }
-}function registerDefaults(item, scope, parentScope) {
+}
+function registerDefaults(item, scope, parentScope) {
     const itemDefaults = merge(Object.create(null), [
         parentScope ? defaults.get(parentScope) : {},
         defaults.get(scope),
@@ -5075,7 +5091,8 @@ class PluginService {
         this._notify(diff(previousDescriptors, descriptors), chart, 'stop');
         this._notify(diff(descriptors, previousDescriptors), chart, 'start');
     }
-} function allPlugins(config) {
+}
+ function allPlugins(config) {
     const localIds = {};
     const plugins = [];
     const keys = Object.keys(registry.plugins.items);
@@ -5312,7 +5329,7 @@ class Config {
         return cachedKeys(`${datasetType}.transition.${transition}`, ()=>[
                 [
                     `datasets.${datasetType}.transitions.${transition}`,
-                    `transitions.${transition}`,
+                    `transitions.${transition}`
                 ],
                 [
                     `datasets.${datasetType}`,
@@ -5336,7 +5353,7 @@ class Config {
         return cachedKeys(`${type}-plugin-${id}`, ()=>[
                 [
                     `plugins.${id}`,
-                    ...plugin.additionalOptionScopes || [],
+                    ...plugin.additionalOptionScopes || []
                 ]
             ]);
     }
@@ -5414,7 +5431,8 @@ class Config {
         const { resolver  } = getResolver(this._resolverCache, scopes, prefixes);
         return isObject(context) ? _attachContext(resolver, context, undefined, descriptorDefaults) : resolver;
     }
-}function getResolver(resolverCache, scopes, prefixes) {
+}
+function getResolver(resolverCache, scopes, prefixes) {
     let cache = resolverCache.get(scopes);
     if (!cache) {
         cache = new Map();
@@ -5446,7 +5464,7 @@ function needContext(proxy, names) {
     return false;
 }
 
-var version = "4.0.1";
+var version = "4.1.0";
 
 const KNOWN_POSITIONS = [
     'top',
@@ -6357,7 +6375,6 @@ class Chart {
 function invalidatePlugins() {
     return each(Chart.instances, (chart)=>chart._plugins.invalidate());
 }
-var Chart$1 = Chart;
 
 function clipArc(ctx, element, endAngle) {
     const { startAngle , pixelMargin , x , y , outerRadius , innerRadius  } = element;
@@ -6612,7 +6629,7 @@ class ArcElement extends Element {
             'endAngle',
             'innerRadius',
             'outerRadius',
-            'circumference', 
+            'circumference'
         ], useFinalPosition);
         const { offset , spacing  } = this.options;
         const halfAngle = (startAngle + endAngle) / 2;
@@ -7226,31 +7243,31 @@ function getBorderColor(i) {
 function getBackgroundColor(i) {
     return BACKGROUND_COLORS[i % BACKGROUND_COLORS.length];
 }
-function createDefaultDatasetColorizer() {
-    return (dataset, i)=>{
-        dataset.borderColor = getBorderColor(i);
-        dataset.backgroundColor = getBackgroundColor(i);
-    };
+function colorizeDefaultDataset(dataset, i) {
+    dataset.borderColor = getBorderColor(i);
+    dataset.backgroundColor = getBackgroundColor(i);
+    return ++i;
 }
-function createDoughnutDatasetColorizer() {
+function colorizeDoughnutDataset(dataset, i) {
+    dataset.backgroundColor = dataset.data.map(()=>getBorderColor(i++));
+    return i;
+}
+function colorizePolarAreaDataset(dataset, i) {
+    dataset.backgroundColor = dataset.data.map(()=>getBackgroundColor(i++));
+    return i;
+}
+function getColorizer(chart) {
     let i = 0;
-    return (dataset)=>{
-        dataset.backgroundColor = dataset.data.map(()=>getBorderColor(i++));
+    return (dataset, datasetIndex)=>{
+        const controller = chart.getDatasetMeta(datasetIndex).controller;
+        if (controller instanceof DoughnutController) {
+            i = colorizeDoughnutDataset(dataset, i);
+        } else if (controller instanceof PolarAreaController) {
+            i = colorizePolarAreaDataset(dataset, i);
+        } else if (controller) {
+            i = colorizeDefaultDataset(dataset, i);
+        }
     };
-}
-function createPolarAreaDatasetColorizer() {
-    let i = 0;
-    return (dataset)=>{
-        dataset.backgroundColor = dataset.data.map(()=>getBackgroundColor(i++));
-    };
-}
-function getColorizer(type) {
-    if (type === 'doughnut' || type === 'pie') {
-        return createDoughnutDatasetColorizer();
-    } else if (type === 'polarArea') {
-        return createPolarAreaDatasetColorizer();
-    }
-    return createDefaultDatasetColorizer();
 }
 function containsColorsDefinitions(descriptors) {
     let k;
@@ -7264,17 +7281,18 @@ function containsColorsDefinitions(descriptors) {
 var plugin_colors = {
     id: 'colors',
     defaults: {
-        enabled: true
+        enabled: true,
+        forceOverride: false
     },
     beforeLayout (chart, _args, options) {
         if (!options.enabled) {
             return;
         }
-        const { type , options: { elements  } , data: { datasets  }  } = chart.config;
-        if (containsColorsDefinitions(datasets) || elements && containsColorsDefinitions(elements)) {
+        const { options: { elements  } , data: { datasets  }  } = chart.config;
+        if (!options.forceOverride && (containsColorsDefinitions(datasets) || elements && containsColorsDefinitions(elements))) {
             return;
         }
-        const colorizer = getColorizer(type);
+        const colorizer = getColorizer(chart);
         datasets.forEach(colorizer);
     }
 };
@@ -10824,7 +10842,7 @@ const INTERVALS = {
         value = parser(value);
     }
     if (!isNumberFinite(value)) {
-        value = typeof parser === 'string' ? adapter.parse(value,  (parser)) : adapter.parse(value);
+        value = typeof parser === 'string' ? adapter.parse(value,  parser) : adapter.parse(value);
     }
     if (value === null) {
         return null;
@@ -11275,7 +11293,6 @@ class TimeSeriesScale extends TimeScale {
         return interpolate(this._table, decimal * this._tableRange + this._minPos, true);
     }
 }
-var TimeSeriesScale$1 = TimeSeriesScale;
 
 var scales = /*#__PURE__*/Object.freeze({
 __proto__: null,
@@ -11284,15 +11301,15 @@ LinearScale: LinearScale,
 LogarithmicScale: LogarithmicScale,
 RadialLinearScale: RadialLinearScale,
 TimeScale: TimeScale,
-TimeSeriesScale: TimeSeriesScale$1
+TimeSeriesScale: TimeSeriesScale
 });
 
 const registerables = [
     controllers,
     elements,
     plugins,
-    scales, 
+    scales
 ];
 
-export { Animation, Animations, ArcElement, BarController, BarElement, BasePlatform, BasicPlatform, BubbleController, CategoryScale, Chart$1 as Chart, plugin_colors as Colors, DatasetController, plugin_decimation as Decimation, DomPlatform, DoughnutController, Element, index as Filler, Interaction, plugin_legend as Legend, LineController, LineElement, LinearScale, LogarithmicScale, PieController, PointElement, PolarAreaController, RadarController, RadialLinearScale, Scale, ScatterController, plugin_subtitle as SubTitle, TimeScale, TimeSeriesScale$1 as TimeSeriesScale, plugin_title as Title, plugin_tooltip as Tooltip, adapters as _adapters, _detectPlatform, animator, controllers, elements, layouts, plugins, registerables, registry, scales };
+export { Animation, Animations, ArcElement, BarController, BarElement, BasePlatform, BasicPlatform, BubbleController, CategoryScale, Chart, plugin_colors as Colors, DatasetController, plugin_decimation as Decimation, DomPlatform, DoughnutController, Element, index as Filler, Interaction, plugin_legend as Legend, LineController, LineElement, LinearScale, LogarithmicScale, PieController, PointElement, PolarAreaController, RadarController, RadialLinearScale, Scale, ScatterController, plugin_subtitle as SubTitle, TimeScale, TimeSeriesScale, plugin_title as Title, plugin_tooltip as Tooltip, adapters as _adapters, _detectPlatform, animator, controllers, elements, layouts, plugins, registerables, registry, scales };
 //# sourceMappingURL=chart.js.map
