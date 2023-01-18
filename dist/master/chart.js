@@ -7278,6 +7278,9 @@ function containsColorsDefinitions(descriptors) {
     }
     return false;
 }
+function containsColorsDefinition(descriptor) {
+    return descriptor && (descriptor.borderColor || descriptor.backgroundColor);
+}
 var plugin_colors = {
     id: 'colors',
     defaults: {
@@ -7288,8 +7291,9 @@ var plugin_colors = {
         if (!options.enabled) {
             return;
         }
-        const { options: { elements  } , data: { datasets  }  } = chart.config;
-        if (!options.forceOverride && (containsColorsDefinitions(datasets) || elements && containsColorsDefinitions(elements))) {
+        const { data: { datasets  } , options: chartOptions  } = chart.config;
+        const { elements  } = chartOptions;
+        if (!options.forceOverride && (containsColorsDefinitions(datasets) || containsColorsDefinition(chartOptions) || elements && containsColorsDefinitions(elements))) {
             return;
         }
         const colorizer = getColorizer(chart);
