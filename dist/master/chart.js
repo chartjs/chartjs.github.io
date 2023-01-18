@@ -1,5 +1,5 @@
 /*!
- * Chart.js v4.1.2
+ * Chart.js v4.2.0
  * https://www.chartjs.org
  * (c) 2023 Chart.js Contributors
  * Released under the MIT License
@@ -5464,7 +5464,7 @@ function needContext(proxy, names) {
     return false;
 }
 
-var version = "4.1.2";
+var version = "4.2.0";
 
 const KNOWN_POSITIONS = [
     'top',
@@ -11106,6 +11106,13 @@ class TimeScale extends Scale {
             return adapter.format(value, timeOpts.tooltipFormat);
         }
         return adapter.format(value, timeOpts.displayFormats.datetime);
+    }
+ format(value, format) {
+        const options = this.options;
+        const formats = options.time.displayFormats;
+        const unit = this._unit;
+        const fmt = format || formats[unit];
+        return this._adapter.format(value, fmt);
     }
  _tickFormatFunction(time, index, ticks, format) {
         const options = this.options;
