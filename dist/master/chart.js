@@ -6628,8 +6628,7 @@ class ArcElement extends Element {
             'startAngle',
             'endAngle',
             'innerRadius',
-            'outerRadius',
-            'circumference'
+            'outerRadius'
         ], useFinalPosition);
         const { offset , spacing  } = this.options;
         const halfAngle = (startAngle + endAngle) / 2;
