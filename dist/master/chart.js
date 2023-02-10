@@ -10005,8 +10005,12 @@ function generateTicks$1(generationOptions, dataRange) {
         }
     }
     for(; j < numSpaces; ++j){
+        const tickValue = Math.round((niceMin + j * spacing) * factor) / factor;
+        if (maxDefined && tickValue > max) {
+            break;
+        }
         ticks.push({
-            value: Math.round((niceMin + j * spacing) * factor) / factor
+            value: tickValue
         });
     }
     if (maxDefined && includeBounds && niceMax !== max) {
