@@ -3668,7 +3668,7 @@ function createTickContext(parent, index, tick) {
     });
 }
 function titleAlign(align, position, reverse) {
-    let ret = _toLeftRightCenter(align);
+     let ret = _toLeftRightCenter(align);
     if (reverse && position !== 'right' || !reverse && position === 'right') {
         ret = reverseAlign(ret);
     }
@@ -4175,7 +4175,7 @@ class Scale extends Element {
                 height = lineHeight;
             } else if (isArray(label)) {
                 for(j = 0, jlen = label.length; j < jlen; ++j){
-                    nestedLabel = label[j];
+                    nestedLabel =  label[j];
                     if (!isNullOrUndef(nestedLabel) && !isArray(nestedLabel)) {
                         width = _measureText(ctx, cache.data, cache.gc, width, nestedLabel);
                         height += lineHeight;
@@ -6685,7 +6685,7 @@ function setStyle(ctx, options, style = options) {
 function lineTo(ctx, previous, target) {
     ctx.lineTo(target.x, target.y);
 }
-function getLineMethod(options) {
+ function getLineMethod(options) {
     if (options.stepped) {
         return _steppedLineTo;
     }
