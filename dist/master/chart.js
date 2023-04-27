@@ -10477,29 +10477,66 @@ function updateLimits(limits, orig, angle, hLimits, vLimits) {
         limits.b = Math.max(limits.b, orig.b + y);
     }
 }
+function createPointLabelItem(scale, index, itemOpts) {
+    const outerDistance = scale.drawingArea;
+    const { extra , additionalAngle , padding , size  } = itemOpts;
+    const pointLabelPosition = scale.getPointPosition(index, outerDistance + extra + padding, additionalAngle);
+    const angle = Math.round(toDegrees(_normalizeAngle(pointLabelPosition.angle + HALF_PI)));
+    const y = yForAngle(pointLabelPosition.y, size.h, angle);
+    const textAlign = getTextAlignForAngle(angle);
+    const left = leftForTextAlign(pointLabelPosition.x, size.w, textAlign);
+    return {
+        visible: true,
+        x: pointLabelPosition.x,
+        y,
+        textAlign,
+        left,
+        top: y,
+        right: left + size.w,
+        bottom: y + size.h
+    };
+}
+function isNotOverlapped(item, area) {
+    if (!area) {
+        return true;
+    }
+    const { left , top , right , bottom  } = item;
+    const apexesInArea = _isPointInArea({
+        x: left,
+        y: top
+    }, area) || _isPointInArea({
+        x: left,
+        y: bottom
+    }, area) || _isPointInArea({
+        x: right,
+        y: top
+    }, area) || _isPointInArea({
+        x: right,
+        y: bottom
+    }, area);
+    return !apexesInArea;
+}
 function buildPointLabelItems(scale, labelSizes, padding) {
     const items = [];
     const valueCount = scale._pointLabels.length;
     const opts = scale.options;
-    const extra = getTickBackdropHeight(opts) / 2;
-    const outerDistance = scale.drawingArea;
-    const additionalAngle = opts.pointLabels.centerPointLabels ? PI / valueCount : 0;
+    const { centerPointLabels , display  } = opts.pointLabels;
+    const itemOpts = {
+        extra: getTickBackdropHeight(opts) / 2,
+        additionalAngle: centerPointLabels ? PI / valueCount : 0
+    };
+    let area;
     for(let i = 0; i < valueCount; i++){
-        const pointLabelPosition = scale.getPointPosition(i, outerDistance + extra + padding[i], additionalAngle);
-        const angle = Math.round(toDegrees(_normalizeAngle(pointLabelPosition.angle + HALF_PI)));
-        const size = labelSizes[i];
-        const y = yForAngle(pointLabelPosition.y, size.h, angle);
-        const textAlign = getTextAlignForAngle(angle);
-        const left = leftForTextAlign(pointLabelPosition.x, size.w, textAlign);
-        items.push({
-            x: pointLabelPosition.x,
-            y,
-            textAlign,
-            left,
-            top: y,
-            right: left + size.w,
-            bottom: y + size.h
-        });
+        itemOpts.padding = padding[i];
+        itemOpts.size = labelSizes[i];
+        const item = createPointLabelItem(scale, i, itemOpts);
+        items.push(item);
+        if (display === 'auto') {
+            item.visible = isNotOverlapped(item, area);
+            if (item.visible) {
+                area = item;
+            }
+        }
     }
     return items;
 }
@@ -10527,35 +10564,43 @@ function yForAngle(y, h, angle) {
     }
     return y;
 }
+function drawPointLabelBox(ctx, opts, item) {
+    const { left , top , right , bottom  } = item;
+    const { backdropColor  } = opts;
+    if (!isNullOrUndef(backdropColor)) {
+        const borderRadius = toTRBLCorners(opts.borderRadius);
+        const padding = toPadding(opts.backdropPadding);
+        ctx.fillStyle = backdropColor;
+        const backdropLeft = left - padding.left;
+        const backdropTop = top - padding.top;
+        const backdropWidth = right - left + padding.width;
+        const backdropHeight = bottom - top + padding.height;
+        if (Object.values(borderRadius).some((v)=>v !== 0)) {
+            ctx.beginPath();
+            addRoundedRectPath(ctx, {
+                x: backdropLeft,
+                y: backdropTop,
+                w: backdropWidth,
+                h: backdropHeight,
+                radius: borderRadius
+            });
+            ctx.fill();
+        } else {
+            ctx.fillRect(backdropLeft, backdropTop, backdropWidth, backdropHeight);
+        }
+    }
+}
 function drawPointLabels(scale, labelCount) {
     const { ctx , options: { pointLabels  }  } = scale;
     for(let i = labelCount - 1; i >= 0; i--){
-        const optsAtIndex = pointLabels.setContext(scale.getPointLabelContext(i));
-        const plFont = toFont(optsAtIndex.font);
-        const { x , y , textAlign , left , top , right , bottom  } = scale._pointLabelItems[i];
-        const { backdropColor  } = optsAtIndex;
-        if (!isNullOrUndef(backdropColor)) {
-            const borderRadius = toTRBLCorners(optsAtIndex.borderRadius);
-            const padding = toPadding(optsAtIndex.backdropPadding);
-            ctx.fillStyle = backdropColor;
-            const backdropLeft = left - padding.left;
-            const backdropTop = top - padding.top;
-            const backdropWidth = right - left + padding.width;
-            const backdropHeight = bottom - top + padding.height;
-            if (Object.values(borderRadius).some((v)=>v !== 0)) {
-                ctx.beginPath();
-                addRoundedRectPath(ctx, {
-                    x: backdropLeft,
-                    y: backdropTop,
-                    w: backdropWidth,
-                    h: backdropHeight,
-                    radius: borderRadius
-                });
-                ctx.fill();
-            } else {
-                ctx.fillRect(backdropLeft, backdropTop, backdropWidth, backdropHeight);
-            }
+        const item = scale._pointLabelItems[i];
+        if (!item.visible) {
+            continue;
         }
+        const optsAtIndex = pointLabels.setContext(scale.getPointLabelContext(i));
+        drawPointLabelBox(ctx, optsAtIndex, item);
+        const plFont = toFont(optsAtIndex.font);
+        const { x , y , textAlign  } = item;
         renderText(ctx, scale._pointLabels[i], x, y + plFont.lineHeight / 2, plFont, {
             color: optsAtIndex.color,
             textAlign: textAlign,
