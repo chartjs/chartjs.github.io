@@ -1,5 +1,5 @@
 /*!
- * Chart.js v4.2.1
+ * Chart.js v4.3.0
  * https://www.chartjs.org
  * (c) 2023 Chart.js Contributors
  * Released under the MIT License
@@ -5493,7 +5493,7 @@ function needContext(proxy, names) {
     return false;
 }
 
-var version = "4.2.1";
+var version = "4.3.0";
 
 const KNOWN_POSITIONS = [
     'top',
