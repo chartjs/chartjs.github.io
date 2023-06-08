@@ -2464,6 +2464,9 @@ class ScatterController extends DatasetController {
             count = points.length;
         }
         if (this.options.showLine) {
+            if (!this.datasetElementType) {
+                this.addElements();
+            }
             const { dataset: line , _dataset  } = meta;
             line._chart = this.chart;
             line._datasetIndex = this.index;
@@ -2475,6 +2478,9 @@ class ScatterController extends DatasetController {
                 animated: !animationsDisabled,
                 options
             }, mode);
+        } else if (this.datasetElementType) {
+            delete meta.dataset;
+            this.datasetElementType = false;
         }
         this.updateElements(points, start, count, mode);
     }
