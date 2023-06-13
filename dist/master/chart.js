@@ -10881,7 +10881,9 @@ class RadialLinearScale extends LinearScaleBase {
                 ctx.fillRect(-width / 2 - padding.left, -offset - tickFont.size / 2 - padding.top, width + padding.width, tickFont.size + padding.height);
             }
             renderText(ctx, tick.label, 0, -offset, tickFont, {
-                color: optsAtIndex.color
+                color: optsAtIndex.color,
+                strokeColor: optsAtIndex.textStrokeColor,
+                strokeWidth: optsAtIndex.textStrokeWidth
             });
         });
         ctx.restore();
