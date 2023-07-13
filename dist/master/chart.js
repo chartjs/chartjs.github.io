@@ -11203,7 +11203,7 @@ class TimeScale extends Scale {
         if (time === max || options.bounds === 'ticks' || count === 1) {
             addTick(ticks, time, timestamps);
         }
-        return Object.keys(ticks).sort((a, b)=>a - b).map((x)=>+x);
+        return Object.keys(ticks).sort(sorter).map((x)=>+x);
     }
  getLabelForValue(value) {
         const adapter = this._adapter;
@@ -11385,6 +11385,18 @@ class TimeSeriesScale extends TimeScale {
             }
         }
         return table;
+    }
+ _generate() {
+        const min = this.min;
+        const max = this.max;
+        let timestamps = super.getDataTimestamps();
+        if (!timestamps.includes(min) || !timestamps.length) {
+            timestamps.splice(0, 0, min);
+        }
+        if (!timestamps.includes(max) || timestamps.length === 1) {
+            timestamps.push(max);
+        }
+        return timestamps.sort((a, b)=>a - b);
     }
  _getTimestampsForTable() {
         let timestamps = this._cache.all || [];
