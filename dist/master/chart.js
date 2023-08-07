@@ -5569,16 +5569,20 @@ function moveNumericKeys(obj, start, move) {
     }
     return e;
 }
-function getDatasetArea(meta) {
+function getSizeForArea(scale, chartArea, field) {
+    return scale.options.clip ? scale[field] : chartArea[field];
+}
+function getDatasetArea(meta, chartArea) {
     const { xScale , yScale  } = meta;
     if (xScale && yScale) {
         return {
-            left: xScale.left,
-            right: xScale.right,
-            top: yScale.top,
-            bottom: yScale.bottom
+            left: getSizeForArea(xScale, chartArea, 'left'),
+            right: getSizeForArea(xScale, chartArea, 'right'),
+            top: getSizeForArea(yScale, chartArea, 'top'),
+            bottom: getSizeForArea(yScale, chartArea, 'bottom')
         };
     }
+    return chartArea;
 }
 class Chart {
     static defaults = defaults;
@@ -6080,7 +6084,7 @@ class Chart {
         const ctx = this.ctx;
         const clip = meta._clip;
         const useClip = !clip.disabled;
-        const area = getDatasetArea(meta) || this.chartArea;
+        const area = getDatasetArea(meta, this.chartArea);
         const args = {
             meta,
             index: meta.index,
