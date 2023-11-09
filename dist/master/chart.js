@@ -4514,6 +4514,13 @@ class Scale extends Element {
                     case 'right':
                         left -= width;
                         break;
+                    case 'inner':
+                        if (i === ilen - 1) {
+                            left -= width;
+                        } else if (i > 0) {
+                            left -= width / 2;
+                        }
+                        break;
                 }
                 backdrop = {
                     left,
