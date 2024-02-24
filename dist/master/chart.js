@@ -10834,7 +10834,7 @@ class RadialLinearScale extends LinearScaleBase {
         }
         if (grid.display) {
             this.ticks.forEach((tick, index)=>{
-                if (index !== 0) {
+                if (index !== 0 || index === 0 && this.min < 0) {
                     offset = this.getDistanceFromCenterForValue(tick.value);
                     const context = this.getContext(index);
                     const optsAtIndex = grid.setContext(context);
@@ -10881,7 +10881,7 @@ class RadialLinearScale extends LinearScaleBase {
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         this.ticks.forEach((tick, index)=>{
-            if (index === 0 && !opts.reverse) {
+            if (index === 0 && this.min >= 0 && !opts.reverse) {
                 return;
             }
             const optsAtIndex = tickOpts.setContext(this.getContext(index));
