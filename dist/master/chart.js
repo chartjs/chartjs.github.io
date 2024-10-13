@@ -10666,7 +10666,7 @@ function drawRadiusLine(scale, gridLineOpts, radius, labelCount, borderOpts) {
     ctx.save();
     ctx.strokeStyle = color;
     ctx.lineWidth = lineWidth;
-    ctx.setLineDash(borderOpts.dash);
+    ctx.setLineDash(borderOpts.dash || []);
     ctx.lineDashOffset = borderOpts.dashOffset;
     ctx.beginPath();
     pathRadiusLine(scale, radius, circular, labelCount);
