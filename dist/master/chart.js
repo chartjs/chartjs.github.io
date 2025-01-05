@@ -2641,7 +2641,7 @@ function binarySearch(metaset, axis, value, intersect) {
                 const { _parsed  } = metaset;
                 const distanceToDefinedLo = _parsed.slice(0, result.lo + 1).reverse().findIndex((point)=>!isNullOrUndef(point[vScale.axis]));
                 result.lo -= Math.max(0, distanceToDefinedLo);
-                const distanceToDefinedHi = _parsed.slice(result.hi - 1).findIndex((point)=>!isNullOrUndef(point[vScale.axis]));
+                const distanceToDefinedHi = _parsed.slice(result.hi).findIndex((point)=>!isNullOrUndef(point[vScale.axis]));
                 result.hi += Math.max(0, distanceToDefinedHi);
             }
             return result;
