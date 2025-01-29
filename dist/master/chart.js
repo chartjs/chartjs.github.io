@@ -11000,7 +11000,7 @@ const INTERVALS = {
         value = parser(value);
     }
     if (!isNumberFinite(value)) {
-        value = typeof parser === 'string' ? adapter.parse(value,  parser) : adapter.parse(value);
+        value = typeof parser === 'string' ? adapter.parse(value, parser) : adapter.parse(value);
     }
     if (value === null) {
         return null;
