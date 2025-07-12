@@ -5102,18 +5102,22 @@ var registry = /* #__PURE__ */ new Registry();
 
 class PluginService {
     constructor(){
-        this._init = [];
+        this._init = undefined;
     }
  notify(chart, hook, args, filter) {
         if (hook === 'beforeInit') {
             this._init = this._createDescriptors(chart, true);
             this._notify(this._init, chart, 'install');
         }
+        if (this._init === undefined) {
+            return;
+        }
         const descriptors = filter ? this._descriptors(chart).filter(filter) : this._descriptors(chart);
         const result = this._notify(descriptors, chart, hook, args);
         if (hook === 'afterDestroy') {
             this._notify(descriptors, chart, 'stop');
             this._notify(this._init, chart, 'uninstall');
+            this._init = undefined;
         }
         return result;
     }
