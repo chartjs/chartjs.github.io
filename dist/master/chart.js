@@ -4851,7 +4851,9 @@ class Scale extends Element {
             translation: [
                 titleX,
                 titleY
-            ]
+            ],
+            strokeColor: title.strokeColor,
+            strokeWidth: title.strokeWidth
         });
     }
     draw(chartArea) {
