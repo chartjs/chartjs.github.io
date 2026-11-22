@@ -9943,7 +9943,10 @@ class Tooltip extends Element {
             return [];
         }
         if (!inChartArea) {
-            return lastActive.filter((i)=>this.chart.data.datasets[i.datasetIndex] && this.chart.getDatasetMeta(i.datasetIndex).controller.getParsed(i.index) !== undefined);
+            return lastActive.filter((i)=>{
+                const controller = this.chart.data.datasets[i.datasetIndex] && this.chart.getDatasetMeta(i.datasetIndex).controller;
+                return controller && controller.getParsed(i.index) !== undefined;
+            });
         }
         const active = this.chart.getElementsAtEventForMode(e, options.mode, options, replay);
         if (options.reverse) {
