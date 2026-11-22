@@ -8758,7 +8758,7 @@ class Legend extends Element {
         if (!isListened(e.type, opts)) {
             return;
         }
-        const hoveredItem = this._getLegendItemAt(e.x, e.y);
+        const hoveredItem = e.type === 'mouseout' ? null : this._getLegendItemAt(e.x, e.y);
         if (e.type === 'mousemove' || e.type === 'mouseout') {
             const previous = this._hoveredItem;
             const sameItem = itemsEqual(previous, hoveredItem);
