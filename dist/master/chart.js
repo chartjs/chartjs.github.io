@@ -11497,7 +11497,7 @@ class TimeScale extends Scale {
     }
  getValueForPixel(pixel) {
         const offsets = this._offsets;
-        const pos = this.getDecimalForPixel(pixel) / offsets.factor - offsets.end;
+        const pos = this.getDecimalForPixel(pixel) / offsets.factor - offsets.start;
         return this.min + pos * (this.max - this.min);
     }
  _getLabelSize(label) {
@@ -11659,7 +11659,7 @@ class TimeSeriesScale extends TimeScale {
     }
  getValueForPixel(pixel) {
         const offsets = this._offsets;
-        const decimal = this.getDecimalForPixel(pixel) / offsets.factor - offsets.end;
+        const decimal = this.getDecimalForPixel(pixel) / offsets.factor - offsets.start;
         return interpolate(this._table, decimal * this._tableRange + this._minPos, true);
     }
 }
