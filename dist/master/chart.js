@@ -4,7 +4,7 @@
  * (c) 2026 Chart.js Contributors
  * Released under the MIT License
  */
-import { aH as requestAnimFrame, aI as resolve, ag as effects, a8 as color, aw as isObject, b4 as defaults, ar as isArray, b3 as valueOrDefault, b2 as unlistenArrayEvents, ay as listenArrayEvents, aJ as resolveObjectKey, as as isNumberFinite, ab as defined, aN as sign, a9 as createContext, au as isNullOrUndef, g as _arrayUnique, aZ as toRadians, T as TAU, aY as toPercentage, aT as toDimension, aj as formatNumber, e as _angleBetween, H as HALF_PI, P as PI, w as _getStartAndCountOfVisiblePoints, U as _scaleRangesChanged, av as isNumber, M as _parseObjectDataRadialScale, ao as getRelativePosition, S as _rlookupByKey, F as _lookupByKey, B as _isPointInArea, ak as getAngleFromPoint, aX as toPadding, af as each, an as getMaximumSize, v as _getParentNode, aF as readUsedSize, aR as throttled, aQ as supportsEventListenerOptions, A as _isDomSupported, t as _factorize, ah as finiteOrDefault, a4 as callback, _ as _addGrace, C as _limitValue, aS as toDegrees, G as _measureText, x as _int16Range, c as _alignPixel, a6 as clipArea, aG as renderText, b1 as unclipArea, aU as toFont, d as _alignStartEnd, $ as _toLeftRightCenter, b5 as overrides, aA as merge, m as _capitalize, b6 as descriptors, at as isFunction, h as _attachContext, o as _createResolver, r as _descriptors, aB as mergeIf, b0 as uid, aa as debounce, aL as retinaScale, a5 as clearCanvas, aM as setsEqual, al as getDatasetClipArea, s as _elementsEqual, z as _isClickEvent, y as _isBetween, L as _normalizeAngle, O as _readValueToProps, a0 as _updateBezierControlPoints, n as _computeSegments, l as _boundSegments, X as _steppedInterpolation, j as _bezierInterpolation, N as _pointInLine, Y as _steppedLineTo, i as _bezierCurveTo, ad as drawPoint, a1 as addRoundedRectPath, a_ as toTRBL, a$ as toTRBLCorners, k as _boundSegment, ap as getRtlAdapter, aE as overrideTextDirection, Z as _textX, aK as restoreTextDirection, ae as drawPointLegend, aD as noop, ac as distanceBetweenPoints, V as _setMinAndMaxByKey, aC as niceNum, a3 as almostWhole, a2 as almostEquals, p as _decimalPlaces, b7 as Ticks, az as log10, D as _longestText, u as _filterBetween, E as _lookup } from './chunks/helpers.dataset.js';
+import { aH as requestAnimFrame, aI as resolve, ag as effects, a8 as color, aw as isObject, b4 as defaults, ar as isArray, b3 as valueOrDefault, b2 as unlistenArrayEvents, ay as listenArrayEvents, aJ as resolveObjectKey, as as isNumberFinite, ab as defined, aN as sign, a9 as createContext, au as isNullOrUndef, g as _arrayUnique, aZ as toRadians, T as TAU, aY as toPercentage, aT as toDimension, aj as formatNumber, e as _angleBetween, H as HALF_PI, P as PI, w as _getStartAndCountOfVisiblePoints, U as _scaleRangesChanged, av as isNumber, M as _parseObjectDataRadialScale, ao as getRelativePosition, S as _rlookupByKey, F as _lookupByKey, B as _isPointInArea, ak as getAngleFromPoint, aX as toPadding, af as each, an as getMaximumSize, v as _getParentNode, aF as readUsedSize, aR as throttled, aQ as supportsEventListenerOptions, A as _isDomSupported, t as _factorize, ah as finiteOrDefault, a4 as callback, _ as _addGrace, C as _limitValue, aS as toDegrees, G as _measureText, x as _int16Range, c as _alignPixel, a6 as clipArea, aG as renderText, b1 as unclipArea, aU as toFont, d as _alignStartEnd, $ as _toLeftRightCenter, b5 as overrides, aA as merge, m as _capitalize, b6 as descriptors, at as isFunction, h as _attachContext, o as _createResolver, r as _descriptors, aB as mergeIf, b0 as uid, aa as debounce, aL as retinaScale, a5 as clearCanvas, aM as setsEqual, al as getDatasetClipArea, s as _elementsEqual, z as _isClickEvent, y as _isBetween, L as _normalizeAngle, O as _readValueToProps, a0 as _updateBezierControlPoints, n as _computeSegments, l as _boundSegments, X as _steppedInterpolation, j as _bezierInterpolation, N as _pointInLine, Y as _steppedLineTo, i as _bezierCurveTo, ad as drawPoint, a1 as addRoundedRectPath, a_ as toTRBL, a$ as toTRBLCorners, k as _boundSegment, ap as getRtlAdapter, aE as overrideTextDirection, Z as _textX, aK as restoreTextDirection, ae as drawPointLegend, aD as noop, ac as distanceBetweenPoints, V as _setMinAndMaxByKey, aC as niceNum, p as _decimalPlaces, a3 as almostWhole, a2 as almostEquals, b7 as Ticks, az as log10, D as _longestText, u as _filterBetween, E as _lookup } from './chunks/helpers.dataset.js';
 import '@kurkle/color';
 
 class Animator {
@@ -8882,18 +8882,20 @@ var plugin_legend = {
                 return chart._getSortedDatasetMetas().map((meta)=>{
                     const style = meta.controller.getStyle(usePointStyle ? 0 : undefined);
                     const borderWidth = toPadding(style.borderWidth);
+                    const itemPointStyle = pointStyle || style.pointStyle;
+                    const dashStyle = usePointStyle && itemPointStyle === 'line' ? meta.controller.getStyle(undefined) : style;
                     return {
                         text: datasets[meta.index].label,
                         fillStyle: style.backgroundColor,
                         fontColor: color,
                         hidden: !meta.visible,
                         lineCap: style.borderCapStyle,
-                        lineDash: style.borderDash,
-                        lineDashOffset: style.borderDashOffset,
+                        lineDash: dashStyle.borderDash,
+                        lineDashOffset: dashStyle.borderDashOffset,
                         lineJoin: style.borderJoinStyle,
                         lineWidth: (borderWidth.width + borderWidth.height) / 4,
                         strokeStyle: style.borderColor,
-                        pointStyle: pointStyle || style.pointStyle,
+                        pointStyle: itemPointStyle,
                         rotation: style.rotation,
                         textAlign: textAlign || style.textAlign,
                         borderRadius: useBorderRadius && (borderRadius || style.borderRadius),
@@ -10252,8 +10254,9 @@ function generateTicks$1(generationOptions, dataRange) {
         spacing = Math.ceil(spacing * factor) / factor;
     }
     if (bounds === 'ticks') {
-        niceMin = Math.floor(rmin / spacing) * spacing;
-        niceMax = Math.ceil(rmax / spacing) * spacing;
+        const spacingFactor = Math.pow(10, _decimalPlaces(spacing));
+        niceMin = Math.round(Math.floor(rmin / spacing) * spacing * spacingFactor) / spacingFactor;
+        niceMax = Math.round(Math.ceil(rmax / spacing) * spacing * spacingFactor) / spacingFactor;
     } else {
         niceMin = rmin;
         niceMax = rmax;
