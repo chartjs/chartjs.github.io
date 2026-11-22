@@ -5783,7 +5783,9 @@ class Chart {
             newSize
         ], this);
         if (this.attached) {
-            if (this._doResize(mode)) {
+            if (mode === 'attach' || !this.chartArea) {
+                this.update(mode);
+            } else if (this._doResize(mode)) {
                 this.render();
             }
         }
