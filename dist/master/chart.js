@@ -3934,7 +3934,12 @@ class Scale extends Element {
             this.beforeDataLimits();
             this.determineDataLimits();
             this.afterDataLimits();
-            this._range = _addGrace(this, grace, beginAtZero);
+            const range = _addGrace(this, grace, beginAtZero);
+            const { minDefined, maxDefined } = this.getUserBounds();
+            this._range = {
+                min: minDefined ? this.min : range.min,
+                max: maxDefined ? this.max : range.max
+            };
             this._dataLimitsCached = true;
         }
         this.beforeBuildTicks();
