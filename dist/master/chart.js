@@ -4499,6 +4499,8 @@ class Scale extends Element {
             }
         }
         const labelSizes = this._getLabelSizes();
+        const lastTick = ticks.length - 1;
+        const firstTickOnRight = lastTick > 0 && this.getPixelForTick(0) > this.getPixelForTick(lastTick);
         for(i = 0, ilen = ticks.length; i < ilen; ++i){
             tick = ticks[i];
             label = tick.label;
@@ -4516,9 +4518,9 @@ class Scale extends Element {
                 x = pixel;
                 if (textAlign === 'inner') {
                     if (i === ilen - 1) {
-                        tickTextAlign = !this.options.reverse ? 'right' : 'left';
+                        tickTextAlign = !firstTickOnRight ? 'right' : 'left';
                     } else if (i === 0) {
-                        tickTextAlign = !this.options.reverse ? 'left' : 'right';
+                        tickTextAlign = !firstTickOnRight ? 'left' : 'right';
                     } else {
                         tickTextAlign = 'center';
                     }
@@ -4565,19 +4567,12 @@ class Scale extends Element {
                         top -= height;
                         break;
                 }
-                switch(textAlign){
+                switch(tickTextAlign){
                     case 'center':
                         left -= width / 2;
                         break;
                     case 'right':
                         left -= width;
-                        break;
-                    case 'inner':
-                        if (i === ilen - 1) {
-                            left -= width;
-                        } else if (i > 0) {
-                            left -= width / 2;
-                        }
                         break;
                 }
                 backdrop = {
