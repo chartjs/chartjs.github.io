@@ -6377,7 +6377,7 @@ class Chart {
                 element: meta.data[index],
                 index
             };
-        });
+        }).filter(({ element })=>element);
         const changed = !_elementsEqual(active, lastActive);
         if (changed) {
             this._active = active;
@@ -9905,7 +9905,7 @@ class Tooltip extends Element {
                 element: meta.data[index],
                 index
             };
-        });
+        }).filter(({ element })=>element);
         const changed = !_elementsEqual(lastActive, active);
         const positionChanged = this._positionChanged(active, eventPosition);
         if (changed || positionChanged) {
@@ -10151,6 +10151,11 @@ class CategoryScale extends Scale {
             this._addedLabels = [];
         }
         super.init(scaleOptions);
+    }
+    beforeLayout() {
+        super.beforeLayout();
+        this._userMin = this.parse(this.options.min);
+        this._userMax = this.parse(this.options.max);
     }
     parse(raw, index) {
         if (isNullOrUndef(raw)) {
