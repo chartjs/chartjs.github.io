@@ -555,14 +555,18 @@ function clearStacks(meta, items) {
     }
     items = items || meta._parsed;
     for (const parsed of items){
-        const stacks = parsed._stacks;
-        if (!stacks || stacks[axis] === undefined || stacks[axis][datasetIndex] === undefined) {
-            continue;
+        if (parsed) {
+            clearItemStack(parsed._stacks, axis, datasetIndex);
         }
-        delete stacks[axis][datasetIndex];
-        if (stacks[axis]._visualValues !== undefined && stacks[axis]._visualValues[datasetIndex] !== undefined) {
-            delete stacks[axis]._visualValues[datasetIndex];
-        }
+    }
+}
+function clearItemStack(stacks, axis, datasetIndex) {
+    if (!stacks || stacks[axis] === undefined || stacks[axis][datasetIndex] === undefined) {
+        return;
+    }
+    delete stacks[axis][datasetIndex];
+    if (stacks[axis]._visualValues !== undefined && stacks[axis]._visualValues[datasetIndex] !== undefined) {
+        delete stacks[axis]._visualValues[datasetIndex];
     }
 }
 const isDirectUpdateMode = (mode)=>mode === 'reset' || mode === 'none';
@@ -1056,10 +1060,12 @@ class DatasetController {
  _resyncElements(resetNewElements) {
         const data = this._data;
         const elements = this._cachedMeta.data;
+        const newElements = this._newElements = [];
         for (const [method, arg1, arg2] of this._syncList){
             this[method](arg1, arg2);
         }
         this._syncList = [];
+        this._newElements = undefined;
         const numMeta = elements.length;
         const numData = data.length;
         const count = Math.min(numData, numMeta);
@@ -1070,6 +1076,24 @@ class DatasetController {
             this._insertElements(numMeta, numData - numMeta, resetNewElements);
         } else if (numData < numMeta) {
             this._removeElements(numData, numMeta - numData);
+        }
+        this._resetElements(newElements);
+    }
+ _resetElements(elements) {
+        if (!elements.length) {
+            return;
+        }
+        const data = this._cachedMeta.data;
+        const items = new Set(elements);
+        let start = -1;
+        for(let i = 0; i <= data.length; i++){
+            const isNew = i < data.length && items.has(data[i]);
+            if (isNew && start < 0) {
+                start = i;
+            } else if (!isNew && start >= 0) {
+                this.updateElements(data, start, i - start, 'reset');
+                start = -1;
+            }
         }
     }
  _insertElements(start, count, resetNewElements = true) {
@@ -1089,6 +1113,10 @@ class DatasetController {
         }
         if (this._parsing) {
             move(meta._parsed);
+        }
+        if (this._newElements) {
+            this._newElements.push(...data.slice(start, end));
+            return;
         }
         this.parse(start, count);
         if (resetNewElements) {
@@ -1129,7 +1157,7 @@ class DatasetController {
     _onDataPop() {
         this._sync([
             '_removeElements',
-            this._cachedMeta.data.length - 1,
+            this.getDataset().data.length,
             1
         ]);
     }
