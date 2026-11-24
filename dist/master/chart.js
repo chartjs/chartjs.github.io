@@ -1661,6 +1661,11 @@ class BarController extends DatasetController {
     }
 }
 
+function categoryLabel$1({ iScale, vScale }, parsed) {
+    const scale = iScale.type === 'category' ? iScale : vScale.type === 'category' ? vScale : null;
+    const value = scale ? parsed[scale.axis] : null;
+    return isNumberFinite(value) ? scale.getLabelForValue(value) : '';
+}
 class BubbleController extends DatasetController {
     static id = 'bubble';
  static defaults = {
@@ -1732,7 +1737,7 @@ class BubbleController extends DatasetController {
         const y = yScale.getLabelForValue(parsed.y);
         const r = parsed._custom;
         return {
-            label: labels[index] || '',
+            label: labels[index] || categoryLabel$1(meta, parsed),
             value: '(' + x + ', ' + y + (r ? ', ' + r : '') + ')'
         };
     }
@@ -2464,6 +2469,11 @@ class RadarController extends DatasetController {
     }
 }
 
+function categoryLabel({ iScale, vScale }, parsed) {
+    const scale = iScale.type === 'category' ? iScale : vScale.type === 'category' ? vScale : null;
+    const value = scale ? parsed[scale.axis] : null;
+    return isNumberFinite(value) ? scale.getLabelForValue(value) : '';
+}
 class ScatterController extends DatasetController {
     static id = 'scatter';
  static defaults = {
@@ -2493,7 +2503,7 @@ class ScatterController extends DatasetController {
         const x = xScale.getLabelForValue(parsed.x);
         const y = yScale.getLabelForValue(parsed.y);
         return {
-            label: labels[index] || '',
+            label: labels[index] || categoryLabel(meta, parsed),
             value: '(' + x + ', ' + y + ')'
         };
     }
@@ -10100,6 +10110,9 @@ Tooltip: plugin_tooltip
 
 const addIfString = (labels, raw, index, addedLabels)=>{
     if (typeof raw === 'string') {
+        if (!addedLabels) {
+            return null;
+        }
         index = labels.push(raw) - 1;
         addedLabels.unshift({
             index,
@@ -10138,6 +10151,7 @@ class CategoryScale extends Scale {
          this._startValue = undefined;
         this._valueRange = 0;
         this._addedLabels = [];
+        this._lookupOnly = false;
     }
     init(scaleOptions) {
         const added = this._addedLabels;
@@ -10150,19 +10164,24 @@ class CategoryScale extends Scale {
             }
             this._addedLabels = [];
         }
+        this._lookupOnly = true;
         super.init(scaleOptions);
+        this._lookupOnly = false;
     }
     beforeLayout() {
         super.beforeLayout();
-        this._userMin = this.parse(this.options.min);
-        this._userMax = this.parse(this.options.max);
+        const options = this.options;
+        this._userMin = this.parse(options.min);
+        this._userMax = this.parse(options.max);
+        this._suggestedMin = this.parse(options.suggestedMin);
+        this._suggestedMax = this.parse(options.suggestedMax);
     }
     parse(raw, index) {
         if (isNullOrUndef(raw)) {
             return null;
         }
         const labels = this.getLabels();
-        index = isFinite(index) && labels[index] === raw ? index : findOrAddLabel(labels, raw, valueOrDefault(index, raw), this._addedLabels);
+        index = isFinite(index) && labels[index] === raw ? index : findOrAddLabel(labels, raw, valueOrDefault(index, raw), this._lookupOnly ? null : this._addedLabels);
         return validIndex(index, labels.length - 1);
     }
     determineDataLimits() {
