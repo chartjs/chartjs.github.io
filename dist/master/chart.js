@@ -10108,25 +10108,18 @@ Title: plugin_title,
 Tooltip: plugin_tooltip
 });
 
-const addIfString = (labels, raw, index, addedLabels)=>{
+const addIfString = (labels, raw, index)=>{
     if (typeof raw === 'string') {
-        if (!addedLabels) {
-            return null;
-        }
         index = labels.push(raw) - 1;
-        addedLabels.unshift({
-            index,
-            label: raw
-        });
     } else if (isNaN(raw)) {
         index = null;
     }
     return index;
 };
-function findOrAddLabel(labels, raw, index, addedLabels) {
+function findOrAddLabel(labels, raw, index) {
     const first = labels.indexOf(raw);
     if (first === -1) {
-        return addIfString(labels, raw, index, addedLabels);
+        return addIfString(labels, raw, index);
     }
     const last = labels.lastIndexOf(raw);
     return first !== last ? index : first;
@@ -10150,23 +10143,15 @@ class CategoryScale extends Scale {
         super(cfg);
          this._startValue = undefined;
         this._valueRange = 0;
-        this._addedLabels = [];
-        this._lookupOnly = false;
+         this._labels = undefined;
     }
     init(scaleOptions) {
-        const added = this._addedLabels;
-        if (added.length) {
-            const labels = this.getLabels();
-            for (const { index, label } of added){
-                if (labels[index] === label) {
-                    labels.splice(index, 1);
-                }
-            }
-            this._addedLabels = [];
-        }
-        this._lookupOnly = true;
+        this._labels = undefined;
         super.init(scaleOptions);
-        this._lookupOnly = false;
+        this._labels = undefined;
+    }
+    getLabels() {
+        return this._labels || (this._labels = super.getLabels().slice());
     }
     beforeLayout() {
         super.beforeLayout();
@@ -10181,7 +10166,7 @@ class CategoryScale extends Scale {
             return null;
         }
         const labels = this.getLabels();
-        index = isFinite(index) && labels[index] === raw ? index : findOrAddLabel(labels, raw, valueOrDefault(index, raw), this._lookupOnly ? null : this._addedLabels);
+        index = isFinite(index) && labels[index] === raw ? index : findOrAddLabel(labels, raw, valueOrDefault(index, raw));
         return validIndex(index, labels.length - 1);
     }
     determineDataLimits() {
