@@ -8500,7 +8500,7 @@ class Legend extends Element {
             height = this._fitRows(titleHeight, fontSize, boxWidth, itemHeight) + 10;
         } else {
             height = this.maxHeight;
-            width = this._fitCols(titleHeight, labelFont, boxWidth, itemHeight) + 10;
+            width = Math.max(this._fitCols(titleHeight, labelFont, boxWidth, itemHeight), this._computeTitleWidth()) + 10;
         }
         this.width = Math.min(width, options.maxWidth || this.maxWidth);
         this.height = Math.min(height, options.maxHeight || this.maxHeight);
@@ -8777,6 +8777,23 @@ class Legend extends Element {
         const titleFont = toFont(titleOpts.font);
         const titlePadding = toPadding(titleOpts.padding);
         return titleOpts.display ? titleFont.lineHeight + titlePadding.height : 0;
+    }
+ _computeTitleWidth() {
+        const { ctx, options: { title } } = this;
+        if (!title.display) {
+            return 0;
+        }
+        ctx.save();
+        ctx.font = toFont(title.font).string;
+        const lines = isArray(title.text) ? title.text : [
+            title.text
+        ];
+        let width = 0;
+        for (const line of lines){
+            width = Math.max(width, ctx.measureText(line).width);
+        }
+        ctx.restore();
+        return width + toPadding(title.padding).width;
     }
  _getLegendItemAt(x, y) {
         let i, hitBox, lh;
