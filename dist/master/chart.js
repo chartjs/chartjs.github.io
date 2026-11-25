@@ -11304,12 +11304,16 @@ const INTERVALS = {
     }
 }
  function addTick(ticks, time, timestamps) {
-    if (!timestamps) {
-        ticks[time] = true;
-    } else if (timestamps.length) {
+    let timestamp = time;
+    if (timestamps) {
+        if (!timestamps.length) {
+            return;
+        }
         const { lo, hi } = _lookup(timestamps, time);
-        const timestamp = timestamps[lo] >= time ? timestamps[lo] : timestamps[hi];
-        ticks[timestamp] = true;
+        timestamp = timestamps[lo] >= time ? timestamps[lo] : timestamps[hi];
+    }
+    if (ticks[ticks.length - 1] !== timestamp) {
+        ticks.push(timestamp);
     }
 }
  function setMajorTicks(scale, ticks, map, majorUnit) {
@@ -11318,7 +11322,7 @@ const INTERVALS = {
     const last = ticks[ticks.length - 1].value;
     let major, index;
     for(major = first; major <= last; major = +adapter.add(major, 1, majorUnit)){
-        index = map[major];
+        index = map.get(major);
         if (index >= 0) {
             ticks[index].major = true;
         }
@@ -11326,19 +11330,23 @@ const INTERVALS = {
     return ticks;
 }
  function ticksFromTimestamps(scale, values, majorUnit) {
-    const ticks = [];
-     const map = {};
     const ilen = values.length;
-    let i, value;
+    const ticks = new Array(ilen);
+    let i;
     for(i = 0; i < ilen; ++i){
-        value = values[i];
-        map[value] = i;
-        ticks.push({
-            value,
+        ticks[i] = {
+            value: values[i],
             major: false
-        });
+        };
     }
-    return ilen === 0 || !majorUnit ? ticks : setMajorTicks(scale, ticks, map, majorUnit);
+    if (ilen === 0 || !majorUnit) {
+        return ticks;
+    }
+     const map = new Map();
+    for(i = 0; i < ilen; ++i){
+        map.set(values[i], i);
+    }
+    return setMajorTicks(scale, ticks, map, majorUnit);
 }
 class TimeScale extends Scale {
     static id = 'time';
@@ -11453,10 +11461,8 @@ class TimeScale extends Scale {
         this._unit = timeOpts.unit || (tickOpts.autoSkip ? determineUnitForAutoTicks(timeOpts.minUnit, this.min, this.max, this._getLabelCapacity(min)) : determineUnitForFormatting(this, ticks.length, timeOpts.minUnit, this.min, this.max));
         this._majorUnit = !tickOpts.major.enabled || this._unit === 'year' ? undefined : determineMajorUnit(this._unit);
         this.initOffsets(timestamps);
-        if (options.reverse) {
-            ticks.reverse();
-        }
-        return ticksFromTimestamps(this, ticks, this._majorUnit);
+        const result = ticksFromTimestamps(this, ticks, this._majorUnit);
+        return options.reverse ? result.reverse() : result;
     }
     afterAutoSkip() {
         if (this.options.offsetAfterAutoskip) {
@@ -11500,7 +11506,7 @@ class TimeScale extends Scale {
         const stepSize = valueOrDefault(options.ticks.stepSize, 1);
         const weekday = minor === 'week' ? timeOpts.isoWeekday : false;
         const hasWeekday = isNumber(weekday) || weekday === true;
-        const ticks = {};
+        const ticks = [];
         let first = min;
         let time, count;
         if (hasWeekday) {
@@ -11517,7 +11523,7 @@ class TimeScale extends Scale {
         if (time === max || options.bounds === 'ticks' || count === 1) {
             addTick(ticks, time, timestamps);
         }
-        return Object.keys(ticks).sort(sorter).map((x)=>+x);
+        return ticks;
     }
  getLabelForValue(value) {
         const adapter = this._adapter;
@@ -11554,10 +11560,15 @@ class TimeScale extends Scale {
         return this._adapter.format(time, format || (major ? majorFormat : minorFormat));
     }
  generateTickLabels(ticks) {
+        const formatter = this.options.ticks.callback;
         let i, ilen, tick;
         for(i = 0, ilen = ticks.length; i < ilen; ++i){
             tick = ticks[i];
-            tick.label = this._tickFormatFunction(tick.value, i, ticks);
+            tick.label = formatter ? callback(formatter, [
+                tick.value,
+                i,
+                ticks
+            ], this) : this._tickFormatFunction(tick.value, i, ticks);
         }
     }
  getDecimalForValue(value) {
