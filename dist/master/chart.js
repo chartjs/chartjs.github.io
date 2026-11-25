@@ -5820,7 +5820,7 @@ class Chart {
             this,
             newSize
         ], this);
-        if (this.attached) {
+        if (this.attached && this.canvas) {
             if (mode === 'attach' || !this.chartArea) {
                 this.update(mode);
             } else if (this._doResize(mode)) {
@@ -6297,6 +6297,7 @@ class Chart {
         this.notifyPlugins('beforeDestroy');
         const { canvas, ctx } = this;
         this._stop();
+        this._doResize.cancel();
         this.config.clearCache();
         if (canvas) {
             this.unbindEvents();
