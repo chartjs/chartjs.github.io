@@ -5115,8 +5115,8 @@ class Registry {
             const reg = typedRegistry || this._getRegistryForType(arg);
             if (typedRegistry || reg.isForType(arg) || reg === this.plugins && arg.id) {
                 this._exec(method, reg, arg);
-            } else {
-                each(arg, (item)=>{
+            } else if (arg && typeof arg === 'object') {
+                Object.values(arg).forEach((item)=>{
                     const itemReg = typedRegistry || this._getRegistryForType(item);
                     this._exec(method, itemReg, item);
                 });
