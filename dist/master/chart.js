@@ -7634,7 +7634,7 @@ function minMaxDecimation(data, start, count, availableWidth) {
     return decimated;
 }
 function cleanDecimatedDataset(dataset) {
-    if (dataset._decimated) {
+    if (dataset._decimated && !Object.isSealed(dataset)) {
         const data = dataset._data;
         delete dataset._decimated;
         delete dataset._data;
@@ -7686,6 +7686,9 @@ var plugin_decimation = {
             const { _data, indexAxis } = dataset;
             const meta = chart.getDatasetMeta(datasetIndex);
             const data = _data || dataset.data;
+            if (!Object.isExtensible(dataset)) {
+                return;
+            }
             if (resolve([
                 indexAxis,
                 chart.options.indexAxis
@@ -7736,7 +7739,7 @@ var plugin_decimation = {
             dataset._decimated = decimated;
         });
     },
-    destroy (chart) {
+    stop (chart) {
         cleanDecimatedData(chart);
     }
 };
