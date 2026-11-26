@@ -1878,7 +1878,7 @@ class DoughnutController extends DatasetController {
     };
     static descriptors = {
         _scriptable: (name)=>name !== 'spacing' && name !== 'spacingMode',
-        _indexable: (name)=>name !== 'spacing' && name !== 'spacingMode' && !name.startsWith('borderDash') && !name.startsWith('hoverBorderDash')
+        _indexable: (name)=>name !== 'spacing' && name !== 'spacingMode' && !name.startsWith('borderDash')
     };
  static overrides = {
         aspectRatio: 1,
@@ -6803,7 +6803,7 @@ class ArcElement extends Element {
     };
     static descriptors = {
         _scriptable: true,
-        _indexable: (name)=>name !== 'borderDash'
+        _indexable: (name)=>!name.startsWith('borderDash')
     };
     circumference;
     endAngle;
