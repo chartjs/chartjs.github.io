@@ -6464,7 +6464,7 @@ class Chart {
         const { _active: lastActive = [], options } = this;
         const useFinalPosition = replay;
         const active = this._getActiveElements(e, lastActive, inChartArea, useFinalPosition);
-        const isClick = _isClickEvent(e);
+        const isClick = _isClickEvent(e, options.events);
         const lastEvent = determineLastEvent(e, this._lastEvent, inChartArea, isClick);
         if (inChartArea) {
             this._lastEvent = null;
@@ -8836,7 +8836,7 @@ class Legend extends Element {
     }
  handleEvent(e) {
         const opts = this.options;
-        if (!isListened(e.type, opts)) {
+        if (!isListened(e, opts, this.chart)) {
             return;
         }
         const hoveredItem = e.type === 'mouseout' ? null : this._getLegendItemAt(e.x, e.y);
@@ -8884,14 +8884,13 @@ function calculateItemWidth(legendItem, boxWidth, labelFont, ctx) {
     const text = legendItem.text;
     return isArray(text) ? fontLineHeight * text.length : _itemHeight;
 }
-function isListened(type, opts) {
+function isListened(e, opts, chart) {
+    const type = e.type;
     if ((type === 'mousemove' || type === 'mouseout') && (opts.onHover || opts.onLeave)) {
         return true;
     }
-    if (opts.onClick && (type === 'click' || type === 'mouseup')) {
-        return true;
-    }
-    return false;
+    const events = opts.events || chart.options.events;
+    return Boolean(opts.onClick) && type !== 'contextmenu' && _isClickEvent(e, events);
 }
 var plugin_legend = {
     id: 'legend',
