@@ -8425,6 +8425,16 @@ const getBoxSize = (labelOpts, fontSize)=>{
     };
 };
 const itemsEqual = (a, b)=>a !== null && b !== null && a.datasetIndex === b.datasetIndex && a.index === b.index;
+function getAlignedHitBox(x, width, boxWidth, fontSize, textAlign, right) {
+    const textWidth = width - boxWidth - fontSize / 2;
+    const textX = _textX(textAlign, x + boxWidth + fontSize / 2, right, false);
+    const textLeft = textX - (textAlign === 'center' ? textWidth / 2 : textAlign === 'right' ? textWidth : 0);
+    const left = Math.min(x, textLeft);
+    return {
+        left,
+        width: Math.max(x + boxWidth, textLeft + textWidth) - left
+    };
+}
 class Legend extends Element {
  constructor(config){
         super();
@@ -8584,7 +8594,8 @@ class Legend extends Element {
             return;
         }
         const titleHeight = this._computeTitleHeight();
-        const { legendHitBoxes: hitboxes, options: { align, labels: { padding }, rtl } } = this;
+        const { legendHitBoxes: hitboxes, options: { align, labels, rtl } } = this;
+        const { padding } = labels;
         const rtlHelper = getRtlAdapter(rtl, this.left, this.width);
         if (this.isHorizontal()) {
             let row = 0;
@@ -8599,19 +8610,30 @@ class Legend extends Element {
                 left += hitbox.width + padding;
             }
         } else {
+            const fontSize = toFont(labels.font).size;
+            const { boxWidth } = getBoxSize(labels, fontSize);
             let col = 0;
             let top = _alignStartEnd(align, this.top + titleHeight + padding, this.bottom - this.columnSizes[col].height);
-            for (const hitbox of hitboxes){
+            for(let i = 0; i < hitboxes.length; i++){
+                const hitbox = hitboxes[i];
                 if (hitbox.col !== col) {
                     col = hitbox.col;
                     top = _alignStartEnd(align, this.top + titleHeight + padding, this.bottom - this.columnSizes[col].height);
                 }
                 hitbox.top = top;
-                hitbox.left += this.left + padding;
-                hitbox.left = rtlHelper.leftForLtr(rtlHelper.x(hitbox.left), hitbox.width);
+                const x = hitbox.left + this.left + padding;
+                const item = this.legendItems[i];
+                const textAlign = item && item.textAlign || labels.textAlign;
+                const aligned = getAlignedHitBox(x, hitbox.width, boxWidth, fontSize, textAlign, this._columnRight(x, hitbox.col));
+                hitbox.width = aligned.width;
+                hitbox.left = rtlHelper.leftForLtr(rtlHelper.x(aligned.left), hitbox.width);
                 top += hitbox.height + padding;
             }
         }
+    }
+ _columnRight(x, col) {
+        const { columnSizes } = this;
+        return col < columnSizes.length - 1 ? x + columnSizes[col].width : this.right;
     }
     isHorizontal() {
         return this.options.position === 'top' || this.options.position === 'bottom';
@@ -8625,7 +8647,7 @@ class Legend extends Element {
         }
     }
  _draw() {
-        const { options: opts, columnSizes, lineWidths, ctx } = this;
+        const { options: opts, columnSizes, lineWidths, ctx, legendHitBoxes: hitboxes } = this;
         const { align, labels: labelOpts } = opts;
         const defaultColor = defaults.color;
         const rtlHelper = getRtlAdapter(opts.rtl, this.left, this.width);
@@ -8710,6 +8732,10 @@ class Legend extends Element {
         overrideTextDirection(this.ctx, opts.textDirection);
         const lineHeight = itemHeight + padding;
         this.legendItems.forEach((legendItem, i)=>{
+            const hitbox = hitboxes[i];
+            if (!hitbox) {
+                return;
+            }
             ctx.strokeStyle = legendItem.fontColor;
             ctx.fillStyle = legendItem.fontColor;
             const textWidth = ctx.measureText(legendItem.text).width;
@@ -8719,19 +8745,19 @@ class Legend extends Element {
             let y = cursor.y;
             rtlHelper.setWidth(this.width);
             if (isHorizontal) {
-                if (i > 0 && x + width + padding > this.right) {
+                if (hitbox.row !== cursor.line) {
                     y = cursor.y += lineHeight;
-                    cursor.line++;
+                    cursor.line = hitbox.row;
                     x = cursor.x = _alignStartEnd(align, this.left + padding, this.right - lineWidths[cursor.line]);
                 }
-            } else if (i > 0 && y + lineHeight > this.bottom) {
+            } else if (hitbox.col !== cursor.line) {
                 x = cursor.x = x + columnSizes[cursor.line].width + padding;
-                cursor.line++;
+                cursor.line = hitbox.col;
                 y = cursor.y = _alignStartEnd(align, this.top + titleHeight + padding, this.bottom - columnSizes[cursor.line].height);
             }
             const realX = rtlHelper.x(x);
             drawLegendBox(realX, y, legendItem);
-            x = _textX(textAlign, x + boxWidth + halfFontSize, isHorizontal ? x + width : this.right, opts.rtl);
+            x = _textX(textAlign, x + boxWidth + halfFontSize, isHorizontal ? x + width : this._columnRight(x, cursor.line), opts.rtl);
             fillText(rtlHelper.x(x), y, legendItem);
             if (isHorizontal) {
                 cursor.x += width + padding;
