@@ -2671,7 +2671,6 @@ ScatterController: ScatterController
     constructor(options){
         this.options = options || {};
     }
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
     init() {}
     formats() {
         return abstract();
