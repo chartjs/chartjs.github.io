@@ -8761,11 +8761,8 @@ class Legend extends Element {
             fillText(rtlHelper.x(x), y, legendItem);
             if (isHorizontal) {
                 cursor.x += width + padding;
-            } else if (typeof legendItem.text !== 'string') {
-                const fontLineHeight = labelFont.lineHeight;
-                cursor.y += calculateLegendItemHeight(legendItem, fontLineHeight) + padding;
             } else {
-                cursor.y += lineHeight;
+                cursor.y += calculateItemHeight(itemHeight, legendItem, labelFont.lineHeight) + padding;
             }
         });
         restoreTextDirection(this.ctx, opts.textDirection);
@@ -8881,19 +8878,12 @@ function calculateItemSize(boxWidth, labelFont, ctx, legendItem, _itemHeight) {
 }
 function calculateItemWidth(legendItem, boxWidth, labelFont, ctx) {
     const legendItemText = legendItem.text;
-    const textWidth = legendItemText && typeof legendItemText !== 'string' ? legendItemText.reduce((width, line)=>Math.max(width, ctx.measureText(line).width), 0) : ctx.measureText(legendItemText).width;
+    const textWidth = isArray(legendItemText) ? Math.max(0, ...legendItemText.map((line)=>ctx.measureText(line).width)) : ctx.measureText(legendItemText).width;
     return boxWidth + labelFont.size / 2 + textWidth;
 }
-function calculateItemHeight(_itemHeight, legendItem, fontLineHeight) {
-    let itemHeight = _itemHeight;
-    if (typeof legendItem.text !== 'string') {
-        itemHeight = calculateLegendItemHeight(legendItem, fontLineHeight);
-    }
-    return itemHeight;
-}
-function calculateLegendItemHeight(legendItem, fontLineHeight) {
-    const labelHeight = legendItem.text ? legendItem.text.length : 0;
-    return fontLineHeight * labelHeight;
+ function calculateItemHeight(_itemHeight, legendItem, fontLineHeight) {
+    const text = legendItem.text;
+    return isArray(text) ? fontLineHeight * text.length : _itemHeight;
 }
 function isListened(type, opts) {
     if ((type === 'mousemove' || type === 'mouseout') && (opts.onHover || opts.onLeave)) {
