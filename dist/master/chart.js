@@ -8794,7 +8794,7 @@ class Legend extends Element {
             const maxHeight = this.columnSizes.reduce((acc, size)=>Math.max(acc, size.height), 0);
             y = topPaddingPlusHalfFontSize + _alignStartEnd(opts.align, this.top, this.bottom - maxHeight - opts.labels.padding - this._computeTitleHeight());
         }
-        const x = _alignStartEnd(position, left, left + maxWidth);
+        const x = _alignStartEnd(position, left + titlePadding.left, left + maxWidth - titlePadding.right);
         ctx.textAlign = rtlHelper.textAlign(_toLeftRightCenter(position));
         ctx.textBaseline = 'middle';
         ctx.strokeStyle = titleOpts.color;
