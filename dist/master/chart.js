@@ -3237,7 +3237,7 @@ var layouts = {
             chart.boxes.splice(index, 1);
         }
     },
- configure (chart, item, options) {
+ configure (_chart, item, options) {
         item.fullSize = options.fullSize;
         item.position = options.position;
         item.weight = options.weight;
@@ -3648,26 +3648,48 @@ function autoSkip(scale, ticks) {
     const ticksLimit = Math.min(tickOpts.maxTicksLimit || determinedMaxTicks, determinedMaxTicks);
     const majorIndices = tickOpts.major.enabled ? getMajorIndices(ticks) : [];
     const numMajorIndices = majorIndices.length;
-    const first = majorIndices[0];
-    const last = majorIndices[numMajorIndices - 1];
     const newTicks = [];
     if (numMajorIndices > ticksLimit) {
         skipMajors(ticks, newTicks, majorIndices, numMajorIndices / ticksLimit);
         return newTicks;
     }
-    const spacing = calculateSpacing(majorIndices, ticks, ticksLimit);
-    if (numMajorIndices > 0) {
-        let i, ilen;
-        const avgMajorSpacing = numMajorIndices > 1 ? Math.round((last - first) / (numMajorIndices - 1)) : null;
-        skip(ticks, newTicks, spacing, isNullOrUndef(avgMajorSpacing) ? 0 : first - avgMajorSpacing, first);
-        for(i = 0, ilen = numMajorIndices - 1; i < ilen; i++){
-            skip(ticks, newTicks, spacing, majorIndices[i], majorIndices[i + 1]);
-        }
-        skip(ticks, newTicks, spacing, last, isNullOrUndef(avgMajorSpacing) ? ticks.length : last + avgMajorSpacing);
+    const step = Math.ceil(calculateSpacing(majorIndices, ticks, ticksLimit));
+    if (numMajorIndices === 0) {
+        skip((i)=>newTicks.push(ticks[i]), step, 0, ticks.length - 1);
         return newTicks;
     }
-    skip(ticks, newTicks, spacing);
+    if (isDescending(ticks)) {
+        const lastIndex = ticks.length - 1;
+        mirror(majorIndices, ticks.length);
+        keepFromMajors(ticks.length, majorIndices, step, (i)=>newTicks.push(ticks[lastIndex - i]));
+        return newTicks.reverse();
+    }
+    keepFromMajors(ticks.length, majorIndices, step, (i)=>newTicks.push(ticks[i]));
     return newTicks;
+}
+ function keepFromMajors(count, majorIndices, step, keep) {
+    const numMajorIndices = majorIndices.length;
+    const first = majorIndices[0];
+    const last = majorIndices[numMajorIndices - 1];
+    const avgMajorSpacing = numMajorIndices > 1 ? Math.round((last - first) / (numMajorIndices - 1)) : null;
+    const headStart = avgMajorSpacing === null ? 0 : Math.max(first - avgMajorSpacing, 0);
+    const tailEnd = avgMajorSpacing === null ? count - 1 : last + avgMajorSpacing - step;
+    skip(keep, step, first - Math.floor((first - headStart) / step) * step, first - step);
+    for(let i = 0; i < numMajorIndices; i++){
+        const end = i < numMajorIndices - 1 ? majorIndices[i + 1] - step : tailEnd;
+        skip(keep, step, majorIndices[i], Math.min(Math.max(end, majorIndices[i]), count - 1));
+    }
+}
+ function mirror(indices, length) {
+    indices.reverse();
+    for(let i = 0; i < indices.length; i++){
+        indices[i] = length - 1 - indices[i];
+    }
+}
+ function isDescending(ticks) {
+    const first = ticks[0].value;
+    const last = ticks[ticks.length - 1].value;
+    return typeof first === 'number' && typeof last === 'number' && first > last;
 }
 function determineMaxTicks(scale) {
     const offset = scale.options.offset;
@@ -3682,9 +3704,7 @@ function determineMaxTicks(scale) {
     if (!evenMajorSpacing) {
         return Math.max(spacing, 1);
     }
-    const factors = _factorize(evenMajorSpacing);
-    for(let i = 0, ilen = factors.length - 1; i < ilen; i++){
-        const factor = factors[i];
+    for (const factor of _factorize(evenMajorSpacing)){
         if (factor > spacing) {
             return factor;
         }
@@ -3714,27 +3734,9 @@ function determineMaxTicks(scale) {
         }
     }
 }
- function skip(ticks, newTicks, spacing, majorStart, majorEnd) {
-    const start = valueOrDefault(majorStart, 0);
-    const end = Math.min(valueOrDefault(majorEnd, ticks.length), ticks.length);
-    let count = 0;
-    let length, i, next;
-    spacing = Math.ceil(spacing);
-    if (majorEnd) {
-        length = majorEnd - majorStart;
-        spacing = length / Math.floor(length / spacing);
-    }
-    next = start;
-    while(next < 0){
-        count++;
-        next = Math.round(start + count * spacing);
-    }
-    for(i = Math.max(start, 0); i < end; i++){
-        if (i === next) {
-            newTicks.push(ticks[i]);
-            count++;
-            next = Math.round(start + count * spacing);
-        }
+ function skip(keep, step, start, end) {
+    for(let i = start; i <= end; i += step){
+        keep(i);
     }
 }
  function getEvenSpacing(arr) {
@@ -10632,7 +10634,8 @@ class LinearScaleBase extends Scale {
         let { maxTicksLimit, stepSize } = tickOpts;
         let maxTicks;
         if (stepSize) {
-            maxTicks = Math.ceil(this.max / stepSize) - Math.floor(this.min / stepSize) + 1;
+            const { min, max } = this._range || this;
+            maxTicks = Math.ceil(max / stepSize) - Math.floor(min / stepSize) + 1;
             if (maxTicks > 1000) {
                 console.warn(`scales.${this.id}.ticks.stepSize: ${stepSize} would result generating up to ${maxTicks} ticks. Limiting to 1000.`);
                 maxTicks = 1000;
