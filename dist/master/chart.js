@@ -2292,7 +2292,7 @@ class LineController extends DatasetController {
 
 class PolarAreaController extends DatasetController {
     static id = 'polarArea';
- static defaults = {
+    static defaults = {
         dataElementType: 'arc',
         animation: {
             animateRotate: true,
@@ -2316,7 +2316,7 @@ class PolarAreaController extends DatasetController {
         spacing: 0,
         spacingMode: 'proportional'
     };
- static overrides = {
+    static overrides = {
         aspectRatio: 1,
         plugins: {
             legend: {
@@ -2343,7 +2343,7 @@ class PolarAreaController extends DatasetController {
                         return [];
                     }
                 },
-                onClick (e, legendItem, legend) {
+                onClick (_e, legendItem, legend) {
                     legend.chart.toggleDataVisibility(legendItem.index);
                     legend.chart.update();
                 }
@@ -2392,13 +2392,13 @@ class PolarAreaController extends DatasetController {
         this._updateRadius();
         this.updateElements(arcs, 0, arcs.length, mode);
     }
- getMinMax() {
+    getMinMax() {
         const meta = this._cachedMeta;
         const range = {
             min: Number.POSITIVE_INFINITY,
             max: Number.NEGATIVE_INFINITY
         };
-        meta.data.forEach((element, index)=>{
+        meta.data.forEach((_element, index)=>{
             const parsed = this.getParsed(index).r;
             if (!isNaN(parsed) && this.chart.getDataVisibility(index)) {
                 if (parsed < range.min) {
@@ -2411,7 +2411,7 @@ class PolarAreaController extends DatasetController {
         });
         return range;
     }
- _updateRadius() {
+     _updateRadius() {
         const chart = this.chart;
         const chartArea = chart.chartArea;
         const opts = chart.options;
@@ -2472,14 +2472,14 @@ class PolarAreaController extends DatasetController {
     countVisibleElements() {
         const meta = this._cachedMeta;
         let count = 0;
-        meta.data.forEach((element, index)=>{
+        meta.data.forEach((_element, index)=>{
             if (!isNaN(this.getParsed(index).r) && this.chart.getDataVisibility(index)) {
                 count++;
             }
         });
         return count;
     }
- _computeAngle(index, mode, defaultAngle) {
+     _computeAngle(index, mode, defaultAngle) {
         return this.chart.getDataVisibility(index) ? toRadians(this.resolveDataElementOptions(index, mode).angle || defaultAngle) : 0;
     }
 }
@@ -2496,7 +2496,7 @@ class PieController extends DoughnutController {
 
 class RadarController extends DatasetController {
     static id = 'radar';
- static defaults = {
+    static defaults = {
         datasetElementType: 'line',
         dataElementType: 'point',
         indexAxis: 'r',
@@ -2507,7 +2507,7 @@ class RadarController extends DatasetController {
             }
         }
     };
- static overrides = {
+    static overrides = {
         aspectRatio: 1,
         scales: {
             r: {
@@ -2515,7 +2515,7 @@ class RadarController extends DatasetController {
             }
         }
     };
- getLabelAndValue(index) {
+    getLabelAndValue(index) {
         const vScale = this._cachedMeta.vScale;
         const parsed = this.getParsed(index);
         return {
