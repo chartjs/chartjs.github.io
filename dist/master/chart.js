@@ -2649,29 +2649,11 @@ RadarController: RadarController,
 ScatterController: ScatterController
 });
 
-/**
- * @namespace Chart._adapters
- * @since 2.8.0
- * @private
- */ function abstract() {
+function abstract() {
     throw new Error('This method is not implemented: Check that a complete date adapter is provided.');
 }
-/**
- * Date adapter (current used by the time scale)
- * @namespace Chart._adapters._date
- * @memberof Chart._adapters
- * @private
- */ class DateAdapterBase {
-    /**
-   * Override default date adapter methods.
-   * Accepts type parameter to define options type.
-   * @example
-   * Chart._adapters._date.override<{myAdapterOption: string}>({
-   *   init() {
-   *     console.log(this.options.myAdapterOption);
-   *   }
-   * })
-   */ static override(members) {
+ class DateAdapterBase {
+ static override(members) {
         Object.assign(DateAdapterBase.prototype, members);
     }
     options;
@@ -3263,53 +3245,19 @@ var layouts = {
     }
 };
 
-/**
- * Abstract class that allows abstracting platform dependencies away from the chart.
- */ class BasePlatform {
-    /**
-	 * Called at chart construction time, returns a context2d instance implementing
-	 * the [W3C Canvas 2D Context API standard]{@link https://www.w3.org/TR/2dcontext/}.
-	 * @param canvas - The canvas from which to acquire context (platform specific)
-	 * @param aspectRatio - The chart options
-	 */ acquireContext(_canvas, _aspectRatio) {
+class BasePlatform {
+ acquireContext(_canvas, _aspectRatio) {
         return undefined;
     }
-    /**
-	 * Called at chart destruction time, releases any resources associated to the context
-	 * previously returned by the acquireContext() method.
-	 * @param context - The context2d instance
-	 * @returns true if the method succeeded, else false
-	 */ releaseContext(_context) {
+ releaseContext(_context) {
         return false;
     }
-    /**
-	 * Registers the specified listener on the given chart.
-	 * @param chart - Chart from which to listen for event
-	 * @param type - The ({@link ChartEvent}) type to listen for
-	 * @param listener - Receives a notification (an object that implements
-	 * the {@link ChartEvent} interface) when an event of the specified type occurs.
-	 */ // The listeners take different arguments per event type, so `Function` is kept from the JSDoc.
-    // eslint-disable-next-line @typescript-eslint/ban-types
     addEventListener(_chart, _type, _listener) {}
-    /**
-	 * Removes the specified listener previously registered with addEventListener.
-	 * @param chart - Chart from which to remove the listener
-	 * @param type - The ({@link ChartEvent}) type to remove
-	 * @param listener - The listener function to remove from the event target.
-	 */ // eslint-disable-next-line @typescript-eslint/ban-types
     removeEventListener(_chart, _type, _listener) {}
-    /**
-	 * @returns the current devicePixelRatio of the device this platform is connected to.
-	 */ getDevicePixelRatio() {
+ getDevicePixelRatio() {
         return 1;
     }
-    /**
-	 * Returns the maximum size in pixels of given canvas element.
-	 * @param element
-	 * @param width - content width of parent element
-	 * @param height - content height of parent element
-	 * @param aspectRatio - aspect ratio to maintain
-	 */ getMaximumSize(element, width, height, aspectRatio) {
+ getMaximumSize(element, width, height, aspectRatio) {
         width = Math.max(0, width || element.width);
         height = height || element.height;
         return {
@@ -3317,17 +3265,10 @@ var layouts = {
             height: Math.max(0, aspectRatio ? Math.floor(width / aspectRatio) : height)
         };
     }
-    /**
-	 * @param canvas
-	 * @returns true if the canvas is attached to the platform, false if not.
-	 */ isAttached(_canvas) {
+ isAttached(_canvas) {
         return true;
     }
-    /**
-   * Updates config with platform specific requirements
-   * @param config
-   */ updateConfig(_config) {
-    // no-op
+ updateConfig(_config) {
     }
 }
 
@@ -3628,7 +3569,6 @@ class Element {
     getProps(props, final) {
         const anims = this.$animations;
         if (!final || !anims) {
-            // let's not create an object, if not needed
             return this;
         }
         const ret = {};
@@ -6590,8 +6530,6 @@ function clipSelf(ctx, element, endAngle) {
 function clipArc(ctx, element, endAngle) {
     const { startAngle, pixelMargin, x, y, outerRadius, innerRadius } = element;
     let angleMargin = pixelMargin / outerRadius;
-    // Draw an inner border by clipping the arc and drawing a double-width border
-    // Enlarge the clipping arc by 0.33 pixels to eliminate glitches between borders
     ctx.beginPath();
     ctx.arc(x, y, outerRadius, startAngle - angleMargin, endAngle + angleMargin);
     if (innerRadius > pixelMargin) {
@@ -6611,19 +6549,10 @@ function toRadiusCorners(value) {
         'innerEnd'
     ]);
 }
-/**
- * Parse border radius from the provided options
- */ function parseBorderRadius$1(arc, innerRadius, outerRadius, angleDelta) {
+ function parseBorderRadius$1(arc, innerRadius, outerRadius, angleDelta) {
     const o = toRadiusCorners(arc.options.borderRadius);
     const halfThickness = (outerRadius - innerRadius) / 2;
     const innerLimit = Math.min(halfThickness, angleDelta * innerRadius / 2);
-    // Outer limits are complicated. We want to compute the available angular distance at
-    // a radius of outerRadius - borderRadius because for small angular distances, this term limits.
-    // We compute at r = outerRadius - borderRadius because this circle defines the center of the border corners.
-    //
-    // If the borderRadius is large, that value can become negative.
-    // This causes the outer borders to lose their radius entirely, which is rather unexpected. To solve that, if borderRadius > outerRadius
-    // we know that the thickness term will dominate and compute the limits at that point
     const computeOuterLimit = (val)=>{
         const outerArcLimit = (outerRadius - Math.min(halfThickness, val)) * angleDelta / 2;
         return _limitValue(val, 0, Math.min(halfThickness, outerArcLimit));
@@ -6635,9 +6564,7 @@ function toRadiusCorners(value) {
         innerEnd: _limitValue(o.innerEnd, 0, innerLimit)
     };
 }
-/**
- * Convert (r, 𝜃) to (x, y)
- */ function rThetaToXY(r, theta, x, y) {
+ function rThetaToXY(r, theta, x, y) {
     return {
         x: x + r * Math.cos(theta),
         y: y + r * Math.sin(theta)
@@ -6650,26 +6577,12 @@ function pathFullCircle(ctx, element, offset, spacing) {
     ctx.beginPath();
     ctx.arc(x, y, outerRadius, start, start + TAU);
     if (innerRadius > 0) {
-        // Start the inner contour as a separate subpath to avoid a seam connector.
         ctx.moveTo(x + Math.cos(start) * innerRadius, y + Math.sin(start) * innerRadius);
         ctx.arc(x, y, innerRadius, start + TAU, start, true);
     }
     ctx.closePath();
 }
-/**
- * Path the arc, respecting border radius by separating into left and right halves.
- *
- *   Start      End
- *
- *    1--->a--->2    Outer
- *   /           \
- *   8           3
- *   |           |
- *   |           |
- *   7           4
- *   \           /
- *    6<---b<---5    Inner
- */ function pathArc(ctx, element, offset, spacing, end, circular) {
+ function pathArc(ctx, element, offset, spacing, end, circular) {
     const { x, y, startAngle: start, pixelMargin, innerRadius: innerR } = element;
     const { spacingMode = 'angular' } = element.options;
     const alpha = end - start;
@@ -6684,9 +6597,6 @@ function pathFullCircle(ctx, element, offset, spacing) {
     const beta = outerRadius > 0 ? Math.max(0.001, alpha * outerRadius - offset / PI) / outerRadius : 0.001;
     const angleOffset = (alpha - beta) / 2;
     if (spacing) {
-        // When spacing is present, it is the same for all items
-        // So we adjust the start and end angle of the arc such that
-        // the distance is the same as it would be without the spacing
         const noSpacingInnerRadius = innerR > 0 ? innerR - spacing : 0;
         const noSpacingOuterRadius = outerRadius > 0 ? outerRadius - spacing : 0;
         const avgNoSpacingRadius = (noSpacingInnerRadius + noSpacingOuterRadius) / 2;
@@ -6695,18 +6605,14 @@ function pathFullCircle(ctx, element, offset, spacing) {
             return (alpha - adjustedAngle) / 2;
         })();
         const angularOffset = avgNoSpacingRadius > 0 ? Math.asin(Math.min(1, spacing / avgNoSpacingRadius)) : 0;
-        // Keep spacing trims below half the available span after base offset trimming.
         const maxOffset = Math.max(0, beta / 2 - 0.001);
         const maxOffsetSin = Math.sin(maxOffset);
         if (spacingMode === 'parallel') {
             if (innerRadius === 0 && maxOffsetSin > 0) {
-                // A root radius of zero cannot realize a non-zero parallel separator width.
-                // Raise the root just enough for the available angular span.
                 const minInnerRadius = spacing / maxOffsetSin;
                 const maxInnerRadius = Math.max(0, outerRadius - 0.001);
                 innerRadius = Math.min(minInnerRadius, maxInnerRadius);
             }
-            // Use one bounded spacing value for both radii so large spacing keeps stable geometry.
             const maxParallelSpacing = Math.min(outerRadius > 0 ? outerRadius * maxOffsetSin : Number.POSITIVE_INFINITY, innerRadius > 0 ? innerRadius * maxOffsetSin : Number.POSITIVE_INFINITY);
             const parallelSpacing = Math.min(spacing, maxParallelSpacing);
             outerSpacingOffset = outerRadius > 0 ? Math.asin(Math.min(1, parallelSpacing / outerRadius)) : Math.min(maxOffset, angularOffset);
@@ -6735,36 +6641,28 @@ function pathFullCircle(ctx, element, offset, spacing) {
     const innerEndAdjustedAngle = innerEndAngle - innerEnd / innerEndAdjustedRadius;
     ctx.beginPath();
     if (circular) {
-        // The first arc segments from point 1 to point a to point 2
         const outerMidAdjustedAngle = (outerStartAdjustedAngle + outerEndAdjustedAngle) / 2;
         ctx.arc(x, y, outerRadius, outerStartAdjustedAngle, outerMidAdjustedAngle);
         ctx.arc(x, y, outerRadius, outerMidAdjustedAngle, outerEndAdjustedAngle);
-        // The corner segment from point 2 to point 3
         if (outerEnd > 0) {
             const pCenter = rThetaToXY(outerEndAdjustedRadius, outerEndAdjustedAngle, x, y);
             ctx.arc(pCenter.x, pCenter.y, outerEnd, outerEndAdjustedAngle, outerEndAngle + HALF_PI);
         }
-        // The line from point 3 to point 4
         const p4 = rThetaToXY(innerEndAdjustedRadius, innerEndAngle, x, y);
         ctx.lineTo(p4.x, p4.y);
-        // The corner segment from point 4 to point 5
         if (innerEnd > 0) {
             const pCenter = rThetaToXY(innerEndAdjustedRadius, innerEndAdjustedAngle, x, y);
             ctx.arc(pCenter.x, pCenter.y, innerEnd, innerEndAngle + HALF_PI, innerEndAdjustedAngle + Math.PI);
         }
-        // The inner arc from point 5 to point b to point 6
         const innerMidAdjustedAngle = (innerEndAngle - innerEnd / innerRadius + (innerStartAngle + innerStart / innerRadius)) / 2;
         ctx.arc(x, y, innerRadius, innerEndAngle - innerEnd / innerRadius, innerMidAdjustedAngle, true);
         ctx.arc(x, y, innerRadius, innerMidAdjustedAngle, innerStartAngle + innerStart / innerRadius, true);
-        // The corner segment from point 6 to point 7
         if (innerStart > 0) {
             const pCenter = rThetaToXY(innerStartAdjustedRadius, innerStartAdjustedAngle, x, y);
             ctx.arc(pCenter.x, pCenter.y, innerStart, innerStartAdjustedAngle + Math.PI, innerStartAngle - HALF_PI);
         }
-        // The line from point 7 to point 8
         const p8 = rThetaToXY(outerStartAdjustedRadius, outerStartAngle, x, y);
         ctx.lineTo(p8.x, p8.y);
-        // The corner segment from point 8 to point 1
         if (outerStart > 0) {
             const pCenter = rThetaToXY(outerStartAdjustedRadius, outerStartAdjustedAngle, x, y);
             ctx.arc(pCenter.x, pCenter.y, outerStart, outerStartAngle - HALF_PI, outerStartAdjustedAngle);
@@ -7245,9 +7143,7 @@ class PointElement extends Element {
     parsed;
     skip;
     stop;
-    /**
-   * @type {any}
-   */ static defaults = {
+ static defaults = {
         borderWidth: 1,
         hitRadius: 1,
         hoverBorderWidth: 1,
@@ -7256,9 +7152,7 @@ class PointElement extends Element {
         radius: 3,
         rotation: 0
     };
-    /**
-   * @type {any}
-   */ static defaultRoutes = {
+ static defaultRoutes = {
         backgroundColor: 'backgroundColor',
         borderColor: 'borderColor'
     };
@@ -7315,7 +7209,6 @@ class PointElement extends Element {
     }
     getRange() {
         const options = this.options || {};
-        // @ts-expect-error Fallbacks should never be hit in practice
         return options.radius + options.hitRadius;
     }
 }
@@ -7518,9 +7411,8 @@ const BORDER_COLORS = [
     'rgb(255, 205, 86)',
     'rgb(75, 192, 192)',
     'rgb(153, 102, 255)',
-    'rgb(201, 203, 207)' // grey
+    'rgb(201, 203, 207)'
 ];
-// Border colors with 50% transparency
 const BACKGROUND_COLORS = /* #__PURE__ */ BORDER_COLORS.map((color)=>color.replace('rgb(', 'rgba(').replace(')', ', 0.5)'));
 function getBorderColor(i) {
     return BORDER_COLORS[i % BORDER_COLORS.length];
