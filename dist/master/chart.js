@@ -554,7 +554,8 @@ function clearStacks(meta, items) {
         return;
     }
     items = items || meta._parsed;
-    for (const parsed of items){
+    for(let i = 0, ilen = items.length; i < ilen; ++i){
+        const parsed = items[i];
         if (parsed) {
             clearItemStack(parsed._stacks, axis, datasetIndex);
         }
@@ -568,6 +569,9 @@ function clearItemStack(stacks, axis, datasetIndex) {
     if (stacks[axis]._visualValues !== undefined && stacks[axis]._visualValues[datasetIndex] !== undefined) {
         delete stacks[axis]._visualValues[datasetIndex];
     }
+}
+function isNotInOrder(cur, prev, iAxis) {
+    return cur[iAxis] === null || prev && cur[iAxis] < prev[iAxis];
 }
 const isDirectUpdateMode = (mode)=>mode === 'reset' || mode === 'none';
 const cloneIfNotShared = (cached, shared)=>shared ? cached : Object.assign({}, cached);
@@ -732,11 +736,14 @@ class DatasetController {
             } else {
                 parsed = this.parsePrimitiveData(meta, data, start, count);
             }
-            const isNotInOrderComparedToPrev = ()=>cur[iAxis] === null || prev && cur[iAxis] < prev[iAxis];
+            const _parsed = meta._parsed;
+            if (_parsed.length < start + count) {
+                _parsed.length = start + count;
+            }
             for(i = 0; i < count; ++i){
-                meta._parsed[i + start] = cur = parsed[i];
+                _parsed[i + start] = cur = parsed[i];
                 if (sorted) {
-                    if (isNotInOrderComparedToPrev()) {
+                    if (isNotInOrder(cur, prev, iAxis)) {
                         sorted = false;
                     }
                     prev = cur;
