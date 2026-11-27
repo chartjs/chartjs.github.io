@@ -8381,11 +8381,32 @@ function getAlignedHitBox(x, width, boxWidth, fontSize, textAlign, right) {
     };
 }
 class Legend extends Element {
- constructor(config){
+    _added;
+    legendHitBoxes;
+ _hoveredItem;
+    doughnutMode;
+    chart;
+    ctx;
+    legendItems;
+    columnSizes;
+    lineWidths;
+    maxHeight;
+    maxWidth;
+    top;
+    bottom;
+    left;
+    right;
+    height;
+    width;
+    _margins;
+    position;
+    weight;
+    fullSize;
+    constructor(config){
         super();
         this._added = false;
         this.legendHitBoxes = [];
- this._hoveredItem = null;
+        this._hoveredItem = null;
         this.doughnutMode = false;
         this.chart = config.chart;
         this.options = config.options;
@@ -8426,7 +8447,7 @@ class Legend extends Element {
         }
     }
     buildLabels() {
-        const labelOpts = this.options.labels || {};
+        const labelOpts = this.options.labels;
         let legendItems = callback(labelOpts.generateLabels, [
             this.chart
         ], this) || [];
@@ -8876,7 +8897,7 @@ var plugin_legend = {
         fullSize: true,
         reverse: false,
         weight: 1000,
-        onClick (e, legendItem, legend) {
+        onClick (_e, legendItem, legend) {
             const index = legendItem.datasetIndex;
             const ci = legend.chart;
             if (ci.isDatasetVisible(index)) {
