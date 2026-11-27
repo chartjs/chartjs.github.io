@@ -8706,28 +8706,31 @@ class Legend extends Element {
         this.height = Math.min(height, options.maxHeight || this.maxHeight);
     }
  _fitRows(titleHeight, layout) {
-        const { ctx, maxWidth, options: { labels: { padding } } } = this;
-        const { font, boxWidth, itemHeight } = layout;
+        const { ctx, maxWidth, legendItems, options: { labels: { padding } } } = this;
+        const { font, boxWidth, itemHeight: lineItemHeight } = layout;
         const fontSize = font.size;
         const hitboxes = this.legendHitBoxes = [];
         const lineWidths = this.lineWidths = [
             0
         ];
-        const lineHeight = itemHeight + padding;
-        let totalHeight = titleHeight;
         ctx.textAlign = 'left';
         ctx.textBaseline = 'middle';
-        let row = -1;
-        let top = -lineHeight;
-        this.legendItems.forEach((legendItem, i)=>{
-            const textWidth = ctx.measureText(legendItem.text).width;
+        let row = 0;
+        let top = 0;
+        let rowHeight = 0;
+        for(let i = 0; i < legendItems.length; i++){
+            const legendItem = legendItems[i];
+            const multiLine = isArray(legendItem.text);
+            const textWidth = multiLine ? calculateTextWidth(legendItem, ctx) : ctx.measureText(legendItem.text).width;
             const itemWidth = boxWidth + fontSize / 2 + textWidth;
-            if (i === 0 || lineWidths[lineWidths.length - 1] + itemWidth + 2 * padding > maxWidth) {
-                totalHeight += lineHeight;
-                lineWidths[lineWidths.length - (i > 0 ? 0 : 1)] = 0;
-                top += lineHeight;
+            const itemHeight = multiLine ? calculateItemHeight(lineItemHeight, legendItem, font.lineHeight) : lineItemHeight;
+            if (i > 0 && lineWidths[lineWidths.length - 1] + itemWidth + 2 * padding > maxWidth) {
+                lineWidths.push(0);
+                top += rowHeight + padding;
+                rowHeight = 0;
                 row++;
             }
+            rowHeight = Math.max(rowHeight, itemHeight);
             hitboxes[i] = {
                 left: 0,
                 top,
@@ -8746,8 +8749,8 @@ class Legend extends Element {
                 }
             };
             lineWidths[lineWidths.length - 1] += itemWidth + padding;
-        });
-        return totalHeight;
+        }
+        return titleHeight + (legendItems.length ? top + rowHeight + padding : 0);
     }
  _fitCols(titleHeight, layout) {
         const { font, boxWidth, itemHeight: lineItemHeight } = layout;
@@ -9033,11 +9036,18 @@ class Legend extends Element {
 }
  function calculateTextWidth(legendItem, ctx) {
     const legendItemText = legendItem.text;
-    return isArray(legendItemText) ? Math.max(0, ...legendItemText.map((line)=>ctx.measureText(line).width)) : ctx.measureText(legendItemText).width;
+    if (!isArray(legendItemText)) {
+        return ctx.measureText(legendItemText).width;
+    }
+    let width = 0;
+    for (const line of legendItemText){
+        width = Math.max(width, ctx.measureText(line).width);
+    }
+    return width;
 }
  function calculateItemHeight(_itemHeight, legendItem, fontLineHeight) {
     const text = legendItem.text;
-    return isArray(text) ? fontLineHeight * text.length : _itemHeight;
+    return isArray(text) ? Math.max(_itemHeight, fontLineHeight * text.length) : _itemHeight;
 }
 function isListened(e, opts, chart) {
     const type = e.type;
