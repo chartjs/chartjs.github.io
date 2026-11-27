@@ -7403,7 +7403,7 @@ class PointElement extends Element {
 }
 
 function getBarBounds(bar, useFinalPosition) {
-    const { x, y, base, width, height } =  bar.getProps([
+    const { x, y, base, width, height } = bar.getProps([
         'x',
         'y',
         'base',
@@ -7517,14 +7517,14 @@ function inflateRect(rect, amount, refRect = {}) {
 }
 class BarElement extends Element {
     static id = 'bar';
- static defaults = {
+    static defaults = {
         borderSkipped: 'start',
         borderWidth: 0,
         borderRadius: 0,
         inflateAmount: 'auto',
         pointStyle: undefined
     };
- static defaultRoutes = {
+    static defaultRoutes = {
         backgroundColor: 'backgroundColor',
         borderColor: 'borderColor'
     };
@@ -7569,7 +7569,7 @@ class BarElement extends Element {
         return inRange(this, null, mouseY, useFinalPosition);
     }
     getCenterPoint(useFinalPosition) {
-        const { x, y, base, horizontal } =  this.getProps([
+        const { x, y, base, horizontal } = this.getProps([
             'x',
             'y',
             'base',
