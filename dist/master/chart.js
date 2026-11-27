@@ -4,7 +4,7 @@
  * (c) 2026 Chart.js Contributors
  * Released under the MIT License
  */
-import { aI as requestAnimFrame, aJ as resolve, ah as effects, a9 as color, ax as isObject, b5 as defaults, as as isArray, r as _descriptors, au as isFunction, b4 as valueOrDefault, b3 as unlistenArrayEvents, az as listenArrayEvents, aK as resolveObjectKey, at as isNumberFinite, ac as defined, aO as sign, aa as createContext, av as isNullOrUndef, g as _arrayUnique, a_ as toRadians, T as TAU, aZ as toPercentage, aU as toDimension, ak as formatNumber, e as _angleBetween, H as HALF_PI, P as PI, w as _getStartAndCountOfVisiblePoints, V as _scaleRangesChanged, aw as isNumber, N as _parseObjectDataRadialScale, ap as getRelativePosition, U as _rlookupByKey, G as _lookupByKey, B as _isPointInArea, al as getAngleFromPoint, aY as toPadding, ag as each, ao as getMaximumSize, v as _getParentNode, aG as readUsedSize, aS as throttled, aR as supportsEventListenerOptions, A as _isDomSupported, t as _factorize, ai as finiteOrDefault, a5 as callback, _ as _addGrace, D as _limitValue, aT as toDegrees, J as _measureText, x as _int16Range, c as _alignPixel, a7 as clipArea, aH as renderText, b2 as unclipArea, aV as toFont, d as _alignStartEnd, a0 as _toLeftRightCenter, b6 as overrides, aB as merge, m as _capitalize, b7 as descriptors, h as _attachContext, o as _createResolver, aC as mergeIf, C as _isRadialScale, b1 as uid, ab as debounce, aM as retinaScale, a6 as clearCanvas, aN as setsEqual, am as getDatasetClipArea, s as _elementsEqual, z as _isClickEvent, y as _isBetween, M as _normalizeAngle, S as _readValueToProps, a1 as _updateBezierControlPoints, n as _computeSegments, l as _boundSegments, Y as _steppedInterpolation, j as _bezierInterpolation, O as _pointInLine, Z as _steppedLineTo, i as _bezierCurveTo, ae as drawPoint, a2 as addRoundedRectPath, a$ as toTRBL, b0 as toTRBLCorners, k as _boundSegment, aq as getRtlAdapter, aF as overrideTextDirection, $ as _textX, aL as restoreTextDirection, af as drawPointLegend, aE as noop, ad as distanceBetweenPoints, W as _setMinAndMaxByKey, aD as niceNum, p as _decimalPlaces, a4 as almostWhole, a3 as almostEquals, b8 as Ticks, aA as log10, E as _longestText, u as _filterBetween, F as _lookup } from './chunks/helpers.dataset.js';
+import { aJ as requestAnimFrame, aK as resolve, ai as effects, aa as color, ay as isObject, b6 as defaults, at as isArray, r as _descriptors, av as isFunction, b5 as valueOrDefault, b4 as unlistenArrayEvents, aA as listenArrayEvents, aL as resolveObjectKey, au as isNumberFinite, ad as defined, aP as sign, ab as createContext, aw as isNullOrUndef, g as _arrayUnique, a$ as toRadians, T as TAU, a_ as toPercentage, aV as toDimension, al as formatNumber, e as _angleBetween, H as HALF_PI, P as PI, w as _getStartAndCountOfVisiblePoints, W as _scaleRangesChanged, ax as isNumber, O as _parseObjectDataRadialScale, aq as getRelativePosition, V as _rlookupByKey, J as _lookupByKey, C as _isPointInArea, am as getAngleFromPoint, aZ as toPadding, ah as each, ap as getMaximumSize, v as _getParentNode, aH as readUsedSize, aT as throttled, aS as supportsEventListenerOptions, B as _isDomSupported, t as _factorize, aj as finiteOrDefault, a6 as callback, _ as _addGrace, E as _limitValue, aU as toDegrees, K as _measureText, y as _int16Range, c as _alignPixel, a8 as clipArea, aI as renderText, b3 as unclipArea, aW as toFont, d as _alignStartEnd, a1 as _toLeftRightCenter, b7 as overrides, aC as merge, m as _capitalize, b8 as descriptors, h as _attachContext, aD as mergeIf, o as _createResolver, D as _isRadialScale, x as _hasOwn, b2 as uid, ac as debounce, aN as retinaScale, a7 as clearCanvas, aO as setsEqual, an as getDatasetClipArea, s as _elementsEqual, A as _isClickEvent, z as _isBetween, N as _normalizeAngle, U as _readValueToProps, a2 as _updateBezierControlPoints, n as _computeSegments, l as _boundSegments, Z as _steppedInterpolation, j as _bezierInterpolation, S as _pointInLine, $ as _steppedLineTo, i as _bezierCurveTo, af as drawPoint, a3 as addRoundedRectPath, b0 as toTRBL, b1 as toTRBLCorners, k as _boundSegment, ar as getRtlAdapter, aG as overrideTextDirection, a0 as _textX, aM as restoreTextDirection, ag as drawPointLegend, aF as noop, ae as distanceBetweenPoints, X as _setMinAndMaxByKey, aE as niceNum, p as _decimalPlaces, a5 as almostWhole, a4 as almostEquals, b9 as Ticks, aB as log10, F as _longestText, u as _filterBetween, G as _lookup } from './chunks/helpers.dataset.js';
 import '@kurkle/color';
 
 class Animator {
@@ -5368,13 +5368,15 @@ function retrieveAxisFromDatasets(id, config) {
         ].find((axis)=>dataset[axis + 'AxisID'] === id);
     }
 }
-function mergeScaleConfig(config, options) {
+const hasOwnType = (obj)=>isObject(obj) && _hasOwn(obj, 'type');
+ function splitScaleConfig(config, options, records) {
     const chartDefaults = overrides[config.type] || {
         scales: {}
     };
     const configScales = options.scales || {};
     const chartIndexAxis = getIndexAxis(config.type, options);
-    const scales = Object.create(null);
+    const stored = Object.create(null);
+    const sources = Object.create(null);
     Object.keys(configScales).forEach((id)=>{
         const scaleConf = configScales[id];
         if (!isObject(scaleConf)) {
@@ -5386,14 +5388,25 @@ function mergeScaleConfig(config, options) {
         const axis = determineAxis(id, scaleConf, retrieveAxisFromDatasets(id, config));
         const defaultId = getDefaultScaleIDFromAxis(axis, chartIndexAxis);
         const defaultScaleOptions = chartDefaults.scales || {};
-        scales[id] = mergeIf(Object.create(null), [
+        const record = records.get(scaleConf) || {
+            implied: false
+        };
+        stored[id] = mergeIf(Object.create(null), [
             {
                 axis
             },
-            scaleConf,
-            defaultScaleOptions[axis],
-            defaultScaleOptions[defaultId]
+            scaleConf
         ]);
+        sources[id] = {
+            chart: [
+                defaultScaleOptions[axis],
+                defaultScaleOptions[defaultId]
+            ],
+            datasets: [],
+            scaleType: undefined,
+            implied: record.implied
+        };
+        records.set(stored[id], record);
     });
     config.data.datasets.forEach((dataset)=>{
         const type = dataset.type || config.type;
@@ -5403,29 +5416,70 @@ function mergeScaleConfig(config, options) {
         Object.keys(defaultScaleOptions).forEach((defaultID)=>{
             const axis = getAxisFromDefaultScaleID(defaultID, indexAxis);
             const id = dataset[axis + 'AxisID'] || axis;
-            scales[id] = scales[id] || Object.create(null);
-            mergeIf(scales[id], [
-                {
-                    axis
-                },
-                configScales[id],
-                defaultScaleOptions[defaultID]
-            ]);
+            if (!stored[id]) {
+                const record = records.get(configScales[id]) || {
+                    implied: true
+                };
+                stored[id] = mergeIf(Object.create(null), [
+                    {
+                        axis
+                    },
+                    configScales[id]
+                ]);
+                sources[id] = {
+                    chart: [],
+                    datasets: [],
+                    scaleType: undefined,
+                    implied: record.implied
+                };
+                records.set(stored[id], record);
+            }
+            sources[id].datasets.push(defaultScaleOptions[defaultID]);
         });
     });
-    Object.keys(scales).forEach((key)=>{
-        const scale = scales[key];
-        mergeIf(scale, [
-            defaults.scales[scale.type],
+    Object.keys(stored).forEach((id)=>{
+        const { chart, datasets } = sources[id];
+        const typed = hasOwnType(stored[id]) ? stored[id] : chart.find(hasOwnType) || datasets.find(hasOwnType);
+        sources[id].scaleType = defaults.scales[typed && typed.type];
+    });
+    return {
+        stored,
+        sources
+    };
+}
+ function deriveScaleOptions(sources) {
+    const scales = Object.create(null);
+    Object.keys(sources).forEach((id)=>{
+        const { chart, datasets, scaleType, implied } = sources[id];
+        const scale = scales[id] = Object.create(null);
+        if (!implied) {
+            mergeIf(scale, chart);
+        }
+        mergeIf(scale, datasets);
+        mergeIf(scale, scaleType);
+    });
+    return {
+        scales
+    };
+}
+ function mergeScaleConfig(config, options, records) {
+    const { stored, sources } = splitScaleConfig(config, options, records);
+    Object.keys(stored).forEach((id)=>{
+        const { chart, datasets, scaleType } = sources[id];
+        mergeIf(stored[id], chart);
+        mergeIf(stored[id], datasets);
+        mergeIf(stored[id], [
+            scaleType,
             defaults.scale
         ]);
     });
-    return scales;
+    options.scales = stored;
+    return sources;
 }
-function initOptions(config) {
+function initOptions(config, records) {
     const options = config.options || (config.options = {});
     options.plugins = valueOrDefault(options.plugins, {});
-    options.scales = mergeScaleConfig(config, options);
+    return mergeScaleConfig(config, options, records);
 }
 function initData(data) {
     data = data || {};
@@ -5436,7 +5490,6 @@ function initData(data) {
 function initConfig(config) {
     config = config || {};
     config.data = initData(config.data);
-    initOptions(config);
     return config;
 }
 const keyCache = new Map();
@@ -5459,8 +5512,14 @@ const addIfFound = (set, obj, key)=>{
 class Config {
     constructor(config){
         this._config = initConfig(config);
+ this._scaleRecords = new WeakMap();
+ this._scaleSources = initOptions(this._config, this._scaleRecords);
+ this._derived = undefined;
         this._scopeCache = new Map();
         this._resolverCache = new Map();
+    }
+ get _derivedOptions() {
+        return this._derived || (this._derived = deriveScaleOptions(this._scaleSources));
     }
     get platform() {
         return this._config.platform;
@@ -5489,7 +5548,8 @@ class Config {
     update() {
         const config = this._config;
         this.clearCache();
-        initOptions(config);
+        this._scaleSources = initOptions(config, this._scaleRecords);
+        this._derived = undefined;
     }
     clearCache() {
         this._scopeCache.clear();
