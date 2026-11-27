@@ -7877,8 +7877,8 @@ function _resolveTarget(sources, index, propagate) {
     }
     return false;
 }
- function _decodeFill(line, index, count) {
-     const fill = parseFillOption(line);
+function _decodeFill(line, index, count) {
+    const fill = parseFillOption(line);
     if (isObject(fill)) {
         return isNaN(fill.value) ? false : fill;
     }
@@ -7903,7 +7903,7 @@ function decodeTargetIndex(firstCh, index, target, count) {
     }
     return target;
 }
- function _getTargetPixel(fill, scale) {
+function _getTargetPixel(fill, scale) {
     let pixel = null;
     if (fill === 'start') {
         pixel = scale.bottom;
@@ -7916,7 +7916,7 @@ function decodeTargetIndex(firstCh, index, target, count) {
     }
     return pixel;
 }
- function _getTargetValue(fill, scale, startValue) {
+function _getTargetValue(fill, scale, startValue) {
     let value;
     if (fill === 'start') {
         value = startValue;
@@ -7929,7 +7929,7 @@ function decodeTargetIndex(firstCh, index, target, count) {
     }
     return value;
 }
- function parseFillOption(line) {
+function parseFillOption(line) {
     const options = line.options;
     const fillOption = options.fill;
     let fill = valueOrDefault(fillOption && fillOption.target, fillOption);
@@ -8069,7 +8069,7 @@ function _getTarget(source) {
     }
     return _createBoundaryLine(boundary, line);
 }
- function getLineByIndex(chart, index) {
+function getLineByIndex(chart, index) {
     const meta = chart.getDatasetMeta(index);
     const visible = meta && chart.isDatasetVisible(index);
     return visible ? meta.dataset : null;
