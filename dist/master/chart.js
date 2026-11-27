@@ -4,7 +4,7 @@
  * (c) 2026 Chart.js Contributors
  * Released under the MIT License
  */
-import { aH as requestAnimFrame, aI as resolve, ag as effects, a8 as color, aw as isObject, b4 as defaults, ar as isArray, b3 as valueOrDefault, b2 as unlistenArrayEvents, ay as listenArrayEvents, aJ as resolveObjectKey, as as isNumberFinite, ab as defined, aN as sign, a9 as createContext, au as isNullOrUndef, g as _arrayUnique, aZ as toRadians, T as TAU, aY as toPercentage, aT as toDimension, aj as formatNumber, e as _angleBetween, H as HALF_PI, P as PI, w as _getStartAndCountOfVisiblePoints, U as _scaleRangesChanged, av as isNumber, M as _parseObjectDataRadialScale, ao as getRelativePosition, S as _rlookupByKey, F as _lookupByKey, B as _isPointInArea, ak as getAngleFromPoint, aX as toPadding, af as each, an as getMaximumSize, v as _getParentNode, aF as readUsedSize, aR as throttled, aQ as supportsEventListenerOptions, A as _isDomSupported, t as _factorize, ah as finiteOrDefault, a4 as callback, _ as _addGrace, C as _limitValue, aS as toDegrees, G as _measureText, x as _int16Range, c as _alignPixel, a6 as clipArea, aG as renderText, b1 as unclipArea, aU as toFont, d as _alignStartEnd, $ as _toLeftRightCenter, b5 as overrides, aA as merge, m as _capitalize, b6 as descriptors, at as isFunction, h as _attachContext, o as _createResolver, r as _descriptors, aB as mergeIf, b0 as uid, aa as debounce, aL as retinaScale, a5 as clearCanvas, aM as setsEqual, al as getDatasetClipArea, s as _elementsEqual, z as _isClickEvent, y as _isBetween, L as _normalizeAngle, O as _readValueToProps, a0 as _updateBezierControlPoints, n as _computeSegments, l as _boundSegments, X as _steppedInterpolation, j as _bezierInterpolation, N as _pointInLine, Y as _steppedLineTo, i as _bezierCurveTo, ad as drawPoint, a1 as addRoundedRectPath, a_ as toTRBL, a$ as toTRBLCorners, k as _boundSegment, ap as getRtlAdapter, aE as overrideTextDirection, Z as _textX, aK as restoreTextDirection, ae as drawPointLegend, aD as noop, ac as distanceBetweenPoints, V as _setMinAndMaxByKey, aC as niceNum, p as _decimalPlaces, a3 as almostWhole, a2 as almostEquals, b7 as Ticks, az as log10, D as _longestText, u as _filterBetween, E as _lookup } from './chunks/helpers.dataset.js';
+import { aI as requestAnimFrame, aJ as resolve, ah as effects, a9 as color, ax as isObject, b5 as defaults, as as isArray, b4 as valueOrDefault, b3 as unlistenArrayEvents, az as listenArrayEvents, aK as resolveObjectKey, at as isNumberFinite, ac as defined, aO as sign, aa as createContext, av as isNullOrUndef, g as _arrayUnique, a_ as toRadians, T as TAU, aZ as toPercentage, aU as toDimension, ak as formatNumber, e as _angleBetween, H as HALF_PI, P as PI, w as _getStartAndCountOfVisiblePoints, V as _scaleRangesChanged, aw as isNumber, N as _parseObjectDataRadialScale, ap as getRelativePosition, U as _rlookupByKey, G as _lookupByKey, B as _isPointInArea, al as getAngleFromPoint, aY as toPadding, ag as each, ao as getMaximumSize, v as _getParentNode, aG as readUsedSize, aS as throttled, aR as supportsEventListenerOptions, A as _isDomSupported, t as _factorize, ai as finiteOrDefault, a5 as callback, _ as _addGrace, D as _limitValue, aT as toDegrees, J as _measureText, x as _int16Range, c as _alignPixel, a7 as clipArea, aH as renderText, b2 as unclipArea, aV as toFont, d as _alignStartEnd, a0 as _toLeftRightCenter, b6 as overrides, aB as merge, m as _capitalize, b7 as descriptors, au as isFunction, h as _attachContext, o as _createResolver, r as _descriptors, aC as mergeIf, C as _isRadialScale, b1 as uid, ab as debounce, aM as retinaScale, a6 as clearCanvas, aN as setsEqual, am as getDatasetClipArea, s as _elementsEqual, z as _isClickEvent, y as _isBetween, M as _normalizeAngle, S as _readValueToProps, a1 as _updateBezierControlPoints, n as _computeSegments, l as _boundSegments, Y as _steppedInterpolation, j as _bezierInterpolation, O as _pointInLine, Z as _steppedLineTo, i as _bezierCurveTo, ae as drawPoint, a2 as addRoundedRectPath, a$ as toTRBL, b0 as toTRBLCorners, k as _boundSegment, aq as getRtlAdapter, aF as overrideTextDirection, $ as _textX, aL as restoreTextDirection, af as drawPointLegend, aE as noop, ad as distanceBetweenPoints, W as _setMinAndMaxByKey, aD as niceNum, p as _decimalPlaces, a4 as almostWhole, a3 as almostEquals, b8 as Ticks, aA as log10, E as _longestText, u as _filterBetween, F as _lookup } from './chunks/helpers.dataset.js';
 import '@kurkle/color';
 
 class Animator {
@@ -5305,33 +5305,38 @@ function axisFromPosition(position) {
         return 'y';
     }
 }
-function determineAxis(id, ...scaleOptions) {
+ function axisFromFirstLetter(id, scaleClass) {
+    const axis = id.length > 1 && idMatchesAxis(id[0].toLowerCase());
+    if (!axis || !scaleClass) {
+        return axis;
+    }
+    return axis === 'r' === _isRadialScale(scaleClass.prototype) ? axis : undefined;
+}
+ function axisFromType(id, type) {
+    const scaleClass = registry.scales.get(type);
+    const typeDefaults = defaults.scales[type] || {};
+    return axisFromFirstLetter(id, scaleClass) || typeDefaults.axis || axisFromPosition(typeDefaults.position) || (scaleClass && _isRadialScale(scaleClass.prototype) ? 'r' : undefined);
+}
+ function determineAxis(id, scaleOptions, boundAxis) {
     if (idMatchesAxis(id)) {
         return id;
     }
-    for (const opts of scaleOptions){
-        const axis = opts.axis || axisFromPosition(opts.position) || id.length > 1 && idMatchesAxis(id[0].toLowerCase());
-        if (axis) {
-            return axis;
-        }
+    const axis = scaleOptions.axis || axisFromPosition(scaleOptions.position) || boundAxis || axisFromType(id, scaleOptions.type);
+    if (axis) {
+        return axis;
     }
     throw new Error(`Cannot determine type of '${id}' axis. Please provide 'axis' or 'position' option.`);
 }
-function getAxisFromDataset(id, axis, dataset) {
-    if (dataset[axis + 'AxisID'] === id) {
-        return {
-            axis
-        };
-    }
-}
 function retrieveAxisFromDatasets(id, config) {
-    if (config.data && config.data.datasets) {
-        const boundDs = config.data.datasets.filter((d)=>d.xAxisID === id || d.yAxisID === id);
-        if (boundDs.length) {
-            return getAxisFromDataset(id, 'x', boundDs[0]) || getAxisFromDataset(id, 'y', boundDs[0]);
-        }
+    const datasets = config.data && config.data.datasets || [];
+    const dataset = datasets.find((d)=>d.xAxisID === id || d.yAxisID === id || d.rAxisID === id);
+    if (dataset) {
+        return [
+            'x',
+            'y',
+            'r'
+        ].find((axis)=>dataset[axis + 'AxisID'] === id);
     }
-    return {};
 }
 function mergeScaleConfig(config, options) {
     const chartDefaults = overrides[config.type] || {
@@ -5348,7 +5353,7 @@ function mergeScaleConfig(config, options) {
         if (scaleConf._proxy) {
             return console.warn(`Ignoring resolver passed as options for scale: ${id}`);
         }
-        const axis = determineAxis(id, scaleConf, retrieveAxisFromDatasets(id, config), defaults.scales[scaleConf.type]);
+        const axis = determineAxis(id, scaleConf, retrieveAxisFromDatasets(id, config));
         const defaultId = getDefaultScaleIDFromAxis(axis, chartIndexAxis);
         const defaultScaleOptions = chartDefaults.scales || {};
         scales[id] = mergeIf(Object.create(null), [
@@ -8090,7 +8095,7 @@ function _getTarget(source) {
 }
 function computeBoundary(source) {
     const scale = source.scale || {};
-    if (scale.getPointPositionForValue) {
+    if (_isRadialScale(scale)) {
         return computeCircularBoundary(source);
     }
     return computeLinearBoundary(source);
@@ -8153,7 +8158,7 @@ function _drawfill(ctx, source, area) {
     }
 }
 function clipToIndexBounds(area, iScale) {
-    if (!iScale || iScale.getPointPositionForValue) {
+    if (!iScale || _isRadialScale(iScale)) {
         return area;
     }
     const p1 = iScale.getPixelForValue(iScale.min);
