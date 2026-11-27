@@ -4,7 +4,7 @@
  * (c) 2026 Chart.js Contributors
  * Released under the MIT License
  */
-import { aJ as requestAnimFrame, aK as resolve, ai as effects, aa as color, ay as isObject, b6 as defaults, at as isArray, r as _descriptors, av as isFunction, b5 as valueOrDefault, b4 as unlistenArrayEvents, aA as listenArrayEvents, aL as resolveObjectKey, au as isNumberFinite, ad as defined, aP as sign, ab as createContext, aw as isNullOrUndef, g as _arrayUnique, a$ as toRadians, T as TAU, a_ as toPercentage, aV as toDimension, al as formatNumber, e as _angleBetween, H as HALF_PI, P as PI, w as _getStartAndCountOfVisiblePoints, W as _scaleRangesChanged, ax as isNumber, O as _parseObjectDataRadialScale, aq as getRelativePosition, V as _rlookupByKey, J as _lookupByKey, C as _isPointInArea, am as getAngleFromPoint, aZ as toPadding, ah as each, ap as getMaximumSize, v as _getParentNode, aH as readUsedSize, aT as throttled, aS as supportsEventListenerOptions, B as _isDomSupported, t as _factorize, aj as finiteOrDefault, a6 as callback, _ as _addGrace, E as _limitValue, aU as toDegrees, K as _measureText, y as _int16Range, c as _alignPixel, a8 as clipArea, aI as renderText, b3 as unclipArea, aW as toFont, d as _alignStartEnd, a1 as _toLeftRightCenter, b7 as overrides, aC as merge, m as _capitalize, b8 as descriptors, h as _attachContext, aD as mergeIf, o as _createResolver, D as _isRadialScale, x as _hasOwn, b2 as uid, ac as debounce, aN as retinaScale, a7 as clearCanvas, aO as setsEqual, an as getDatasetClipArea, s as _elementsEqual, A as _isClickEvent, z as _isBetween, N as _normalizeAngle, U as _readValueToProps, a2 as _updateBezierControlPoints, n as _computeSegments, l as _boundSegments, Z as _steppedInterpolation, j as _bezierInterpolation, S as _pointInLine, $ as _steppedLineTo, i as _bezierCurveTo, af as drawPoint, a3 as addRoundedRectPath, b0 as toTRBL, b1 as toTRBLCorners, k as _boundSegment, ar as getRtlAdapter, aG as overrideTextDirection, aM as restoreTextDirection, ag as drawPointLegend, a0 as _textX, aF as noop, ae as distanceBetweenPoints, X as _setMinAndMaxByKey, aE as niceNum, p as _decimalPlaces, a5 as almostWhole, a4 as almostEquals, b9 as Ticks, aB as log10, F as _longestText, u as _filterBetween, G as _lookup } from './chunks/helpers.dataset.js';
+import { aJ as requestAnimFrame, aK as resolve, ai as effects, aa as color, ay as isObject, b6 as defaults, at as isArray, r as _descriptors, av as isFunction, b5 as valueOrDefault, b4 as unlistenArrayEvents, aA as listenArrayEvents, aL as resolveObjectKey, au as isNumberFinite, ad as defined, aP as sign, ab as createContext, aw as isNullOrUndef, g as _arrayUnique, a$ as toRadians, T as TAU, a_ as toPercentage, aV as toDimension, al as formatNumber, e as _angleBetween, H as HALF_PI, P as PI, w as _getStartAndCountOfVisiblePoints, W as _scaleRangesChanged, ax as isNumber, O as _parseObjectDataRadialScale, aq as getRelativePosition, V as _rlookupByKey, J as _lookupByKey, C as _isPointInArea, am as getAngleFromPoint, aZ as toPadding, ah as each, ap as getMaximumSize, v as _getParentNode, aH as readUsedSize, aT as throttled, aS as supportsEventListenerOptions, B as _isDomSupported, t as _factorize, aj as finiteOrDefault, a6 as callback, _ as _addGrace, E as _limitValue, aU as toDegrees, K as _measureText, y as _int16Range, c as _alignPixel, a8 as clipArea, aI as renderText, b3 as unclipArea, aW as toFont, d as _alignStartEnd, a1 as _toLeftRightCenter, b7 as overrides, aC as merge, m as _capitalize, b8 as descriptors, h as _attachContext, aD as mergeIf, o as _createResolver, D as _isRadialScale, x as _hasOwn, b2 as uid, ac as debounce, aN as retinaScale, a7 as clearCanvas, aO as setsEqual, an as getDatasetClipArea, s as _elementsEqual, A as _isClickEvent, z as _isBetween, N as _normalizeAngle, U as _readValueToProps, a2 as _updateBezierControlPoints, n as _computeSegments, l as _boundSegments, Z as _steppedInterpolation, j as _bezierInterpolation, S as _pointInLine, $ as _steppedLineTo, i as _bezierCurveTo, af as drawPoint, a3 as addRoundedRectPath, b0 as toTRBL, b1 as toTRBLCorners, k as _boundSegment, ar as getRtlAdapter, aG as overrideTextDirection, aM as restoreTextDirection, ag as drawPointLegend, a0 as _textX, aF as noop, ae as distanceBetweenPoints, X as _setMinAndMaxByKey, aE as niceNum, p as _decimalPlaces, a4 as almostEquals, a5 as almostWhole, b9 as Ticks, aB as log10, F as _longestText, u as _filterBetween, G as _lookup } from './chunks/helpers.dataset.js';
 import '@kurkle/color';
 
 class Animator {
@@ -962,6 +962,10 @@ class DatasetController {
             active[i].draw(ctx, area);
         }
     }
+ _isDataVisible(index) {
+        const element = this._cachedMeta.data[index];
+        return !(element && element.hidden);
+    }
  getStyle(index, active) {
         const mode = active ? 'active' : 'default';
         return index === undefined && this._cachedMeta.dataset ? this.resolveDatasetElementOptions(mode) : this.resolveDataElementOptions(index || 0, mode);
@@ -1085,6 +1089,16 @@ class DatasetController {
         this._resolveAnimations(index, mode, active).update(element, {
             options: !active && this.getSharedOptions(options) || options
         });
+    }
+ _clearHoverStyle(element, index) {
+        element.active = false;
+        if (index >= this._cachedMeta.data.length) {
+            return;
+        }
+        const sharedOptions = this.getSharedOptions(this.getStyle(index, false));
+        if (sharedOptions) {
+            element.options = sharedOptions;
+        }
     }
     removeHoverStyle(element, datasetIndex, index) {
         this._setStyle(element, index, 'active', false);
@@ -1519,6 +1533,9 @@ class BarController extends DatasetController {
             label: '' + iScale.getLabelForValue(parsed[iScale.axis]),
             value
         };
+    }
+ _isDataVisible(index) {
+        return this.chart.getDataVisibility(index) && super._isDataVisible(index);
     }
     initialize() {
         this.enableOptionSharing = true;
@@ -2114,6 +2131,9 @@ class DoughnutController extends DatasetController {
             value
         };
     }
+ _isDataVisible(index) {
+        return this.chart.getDataVisibility(index) && super._isDataVisible(index);
+    }
     getMaxBorderWidth(arcs) {
         let max = 0;
         const chart = this.chart;
@@ -2360,6 +2380,9 @@ class PolarAreaController extends DatasetController {
             label: labels[index] || '',
             value
         };
+    }
+ _isDataVisible(index) {
+        return this.chart.getDataVisibility(index) && super._isDataVisible(index);
     }
     parseObjectData(meta, data, start, count) {
         return _parseObjectDataRadialScale.bind(this)(meta, data, start, count);
@@ -6085,18 +6108,66 @@ class Chart {
                 controller.reset();
             });
         }
+        this._deactivateHidden();
         this._updateDatasets(mode);
         this.notifyPlugins('afterUpdate', {
             mode
         });
         this._layers.sort(compare2Level('z', '_idx'));
+        this._replayActive();
+        this.render();
+    }
+ _deactivateHidden() {
+        const lastActive = this._active;
+        if (!lastActive.length) {
+            return;
+        }
+        const isShown = this._activeFilter();
+        const active = [];
+        const dropped = new Set();
+        let datasetIndex, controller;
+        for (const item of lastActive){
+            if (isShown(item)) {
+                active.push(item);
+                continue;
+            }
+            if (item.datasetIndex !== datasetIndex) {
+                datasetIndex = item.datasetIndex;
+                dropped.add(datasetIndex);
+                controller = this.data.datasets[datasetIndex] && this.getDatasetMeta(datasetIndex).controller;
+            }
+            if (controller) {
+                controller._clearHoverStyle(item.element, item.index);
+            } else {
+                item.element.active = false;
+            }
+        }
+        if (active.length === lastActive.length) {
+            return;
+        }
+        this._active = active;
+        if (this.options.hover.mode === 'dataset') {
+            this._deactivateDatasetElements(dropped, active);
+        }
+    }
+ _deactivateDatasetElements(dropped, active) {
+        for (const { datasetIndex } of active){
+            dropped.delete(datasetIndex);
+        }
+        for (const datasetIndex of dropped){
+            const meta = this.data.datasets[datasetIndex] && this.getDatasetMeta(datasetIndex);
+            if (meta && meta.dataset) {
+                meta.dataset.active = false;
+            }
+        }
+    }
+ _replayActive() {
         const { _active, _lastEvent } = this;
         if (_lastEvent) {
             this._eventHandler(_lastEvent, true);
         } else if (_active.length) {
             this._updateHoverStyles(_active, _active, true);
         }
-        this.render();
     }
  _updateScales() {
         each(this.scales, (scale)=>{
@@ -6500,7 +6571,7 @@ class Chart {
     }
  setActiveElements(activeElements) {
         const lastActive = this._active || [];
-        const active = activeElements.map(({ datasetIndex, index })=>{
+        const active = this._filterActive(activeElements.map(({ datasetIndex, index })=>{
             const meta = this.getDatasetMeta(datasetIndex);
             if (!meta) {
                 throw new Error('No dataset found at index ' + datasetIndex);
@@ -6510,7 +6581,7 @@ class Chart {
                 element: meta.data[index],
                 index
             };
-        }).filter(({ element })=>element);
+        }).filter(({ element })=>element));
         const changed = !_elementsEqual(active, lastActive);
         if (changed) {
             this._active = active;
@@ -6536,6 +6607,19 @@ class Chart {
             this.updateHoverStyle(activated, hoverOptions.mode, true);
         }
     }
+ _activeFilter() {
+        let datasetIndex, controller;
+        return (item)=>{
+            if (item.datasetIndex !== datasetIndex) {
+                datasetIndex = item.datasetIndex;
+                controller = this.isDatasetVisible(datasetIndex) && this.getDatasetMeta(datasetIndex).controller;
+            }
+            return !!controller && controller._isDataVisible(item.index);
+        };
+    }
+ _filterActive(items) {
+        return items.length ? items.filter(this._activeFilter()) : items;
+    }
  _eventHandler(e, replay) {
         const args = {
             event: e,
@@ -6558,7 +6642,8 @@ class Chart {
  _handleEvent(e, replay, inChartArea) {
         const { _active: lastActive = [], options } = this;
         const useFinalPosition = replay;
-        const active = this._getActiveElements(e, lastActive, inChartArea, useFinalPosition);
+        let active = this._filterActive(this._getActiveElements(e, lastActive, inChartArea, useFinalPosition));
+        let previous = lastActive;
         const isClick = _isClickEvent(e, options.events);
         const lastEvent = determineLastEvent(e, this._lastEvent, inChartArea, isClick);
         if (inChartArea) {
@@ -6575,11 +6660,13 @@ class Chart {
                     this
                 ], this);
             }
+            active = this._filterActive(active);
+            previous = this._active;
         }
-        const changed = !_elementsEqual(active, lastActive);
+        const changed = !_elementsEqual(active, previous);
         if (changed || replay) {
             this._active = active;
-            this._updateHoverStyles(active, lastActive, replay);
+            this._updateHoverStyles(active, previous, replay);
         }
         this._lastEvent = lastEvent;
         return changed;
@@ -10374,7 +10461,11 @@ class CategoryScale extends Scale {
     }
 }
 
-function generateTicks$1(generationOptions, dataRange) {
+function isWholeStepCount(lo, hi, step) {
+    const epsilon = Math.max((Math.abs(hi) + Math.abs(lo)) / step * 2 * Number.EPSILON, 1e-14);
+    return almostWhole((hi - lo) / step, epsilon);
+}
+ function generateTicks$1(generationOptions, dataRange) {
     const ticks = [];
     const MIN_SPACING = 1e-14;
     const { bounds, step, min, max, precision, count, maxTicks, maxDigits, includeBounds } = generationOptions;
@@ -10413,7 +10504,7 @@ function generateTicks$1(generationOptions, dataRange) {
         niceMin = rmin;
         niceMax = rmax;
     }
-    if (minDefined && maxDefined && step && almostWhole((max - min) / step, spacing / 1000)) {
+    if (minDefined && maxDefined && step && isWholeStepCount(min, max, step)) {
         numSpaces = Math.round(Math.min((max - min) / spacing, maxTicks));
         spacing = (max - min) / numSpaces;
         niceMin = min;
@@ -10425,7 +10516,7 @@ function generateTicks$1(generationOptions, dataRange) {
         spacing = (niceMax - niceMin) / numSpaces;
     } else {
         numSpaces = (niceMax - niceMin) / spacing;
-        if (almostEquals(numSpaces, Math.round(numSpaces), spacing / 1000)) {
+        if (isWholeStepCount(niceMin, niceMax, spacing)) {
             numSpaces = Math.round(numSpaces);
         } else {
             numSpaces = Math.ceil(numSpaces);
