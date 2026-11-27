@@ -10524,8 +10524,8 @@ function isWholeStepCount(lo, hi, step) {
     }
     if (bounds === 'ticks') {
         const spacingFactor = Math.pow(10, _decimalPlaces(spacing));
-        niceMin = Math.round(Math.floor(rmin / spacing) * spacing * spacingFactor) / spacingFactor;
-        niceMax = Math.round(Math.ceil(rmax / spacing) * spacing * spacingFactor) / spacingFactor;
+        niceMin = finiteOrDefault(Math.round(Math.floor(rmin / spacing) * spacing * spacingFactor) / spacingFactor, rmin);
+        niceMax = finiteOrDefault(Math.round(Math.ceil(rmax / spacing) * spacing * spacingFactor) / spacingFactor, rmax);
     } else {
         niceMin = rmin;
         niceMax = rmax;
@@ -10548,8 +10548,28 @@ function isWholeStepCount(lo, hi, step) {
             numSpaces = Math.ceil(numSpaces);
         }
     }
+    if (!isNumberFinite(numSpaces) || !isNumberFinite(spacing)) {
+        return [
+            {
+                value: niceMin
+            },
+            {
+                value: niceMax
+            }
+        ];
+    }
     const decimalPlaces = Math.max(_decimalPlaces(spacing), _decimalPlaces(niceMin));
     factor = Math.pow(10, isNullOrUndef(precision) ? decimalPlaces : precision);
+    if (!isNumberFinite(Math.max(Math.abs(niceMin), Math.abs(niceMax)) * factor)) {
+        return [
+            {
+                value: niceMin
+            },
+            {
+                value: niceMax
+            }
+        ];
+    }
     niceMin = Math.round(niceMin * factor) / factor;
     niceMax = Math.round(niceMax * factor) / factor;
     let j = 0;
@@ -10613,7 +10633,7 @@ class LinearScaleBase extends Scale {
         if (isNullOrUndef(raw)) {
             return null;
         }
-        if ((typeof raw === 'number' || raw instanceof Number) && !isFinite(+raw)) {
+        if ((typeof raw === 'number' || raw instanceof Number) && !isNumberFinite(+raw)) {
             return null;
         }
         return +raw;
