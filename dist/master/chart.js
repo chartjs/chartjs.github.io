@@ -9789,7 +9789,22 @@ class Tooltip extends Element {
         const active = this._active;
         let properties;
         let tooltipItems = [];
-        if (!active.length) {
+        if (active.length) {
+            tooltipItems = this._createItems(options);
+        }
+        if (!tooltipItems.length) {
+            if (active.length) {
+                this.title = [];
+                this.beforeBody = [];
+                this.body = [];
+                this.afterBody = [];
+                this.footer = [];
+                const position = positioners[options.position].call(this, active, this._eventPosition);
+                if (position !== false) {
+                    this.caretX = position.x;
+                    this.caretY = position.y;
+                }
+            }
             if (this.opacity !== 0) {
                 properties = {
                     opacity: 0
@@ -9797,7 +9812,6 @@ class Tooltip extends Element {
             }
         } else {
             const position = positioners[options.position].call(this, active, this._eventPosition);
-            tooltipItems = this._createItems(options);
             this.title = this.getTitle(tooltipItems, options);
             this.beforeBody = this.getBeforeBody(tooltipItems, options);
             this.body = this.getBody(tooltipItems, options);
