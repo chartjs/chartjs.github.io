@@ -149,7 +149,7 @@ const interpolators = {
     boolean (from, to, factor) {
         return factor > 0.5 ? to : from;
     },
- color (from, to, factor) {
+    color (from, to, factor) {
         const c0 = color(from || transparent);
         const c1 = c0.valid && color(to || transparent);
         return c1 && c1.valid ? c1.mix(c0, factor).hexString() : to;
@@ -249,7 +249,7 @@ class Animation {
             });
         });
     }
-    _notify(resolved) {
+     _notify(resolved) {
         const method = resolved ? 'res' : 'rej';
         const promises = this._promises || [];
         for(let i = 0; i < promises.length; i++){
