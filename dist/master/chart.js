@@ -3263,17 +3263,53 @@ var layouts = {
     }
 };
 
-class BasePlatform {
- acquireContext(canvas, aspectRatio) {}
- releaseContext(context) {
+/**
+ * Abstract class that allows abstracting platform dependencies away from the chart.
+ */ class BasePlatform {
+    /**
+	 * Called at chart construction time, returns a context2d instance implementing
+	 * the [W3C Canvas 2D Context API standard]{@link https://www.w3.org/TR/2dcontext/}.
+	 * @param canvas - The canvas from which to acquire context (platform specific)
+	 * @param aspectRatio - The chart options
+	 */ acquireContext(_canvas, _aspectRatio) {
+        return undefined;
+    }
+    /**
+	 * Called at chart destruction time, releases any resources associated to the context
+	 * previously returned by the acquireContext() method.
+	 * @param context - The context2d instance
+	 * @returns true if the method succeeded, else false
+	 */ releaseContext(_context) {
         return false;
     }
- addEventListener(chart, type, listener) {}
- removeEventListener(chart, type, listener) {}
- getDevicePixelRatio() {
+    /**
+	 * Registers the specified listener on the given chart.
+	 * @param chart - Chart from which to listen for event
+	 * @param type - The ({@link ChartEvent}) type to listen for
+	 * @param listener - Receives a notification (an object that implements
+	 * the {@link ChartEvent} interface) when an event of the specified type occurs.
+	 */ // The listeners take different arguments per event type, so `Function` is kept from the JSDoc.
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    addEventListener(_chart, _type, _listener) {}
+    /**
+	 * Removes the specified listener previously registered with addEventListener.
+	 * @param chart - Chart from which to remove the listener
+	 * @param type - The ({@link ChartEvent}) type to remove
+	 * @param listener - The listener function to remove from the event target.
+	 */ // eslint-disable-next-line @typescript-eslint/ban-types
+    removeEventListener(_chart, _type, _listener) {}
+    /**
+	 * @returns the current devicePixelRatio of the device this platform is connected to.
+	 */ getDevicePixelRatio() {
         return 1;
     }
- getMaximumSize(element, width, height, aspectRatio) {
+    /**
+	 * Returns the maximum size in pixels of given canvas element.
+	 * @param element
+	 * @param width - content width of parent element
+	 * @param height - content height of parent element
+	 * @param aspectRatio - aspect ratio to maintain
+	 */ getMaximumSize(element, width, height, aspectRatio) {
         width = Math.max(0, width || element.width);
         height = height || element.height;
         return {
@@ -3281,10 +3317,17 @@ class BasePlatform {
             height: Math.max(0, aspectRatio ? Math.floor(width / aspectRatio) : height)
         };
     }
- isAttached(canvas) {
+    /**
+	 * @param canvas
+	 * @returns true if the canvas is attached to the platform, false if not.
+	 */ isAttached(_canvas) {
         return true;
     }
- updateConfig(config) {
+    /**
+   * Updates config with platform specific requirements
+   * @param config
+   */ updateConfig(_config) {
+    // no-op
     }
 }
 
