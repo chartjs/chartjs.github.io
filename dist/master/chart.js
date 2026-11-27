@@ -4,7 +4,7 @@
  * (c) 2026 Chart.js Contributors
  * Released under the MIT License
  */
-import { aI as requestAnimFrame, aJ as resolve, ah as effects, a9 as color, ax as isObject, b5 as defaults, as as isArray, b4 as valueOrDefault, b3 as unlistenArrayEvents, az as listenArrayEvents, aK as resolveObjectKey, at as isNumberFinite, ac as defined, aO as sign, aa as createContext, av as isNullOrUndef, g as _arrayUnique, a_ as toRadians, T as TAU, aZ as toPercentage, aU as toDimension, ak as formatNumber, e as _angleBetween, H as HALF_PI, P as PI, w as _getStartAndCountOfVisiblePoints, V as _scaleRangesChanged, aw as isNumber, N as _parseObjectDataRadialScale, ap as getRelativePosition, U as _rlookupByKey, G as _lookupByKey, B as _isPointInArea, al as getAngleFromPoint, aY as toPadding, ag as each, ao as getMaximumSize, v as _getParentNode, aG as readUsedSize, aS as throttled, aR as supportsEventListenerOptions, A as _isDomSupported, t as _factorize, ai as finiteOrDefault, a5 as callback, _ as _addGrace, D as _limitValue, aT as toDegrees, J as _measureText, x as _int16Range, c as _alignPixel, a7 as clipArea, aH as renderText, b2 as unclipArea, aV as toFont, d as _alignStartEnd, a0 as _toLeftRightCenter, b6 as overrides, aB as merge, m as _capitalize, b7 as descriptors, au as isFunction, h as _attachContext, o as _createResolver, r as _descriptors, aC as mergeIf, C as _isRadialScale, b1 as uid, ab as debounce, aM as retinaScale, a6 as clearCanvas, aN as setsEqual, am as getDatasetClipArea, s as _elementsEqual, z as _isClickEvent, y as _isBetween, M as _normalizeAngle, S as _readValueToProps, a1 as _updateBezierControlPoints, n as _computeSegments, l as _boundSegments, Y as _steppedInterpolation, j as _bezierInterpolation, O as _pointInLine, Z as _steppedLineTo, i as _bezierCurveTo, ae as drawPoint, a2 as addRoundedRectPath, a$ as toTRBL, b0 as toTRBLCorners, k as _boundSegment, aq as getRtlAdapter, aF as overrideTextDirection, $ as _textX, aL as restoreTextDirection, af as drawPointLegend, aE as noop, ad as distanceBetweenPoints, W as _setMinAndMaxByKey, aD as niceNum, p as _decimalPlaces, a4 as almostWhole, a3 as almostEquals, b8 as Ticks, aA as log10, E as _longestText, u as _filterBetween, F as _lookup } from './chunks/helpers.dataset.js';
+import { aI as requestAnimFrame, aJ as resolve, ah as effects, a9 as color, ax as isObject, b5 as defaults, as as isArray, r as _descriptors, au as isFunction, b4 as valueOrDefault, b3 as unlistenArrayEvents, az as listenArrayEvents, aK as resolveObjectKey, at as isNumberFinite, ac as defined, aO as sign, aa as createContext, av as isNullOrUndef, g as _arrayUnique, a_ as toRadians, T as TAU, aZ as toPercentage, aU as toDimension, ak as formatNumber, e as _angleBetween, H as HALF_PI, P as PI, w as _getStartAndCountOfVisiblePoints, V as _scaleRangesChanged, aw as isNumber, N as _parseObjectDataRadialScale, ap as getRelativePosition, U as _rlookupByKey, G as _lookupByKey, B as _isPointInArea, al as getAngleFromPoint, aY as toPadding, ag as each, ao as getMaximumSize, v as _getParentNode, aG as readUsedSize, aS as throttled, aR as supportsEventListenerOptions, A as _isDomSupported, t as _factorize, ai as finiteOrDefault, a5 as callback, _ as _addGrace, D as _limitValue, aT as toDegrees, J as _measureText, x as _int16Range, c as _alignPixel, a7 as clipArea, aH as renderText, b2 as unclipArea, aV as toFont, d as _alignStartEnd, a0 as _toLeftRightCenter, b6 as overrides, aB as merge, m as _capitalize, b7 as descriptors, h as _attachContext, o as _createResolver, aC as mergeIf, C as _isRadialScale, b1 as uid, ab as debounce, aM as retinaScale, a6 as clearCanvas, aN as setsEqual, am as getDatasetClipArea, s as _elementsEqual, z as _isClickEvent, y as _isBetween, M as _normalizeAngle, S as _readValueToProps, a1 as _updateBezierControlPoints, n as _computeSegments, l as _boundSegments, Y as _steppedInterpolation, j as _bezierInterpolation, O as _pointInLine, Z as _steppedLineTo, i as _bezierCurveTo, ae as drawPoint, a2 as addRoundedRectPath, a$ as toTRBL, b0 as toTRBLCorners, k as _boundSegment, aq as getRtlAdapter, aF as overrideTextDirection, $ as _textX, aL as restoreTextDirection, af as drawPointLegend, aE as noop, ad as distanceBetweenPoints, W as _setMinAndMaxByKey, aD as niceNum, p as _decimalPlaces, a4 as almostWhole, a3 as almostEquals, b8 as Ticks, aA as log10, E as _longestText, u as _filterBetween, F as _lookup } from './chunks/helpers.dataset.js';
 import '@kurkle/color';
 
 class Animator {
@@ -350,6 +350,40 @@ class Animations {
             return true;
         }
     }
+}
+ function readsContext(descriptors, prop, value) {
+    return descriptors.isScriptable(prop) && isFunction(value) || descriptors.isIndexable(prop) && isArray(value);
+}
+ function _animationsNeedContext(resolver) {
+    const descriptors = _descriptors(resolver);
+    const config = resolver.animations;
+    if (readsContext(descriptors, 'animations', config)) {
+        return true;
+    }
+    if (!isObject(config)) {
+        return false;
+    }
+    const configDescriptors = _descriptors( config, descriptors);
+    const options = [
+        ...Object.keys(defaults.animation),
+        'properties'
+    ];
+    for (const key of Object.getOwnPropertyNames(config)){
+        const cfg = config[key];
+        if (readsContext(configDescriptors, key, cfg)) {
+            return true;
+        }
+        if (!isObject(cfg)) {
+            continue;
+        }
+        const cfgDescriptors = _descriptors( cfg, configDescriptors);
+        for (const option of options){
+            if (readsContext(cfgDescriptors, option, cfg[option])) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 function awaitAll(animations, properties) {
     const running = [];
@@ -995,14 +1029,20 @@ class DatasetController {
             return cached;
         }
         let options;
+        let cacheable = true;
         if (chart.options.animation !== false) {
             const config = this.chart.config;
             const scopeKeys = config.datasetAnimationScopeKeys(this._type, transition);
             const scopes = config.getOptionScopes(this.getDataset(), scopeKeys);
-            options = config.createResolver(scopes, this.getContext(index, active, transition));
+            options = config.createResolver(scopes);
+            if (cached === false || _animationsNeedContext(options)) {
+                cacheable = false;
+                cache[cacheKey] = false;
+                options = config.createResolver(scopes, this.getContext(index, active, transition));
+            }
         }
         const animations = new Animations(chart, options && options.animations);
-        if (options && options._cacheable) {
+        if (cacheable) {
             cache[cacheKey] = Object.freeze(animations);
         }
         return animations;
@@ -4994,10 +5034,10 @@ class TypedRegistry {
         }
         return scope;
     }
- get(id) {
+    get(id) {
         return this.items[id];
     }
- unregister(item) {
+    unregister(item) {
         const items = this.items;
         const id = item.id;
         const scope = this.scope;
@@ -5055,46 +5095,46 @@ class Registry {
             this.elements
         ];
     }
- add(...args) {
+    add(...args) {
         this._each('register', args);
     }
     remove(...args) {
         this._each('unregister', args);
     }
- addControllers(...args) {
+    addControllers(...args) {
         this._each('register', args, this.controllers);
     }
- addElements(...args) {
+    addElements(...args) {
         this._each('register', args, this.elements);
     }
- addPlugins(...args) {
+    addPlugins(...args) {
         this._each('register', args, this.plugins);
     }
- addScales(...args) {
+    addScales(...args) {
         this._each('register', args, this.scales);
     }
- getController(id) {
+    getController(id) {
         return this._get(id, this.controllers, 'controller');
     }
- getElement(id) {
+    getElement(id) {
         return this._get(id, this.elements, 'element');
     }
- getPlugin(id) {
+    getPlugin(id) {
         return this._get(id, this.plugins, 'plugin');
     }
- getScale(id) {
+    getScale(id) {
         return this._get(id, this.scales, 'scale');
     }
- removeControllers(...args) {
+    removeControllers(...args) {
         this._each('unregister', args, this.controllers);
     }
- removeElements(...args) {
+    removeElements(...args) {
         this._each('unregister', args, this.elements);
     }
- removePlugins(...args) {
+    removePlugins(...args) {
         this._each('unregister', args, this.plugins);
     }
- removeScales(...args) {
+    removeScales(...args) {
         this._each('unregister', args, this.scales);
     }
  _each(method, args, typedRegistry) {
@@ -5147,7 +5187,7 @@ class PluginService {
             this._notify(this._init, chart, 'install');
         }
         if (this._init === undefined) {
-            return;
+            return undefined;
         }
         const descriptors = filter ? this._descriptors(chart).filter(filter) : this._descriptors(chart);
         const result = this._notify(descriptors, chart, hook, args);
@@ -5202,7 +5242,7 @@ class PluginService {
         this._notify(diff(descriptors, previousDescriptors), chart, 'start');
     }
 }
- function allPlugins(config) {
+function allPlugins(config) {
     const localIds = {};
     const plugins = [];
     const keys = Object.keys(registry.plugins.items);
@@ -5303,7 +5343,7 @@ function axisFromPosition(position) {
     return axis === 'r' === _isRadialScale(scaleClass.prototype) ? axis : undefined;
 }
  function axisFromType(id, type) {
-    const scaleClass = registry.scales.get(type);
+    const scaleClass =  registry.scales.get(type);
     const typeDefaults = defaults.scales[type] || {};
     return axisFromFirstLetter(id, scaleClass) || typeDefaults.axis || axisFromPosition(typeDefaults.position) || (scaleClass && _isRadialScale(scaleClass.prototype) ? 'r' : undefined);
 }
