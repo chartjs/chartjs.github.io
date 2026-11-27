@@ -1624,7 +1624,11 @@ class BarController extends DatasetController {
     _getAxis() {
         const axis = {};
         const firstScaleAxisId = this.getFirstScaleIdForIndexAxis();
+        const chartType = this.chart.config.type;
         for (const dataset of this.chart.data.datasets){
+            if ((dataset.type || chartType) !== this._type) {
+                continue;
+            }
             axis[valueOrDefault(this.chart.options.indexAxis === 'x' ? dataset.xAxisID : dataset.yAxisID, firstScaleAxisId)] = true;
         }
         return Object.keys(axis);
