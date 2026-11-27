@@ -6963,20 +6963,12 @@ function pathVars(points, segment, params = {}) {
     let avgX = 0;
     let countX = 0;
     let i, point, prevX, minY, maxY, lastY;
-    const pointIndex = (index)=>(start + (reverse ? ilen - index : index)) % count;
-    const drawX = ()=>{
-        if (minY !== maxY) {
-            ctx.lineTo(avgX, maxY);
-            ctx.lineTo(avgX, minY);
-            ctx.lineTo(avgX, lastY);
-        }
-    };
     if (move) {
-        point = points[pointIndex(0)];
+        point = points[(start + (reverse ? ilen : 0)) % count];
         ctx.moveTo(point.x, point.y);
     }
     for(i = 0; i <= ilen; ++i){
-        point = points[pointIndex(i)];
+        point = points[(start + (reverse ? ilen - i : i)) % count];
         if (point.skip) {
             continue;
         }
@@ -6991,7 +6983,7 @@ function pathVars(points, segment, params = {}) {
             }
             avgX = (countX * avgX + x) / ++countX;
         } else {
-            drawX();
+            drawGroup(ctx, avgX, minY, maxY, lastY);
             ctx.lineTo(x, y);
             prevX = truncX;
             countX = 0;
@@ -6999,7 +6991,14 @@ function pathVars(points, segment, params = {}) {
         }
         lastY = y;
     }
-    drawX();
+    drawGroup(ctx, avgX, minY, maxY, lastY);
+}
+ function drawGroup(ctx, avgX, minY, maxY, lastY) {
+    if (minY !== maxY) {
+        ctx.lineTo(avgX, maxY);
+        ctx.lineTo(avgX, minY);
+        ctx.lineTo(avgX, lastY);
+    }
 }
  function _getSegmentMethod(line) {
     const opts = line.options;
