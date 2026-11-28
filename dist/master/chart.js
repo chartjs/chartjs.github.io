@@ -3660,7 +3660,7 @@ class Element {
 
 function autoSkip(scale, ticks) {
     const tickOpts = scale.options.ticks;
-    const determinedMaxTicks = determineMaxTicks(scale);
+    const determinedMaxTicks = determineMaxTicks(scale, ticks);
     const ticksLimit = Math.min(tickOpts.maxTicksLimit || determinedMaxTicks, determinedMaxTicks);
     const majorIndices = tickOpts.major.enabled ? getMajorIndices(ticks) : [];
     const numMajorIndices = majorIndices.length;
@@ -3707,12 +3707,26 @@ function autoSkip(scale, ticks) {
     const last = ticks[ticks.length - 1].value;
     return typeof first === 'number' && typeof last === 'number' && first > last;
 }
-function determineMaxTicks(scale) {
+ function determineMaxTicks(scale, ticks) {
     const offset = scale.options.offset;
     const tickLength = scale._tickSize();
     const maxScale = scale._length / tickLength + (offset ? 0 : 1);
     const maxChart = scale._maxLength / tickLength;
-    return Math.floor(Math.min(maxScale, maxChart));
+    const maxTicks = Math.floor(Math.min(maxScale, maxChart));
+    const fromValues = countFromValues(scale, ticks, tickLength);
+    return Number.isFinite(fromValues) ? Math.min(maxTicks, fromValues) : maxTicks;
+}
+ function countFromValues(scale, ticks, tickLength) {
+    if (!ticks.length) {
+        return NaN;
+    }
+    const first = toAxis(scale, ticks[0].value);
+    const last = toAxis(scale, ticks[ticks.length - 1].value);
+    const room = Math.abs(last - first) / scale._valueRange * scale._length / tickLength;
+    return Math.floor(room * (1 + 1e-9)) + 1;
+}
+ function toAxis(scale, value) {
+    return scale._valueToAxis ? scale._valueToAxis(value) : +value;
 }
  function calculateSpacing(majorIndices, ticks, ticksLimit) {
     const evenMajorSpacing = getEvenSpacing(majorIndices);
@@ -10936,6 +10950,9 @@ class LogarithmicScale extends Scale {
         super.configure();
         this._startValue = log10(start);
         this._valueRange = log10(this.max) - log10(start);
+    }
+ _valueToAxis(value) {
+        return log10(value);
     }
     getPixelForValue(value) {
         if (value === undefined || value === 0) {
