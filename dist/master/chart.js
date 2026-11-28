@@ -1266,6 +1266,18 @@ function getAllScaleValues(scale, type) {
     }
     return scale._cache.$bar;
 }
+ function getGroupedMetas(chart, iScale, type, hasBar) {
+    const axisID = iScale.axis + 'AxisID';
+    const metasets = chart._getSortedDatasetMetas().filter((meta)=>meta[axisID] === iScale.id && meta.type === type && meta.controller.options.grouped);
+    if (iScale.options.stacked === false) {
+        return metasets.filter((meta)=>meta.visible);
+    }
+    if (metasets.every((meta)=>meta.visible)) {
+        return metasets;
+    }
+    const visibleStacks = new Set(metasets.filter((meta)=>meta.visible && hasBar(meta)).map((meta)=>meta.stack));
+    return metasets.filter((meta)=>meta.visible || meta.stack !== undefined && visibleStacks.has(meta.stack));
+}
  function computeMinSampleSize(meta) {
     const scale = meta.iScale;
     const values = getAllScaleValues(scale, meta.type);
@@ -1582,7 +1594,6 @@ class BarController extends DatasetController {
     }
  _getStacks(last, dataIndex) {
         const { iScale } = this._cachedMeta;
-        const metasets = iScale.getMatchingVisibleMetas(this._type).filter((meta)=>meta.controller.options.grouped);
         const stacked = iScale.options.stacked;
         const stacks = [];
         const currentParsed = this._cachedMeta.controller.getParsed(dataIndex);
@@ -1594,6 +1605,7 @@ class BarController extends DatasetController {
                 return true;
             }
         };
+        const metasets = getGroupedMetas(this.chart, iScale, this._type, (meta)=>dataIndex === undefined || !skipNull(meta));
         for (const meta of metasets){
             if (dataIndex !== undefined && skipNull(meta)) {
                 continue;
